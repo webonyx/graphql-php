@@ -1,0 +1,32 @@
+{
+  "name":              "webonyx/graphql-php",
+  "description":       "A PHP port of GraphQL reference implementation (https://github.com/graphql/graphql-js, ref: 099eeb7b5a49a16fa3d55353b9774291881e959c)",
+  "type":              "library",
+  "license":           "BSD",
+  "homepage":          "https://github.com/webonyx/graphql-php",
+  "keywords":          [
+    "graphql",
+    "API"
+  ],
+  "require": {
+    "php": ">=5.4,<8.0-DEV"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "4.7.6"
+  },
+  "config": {
+    "bin-dir": "bin"
+  },
+  "autoload": {
+    "classmap": [
+      "src/"
+    ]
+  },
+  "autoload-dev": {
+    "classmap": [
+      "tests/"
+    ],
+    "files": [
+    ]
+  }
+}

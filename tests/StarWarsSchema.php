@@ -1,0 +1,266 @@
+<?php
+namespace GraphQL;
+
+/**
+ * This is designed to be an end-to-end test, demonstrating
+ * the full GraphQL stack.
+ *
+ * We will create a GraphQL schema that describes the major
+ * characters in the original Star Wars trilogy.
+ *
+ * NOTE: This may contain spoilers for the original Star
+ * Wars trilogy.
+ */
+use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
+
+/**
+ * Using our shorthand to describe type systems, the type system for our
+ * Star Wars example is:
+ *
+ * enum Episode { NEWHOPE, EMPIRE, JEDI }
+ *
+ * interface Character {
+ *   id: String!
+ *   name: String
+ *   friends: [Character]
+ *   appearsIn: [Episode]
+ * }
+ *
+ * type Human : Character {
+ *   id: String!
+ *   name: String
+ *   friends: [Character]
+ *   appearsIn: [Episode]
+ *   homePlanet: String
+ * }
+ *
+ * type Droid : Character {
+ *   id: String!
+ *   name: String
+ *   friends: [Character]
+ *   appearsIn: [Episode]
+ *   primaryFunction: String
+ * }
+ *
+ * type Query {
+ *   hero: Character
+ *   human(id: String!): Human
+ *   droid(id: String!): Droid
+ * }
+ *
+ * We begin by setting up our schema.
+ */
+
+class StarWarsSchema
+{
+    public static function build()
+    {
+        /**
+         * The original trilogy consists of three movies.
+         *
+         * This implements the following type system shorthand:
+         *   enum Episode { NEWHOPE, EMPIRE, JEDI }
+         */
+        $episodeEnum = new EnumType([
+            'name' => 'Episode',
+            'description' => 'One of the films in the Star Wars Trilogy',
+            'values' => [
+                'NEWHOPE' => [
+                    'value' => 4,
+                    'description' => 'Released in 1977.'
+                ],
+                'EMPIRE' => [
+                    'value' => 5,
+                    'description' => 'Released in 1980.'
+                ],
+                'JEDI' => [
+                    'value' => 6,
+                    'description' => 'Released in 1983.'
+                ],
+            ]
+        ]);
+
+        $humanType = null;
+        $droidType = null;
+
+        /**
+         * Characters in the Star Wars trilogy are either humans or droids.
+         *
+         * This implements the following type system shorthand:
+         *   interface Character {
+         *     id: String!
+         *     name: String
+         *     friends: [Character]
+         *     appearsIn: [Episode]
+         *   }
+         */
+        $characterInterface = new InterfaceType([
+            'name' => 'Character',
+            'description' => 'A character in the Star Wars Trilogy',
+            'fields' => [
+                'id' => [
+                    'type' => Type::nonNull(Type::string()),
+                    'description' => 'The id of the character.',
+                ],
+                'name' => [
+                    'type' => Type::string(),
+                    'description' => 'The name of the character.'
+                ],
+                'friends' => [
+                    'type' => function () use (&$characterInterface) {
+                        return Type::listOf($characterInterface);
+                    },
+                    'description' => 'The friends of the character, or an empty list if they have none.',
+                ],
+                'appearsIn' => [
+                    'type' => Type::listOf($episodeEnum),
+                    'description' => 'Which movies they appear in.'
+                ]
+            ],
+            'resolveType' => function ($obj) use (&$humanType, &$droidType) {
+                $humans = StarWarsData::humans();
+                $droids = StarWarsData::droids();
+                if (isset($humans[$obj['id']])) {
+                    return $humanType;
+                }
+                if (isset($droids[$obj['id']])) {
+                    return $droidType;
+                }
+                return null;
+            },
+        ]);
+
+        /**
+         * We define our human type, which implements the character interface.
+         *
+         * This implements the following type system shorthand:
+         *   type Human : Character {
+         *     id: String!
+         *     name: String
+         *     friends: [Character]
+         *     appearsIn: [Episode]
+         *   }
+         */
+        $humanType = new ObjectType([
+            'name' => 'Human',
+            'description' => 'A humanoid creature in the Star Wars universe.',
+            'fields' => [
+                'id' => [
+                    'type' => new NonNull(Type::string()),
+                    'description' => 'The id of the human.',
+                ],
+                'name' => [
+                    'type' => Type::string(),
+                    'description' => 'The name of the human.',
+                ],
+                'friends' => [
+                    'type' => Type::listOf($characterInterface),
+                    'description' => 'The friends of the human, or an empty list if they have none.',
+                    'resolve' => function ($human) {
+                        return StarWarsData::getFriends($human);
+                    },
+                ],
+                'appearsIn' => [
+                    'type' => Type::listOf($episodeEnum),
+                    'description' => 'Which movies they appear in.'
+                ],
+                'homePlanet' => [
+                    'type' => Type::string(),
+                    'description' => 'The home planet of the human, or null if unknown.'
+                ],
+            ],
+            'interfaces' => [$characterInterface]
+        ]);
+
+        /**
+         * The other type of character in Star Wars is a droid.
+         *
+         * This implements the following type system shorthand:
+         *   type Droid : Character {
+         *     id: String!
+         *     name: String
+         *     friends: [Character]
+         *     appearsIn: [Episode]
+         *     primaryFunction: String
+         *   }
+         */
+        $droidType = new ObjectType([
+            'name' => 'Droid',
+            'description' => 'A mechanical creature in the Star Wars universe.',
+            'fields' => [
+                'id' => [
+                    'type' => Type::nonNull(Type::string()),
+                    'description' => 'The id of the droid.',
+                ],
+                'name' => [
+                    'type' => Type::string(),
+                    'description' => 'The name of the droid.'
+                ],
+                'friends' => [
+                    'type' => Type::listOf($characterInterface),
+                    'description' => 'The friends of the droid, or an empty list if they have none.',
+                    'resolve' => function ($droid) {
+                        return StarWarsData::getFriends($droid);
+                    },
+                ],
+                'appearsIn' => [
+                    'type' => Type::listOf($episodeEnum),
+                    'description' => 'Which movies they appear in.'
+                ],
+                'primaryFunction' => [
+                    'type' => Type::string(),
+                    'description' => 'The primary function of the droid.'
+                ]
+            ],
+            'interfaces' => [$characterInterface]
+        ]);
+
+        /**
+         * This is the type that will be the root of our query, and the
+         * entry point into our schema. It gives us the ability to fetch
+         * objects by their IDs, as well as to fetch the undisputed hero
+         * of the Star Wars trilogy, R2-D2, directly.
+         *
+         * This implements the following type system shorthand:
+         *   type Query {
+         *     hero: Character
+         *     human(id: String!): Human
+         *     droid(id: String!): Droid
+         *   }
+         *
+         */
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'hero' => [
+                    'type' => $characterInterface,
+                    'resolve' => function () {
+                        return StarWarsData::artoo();
+                    },
+                ],
+                'human' => [
+                    'type' => $humanType,
+                    'args' => ['id' => ['name' => 'id', 'type' => Type::nonNull(Type::string())]],
+                    'resolve' => function ($root, $args) {
+                        $humans = StarWarsData::humans();
+                        return isset($humans[$args['id']]) ? $humans[$args['id']] : null;
+                    }
+                ],
+                'droid' => [
+                    'type' => $droidType,
+                    'args' => ['id' => ['name' => 'id', 'type' => Type::nonNull(Type::string())]],
+                    'resolve' => function ($root, $args) {
+                        $droids = StarWarsData::droids();
+                        return isset($droids[$args['id']]) ? $droids[$args['id']] : null;
+                    }
+                ]
+            ]
+        ]);
+
+        return new Schema($queryType);
+    }
+}
