@@ -258,7 +258,11 @@ class TypeInfo
                 array_pop($this->_typeStack);
                 break;
             case Node::VARIABLE_DEFINITION:
+                array_pop($this->_inputTypeStack);
+                break;
             case Node::ARGUMENT:
+                array_pop($this->_inputTypeStack);
+                break;
             case Node::DIRECTIVE:
             case Node::ARR:
             case Node::OBJECT_FIELD:
