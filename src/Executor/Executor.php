@@ -430,7 +430,7 @@ class Executor
         if ($fieldType instanceof ListOfType) {
             $itemType = $fieldType->getWrappedType();
             Utils::invariant(
-                is_array($result) || $result instanceof \ArrayAccess,
+                is_array($result) || $result instanceof \Traversable,
                 'User Error: expected iterable, but did not find one.'
             );
 
