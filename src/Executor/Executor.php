@@ -285,7 +285,7 @@ class Executor
     }
 
     /**
-     * Implements the logic to compute the key of a given field�s entry
+     * Implements the logic to compute the key of a given fields entry
      */
     private static function getFieldEntryKey(Field $node)
     {
