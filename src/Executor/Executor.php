@@ -285,7 +285,7 @@ class Executor
     }
 
     /**
-     * Implements the logic to compute the key of a given field’s entry
+     * Implements the logic to compute the key of a given fields entry
      */
     private static function getFieldEntryKey(Field $node)
     {
@@ -430,7 +430,7 @@ class Executor
         if ($fieldType instanceof ListOfType) {
             $itemType = $fieldType->getWrappedType();
             Utils::invariant(
-                is_array($result) || $result instanceof \ArrayObject,
+                is_array($result) || $result instanceof \Traversable,
                 'User Error: expected iterable, but did not find one.'
             );
 
