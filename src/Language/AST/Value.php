@@ -10,7 +10,7 @@ export type Value = Variable
                     | StringValue
                     | BooleanValue
                     | EnumValue
-                    | ArrayValue
+                    | ListValue
                     | ObjectValue
  */
 }

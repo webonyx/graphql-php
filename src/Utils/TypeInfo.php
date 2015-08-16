@@ -221,7 +221,7 @@ class TypeInfo
                 array_push($this->_inputTypeStack, $directive ? $directive->type : null);
                 break;
 
-            case Node::ARR:
+            case Node::LST:
                 $arrayType = Type::getNullableType($this->getInputType());
                 array_push(
                     $this->_inputTypeStack,
@@ -264,7 +264,7 @@ class TypeInfo
                 array_pop($this->_inputTypeStack);
                 break;
             case Node::DIRECTIVE:
-            case Node::ARR:
+            case Node::LST:
             case Node::OBJECT_FIELD:
                 array_pop($this->_inputTypeStack);
                 break;

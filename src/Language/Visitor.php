@@ -58,10 +58,11 @@ class Visitor
         Node::STRING => [],
         Node::BOOLEAN => [],
         Node::ENUM => [],
-        Node::ARR => ['values'],
+        Node::LST => ['values'],
         Node::OBJECT => ['fields'],
         Node::OBJECT_FIELD => ['name', 'value'],
-        Node::DIRECTIVE => ['name', 'value'],
+        Node::DIRECTIVE => ['name', 'arguments'],
+        Node::NAMED_TYPE => ['name'],
         Node::LIST_TYPE => ['type'],
         Node::NON_NULL_TYPE => ['type'],
     );
@@ -151,9 +152,9 @@ class Visitor
      *       }
      *     })
      */
-    public static function visit($root, $visitor)
+    public static function visit($root, $visitor, $keyMap = null)
     {
-        $visitorKeys = isset($visitor['keys']) ? $visitor['keys'] : self::$visitorKeys;
+        $visitorKeys = $keyMap ?: self::$visitorKeys;
 
         $stack = null;
         $inArray = is_array($root);

@@ -6,7 +6,7 @@ class InlineFragment extends Node
     public $kind = Node::INLINE_FRAGMENT;
 
     /**
-     * @var Name
+     * @var NamedType
      */
     public $typeCondition;
 

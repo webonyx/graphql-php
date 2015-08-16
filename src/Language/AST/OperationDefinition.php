@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class OperationDefinition extends Node implements Definition
+class OperationDefinition extends NamedType implements Definition
 {
     /**
      * @var string
@@ -12,11 +12,6 @@ class OperationDefinition extends Node implements Definition
      * @var string (oneOf 'query', 'mutation'))
      */
     public $operation;
-
-    /**
-     * @var Name|null
-     */
-    public $name;
 
     /**
      * @var array<VariableDefinition>

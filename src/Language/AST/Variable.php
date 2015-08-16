@@ -1,12 +1,7 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class Variable extends Node
+class Variable extends NamedType
 {
     public $kind = Node::VARIABLE;
-
-    /**
-     * @var Name
-     */
-    public $name;
 }

@@ -32,7 +32,7 @@ abstract class Node
     const STRING = 'StringValue';
     const BOOLEAN = 'BooleanValue';
     const ENUM = 'EnumValue';
-    const ARR = 'ArrayValue';
+    const LST = 'ListValue';
     const OBJECT = 'ObjectValue';
     const OBJECT_FIELD = 'ObjectField';
 
@@ -42,7 +42,7 @@ abstract class Node
 
     // Types
 
-    const TYPE = 'Type';
+    const NAMED_TYPE = 'NamedType';
     const LIST_TYPE = 'ListType';
     const NON_NULL_TYPE = 'NonNullType';
 
@@ -64,7 +64,7 @@ abstract class Node
     | StringValue
     | BooleanValue
     | EnumValue
-    | ArrayValue
+    | ListValue
     | ObjectValue
     | ObjectField
     | Directive

@@ -2,14 +2,9 @@
 namespace GraphQL\Language\AST;
 
 
-class ObjectField extends Node
+class ObjectField extends NamedType
 {
     public $kind = Node::OBJECT_FIELD;
-
-    /**
-     * @var Name
-     */
-    public $name;
 
     /**
      * @var Value

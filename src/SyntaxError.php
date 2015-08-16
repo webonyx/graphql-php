@@ -1,38 +1,24 @@
 <?php
-namespace GraphQL\Language;
+namespace GraphQL;
 
-class Exception extends \Exception
+use GraphQL\Language\Source;
+use GraphQL\Language\SourceLocation;
+
+class SyntaxError extends Error
 {
     /**
-     * @var Source
-     */
-    public $source;
-
-    /**
-     * @var number
-     */
-    public $position;
-
-    public $location;
-
-    /**
      * @param Source $source
-     * @param $position
-     * @param $description
-     * @return Exception
+     * @param int $position
+     * @param string $description
      */
-    public static function create(Source $source, $position, $description)
+    public function __construct(Source $source, $position, $description)
     {
         $location = $source->getLocation($position);
-        $syntaxError = new self(
+        $syntaxError =
             "Syntax Error {$source->name} ({$location->line}:{$location->column}) $description\n\n" .
-            self::highlightSourceAtLocation($source, $location)
-        );
-        $syntaxError->source = $source;
-        $syntaxError->position = $position;
-        $syntaxError->location = $location;
+            self::highlightSourceAtLocation($source, $location);
 
-        return $syntaxError;
+        parent::__construct($syntaxError, null, null, $source, [$position]);
     }
 
     public static function highlightSourceAtLocation(Source $source, SourceLocation $location)

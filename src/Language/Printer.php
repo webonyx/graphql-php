@@ -3,7 +3,7 @@ namespace GraphQL\Language;
 
 
 use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\ArrayValue;
+use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\BooleanValue;
 use GraphQL\Language\AST\Directive;
 use GraphQL\Language\AST\Document;
@@ -15,6 +15,7 @@ use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\IntValue;
 use GraphQL\Language\AST\ListType;
+use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Language\AST\ObjectField;
@@ -36,19 +37,25 @@ class Printer
                 Node::OPERATION_DEFINITION => function(OperationDefinition $node) {
                     $op = $node->operation;
                     $name = $node->name;
-                    $defs = Printer::manyList('(', $node->variableDefinitions, ', ', ')');
+                    $defs = self::wrap('(', self::join($node->variableDefinitions, ', '), ')');
                     $directives = self::join($node->directives, ' ');
                     $selectionSet = $node->selectionSet;
                     return !$name ? $selectionSet :
                         self::join([$op, self::join([$name, $defs]), $directives, $selectionSet], ' ');
                 },
                 Node::VARIABLE_DEFINITION => function(VariableDefinition $node) {
-                    return self::join([$node->variable . ': ' . $node->type, $node->defaultValue], ' = ');
+                    return $node->variable . ': ' . $node->type . self::wrap(' = ', $node->defaultValue);
                 },
                 Node::SELECTION_SET => function(SelectionSet $node) {
-                    return self::blockList($node->selections, ",\n");
+                    return self::block($node->selections);
                 },
                 Node::FIELD => function(Field $node) {
+                    return self::join([
+                        self::wrap('', $node->alias, ': ') . $node->name . self::wrap('(', self::join($node->arguments, ', '), ')'),
+                        self::join($node->directives, ' '),
+                        $node->selectionSet
+                    ], ' ');
+                    /*
                     $r11 = self::join([
                         $node->alias,
                         $node->name
@@ -66,6 +73,7 @@ class Printer
                         $r2,
                         $node->selectionSet
                     ], ' ');
+                    */
                 },
                 Node::ARGUMENT => function(Argument $node) {
                     return $node->name . ': ' . $node->value;
@@ -73,25 +81,17 @@ class Printer
 
                 // Fragments
                 Node::FRAGMENT_SPREAD => function(FragmentSpread $node) {
-                    return self::join(['...' . $node->name, self::join($node->directives, '')], ' ');
+                    return '...' . $node->name . self::wrap(' ', self::join($node->directives, ' '));
                 },
                 Node::INLINE_FRAGMENT => function(InlineFragment $node) {
-                    return self::join([
-                        '... on',
-                        $node->typeCondition,
-                        self::join($node->directives, ' '),
-                        $node->selectionSet
-                    ], ' ');
+                    return "... on {$node->typeCondition} "
+                        . self::wrap('', self::join($node->directives, ' '), ' ')
+                        . $node->selectionSet;
                 },
                 Node::FRAGMENT_DEFINITION => function(FragmentDefinition $node) {
-                    return self::join([
-                        'fragment',
-                        $node->name,
-                        'on',
-                        $node->typeCondition,
-                        self::join($node->directives, ' '),
-                        $node->selectionSet
-                    ], ' ');
+                    return "fragment {$node->name} on {$node->typeCondition} "
+                        . self::wrap('', self::join($node->directives, ' '), ' ')
+                        . $node->selectionSet;
                 },
 
                 // Value
@@ -100,23 +100,39 @@ class Printer
                 Node::STRING => function(StringValue $node) {return json_encode($node->value);},
                 Node::BOOLEAN => function(BooleanValue $node) {return $node->value ? 'true' : 'false';},
                 Node::ENUM => function(EnumValue $node) {return $node->value;},
-                Node::ARR => function(ArrayValue $node) {return '[' . self::join($node->values, ', ') . ']';},
+                Node::LST => function(ListValue $node) {return '[' . self::join($node->values, ', ') . ']';},
                 Node::OBJECT => function(ObjectValue $node) {return '{' . self::join($node->fields, ', ') . '}';},
                 Node::OBJECT_FIELD => function(ObjectField $node) {return $node->name . ': ' . $node->value;},
 
                 // Directive
-                Node::DIRECTIVE => function(Directive $node) {return self::join(['@' . $node->name, $node->value], ': ');},
+                Node::DIRECTIVE => function(Directive $node) {
+                    return '@' . $node->name . self::wrap('(', self::join($node->arguments, ', '), ')');
+                },
 
                 // Type
+                Node::NAMED_TYPE => function(NamedType $node) {return $node->name;},
                 Node::LIST_TYPE => function(ListType $node) {return '[' . $node->type . ']';},
                 Node::NON_NULL_TYPE => function(NonNullType $node) {return $node->type . '!';}
             )
         ));
     }
 
-    public static function blockList($list, $separator)
+    /**
+     * If maybeString is not null or empty, then wrap with start and end, otherwise
+     * print an empty string.
+     */
+    public static function wrap($start, $maybeString, $end = '')
     {
-        return self::length($list) === 0 ? null : self::indent("{\n" . self::join($list, $separator)) . "\n}";
+        return $maybeString ? ($start . $maybeString . $end) : '';
+    }
+
+    /**
+     * Given maybeArray, print an empty string if it is null or empty, otherwise
+     * print each item on it's own line, wrapped in an indented "{ }" block.
+     */
+    public static function block($maybeArray)
+    {
+        return self::length($maybeArray) ? self::indent("{\n" . self::join($maybeArray, ",\n")) . "\n}" : '';
     }
 
     public static function indent($maybeString)

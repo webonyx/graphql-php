@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class Field extends Node
+class Field extends NamedType
 {
     public $kind = Node::FIELD;
 
@@ -9,11 +9,6 @@ class Field extends Node
      * @var Name|null
      */
     public $alias;
-
-    /**
-     * @var Name
-     */
-    public $name;
 
     /**
      * @var array<Argument>|null

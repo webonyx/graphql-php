@@ -11,7 +11,7 @@ class Directive extends Node
     public $name;
 
     /**
-     * @var Value
+     * @var Argument[]
      */
-    public $value;
+    public $arguments;
 }

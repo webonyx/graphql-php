@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Language;
 
+use GraphQL\SyntaxError;
 use GraphQL\Utils;
 
 // language/lexer.js
@@ -37,7 +38,7 @@ class Lexer
     /**
      * @param int $fromPosition
      * @return Token
-     * @throws Exception
+     * @throws SyntaxError
      */
     private function readToken($fromPosition)
     {
@@ -106,7 +107,7 @@ class Lexer
             case 34: return $this->readString($position);
         }
 
-        throw Exception::create($this->source, $position, 'Unexpected character "' . Utils::chr($code). '"');
+        throw new SyntaxError($this->source, $position, 'Unexpected character "' . Utils::chr($code). '"');
     }
 
     /**
@@ -142,12 +143,12 @@ class Lexer
      * or an int depending on whether a decimal point appears.
      *
      * Int:   -?(0|[1-9][0-9]*)
-     * Float: -?(0|[1-9][0-9]*)\.[0-9]+(e-?[0-9]+)?
+     * Float: -?(0|[1-9][0-9]*)(\.[0-9]+)?((E|e)(+|-)?[0-9]+)?
      *
      * @param $start
      * @param $firstCode
      * @return Token
-     * @throws Exception
+     * @throws SyntaxError
      */
     private function readNumber($start, $firstCode)
     {
@@ -167,7 +168,7 @@ class Lexer
                 $code = Utils::charCodeAt($body, ++$position);
             } while ($code >= 48 && $code <= 57); // 0 - 9
         } else {
-            throw Exception::create($this->source, $position, 'Invalid number');
+            throw new SyntaxError($this->source, $position, 'Invalid number');
         }
 
         if ($code === 46) { // .
@@ -179,21 +180,23 @@ class Lexer
                     $code = Utils::charCodeAt($body, ++$position);
                 } while ($code >= 48 && $code <= 57); // 0 - 9
             } else {
-                throw Exception::create($this->source, $position, 'Invalid number');
+                throw new SyntaxError($this->source, $position, 'Invalid number');
             }
+        }
 
-            if ($code === 101) { // e
+        if ($code === 69 || $code === 101) { // E e
+            $isFloat = true;
+            $code = Utils::charCodeAt($body, ++$position);
+
+            if ($code === 43 || $code === 45) { // + -
                 $code = Utils::charCodeAt($body, ++$position);
-                if ($code === 45) { // -
+            }
+            if ($code >= 48 && $code <= 57) { // 0 - 9
+                do {
                     $code = Utils::charCodeAt($body, ++$position);
-                }
-                if ($code >= 48 && $code <= 57) { // 0 - 9
-                    do {
-                        $code = Utils::charCodeAt($body, ++$position);
-                    } while ($code >= 48 && $code <= 57); // 0 - 9
-                } else {
-                    throw Exception::create($this->source, $position, 'Invalid number');
-                }
+                } while ($code >= 48 && $code <= 57); // 0 - 9
+            } else {
+                throw new SyntaxError($this->source, $position, 'Invalid number');
             }
         }
         return new Token(
@@ -236,13 +239,13 @@ class Lexer
                     case 117:
                         $hex = mb_substr($body, $position + 1, 4);
                         if (!preg_match('/[0-9a-fA-F]{4}/', $hex)) {
-                            throw Exception::create($this->source, $position, 'Bad character escape sequence');
+                            throw new SyntaxError($this->source, $position, 'Bad character escape sequence');
                         }
                         $value .= Utils::chr(hexdec($hex));
                         $position += 4;
                         break;
                     default:
-                        throw Exception::create($this->source, $position, 'Bad character escape sequence');
+                        throw new SyntaxError($this->source, $position, 'Bad character escape sequence');
                 }
                 ++$position;
                 $chunkStart = $position;
@@ -250,7 +253,7 @@ class Lexer
         }
 
         if ($code !== 34) {
-            throw Exception::create($this->source, $position, 'Unterminated string');
+            throw new SyntaxError($this->source, $position, 'Unterminated string');
         }
 
         $value .= mb_substr($body, $chunkStart, $position - $chunkStart, 'UTF-8');

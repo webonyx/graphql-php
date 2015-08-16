@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Language;
 
+use GraphQL\SyntaxError;
+
 class LexerTest extends \PHPUnit_Framework_TestCase
 {
     public function testSkipsWhitespaces()
@@ -35,7 +37,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         try {
             $this->lexOne($example);
             $this->fail('Expected exception not thrown');
-        } catch (Exception $e) {
+        } catch (SyntaxError $e) {
             $this->assertEquals(
                 'Syntax Error GraphQL (3:5) Unexpected character "?"' . "\n" .
                 "\n" .
@@ -68,7 +70,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             try {
                 $this->lexOne($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);
-            } catch (Exception $e) {
+            } catch (SyntaxError $e) {
                 $this->assertEquals($expectedMessage, $e->getMessage(), "Test case $num failed");
             }
         };
@@ -89,6 +91,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
 
     public function testLexesNumbers()
     {
+        // lexes numbers
+/*
         $this->assertEquals(
             new Token(Token::STRING, 0, 8, 'simple'),
             $this->lexOne('"simple"')
@@ -108,7 +112,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             new Token(Token::STRING, 0, 34, 'unicode ' . json_decode('"\u1234\u5678\u90AB\uCDEF"')),
             $this->lexOne('"unicode \\u1234\\u5678\\u90AB\\uCDEF"')
-        );
+        );*/
+
         $this->assertEquals(
             new Token(Token::INT, 0, 1, '4'),
             $this->lexOne('4')
@@ -142,12 +147,36 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             $this->lexOne('0.123')
         );
         $this->assertEquals(
+            new Token(Token::FLOAT, 0, 5, '123e4'),
+            $this->lexOne('123e4')
+        );
+        $this->assertEquals(
+            new Token(Token::FLOAT, 0, 5, '123E4'),
+            $this->lexOne('123E4')
+        );
+        $this->assertEquals(
+            new Token(Token::FLOAT, 0, 6, '123e-4'),
+            $this->lexOne('123e-4')
+        );
+        $this->assertEquals(
+            new Token(Token::FLOAT, 0, 6, '123e+4'),
+            $this->lexOne('123e+4')
+        );
+        $this->assertEquals(
             new Token(Token::FLOAT, 0, 8, '-1.123e4'),
             $this->lexOne('-1.123e4')
         );
         $this->assertEquals(
+            new Token(Token::FLOAT, 0, 8, '-1.123E4'),
+            $this->lexOne('-1.123E4')
+        );
+        $this->assertEquals(
             new Token(Token::FLOAT, 0, 9, '-1.123e-4'),
             $this->lexOne('-1.123e-4')
+        );
+        $this->assertEquals(
+            new Token(Token::FLOAT, 0, 9, '-1.123e+4'),
+            $this->lexOne('-1.123e+4')
         );
         $this->assertEquals(
             new Token(Token::FLOAT, 0, 11, '-1.123e4567'),
@@ -161,16 +190,16 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             try {
                 $this->lexOne($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);
-            } catch (Exception $e) {
+            } catch (SyntaxError $e) {
                 $this->assertEquals($expectedMessage, $e->getMessage(), "Test case $num failed");
             }
         };
 
         $run(1, '+1', "Syntax Error GraphQL (1:1) Unexpected character \"+\"\n\n1: +1\n   ^\n");
         $run(2, '1.', "Syntax Error GraphQL (1:3) Invalid number\n\n1: 1.\n     ^\n");
-        $run(3, '1.A', "Syntax Error GraphQL (1:3) Invalid number\n\n1: 1.A\n     ^\n");
-        $run(4, '-A', "Syntax Error GraphQL (1:2) Invalid number\n\n1: -A\n    ^\n");
-        $run(5, '1.0e+4', "Syntax Error GraphQL (1:5) Invalid number\n\n1: 1.0e+4\n       ^\n");
+        $run(3, '.123', "Syntax Error GraphQL (1:1) Unexpected character \".\"\n\n1: .123\n   ^\n");
+        $run(4, '1.A', "Syntax Error GraphQL (1:3) Invalid number\n\n1: 1.A\n     ^\n");
+        $run(5, '-A', "Syntax Error GraphQL (1:2) Invalid number\n\n1: -A\n    ^\n");
         $run(6, '1.0e', "Syntax Error GraphQL (1:5) Invalid number\n\n1: 1.0e\n       ^\n");
         $run(7, '1.0eA', "Syntax Error GraphQL (1:5) Invalid number\n\n1: 1.0eA\n       ^\n");
     }
@@ -237,7 +266,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             try {
                 $this->lexOne($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);
-            } catch (Exception $e) {
+            } catch (SyntaxError $e) {
                 $this->assertEquals($expectedMessage, $e->getMessage(), "Test case $num failed");
             }
         };

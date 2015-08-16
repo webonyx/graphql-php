@@ -4,7 +4,7 @@ namespace GraphQL\Language;
 // language/parser.js
 
 use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\ArrayValue;
+use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\BooleanValue;
 use GraphQL\Language\AST\Directive;
 use GraphQL\Language\AST\Document;
@@ -18,6 +18,7 @@ use GraphQL\Language\AST\IntValue;
 use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
+use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectValue;
@@ -26,6 +27,7 @@ use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\SyntaxError;
 
 class Parser
 {
@@ -148,7 +150,7 @@ class Parser
      * the parser. Otherwise, do not change the parser state and return false.
      * @param string $kind
      * @return Token
-     * @throws Exception
+     * @throws SyntaxError
      */
     function expect($kind)
     {
@@ -159,7 +161,7 @@ class Parser
             return $token;
         }
 
-        throw Exception::create(
+        throw new SyntaxError(
             $this->source,
             $token->start,
             "Expected " . Token::getKindDescription($kind) . ", found " . $token->getDescription()
@@ -173,7 +175,7 @@ class Parser
      *
      * @param string $value
      * @return Token
-     * @throws Exception
+     * @throws SyntaxError
      */
     function expectKeyword($value)
     {
@@ -183,7 +185,7 @@ class Parser
             $this->advance();
             return $token;
         }
-        throw Exception::create(
+        throw new SyntaxError(
             $this->source,
             $token->start,
             'Expected "' . $value . '", found ' . $token->getDescription()
@@ -192,12 +194,12 @@ class Parser
 
     /**
      * @param Token|null $atToken
-     * @return Exception
+     * @return SyntaxError
      */
     function unexpected(Token $atToken = null)
     {
         $token = $atToken ?: $this->token;
-        return Exception::create($this->source, $token->start, "Unexpected " . $token->getDescription());
+        return new SyntaxError($this->source, $token->start, "Unexpected " . $token->getDescription());
     }
 
     /**
@@ -260,6 +262,18 @@ class Parser
             'value' => $token->value,
             'loc' => $this->loc($token->start)
         ));
+    }
+
+    /**
+     * @return Name
+     * @throws SyntaxError
+     */
+    function parseFragmentName()
+    {
+        if ($this->token->value === 'on') {
+            throw $this->unexpected();
+        }
+        return $this->parseName();
     }
 
     /**
@@ -358,7 +372,7 @@ class Parser
             'variable' => $var,
             'type' => $type,
             'defaultValue' =>
-                ($this->skip(Token::EQUALS) ? $this->parseValue(true) : null),
+                ($this->skip(Token::EQUALS) ? $this->parseValueLiteral(true) : null),
             'loc' => $this->loc($start)
         ));
     }
@@ -441,7 +455,7 @@ class Parser
         $name = $this->parseName();
 
         $this->expect(Token::COLON);
-        $value = $this->parseValue(false);
+        $value = $this->parseValueLiteral(false);
 
         return new Argument(array(
             'name' => $name,
@@ -463,14 +477,14 @@ class Parser
         if ($this->token->value === 'on') {
             $this->advance();
             return new InlineFragment(array(
-                'typeCondition' => $this->parseName(),
+                'typeCondition' => $this->parseNamedType(),
                 'directives' => $this->parseDirectives(),
                 'selectionSet' => $this->parseSelectionSet(),
                 'loc' => $this->loc($start)
             ));
         }
         return new FragmentSpread(array(
-            'name' => $this->parseName(),
+            'name' => $this->parseFragmentName(),
             'directives' => $this->parseDirectives(),
             'loc' => $this->loc($start)
         ));
@@ -478,15 +492,15 @@ class Parser
 
     /**
      * @return FragmentDefinition
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseFragmentDefinition() {
         $start = $this->token->start;
         $this->expectKeyword('fragment');
 
-        $name = $this->parseName();
+        $name = $this->parseFragmentName();
         $this->expectKeyword('on');
-        $typeCondition = $this->parseName();
+        $typeCondition = $this->parseNamedType();
 
         return new FragmentDefinition(array(
             'name' => $name,
@@ -500,7 +514,7 @@ class Parser
     // Implements the parsing rules in the Values section.
     function parseVariableValue()
     {
-        return $this->parseValue(false);
+        return $this->parseValueLiteral(false);
     }
 
     /**
@@ -509,15 +523,15 @@ class Parser
      */
     function parseConstValue()
     {
-        return $this->parseValue(true);
+        return $this->parseValueLiteral(true);
     }
 
     /**
      * @param $isConst
      * @return BooleanValue|EnumValue|FloatValue|IntValue|StringValue|Variable
-     * @throws Exception
+     * @throws SyntaxError
      */
-    function parseValue($isConst) {
+    function parseValueLiteral($isConst) {
         $token = $this->token;
         switch ($token->kind) {
             case Token::BRACKET_L:
@@ -543,19 +557,21 @@ class Parser
                     'loc' => $this->loc($token->start)
                 ));
             case Token::NAME:
-                $this->advance();
-                switch ($token->value) {
-                    case 'true':
-                    case 'false':
-                        return new BooleanValue(array(
-                            'value' => $token->value === 'true',
-                            'loc' => $this->loc($token->start)
-                        ));
+                if ($token->value === 'true' || $token->value === 'false') {
+                    $this->advance();
+                    return new BooleanValue(array(
+                        'value' => $token->value === 'true',
+                        'loc' => $this->loc($token->start)
+                    ));
+                } else if ($token->value !== 'null') {
+                    $this->advance();
+                    return new EnumValue(array(
+                        'value' => $token->value,
+                        'loc' => $this->loc($token->start)
+                    ));
                 }
-                return new EnumValue(array(
-                    'value' => $token->value,
-                    'loc' => $this->loc($token->start)
-                ));
+                break;
+
             case Token::DOLLAR:
                 if (!$isConst) {
                     return $this->parseVariable();
@@ -567,13 +583,13 @@ class Parser
 
     /**
      * @param bool $isConst
-     * @return ArrayValue
+     * @return ListValue
      */
     function parseArray($isConst)
     {
         $start = $this->token->start;
         $item = $isConst ? 'parseConstValue' : 'parseVariableValue';
-        return new ArrayValue(array(
+        return new ListValue(array(
             'values' => $this->any(Token::BRACKET_L, array($this, $item), Token::BRACKET_R),
             'loc' => $this->loc($start)
         ));
@@ -600,14 +616,14 @@ class Parser
         $name = $this->parseName();
 
         if (array_key_exists($name->value, $fieldNames)) {
-            throw Exception::create($this->source, $start, "Duplicate input object field " . $name->value . '.');
+            throw new SyntaxError($this->source, $start, "Duplicate input object field " . $name->value . '.');
         }
         $fieldNames[$name->value] = true;
         $this->expect(Token::COLON);
 
         return new ObjectField(array(
             'name' => $name,
-            'value' => $this->parseValue($isConst),
+            'value' => $this->parseValueLiteral($isConst),
             'loc' => $this->loc($start)
         ));
     }
@@ -636,7 +652,7 @@ class Parser
         $this->expect(Token::AT);
         return new Directive(array(
             'name' => $this->parseName(),
-            'value' => $this->skip(Token::COLON) ? $this->parseValue(false) : null,
+            'arguments' => $this->parseArguments(),
             'loc' => $this->loc($start)
         ));
     }
@@ -647,7 +663,7 @@ class Parser
      * Handles the Type: TypeName, ListType, and NonNullType parsing rules.
      *
      * @return ListType|Name|NonNullType
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseType()
     {
@@ -661,7 +677,7 @@ class Parser
                 'loc' => $this->loc($start)
             ));
         } else {
-            $type = $this->parseName();
+            $type = $this->parseNamedType();
         }
         if ($this->skip(Token::BANG)) {
             return new NonNullType(array(
@@ -671,5 +687,16 @@ class Parser
 
         }
         return $type;
+    }
+
+    function parseNamedType()
+    {
+        $start = $this->token->start;
+
+        return new NamedType([
+            'name' => $this->parseName(),
+            'loc' => $this->loc($start)
+        ]);
+
     }
 }

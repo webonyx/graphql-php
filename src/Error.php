@@ -41,7 +41,7 @@ class Error extends \Exception
      * @param array|null $nodes
      * @return Error
      */
-    public static function createLocatedError($error, array $nodes = null)
+    public static function createLocatedError($error, $nodes = null)
     {
         if ($error instanceof \Exception) {
             $message = $error->getMessage();
@@ -56,11 +56,11 @@ class Error extends \Exception
 
     /**
      * @param Error $error
-     * @return FormattedError
+     * @return array
      */
     public static function formatError(Error $error)
     {
-        return new FormattedError($error->getMessage(), $error->getLocations());
+        return FormattedError::create($error->getMessage(), $error->getLocations());
     }
 
     /**
@@ -69,12 +69,17 @@ class Error extends \Exception
      * @param Source $source
      * @param null $positions
      */
-    public function __construct($message, array $nodes = null, \Exception $previous = null, Source $source = null, $positions = null)
+    public function __construct($message, $nodes = null, \Exception $previous = null, Source $source = null, $positions = null)
     {
         parent::__construct($message, 0, $previous);
 
+        if ($nodes instanceof \Traversable) {
+            $nodes = iterator_to_array($nodes);
+        }
+
         $this->nodes = $nodes;
         $this->source = $source;
+        $this->positions = $positions;
     }
 
     /**

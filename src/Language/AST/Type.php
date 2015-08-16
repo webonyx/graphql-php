@@ -5,7 +5,7 @@ namespace GraphQL\Language\AST;
 interface Type
 {
 /**
- export type Type = Name
+ export type Type = NamedType
                     | ListType
                     | NonNullType
  */

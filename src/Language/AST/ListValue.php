@@ -1,9 +1,9 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class ArrayValue extends Node implements Value
+class ListValue extends Node implements Value
 {
-    public $kind = Node::ARR;
+    public $kind = Node::LST;
 
     /**
      * @var array<Value>
