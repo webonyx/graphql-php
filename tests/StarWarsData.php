@@ -119,6 +119,20 @@ class StarWarsData
     }
 
     /**
+     * @param $episode
+     * @return array
+     */
+    static function getHero($episode)
+    {
+        if ($episode === 5) {
+            // Luke is the hero of Episode V.
+            return self::luke();
+        }
+        // Artoo is the hero otherwise.
+        return self::artoo();
+    }
+
+    /**
      * Allows us to query for a character's friends.
      */
     static function getFriends($character)

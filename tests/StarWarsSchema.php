@@ -47,7 +47,7 @@ use GraphQL\Type\Definition\Type;
  * }
  *
  * type Query {
- *   hero: Character
+ *   hero(episode: Episode): Character
  *   human(id: String!): Human
  *   droid(id: String!): Droid
  * }
@@ -227,7 +227,7 @@ class StarWarsSchema
          *
          * This implements the following type system shorthand:
          *   type Query {
-         *     hero: Character
+         *     hero(episode: Episode): Character
          *     human(id: String!): Human
          *     droid(id: String!): Droid
          *   }
@@ -238,13 +238,25 @@ class StarWarsSchema
             'fields' => [
                 'hero' => [
                     'type' => $characterInterface,
-                    'resolve' => function () {
-                        return StarWarsData::artoo();
+                    'args' => [
+                        'episode' => [
+                            'description' => 'If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.',
+                            'type' => $episodeEnum
+                        ]
+                    ],
+                    'resolve' => function ($root, $args) {
+                        return StarWarsData::getHero($args['episode']);
                     },
                 ],
                 'human' => [
                     'type' => $humanType,
-                    'args' => ['id' => ['name' => 'id', 'type' => Type::nonNull(Type::string())]],
+                    'args' => [
+                        'id' => [
+                            'name' => 'id',
+                            'description' => 'id of the human',
+                            'type' => Type::nonNull(Type::string())
+                        ]
+                    ],
                     'resolve' => function ($root, $args) {
                         $humans = StarWarsData::humans();
                         return isset($humans[$args['id']]) ? $humans[$args['id']] : null;
@@ -252,7 +264,13 @@ class StarWarsSchema
                 ],
                 'droid' => [
                     'type' => $droidType,
-                    'args' => ['id' => ['name' => 'id', 'type' => Type::nonNull(Type::string())]],
+                    'args' => [
+                        'id' => [
+                            'name' => 'id',
+                            'description' => 'id of the droid',
+                            'type' => Type::nonNull(Type::string())
+                        ]
+                    ],
                     'resolve' => function ($root, $args) {
                         $droids = StarWarsData::droids();
                         return isset($droids[$args['id']]) ? $droids[$args['id']] : null;

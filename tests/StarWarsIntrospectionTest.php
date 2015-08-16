@@ -22,10 +22,10 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
             '__schema' => [
                 'types' => [
                     ['name' => 'Query'],
+                    ['name' => 'Episode'],
                     ['name' => 'Character'],
                     ['name' => 'Human'],
                     ['name' => 'String'],
-                    ['name' => 'Episode'],
                     ['name' => 'Droid'],
                     ['name' => '__Schema'],
                     ['name' => '__Type'],
@@ -263,6 +263,97 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
+        $this->assertValidQuery($query, $expected);
+    }
+
+    public function testAllowsQueryingTheSchemaForFieldArgs()
+    {
+        $query = '
+        query IntrospectionQueryTypeQuery {
+          __schema {
+            queryType {
+              fields {
+                name
+                args {
+                  name
+                  description
+                  type {
+                    name
+                    kind
+                    ofType {
+                      name
+                      kind
+                    }
+                  }
+                  defaultValue
+                }
+              }
+            }
+          }
+        }
+        ';
+
+        $expected = array(
+            '__schema' => [
+                'queryType' => [
+                    'fields' => [
+                        [
+                            'name' => 'hero',
+                            'args' => [
+                                [
+                                    'defaultValue' => NULL,
+                                    'description' => 'If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.',
+                                    'name' => 'episode',
+                                    'type' => [
+                                        'kind' => 'ENUM',
+                                        'name' => 'Episode',
+                                        'ofType' => NULL,
+                                    ],
+                                ],
+                            ],
+                        ],
+                        [
+                            'name' => 'human',
+                            'args' => [
+                                [
+                                    'name' => 'id',
+                                    'description' => 'id of the human',
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => NULL,
+                                        'ofType' => [
+                                            'kind' => 'SCALAR',
+                                            'name' => 'String',
+                                        ],
+                                    ],
+                                    'defaultValue' => NULL,
+                                ],
+                            ],
+                        ],
+                        [
+                            'name' => 'droid',
+                            'args' => [
+                                [
+                                    'name' => 'id',
+                                    'description' => 'id of the droid',
+                                    'type' => [
+                                        'kind' => 'NON_NULL',
+                                        'name' => NULL,
+                                        'ofType' =>
+                                            [
+                                                'kind' => 'SCALAR',
+                                                'name' => 'String',
+                                            ],
+                                    ],
+                                    'defaultValue' => NULL,
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        );
+
         $this->assertValidQuery($query, $expected);
     }
 

@@ -320,6 +320,27 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
+    public function testVerifyThatLukeIsHuman()
+    {
+        $query = '
+        query CheckTypeOfLuke {
+          hero(episode: EMPIRE) {
+            __typename
+            name
+          }
+        }
+        ';
+
+        $expected = [
+            'hero' => [
+                '__typename' => 'Human',
+                'name' => 'Luke Skywalker'
+            ],
+        ];
+
+        $this->assertValidQuery($query, $expected);
+    }
+
     /**
      * Helper function to test a query and the expected response.
      */
