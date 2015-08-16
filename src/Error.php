@@ -3,7 +3,7 @@ namespace GraphQL;
 
 use GraphQL\Language\Source;
 
-// /graphql-js/src/error/index.js
+// /graphql-js/src/error/GraphQLError.js
 
 class Error extends \Exception
 {
@@ -13,11 +13,6 @@ class Error extends \Exception
     public $message;
 
     /**
-     * @var string
-     */
-    public $stack;
-
-    /**
      * @var array
      */
     public $nodes;
@@ -25,62 +20,108 @@ class Error extends \Exception
     /**
      * @var array
      */
-    public $positions;
+    private $positions;
 
     /**
      * @var array<SourceLocation>
      */
-    public $locations;
+    private $locations;
 
     /**
      * @var Source|null
      */
-    public $source;
+    private $source;
 
     /**
+     * Given an arbitrary Error, presumably thrown while attempting to execute a
+     * GraphQL operation, produce a new GraphQLError aware of the location in the
+     * document responsible for the original Error.
+     *
      * @param $error
-     * @return FormattedError
+     * @param array|null $nodes
+     * @return Error
      */
-    public static function formatError($error)
+    public static function createLocatedError($error, array $nodes = null)
     {
-        if (is_array($error)) {
-            $message = isset($error['message']) ? $error['message'] : null;
-            $locations = isset($error['locations']) ? $error['locations'] : null;
-        } else if ($error instanceof Error) {
-            $message = $error->message;
-            $locations = $error->locations;
+        if ($error instanceof \Exception) {
+            $message = $error->getMessage();
+            $previous = $error;
         } else {
             $message = (string) $error;
-            $locations = null;
+            $previous = null;
         }
 
-        return new FormattedError($message, $locations);
+        return new Error($message, $nodes, $previous);
     }
 
     /**
-     * @param string $message
-     * @param array|null $nodes
-     * @param null $stack
+     * @param Error $error
+     * @return FormattedError
      */
-    public function __construct($message, array $nodes = null, $stack = null)
+    public static function formatError(Error $error)
     {
-        $this->message = $message;
-        $this->stack = $stack ?: $message;
+        return new FormattedError($error->getMessage(), $error->getLocations());
+    }
 
-        if ($nodes) {
-            $this->nodes = $nodes;
-            $positions = array_map(function($node) { return isset($node->loc) ? $node->loc->start : null; }, $nodes);
-            $positions = array_filter($positions);
+    /**
+     * @param string|\Exception $message
+     * @param array|null $nodes
+     * @param Source $source
+     * @param null $positions
+     */
+    public function __construct($message, array $nodes = null, \Exception $previous = null, Source $source = null, $positions = null)
+    {
+        parent::__construct($message, 0, $previous);
 
-            if (!empty($positions)) {
-                $this->positions = $positions;
-                $loc = $nodes[0]->loc;
-                $source = $loc ? $loc->source : null;
-                if ($source) {
-                    $this->locations = array_map(function($pos) use($source) {return $source->getLocation($pos);}, $positions);
-                    $this->source = $source;
-                }
+        $this->nodes = $nodes;
+        $this->source = $source;
+    }
+
+    /**
+     * @return Source|null
+     */
+    public function getSource()
+    {
+        if (null === $this->source) {
+            if (!empty($this->nodes[0]) && !empty($this->nodes[0]->loc)) {
+                $this->source = $this->nodes[0]->loc->source;
             }
         }
+        return $this->source;
+    }
+
+    /**
+     * @return array
+     */
+    public function getPositions()
+    {
+        if (null === $this->positions) {
+            if (!empty($this->nodes)) {
+                $positions = array_map(function($node) { return isset($node->loc) ? $node->loc->start : null; }, $this->nodes);
+                $this->positions = array_filter($positions);
+            }
+        }
+        return $this->positions;
+    }
+
+    /**
+     * @return array<SourceLocation>
+     */
+    public function getLocations()
+    {
+        if (null === $this->locations) {
+            $positions = $this->getPositions();
+            $source = $this->getSource();
+
+            if ($positions && $source) {
+                $this->locations = array_map(function ($pos) use ($source) {
+                    return $source->getLocation($pos);
+                }, $positions);
+            } else {
+                $this->locations = [];
+            }
+        }
+
+        return $this->locations;
     }
 }

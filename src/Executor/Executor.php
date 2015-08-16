@@ -372,7 +372,7 @@ class Executor
                 $exeContext->schema
             );
         } catch (\Exception $error) {
-            throw new Error($error->getMessage(), [$fieldAST], $error->getTrace());
+            throw Error::createLocatedError($error, [$fieldAST]);
         }
 
         return self::completeField(

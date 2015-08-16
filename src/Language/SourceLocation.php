@@ -11,4 +11,12 @@ class SourceLocation
         $this->line = $line;
         $this->column = $col;
     }
+
+    public function toArray()
+    {
+        return [
+            'line' => $this->line,
+            'column' => $this->column
+        ];
+    }
 }
