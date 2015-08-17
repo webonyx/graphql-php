@@ -48,8 +48,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
     {
         $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
       fragment mergeSameFieldsWithSameDirectives on Dog {
-        name @if:true
-        name @if:true
+        name @include(if: true)
+        name @include(if: true)
       }
         ');
     }
@@ -68,8 +68,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
     {
         $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
       fragment differentDirectivesWithDifferentAliases on Dog {
-        nameIfTrue : name @if:true
-        nameIfFalse : name @if:false
+        nameIfTrue : name @include(if: true)
+        nameIfFalse : name @include(if: false)
       }
         ');
     }
@@ -82,8 +82,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         fido : nickname
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('fido', 'name and nickname are different fields'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('fido', 'name and nickname are different fields'),
                 [new SourceLocation(3, 9), new SourceLocation(4, 9)]
             )
         ]);
@@ -97,8 +97,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         name
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('name', 'nickname and name are different fields'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('name', 'nickname and name are different fields'),
                 [new SourceLocation(3, 9), new SourceLocation(4, 9)]
             )
         ]);
@@ -112,8 +112,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         doesKnowCommand(dogCommand: HEEL)
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('doesKnowCommand', 'they have differing arguments'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('doesKnowCommand', 'they have differing arguments'),
                 [new SourceLocation(3,9), new SourceLocation(4,9)]
             )
         ]);
@@ -123,27 +123,43 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
     {
         $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
       fragment conflictingDirectiveArgs on Dog {
-        name @if: true
-        name @unless: false
+        name @include(if: true)
+        name @skip(if: true)
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('name', 'they have differing directives'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('name', 'they have differing directives'),
                 [new SourceLocation(3, 9), new SourceLocation(4, 9)]
             )
         ]);
+    }
+
+    public function testConflictingDirectiveArgs()
+    {
+        $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
+      fragment conflictingDirectiveArgs on Dog {
+        name @include(if: true)
+        name @include(if: false)
+      }
+    ', [
+                FormattedError::create(
+                    OverlappingFieldsCanBeMerged::fieldsConflictMessage('name', 'they have differing directives'),
+                    [new SourceLocation(3, 9), new SourceLocation(4, 9)]
+                )
+            ]
+        );
     }
 
     public function testConflictingArgsWithMatchingDirectives()
     {
         $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
       fragment conflictingArgsWithMatchingDirectiveArgs on Dog {
-        doesKnowCommand(dogCommand: SIT) @if:true
-        doesKnowCommand(dogCommand: HEEL) @if:true
+        doesKnowCommand(dogCommand: SIT) @include(if: true)
+        doesKnowCommand(dogCommand: HEEL) @include(if: true)
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('doesKnowCommand', 'they have differing arguments'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('doesKnowCommand', 'they have differing arguments'),
                 [new SourceLocation(3, 9), new SourceLocation(4, 9)]
             )
         ]);
@@ -153,12 +169,12 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
     {
         $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
       fragment conflictingDirectiveArgsWithMatchingArgs on Dog {
-        doesKnowCommand(dogCommand: SIT) @if: true
-        doesKnowCommand(dogCommand: SIT) @unless: false
+        doesKnowCommand(dogCommand: SIT) @include(if: true)
+        doesKnowCommand(dogCommand: SIT) @skip(if: true)
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('doesKnowCommand', 'they have differing directives'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('doesKnowCommand', 'they have differing directives'),
                 [new SourceLocation(3, 9), new SourceLocation(4, 9)]
             )
         ]);
@@ -178,8 +194,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         x: b
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('x', 'a and b are different fields'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and b are different fields'),
                 [new SourceLocation(7, 9), new SourceLocation(10, 9)]
             )
         ]);
@@ -210,16 +226,16 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         x: b
       }
     ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('x', 'a and b are different fields'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and b are different fields'),
                 [new SourceLocation(18, 9), new SourceLocation(21, 9)]
             ),
-            new FormattedError(
-                Messages::fieldsConflictMessage('x', 'a and c are different fields'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and c are different fields'),
                 [new SourceLocation(18, 9), new SourceLocation(14, 11)]
             ),
-            new FormattedError(
-                Messages::fieldsConflictMessage('x', 'b and c are different fields'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'b and c are different fields'),
                 [new SourceLocation(21, 9), new SourceLocation(14, 11)]
             )
         ]);
@@ -237,8 +253,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('field', [['x', 'a and b are different fields']]),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('field', [['x', 'a and b are different fields']]),
                 [
                     new SourceLocation(3, 9),
                     new SourceLocation(6,9),
@@ -263,8 +279,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('field', [
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('field', [
                     ['x', 'a and b are different fields'],
                     ['y', 'c and d are different fields']
                 ]),
@@ -296,8 +312,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('field', [['deepField', [['x', 'a and b are different fields']]]]),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('field', [['deepField', [['x', 'a and b are different fields']]]]),
                 [
                     new SourceLocation(3,9),
                     new SourceLocation(8,9),
@@ -329,8 +345,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('deepField', [['x', 'a and b are different fields']]),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('deepField', [['x', 'a and b are different fields']]),
                 [
                     new SourceLocation(4,11),
                     new SourceLocation(7,11),
@@ -356,8 +372,8 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
           }
         }
       ', [
-            new FormattedError(
-                Messages::fieldsConflictMessage('scalar', 'they return differing types Int and String'),
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('scalar', 'they return differing types Int and String'),
                 [ new SourceLocation(5,15), new SourceLocation(8,15) ]
             )
         ]);
@@ -369,6 +385,55 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         {
           boxUnion {
             ...on NonNullStringBox1 {
+              scalar
+            }
+            ...on NonNullStringBox2 {
+              scalar
+            }
+          }
+        }
+        ');
+    }
+
+    public function testComparesDeepTypesIncludingList()
+    {
+        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        {
+          connection {
+            ...edgeID
+            edges {
+              node {
+                id: name
+              }
+            }
+          }
+        }
+
+        fragment edgeID on Connection {
+          edges {
+            node {
+              id
+            }
+          }
+        }
+      ', [
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('edges', [['node', [['id', 'id and name are different fields']]]]),
+                [
+                    new SourceLocation(14, 11), new SourceLocation(5, 13),
+                    new SourceLocation(15, 13), new SourceLocation(6, 15),
+                    new SourceLocation(16, 15), new SourceLocation(7, 17),
+                ]
+            )
+        ]);
+     }
+
+    public function testIgnoresUnknownTypes()
+    {
+        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        {
+          boxUnion {
+            ...on UnknownType {
               scalar
             }
             ...on NonNullStringBox2 {
@@ -411,13 +476,37 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $BoxUnion = new UnionType([
             'name' => 'BoxUnion',
+            'resolveType' => function()  use ($StringBox) {return $StringBox;},
             'types' => [ $StringBox, $IntBox, $NonNullStringBox1, $NonNullStringBox2 ]
+        ]);
+
+        $Connection = new ObjectType([
+            'name' => 'Connection',
+            'fields' => [
+                'edges' => [
+                    'type' => Type::listOf(new ObjectType([
+                        'name' => 'Edge',
+                        'fields' => [
+                            'node' => [
+                                'type' => new ObjectType([
+                                    'name' => 'Node',
+                                    'fields' => [
+                                        'id' => ['type' => Type::id()],
+                                        'name' => ['type' => Type::string()]
+                                    ]
+                                ])
+                            ]
+                        ]
+                    ]))
+                ]
+            ]
         ]);
 
         $schema = new Schema(new ObjectType([
             'name' => 'QueryRoot',
             'fields' => [
-                'boxUnion' => ['type' => $BoxUnion ]
+                'boxUnion' => ['type' => $BoxUnion ],
+                'connection' => ['type' => $Connection]
             ]
         ]));
 

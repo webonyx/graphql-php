@@ -7,12 +7,17 @@ class BooleanType extends ScalarType
 {
     public $name = Type::BOOLEAN;
 
-    public function coerce($value)
+    public function serialize($value)
     {
         return !!$value;
     }
 
-    public function coerceLiteral($ast)
+    public function parseValue($value)
+    {
+        return !!$value;
+    }
+
+    public function parseLiteral($ast)
     {
         if ($ast instanceof BooleanValue) {
             return (bool) $ast->value;

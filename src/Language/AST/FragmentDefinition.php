@@ -2,9 +2,14 @@
 namespace GraphQL\Language\AST;
 
 
-class FragmentDefinition extends NamedType implements Definition
+class FragmentDefinition extends Node implements Definition
 {
     public $kind = Node::FRAGMENT_DEFINITION;
+
+    /**
+     * @var Name
+     */
+    public $name;
 
     /**
      * @var NamedType

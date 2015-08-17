@@ -177,7 +177,7 @@ class VariablesInAllowedPositionTest extends TestCase
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($boolVar: Boolean!)
       {
-        dog @if: $boolVar
+        dog @include(if: $boolVar)
       }
         ');
     }
@@ -188,7 +188,7 @@ class VariablesInAllowedPositionTest extends TestCase
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($boolVar: Boolean = false)
       {
-        dog @if: $boolVar
+        dog @include(if: $boolVar)
       }
         ');
     }
@@ -204,7 +204,7 @@ class VariablesInAllowedPositionTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
+            FormattedError::create(
                 Messages::badVarPosMessage('intArg', 'Int', 'Int!'),
                 [new SourceLocation(5, 45)]
             )
@@ -226,7 +226,7 @@ class VariablesInAllowedPositionTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
+            FormattedError::create(
                 Messages::badVarPosMessage('intArg', 'Int', 'Int!'),
                 [new SourceLocation(3, 43)]
             )
@@ -252,7 +252,7 @@ class VariablesInAllowedPositionTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
+            FormattedError::create(
                 Messages::badVarPosMessage('intArg', 'Int', 'Int!'),
                 [new SourceLocation(7,43)]
             )
@@ -270,7 +270,7 @@ class VariablesInAllowedPositionTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
+            FormattedError::create(
                 Messages::badVarPosMessage('stringVar', 'String', 'Boolean'),
                 [new SourceLocation(5,39)]
             )
@@ -288,7 +288,7 @@ class VariablesInAllowedPositionTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
+            FormattedError::create(
                 Messages::badVarPosMessage('stringVar', 'String', '[String]'),
                 [new SourceLocation(5,45)]
             )
@@ -301,12 +301,12 @@ class VariablesInAllowedPositionTest extends TestCase
         $this->expectFailsRule(new VariablesInAllowedPosition, '
       query Query($boolVar: Boolean)
       {
-        dog @if: $boolVar
+        dog @include(if: $boolVar)
       }
         ', [
-            new FormattedError(
+            FormattedError::create(
                 Messages::badVarPosMessage('boolVar', 'Boolean', 'Boolean!'),
-                [new SourceLocation(4,18)]
+                [new SourceLocation(4,26)]
             )
         ]);
     }
@@ -317,12 +317,12 @@ class VariablesInAllowedPositionTest extends TestCase
         $this->expectFailsRule(new VariablesInAllowedPosition, '
       query Query($stringVar: String)
       {
-        dog @if: $stringVar
+        dog @include(if: $stringVar)
       }
         ', [
-            new FormattedError(
+            FormattedError::create(
                 Messages::badVarPosMessage('stringVar', 'String', 'Boolean!'),
-                [new SourceLocation(4,18)]
+                [new SourceLocation(4,26)]
             )
         ]);
     }

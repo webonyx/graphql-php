@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Executor;
 
+use GraphQL\Error;
 use GraphQL\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
@@ -132,7 +133,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         ]);
         $schema = new Schema($dataType);
 
-        $this->assertEquals($expected, Executor::execute($schema, $data, $ast, 'Example', ['size' => 100]));
+        $this->assertEquals($expected, Executor::execute($schema, $ast, $data, ['size' => 100], 'Example')->toArray());
     }
 
     public function testMergesParallelFragments()
@@ -187,11 +188,12 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($schema, null, $ast));
+        $this->assertEquals($expected, Executor::execute($schema, $ast)->toArray());
     }
 
     public function testThreadsContextCorrectly()
     {
+        // threads context correctly
         $doc = 'query Example { a }';
 
         $gotHere = false;
@@ -214,7 +216,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ]));
 
-        Executor::execute($schema, $data, $ast, 'Example', []);
+        Executor::execute($schema, $ast, $data, [], 'Example');
         $this->assertEquals(true, $gotHere);
     }
 
@@ -246,7 +248,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ]));
-        Executor::execute($schema, null, $docAst, 'Example', []);
+        Executor::execute($schema, $docAst, null, [], 'Example');
         $this->assertSame($gotHere, true);
     }
 
@@ -255,6 +257,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $doc = '{
       sync,
       syncError,
+      syncRawError,
       async,
       asyncReject,
       asyncError
@@ -265,9 +268,11 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 return 'sync';
             },
             'syncError' => function () {
-                throw new \Exception('Error getting syncError');
+                throw new Error('Error getting syncError');
             },
-
+            'syncRawError' => function() {
+                throw new \Exception('Error getting syncRawError');
+            },
             // Following are inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving them just to simplify migrations from newer js versions
             'async' => function() {
@@ -287,6 +292,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'sync' => ['type' => Type::string()],
                 'syncError' => ['type' => Type::string()],
+                'syncRawError' => [ 'type' => Type::string() ],
                 'async' => ['type' => Type::string()],
                 'asyncReject' => ['type' => Type::string() ],
                 'asyncError' => ['type' => Type::string()],
@@ -297,20 +303,22 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             'data' => [
                 'sync' => 'sync',
                 'syncError' => null,
+                'syncRawError' => null,
                 'async' => 'async',
                 'asyncReject' => null,
                 'asyncError' => null,
             ],
             'errors' => [
-                new FormattedError('Error getting syncError', [new SourceLocation(3, 7)]),
-                new FormattedError('Error getting asyncReject', [new SourceLocation(5, 7)]),
-                new FormattedError('Error getting asyncError', [new SourceLocation(6, 7)])
+                FormattedError::create('Error getting syncError', [new SourceLocation(3, 7)]),
+                FormattedError::create('Error getting syncRawError', [new SourceLocation(4, 7)]),
+                FormattedError::create('Error getting asyncReject', [new SourceLocation(6, 7)]),
+                FormattedError::create('Error getting asyncError', [new SourceLocation(7, 7)])
             ]
         ];
 
-        $result = Executor::execute($schema, $data, $docAst);
+        $result = Executor::execute($schema, $docAst, $data);
 
-        $this->assertEquals($expected, $result);
+        $this->assertEquals($expected, $result->toArray());
     }
 
     public function testUsesTheInlineOperationIfNoOperationIsProvided()
@@ -326,9 +334,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ]));
 
-        $ex = Executor::execute($schema, $data, $ast);
+        $ex = Executor::execute($schema, $ast, $data);
 
-        $this->assertEquals(['data' => ['a' => 'b']], $ex);
+        $this->assertEquals(['data' => ['a' => 'b']], $ex->toArray());
     }
 
     public function testUsesTheOnlyOperationIfNoOperationIsProvided()
@@ -343,8 +351,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ]));
 
-        $ex = Executor::execute($schema, $data, $ast);
-        $this->assertEquals(['data' => ['a' => 'b']], $ex);
+        $ex = Executor::execute($schema, $ast, $data);
+        $this->assertEquals(['data' => ['a' => 'b']], $ex->toArray());
     }
 
     public function testThrowsIfNoOperationIsProvidedWithMultipleOperations()
@@ -359,15 +367,12 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ]));
 
-        $ex = Executor::execute($schema, $data, $ast);
-
-        $this->assertEquals(
-            [
-                'data' => null,
-                'errors' => [new FormattedError('Must provide operation name if query contains multiple operations')]
-            ],
-            $ex
-        );
+        try {
+            Executor::execute($schema, $ast, $data);
+            $this->fail('Expected exception is not thrown');
+        } catch (Error $err) {
+            $this->assertEquals('Must provide operation name if query contains multiple operations.', $err->getMessage());
+        }
     }
 
     public function testUsesTheQuerySchemaForQueries()
@@ -390,8 +395,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ])
         );
 
-        $queryResult = Executor::execute($schema, $data, $ast, 'Q');
-        $this->assertEquals(['data' => ['a' => 'b']], $queryResult);
+        $queryResult = Executor::execute($schema, $ast, $data, [], 'Q');
+        $this->assertEquals(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
     public function testUsesTheMutationSchemaForMutations()
@@ -413,8 +418,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 ]
             ])
         );
-        $mutationResult = Executor::execute($schema, $data, $ast, 'M');
-        $this->assertEquals(['data' => ['c' => 'd']], $mutationResult);
+        $mutationResult = Executor::execute($schema, $ast, $data, [], 'M');
+        $this->assertEquals(['data' => ['c' => 'd']], $mutationResult->toArray());
     }
 
     public function testAvoidsRecursion()
@@ -440,8 +445,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ]));
 
-        $queryResult = Executor::execute($schema, $data, $ast, 'Q');
-        $this->assertEquals(['data' => ['a' => 'b']], $queryResult);
+        $queryResult = Executor::execute($schema, $ast, $data, [], 'Q');
+        $this->assertEquals(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
     public function testDoesNotIncludeIllegalFieldsInOutput()
@@ -464,7 +469,106 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 ]
             ])
         );
-        $mutationResult = Executor::execute($schema, null, $ast);
-        $this->assertEquals(['data' => []], $mutationResult);
+        $mutationResult = Executor::execute($schema, $ast);
+        $this->assertEquals(['data' => []], $mutationResult->toArray());
+    }
+
+    public function testDoesNotIncludeArgumentsThatWereNotSet()
+    {
+        $schema = new Schema(
+            new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'field' => [
+                        'type' => Type::string(),
+                        'resolve' => function($data, $args) {return $args ? json_encode($args) : '';},
+                        'args' => [
+                            'a' => ['type' => Type::boolean()],
+                            'b' => ['type' => Type::boolean()],
+                            'c' => ['type' => Type::boolean()],
+                            'd' => ['type' => Type::int()],
+                            'e' => ['type' => Type::int()]
+                        ]
+                    ]
+                ]
+            ])
+        );
+
+        $query = Parser::parse('{ field(a: true, c: false, e: 0) }');
+        $result = Executor::execute($schema, $query);
+        $expected = [
+            'data' => [
+                'field' => '{"a":true,"c":false,"e":0}'
+            ]
+        ];
+
+        $this->assertEquals($expected, $result->toArray());
+
+/*
+    var query = parse('{ field(a: true, c: false, e: 0) }');
+    var result = await execute(schema, query);
+
+    expect(result).to.deep.equal({
+      data: {
+        field: '{"a":true,"c":false,"e":0}'
+      }
+    });
+  });
+
+  it('fails when an isTypeOf check is not met', async () => {
+    class Special {
+      constructor(value) {
+        this.value = value;
+      }
+    }
+
+    class NotSpecial {
+      constructor(value) {
+        this.value = value;
+      }
+    }
+
+    var SpecialType = new GraphQLObjectType({
+      name: 'SpecialType',
+      isTypeOf(obj) {
+        return obj instanceof Special;
+      },
+      fields: {
+        value: { type: GraphQLString }
+      }
+    });
+
+    var schema = new GraphQLSchema({
+      query: new GraphQLObjectType({
+        name: 'Query',
+        fields: {
+          specials: {
+            type: new GraphQLList(SpecialType),
+            resolve: rootValue => rootValue.specials
+          }
+        }
+      })
+    });
+
+    var query = parse('{ specials { value } }');
+    var value = {
+      specials: [ new Special('foo'), new NotSpecial('bar') ]
+    };
+    var result = await execute(schema, query, value);
+
+    expect(result.data).to.deep.equal({
+      specials: [
+        { value: 'foo' },
+        null
+      ]
+    });
+    expect(result.errors).to.have.lengthOf(1);
+    expect(result.errors).to.containSubset([
+      { message:
+          'Expected value of type "SpecialType" but got: [object Object].',
+        locations: [ { line: 1, column: 3 } ] }
+    ]);
+  });
+ */
     }
 }

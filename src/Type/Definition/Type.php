@@ -111,7 +111,7 @@ GraphQLNonNull;
      */
     public static function isInputType($type)
     {
-        $nakedType = self::getUnmodifiedType($type);
+        $nakedType = self::getNamedType($type);
         return $nakedType instanceof InputType;
     }
 
@@ -121,13 +121,14 @@ GraphQLNonNull;
      */
     public static function isOutputType($type)
     {
-        $nakedType = self::getUnmodifiedType($type);
+        $nakedType = self::getNamedType($type);
         return $nakedType instanceof OutputType;
     }
 
     public static function isLeafType($type)
     {
-        $nakedType = self::getUnmodifiedType($type);
+        // TODO: add LeafType interface
+        $nakedType = self::getNamedType($type);
         return (
             $nakedType instanceof ScalarType ||
             $nakedType instanceof EnumType
@@ -136,19 +137,12 @@ GraphQLNonNull;
 
     public static function isCompositeType($type)
     {
-        return (
-            $type instanceof ObjectType ||
-            $type instanceof InterfaceType ||
-            $type instanceof UnionType
-        );
+        return $type instanceof CompositeType;
     }
 
     public static function isAbstractType($type)
     {
-        return (
-            $type instanceof InterfaceType ||
-            $type instanceof UnionType
-        );
+        return $type instanceof AbstractType;
     }
 
     /**
@@ -164,7 +158,7 @@ GraphQLNonNull;
      * @param $type
      * @return UnmodifiedType
      */
-    public static function getUnmodifiedType($type)
+    public static function getNamedType($type)
     {
         if (null === $type) {
             return null;
@@ -195,21 +189,21 @@ GraphQLNonNull;
      * @return Type
      * @throws \Exception
      */
-    public static function getTypeOf($value, AbstractType $abstractType)
+    public static function getTypeOf($value, ResolveInfo $info, AbstractType $abstractType)
     {
         $possibleTypes = $abstractType->getPossibleTypes();
 
         for ($i = 0; $i < count($possibleTypes); $i++) {
             /** @var ObjectType $type */
             $type = $possibleTypes[$i];
-            $isTypeOf = $type->isTypeOf($value);
+            $isTypeOf = $type->isTypeOf($value, $info);
 
             if ($isTypeOf === null) {
                 // TODO: move this to a JS impl specific type system validation step
                 // so the error can be found before execution.
                 throw new \Exception(
                     'Non-Object Type ' . $abstractType->name . ' does not implement ' .
-                    'resolveType and Object Type ' . $type->name . ' does not implement ' .
+                    'getObjectType and Object Type ' . $type->name . ' does not implement ' .
                     'isTypeOf. There is no way to determine if a value is of this type.'
                 );
             }

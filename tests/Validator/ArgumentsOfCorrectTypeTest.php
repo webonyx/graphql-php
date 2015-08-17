@@ -9,7 +9,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
 {
     function missingArg($fieldName, $argName, $typeName, $line, $column)
     {
-        return new FormattedError(
+        return FormattedError::create(
             Messages::missingArgMessage($fieldName, $argName, $typeName),
             [new SourceLocation($line, $column)]
         );
@@ -17,8 +17,8 @@ class ArgumentsOfCorrectTypeTest extends TestCase
 
     function badValue($argName, $typeName, $value, $line, $column)
     {
-        return new FormattedError(
-            Messages::badValueMessage($argName, $typeName, $value),
+        return FormattedError::create(
+            ArgumentsOfCorrectType::badValueMessage($argName, $typeName, $value),
             [new SourceLocation($line, $column)]
         );
     }
@@ -632,33 +632,6 @@ class ArgumentsOfCorrectTypeTest extends TestCase
         ]);
     }
 
-    public function testMissingOneNonNullableArgument()
-    {
-        $this->expectFailsRule(new ArgumentsOfCorrectType, '
-        {
-          complicatedArgs {
-            multipleReqs(req2: 2)
-          }
-        }
-        ', [
-            $this->missingArg('multipleReqs', 'req1', 'Int!', 4, 13)
-        ]);
-    }
-
-    public function testMissingMultipleNonNullableArguments()
-    {
-        $this->expectFailsRule(new ArgumentsOfCorrectType, '
-        {
-          complicatedArgs {
-            multipleReqs
-          }
-        }
-        ', [
-            $this->missingArg('multipleReqs', 'req1', 'Int!', 4, 13),
-            $this->missingArg('multipleReqs', 'req2', 'Int!', 4, 13),
-        ]);
-    }
-
     public function testIncorrectValueAndMissingArgument()
     {
         $this->expectFailsRule(new ArgumentsOfCorrectType, '
@@ -668,7 +641,6 @@ class ArgumentsOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->missingArg('multipleReqs', 'req2', 'Int!', 4, 13),
             $this->badValue('req1', 'Int!', '"one"', 4, 32),
         ]);
     }

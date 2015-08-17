@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class Argument extends NamedType
+class Argument extends Node
 {
     public $kind = Node::ARGUMENT;
 
@@ -9,4 +9,9 @@ class Argument extends NamedType
      * @var Value
      */
     public $value;
+
+    /**
+     * @var Name
+     */
+    public $name;
 }

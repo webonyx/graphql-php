@@ -210,16 +210,16 @@ class PossibleFragmentSpreadsTest extends TestCase
 
     private function error($fragName, $parentType, $fragType, $line, $column)
     {
-        return new FormattedError(
-            Messages::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
+        return FormattedError::create(
+            PossibleFragmentSpreads::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
             [new SourceLocation($line, $column)]
         );
     }
 
     private function errorAnon($parentType, $fragType, $line, $column)
     {
-        return new FormattedError(
-            Messages::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
+        return FormattedError::create(
+            PossibleFragmentSpreads::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
             [new SourceLocation($line, $column)]
         );
     }

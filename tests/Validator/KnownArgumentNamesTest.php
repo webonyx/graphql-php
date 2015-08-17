@@ -26,6 +26,15 @@ class KnownArgumentNamesTest extends TestCase
         ');
     }
 
+    public function testIgnoresArgsOfUnknownFields()
+    {
+        $this->expectPassesRule(new KnownArgumentNames, '
+      fragment argOnUnknownField on Dog {
+        unknownField(unknownArg: SIT)
+      }
+        ');
+    }
+
     public function testMultipleArgsInReverseOrderAreKnown()
     {
         $this->expectPassesRule(new KnownArgumentNames, '
@@ -60,6 +69,26 @@ class KnownArgumentNamesTest extends TestCase
         }
       }
         ');
+    }
+
+    public function testDirectiveArgsAreKnown()
+    {
+        $this->expectPassesRule(new KnownArgumentNames, '
+      {
+        dog @skip(if: true)
+      }
+        ');
+    }
+
+    public function testUndirectiveArgsAreInvalid()
+    {
+        $this->expectFailsRule(new KnownArgumentNames, '
+      {
+        dog @skip(unless: true)
+      }
+        ', [
+            $this->unknownDirectiveArg('unless', 'skip', 3, 19),
+        ]);
     }
 
     public function testInvalidArgName()
@@ -106,28 +135,18 @@ class KnownArgumentNamesTest extends TestCase
         ]);
     }
 
-    public function testArgsMayBeOnObjectButNotInterface()
-    {
-        $this->expectFailsRule(new KnownArgumentNames, '
-      fragment nameSometimesHasArg on Being {
-        name(surname: true)
-        ... on Human {
-          name(surname: true)
-        }
-        ... on Dog {
-          name(surname: true)
-        }
-      }
-        ', [
-            $this->unknownArg('surname', 'name', 'Being', 3, 14),
-            $this->unknownArg('surname', 'name', 'Dog', 8, 16)
-        ]);
-    }
-
     private function unknownArg($argName, $fieldName, $typeName, $line, $column)
     {
-        return new FormattedError(
-            Messages::unknownArgMessage($argName, $fieldName, $typeName),
+        return FormattedError::create(
+            KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName),
+            [new SourceLocation($line, $column)]
+        );
+    }
+
+    private function unknownDirectiveArg($argName, $directiveName, $line, $column)
+    {
+        return FormattedError::create(
+            KnownArgumentNames::unknownDirectiveArgMessage($argName, $directiveName),
             [new SourceLocation($line, $column)]
         );
     }

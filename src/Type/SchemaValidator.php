@@ -169,11 +169,6 @@ class SchemaValidator
                 $errors = array_merge($errors, $newErrors);
             }
         }
-        $isValid = empty($errors);
-        $result = [
-            'isValid' => $isValid,
-            'errors' => $isValid ? null : array_map(['GraphQL\Error', 'formatError'], $errors)
-        ];
-        return (object) $result;
+        return $errors;
     }
 }

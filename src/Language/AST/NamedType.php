@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class NamedType extends Node
+class NamedType extends Node implements Type
 {
     public $kind = Node::NAMED_TYPE;
 

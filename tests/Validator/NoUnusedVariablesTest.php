@@ -213,8 +213,8 @@ class NoUnusedVariablesTest extends TestCase
 
     private function unusedVar($varName, $line, $column)
     {
-        return new FormattedError(
-            Messages::unusedVariableMessage($varName),
+        return FormattedError::create(
+            NoUnusedVariables::unusedVariableMessage($varName),
             [new SourceLocation($line, $column)]
         );
     }

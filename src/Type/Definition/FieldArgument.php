@@ -4,6 +4,12 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Utils;
 
+/**
+ * Class FieldArgument
+ *
+ * @package GraphQL\Type\Definition
+ * @todo Rename to Argument as it is also applicable to directives, not only fields
+ */
 class FieldArgument
 {
     /**

@@ -130,10 +130,27 @@ class NoUnusedFragmentsTest extends TestCase
         ]);
     }
 
+    public function testContainsUnknownAndUndefFragments()
+    {
+
+        $this->expectFailsRule(new NoUnusedFragments, '
+      query Foo {
+        human(id: 4) {
+          ...bar
+        }
+      }
+      fragment foo on Human {
+        name
+      }
+    ', [
+            $this->unusedFrag('foo', 7, 7),
+        ]);
+    }
+
     private function unusedFrag($fragName, $line, $column)
     {
-        return new FormattedError(
-            Messages::unusedFragMessage($fragName),
+        return FormattedError::create(
+            NoUnusedFragments::unusedFragMessage($fragName),
             [new SourceLocation($line, $column)]
         );
     }

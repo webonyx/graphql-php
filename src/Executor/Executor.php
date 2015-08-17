@@ -9,6 +9,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Schema;
+use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -16,6 +17,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -45,40 +47,70 @@ class Executor
 {
     private static $UNDEFINED;
 
-    public static function execute(Schema $schema, $root, Document $ast, $operationName = null, array $args = null)
+    private static $defaultResolveFn;
+
+    /**
+     * Custom default resolve function
+     *
+     * @param $fn
+     * @throws \Exception
+     */
+    public function setDefaultResolveFn($fn)
+    {
+        Utils::invariant(is_callable($fn), 'Expecting callable, but got ' . Utils::getVariableType($fn));
+        self::$defaultResolveFn = $fn;
+    }
+
+    /**
+     * @param Schema $schema
+     * @param Document $ast
+     * @param $rootValue
+     * @param array|\ArrayAccess $variableValues
+     * @param null $operationName
+     * @return ExecutionResult
+     */
+    public static function execute(Schema $schema, Document $ast, $rootValue = null, $variableValues = null, $operationName = null)
     {
         if (!self::$UNDEFINED) {
             self::$UNDEFINED = new \stdClass();
         }
 
+        if (null !== $variableValues) {
+            Utils::invariant(
+                is_array($variableValues) || $variableValues instanceof \ArrayAccess,
+                "Variable values are expected to be array or instance of ArrayAccess, got " . Utils::getVariableType($variableValues)
+            );
+        }
+        if (null !== $operationName) {
+            Utils::invariant(
+                is_string($operationName),
+                "Operation name is supposed to be string, got " . Utils::getVariableType($operationName)
+            );
+        }
+
+        $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $variableValues, $operationName);
+
         try {
-            $errors = new \ArrayObject();
-            $exeContext = self::buildExecutionContext($schema, $root, $ast, $operationName, $args, $errors);
-            $data = self::executeOperation($exeContext, $root, $exeContext->operation);
-        } catch (\Exception $e) {
-            $errors[] = $e;
+            $data = self::executeOperation($exeContext, $exeContext->operation, $rootValue);
+        } catch (Error $e) {
+            $exeContext->addError($e);
+            $data = null;
         }
 
-        $result = [
-            'data' => isset($data) ? $data : null
-        ];
-        if (count($errors) > 0) {
-            $result['errors'] = array_map(['GraphQL\Error', 'formatError'], $errors->getArrayCopy());
-        }
-
-        return $result;
+        return new ExecutionResult($data, $exeContext->errors);
     }
 
     /**
      * Constructs a ExecutionContext object from the arguments passed to
      * execute, which we will pass throughout the other execution methods.
      */
-    private static function buildExecutionContext(Schema $schema, $root, Document $ast, $operationName = null, array $args = null, &$errors)
+    private static function buildExecutionContext(Schema $schema, Document $documentAst, $rootValue, $rawVariableValues, $operationName = null)
     {
+        $errors = [];
         $operations = [];
         $fragments = [];
 
-        foreach ($ast->definitions as $statement) {
+        foreach ($documentAst->definitions as $statement) {
             switch ($statement->kind) {
                 case Node::OPERATION_DEFINITION:
                     $operations[$statement->name ? $statement->name->value : ''] = $statement;
@@ -91,32 +123,34 @@ class Executor
 
         if (!$operationName && count($operations) !== 1) {
             throw new Error(
-                'Must provide operation name if query contains multiple operations'
+                'Must provide operation name if query contains multiple operations.'
             );
         }
 
         $opName = $operationName ?: key($operations);
-        if (!isset($operations[$opName])) {
-            throw new Error('Unknown operation name: ' . $opName);
+        if (empty($operations[$opName])) {
+            throw new Error('Unknown operation named ' . $opName);
         }
         $operation = $operations[$opName];
 
-        $variables = Values::getVariableValues($schema, $operation->variableDefinitions ?: array(), $args ?: []);
-        $exeContext = new ExecutionContext($schema, $fragments, $root, $operation, $variables, $errors);
+        $variableValues = Values::getVariableValues($schema, $operation->variableDefinitions ?: [], $rawVariableValues ?: []);
+        $exeContext = new ExecutionContext($schema, $fragments, $rootValue, $operation, $variableValues, $errors);
         return $exeContext;
     }
 
     /**
      * Implements the "Evaluating operations" section of the spec.
      */
-    private static function executeOperation(ExecutionContext $exeContext, $root, OperationDefinition $operation)
+    private static function executeOperation(ExecutionContext $exeContext, OperationDefinition $operation, $rootValue)
     {
         $type = self::getOperationRootType($exeContext->schema, $operation);
         $fields = self::collectFields($exeContext, $type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
+
         if ($operation->operation === 'mutation') {
-            return self::executeFieldsSerially($exeContext, $type, $root, $fields->getArrayCopy());
+            return self::executeFieldsSerially($exeContext, $type, $rootValue, $fields->getArrayCopy());
         }
-        return self::executeFields($exeContext, $type, $root, $fields);
+
+        return self::executeFields($exeContext, $type, $rootValue, $fields);
     }
 
 
@@ -154,11 +188,11 @@ class Executor
      * Implements the "Evaluating selection sets" section of the spec
      * for "write" mode.
      */
-    private static function executeFieldsSerially(ExecutionContext $exeContext, ObjectType $parentType, $source, $fields)
+    private static function executeFieldsSerially(ExecutionContext $exeContext, ObjectType $parentType, $sourceValue, $fields)
     {
         $results = [];
         foreach ($fields as $responseName => $fieldASTs) {
-            $result = self::resolveField($exeContext, $parentType, $source, $fieldASTs);
+            $result = self::resolveField($exeContext, $parentType, $sourceValue, $fieldASTs);
 
             if ($result !== self::$UNDEFINED) {
                 // Undefined means that field is not defined in schema
@@ -250,18 +284,36 @@ class Executor
     }
 
     /**
-     * Determines if a field should be included based on @if and @unless directives.
+     * Determines if a field should be included based on the @include and @skip
+     * directives, where @skip has higher precedence than @include.
      */
     private static function shouldIncludeNode(ExecutionContext $exeContext, $directives)
     {
-        $ifDirective = Values::getDirectiveValue(Directive::ifDirective(), $directives, $exeContext->variables);
-        if ($ifDirective !== null) {
-            return $ifDirective;
+        $skipDirective = Directive::skipDirective();
+        $includeDirective = Directive::includeDirective();
+
+        /** @var \GraphQL\Language\AST\Directive $skipAST */
+        $skipAST = $directives
+            ? Utils::find($directives, function(\GraphQL\Language\AST\Directive $directive) use ($skipDirective) {
+                return $directive->name->value === $skipDirective->name;
+            })
+            : null;
+
+        if ($skipAST) {
+            $argValues = Values::getArgumentValues($skipDirective->args, $skipAST->arguments, $exeContext->variableValues);
+            return empty($argValues['if']);
         }
 
-        $unlessDirective = Values::getDirectiveValue(Directive::unlessDirective(), $directives, $exeContext->variables);
-        if ($unlessDirective !== null) {
-            return !$unlessDirective;
+        /** @var \GraphQL\Language\AST\Directive $includeAST */
+        $includeAST = $directives
+            ? Utils::find($directives, function(\GraphQL\Language\AST\Directive $directive) use ($includeDirective) {
+                return $directive->name->value === $includeDirective->name;
+            })
+            : null;
+
+        if ($includeAST) {
+            $argValues = Values::getArgumentValues($includeDirective->args, $includeAST->arguments, $exeContext->variableValues);
+            return !empty($argValues['if']);
         }
 
         return true;
@@ -293,96 +345,105 @@ class Executor
     }
 
     /**
-     * A wrapper function for resolving the field, that catches the error
-     * and adds it to the context's global if the error is not rethrowable.
+     * Resolves the field on the given source object. In particular, this
+     * figures out the value that the field returns by calling its resolve function,
+     * then calls completeValue to complete promises, serialize scalars, or execute
+     * the sub-selection-set for objects.
      */
     private static function resolveField(ExecutionContext $exeContext, ObjectType $parentType, $source, $fieldASTs)
     {
-        $fieldDef = self::getFieldDef($exeContext->schema, $parentType, $fieldASTs[0]);
+        $fieldAST = $fieldASTs[0];
+        $fieldName = $fieldAST->name->value;
+
+        $fieldDef = self::getFieldDef($exeContext->schema, $parentType, $fieldName);
+
         if (!$fieldDef) {
             return self::$UNDEFINED;
         }
 
+        $returnType = $fieldDef->getType();
+
+        if (isset($fieldDef->resolve)) {
+            $resolveFn = $fieldDef->resolve;
+        } else if (isset(self::$defaultResolveFn)) {
+            $resolveFn = self::$defaultResolveFn;
+        } else {
+            $resolveFn = [__CLASS__, 'defaultResolveFn'];
+        }
+
+        // Build hash of arguments from the field.arguments AST, using the
+        // variables scope to fulfill any variable references.
+        // TODO: find a way to memoize, in case this field is within a List type.
+        $args = Values::getArgumentValues(
+            $fieldDef->args,
+            $fieldAST->arguments,
+            $exeContext->variableValues
+        );
+
+        // The resolve function's optional third argument is a collection of
+        // information about the current execution state.
+        $info = new ResolveInfo([
+            'fieldName' => $fieldName,
+            'fieldASTs' => $fieldASTs,
+            'returnType' => $returnType,
+            'parentType' => $parentType,
+            'schema' => $exeContext->schema,
+            'fragments' => $exeContext->fragments,
+            'rootValue' => $exeContext->rootValue,
+            'operation' => $exeContext->operation,
+            'variableValues' => $exeContext->variableValues,
+        ]);
+
+        // If an error occurs while calling the field `resolve` function, ensure that
+        // it is wrapped as a GraphQLError with locations. Log this error and return
+        // null if allowed, otherwise throw the error so the parent field can handle
+        // it.
+        try {
+            $result = call_user_func($resolveFn, $source, $args, $info);
+        } catch (\Exception $error) {
+            $reportedError = Error::createLocatedError($error, $fieldASTs);
+
+            if ($returnType instanceof NonNull) {
+                throw $reportedError;
+            }
+
+            $exeContext->addError($reportedError);
+            return null;
+        }
+
+        return self::completeValueCatchingError(
+            $exeContext,
+            $returnType,
+            $fieldASTs,
+            $info,
+            $result
+        );
+    }
+
+
+    public static function completeValueCatchingError(
+        ExecutionContext $exeContext,
+        Type $returnType,
+        $fieldASTs,
+        ResolveInfo $info,
+        $result
+    )
+    {
         // If the field type is non-nullable, then it is resolved without any
         // protection from errors.
-        if ($fieldDef->getType() instanceof NonNull) {
-            return self::resolveFieldOrError(
-                $exeContext,
-                $parentType,
-                $source,
-                $fieldASTs,
-                $fieldDef
-            );
+        if ($returnType instanceof NonNull) {
+            return self::completeValue($exeContext, $returnType, $fieldASTs, $info, $result);
         }
 
         // Otherwise, error protection is applied, logging the error and resolving
         // a null value for this field if one is encountered.
         try {
-            $result = self::resolveFieldOrError(
-                $exeContext,
-                $parentType,
-                $source,
-                $fieldASTs,
-                $fieldDef
-            );
-
-            return $result;
-        } catch (\Exception $error) {
-            $exeContext->addError($error);
+            return self::completeValue($exeContext, $returnType, $fieldASTs, $info, $result);
+        } catch (Error $err) {
+            $exeContext->addError($err);
             return null;
         }
     }
-
-    /**
-     * Resolves the field on the given source object. In particular, this
-     * figures out the object that the field returns using the resolve function,
-     * then calls completeField to coerce scalars or execute the sub
-     * selection set for objects.
-     */
-    private static function resolveFieldOrError(
-        ExecutionContext $exeContext,
-        ObjectType $parentType,
-        $source,
-        /*array<Field>*/ $fieldASTs,
-        FieldDefinition $fieldDef
-    )
-    {
-        $fieldAST = $fieldASTs[0];
-        $fieldType = $fieldDef->getType();
-        $resolveFn = $fieldDef->resolve ?: [__CLASS__, 'defaultResolveFn'];
-
-        // Build a JS object of arguments from the field.arguments AST, using the
-        // variables scope to fulfill any variable references.
-        // TODO: find a way to memoize, in case this field is within a Array type.
-        $args = Values::getArgumentValues(
-            $fieldDef->args,
-            $fieldAST->arguments,
-            $exeContext->variables
-        );
-
-        try {
-            $result = call_user_func($resolveFn,
-                $source,
-                $args,
-                $exeContext->root,
-                // TODO: provide all fieldASTs, not just the first field
-                $fieldAST,
-                $fieldType,
-                $parentType,
-                $exeContext->schema
-            );
-        } catch (\Exception $error) {
-            throw Error::createLocatedError($error, [$fieldAST]);
-        }
-
-        return self::completeField(
-            $exeContext,
-            $fieldType,
-            $fieldASTs,
-            $result
-        );
-    }
-
 
     /**
      * Implements the instructions for completeValue as defined in the
@@ -396,20 +457,22 @@ class Executor
      * for the inner type on each item in the list.
      *
      * If the field type is a Scalar or Enum, ensures the completed value is a legal
-     * value of the type by calling the `coerce` method of GraphQL type definition.
+     * value of the type by calling the `serialize` method of GraphQL type
+     * definition.
      *
      * Otherwise, the field type expects a sub-selection set, and will complete the
      * value by evaluating all sub-selections.
      */
-    private static function completeField(ExecutionContext $exeContext, Type $fieldType,/* Array<Field> */ $fieldASTs, &$result)
+    private static function completeValue(ExecutionContext $exeContext, Type $returnType,/* Array<Field> */ $fieldASTs, ResolveInfo $info, &$result)
     {
         // If field type is NonNull, complete for inner type, and throw field error
         // if result is null.
-        if ($fieldType instanceof NonNull) {
-            $completed = self::completeField(
+        if ($returnType instanceof NonNull) {
+            $completed = self::completeValue(
                 $exeContext,
-                $fieldType->getWrappedType(),
+                $returnType->getWrappedType(),
                 $fieldASTs,
+                $info,
                 $result
             );
             if ($completed === null) {
@@ -427,8 +490,8 @@ class Executor
         }
 
         // If field type is List, complete each item in the list with the inner type
-        if ($fieldType instanceof ListOfType) {
-            $itemType = $fieldType->getWrappedType();
+        if ($returnType instanceof ListOfType) {
+            $itemType = $returnType->getWrappedType();
             Utils::invariant(
                 is_array($result) || $result instanceof \Traversable,
                 'User Error: expected iterable, but did not find one.'
@@ -436,30 +499,46 @@ class Executor
 
             $tmp = [];
             foreach ($result as $item) {
-                $tmp[] = self::completeField($exeContext, $itemType, $fieldASTs, $item);
+                $tmp[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $item);
             }
             return $tmp;
         }
 
-        // If field type is Scalar or Enum, coerce to a valid value, returning null
-        // if coercion is not possible.
-        if ($fieldType instanceof ScalarType ||
-            $fieldType instanceof EnumType
-        ) {
-            Utils::invariant(method_exists($fieldType, 'coerce'), 'Missing coerce method on type');
-            return $fieldType->coerce($result);
+        // If field type is Scalar or Enum, serialize to a valid value, returning
+        // null if serialization is not possible.
+        if ($returnType instanceof ScalarType ||
+            $returnType instanceof EnumType) {
+            Utils::invariant(method_exists($returnType, 'serialize'), 'Missing serialize method on type');
+            return $returnType->serialize($result);
         }
 
         // Field type must be Object, Interface or Union and expect sub-selections.
+        if ($returnType instanceof ObjectType) {
+            $objectType = $returnType;
+        } else if ($returnType instanceof AbstractType) {
+            $objectType = $returnType->getObjectType($result, $info);
 
-        $objectType =
-            $fieldType instanceof ObjectType ? $fieldType :
-                ($fieldType instanceof InterfaceType ||
-                $fieldType instanceof UnionType ? $fieldType->resolveType($result) :
-                    null);
+            if ($objectType && !$returnType->isPossibleType($objectType)) {
+                throw new Error(
+                    "Runtime Object type \"$objectType\" is not a possible type for \"$returnType\"."
+                );
+            }
+        } else {
+            $objectType = null;
+        }
 
         if (!$objectType) {
             return null;
+        }
+
+        // If there is an isTypeOf predicate function, call it with the
+        // current result. If isTypeOf returns false, then raise an error rather
+        // than continuing execution.
+        if (false === $objectType->isTypeOf($result, $info)) {
+            throw new Error(
+                "Expected value of type $objectType but got: $result.",
+                $fieldASTs
+            );
         }
 
         // Collect sub-fields to execute to complete this value.
@@ -488,17 +567,18 @@ class Executor
      * and returns it as the result, or if it's a function, returns the result
      * of calling that function.
      */
-    public static function defaultResolveFn($source, $args, $root, $fieldAST)
+    public static function defaultResolveFn($source, $args, ResolveInfo $info)
     {
+        $fieldName = $info->fieldName;
         $property = null;
+
         if (is_array($source) || $source instanceof \ArrayAccess) {
-            if (isset($source[$fieldAST->name->value])) {
-                $property = $source[$fieldAST->name->value];
+            if (isset($source[$fieldName])) {
+                $property = $source[$fieldName];
             }
         } else if (is_object($source)) {
-            if (property_exists($source, $fieldAST->name->value)) {
-                $e = func_get_args();
-                $property = $source->{$fieldAST->name->value};
+            if (property_exists($source, $fieldName)) {
+                $property = $source->{$fieldName};
             }
         }
 
@@ -516,25 +596,21 @@ class Executor
      *
      * @return FieldDefinition
      */
-    private static function getFieldDef(Schema $schema, ObjectType $parentType, Field $fieldAST)
+    private static function getFieldDef(Schema $schema, ObjectType $parentType, $fieldName)
     {
-        $name = $fieldAST->name->value;
         $schemaMetaFieldDef = Introspection::schemaMetaFieldDef();
         $typeMetaFieldDef = Introspection::typeMetaFieldDef();
         $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
 
-        if ($name === $schemaMetaFieldDef->name &&
-            $schema->getQueryType() === $parentType
-        ) {
+        if ($fieldName === $schemaMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $schemaMetaFieldDef;
-        } else if ($name === $typeMetaFieldDef->name &&
-            $schema->getQueryType() === $parentType
-        ) {
+        } else if ($fieldName === $typeMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $typeMetaFieldDef;
-        } else if ($name === $typeNameMetaFieldDef->name) {
+        } else if ($fieldName === $typeNameMetaFieldDef->name) {
             return $typeNameMetaFieldDef;
         }
+
         $tmp = $parentType->getFields();
-        return isset($tmp[$name]) ? $tmp[$name] : null;
+        return isset($tmp[$fieldName]) ? $tmp[$fieldName] : null;
     }
 }

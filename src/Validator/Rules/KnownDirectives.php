@@ -15,6 +15,16 @@ use GraphQL\Validator\ValidationContext;
 
 class KnownDirectives
 {
+    static function unknownDirectiveMessage($directiveName)
+    {
+        return "Unknown directive \"$directiveName\".";
+    }
+
+    static function misplacedDirectiveMessage($directiveName, $placement)
+    {
+        return "Directive \"$directiveName\" may not be used on \"$placement\".";
+    }
+
     public function __invoke(ValidationContext $context)
     {
         return [
@@ -29,7 +39,7 @@ class KnownDirectives
 
                 if (!$directiveDef) {
                     return new Error(
-                        Messages::unknownDirectiveMessage($node->name->value),
+                        self::unknownDirectiveMessage($node->name->value),
                         [$node]
                     );
                 }
@@ -37,13 +47,13 @@ class KnownDirectives
 
                 if ($appliedTo instanceof OperationDefinition && !$directiveDef->onOperation) {
                     return new Error(
-                        Messages::misplacedDirectiveMessage($node->name->value, 'operation'),
+                        self::misplacedDirectiveMessage($node->name->value, 'operation'),
                         [$node]
                     );
                 }
                 if ($appliedTo instanceof Field && !$directiveDef->onField) {
                     return new Error(
-                        Messages::misplacedDirectiveMessage($node->name->value, 'field'),
+                        self::misplacedDirectiveMessage($node->name->value, 'field'),
                         [$node]
                     );
                 }
@@ -56,7 +66,7 @@ class KnownDirectives
 
                 if ($fragmentKind && !$directiveDef->onFragment) {
                     return new Error(
-                        Messages::misplacedDirectiveMessage($node->name->value, 'fragment'),
+                        self::misplacedDirectiveMessage($node->name->value, 'fragment'),
                         [$node]
                     );
                 }

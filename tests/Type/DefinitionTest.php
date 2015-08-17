@@ -6,7 +6,6 @@ use GraphQL\Type\Definition\Config;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
-use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
@@ -67,7 +66,10 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->objectType = new ObjectType(['name' => 'Object']);
+        $this->objectType = new ObjectType([
+            'name' => 'Object',
+            'isTypeOf' => function() {return true;}
+        ]);
         $this->interfaceType = new InterfaceType(['name' => 'Interface']);
         $this->unionType = new UnionType(['name' => 'Union', 'types' => [$this->objectType]]);
         $this->enumType = new EnumType(['name' => 'Enum']);
@@ -176,20 +178,83 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('writeArticle', $writeMutation->name);
     }
 
+    public function testIncludesNestedInputObjectInTheMap()
+    {
+        $nestedInputObject = new InputObjectType([
+            'name' => 'NestedInputObject',
+            'fields' => ['value' => ['type' => Type::string()]]
+        ]);
+        $someInputObject = new InputObjectType([
+            'name' => 'SomeInputObject',
+            'fields' => ['nested' => ['type' => $nestedInputObject]]
+        ]);
+        $someMutation = new ObjectType([
+            'name' => 'SomeMutation',
+            'fields' => [
+                'mutateSomething' => [
+                    'type' => $this->blogArticle,
+                    'args' => ['input' => ['type' => $someInputObject]]
+                ]
+            ]
+        ]);
+
+        $schema = new Schema($this->blogQuery, $someMutation);
+        $this->assertSame($nestedInputObject, $schema->getType('NestedInputObject'));
+    }
+
     public function testIncludesInterfaceSubtypesInTheTypeMap()
     {
         $someInterface = new InterfaceType([
             'name' => 'SomeInterface',
-            'fields' => []
+            'fields' => [
+                'f' => ['type' => Type::int()]
+            ]
         ]);
 
         $someSubtype = new ObjectType([
             'name' => 'SomeSubtype',
-            'fields' => [],
-            'interfaces' => [$someInterface]
+            'fields' => [
+                'f' => ['type' => Type::int()]
+            ],
+            'interfaces' => [$someInterface],
+            'isTypeOf' => function() {return true;}
         ]);
 
-        $schema = new Schema($someInterface);
+        $schema = new Schema(new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'iface' => ['type' => $someInterface]
+            ]
+        ]));
+        $this->assertSame($someSubtype, $schema->getType('SomeSubtype'));
+    }
+
+    public function testIncludesInterfacesThunkSubtypesInTheTypeMap()
+    {
+        // includes interfaces' thunk subtypes in the type map
+        $someInterface = new InterfaceType([
+            'name' => 'SomeInterface',
+            'fields' => [
+                'f' => ['type' => Type::int()]
+            ]
+        ]);
+
+        $someSubtype = new ObjectType([
+            'name' => 'SomeSubtype',
+            'fields' => [
+                'f' => ['type' => Type::int()]
+            ],
+            'interfaces' => function() use ($someInterface) { return [$someInterface]; },
+            'isTypeOf' => function() {return true;}
+        ]);
+
+        $schema = new Schema(new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'iface' => ['type' => $someInterface]
+            ]
+        ]));
+
         $this->assertSame($someSubtype, $schema->getType('SomeSubtype'));
     }
 

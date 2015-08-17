@@ -1,17 +1,21 @@
 <?php
 namespace GraphQL\Executor;
 
+require_once __DIR__ . '/TestClasses.php';
+
+use GraphQL\Error;
 use GraphQL\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 
-class InputObjectTest extends \PHPUnit_Framework_TestCase
+class VariablesTest extends \PHPUnit_Framework_TestCase
 {
-    // Execute: Handles input objects
+    // Execute: Handles inputs
     // Handles objects and nullability
 
     public function testUsingInlineStructs()
@@ -29,9 +33,9 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
             'fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}'
           ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
 
-        // properly coerces single value to array:
+        // properly parses single value to list:
         $doc = '
         {
           fieldWithObjectInput(input: {a: "foo", b: "bar", c: "baz"})
@@ -40,7 +44,23 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse($doc);
         $expected = ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
+    }
+
+    public function testDoesNotUseIncorrectValue()
+    {
+        $doc = '
+        {
+          fieldWithObjectInput(input: ["foo", "bar", "baz"])
+        }
+        ';
+        $ast = Parser::parse($doc);
+        $result = Executor::execute($this->schema(), $ast)->toArray();
+
+        $expected = [
+            'data' => ['fieldWithObjectInput' => null]
+        ];
+        $this->assertEquals($expected, $result);
     }
 
     public function testUsingVariables()
@@ -57,46 +77,100 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']],
-            Executor::execute($schema, null, $ast, null, $params)
+            Executor::execute($schema, $ast, null, $params)->toArray()
         );
 
-        // properly coerces single value to array:
+        // uses default value when not provided:
+        $withDefaultsAST = Parser::parse('
+          query q($input: TestInputObject = {a: "foo", b: ["bar"], c: "baz"}) {
+            fieldWithObjectInput(input: $input)
+          }
+        ');
+
+        $result = Executor::execute($this->schema(), $withDefaultsAST)->toArray();
+        $expected = [
+            'data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']
+        ];
+        $this->assertEquals($expected, $result);
+
+
+        // properly parses single value to array:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']];
         $this->assertEquals(
             ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']],
-            Executor::execute($schema, null, $ast, null, $params)
+            Executor::execute($schema, $ast, null, $params)->toArray()
         );
+
+        // executes with complex scalar input:
+        $params = [ 'input' => [ 'c' => 'foo', 'd' => 'SerializedValue' ] ];
+        $result = Executor::execute($schema, $ast, null, $params)->toArray();
+        $expected = [
+          'data' => [
+            'fieldWithObjectInput' => '{"c":"foo","d":"DeserializedValue"}'
+          ]
+        ];
+        $this->assertEquals($expected, $result);
 
         // errors on null for nested non-null:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => null]];
-        $expected = [
-            'data' => null,
-            'errors' => [
-                new FormattedError(
-                    'Variable $input expected value of type ' .
-                    'TestInputObject but got: ' .
-                    '{"a":"foo","b":"bar","c":null}.',
-                    [new SourceLocation(2, 17)]
-                )
-            ]
-        ];
+        $expected = FormattedError::create(
+            'Variable $input expected value of type ' .
+            'TestInputObject but got: ' .
+            '{"a":"foo","b":"bar","c":null}.',
+            [new SourceLocation(2, 17)]
+        );
 
-        $this->assertEquals($expected, Executor::execute($schema, null, $ast, null, $params));
+        try {
+            Executor::execute($schema, $ast, null, $params);
+            $this->fail('Expected exception not thrown');
+        } catch (Error $err) {
+            $this->assertEquals($expected, Error::formatError($err));
+        }
+
+        // errors on incorrect type:
+        $params = [ 'input' => 'foo bar' ];
+
+        try {
+            Executor::execute($schema, $ast, null, $params);
+            $this->fail('Expected exception not thrown');
+        } catch (Error $error) {
+            $expected = FormattedError::create(
+                'Variable $input expected value of type TestInputObject but got: "foo bar".',
+                [new SourceLocation(2, 17)]
+            );
+            $this->assertEquals($expected, Error::formatError($error));
+        }
 
         // errors on omission of nested non-null:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar']];
-        $expected = [
-            'data' => null,
-            'errors' => [
-                new FormattedError(
-                    'Variable $input expected value of type ' .
-                    'TestInputObject but got: {"a":"foo","b":"bar"}.',
-                    [new SourceLocation(2, 17)]
-                )
-            ]
-        ];
 
-        $this->assertEquals($expected, Executor::execute($schema, null, $ast, null, $params));
+        try {
+            Executor::execute($schema, $ast, null, $params);
+            $this->fail('Expected exception not thrown');
+        } catch (Error $e) {
+            $expected = FormattedError::create(
+                'Variable $input expected value of type ' .
+                'TestInputObject but got: {"a":"foo","b":"bar"}.',
+                [new SourceLocation(2, 17)]
+            );
+
+            $this->assertEquals($expected, Error::formatError($e));
+        }
+
+        // errors on addition of unknown input field
+        $params = ['input' => [ 'a' => 'foo', 'b' => 'bar', 'c' => 'baz', 'd' => 'dog' ]];
+
+        try {
+            Executor::execute($schema, $ast, null, $params);
+            $this->fail('Expected exception not thrown');
+        } catch (Error $e) {
+            $expected = FormattedError::create(
+                'Variable $input expected value of type TestInputObject but ' .
+                'got: {"a":"foo","b":"bar","c":"baz","d":"dog"}.',
+                [new SourceLocation(2, 17)]
+            );
+            $this->assertEquals($expected, Error::formatError($e));
+        }
     }
 
 
@@ -110,10 +184,10 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = [
-            'data' => ['fieldWithNullableStringInput' => 'null']
+            'data' => ['fieldWithNullableStringInput' => null]
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
     }
 
     public function testAllowsNullableInputsToBeOmittedInAVariable()
@@ -124,9 +198,9 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
       }
         ';
         $ast = Parser::parse($doc);
-        $expected = ['data' => ['fieldWithNullableStringInput' => 'null']];
+        $expected = ['data' => ['fieldWithNullableStringInput' => null]];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
     }
 
     public function testAllowsNullableInputsToBeOmittedInAnUnlistedVariable()
@@ -137,8 +211,8 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
       }
       ';
         $ast = Parser::parse($doc);
-        $expected = ['data' => ['fieldWithNullableStringInput' => 'null']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $expected = ['data' => ['fieldWithNullableStringInput' => null]];
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
     }
 
     public function testAllowsNullableInputsToBeSetToNullInAVariable()
@@ -149,21 +223,9 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
       }
         ';
         $ast = Parser::parse($doc);
-        $expected = ['data' => ['fieldWithNullableStringInput' => 'null']];
+        $expected = ['data' => ['fieldWithNullableStringInput' => null]];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['value' => null]));
-    }
-
-    public function testAllowsNullableInputsToBeSetToNullDirectly()
-    {
-        $doc = '
-      {
-        fieldWithNullableStringInput(input: null)
-      }
-        ';
-        $ast = Parser::parse($doc);
-        $expected = ['data' => ['fieldWithNullableStringInput' => 'null']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['value' => null])->toArray());
     }
 
     public function testAllowsNullableInputsToBeSetToAValueInAVariable()
@@ -175,7 +237,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = ['data' => ['fieldWithNullableStringInput' => '"a"']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['value' => 'a']));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['value' => 'a'])->toArray());
     }
 
     public function testAllowsNullableInputsToBeSetToAValueDirectly()
@@ -187,7 +249,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = ['data' => ['fieldWithNullableStringInput' => '"a"']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
     }
 
 
@@ -201,16 +263,16 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         }
         ';
         $ast = Parser::parse($doc);
-        $expected = [
-            'data' => null,
-            'errors' => [
-                new FormattedError(
-                    'Variable $value expected value of type String! but got: null.',
-                    [new SourceLocation(2, 31)]
-                )
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        try {
+            Executor::execute($this->schema(), $ast);
+            $this->fail('Expected exception not thrown');
+        } catch (Error $e) {
+            $expected = FormattedError::create(
+                'Variable $value expected value of type String! but got: null.',
+                [new SourceLocation(2, 31)]
+            );
+            $this->assertEquals($expected, Error::formatError($e));
+        }
     }
 
     public function testDoesNotAllowNonNullableInputsToBeSetToNullInAVariable()
@@ -222,16 +284,17 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         }
         ';
         $ast = Parser::parse($doc);
-        $expected = [
-            'data' => null,
-            'errors' => [
-                new FormattedError(
-                    'Variable $value expected value of type String! but got: null.',
-                    [new SourceLocation(2, 31)]
-                )
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['value' => null]));
+
+        try {
+            Executor::execute($this->schema(), $ast, null, ['value' => null]);
+            $this->fail('Expected exception not thrown');
+        } catch (Error $e) {
+            $expected = FormattedError::create(
+                'Variable $value expected value of type String! but got: null.',
+                [new SourceLocation(2, 31)]
+            );
+            $this->assertEquals($expected, Error::formatError($e));
+        }
     }
 
     public function testAllowsNonNullableInputsToBeSetToAValueInAVariable()
@@ -243,7 +306,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = ['data' => ['fieldWithNonNullableStringInput' => '"a"']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['value' => 'a']));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['value' => 'a'])->toArray());
     }
 
     public function testAllowsNonNullableInputsToBeSetToAValueDirectly()
@@ -256,7 +319,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse($doc);
         $expected = ['data' => ['fieldWithNonNullableStringInput' => '"a"']];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
     }
 
     public function testPassesAlongNullForNonNullableInputsIfExplcitlySetInTheQuery()
@@ -267,8 +330,8 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
       }
         ';
         $ast = Parser::parse($doc);
-        $expected = ['data' => ['fieldWithNonNullableStringInput' => 'null']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast));
+        $expected = ['data' => ['fieldWithNonNullableStringInput' => null]];
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
     }
 
     // Handles lists and nullability
@@ -280,9 +343,9 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         }
         ';
         $ast = Parser::parse($doc);
-        $expected = ['data' => ['list' => 'null']];
+        $expected = ['data' => ['list' => null]];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => null]));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => null])->toArray());
     }
 
     public function testAllowsListsToContainValues()
@@ -294,7 +357,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = ['data' => ['list' => '["A"]']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => ['A']]));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => ['A']])->toArray());
     }
 
     public function testAllowsListsToContainNull()
@@ -306,7 +369,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = ['data' => ['list' => '["A",null,"B"]']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => ['A',null,'B']]));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => ['A',null,'B']])->toArray());
     }
 
     public function testDoesNotAllowNonNullListsToBeNull()
@@ -317,17 +380,17 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         }
         ';
         $ast = Parser::parse($doc);
-        $expected = [
-            'data' => null,
-            'errors' => [
-                new FormattedError(
-                    'Variable $input expected value of type [String]! but got: null.',
-                    [new SourceLocation(2, 17)]
-                )
-            ]
-        ];
+        $expected = FormattedError::create(
+            'Variable $input expected value of type [String]! but got: null.',
+            [new SourceLocation(2, 17)]
+        );
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => null]));
+        try {
+            $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => null])->toArray());
+            $this->fail('Expected exception not thrown');
+        } catch (Error $e) {
+            $this->assertEquals($expected, Error::formatError($e));
+        }
     }
 
     public function testAllowsNonNullListsToContainValues()
@@ -339,7 +402,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = ['data' => ['nnList' => '["A"]']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => 'A']));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => 'A'])->toArray());
     }
 
     public function testAllowsNonNullListsToContainNull()
@@ -352,7 +415,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse($doc);
         $expected = ['data' => ['nnList' => '["A",null,"B"]']];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => ['A',null,'B']]));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => ['A',null,'B']])->toArray());
     }
 
     public function testAllowsListsOfNonNullsToBeNull()
@@ -363,8 +426,8 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         }
         ';
         $ast = Parser::parse($doc);
-        $expected = ['data' => ['listNN' => 'null']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => null]));
+        $expected = ['data' => ['listNN' => null]];
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => null])->toArray());
     }
 
     public function testAllowsListsOfNonNullsToContainValues()
@@ -377,7 +440,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse($doc);
         $expected = ['data' => ['listNN' => '["A"]']];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => 'A']));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => 'A'])->toArray());
     }
 
     public function testDoesNotAllowListsOfNonNullsToContainNull()
@@ -388,16 +451,17 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         }
         ';
         $ast = Parser::parse($doc);
-        $expected = [
-            'data' => null,
-            'errors' => [
-                new FormattedError(
-                    'Variable $input expected value of type [String!] but got: ["A",null,"B"].',
-                    [new SourceLocation(2, 17)]
-                )
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => ['A', null, 'B']]));
+        $expected = FormattedError::create(
+            'Variable $input expected value of type [String!] but got: ["A",null,"B"].',
+            [new SourceLocation(2, 17)]
+        );
+
+        try {
+            Executor::execute($this->schema(), $ast, null, ['input' => ['A', null, 'B']]);
+            $this->fail('Expected exception not thrown');
+        } catch (Error $e) {
+            $this->assertEquals($expected, Error::formatError($e));
+        }
     }
 
     public function testDoesNotAllowNonNullListsOfNonNullsToBeNull()
@@ -408,16 +472,15 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         }
         ';
         $ast = Parser::parse($doc);
-        $expected = [
-            'data' => null,
-            'errors' => [
-                new FormattedError(
-                    'Variable $input expected value of type [String!]! but got: null.',
-                    [new SourceLocation(2, 17)]
-                )
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => null]));
+        $expected = FormattedError::create(
+            'Variable $input expected value of type [String!]! but got: null.',
+            [new SourceLocation(2, 17)]
+        );
+        try {
+            Executor::execute($this->schema(), $ast, null, ['input' => null]);
+        } catch (Error $e) {
+            $this->assertEquals($expected, Error::formatError($e));
+        }
     }
 
     public function testAllowsNonNullListsOfNonNullsToContainValues()
@@ -429,7 +492,7 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = ['data' => ['nnListNN' => '["A"]']];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => ['A']]));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, ['input' => ['A']])->toArray());
     }
 
     public function testDoesNotAllowNonNullListsOfNonNullsToContainNull()
@@ -440,27 +503,29 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
         }
         ';
         $ast = Parser::parse($doc);
-        $expected = [
-            'data' => null,
-            'errors' => [
-                new FormattedError(
-                    'Variable $input expected value of type [String!]! but got: ["A",null,"B"].',
-                    [new SourceLocation(2, 17)]
-                )
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), null, $ast, null, ['input' => ['A',null,'B']]));
+        $expected = FormattedError::create(
+            'Variable $input expected value of type [String!]! but got: ["A",null,"B"].',
+            [new SourceLocation(2, 17)]
+        );
+        try {
+            Executor::execute($this->schema(), $ast, null, ['input' => ['A', null, 'B']]);
+        } catch (Error $e) {
+            $this->assertEquals($expected, Error::formatError($e));
+        }
     }
 
 
     public function schema()
     {
+        $ComplexScalarType = ComplexScalar::create();
+
         $TestInputObject = new InputObjectType([
             'name' => 'TestInputObject',
             'fields' => [
                 'a' => ['type' => Type::string()],
                 'b' => ['type' => Type::listOf(Type::string())],
-                'c' => ['type' => Type::nonNull(Type::string())]
+                'c' => ['type' => Type::nonNull(Type::string())],
+                'd' => ['type' => $ComplexScalarType],
             ]
         ]);
 
@@ -471,49 +536,56 @@ class InputObjectTest extends \PHPUnit_Framework_TestCase
                     'type' => Type::string(),
                     'args' => ['input' => ['type' => $TestInputObject]],
                     'resolve' => function ($_, $args) {
-                        return json_encode($args['input']);
+                        return isset($args['input']) ? json_encode($args['input']) : null;
                     }
                 ],
                 'fieldWithNullableStringInput' => [
                     'type' => Type::string(),
                     'args' => ['input' => ['type' => Type::string()]],
                     'resolve' => function ($_, $args) {
-                        return json_encode($args['input']);
+                        return isset($args['input']) ?  json_encode($args['input']) : null;
                     }
                 ],
                 'fieldWithNonNullableStringInput' => [
                     'type' => Type::string(),
                     'args' => ['input' => ['type' => Type::nonNull(Type::string())]],
                     'resolve' => function ($_, $args) {
-                        return json_encode($args['input']);
+                        return isset($args['input']) ? json_encode($args['input']) : null;
+                    }
+                ],
+                'fieldWithDefaultArgumentValue' => [
+                    'type' => Type::string(),
+                    'args' => [ 'input' => [ 'type' => Type::string(), 'defaultValue' => 'Hello World' ]],
+                    'resolve' => function($_, $args) {
+                        return isset($args['input']) ? json_encode($args['input']) : null;
                     }
                 ],
                 'list' => [
                     'type' => Type::string(),
                     'args' => ['input' => ['type' => Type::listOf(Type::string())]],
                     'resolve' => function ($_, $args) {
-                        return json_encode($args['input']);
+                        return isset($args['input']) ? json_encode($args['input']) : null;
                     }
                 ],
                 'nnList' => [
                     'type' => Type::string(),
                     'args' => ['input' => ['type' => Type::nonNull(Type::listOf(Type::string()))]],
                     'resolve' => function ($_, $args) {
-                        return json_encode($args['input']);
+                        return isset($args['input']) ? json_encode($args['input']) : null;
                     }
                 ],
                 'listNN' => [
                     'type' => Type::string(),
                     'args' => ['input' => ['type' => Type::listOf(Type::nonNull(Type::string()))]],
                     'resolve' => function ($_, $args) {
-                        return json_encode($args['input']);
+                        return isset($args['input']) ? json_encode($args['input']) : null;
                     }
                 ],
                 'nnListNN' => [
                     'type' => Type::string(),
                     'args' => ['input' => ['type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))]],
                     'resolve' => function ($_, $args) {
-                        return json_encode($args['input']);
+                        return isset($args['input']) ? json_encode($args['input']) : null;
                     }
                 ],
             ]

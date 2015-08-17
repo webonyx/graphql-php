@@ -2,7 +2,7 @@
 namespace GraphQL\Validator;
 
 use GraphQL\Error;
-use GraphQL\Language\AST\ArrayValue;
+use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
@@ -33,6 +33,7 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
+use GraphQL\Validator\Rules\ProvidedNonNullArguments;
 use GraphQL\Validator\Rules\ScalarLeafs;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
@@ -45,23 +46,28 @@ class DocumentValidator
     {
         if (null === self::$allRules) {
             self::$allRules = [
-                new ArgumentsOfCorrectType(),
-                new DefaultValuesOfCorrectType(),
-                new FieldsOnCorrectType(),
-                new FragmentsOnCompositeTypes(),
-                new KnownArgumentNames(),
-                new KnownDirectives(),
-                new KnownFragmentNames(),
-                new KnownTypeNames(),
-                new NoFragmentCycles(),
-                new NoUndefinedVariables(),
-                new NoUnusedFragments(),
-                new NoUnusedVariables(),
-                new OverlappingFieldsCanBeMerged(),
-                new PossibleFragmentSpreads(),
-                new ScalarLeafs(),
-                new VariablesAreInputTypes(),
-                new VariablesInAllowedPosition()
+                // new UniqueOperationNames,
+                // new LoneAnonymousOperation,
+                new KnownTypeNames,
+                new FragmentsOnCompositeTypes,
+                new VariablesAreInputTypes,
+                new ScalarLeafs,
+                new FieldsOnCorrectType,
+                // new UniqueFragmentNames,
+                new KnownFragmentNames,
+                new NoUnusedFragments,
+                new PossibleFragmentSpreads,
+                new NoFragmentCycles,
+                new NoUndefinedVariables,
+                new NoUnusedVariables,
+                new KnownDirectives,
+                new KnownArgumentNames,
+                // new UniqueArgumentNames,
+                new ArgumentsOfCorrectType,
+                new ProvidedNonNullArguments,
+                new DefaultValuesOfCorrectType,
+                new VariablesInAllowedPosition,
+                new OverlappingFieldsCanBeMerged,
             ];
         }
         return self::$allRules;
@@ -70,13 +76,7 @@ class DocumentValidator
     public static function validate(Schema $schema, Document $ast, array $rules = null)
     {
         $errors = self::visitUsingRules($schema, $ast, $rules ?: self::allRules());
-        $isValid = empty($errors);
-
-        $result = [
-            'isValid' => $isValid,
-            'errors' => $isValid ? null : array_map(['GraphQL\Error', 'formatError'], $errors)
-        ];
-        return $result;
+        return $errors;
     }
 
     static function isError($value)
@@ -121,7 +121,7 @@ class DocumentValidator
         // Lists accept a non-list value as a list of one.
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            if ($valueAST instanceof ArrayValue) {
+            if ($valueAST instanceof ListValue) {
                 foreach($valueAST->values as $itemAST) {
                     if (!self::isValidLiteralValue($itemAST, $itemType)) {
                         return false;
@@ -133,10 +133,10 @@ class DocumentValidator
             }
         }
 
-        // Scalar/Enum input checks to ensure the type can coerce the value to
+        // Scalar/Enum input checks to ensure the type can serialize the value to
         // a non-null value.
         if ($type instanceof ScalarType || $type instanceof EnumType) {
-            return $type->coerceLiteral($valueAST) !== null;
+            return $type->parseLiteral($valueAST) !== null;
         }
 
         // Input objects check each defined field, ensuring it is of the correct
@@ -294,7 +294,7 @@ class DocumentValidator
                                 if ($result->doBreak) {
                                     $instances[$i] = null;
                                 }
-                            } if (self::isError($result)) {
+                            } else if (self::isError($result)) {
                                 self::append($errors, $result);
                             } else if ($result !== null) {
                                 throw new \Exception("Config cannot edit document.");

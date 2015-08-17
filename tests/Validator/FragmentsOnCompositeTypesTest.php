@@ -86,8 +86,8 @@ class FragmentsOnCompositeTypesTest extends TestCase
         }
       }
         ',
-        [new FormattedError(
-            Messages::inlineFragmentOnNonCompositeErrorMessage('String'),
+        [FormattedError::create(
+            FragmentsOnCompositeTypes::inlineFragmentOnNonCompositeErrorMessage('String'),
             [new SourceLocation(3, 16)]
         )]
         );
@@ -95,8 +95,8 @@ class FragmentsOnCompositeTypesTest extends TestCase
 
     private function error($fragName, $typeName, $line, $column)
     {
-        return new FormattedError(
-            Messages::fragmentOnNonCompositeErrorMessage($fragName, $typeName),
+        return FormattedError::create(
+            FragmentsOnCompositeTypes::fragmentOnNonCompositeErrorMessage($fragName, $typeName),
             [ new SourceLocation($line, $column) ]
         );
     }

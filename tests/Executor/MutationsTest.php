@@ -31,7 +31,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
       }
     }';
         $ast = Parser::parse($doc);
-        $mutationResult = Executor::execute($this->schema(), new Root(6), $ast, 'M');
+        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6), null, 'M');
         $expected = [
             'data' => [
                 'first' => [
@@ -51,7 +51,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($mutationResult, $expected);
+        $this->assertEquals($expected, $mutationResult->toArray());
     }
 
     public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation()
@@ -77,7 +77,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
       }
     }';
         $ast = Parser::parse($doc);
-        $mutationResult = Executor::execute($this->schema(), new Root(6), $ast, 'M');
+        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6), null, 'M');
         $expected = [
             'data' => [
                 'first' => [
@@ -96,17 +96,17 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 'sixth' => null,
             ],
             'errors' => [
-                new FormattedError(
+                FormattedError::create(
                     'Cannot change the number',
                     [new SourceLocation(8, 7)]
                 ),
-                new FormattedError(
+                FormattedError::create(
                     'Cannot change the number',
                     [new SourceLocation(17, 7)]
                 )
             ]
         ];
-        $this->assertEquals($expected, $mutationResult);
+        $this->assertEquals($expected, $mutationResult->toArray());
     }
 
     private function schema()

@@ -11,25 +11,25 @@ class GraphQL
     /**
      * @param Schema $schema
      * @param $requestString
-     * @param mixed $rootObject
+     * @param mixed $rootValue
      * @param array <string, string>|null $variableValues
      * @param string|null $operationName
      * @return array
      */
-    public static function execute(Schema $schema, $requestString, $rootObject = null, $variableValues = null, $operationName = null)
+    public static function execute(Schema $schema, $requestString, $rootValue = null, $variableValues = null, $operationName = null)
     {
         try {
             $source = new Source($requestString ?: '', 'GraphQL request');
-            $ast = Parser::parse($source);
-            $validationResult = DocumentValidator::validate($schema, $ast);
+            $documentAST = Parser::parse($source);
+            $validationErrors = DocumentValidator::validate($schema, $documentAST);
 
-            if (empty($validationResult['isValid'])) {
-                return ['errors' => $validationResult['errors']];
+            if (!empty($validationErrors)) {
+                return ['errors' => array_map(['GraphQL\Error', 'formatError'], $validationErrors)];
             } else {
-                return Executor::execute($schema, $rootObject, $ast, $operationName, $variableValues);
+                return Executor::execute($schema, $documentAST, $rootValue, $variableValues, $operationName)->toArray();
             }
-        } catch (\Exception $e) {
-            return ['errors' => Error::formatError($e)];
+        } catch (Error $e) {
+            return ['errors' => [Error::formatError($e)]];
         }
     }
 }

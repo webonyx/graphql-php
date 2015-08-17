@@ -11,6 +11,11 @@ use GraphQL\Validator\ValidationContext;
 
 class NoUnusedFragments
 {
+    static function unusedFragMessage($fragName)
+    {
+        return "Fragment \"$fragName\" is never used.";
+    }
+
     public function __invoke(ValidationContext $context)
     {
         $fragmentDefs = [];
@@ -43,7 +48,7 @@ class NoUnusedFragments
                     foreach ($fragmentDefs as $def) {
                         if (empty($fragmentNameUsed[$def->name->value])) {
                             $errors[] = new Error(
-                                Messages::unusedFragMessage($def->name->value),
+                                self::unusedFragMessage($def->name->value),
                                 [$def]
                             );
                         }
@@ -59,11 +64,14 @@ class NoUnusedFragments
         foreach ($spreads as $fragName => $fragment) {
             if (empty($fragmentNameUsed[$fragName])) {
                 $fragmentNameUsed[$fragName] = true;
-                $this->reduceSpreadFragments(
-                    $fragAdjacencies->{$fragName},
-                    $fragmentNameUsed,
-                    $fragAdjacencies
-                );
+
+                if (isset($fragAdjacencies->{$fragName})) {
+                    $this->reduceSpreadFragments(
+                        $fragAdjacencies->{$fragName},
+                        $fragmentNameUsed,
+                        $fragAdjacencies
+                    );
+                }
             }
         }
     }

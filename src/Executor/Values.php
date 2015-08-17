@@ -3,16 +3,25 @@ namespace GraphQL\Executor;
 
 
 use GraphQL\Error;
+use GraphQL\Language\AST\Argument;
+use GraphQL\Language\AST\ListType;
+use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\ObjectValue;
+use GraphQL\Language\AST\Value;
+use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
@@ -23,8 +32,14 @@ class Values
      * Prepares an object map of variables of the correct type based on the provided
      * variable definitions and arbitrary input. If the input cannot be coerced
      * to match the variable definitions, a Error will be thrown.
+     *
+     * @param Schema $schema
+     * @param VariableDefinition[] $definitionASTs
+     * @param array $inputs
+     * @return array
+     * @throws Error
      */
-    public static function getVariableValues(Schema $schema, /* Array<VariableDefinition> */ $definitionASTs, array $inputs)
+    public static function getVariableValues(Schema $schema, $definitionASTs, array $inputs)
     {
         $values = [];
         foreach ($definitionASTs as $defAST) {
@@ -37,11 +52,16 @@ class Values
     /**
      * Prepares an object map of argument values given a list of argument
      * definitions and list of argument AST nodes.
+     *
+     * @param FieldArgument[] $argDefs
+     * @param Argument[] $argASTs
+     * @param $variableValues
+     * @return array
      */
-    public static function getArgumentValues(/* Array<GraphQLFieldArgument>*/ $argDefs, /*Array<Argument>*/ $argASTs, $variables)
+    public static function getArgumentValues($argDefs, $argASTs, $variableValues)
     {
-        if (!$argDefs || count($argDefs) === 0) {
-            return null;
+        if (!$argDefs || !$argASTs) {
+            return [];
         }
         $argASTMap = $argASTs ? Utils::keyMap($argASTs, function ($arg) {
             return $arg->name->value;
@@ -50,28 +70,71 @@ class Values
         foreach ($argDefs as $argDef) {
             $name = $argDef->name;
             $valueAST = isset($argASTMap[$name]) ? $argASTMap[$name]->value : null;
-            $result[$name] = self::coerceValueAST($argDef->getType(), $valueAST, $variables);
+            $value = self::valueFromAST($valueAST, $argDef->getType(), $variableValues);
+
+            if (null === $value) {
+                $value = $argDef->defaultValue;
+            }
+            if (null !== $value) {
+                $result[$name] = $value;
+            }
         }
         return $result;
     }
 
-    public static function getDirectiveValue(Directive $directiveDef, /* Array<Directive> */ $directives, $variables)
+    public static function valueFromAST($valueAST, InputType $type, $variables = null)
     {
-        $directiveAST = null;
-        if ($directives) {
-            foreach ($directives as $directive) {
-                if ($directive->name->value === $directiveDef->name) {
-                    $directiveAST = $directive;
-                    break;
-                }
-            }
+        if ($type instanceof NonNull) {
+            return self::valueFromAST($valueAST, $type->getWrappedType(), $variables);
         }
-        if ($directiveAST) {
-            if (!$directiveDef->type) {
+
+        if (!$valueAST) {
+            return null;
+        }
+
+        if ($valueAST instanceof Variable) {
+            $variableName = $valueAST->name->value;
+
+            if (!$variables || !isset($variables[$variableName])) {
                 return null;
             }
-            return self::coerceValueAST($directiveDef->type, $directiveAST->value, $variables);
+            return $variables[$variableName];
         }
+
+        if ($type instanceof ListOfType) {
+            $itemType = $type->getWrappedType();
+            if ($valueAST instanceof ListValue) {
+                return array_map(function($itemAST) use ($itemType, $variables) {
+                    return Values::valueFromAST($itemAST, $itemType, $variables);
+                }, $valueAST->values);
+            } else {
+                return [self::valueFromAST($valueAST, $itemType, $variables)];
+            }
+        }
+
+        if ($type instanceof InputObjectType) {
+            $fields = $type->getFields();
+            if (!$valueAST instanceof ObjectValue) {
+                return null;
+            }
+            $fieldASTs = Utils::keyMap($valueAST->fields, function($field) {return $field->name->value;});
+            $values = [];
+            foreach ($fields as $field) {
+                $fieldAST = isset($fieldASTs[$field->name]) ? $fieldASTs[$field->name] : null;
+                $fieldValue = self::valueFromAST($fieldAST ? $fieldAST->value : null, $field->getType(), $variables);
+
+                if (null === $fieldValue) {
+                    $fieldValue = $field->defaultValue;
+                }
+                if (null !== $fieldValue) {
+                    $values[$field->name] = $fieldValue;
+                }
+            }
+            return $values;
+        }
+
+        Utils::invariant($type instanceof ScalarType || $type instanceof EnumType, 'Must be input type');
+        return $type->parseLiteral($valueAST);
     }
 
     /**
@@ -81,14 +144,21 @@ class Values
     private static function getVariableValue(Schema $schema, VariableDefinition $definitionAST, $input)
     {
         $type = Utils\TypeInfo::typeFromAST($schema, $definitionAST->type);
-        if (!$type) {
-            return null;
+        $variable = $definitionAST->variable;
+
+        if (!$type || !Type::isInputType($type)) {
+            $printed = Printer::doPrint($definitionAST->type);
+            throw new Error(
+                "Variable \"\${$variable->name->value}\" expected value of type " .
+                "\"$printed\" which cannot be used as an input type.",
+                [ $definitionAST ]
+            );
         }
-        if (self::isValidValue($type, $input)) {
+        if (self::isValidValue($input, $type)) {
             if (null === $input) {
                 $defaultValue = $definitionAST->defaultValue;
                 if ($defaultValue) {
-                    return self::coerceValueAST($type, $defaultValue);
+                    return self::valueFromAST($defaultValue, $type);
                 }
             }
             return self::coerceValue($type, $input);
@@ -103,15 +173,21 @@ class Values
 
 
     /**
-     * Given a type and any value, return true if that value is valid.
+     * Given a PHP value and a GraphQL type, determine if the value will be
+     * accepted for that type. This is primarily useful for validating the
+     * runtime values of query variables.
+     *
+     * @param $value
+     * @param Type $type
+     * @return bool
      */
-    private static function isValidValue(Type $type, $value)
+    private static function isValidValue($value, Type $type)
     {
         if ($type instanceof NonNull) {
             if (null === $value) {
                 return false;
             }
-            return self::isValidValue($type->getWrappedType(), $value);
+            return self::isValidValue($value, $type->getWrappedType());
         }
 
         if ($value === null) {
@@ -122,34 +198,44 @@ class Values
             $itemType = $type->getWrappedType();
             if (is_array($value)) {
                 foreach ($value as $item) {
-                    if (!self::isValidValue($itemType, $item)) {
+                    if (!self::isValidValue($item, $itemType)) {
                         return false;
                     }
                 }
                 return true;
             } else {
-                return self::isValidValue($itemType, $value);
+                return self::isValidValue($value, $itemType);
             }
         }
 
         if ($type instanceof InputObjectType) {
+            if (!is_array($value)) {
+                return false;
+            }
             $fields = $type->getFields();
+            $fieldMap = [];
+
+            // Ensure every defined field is valid.
             foreach ($fields as $fieldName => $field) {
                 /** @var FieldDefinition $field */
-                if (!self::isValidValue($field->getType(), isset($value[$fieldName]) ? $value[$fieldName] : null)) {
+                if (!self::isValidValue(isset($value[$fieldName]) ? $value[$fieldName] : null, $field->getType())) {
                     return false;
                 }
+                $fieldMap[$field->name] = $field;
             }
+
+            // Ensure every provided field is defined.
+            $diff = array_diff_key($value, $fieldMap);
+
+            if (!empty($diff)) {
+                return false;
+            }
+
             return true;
         }
 
-        if ($type instanceof ScalarType ||
-            $type instanceof EnumType
-        ) {
-            return null !== $type->coerce($value);
-        }
-
-        return false;
+        Utils::invariant($type instanceof ScalarType || $type instanceof EnumType, 'Must be input type');
+        return null !== $type->parseValue($value);
     }
 
     /**
@@ -183,93 +269,18 @@ class Values
             $fields = $type->getFields();
             $obj = [];
             foreach ($fields as $fieldName => $field) {
-                $fieldValue = self::coerceValue($field->getType(), $value[$fieldName]);
-                $obj[$fieldName] = $fieldValue === null ? $field->defaultValue : $fieldValue;
-            }
-            return $obj;
-
-        }
-
-        if ($type instanceof ScalarType ||
-            $type instanceof EnumType
-        ) {
-            $coerced = $type->coerce($value);
-            if (null !== $coerced) {
-                return $coerced;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Given a type and a value AST node known to match this type, build a
-     * runtime value.
-     */
-    private static function coerceValueAST(Type $type, $valueAST, $variables)
-    {
-        if ($type instanceof NonNull) {
-            // Note: we're not checking that the result of coerceValueAST is non-null.
-            // We're assuming that this query has been validated and the value used
-            // here is of the correct type.
-            return self::coerceValueAST($type->getWrappedType(), $valueAST, $variables);
-        }
-
-        if (!$valueAST) {
-            return null;
-        }
-
-        if ($valueAST->kind === Node::VARIABLE) {
-            $variableName = $valueAST->name->value;
-
-            if (!isset($variables, $variables[$variableName])) {
-                return null;
-            }
-
-            // Note: we're not doing any checking that this variable is correct. We're
-            // assuming that this query has been validated and the variable usage here
-            // is of the correct type.
-            return $variables[$variableName];
-        }
-
-        if ($type instanceof ListOfType) {
-            $itemType = $type->getWrappedType();
-            if ($valueAST->kind === Node::ARR) {
-                $tmp = [];
-                foreach ($valueAST->values as $itemAST) {
-                    $tmp[] = self::coerceValueAST($itemType, $itemAST, $variables);
+                $fieldValue = self::coerceValue($field->getType(), isset($value[$fieldName]) ? $value[$fieldName] : null);
+                if (null === $fieldValue) {
+                    $fieldValue = $field->defaultValue;
                 }
-                return $tmp;
-            } else {
-                return [self::coerceValueAST($itemType, $valueAST, $variables)];
-            }
-        }
-
-        if ($type instanceof InputObjectType) {
-            $fields = $type->getFields();
-            if ($valueAST->kind !== Node::OBJECT) {
-                return null;
-            }
-            $fieldASTs = Utils::keyMap($valueAST->fields, function ($field) {
-                return $field->name->value;
-            });
-
-            $obj = [];
-            foreach ($fields as $fieldName => $field) {
-                $fieldAST = $fieldASTs[$fieldName];
-                $fieldValue = self::coerceValueAST($field->getType(), $fieldAST ? $fieldAST->value : null, $variables);
-                $obj[$fieldName] = $fieldValue === null ? $field->defaultValue : $fieldValue;
+                if (null !== $fieldValue) {
+                    $obj[$fieldName] = $fieldValue;
+                }
             }
             return $obj;
-        }
 
-        if ($type instanceof ScalarType || $type instanceof EnumType) {
-            $coerced = $type->coerceLiteral($valueAST);
-            if (null !== $coerced) {
-                return $coerced;
-            }
         }
-
-        return null;
+        Utils::invariant($type instanceof ScalarType || $type instanceof EnumType, 'Must be input type');
+        return $type->parseValue($value);
     }
 }

@@ -168,7 +168,7 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($BlogSchema, null, Parser::parse($request), '', []));
+        $this->assertEquals($expected, Executor::execute($BlogSchema, Parser::parse($request))->toArray());
     }
 
     private function article($id)

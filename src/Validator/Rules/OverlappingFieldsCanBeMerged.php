@@ -3,19 +3,40 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error;
+use GraphQL\Language\AST\Directive;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
+use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils;
 use GraphQL\Utils\PairSet;
 use GraphQL\Utils\TypeInfo;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
 
 class OverlappingFieldsCanBeMerged
 {
+    static function fieldsConflictMessage($responseName, $reason)
+    {
+        $reasonMessage = self::reasonMessage($reason);
+        return "Fields \"$responseName\" conflict because $reasonMessage.";
+    }
+
+    static function reasonMessage($reason)
+    {
+        if (is_array($reason)) {
+            $tmp = array_map(function ($tmp) {
+                list($responseName, $subReason) = $tmp;
+                $reasonMessage = self::reasonMessage($subReason);
+                return "subfields \"$responseName\" conflict because $reasonMessage";
+            }, $reason);
+            return implode(' and ', $tmp);
+        }
+        return $reason;
+    }
+
     public function __invoke(ValidationContext $context)
     {
         $comparedSet = new PairSet();
@@ -27,7 +48,7 @@ class OverlappingFieldsCanBeMerged
                 'leave' => function(SelectionSet $selectionSet) use ($context, $comparedSet) {
                     $fieldMap = $this->collectFieldASTsAndDefs(
                         $context,
-                        $context->getType(),
+                        $context->getParentType(),
                         $selectionSet
                     );
 
@@ -37,11 +58,11 @@ class OverlappingFieldsCanBeMerged
                         return array_map(function ($conflict) {
                             $responseName = $conflict[0][0];
                             $reason = $conflict[0][1];
-                            $blameNodes = $conflict[1];
+                            $fields = $conflict[1];
 
                             return new Error(
-                                Messages::fieldsConflictMessage($responseName, $reason),
-                                $blameNodes
+                                self::fieldsConflictMessage($responseName, $reason),
+                                $fields
                             );
                         }, $conflicts);
 
@@ -101,7 +122,7 @@ class OverlappingFieldsCanBeMerged
         $type1 = isset($def1) ? $def1->getType() : null;
         $type2 = isset($def2) ? $def2->getType() : null;
 
-        if (!$this->sameType($type1, $type2)) {
+        if ($type1 && $type2 && !$this->sameType($type1, $type2)) {
             return [
                 [$responseName, "they return differing types $type1 and $type2"],
                 [$ast1, $ast2]
@@ -111,7 +132,7 @@ class OverlappingFieldsCanBeMerged
         $args1 = isset($ast1->arguments) ? $ast1->arguments : [];
         $args2 = isset($ast2->arguments) ? $ast2->arguments : [];
 
-        if (!$this->sameNameValuePairs($args1, $args2)) {
+        if (!$this->sameArguments($args1, $args2)) {
             return [
                 [$responseName, 'they have differing arguments'],
                 [$ast1, $ast2]
@@ -121,7 +142,7 @@ class OverlappingFieldsCanBeMerged
         $directives1 = isset($ast1->directives) ? $ast1->directives : [];
         $directives2 = isset($ast2->directives) ? $ast2->directives : [];
 
-        if (!$this->sameNameValuePairs($directives1, $directives2)) {
+        if (!$this->sameDirectives($directives1, $directives2)) {
             return [
                 [$responseName, 'they have differing directives'],
                 [$ast1, $ast2]
@@ -136,13 +157,13 @@ class OverlappingFieldsCanBeMerged
 
             $subfieldMap = $this->collectFieldASTsAndDefs(
                 $context,
-                $type1,
+                Type::getNamedType($type1),
                 $selectionSet1,
                 $visitedFragmentNames
             );
             $subfieldMap = $this->collectFieldASTsAndDefs(
                 $context,
-                $type2,
+                Type::getNamedType($type2),
                 $selectionSet2,
                 $visitedFragmentNames,
                 $subfieldMap
@@ -152,7 +173,7 @@ class OverlappingFieldsCanBeMerged
             if (!empty($conflicts)) {
                 return [
                     [$responseName, array_map(function ($conflict) { return $conflict[0]; }, $conflicts)],
-                    array_reduce($conflicts, function ($list, $conflict) { return array_merge($list, $conflict[1]); }, [$ast1, $ast2])
+                    array_reduce($conflicts, function ($allFields, $conflict) { return array_merge($allFields, $conflict[1]); }, [$ast1, $ast2])
                 ];
             }
         }
@@ -183,8 +204,7 @@ class OverlappingFieldsCanBeMerged
 
             switch ($selection->kind) {
                 case Node::FIELD:
-                    $fieldAST = $selection;
-                    $fieldName = $fieldAST->name->value;
+                    $fieldName = $selection->name->value;
                     $fieldDef = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
                         $tmp = $parentType->getFields();
@@ -192,28 +212,26 @@ class OverlappingFieldsCanBeMerged
                             $fieldDef = $tmp[$fieldName];
                         }
                     }
-                    $responseName = $fieldAST->alias ? $fieldAST->alias->value : $fieldName;
+                    $responseName = $selection->alias ? $selection->alias->value : $fieldName;
 
                     if (!isset($_astAndDefs[$responseName])) {
                         $_astAndDefs[$responseName] = new \ArrayObject();
                     }
-                    $_astAndDefs[$responseName][] = [$fieldAST, $fieldDef];
+                    $_astAndDefs[$responseName][] = [$selection, $fieldDef];
                     break;
                 case Node::INLINE_FRAGMENT:
                     /** @var InlineFragment $inlineFragment */
-                    $inlineFragment = $selection;
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
-                        TypeInfo::typeFromAST($context->getSchema(), $inlineFragment->typeCondition),
-                        $inlineFragment->selectionSet,
+                        TypeInfo::typeFromAST($context->getSchema(), $selection->typeCondition),
+                        $selection->selectionSet,
                         $_visitedFragmentNames,
                         $_astAndDefs
                     );
                     break;
                 case Node::FRAGMENT_SPREAD:
-                    /** @var FragmentSpread $fragmentSpread */
-                    $fragmentSpread = $selection;
-                    $fragName = $fragmentSpread->name->value;
+                    /** @var FragmentSpread $selection */
+                    $fragName = $selection->name->value;
                     if (!empty($_visitedFragmentNames[$fragName])) {
                         continue;
                     }
@@ -235,29 +253,53 @@ class OverlappingFieldsCanBeMerged
         return $_astAndDefs;
     }
 
+    private function sameDirectives(array $directives1, array $directives2)
+    {
+        if (count($directives1) !== count($directives2)) {
+            return false;
+        }
+
+        foreach ($directives1 as $directive1) {
+            $directive2 = null;
+            foreach ($directives2 as $tmp) {
+                if ($tmp->name->value === $directive1->name->value) {
+                    $directive2 = $tmp;
+                    break;
+                }
+            }
+            if (!$directive2) {
+                return false;
+            }
+            if (!$this->sameArguments($directive1->arguments, $directive2->arguments)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
      * @param Array<Argument | Directive> $pairs1
      * @param Array<Argument | Directive> $pairs2
      * @return bool|string
      */
-    private function sameNameValuePairs(array $pairs1, array $pairs2)
+    private function sameArguments(array $arguments1, array $arguments2)
     {
-        if (count($pairs1) !== count($pairs2)) {
+        if (count($arguments1) !== count($arguments2)) {
             return false;
         }
-        foreach ($pairs1 as $pair1) {
-            $matchedPair2 = null;
-            foreach ($pairs2 as $pair2) {
-                if ($pair2->name->value === $pair1->name->value) {
-                    $matchedPair2 = $pair2;
+        foreach ($arguments1 as $arg1) {
+            $arg2 = null;
+            foreach ($arguments2 as $arg) {
+                if ($arg->name->value === $arg1->name->value) {
+                    $arg2 = $arg;
                     break;
                 }
             }
-            if (!$matchedPair2) {
+            if (!$arg2) {
                 return false;
             }
-            if (!$this->sameValue($pair1->value, $matchedPair2->value)) {
+            if (!$this->sameValue($arg1->value, $arg2->value)) {
                 return false;
             }
         }
@@ -271,6 +313,6 @@ class OverlappingFieldsCanBeMerged
 
     function sameType($type1, $type2)
     {
-        return (!$type1 && !$type2) || (string) $type1 === (string) $type2;
+        return (string) $type1 === (string) $type2;
     }
 }

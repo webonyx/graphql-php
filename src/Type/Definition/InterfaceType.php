@@ -35,11 +35,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      * implementation for Interface types.
      *
      * @param ObjectType $impl
-     * @param array<InterfaceType> $interfaces
+     * @param InterfaceType[] $interfaces
      */
-    public static function addImplementationToInterfaces(ObjectType $impl, array $interfaces)
+    public static function addImplementationToInterfaces(ObjectType $impl)
     {
-        foreach ($interfaces as $interface) {
+        foreach ($impl->getInterfaces() as $interface) {
             $interface->_implementations[] = $impl;
         }
     }
@@ -84,10 +84,10 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $this->_implementations;
     }
 
-    public function isPossibleType(ObjectType $type)
+    public function isPossibleType(Type $type)
     {
         $possibleTypeNames = $this->_possibleTypeNames;
-        if (!$possibleTypeNames) {
+        if (null === $possibleTypeNames) {
             $this->_possibleTypeNames = $possibleTypeNames = array_reduce($this->getPossibleTypes(), function(&$map, Type $possibleType) {
                 $map[$possibleType->name] = true;
                 return $map;
@@ -98,11 +98,13 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
     /**
      * @param $value
-     * @return ObjectType|null
+     * @param ResolveInfo $info
+     * @return Type|null
+     * @throws \Exception
      */
-    public function resolveType($value)
+    public function getObjectType($value, ResolveInfo $info)
     {
         $resolver = $this->_resolveType;
-        return $resolver ? call_user_func($resolver, $value) : Type::getTypeOf($value, $this);
+        return $resolver ? call_user_func($resolver, $value, $info) : Type::getTypeOf($value, $info, $this);
     }
 }

@@ -245,7 +245,7 @@ class StarWarsSchema
                         ]
                     ],
                     'resolve' => function ($root, $args) {
-                        return StarWarsData::getHero($args['episode']);
+                        return StarWarsData::getHero(isset($args['episode']) ? $args['episode'] : null);
                     },
                 ],
                 'human' => [

@@ -56,6 +56,15 @@ class FieldsOnCorrectTypeTest extends TestCase
         ');
     }
 
+    public function testIgnoresFieldsOnUnknownType()
+    {
+        $this->expectPassesRule(new FieldsOnCorrectType, '
+      fragment unknownSelection on UnknownType {
+        unknownField
+      }
+        ');
+    }
+
     public function testFieldNotDefinedOnFragment()
     {
         $this->expectFailsRule(new FieldsOnCorrectType, '
@@ -184,7 +193,7 @@ class FieldsOnCorrectTypeTest extends TestCase
 
     private function undefinedField($field, $type, $line, $column)
     {
-        return new FormattedError(
+        return FormattedError::create(
             Messages::undefinedFieldMessage($field, $type),
             [new SourceLocation($line, $column)]
         );

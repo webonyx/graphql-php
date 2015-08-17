@@ -32,7 +32,7 @@ class InputObjectType extends Type implements InputType
     }
 
     /**
-     * @return array<InputObjectField>
+     * @return InputObjectField[]
      */
     public function getFields()
     {

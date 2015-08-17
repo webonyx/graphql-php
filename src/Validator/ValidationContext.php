@@ -113,4 +113,14 @@ class ValidationContext
     {
         return $this->_typeInfo->getFieldDef();
     }
+
+    function getDirective()
+    {
+        return $this->_typeInfo->getDirective();
+    }
+
+    function getArgument()
+    {
+        return $this->_typeInfo->getArgument();
+    }
 }

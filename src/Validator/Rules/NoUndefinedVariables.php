@@ -23,6 +23,16 @@ use GraphQL\Validator\ValidationContext;
  */
 class NoUndefinedVariables
 {
+    static function undefinedVarMessage($varName)
+    {
+        return "Variable \"$$varName\" is not defined.";
+    }
+
+    static function undefinedVarByOpMessage($varName, $opName)
+    {
+        return "Variable \"$$varName\" is not defined by operation \"$opName\".";
+    }
+
     public function __invoke(ValidationContext $context)
     {
         $operation = null;
@@ -53,12 +63,12 @@ class NoUndefinedVariables
                     }
                     if ($withinFragment && $operation && $operation->name) {
                         return new Error(
-                            Messages::undefinedVarByOpMessage($varName, $operation->name->value),
+                            self::undefinedVarByOpMessage($varName, $operation->name->value),
                             [$variable, $operation]
                         );
                     }
                     return new Error(
-                        Messages::undefinedVarMessage($varName),
+                        self::undefinedVarMessage($varName),
                         [$variable]
                     );
                 }

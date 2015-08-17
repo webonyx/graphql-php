@@ -2,12 +2,23 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\IntValue;
+use GraphQL\Language\AST\Value;
 
 class IntType extends ScalarType
 {
     public $name = Type::INT;
 
-    public function coerce($value)
+    public function serialize($value)
+    {
+        return $this->coerceInt($value);
+    }
+
+    public function parseValue($value)
+    {
+        return $this->coerceInt($value);
+    }
+
+    private function coerceInt($value)
     {
         if (false === $value || true === $value) {
             return (int) $value;
@@ -18,7 +29,7 @@ class IntType extends ScalarType
         return null;
     }
 
-    public function coerceLiteral($ast)
+    public function parseLiteral($ast)
     {
         if ($ast instanceof IntValue) {
             $val = (int) $ast->value;

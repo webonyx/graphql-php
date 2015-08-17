@@ -3,6 +3,7 @@ namespace GraphQL\Type;
 
 
 use GraphQL\Schema;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -10,6 +11,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -29,6 +31,165 @@ class TypeKind {
 class Introspection
 {
     private static $_map = [];
+
+    /**
+     * @return string
+     */
+    public static function getIntrospectionQuery($includeDescription = true)
+    {
+        $withDescription = <<<'EOD'
+  query IntrospectionQuery {
+    __schema {
+      queryType { name }
+      mutationType { name }
+      types {
+        ...FullType
+      }
+      directives {
+        name
+        description
+        args {
+          ...InputValue
+        }
+        onOperation
+        onFragment
+        onField
+      }
+    }
+  }
+
+  fragment FullType on __Type {
+    kind
+    name
+    description
+    fields {
+      name
+      description
+      args {
+        ...InputValue
+      }
+      type {
+        ...TypeRef
+      }
+      isDeprecated
+      deprecationReason
+    }
+    inputFields {
+      ...InputValue
+    }
+    interfaces {
+      ...TypeRef
+    }
+    enumValues {
+      name
+      description
+      isDeprecated
+      deprecationReason
+    }
+    possibleTypes {
+      ...TypeRef
+    }
+  }
+
+  fragment InputValue on __InputValue {
+    name
+    description
+    type { ...TypeRef }
+    defaultValue
+  }
+
+  fragment TypeRef on __Type {
+    kind
+    name
+    ofType {
+      kind
+      name
+      ofType {
+        kind
+        name
+        ofType {
+          kind
+          name
+        }
+      }
+    }
+  }
+EOD;
+        $withoutDescription = <<<'EOD'
+  query IntrospectionQuery {
+    __schema {
+      queryType { name }
+      mutationType { name }
+      types {
+        ...FullType
+      }
+      directives {
+        name
+        args {
+          ...InputValue
+        }
+        onOperation
+        onFragment
+        onField
+      }
+    }
+  }
+
+  fragment FullType on __Type {
+    kind
+    name
+    fields {
+      name
+      args {
+        ...InputValue
+      }
+      type {
+        ...TypeRef
+      }
+      isDeprecated
+      deprecationReason
+    }
+    inputFields {
+      ...InputValue
+    }
+    interfaces {
+      ...TypeRef
+    }
+    enumValues {
+      name
+      isDeprecated
+      deprecationReason
+    }
+    possibleTypes {
+      ...TypeRef
+    }
+  }
+
+  fragment InputValue on __InputValue {
+    name
+    type { ...TypeRef }
+    defaultValue
+  }
+
+  fragment TypeRef on __Type {
+    kind
+    name
+    ofType {
+      kind
+      name
+      ofType {
+        kind
+        name
+        ofType {
+          kind
+          name
+        }
+      }
+    }
+  }
+EOD;
+        return $includeDescription ? $withDescription : $withoutDescription;
+    }
 
     public static function _schema()
     {
@@ -83,12 +244,15 @@ class Introspection
             self::$_map['__Directive'] = new ObjectType([
                 'name' => '__Directive',
                 'fields' => [
-                    'name' => ['type' => Type::string()],
+                    'name' => ['type' => Type::nonNull(Type::string())],
                     'description' => ['type' => Type::string()],
-                    'type' => ['type' => [__CLASS__, '_type']],
-                    'onOperation' => ['type' => Type::boolean()],
-                    'onFragment' => ['type' => Type::boolean()],
-                    'onField' => ['type' => Type::boolean()]
+                    'args' => [
+                        'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
+                        'resolve' => function(Directive $directive) {return $directive->args ?: [];}
+                    ],
+                    'onOperation' => ['type' => Type::nonNull(Type::boolean())],
+                    'onFragment' => ['type' => Type::nonNull(Type::boolean())],
+                    'onField' => ['type' => Type::nonNull(Type::boolean())]
                 ]
             ]);
         }
@@ -349,14 +513,9 @@ class Introspection
                 'resolve' => function (
                     $source,
                     $args,
-                    $root,
-                    $fieldAST,
-                    $fieldType,
-                    $parentType,
-                    $schema
+                    ResolveInfo $info
                 ) {
-                    // TODO: move 3+ args to separate object
-                    return $schema;
+                    return $info->schema;
                 }
             ]);
         }
@@ -373,8 +532,8 @@ class Introspection
                 'args' => [
                     ['name' => 'name', 'type' => Type::nonNull(Type::string())]
                 ],
-                'resolve' => function ($source, $args, $root, $fieldAST, $fieldType, $parentType, $schema) {
-                    return $schema->getType($args['name']);
+                'resolve' => function ($source, $args, ResolveInfo $info) {
+                    return $info->schema->getType($args['name']);
                 }
             ]);
         }
@@ -392,12 +551,9 @@ class Introspection
                 'resolve' => function (
                     $source,
                     $args,
-                    $root,
-                    $fieldAST,
-                    $fieldType,
-                    $parentType
+                    ResolveInfo $info
                 ) {
-                    return $parentType->name;
+                    return $info->parentType->name;
                 }
             ]);
         }

@@ -19,16 +19,16 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
     public function testWorksOnScalars()
     {
         // if true includes scalar
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @if:true }'));
+        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @include(if: true) }'));
 
         // if false omits on scalar
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @if:false }'));
+        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @include(if: false) }'));
 
         // unless false includes scalar
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @unless:false }'));
+        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @skip(if: false) }'));
 
         // unless true omits scalar
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @unless:true }'));
+        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @skip(if: true) }'));
     }
 
     public function testWorksOnFragmentSpreads()
@@ -37,7 +37,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
         $q = '
         query Q {
           a
-          ...Frag @if:false
+          ...Frag @include(if: false)
         }
         fragment Frag on TestType {
           b
@@ -49,7 +49,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
         $q = '
         query Q {
           a
-          ...Frag @if:true
+          ...Frag @include(if: true)
         }
         fragment Frag on TestType {
           b
@@ -61,7 +61,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
         $q = '
         query Q {
           a
-          ...Frag @unless:false
+          ...Frag @skip(if: false)
         }
         fragment Frag on TestType {
           b
@@ -73,7 +73,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
         $q = '
         query Q {
           a
-          ...Frag @unless:true
+          ...Frag @skip(if: true)
         }
         fragment Frag on TestType {
           b
@@ -88,7 +88,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
         $q = '
         query Q {
           a
-          ... on TestType @if:false {
+          ... on TestType @include(if: false) {
             b
           }
         }
@@ -102,7 +102,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
         $q = '
         query Q {
           a
-          ... on TestType @if:true {
+          ... on TestType @include(if: true) {
             b
           }
         }
@@ -116,7 +116,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
         $q = '
         query Q {
           a
-          ... on TestType @unless:false {
+          ... on TestType @skip(if: false) {
             b
           }
         }
@@ -130,7 +130,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
         $q = '
         query Q {
           a
-          ... on TestType @unless:true {
+          ... on TestType @skip(if: true) {
             b
           }
         }
@@ -149,7 +149,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
           a
           ...Frag
         }
-        fragment Frag on TestType @if:false {
+        fragment Frag on TestType @include(if: false) {
           b
         }
         ';
@@ -161,7 +161,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
           a
           ...Frag
         }
-        fragment Frag on TestType @if:true {
+        fragment Frag on TestType @include(if: true) {
           b
         }
         ';
@@ -173,7 +173,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
           a
           ...Frag
         }
-        fragment Frag on TestType @unless:false {
+        fragment Frag on TestType @skip(if: false) {
           b
         }
         ';
@@ -185,7 +185,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
           a
           ...Frag
         }
-        fragment Frag on TestType @unless:true {
+        fragment Frag on TestType @skip(if: true) {
           b
         }
         ';
@@ -213,13 +213,13 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
     private static function getData()
     {
         return self::$data ?: (self::$data = [
-            'a' => function() { return 'a'; },
-            'b' => function() { return 'b'; }
+            'a' => 'a',
+            'b' => 'b'
         ]);
     }
 
     private function executeTestQuery($doc)
     {
-        return Executor::execute(self::getSchema(), self::getData(), Parser::parse($doc));
+        return Executor::execute(self::getSchema(), Parser::parse($doc), self::getData())->toArray();
     }
 }

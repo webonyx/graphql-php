@@ -1,9 +1,14 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class Field extends NamedType
+class Field extends Node
 {
     public $kind = Node::FIELD;
+
+    /**
+     * @var Name
+     */
+    public $name;
 
     /**
      * @var Name|null

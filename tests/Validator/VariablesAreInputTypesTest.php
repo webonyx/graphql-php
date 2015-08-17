@@ -20,20 +20,20 @@ class VariablesAreInputTypesTest extends TestCase
     public function testOutputTypesAreInvalid()
     {
         $this->expectFailsRule(new VariablesAreInputTypes, '
-      query Foo($a: Dog, $b: [[DogOrCat!]]!, $c: Pet) {
+      query Foo($a: Dog, $b: [[CatOrDog!]]!, $c: Pet) {
         field(a: $a, b: $b, c: $c)
       }
         ', [
-                new FormattedError(
-                    Messages::nonInputTypeOnVarMessage('a', 'Dog'),
+                FormattedError::create(
+                    VariablesAreInputTypes::nonInputTypeOnVarMessage('a', 'Dog'),
                     [new SourceLocation(2, 21)]
                 ),
-                new FormattedError(
-                    Messages::nonInputTypeOnVarMessage('b', '[[DogOrCat!]]!'),
+                FormattedError::create(
+                    VariablesAreInputTypes::nonInputTypeOnVarMessage('b', '[[CatOrDog!]]!'),
                     [new SourceLocation(2, 30)]
                 ),
-                new FormattedError(
-                    Messages::nonInputTypeOnVarMessage('c', 'Pet'),
+                FormattedError::create(
+                    VariablesAreInputTypes::nonInputTypeOnVarMessage('c', 'Pet'),
                     [new SourceLocation(2, 50)]
                 )
             ]

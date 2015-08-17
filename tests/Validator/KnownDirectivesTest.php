@@ -26,10 +26,10 @@ class KnownDirectivesTest extends TestCase
     {
         $this->expectPassesRule(new KnownDirectives, '
       {
-        dog @if: true {
+        dog @include(if: true) {
           name
         }
-        human @unless: false {
+        human @skip(if: true) {
           name
         }
       }
@@ -40,7 +40,7 @@ class KnownDirectivesTest extends TestCase
     {
         $this->expectFailsRule(new KnownDirectives, '
       {
-        dog @unknown: "directive" {
+        dog @unknown(directive: "value") {
           name
         }
       }
@@ -53,12 +53,12 @@ class KnownDirectivesTest extends TestCase
     {
         $this->expectFailsRule(new KnownDirectives, '
       {
-        dog @unknown: "directive" {
+        dog @unknown(directive: "value") {
           name
         }
-        human @unknown: "directive" {
+        human @unknown(directive: "value") {
           name
-          pets @unknown: "directive" {
+          pets @unknown(directive: "value") {
             name
           }
         }
@@ -70,30 +70,42 @@ class KnownDirectivesTest extends TestCase
         ]);
     }
 
+    public function testWithWellPlacedDirectives()
+    {
+        $this->expectPassesRule(new KnownDirectives, '
+      query Foo {
+        name @include(if: true)
+        ...Frag @include(if: true)
+        skippedField @skip(if: true)
+        ...SkippedFrag @skip(if: true)
+      }
+        ');
+    }
+
     public function testWithMisplacedDirectives()
     {
         $this->expectFailsRule(new KnownDirectives, '
-      query Foo @if: true {
+      query Foo @include(if: true) {
         name
         ...Frag
       }
         ', [
-            $this->misplacedDirective('if', 'operation', 2, 17)
+            $this->misplacedDirective('include', 'operation', 2, 17)
         ]);
     }
 
     private function unknownDirective($directiveName, $line, $column)
     {
-        return new FormattedError(
-            Messages::unknownDirectiveMessage($directiveName),
+        return FormattedError::create(
+            KnownDirectives::unknownDirectiveMessage($directiveName),
             [ new SourceLocation($line, $column) ]
         );
     }
 
     function misplacedDirective($directiveName, $placement, $line, $column)
     {
-        return new FormattedError(
-            Messages::misplacedDirectiveMessage($directiveName, $placement),
+        return FormattedError::create(
+            KnownDirectives::misplacedDirectiveMessage($directiveName, $placement),
             [new SourceLocation($line, $column)]
         );
     }

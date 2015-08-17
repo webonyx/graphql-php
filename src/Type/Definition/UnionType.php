@@ -73,9 +73,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
      * @param ObjectType $value
      * @return Type
      */
-    public function resolveType($value)
+    public function getObjectType($value, ResolveInfo $info)
     {
         $resolver = $this->_resolveType;
-        return $resolver ? call_user_func($resolver, $value) : Type::getTypeOf($value, $this);
+        return $resolver ? call_user_func($resolver, $value) : Type::getTypeOf($value, $info, $this);
     }
 }

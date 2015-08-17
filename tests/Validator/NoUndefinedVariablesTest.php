@@ -302,16 +302,16 @@ class NoUndefinedVariablesTest extends TestCase
 
     private function undefVar($varName, $line, $column)
     {
-        return new FormattedError(
-            Messages::undefinedVarMessage($varName),
+        return FormattedError::create(
+            NoUndefinedVariables::undefinedVarMessage($varName),
             [new SourceLocation($line, $column)]
         );
     }
 
     private function undefVarByOp($varName, $l1, $c1, $opName, $l2, $c2)
     {
-        return new FormattedError(
-            Messages::undefinedVarByOpMessage($varName, $opName),
+        return FormattedError::create(
+            NoUndefinedVariables::undefinedVarByOpMessage($varName, $opName),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
         );
     }

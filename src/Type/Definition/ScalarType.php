@@ -14,7 +14,7 @@ use GraphQL\Utils;
  *
  *     var OddType = new GraphQLScalarType({
  *       name: 'Odd',
- *       coerce(value) {
+ *       serialize(value) {
  *         return value % 2 === 1 ? value : null;
  *       }
  *     });
@@ -27,7 +27,9 @@ abstract class ScalarType extends Type implements OutputType, InputType
         Utils::invariant($this->name, 'Type must be named.');
     }
 
-    abstract public function coerce($value);
+    abstract public function serialize($value);
 
-    abstract public function coerceLiteral($ast);
+    abstract public function parseValue($value);
+
+    abstract public function parseLiteral(/* GraphQL\Language\AST\Value */$valueAST);
 }

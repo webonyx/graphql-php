@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Executor;
 
+use GraphQL\Error;
 use GraphQL\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
@@ -24,7 +25,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         $ast = Parser::parse($doc);
         $expected = ['data' => ['nest' => ['list' => [1,2]]]];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesListsOfNonNullsWhenTheyReturnNonNullValues()
@@ -47,7 +48,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesNonNullListsOfWhenTheyReturnNonNullValues()
@@ -69,7 +70,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesNonNullListsOfNonNullsWhenTheyReturnNonNullValues()
@@ -91,7 +92,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesListsWhenTheyReturnNullAsAValue()
@@ -113,7 +114,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesListsOfNonNullsWhenTheyReturnNullAsAValue()
@@ -135,13 +136,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 ]
             ],
             'errors' => [
-                new FormattedError(
+                FormattedError::create(
                     'Cannot return null for non-nullable type.',
                     [new SourceLocation(4, 11)]
                 )
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesNonNullListsOfWhenTheyReturnNullAsAValue()
@@ -160,7 +161,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 'nest' => ['nonNullListContainsNull' => [1, null, 2]]
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesNonNullListsOfNonNullsWhenTheyReturnNullAsAValue()
@@ -180,13 +181,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 'nest' => null
             ],
             'errors' => [
-                new FormattedError(
+                FormattedError::create(
                     'Cannot return null for non-nullable type.',
                     [new SourceLocation(4, 11)]
                 )
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesListsWhenTheyReturnNull()
@@ -208,7 +209,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesListsOfNonNullsWhenTheyReturnNull()
@@ -230,7 +231,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesNonNullListsOfWhenTheyReturnNull()
@@ -250,13 +251,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 'nest' => null,
             ],
             'errors' => [
-                new FormattedError(
+                FormattedError::create(
                     'Cannot return null for non-nullable type.',
                     [new SourceLocation(4, 11)]
                 )
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
     public function testHandlesNonNullListsOfNonNullsWhenTheyReturnNull()
@@ -276,13 +277,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                 'nest' => null
             ],
             'errors' => [
-                new FormattedError(
+                FormattedError::create(
                     'Cannot return null for non-nullable type.',
                     [new SourceLocation(4, 11)]
                 )
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $this->data(), $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
     }
 
 

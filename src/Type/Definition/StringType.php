@@ -7,7 +7,12 @@ class StringType extends ScalarType
 {
     public $name = Type::STRING;
 
-    public function coerce($value)
+    public function serialize($value)
+    {
+        return $this->parseValue($value);
+    }
+
+    public function parseValue($value)
     {
         if ($value === true) {
             return 'true';
@@ -18,7 +23,7 @@ class StringType extends ScalarType
         return (string) $value;
     }
 
-    public function coerceLiteral($ast)
+    public function parseLiteral($ast)
     {
         if ($ast instanceof StringValue) {
             return $ast->value;

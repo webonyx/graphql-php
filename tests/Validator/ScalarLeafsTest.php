@@ -81,10 +81,10 @@ class ScalarLeafsTest extends TestCase
     {
         $this->expectFailsRule(new ScalarLeafs, '
       fragment scalarSelectionsNotAllowedWithDirectives on Dog {
-        name @if: true { isAlsoHumanName }
+        name @include(if: true) { isAlsoHumanName }
       }
         ',
-        [$this->noScalarSubselection('name', 'String', 3, 24)]
+        [$this->noScalarSubselection('name', 'String', 3, 33)]
         );
     }
 
@@ -92,25 +92,25 @@ class ScalarLeafsTest extends TestCase
     {
         $this->expectFailsRule(new ScalarLeafs, '
       fragment scalarSelectionsNotAllowedWithDirectivesAndArgs on Dog {
-        doesKnowCommand(dogCommand: SIT) @if: true { sinceWhen }
+        doesKnowCommand(dogCommand: SIT) @include(if: true) { sinceWhen }
       }
         ',
-            [$this->noScalarSubselection('doesKnowCommand', 'Boolean', 3, 52)]
+            [$this->noScalarSubselection('doesKnowCommand', 'Boolean', 3, 61)]
         );
     }
 
     private function noScalarSubselection($field, $type, $line, $column)
     {
-        return new FormattedError(
-            Messages::noSubselectionAllowedMessage($field, $type),
+        return FormattedError::create(
+            ScalarLeafs::noSubselectionAllowedMessage($field, $type),
             [new SourceLocation($line, $column)]
         );
     }
 
     private function missingObjSubselection($field, $type, $line, $column)
     {
-        return new FormattedError(
-            Messages::requiredSubselectionMessage($field, $type),
+        return FormattedError::create(
+            ScalarLeafs::requiredSubselectionMessage($field, $type),
             [new SourceLocation($line, $column)]
         );
     }

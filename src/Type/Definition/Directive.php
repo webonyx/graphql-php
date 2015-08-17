@@ -8,39 +8,51 @@ class Directive
     /**
      * @return Directive
      */
-    public static function ifDirective()
+    public static function includeDirective()
     {
         $internal = self::getInternalDirectives();
-        return $internal['if'];
+        return $internal['include'];
     }
 
     /**
      * @return Directive
      */
-    public static function unlessDirective()
+    public static function skipDirective()
     {
         $internal = self::getInternalDirectives();
-        return $internal['unless'];
+        return $internal['skip'];
     }
 
     public static function getInternalDirectives()
     {
         if (!self::$internalDirectives) {
             self::$internalDirectives = [
-                'if' => new self([
-                    'name' => 'if',
-                    'description' => 'Directs the executor to omit this field if the argument provided is false.',
-                    'type' => Type::nonNull(Type::boolean()),
+                'include' => new self([
+                    'name' => 'include',
+                    'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
+                    'args' => [
+                        new FieldArgument([
+                            'name' => 'if',
+                            'type' => Type::nonNull(Type::boolean()),
+                            'description' => 'Included when true.'
+                        ])
+                    ],
                     'onOperation' => false,
-                    'onFragment' => false,
+                    'onFragment' => true,
                     'onField' => true
                 ]),
-                'unless' => new self([
-                    'name' => 'unless',
-                    'description' => 'Directs the executor to omit this field if the argument provided is true.',
-                    'type' => Type::nonNull(Type::boolean()),
+                'skip' => new self([
+                    'name' => 'skip',
+                    'description' => 'Directs the executor to skip this field or fragment when the `if` argument is true.',
+                    'args' => [
+                        new FieldArgument([
+                            'name' => 'if',
+                            'type' => Type::nonNull(Type::boolean()),
+                            'description' => 'Skipped when true'
+                        ])
+                    ],
                     'onOperation' => false,
-                    'onFragment' => false,
+                    'onFragment' => true,
                     'onField' => true
                 ])
             ];
@@ -59,9 +71,9 @@ class Directive
     public $description;
 
     /**
-     * @var Type
+     * @var FieldArgument[]
      */
-    public $type;
+    public $args;
 
     /**
      * @var boolean

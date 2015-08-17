@@ -57,8 +57,8 @@ class KnownFragmentNamesTest extends TestCase
 
     private function undefFrag($fragName, $line, $column)
     {
-        return new FormattedError(
-            "Undefined fragment $fragName.",
+        return FormattedError::create(
+            KnownFragmentNames::unknownFragmentMessage($fragName),
             [new SourceLocation($line, $column)]
         );
     }

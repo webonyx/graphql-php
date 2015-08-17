@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Executor;
 
+require_once __DIR__ . '/TestClasses.php';
+
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Config;
@@ -31,7 +33,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             'interfaces' => [$NamedType],
             'fields' => [
                 'name' => ['type' => Type::string()],
-                'barks' => ['type' => Type::boolean()]
+                'woofs' => ['type' => Type::boolean()]
             ],
             'isTypeOf' => function ($value) {
                 return $value instanceof Dog;
@@ -143,7 +145,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, null, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast)->toArray());
     }
 
     public function testExecutesUsingUnionTypes()
@@ -156,7 +158,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         pets {
           __typename
           name
-          barks
+          woofs
           meows
         }
       }
@@ -167,12 +169,12 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
                 'name' => 'John',
                 'pets' => [
                     ['__typename' => 'Cat', 'name' => 'Garfield', 'meows' => false],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'barks' => true]
+                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true]
                 ]
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->john, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
     public function testExecutesUnionTypesWithInlineFragments()
@@ -186,7 +188,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
           __typename
           ... on Dog {
             name
-            barks
+            woofs
           }
           ... on Cat {
             name
@@ -201,12 +203,12 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
                 'name' => 'John',
                 'pets' => [
                     ['__typename' => 'Cat', 'name' => 'Garfield', 'meows' => false],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'barks' => true]
+                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true]
                 ]
 
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->john, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
     public function testExecutesUsingInterfaceTypes()
@@ -219,7 +221,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         friends {
           __typename
           name
-          barks
+          woofs
           meows
         }
       }
@@ -230,12 +232,12 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
                 'name' => 'John',
                 'friends' => [
                     ['__typename' => 'Person', 'name' => 'Liz'],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'barks' => true]
+                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true]
                 ]
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->john, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
     public function testExecutesInterfaceTypesWithInlineFragments()
@@ -249,7 +251,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
           __typename
           name
           ... on Dog {
-            barks
+            woofs
           }
           ... on Cat {
             meows
@@ -263,12 +265,12 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
                 'name' => 'John',
                 'friends' => [
                     ['__typename' => 'Person', 'name' => 'Liz'],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'barks' => true]
+                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true]
                 ]
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->john, $ast));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
     public function testAllowsFragmentConditionsToBeAbstractTypes()
@@ -285,7 +287,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         __typename
         ... on Dog {
           name
-          barks
+          woofs
         }
         ... on Cat {
           name
@@ -297,7 +299,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         __typename
         name
         ... on Dog {
-          barks
+          woofs
         }
         ... on Cat {
           meows
@@ -311,54 +313,15 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
                 'name' => 'John',
                 'pets' => [
                     ['__typename' => 'Cat', 'name' => 'Garfield', 'meows' => false],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'barks' => true]
+                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true]
                 ],
                 'friends' => [
                     ['__typename' => 'Person', 'name' => 'Liz'],
-                    ['__typename' => 'Dog', 'name' => 'Odie', 'barks' => true]
+                    ['__typename' => 'Dog', 'name' => 'Odie', 'woofs' => true]
                 ]
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->john, $ast));
-    }
-}
-
-
-class Dog
-{
-    public $name;
-    public $barks;
-
-    function __construct($name, $barks)
-    {
-        $this->name = $name;
-        $this->barks = $barks;
-    }
-}
-
-class Cat
-{
-    public $name;
-    public $meows;
-
-    function __construct($name, $meows)
-    {
-        $this->name = $name;
-        $this->meows = $meows;
-    }
-}
-
-class Person
-{
-    public $name;
-    public $pets;
-    public $friends;
-
-    function __construct($name, $pets = null, $friends = null)
-    {
-        $this->name = $name;
-        $this->pets = $pets;
-        $this->friends = $friends;
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 }

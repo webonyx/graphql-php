@@ -14,11 +14,16 @@ use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Visitor;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
 
 class NoFragmentCycles
 {
+    static function cycleErrorMessage($fragName, array $spreadNames = [])
+    {
+        $via = !empty($spreadNames) ? ' via ' . implode(', ', $spreadNames) : '';
+        return "Cannot spread fragment \"$fragName\" within itself$via.";
+    }
+
     public function __invoke(ValidationContext $context)
     {
         // Gather all the fragment spreads ASTs for each fragment definition.
@@ -67,7 +72,7 @@ class NoFragmentCycles
                     $knownToLeadToCycle[$spread] = true;
                 }
                 $errors[] = new Error(
-                    Messages::cycleErrorMessage($initialName, array_map(function ($s) {
+                    self::cycleErrorMessage($initialName, array_map(function ($s) {
                         return $s->name->value;
                     }, $spreadPath)),
                     $cyclePath

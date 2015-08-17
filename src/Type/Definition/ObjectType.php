@@ -45,7 +45,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     /**
      * @var array<Field>
      */
-    private $_fields = [];
+    private $_fields;
 
     /**
      * @var array<InterfaceType>
@@ -57,9 +57,46 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     private $_isTypeOf;
 
+    /**
+     * Keeping reference of config for late bindings
+     *
+     * @var array
+     */
+    private $_config;
+
+    private $_initialized = false;
+
     public function __construct(array $config)
     {
-        Config::validate($config, [
+        $this->name = $config['name'];
+        $this->description = isset($config['description']) ? $config['description'] : null;
+        $this->_config = $config;
+
+        if (isset($config['interfaces'])) {
+            InterfaceType::addImplementationToInterfaces($this);
+        }
+    }
+
+    /**
+     * Late instance initialization
+     */
+    private function initialize()
+    {
+        if ($this->_initialized) {
+            return ;
+        }
+        $config = $this->_config;
+
+        if (isset($config['fields']) && is_callable($config['fields'])) {
+            $config['fields'] = call_user_func($config['fields']);
+        }
+        if (isset($config['interfaces']) && is_callable($config['interfaces'])) {
+            $config['interfaces'] = call_user_func($config['interfaces']);
+        }
+
+        // Note: this validation is disabled by default, because it is resource-consuming
+        // TODO: add bin/validate script to check if schema is valid during development
+        Config::validate($this->_config, [
             'name' => Config::STRING | Config::REQUIRED,
             'fields' => Config::arrayOf(
                 FieldDefinition::getDefinition(),
@@ -69,22 +106,13 @@ class ObjectType extends Type implements OutputType, CompositeType
             'interfaces' => Config::arrayOf(
                 Config::INTERFACE_TYPE
             ),
-            'isTypeOf' => Config::CALLBACK,
+            'isTypeOf' => Config::CALLBACK, // ($value, ResolveInfo $info) => boolean
         ]);
 
-        $this->name = $config['name'];
-        $this->description = isset($config['description']) ? $config['description'] : null;
-
-        if (isset($config['fields'])) {
-            $this->_fields = FieldDefinition::createMap($config['fields']);
-        }
-
+        $this->_fields = FieldDefinition::createMap($config['fields']);
         $this->_interfaces = isset($config['interfaces']) ? $config['interfaces'] : [];
         $this->_isTypeOf = isset($config['isTypeOf']) ? $config['isTypeOf'] : null;
-
-        if (!empty($this->_interfaces)) {
-            InterfaceType::addImplementationToInterfaces($this, $this->_interfaces);
-        }
+        $this->_initialized = true;
     }
 
     /**
@@ -92,6 +120,9 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function getFields()
     {
+        if (false === $this->_initialized) {
+            $this->initialize();
+        }
         return $this->_fields;
     }
 
@@ -102,6 +133,9 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function getField($name)
     {
+        if (false === $this->_initialized) {
+            $this->initialize();
+        }
         Utils::invariant(isset($this->_fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
         return $this->_fields[$name];
     }
@@ -111,6 +145,9 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function getInterfaces()
     {
+        if (false === $this->_initialized) {
+            $this->initialize();
+        }
         return $this->_interfaces;
     }
 
@@ -118,8 +155,8 @@ class ObjectType extends Type implements OutputType, CompositeType
      * @param $value
      * @return bool|null
      */
-    public function isTypeOf($value)
+    public function isTypeOf($value, ResolveInfo $info)
     {
-        return isset($this->_isTypeOf) ? call_user_func($this->_isTypeOf, $value) : null;
+        return isset($this->_isTypeOf) ? call_user_func($this->_isTypeOf, $value, $info) : null;
     }
 }

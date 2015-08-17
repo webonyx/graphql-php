@@ -2,9 +2,7 @@
 namespace GraphQL\Validator;
 
 use GraphQL\FormattedError;
-use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Type\Definition\Config;
 use GraphQL\Validator\Rules\NoFragmentCycles;
 
 class NoFragmentCyclesTest extends TestCase
@@ -88,8 +86,8 @@ class NoFragmentCyclesTest extends TestCase
       fragment fragA on Dog { ...fragB }
       fragment fragB on Dog { ...fragA }
         ', [
-            new FormattedError(
-                Messages::cycleErrorMessage('fragA', ['fragB']),
+            FormattedError::create(
+                NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                 [ new SourceLocation(2, 31), new SourceLocation(3, 31) ]
             )
         ]);
@@ -101,8 +99,8 @@ class NoFragmentCyclesTest extends TestCase
       fragment fragB on Dog { ...fragA }
       fragment fragA on Dog { ...fragB }
         ', [
-            new FormattedError(
-                Messages::cycleErrorMessage('fragB', ['fragA']),
+            FormattedError::create(
+                NoFragmentCycles::cycleErrorMessage('fragB', ['fragA']),
                 [new SourceLocation(2, 31), new SourceLocation(3, 31)]
             )
         ]);
@@ -122,8 +120,8 @@ class NoFragmentCyclesTest extends TestCase
         }
       }
         ', [
-            new FormattedError(
-                Messages::cycleErrorMessage('fragA', ['fragB']),
+            FormattedError::create(
+                NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                 [new SourceLocation(4, 11), new SourceLocation(9, 11)]
             )
         ]);
@@ -140,8 +138,8 @@ class NoFragmentCyclesTest extends TestCase
       fragment fragZ on Dog { ...fragO }
       fragment fragO on Dog { ...fragA, ...fragX }
     ', [
-            new FormattedError(
-                Messages::cycleErrorMessage('fragA', ['fragB', 'fragC', 'fragO']),
+            FormattedError::create(
+                NoFragmentCycles::cycleErrorMessage('fragA', ['fragB', 'fragC', 'fragO']),
                 [
                     new SourceLocation(2, 31),
                     new SourceLocation(3, 31),
@@ -149,8 +147,8 @@ class NoFragmentCyclesTest extends TestCase
                     new SourceLocation(8, 31),
                 ]
             ),
-            new FormattedError(
-                Messages::cycleErrorMessage('fragX', ['fragY', 'fragZ', 'fragO']),
+            FormattedError::create(
+                NoFragmentCycles::cycleErrorMessage('fragX', ['fragY', 'fragZ', 'fragO']),
                 [
                     new SourceLocation(5, 31),
                     new SourceLocation(6, 31),
@@ -168,12 +166,12 @@ class NoFragmentCyclesTest extends TestCase
       fragment fragB on Dog { ...fragA }
       fragment fragC on Dog { ...fragA }
         ', [
-            new FormattedError(
-                'Cannot spread fragment fragA within itself via fragB.',
+            FormattedError::create(
+                NoFragmentCycles::cycleErrorMessage('fragA', ['fragB']),
                 [new SourceLocation(2, 31), new SourceLocation(3, 31)]
             ),
-            new FormattedError(
-                'Cannot spread fragment fragA within itself via fragC.',
+            FormattedError::create(
+                NoFragmentCycles::cycleErrorMessage('fragA', ['fragC']),
                 [new SourceLocation(2, 41), new SourceLocation(4, 31)]
             )
         ]);
@@ -181,8 +179,8 @@ class NoFragmentCyclesTest extends TestCase
 
     private function cycleError($fargment, $spreadNames, $line, $column)
     {
-        return new FormattedError(
-            Messages::cycleErrorMessage($fargment, $spreadNames),
+        return FormattedError::create(
+            NoFragmentCycles::cycleErrorMessage($fargment, $spreadNames),
             [new SourceLocation($line, $column)]
         );
     }

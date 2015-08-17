@@ -1,12 +1,17 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class OperationDefinition extends NamedType implements Definition
+class OperationDefinition extends Node implements Definition
 {
     /**
      * @var string
      */
     public $kind = Node::OPERATION_DEFINITION;
+
+    /**
+     * @var Name
+     */
+    public $name;
 
     /**
      * @var string (oneOf 'query', 'mutation'))

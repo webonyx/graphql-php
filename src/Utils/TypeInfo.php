@@ -4,9 +4,12 @@ namespace GraphQL\Utils;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\Name;
+use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Schema;
+use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
@@ -38,8 +41,8 @@ class TypeInfo
             return $innerType ? new NonNull($innerType) : null;
         }
 
-        Utils::invariant($inputTypeAst instanceof Name, 'Must be a type name');
-        return $schema->getType($inputTypeAst->value);
+        Utils::invariant($inputTypeAst->kind === Node::NAMED_TYPE, 'Must be a named type');
+        return $schema->getType($inputTypeAst->name->value);
     }
 
     /**
@@ -103,6 +106,15 @@ class TypeInfo
      */
     private $_fieldDefStack;
 
+    /**
+     * @var Directive
+     */
+    private $_directive;
+
+    /**
+     * @var FieldArgument
+     */
+    private $_argument;
 
     public function __construct(Schema $schema)
     {
@@ -157,6 +169,21 @@ class TypeInfo
         return null;
     }
 
+    /**
+     * @return Directive|null
+     */
+    function getDirective()
+    {
+        return $this->_directive;
+    }
+
+    /**
+     * @return FieldArgument|null
+     */
+    function getArgument()
+    {
+        return $this->_argument;
+    }
 
     function enter(Node $node)
     {
@@ -164,14 +191,17 @@ class TypeInfo
 
         switch ($node->kind) {
             case Node::SELECTION_SET:
-                // var $compositeType: ?GraphQLCompositeType;
-                $rawType = Type::getUnmodifiedType($this->getType());
+                $namedType = Type::getNamedType($this->getType());
                 $compositeType = null;
-                if (Type::isCompositeType($rawType)) {
+                if (Type::isCompositeType($namedType)) {
                     // isCompositeType is a type refining predicate, so this is safe.
-                    $compositeType = $rawType;
+                    $compositeType = $namedType;
                 }
                 array_push($this->_parentTypeStack, $compositeType);
+                break;
+
+            case Node::DIRECTIVE:
+                $this->_directive = $schema->getDirective($node->name->value);
                 break;
 
             case Node::FIELD:
@@ -196,7 +226,7 @@ class TypeInfo
 
             case Node::INLINE_FRAGMENT:
             case Node::FRAGMENT_DEFINITION:
-                $type = $schema->getType($node->typeCondition->value);
+                $type = self::typeFromAST($schema, $node->typeCondition);
                 array_push($this->_typeStack, $type);
                 break;
 
@@ -205,32 +235,28 @@ class TypeInfo
                 break;
 
             case Node::ARGUMENT:
-                $field = $this->getFieldDef();
-                $argType = null;
-                if ($field) {
-                    $argDef = Utils::find($field->args, function($arg) use ($node) {return $arg->name === $node->name->value;});
+                $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
+                $argDef = $argType = null;
+                if ($fieldOrDirective) {
+                    $argDef = Utils::find($fieldOrDirective->args, function($arg) use ($node) {return $arg->name === $node->name->value;});
                     if ($argDef) {
                         $argType = $argDef->getType();
                     }
                 }
+                $this->_argument = $argDef;
                 array_push($this->_inputTypeStack, $argType);
                 break;
 
-            case Node::DIRECTIVE:
-                $directive = $schema->getDirective($node->name->value);
-                array_push($this->_inputTypeStack, $directive ? $directive->type : null);
-                break;
-
             case Node::LST:
-                $arrayType = Type::getNullableType($this->getInputType());
+                $listType = Type::getNullableType($this->getInputType());
                 array_push(
                     $this->_inputTypeStack,
-                    $arrayType instanceof ListOfType ? $arrayType->getWrappedType() : null
+                    $listType instanceof ListOfType ? $listType->getWrappedType() : null
                 );
                 break;
 
             case Node::OBJECT_FIELD:
-                $objectType = Type::getUnmodifiedType($this->getInputType());
+                $objectType = Type::getNamedType($this->getInputType());
                 $fieldType = null;
                 if ($objectType instanceof InputObjectType) {
                     $tmp = $objectType->getFields();
@@ -248,10 +274,16 @@ class TypeInfo
             case Node::SELECTION_SET:
                 array_pop($this->_parentTypeStack);
                 break;
+
             case Node::FIELD:
                 array_pop($this->_fieldDefStack);
                 array_pop($this->_typeStack);
                 break;
+
+            case Node::DIRECTIVE:
+                $this->_directive = null;
+                break;
+
             case Node::OPERATION_DEFINITION:
             case Node::INLINE_FRAGMENT:
             case Node::FRAGMENT_DEFINITION:
@@ -261,9 +293,9 @@ class TypeInfo
                 array_pop($this->_inputTypeStack);
                 break;
             case Node::ARGUMENT:
+                $this->_argument = null;
                 array_pop($this->_inputTypeStack);
                 break;
-            case Node::DIRECTIVE:
             case Node::LST:
             case Node::OBJECT_FIELD:
                 array_pop($this->_inputTypeStack);

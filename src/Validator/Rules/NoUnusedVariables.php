@@ -10,6 +10,11 @@ use GraphQL\Validator\ValidationContext;
 
 class NoUnusedVariables
 {
+    static function unusedVariableMessage($varName)
+    {
+        return "Variable \"$$varName\" is never used.";
+    }
+
     public function __invoke(ValidationContext $context)
     {
         $visitedFragmentNames = new \stdClass();
@@ -30,7 +35,7 @@ class NoUnusedVariables
                     foreach ($variableDefs as $def) {
                         if (empty($variableNameUsed->{$def->variable->name->value})) {
                             $errors[] = new Error(
-                                Messages::unusedVariableMessage($def->variable->name->value),
+                                self::unusedVariableMessage($def->variable->name->value),
                                 [$def]
                             );
                         }

@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Executor;
 
+use GraphQL\Error;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Schema;
 
@@ -25,7 +26,7 @@ class ExecutionContext
     /**
      * @var
      */
-    public $root;
+    public $rootValue;
 
     /**
      * @var OperationDefinition
@@ -35,7 +36,7 @@ class ExecutionContext
     /**
      * @var array
      */
-    public $variables;
+    public $variableValues;
 
     /**
      * @var array
@@ -46,13 +47,13 @@ class ExecutionContext
     {
         $this->schema = $schema;
         $this->fragments = $fragments;
-        $this->root = $root;
+        $this->rootValue = $root;
         $this->operation = $operation;
-        $this->variables = $variables;
+        $this->variableValues = $variables;
         $this->errors = $errors ?: [];
     }
 
-    public function addError($error)
+    public function addError(Error $error)
     {
         $this->errors[] = $error;
         return $this;

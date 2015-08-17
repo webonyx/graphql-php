@@ -9,6 +9,11 @@ use GraphQL\Validator\ValidationContext;
 
 class KnownFragmentNames
 {
+    static function unknownFragmentMessage($fragName)
+    {
+        return "Unknown fragment \"$fragName\".";
+    }
+
     public function __invoke(ValidationContext $context)
     {
         return [
@@ -17,7 +22,7 @@ class KnownFragmentNames
                 $fragment = $context->getFragment($fragmentName);
                 if (!$fragment) {
                     return new Error(
-                        "Undefined fragment $fragmentName.",
+                        self::unknownFragmentMessage($fragmentName),
                         [$node->name]
                     );
                 }

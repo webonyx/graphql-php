@@ -20,17 +20,25 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function getDefaultSchema()
     {
+        $FurColor = null;
+
         $Being = new InterfaceType([
             'name' => 'Being',
             'fields' => [
-                'name' => [ 'type' => Type::string() ]
+                'name' => [
+                    'type' => Type::string(),
+                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                ]
             ],
         ]);
 
         $Pet = new InterfaceType([
             'name' => 'Pet',
             'fields' => [
-                'name' => [ 'type' => Type::string() ]
+                'name' => [
+                    'type' => Type::string(),
+                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                ]
             ],
         ]);
 
@@ -45,8 +53,12 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Dog = new ObjectType([
             'name' => 'Dog',
+            'isTypeOf' => function() {return true;},
             'fields' => [
-                'name' => ['type' => Type::string()],
+                'name' => [
+                    'type' => Type::string(),
+                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                ],
                 'nickname' => ['type' => Type::string()],
                 'barkVolume' => ['type' => Type::int()],
                 'barks' => ['type' => Type::boolean()],
@@ -66,24 +78,18 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             'interfaces' => [$Being, $Pet]
         ]);
 
-        $FurColor = new EnumType([
-            'name' => 'FurColor',
-            'values' => [
-                'BROWN' => [ 'value' => 0 ],
-                'BLACK' => [ 'value' => 1 ],
-                'TAN' => [ 'value' => 2 ],
-                'SPOTTED' => [ 'value' => 3 ],
-            ],
-        ]);
-
         $Cat = new ObjectType([
             'name' => 'Cat',
+            'isTypeOf' => function() {return true;},
             'fields' => [
-                'name' => ['type' => Type::string()],
+                'name' => [
+                    'type' => Type::string(),
+                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                ],
                 'nickname' => ['type' => Type::string()],
                 'meows' => ['type' => Type::boolean()],
                 'meowVolume' => ['type' => Type::int()],
-                'furColor' => ['type' => $FurColor]
+                'furColor' => ['type' => function() use (&$FurColor) {return $FurColor;}]
             ],
             'interfaces' => [$Being, $Pet]
         ]);
@@ -106,22 +112,29 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Human = $this->humanType = new ObjectType([
             'name' => 'Human',
+            'isTypeOf' => function() {return true;},
             'interfaces' => [$Being, $Intelligent],
             'fields' => [
                 'name' => [
-                    'args' => ['surname' => ['type' => Type::boolean()]],
-                    'type' => Type::string()
+                    'type' => Type::string(),
+                    'args' => ['surname' => ['type' => Type::boolean()]]
                 ],
                 'pets' => ['type' => Type::listOf($Pet)],
-                'relatives' => ['type' => function() {return Type::listOf($this->humanType); }]
+                'relatives' => ['type' => function() {return Type::listOf($this->humanType); }],
+                'iq' => ['type' => Type::int()]
             ]
         ]);
 
         $Alien = new ObjectType([
             'name' => 'Alien',
+            'isTypeOf' => function() {return true;},
             'interfaces' => [$Being, $Intelligent],
             'fields' => [
                 'iq' => ['type' => Type::int()],
+                'name' => [
+                    'type' => Type::string(),
+                    'args' => ['surname' => ['type' => Type::boolean()]]
+                ],
                 'numEyes' => ['type' => Type::int()]
             ]
         ]);
@@ -142,6 +155,16 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                 // not used for validation
                 return null;
             }
+        ]);
+
+        $FurColor = new EnumType([
+            'name' => 'FurColor',
+            'values' => [
+                'BROWN' => [ 'value' => 0 ],
+                'BLACK' => [ 'value' => 1 ],
+                'TAN' => [ 'value' => 2 ],
+                'SPOTTED' => [ 'value' => 3 ],
+            ],
         ]);
 
         $ComplexInput = new InputObjectType([
@@ -260,19 +283,20 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     function expectValid($schema, $rules, $queryString)
     {
         $this->assertEquals(
-            ['isValid' => true, 'errors' => null],
-            DocumentValidator::validate($schema, Parser::parse($queryString), $rules)
+            [],
+            DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
+            'Should validate'
         );
     }
 
-    function expectInvalid($schema, $rules, $queryString, $errors)
+    function expectInvalid($schema, $rules, $queryString, $expectedErrors)
     {
-        $result = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
+        $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
 
-        $this->assertEquals(false, $result['isValid'], 'GraphQL should not validate');
-        $this->assertEquals($errors, $result['errors']);
+        $this->assertNotEmpty($errors, 'GraphQL should not validate');
+        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error', 'formatError'], $errors));
 
-        return $result;
+        return $errors;
     }
 
     function expectPassesRule($rule, $queryString)

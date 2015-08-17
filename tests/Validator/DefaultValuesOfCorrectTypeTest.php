@@ -93,7 +93,7 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
 
     private function defaultForNonNullArg($varName, $typeName, $guessTypeName, $line, $column)
     {
-        return new FormattedError(
+        return FormattedError::create(
             Messages::defaultForNonNullArgMessage($varName, $typeName, $guessTypeName),
             [ new SourceLocation($line, $column) ]
         );
@@ -101,7 +101,7 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
 
     private function badValue($varName, $typeName, $val, $line, $column)
     {
-        return new FormattedError(
+        return FormattedError::create(
             Messages::badValueForDefaultArgMessage($varName, $typeName, $val),
             [ new SourceLocation($line, $column) ]
         );

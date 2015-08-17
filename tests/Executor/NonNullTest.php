@@ -86,13 +86,13 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'sync' => null,
             ],
             'errors' => [
-                new FormattedError(
+                FormattedError::create(
                     $this->syncError->message,
                     [new SourceLocation(3, 9)]
                 )
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->throwingData, $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, [], 'Q')->toArray());
     }
 
     public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsSynchronously()
@@ -113,10 +113,10 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'nest' => null
             ],
             'errors' => [
-                new FormattedError($this->nonNullSyncError->message, [new SourceLocation(4, 11)])
+                FormattedError::create($this->nonNullSyncError->message, [new SourceLocation(4, 11)])
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->throwingData, $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, [], 'Q')->toArray());
     }
 
     public function testNullsAComplexTreeOfNullableFieldsThatThrow()
@@ -144,11 +144,11 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 ]
             ],
             'errors' => [
-                new FormattedError($this->syncError->message, [new SourceLocation(4, 11)]),
-                new FormattedError($this->syncError->message, [new SourceLocation(6, 13)]),
+                FormattedError::create($this->syncError->message, [new SourceLocation(4, 11)]),
+                FormattedError::create($this->syncError->message, [new SourceLocation(6, 13)]),
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->throwingData, $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, [], 'Q')->toArray());
     }
 
     public function testNullsANullableFieldThatSynchronouslyReturnsNull()
@@ -166,7 +166,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'sync' => null,
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->nullingData, $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, [], 'Q')->toArray());
     }
 
     public function test4()
@@ -187,10 +187,10 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'nest' => null
             ],
             'errors' => [
-                new FormattedError('Cannot return null for non-nullable type.', [new SourceLocation(4, 11)])
+                FormattedError::create('Cannot return null for non-nullable type.', [new SourceLocation(4, 11)])
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->nullingData, $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, [], 'Q')->toArray());
     }
 
     public function test5()
@@ -226,7 +226,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 ],
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->nullingData, $ast, 'Q', []));
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, [], 'Q')->toArray());
     }
 
     public function testNullsTheTopLevelIfSyncNonNullableFieldThrows()
@@ -238,10 +238,10 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'data' => null,
             'errors' => [
-                new FormattedError($this->nonNullSyncError->message, [new SourceLocation(2, 17)])
+                FormattedError::create($this->nonNullSyncError->message, [new SourceLocation(2, 17)])
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->throwingData, Parser::parse($doc)));
+        $this->assertEquals($expected, Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray());
     }
 
     public function testNullsTheTopLevelIfSyncNonNullableFieldReturnsNull()
@@ -254,9 +254,9 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'data' => null,
             'errors' => [
-                new FormattedError('Cannot return null for non-nullable type.', [new SourceLocation(2, 17)]),
+                FormattedError::create('Cannot return null for non-nullable type.', [new SourceLocation(2, 17)]),
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $this->nullingData, Parser::parse($doc)));
+        $this->assertEquals($expected, Executor::execute($this->schema, Parser::parse($doc), $this->nullingData)->toArray());
     }
 }

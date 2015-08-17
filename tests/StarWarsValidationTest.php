@@ -28,8 +28,8 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
           appearsIn
         }
       ';
-        $result = $this->validationResult($query);
-        $this->assertEquals(true, $result['isValid']);
+        $errors = $this->validationErrors($query);
+        $this->assertEquals(true, empty($errors));
     }
 
     public function testThatNonExistentFieldsAreInvalid()
@@ -42,7 +42,8 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
           }
         }
         ';
-        $this->assertEquals(false, $this->validationResult($query)['isValid']);
+        $errors = $this->validationErrors($query);
+        $this->assertEquals(false, empty($errors));
     }
 
     public function testRequiresFieldsOnObjects()
@@ -52,7 +53,9 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
           hero
         }
         ';
-        $this->assertEquals(false, $this->validationResult($query)['isValid']);
+
+        $errors = $this->validationErrors($query);
+        $this->assertEquals(false, empty($errors));
     }
 
     public function testDisallowsFieldsOnScalars()
@@ -67,7 +70,8 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
           }
         }
         ';
-        $this->assertEquals(false, $this->validationResult($query)['isValid']);
+        $errors = $this->validationErrors($query);
+        $this->assertEquals(false, empty($errors));
     }
 
     public function testDisallowsObjectFieldsOnInterfaces()
@@ -80,7 +84,8 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
           }
         }
         ';
-        $this->assertEquals(false, $this->validationResult($query)['isValid']);
+        $errors = $this->validationErrors($query);
+        $this->assertEquals(false, empty($errors));
     }
 
     public function testAllowsObjectFieldsInFragments()
@@ -97,7 +102,8 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
           primaryFunction
         }
         ';
-        $this->assertEquals(true, $this->validationResult($query)['isValid']);
+        $errors = $this->validationErrors($query);
+        $this->assertEquals(true, empty($errors));
     }
 
     public function testAllowsObjectFieldsInInlineFragments()
@@ -112,13 +118,14 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
           }
         }
         ';
-        $this->assertEquals(true, $this->validationResult($query)['isValid']);
+        $errors = $this->validationErrors($query);
+        $this->assertEquals(true, empty($errors));
     }
 
     /**
      * Helper function to test a query and the expected response.
      */
-    private function validationResult($query)
+    private function validationErrors($query)
     {
         $ast = Parser::parse($query);
         return DocumentValidator::validate(StarWarsSchema::build(), $ast);

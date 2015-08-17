@@ -8,12 +8,17 @@ class IDType extends ScalarType
 {
     public $name = 'ID';
 
-    public function coerce($value)
+    public function serialize($value)
     {
         return (string) $value;
     }
 
-    public function coerceLiteral($ast)
+    public function parseValue($value)
+    {
+        return (string) $value;
+    }
+
+    public function parseLiteral($ast)
     {
         if ($ast instanceof StringValue || $ast instanceof IntValue) {
             return $ast->value;

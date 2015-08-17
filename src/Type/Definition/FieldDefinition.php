@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Utils;
+
 class FieldDefinition
 {
     /**
@@ -99,11 +101,27 @@ class FieldDefinition
     }
 
     /**
+     * @param $name
+     * @return FieldArgument|null
+     */
+    public function getArg($name)
+    {
+        foreach ($this->args ?: [] as $arg) {
+            /** @var FieldArgument $arg */
+            if ($arg->name === $name) {
+                return $arg;
+            }
+        }
+        return null;
+    }
+
+    /**
      * @return Type
      */
     public function getType()
     {
         if (null === $this->resolvedType) {
+            // TODO: deprecate types as callbacks - instead just allow field definitions to be callbacks
             $this->resolvedType = Type::resolve($this->type);
         }
         return $this->resolvedType;

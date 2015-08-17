@@ -44,8 +44,8 @@ class KnownTypeNamesTest extends TestCase
 
     private function unknownType($typeName, $line, $column)
     {
-        return new FormattedError(
-            Messages::unknownTypeMessage($typeName),
+        return FormattedError::create(
+            KnownTypeNames::unknownTypeMessage($typeName),
             [new SourceLocation($line, $column)]
         );
     }
