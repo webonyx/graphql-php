@@ -47,7 +47,7 @@ class Executor
 {
     private static $UNDEFINED;
 
-    private static $defaultResolveFn;
+    private static $defaultResolveFn = [__CLASS__, 'defaultResolveFn'];
 
     /**
      * Custom default resolve function
@@ -365,10 +365,10 @@ class Executor
 
         if (isset($fieldDef->resolve)) {
             $resolveFn = $fieldDef->resolve;
-        } else if (isset(self::$defaultResolveFn)) {
-            $resolveFn = self::$defaultResolveFn;
+        } else if (isset($parentType->resolveField)) {
+            $resolveFn = $parentType->resolveField;
         } else {
-            $resolveFn = [__CLASS__, 'defaultResolveFn'];
+            $resolveFn = self::$defaultResolveFn;
         }
 
         // Build hash of arguments from the field.arguments AST, using the
@@ -577,12 +577,12 @@ class Executor
                 $property = $source[$fieldName];
             }
         } else if (is_object($source)) {
-            if (property_exists($source, $fieldName)) {
+            if (isset($source->{$fieldName})) {
                 $property = $source->{$fieldName};
             }
         }
 
-        return is_callable($property) ? call_user_func($property, $source) : $property;
+        return $property instanceof \Closure ? $property($source) : $property;
     }
 
     /**

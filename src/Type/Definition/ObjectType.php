@@ -66,12 +66,18 @@ class ObjectType extends Type implements OutputType, CompositeType
 
     private $_initialized = false;
 
+    /**
+     * @var callable
+     */
+    public $resolveField;
+
     public function __construct(array $config)
     {
         Utils::invariant(!empty($config['name']), 'Every type is expected to have name');
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
+        $this->resolveField = isset($config['resolveField']) ? $config['resolveField'] : null;
         $this->_config = $config;
 
         if (isset($config['interfaces'])) {
@@ -109,6 +115,7 @@ class ObjectType extends Type implements OutputType, CompositeType
                 Config::INTERFACE_TYPE
             ),
             'isTypeOf' => Config::CALLBACK, // ($value, ResolveInfo $info) => boolean
+            'resolveField' => Config::CALLBACK
         ]);
 
         $this->_fields = FieldDefinition::createMap($config['fields']);
@@ -118,7 +125,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     }
 
     /**
-     * @return array<FieldDefinition>
+     * @return FieldDefinition[]
      */
     public function getFields()
     {
