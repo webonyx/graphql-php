@@ -25,11 +25,7 @@ class FieldDefinition
     /**
      * source?: any,
      * args?: ?{[argName: string]: any},
-     * context?: any,
-     * fieldAST?: any,
-     * fieldType?: any,
-     * parentType?: any,
-     * schema?: GraphQLSchema
+     * info
      *
      * @var callable
      */
@@ -45,6 +41,13 @@ class FieldDefinition
      */
     public $deprecationReason;
 
+    /**
+     * Original field definition config
+     *
+     * @var array
+     */
+    public $config;
+
     private static $def;
 
     public static function getDefinition()
@@ -55,6 +58,7 @@ class FieldDefinition
             'args' => Config::arrayOf([
                 'name' => Config::STRING | Config::REQUIRED,
                 'type' => Config::INPUT_TYPE | Config::REQUIRED,
+                'description' => Config::STRING,
                 'defaultValue' => Config::ANY
             ], Config::KEY_AS_NAME),
             'resolve' => Config::CALLBACK,
@@ -98,6 +102,8 @@ class FieldDefinition
 
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->deprecationReason = isset($config['deprecationReason']) ? $config['deprecationReason'] : null;
+
+        $this->config = $config;
     }
 
     /**
