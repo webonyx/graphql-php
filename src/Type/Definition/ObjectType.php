@@ -68,6 +68,8 @@ class ObjectType extends Type implements OutputType, CompositeType
 
     public function __construct(array $config)
     {
+        Utils::invariant(!empty($config['name']), 'Every type is expected to have name');
+
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->_config = $config;

@@ -335,7 +335,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 $this->fail('Expected exception not thrown');
             } catch (\Exception $e) {
                 $this->assertSame(
-                    'Expecting callable or instance of GraphQL\Type\Definition\ObjectType at "types:0", but got "' . get_class($type) . '"',
+                    'Error in "BadUnion" type definition: expecting callable or instance of GraphQL\Type\Definition\ObjectType at "types:0", but got "' . get_class($type) . '"',
                     $e->getMessage()
                 );
             }

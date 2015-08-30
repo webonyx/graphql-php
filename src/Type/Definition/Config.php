@@ -41,7 +41,8 @@ class Config
     public static function validate(array $config, array $definition)
     {
         if (self::$enableValidation) {
-            self::_validateMap($config, $definition);
+            $name = isset($config['name']) ? $config['name'] : 'UnnamedType';
+            self::_validateMap($name, $config, $definition);
         }
     }
 
@@ -73,29 +74,29 @@ class Config
         return $tmp;
     }
 
-    private static function _validateMap(array $map, array $definitions, $pathStr = null)
+    private static function _validateMap($typeName, array $map, array $definitions, $pathStr = null)
     {
         $suffix = $pathStr ? " at $pathStr" : '';
 
         // Make sure there are no unexpected keys in map
         $unexpectedKeys = array_keys(array_diff_key($map, $definitions));
-        Utils::invariant(empty($unexpectedKeys), 'Unexpected keys "%s" ' . $suffix, implode(', ', $unexpectedKeys));
+        Utils::invariant(empty($unexpectedKeys), 'Error in "'.$typeName.'" type definition: Unexpected keys "%s" ' . $suffix, implode(', ', $unexpectedKeys));
 
         // Make sure that all required keys are present in map
         $requiredKeys = array_filter($definitions, function($def) {return (self::_getFlags($def) & self::REQUIRED) > 0;});
         $missingKeys = array_keys(array_diff_key($requiredKeys, $map));
-        Utils::invariant(empty($missingKeys), 'Required keys missing: "%s"' . $suffix, implode(', ', $missingKeys));
+        Utils::invariant(empty($missingKeys), 'Error in "'.$typeName.'" type definition: Required keys missing: "%s"' . $suffix, implode(', ', $missingKeys));
 
         // Make sure that every map value is valid given the definition
         foreach ($map as $key => $value) {
-            self::_validateEntry($key, $value, $definitions[$key], $pathStr ? "$pathStr:$key" : $key);
+            self::_validateEntry($typeName, $key, $value, $definitions[$key], $pathStr ? "$pathStr:$key" : $key);
         }
     }
 
-    private static function _validateEntry($key, $value, $def, $pathStr)
+    private static function _validateEntry($typeName, $key, $value, $def, $pathStr)
     {
         $type = Utils::getVariableType($value);
-        $err = 'Expecting %s at "' . $pathStr . '", but got "' . $type . '"';
+        $err = 'Error in "'.$typeName.'" type definition: expecting %s at "' . $pathStr . '", but got "' . $type . '"';
 
         if ($def instanceof \stdClass) {
             if ($def->flags & self::REQUIRED === 0 && $value === null) {
@@ -107,14 +108,14 @@ class Config
                 if ($def->flags & self::KEY_AS_NAME) {
                     $value += ['name' => $key];
                 }
-                self::_validateMap($value, $def->definition, $pathStr);
+                self::_validateMap($typeName, $value, $def->definition, $pathStr);
             } else if (!empty($def->isArray)) {
 
                 if ($def->flags & self::REQUIRED) {
-                    Utils::invariant(!empty($value), "Value at '$pathStr' cannot be empty array");
+                    Utils::invariant(!empty($value), 'Error in "'.$typeName.'" type definition: ' . "Value at '$pathStr' cannot be empty array");
                 }
 
-                $err = "Each entry at '$pathStr' must be an array, but '%s' is '%s'";
+                $err = 'Error in "'.$typeName.'" type definition:' . "Each entry at '$pathStr' must be an array, but '%s' is '%s'";
 
                 foreach ($value as $arrKey => $arrValue) {
                     if (is_array($def->definition)) {
@@ -123,19 +124,23 @@ class Config
                         if ($def->flags & self::KEY_AS_NAME) {
                             $arrValue += ['name' => $arrKey];
                         }
-                        self::_validateMap($arrValue, $def->definition, "$pathStr:$arrKey");
+                        self::_validateMap($typeName, $arrValue, $def->definition, "$pathStr:$arrKey");
                     } else {
-                        self::_validateEntry($arrKey, $arrValue, $def->definition, "$pathStr:$arrKey");
+                        self::_validateEntry($typeName, $arrKey, $arrValue, $def->definition, "$pathStr:$arrKey");
                     }
                 }
             } else {
-                throw new \Exception("Unexpected definition: " . print_r($def, true));
+                throw new \Exception('Error in "'.$typeName.'" type definition:' . "unexpected definition: " . print_r($def, true));
             }
         } else {
-            Utils::invariant(is_int($def), "Definition for '$pathStr' is expected to be single integer value");
+            Utils::invariant(is_int($def), 'Error in "'.$typeName.'" type definition:' . "Definition for '$pathStr' is expected to be single integer value");
 
             if ($def & self::REQUIRED) {
                 Utils::invariant($value !== null, 'Value at "%s" can not be null', $pathStr);
+            }
+
+            if (null === $value) {
+                return ; // Allow nulls for non-required fields
             }
 
             switch (true) {
