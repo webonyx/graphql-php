@@ -40,7 +40,7 @@ class EnumType extends Type implements InputType, OutputType
 
         if (!empty($config['values'])) {
             foreach ($config['values'] as $name => $value) {
-                $this->_values[] = Utils::assign(new EnumValueDefinition(), $value + ['name' => $name]);
+                $this->_values[] = Utils::assign(new EnumValueDefinition(), $value + ['name' => $name, 'value' => $name]); // value will be equal to name only if 'value'  is not set in definition
             }
         }
     }
