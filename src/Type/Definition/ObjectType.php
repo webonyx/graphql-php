@@ -69,7 +69,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     /**
      * @var callable
      */
-    public $resolveField;
+    public $resolveFieldFn;
 
     public function __construct(array $config)
     {
@@ -77,7 +77,7 @@ class ObjectType extends Type implements OutputType, CompositeType
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->resolveField = isset($config['resolveField']) ? $config['resolveField'] : null;
+        $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;
         $this->_config = $config;
 
         if (isset($config['interfaces'])) {

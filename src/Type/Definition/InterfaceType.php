@@ -26,7 +26,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @var callback
      */
-    private $_resolveType;
+    private $_resolveTypeFn;
 
     /**
      * Update the interfaces to know about this implementation.
@@ -52,14 +52,14 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
                 FieldDefinition::getDefinition(),
                 Config::KEY_AS_NAME
             ),
-            'resolveType' => Config::CALLBACK,
+            'resolveType' => Config::CALLBACK, // function($value, ResolveInfo $info) => ObjectType
             'description' => Config::STRING
         ]);
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->_fields = !empty($config['fields']) ? FieldDefinition::createMap($config['fields']) : [];
-        $this->_resolveType = isset($config['resolveType']) ? $config['resolveType'] : null;
+        $this->_resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
     }
 
     /**
@@ -104,7 +104,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public function getObjectType($value, ResolveInfo $info)
     {
-        $resolver = $this->_resolveType;
+        $resolver = $this->_resolveTypeFn;
         return $resolver ? call_user_func($resolver, $value, $info) : Type::getTypeOf($value, $info, $this);
     }
 }

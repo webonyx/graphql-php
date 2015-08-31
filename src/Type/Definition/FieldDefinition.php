@@ -23,13 +23,20 @@ class FieldDefinition
     public $args;
 
     /**
-     * source?: any,
-     * args?: ?{[argName: string]: any},
-     * info
+     * Callback for resolving field value given parent value.
+     * Mutually exclusive with `map`
      *
      * @var callable
      */
-    public $resolve;
+    public $resolveFn;
+
+    /**
+     * Callback for mapping list of parent values to list of field values.
+     * Mutually exclusive with `resolve`
+     *
+     * @var callable
+     */
+    public $mapFn;
 
     /**
      * @var string|null
@@ -62,6 +69,7 @@ class FieldDefinition
                 'defaultValue' => Config::ANY
             ], Config::KEY_AS_NAME),
             'resolve' => Config::CALLBACK,
+            'map' => Config::CALLBACK,
             'description' => Config::STRING,
             'deprecationReason' => Config::STRING,
         ]);
@@ -97,7 +105,8 @@ class FieldDefinition
     {
         $this->name = $config['name'];
         $this->type = $config['type'];
-        $this->resolve = isset($config['resolve']) ? $config['resolve'] : null;
+        $this->resolveFn = isset($config['resolve']) ? $config['resolve'] : null;
+        $this->mapFn = isset($config['map']) ? $config['map'] : null;
         $this->args = isset($config['args']) ? FieldArgument::createMap($config['args']) : [];
 
         $this->description = isset($config['description']) ? $config['description'] : null;
