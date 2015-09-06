@@ -53,12 +53,30 @@ class EnumType extends Type implements InputType, OutputType
         return $this->_values;
     }
 
+    /**
+     * @param $value
+     * @return null
+     */
     public function serialize($value)
     {
-        $enumValue = $this->_getValueLookup()->offsetGet($value);
-        return $enumValue ? $enumValue->name : null;
+        $lookup = $this->_getValueLookup();
+        return isset($lookup[$value]) ? $lookup[$value]->name : null;
     }
 
+    /**
+     * @param $value
+     * @return null
+     */
+    public function parseValue($value)
+    {
+        $lookup = $this->_getNameLookup();
+        return isset($lookup[$value]) ? $lookup[$value]->value : null;
+    }
+
+    /**
+     * @param $value
+     * @return null
+     */
     public function parseLiteral($value)
     {
         if ($value instanceof EnumValue) {
