@@ -193,7 +193,6 @@ class Executor
      * @param ExecutionContext $exeContext
      * @param ObjectType $parentType
      * @param $sourceList
-     * @param $sourceIsList
      * @param $fields
      * @return array
      * @throws Error
@@ -598,8 +597,11 @@ class Executor
                 $resultTypeMap = [];
                 $typeNameMap = [];
                 $cursors = [];
+                $copied = [];
 
                 foreach ($result as $index => $item) {
+                    $copied[$index] = $item;
+
                     if (null !== $item) {
                         $objectType = $itemType->getObjectType($item, $info);
 
@@ -607,7 +609,7 @@ class Executor
                             $exeContext->addError(new Error(
                                 "Runtime Object type \"$objectType\" is not a possible type for \"$itemType\"."
                             ));
-                            $result[$index] = null;
+                            $copied[$index] = null;
                         } else {
                             $listPerObjectType[$objectType->name][] = $item;
                             $resultTypeMap[$index] = $objectType->name;
@@ -626,7 +628,7 @@ class Executor
 
                 // Restore order:
                 $completed = [];
-                foreach ($result as $index => $item) {
+                foreach ($copied as $index => $item) {
                     if (null === $item) {
                         // Complete nulls separately
                         $completed[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $item);
