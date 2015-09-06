@@ -45,6 +45,12 @@ class Utils
         return null;
     }
 
+    /**
+     * @param $traversable
+     * @param callable $predicate
+     * @return array
+     * @throws \Exception
+     */
     public static function filter($traversable, callable $predicate)
     {
         self::invariant(is_array($traversable) || $traversable instanceof \Traversable, __METHOD__ . ' expects array or Traversable');
@@ -98,6 +104,37 @@ class Utils
             }
         }
         return $map;
+    }
+
+    /**
+     * Splits original traversable to several arrays with keys equal to $keyFn return
+     *
+     * E.g. Utils::groupBy([1, 2, 3, 4, 5], function($value) {return $value % 3}) will output:
+     * [
+     *    1 => [1, 4],
+     *    2 => [2, 5],
+     *    0 => [3],
+     * ]
+     *
+     * $keyFn is also allowed to return array of keys. Then value will be added to all arrays with given keys
+     *
+     * @param $traversable
+     * @param callable $keyFn function($value, $key) => $newKey(s)
+     * @return array
+     */
+    public static function groupBy($traversable, callable $keyFn)
+    {
+        self::invariant(is_array($traversable) || $traversable instanceof \Traversable, __METHOD__ . ' expects array or Traversable');
+
+        $grouped = [];
+        foreach ($traversable as $key => $value) {
+            $newKeys = (array) $keyFn($value, $key);
+            foreach ($newKeys as $key) {
+                $grouped[$key][] = $value;
+            }
+        }
+
+        return $grouped;
     }
 
     /**
