@@ -20,11 +20,16 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
      */
     private $_resolveType;
 
+    /**
+     * @var array
+     */
+    private $_config;
+
     public function __construct($config)
     {
         Config::validate($config, [
             'name' => Config::STRING | Config::REQUIRED,
-            'types' => Config::arrayOf(Config::OBJECT_TYPE | Config::REQUIRED),
+            'types' => Config::arrayOf(Config::OBJECT_TYPE, Config::REQUIRED),
             'resolveType' => Config::CALLBACK, // function($value, ResolveInfo $info) => ObjectType
             'description' => Config::STRING
         ]);
@@ -40,6 +45,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->_types = $config['types'];
         $this->_resolveType = isset($config['resolveType']) ? $config['resolveType'] : null;
+        $this->_config = $config;
     }
 
     /**
@@ -47,6 +53,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
      */
     public function getPossibleTypes()
     {
+        if ($this->_types instanceof \Closure) {
+            $this->_types = call_user_func($this->_types);
+        }
         return $this->_types;
     }
 
