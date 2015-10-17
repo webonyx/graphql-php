@@ -278,12 +278,9 @@ Option | Type | Notes
 name | `string` | Required. Name of the field. If not set - GraphQL will look use `key` of fields array on type definition.
 type | `Type` or `callback() => Type` | Required. One of internal or custom types. Alternatively - callback that returns `type`.
 args | `array` | Array of possible type arguments. Each entry is expected to be an array with following keys: **name** (`string`), **type** (`Type` or `callback() => Type`), **defaultValue** (`any`)
-resolve | `callback($value, $args, ResolveInfo $info) => $fieldValue` | Function that receives `$value` of parent type and returns value for this field. Mutually exclusive with `map`
-map | `callback($listOfValues, $args, ResolveInfo $info) => $fieldValues[]` | Function that receives list of parent type values and maps them to list of field values. Mutually exclusive with `resolve`
+resolve | `callback($value, $args, ResolveInfo $info) => $fieldValue` | Function that receives `$value` of parent type and returns value for this field.
 description | `string` | Field description for clients
 deprecationReason | `string` | Text describing why this field is deprecated. When not empty - field will not be returned by introspection queries (unless forced)
-
-Use `map` or `resolve` for custom data fetching logic. `resolve` is easier to use, but `map` allows batching of queries to backend storage (for example you can use Redis MGET or IN(?) for SQL queries).
 
 
 ### Schema
