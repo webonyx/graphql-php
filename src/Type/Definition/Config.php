@@ -80,7 +80,10 @@ class Config
 
         // Make sure there are no unexpected keys in map
         $unexpectedKeys = array_keys(array_diff_key($map, $definitions));
-        Utils::invariant(empty($unexpectedKeys), 'Error in "'.$typeName.'" type definition: Unexpected keys "%s" ' . $suffix, implode(', ', $unexpectedKeys));
+        if (!empty($unexpectedKeys)) {
+            trigger_error(sprintf('"%s" type definition: Unexpected keys "%s" ' . $suffix, $typeName, implode(', ', $unexpectedKeys)));
+            $map = array_intersect_key($map, $definitions);
+        }
 
         // Make sure that all required keys are present in map
         $requiredKeys = array_filter($definitions, function($def) {return (self::_getFlags($def) & self::REQUIRED) > 0;});
