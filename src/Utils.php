@@ -88,6 +88,24 @@ class Utils
 
     /**
      * @param $traversable
+     * @param callable $fn
+     * @return array
+     * @throws \Exception
+     */
+    public static function mapKeyValue($traversable, callable $fn)
+    {
+        self::invariant(is_array($traversable) || $traversable instanceof \Traversable, __METHOD__ . ' expects array or Traversable');
+
+        $map = [];
+        foreach ($traversable as $key => $value) {
+            list($newKey, $newValue) = $fn($value, $key);
+            $map[$newKey] = $newValue;
+        }
+        return $map;
+    }
+
+    /**
+     * @param $traversable
      * @param callable $keyFn function($value, $key) => $newKey
      * @return array
      * @throws \Exception
@@ -104,6 +122,19 @@ class Utils
             }
         }
         return $map;
+    }
+
+    /**
+     * @param $traversable
+     * @param callable $fn
+     */
+    public static function each($traversable, callable $fn)
+    {
+        self::invariant(is_array($traversable) || $traversable instanceof \Traversable, __METHOD__ . ' expects array or Traversable');
+
+        foreach ($traversable as $key => $item) {
+            $fn($item, $key);
+        }
     }
 
     /**

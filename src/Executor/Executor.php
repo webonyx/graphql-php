@@ -415,11 +415,16 @@ class Executor
         if ($mapFn) {
             try {
                 $mapped = call_user_func($mapFn, $sourceValueList, $args, $info);
+                $validType = is_array($mapped) || ($mapped instanceof \Traversable && $mapped instanceof \Countable);
+                $mappedCount = count($mapped);
+                $sourceCount = count($sourceValueList);
 
                 Utils::invariant(
-                    is_array($mapped) && count($mapped) === count($sourceValueList),
-                    "Function `map` of $parentType.$fieldName is expected to return array " .
-                    "with exact same number of items as list being mapped (first argument of `map`)"
+                    $validType && count($mapped) === count($sourceValueList),
+                    "Function `map` of $parentType.$fieldName is expected to return array or " .
+                    "countable traversable with exact same number of items as list being mapped. ".
+                    "Got '%s' with count '$mappedCount' against '$sourceCount' expected.",
+                    Utils::getVariableType($mapped)
                 );
 
             } catch (\Exception $error) {
@@ -682,7 +687,8 @@ class Executor
 
         // Collect sub-fields to execute to complete this value.
         $subFieldASTs = self::collectSubFields($exeContext, $objectType, $fieldASTs);
-        return self::executeFields($exeContext, $objectType, [$result], $subFieldASTs)[0];
+        $executed = self::executeFields($exeContext, $objectType, [$result], $subFieldASTs);
+        return isset($executed[0]) ? $executed[0] : null;
     }
 
     /**
