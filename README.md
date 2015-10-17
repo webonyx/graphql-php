@@ -10,6 +10,8 @@ This implementation will follow JavaScript version as close as possible until Gr
 **Current status**: version 0.4 supports all features described by specification.
 _corresponding graphql-js commit_: cf50cc3a304faff9a4215cd121a548e65794a089 (v0.4.2 2015-08-14).
 
+[![Build Status](https://travis-ci.org/webonyx/graphql-php.svg?branch=master)](https://travis-ci.org/webonyx/graphql-php)
+
 ## Table of Contents
 
 - [Overview](#overview)
