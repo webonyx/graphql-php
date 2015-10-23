@@ -324,7 +324,13 @@ class Executor
      */
     private static function doesFragmentConditionMatch(ExecutionContext $exeContext,/* FragmentDefinition | InlineFragment*/ $fragment, ObjectType $type)
     {
-        $conditionalType = Utils\TypeInfo::typeFromAST($exeContext->schema, $fragment->typeCondition);
+        $typeConditionAST = $fragment->typeCondition;
+
+        if (!$typeConditionAST) {
+            return true;
+        }
+
+        $conditionalType = Utils\TypeInfo::typeFromAST($exeContext->schema, $typeConditionAST);
         if ($conditionalType === $type) {
             return true;
         }
@@ -394,22 +400,9 @@ class Executor
             'variableValues' => $exeContext->variableValues,
         ]);
 
-        // If an error occurs while calling the field `resolve` function, ensure that
-        // it is wrapped as a GraphQLError with locations. Log this error and return
-        // null if allowed, otherwise throw the error so the parent field can handle
-        // it.
-        try {
-            $result = call_user_func($resolveFn, $source, $args, $info);
-        } catch (\Exception $error) {
-            $reportedError = Error::createLocatedError($error, $fieldASTs);
-
-            if ($returnType instanceof NonNull) {
-                throw $reportedError;
-            }
-
-            $exeContext->addError($reportedError);
-            return null;
-        }
+        // Get the resolve function, regardless of if its result is normal
+        // or abrupt (error).
+        $result = self::resolveOrError($resolveFn, $source, $args, $info);
 
         return self::completeValueCatchingError(
             $exeContext,
@@ -420,6 +413,16 @@ class Executor
         );
     }
 
+    // Isolates the "ReturnOrAbrupt" behavior to not de-opt the `resolveField`
+    // function. Returns the result of resolveFn or the abrupt-return Error object.
+    private static function resolveOrError($resolveFn, $source, $args, $info)
+    {
+        try {
+            return call_user_func($resolveFn, $source, $args, $info);
+        } catch (\Exception $error) {
+            return $error;
+        }
+    }
 
     public static function completeValueCatchingError(
         ExecutionContext $exeContext,
@@ -440,6 +443,8 @@ class Executor
         try {
             return self::completeValue($exeContext, $returnType, $fieldASTs, $info, $result);
         } catch (Error $err) {
+            // If `completeValue` returned abruptly (threw an error), log the error
+            // and return null.
             $exeContext->addError($err);
             return null;
         }
@@ -465,6 +470,10 @@ class Executor
      */
     private static function completeValue(ExecutionContext $exeContext, Type $returnType,/* Array<Field> */ $fieldASTs, ResolveInfo $info, &$result)
     {
+        if ($result instanceof \Exception) {
+            throw Error::createLocatedError($result, $fieldASTs);
+        }
+
         // If field type is NonNull, complete for inner type, and throw field error
         // if result is null.
         if ($returnType instanceof NonNull) {
@@ -514,29 +523,29 @@ class Executor
 
         // Field type must be Object, Interface or Union and expect sub-selections.
         if ($returnType instanceof ObjectType) {
-            $objectType = $returnType;
+            $runtimeType = $returnType;
         } else if ($returnType instanceof AbstractType) {
-            $objectType = $returnType->getObjectType($result, $info);
+            $runtimeType = $returnType->getObjectType($result, $info);
 
-            if ($objectType && !$returnType->isPossibleType($objectType)) {
+            if ($runtimeType && !$returnType->isPossibleType($runtimeType)) {
                 throw new Error(
-                    "Runtime Object type \"$objectType\" is not a possible type for \"$returnType\"."
+                    "Runtime Object type \"$runtimeType\" is not a possible type for \"$returnType\"."
                 );
             }
         } else {
-            $objectType = null;
+            $runtimeType = null;
         }
 
-        if (!$objectType) {
+        if (!$runtimeType) {
             return null;
         }
 
         // If there is an isTypeOf predicate function, call it with the
         // current result. If isTypeOf returns false, then raise an error rather
         // than continuing execution.
-        if (false === $objectType->isTypeOf($result, $info)) {
+        if (false === $runtimeType->isTypeOf($result, $info)) {
             throw new Error(
-                "Expected value of type $objectType but got: $result.",
+                "Expected value of type $runtimeType but got: $result.",
                 $fieldASTs
             );
         }
@@ -549,7 +558,7 @@ class Executor
             if ($selectionSet) {
                 $subFieldASTs = self::collectFields(
                     $exeContext,
-                    $objectType,
+                    $runtimeType,
                     $selectionSet,
                     $subFieldASTs,
                     $visitedFragmentNames
@@ -557,7 +566,7 @@ class Executor
             }
         }
 
-        return self::executeFields($exeContext, $objectType, $result, $subFieldASTs);
+        return self::executeFields($exeContext, $runtimeType, $result, $subFieldASTs);
     }
 
 
