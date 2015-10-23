@@ -512,4 +512,38 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $result->toArray());
     }
+
+    public function testSubstitutesArgumentWithDefaultValue()
+    {
+        $schema = new Schema(
+            new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'field' => [
+                        'type' => Type::string(),
+                        'resolve' => function($data, $args) {return $args ? json_encode($args) : '';},
+                        'args' => [
+                            'a' => ['type' => Type::boolean(), 'defaultValue' => 1],
+                            'b' => ['type' => Type::boolean(), 'defaultValue' => null],
+                            'c' => ['type' => Type::boolean(), 'defaultValue' => 0],
+                            'd' => ['type' => Type::int(), 'defaultValue' => false],
+                            'e' => ['type' => Type::int(), 'defaultValue' => '0'],
+                            'f' => ['type' => Type::int(), 'defaultValue' => 'some-string'],
+                            'g' => ['type' => Type::boolean()]
+                        ]
+                    ]
+                ]
+            ])
+        );
+
+        $query = Parser::parse('{ field }');
+        $result = Executor::execute($schema, $query);
+        $expected = [
+            'data' => [
+                'field' => '{"a":1,"c":0,"d":false,"e":"0","f":"some-string"}'
+            ]
+        ];
+
+        $this->assertEquals($expected, $result->toArray());
+    }
 }

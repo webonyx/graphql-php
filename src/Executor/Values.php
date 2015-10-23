@@ -60,7 +60,7 @@ class Values
      */
     public static function getArgumentValues($argDefs, $argASTs, $variableValues)
     {
-        if (!$argDefs || !$argASTs) {
+        if (!$argDefs) {
             return [];
         }
         $argASTMap = $argASTs ? Utils::keyMap($argASTs, function ($arg) {
