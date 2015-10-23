@@ -25,6 +25,8 @@ use GraphQL\Type\Introspection;
 use GraphQL\Utils;
 
 /**
+ * @deprecated Use regular executor instead
+ *
  * Terminology
  *
  * "Definitions" are the generic name for top-level statements in the document.
@@ -43,7 +45,7 @@ use GraphQL\Utils;
  * 2) fragment "spreads" e.g. "...c"
  * 3) inline fragment "spreads" e.g. "...on Type { a }"
  */
-class Executor
+class MappingExecutor
 {
     private static $UNDEFINED;
 
@@ -147,10 +149,12 @@ class Executor
         $fields = self::collectFields($exeContext, $type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
 
         if ($operation->operation === 'mutation') {
-            return self::executeFieldsSerially($exeContext, $type, $rootValue, $fields);
+            $result = self::executeFieldsSerially($exeContext, $type, [$rootValue], $fields);
+        } else {
+            $result = self::executeFields($exeContext, $type, [$rootValue], $fields);
         }
 
-        return self::executeFields($exeContext, $type, $rootValue, $fields);
+        return null === $result || $result === [] ? [] : $result[0];
     }
 
 
@@ -187,30 +191,39 @@ class Executor
     /**
      * Implements the "Evaluating selection sets" section of the spec
      * for "write" mode.
+     *
+     * @param ExecutionContext $exeContext
+     * @param ObjectType $parentType
+     * @param $sourceList
+     * @param $fields
+     * @return array
+     * @throws Error
+     * @throws \Exception
      */
-    private static function executeFieldsSerially(ExecutionContext $exeContext, ObjectType $parentType, $sourceValue, $fields)
+    private static function executeFieldsSerially(ExecutionContext $exeContext, ObjectType $parentType, $sourceList, $fields)
     {
         $results = [];
         foreach ($fields as $responseName => $fieldASTs) {
-            $result = self::resolveField($exeContext, $parentType, $sourceValue, $fieldASTs);
-
-            if ($result !== self::$UNDEFINED) {
-                // Undefined means that field is not defined in schema
-                $results[$responseName] = $result;
-            }
+            self::resolveField($exeContext, $parentType, $sourceList, $fieldASTs, $responseName, $results);
         }
+
         return $results;
     }
 
     /**
      * Implements the "Evaluating selection sets" section of the spec
      * for "read" mode.
+     * @param ExecutionContext $exeContext
+     * @param ObjectType $parentType
+     * @param $sourceList
+     * @param $fields
+     * @return array
      */
-    private static function executeFields(ExecutionContext $exeContext, ObjectType $parentType, $source, $fields)
+    private static function executeFields(ExecutionContext $exeContext, ObjectType $parentType, $sourceList, $fields)
     {
         // Native PHP doesn't support promises.
         // Custom executor should be built for platforms like ReactPHP
-        return self::executeFieldsSerially($exeContext, $parentType, $source, $fields);
+        return self::executeFieldsSerially($exeContext, $parentType, $sourceList, $fields);
     }
 
 
@@ -345,12 +358,21 @@ class Executor
     }
 
     /**
-     * Resolves the field on the given source object. In particular, this
-     * figures out the value that the field returns by calling its resolve function,
-     * then calls completeValue to complete promises, serialize scalars, or execute
-     * the sub-selection-set for objects.
+     * Given list of parent type values returns corresponding list of field values
+     *
+     * In particular, this
+     * figures out the value that the field returns by calling its `resolve` or `map` function,
+     * then calls `completeValue` on each value to serialize scalars, or execute the sub-selection-set
+     * for objects.
+     *
+     * @param ExecutionContext $exeContext
+     * @param ObjectType $parentType
+     * @param $sourceValueList
+     * @param $fieldASTs
+     * @return array
+     * @throws Error
      */
-    private static function resolveField(ExecutionContext $exeContext, ObjectType $parentType, $source, $fieldASTs)
+    private static function resolveField(ExecutionContext $exeContext, ObjectType $parentType, $sourceValueList, $fieldASTs, $responseName, &$resolveResult)
     {
         $fieldAST = $fieldASTs[0];
         $fieldName = $fieldAST->name->value;
@@ -358,18 +380,10 @@ class Executor
         $fieldDef = self::getFieldDef($exeContext->schema, $parentType, $fieldName);
 
         if (!$fieldDef) {
-            return self::$UNDEFINED;
+            return ;
         }
 
         $returnType = $fieldDef->getType();
-
-        if (isset($fieldDef->resolveFn)) {
-            $resolveFn = $fieldDef->resolveFn;
-        } else if (isset($parentType->resolveFieldFn)) {
-            $resolveFn = $parentType->resolveFieldFn;
-        } else {
-            $resolveFn = self::$defaultResolveFn;
-        }
 
         // Build hash of arguments from the field.arguments AST, using the
         // variables scope to fulfill any variable references.
@@ -394,30 +408,79 @@ class Executor
             'variableValues' => $exeContext->variableValues,
         ]);
 
-        // If an error occurs while calling the field `resolve` function, ensure that
+        $mapFn = $fieldDef->mapFn;
+
+        // If an error occurs while calling the field `map` or `resolve` function, ensure that
         // it is wrapped as a GraphQLError with locations. Log this error and return
         // null if allowed, otherwise throw the error so the parent field can handle
         // it.
-        try {
-            $result = call_user_func($resolveFn, $source, $args, $info);
-        } catch (\Exception $error) {
-            $reportedError = Error::createLocatedError($error, $fieldASTs);
+        if ($mapFn) {
+            try {
+                $mapped = call_user_func($mapFn, $sourceValueList, $args, $info);
+                $validType = is_array($mapped) || ($mapped instanceof \Traversable && $mapped instanceof \Countable);
+                $mappedCount = count($mapped);
+                $sourceCount = count($sourceValueList);
 
-            if ($returnType instanceof NonNull) {
-                throw $reportedError;
+                Utils::invariant(
+                    $validType && count($mapped) === count($sourceValueList),
+                    "Function `map` of $parentType.$fieldName is expected to return array or " .
+                    "countable traversable with exact same number of items as list being mapped. ".
+                    "Got '%s' with count '$mappedCount' against '$sourceCount' expected.",
+                    Utils::getVariableType($mapped)
+                );
+
+            } catch (\Exception $error) {
+                $reportedError = Error::createLocatedError($error, $fieldASTs);
+
+                if ($returnType instanceof NonNull) {
+                    throw $reportedError;
+                }
+
+                $exeContext->addError($reportedError);
+                return null;
             }
 
-            $exeContext->addError($reportedError);
-            return null;
-        }
+            foreach ($mapped as $index => $value) {
+                $resolveResult[$index][$responseName] = self::completeValueCatchingError(
+                    $exeContext,
+                    $returnType,
+                    $fieldASTs,
+                    $info,
+                    $value
+                );
+            }
+        } else {
+            if (isset($fieldDef->resolveFn)) {
+                $resolveFn = $fieldDef->resolveFn;
+            } else if (isset($parentType->resolveFieldFn)) {
+                $resolveFn = $parentType->resolveFieldFn;
+            } else {
+                $resolveFn = self::$defaultResolveFn;
+            }
 
-        return self::completeValueCatchingError(
-            $exeContext,
-            $returnType,
-            $fieldASTs,
-            $info,
-            $result
-        );
+            foreach ($sourceValueList as $index => $value) {
+                try {
+                    $resolved = call_user_func($resolveFn, $value, $args, $info);
+                } catch (\Exception $error) {
+                    $reportedError = Error::createLocatedError($error, $fieldASTs);
+
+                    if ($returnType instanceof NonNull) {
+                        throw $reportedError;
+                    }
+
+                    $exeContext->addError($reportedError);
+                    $resolved = null;
+                }
+
+                $resolveResult[$index][$responseName] = self::completeValueCatchingError(
+                    $exeContext,
+                    $returnType,
+                    $fieldASTs,
+                    $info,
+                    $resolved
+                );
+            }
+        }
     }
 
 
@@ -489,32 +552,115 @@ class Executor
             return null;
         }
 
-        // If field type is List, complete each item in the list with the inner type
+        // If field type is Scalar or Enum, serialize to a valid value, returning
+        // null if serialization is not possible.
+        if ($returnType instanceof ScalarType ||
+            $returnType instanceof EnumType) {
+            return $returnType->serialize($result);
+        }
+
+        // If field type is List, and return type is Composite - complete by executing these fields with list value as parameter
         if ($returnType instanceof ListOfType) {
             $itemType = $returnType->getWrappedType();
+
             Utils::invariant(
                 is_array($result) || $result instanceof \Traversable,
                 'User Error: expected iterable, but did not find one.'
             );
 
-            $tmp = [];
-            foreach ($result as $item) {
-                $tmp[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $item);
+            // For Object[]:
+            // Allow all object fields to process list value in it's `map` callback:
+            if ($itemType instanceof ObjectType) {
+                // Filter out nulls (as `map` doesn't expect it):
+                $list = [];
+                foreach ($result as $index => $item) {
+                    if (null !== $item) {
+                        $list[] = $item;
+                    }
+                }
+
+                $subFieldASTs = self::collectSubFields($exeContext, $itemType, $fieldASTs);
+                $mapped = self::executeFields($exeContext, $itemType, $list, $subFieldASTs);
+
+                $i = 0;
+                $completed = [];
+                foreach ($result as $index => $item) {
+                    if (null === $item) {
+                        // Complete nulls separately
+                        $completed[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $item);
+                    } else {
+                        // Assuming same order of mapped values
+                        $completed[] = $mapped[$i++];
+                    }
+                }
+                return $completed;
+
+            } else if ($itemType instanceof AbstractType) {
+
+                // Values sharded by ObjectType
+                $listPerObjectType = [];
+
+                // Helper structures to restore ordering after resolve calls
+                $resultTypeMap = [];
+                $typeNameMap = [];
+                $cursors = [];
+                $copied = [];
+
+                foreach ($result as $index => $item) {
+                    $copied[$index] = $item;
+
+                    if (null !== $item) {
+                        $objectType = $itemType->getObjectType($item, $info);
+
+                        if ($objectType && !$itemType->isPossibleType($objectType)) {
+                            $exeContext->addError(new Error(
+                                "Runtime Object type \"$objectType\" is not a possible type for \"$itemType\"."
+                            ));
+                            $copied[$index] = null;
+                        } else {
+                            $listPerObjectType[$objectType->name][] = $item;
+                            $resultTypeMap[$index] = $objectType->name;
+                            $typeNameMap[$objectType->name] = $objectType;
+                        }
+                    }
+                }
+
+                $mapped = [];
+                foreach ($listPerObjectType as $typeName => $list) {
+                    $objectType = $typeNameMap[$typeName];
+                    $subFieldASTs = self::collectSubFields($exeContext, $objectType, $fieldASTs);
+                    $mapped[$typeName] = self::executeFields($exeContext, $objectType, $list, $subFieldASTs);
+                    $cursors[$typeName] = 0;
+                }
+
+                // Restore order:
+                $completed = [];
+                foreach ($copied as $index => $item) {
+                    if (null === $item) {
+                        // Complete nulls separately
+                        $completed[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $item);
+                    } else {
+                        $typeName = $resultTypeMap[$index];
+                        $completed[] = $mapped[$typeName][$cursors[$typeName]++];
+                    }
+                }
+
+                return $completed;
+            } else {
+
+                // For simple lists:
+                $tmp = [];
+                foreach ($result as $item) {
+                    $tmp[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $item);
+                }
+                return $tmp;
             }
-            return $tmp;
+
         }
 
-        // If field type is Scalar or Enum, serialize to a valid value, returning
-        // null if serialization is not possible.
-        if ($returnType instanceof ScalarType ||
-            $returnType instanceof EnumType) {
-            Utils::invariant(method_exists($returnType, 'serialize'), 'Missing serialize method on type');
-            return $returnType->serialize($result);
-        }
-
-        // Field type must be Object, Interface or Union and expect sub-selections.
         if ($returnType instanceof ObjectType) {
             $objectType = $returnType;
+
         } else if ($returnType instanceof AbstractType) {
             $objectType = $returnType->getObjectType($result, $info);
 
@@ -542,6 +688,19 @@ class Executor
         }
 
         // Collect sub-fields to execute to complete this value.
+        $subFieldASTs = self::collectSubFields($exeContext, $objectType, $fieldASTs);
+        $executed = self::executeFields($exeContext, $objectType, [$result], $subFieldASTs);
+        return isset($executed[0]) ? $executed[0] : null;
+    }
+
+    /**
+     * @param ExecutionContext $exeContext
+     * @param ObjectType $objectType
+     * @param $fieldASTs
+     * @return \ArrayObject
+     */
+    private static function collectSubFields(ExecutionContext $exeContext, ObjectType $objectType, $fieldASTs)
+    {
         $subFieldASTs = new \ArrayObject();
         $visitedFragmentNames = new \ArrayObject();
         for ($i = 0; $i < count($fieldASTs); $i++) {
@@ -556,10 +715,8 @@ class Executor
                 );
             }
         }
-
-        return self::executeFields($exeContext, $objectType, $result, $subFieldASTs);
+        return $subFieldASTs;
     }
-
 
     /**
      * If a resolve function is not given, then a default resolve behavior is used
