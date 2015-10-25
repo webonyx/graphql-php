@@ -579,7 +579,7 @@ class Executor
         // than continuing execution.
         if (false === $runtimeType->isTypeOf($result, $info)) {
             throw new Error(
-                "Expected value of type $runtimeType but got: $result.",
+                "Expected value of type $runtimeType but got: " . Utils::getVariableType($result),
                 $fieldASTs
             );
         }
@@ -590,8 +590,8 @@ class Executor
         for ($i = 0; $i < count($fieldASTs); $i++) {
             // Get memoized value if it exists
             $uid = self::getFieldUid($fieldASTs[$i], $runtimeType);
-            if (isset($exeContext->memoized['collectSubFields'][$uid][$runtimeType->name])) {
-                $subFieldASTs = $exeContext->memoized['collectSubFields'][$uid][$runtimeType->name];
+            if (isset($exeContext->memoized['collectSubFields'][$uid])) {
+                $subFieldASTs = $exeContext->memoized['collectSubFields'][$uid];
             }
             else {
                 $selectionSet = $fieldASTs[$i]->selectionSet;
@@ -603,7 +603,7 @@ class Executor
                         $subFieldASTs,
                         $visitedFragmentNames
                     );
-                    $exeContext->memoized['collectSubFields'][$uid][$runtimeType->name] = $subFieldASTs;
+                    $exeContext->memoized['collectSubFields'][$uid] = $subFieldASTs;
                 }
             }
         }
