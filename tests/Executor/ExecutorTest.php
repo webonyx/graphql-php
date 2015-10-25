@@ -546,4 +546,99 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $result->toArray());
     }
+
+    public function testResolvedValueIsMemoized()
+    {
+        $doc = '
+      query Q {
+        a {
+          b {
+            c
+            d
+          }
+        }
+      }
+      ';
+
+        $memoizedValue = new \ArrayObject([
+            'b' => 'id1'
+        ]);
+
+        $A = null;
+
+        $Test = new ObjectType([
+            'name' => 'Test',
+            'fields' => [
+                'a' => [
+                    'type' => function() use (&$A) {return Type::listOf($A);},
+                    'resolve' => function() use ($memoizedValue) {
+                        return [
+                            $memoizedValue,
+                            new \ArrayObject([
+                                'b' => 'id2',
+                            ]),
+                            $memoizedValue,
+                            new \ArrayObject([
+                                'b' => 'id2',
+                            ])
+                        ];
+                    }
+                ]
+            ]
+        ]);
+
+        $callCounts = ['id1' => 0, 'id2' => 0];
+
+        $A = new ObjectType([
+            'name' => 'A',
+            'fields' => [
+                'b' => [
+                    'type' => new ObjectType([
+                        'name' => 'B',
+                        'fields' => [
+                            'c' => ['type' => Type::string()],
+                            'd' => ['type' => Type::string()]
+                        ]
+                    ]),
+                    'resolve' => function($value) use (&$callCounts) {
+                        $callCounts[$value['b']]++;
+
+                        switch ($value['b']) {
+                            case 'id1':
+                                return [
+                                    'c' => 'c1',
+                                    'd' => 'd1'
+                                ];
+                            case 'id2':
+                                return [
+                                    'c' => 'c2',
+                                    'd' => 'd2'
+                                ];
+                        }
+                    }
+                ]
+            ]
+        ]);
+
+        // Test that value resolved once is memoized for same query field
+        $schema = new Schema($Test);
+
+        $query = Parser::parse($doc);
+        $result = Executor::execute($schema, $query);
+        $expected = [
+            'data' => [
+                'a' => [
+                    ['b' => ['c' => 'c1', 'd' => 'd1']],
+                    ['b' => ['c' => 'c2', 'd' => 'd2']],
+                    ['b' => ['c' => 'c1', 'd' => 'd1']],
+                    ['b' => ['c' => 'c2', 'd' => 'd2']],
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $result->toArray());
+
+        $this->assertSame($callCounts['id1'], 1); // Result for id1 is expected to be memoized after first call
+        $this->assertSame($callCounts['id2'], 2);
+    }
 }
