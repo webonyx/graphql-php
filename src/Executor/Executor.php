@@ -360,7 +360,7 @@ class Executor
     {
         $fieldAST = $fieldASTs[0];
 
-        $uid = self::getFieldUid($fieldAST);
+        $uid = self::getFieldUid($fieldAST, $parentType);
 
         // Get memoized variables if they exist
         if (isset($exeContext->memoized['resolveField'][$uid])) {
@@ -383,7 +383,6 @@ class Executor
 
             // Build hash of arguments from the field.arguments AST, using the
             // variables scope to fulfill any variable references.
-            // TODO: find a way to memoize, in case this field is within a List type.
             $args = Values::getArgumentValues(
                 $fieldDef->args,
                 $fieldAST->arguments,
@@ -406,21 +405,19 @@ class Executor
 
             // Memoizing results for same query field
             // (useful for lists when several values are resolved against the same field)
-            if ($returnType instanceof ObjectType) {
-                $memoized = $exeContext->memoized['resolveField'][$uid] = [
-                    'fieldDef' => $fieldDef,
-                    'args' => $args,
-                    'info' => $info,
-                    'results' => new \SplObjectStorage
-                ];
-            }
+            $exeContext->memoized['resolveField'][$uid] = $memoized = [
+                'fieldDef' => $fieldDef,
+                'args' => $args,
+                'info' => $info,
+                'results' => new \SplObjectStorage
+            ];
         }
 
         // When source value is object it is possible to memoize certain subset of results
         $isObject = is_object($source);
 
         if ($isObject && isset($memoized['results'][$source])) {
-            $result = $exeContext->memoized['resolveField'][$uid]['results'][$source];
+            $result = $memoized['results'][$source];
         } else {
             if (isset($fieldDef->resolveFn)) {
                 $resolveFn = $fieldDef->resolveFn;
@@ -442,8 +439,8 @@ class Executor
                 $result
             );
 
-            if ($isObject && isset($memoized['results'])) {
-                $exeContext->memoized['resolveField'][$uid]['results'][$source] = $result;
+            if ($isObject) {
+                $memoized['results'][$source] = $result;
             }
         }
 
@@ -592,7 +589,7 @@ class Executor
         $visitedFragmentNames = new \ArrayObject();
         for ($i = 0; $i < count($fieldASTs); $i++) {
             // Get memoized value if it exists
-            $uid = self::getFieldUid($fieldASTs[$i]);
+            $uid = self::getFieldUid($fieldASTs[$i], $runtimeType);
             if (isset($exeContext->memoized['collectSubFields'][$uid][$runtimeType->name])) {
                 $subFieldASTs = $exeContext->memoized['collectSubFields'][$uid][$runtimeType->name];
             }
@@ -674,8 +671,8 @@ class Executor
      * @param  object $fieldAST
      * @return string
      */
-    private static function getFieldUid($fieldAST)
+    private static function getFieldUid($fieldAST, ObjectType $fieldType)
     {
-        return $fieldAST->loc->start . '-' . $fieldAST->loc->end;
+        return $fieldAST->loc->start . '-' . $fieldAST->loc->end . '-' . $fieldType->name;
     }
 }
