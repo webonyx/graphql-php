@@ -30,7 +30,11 @@ class ExecutionResult
         $result = ['data' => $this->data];
 
         if (!empty($this->errors)) {
-            $result['errors'] = array_map(['GraphQL\Error', 'formatError'], $this->errors);
+            $result['errors'] = array_map(function($e)
+            {
+                $errorClass = $e instanceof Error ? get_class($e):'\GraphQL\Error';
+                return $errorClass::formatError($e);
+            }, $this->errors);
         }
 
         return $result;

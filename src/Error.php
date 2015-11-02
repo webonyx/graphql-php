@@ -50,8 +50,10 @@ class Error extends \Exception
             $message = (string) $error;
             $previous = null;
         }
+        
+        $errorClass = $error instanceof Error ? get_class($error):'Error';
 
-        return new Error($message, $nodes, $previous);
+        return new $errorClass($message, $nodes, $previous);
     }
 
     /**

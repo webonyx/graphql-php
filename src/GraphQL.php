@@ -24,12 +24,17 @@ class GraphQL
             $validationErrors = DocumentValidator::validate($schema, $documentAST);
 
             if (!empty($validationErrors)) {
-                return ['errors' => array_map(['GraphQL\Error', 'formatError'], $validationErrors)];
+                return ['errors' => array_map(function($e)
+                {
+                    $errorClass = $e instanceof Error ? get_class($e):'\GraphQL\Error';
+                    return $errorClass::formatError($e);
+                }, $validationErrors)];
             } else {
                 return Executor::execute($schema, $documentAST, $rootValue, $variableValues, $operationName)->toArray();
             }
         } catch (Error $e) {
-            return ['errors' => [Error::formatError($e)]];
+            $errorClass = get_class($e);
+            return ['errors' => [$errorClass::formatError($e)]];
         }
     }
 }
