@@ -51,7 +51,7 @@ class Error extends \Exception
             $previous = null;
         }
         
-        $errorClass = $error instanceof Error ? get_class($error):'Error';
+        $errorClass = $error instanceof Error ? get_class($error):'\GraphQL\Error';
 
         return new $errorClass($message, $nodes, $previous);
     }
