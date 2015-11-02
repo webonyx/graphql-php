@@ -25,6 +25,9 @@ class ExecutionResult
         $this->errors = $errors;
     }
 
+    /**
+     * @return array
+     */
     public function toArray()
     {
         $result = ['data' => $this->data];

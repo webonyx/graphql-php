@@ -1358,6 +1358,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
       }
     ';
         $expected = [
+            'data' => null,
             'errors' => [
                 FormattedError::create(
                     ProvidedNonNullArguments::missingFieldArgMessage('__type', 'name', 'String!'), [new SourceLocation(3, 9)]
