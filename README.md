@@ -432,7 +432,7 @@ use GraphQL\GraphQL;
 use \Exception;
 
 if (isset($_SERVER['CONTENT_TYPE']) && $_SERVER['CONTENT_TYPE'] === 'application/json') {
-    $rawBody = file_get_contents('php://input')
+    $rawBody = file_get_contents('php://input');
     $data = json_decode($rawBody ?: '', true);
 } else {
     $data = $_POST;
