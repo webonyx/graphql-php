@@ -20,15 +20,18 @@ class Schema
 
     protected $mutationSchema;
 
+    protected $subscriptionSchema;
+
     protected $_typeMap;
 
     protected $_directives;
 
-    public function __construct(Type $querySchema = null, Type $mutationSchema = null)
+    public function __construct(Type $querySchema = null, Type $mutationSchema = null, Type $subscriptionSchema = null)
     {
         Utils::invariant($querySchema || $mutationSchema, "Either query or mutation type must be set");
         $this->querySchema = $querySchema;
         $this->mutationSchema = $mutationSchema;
+        $this->subscriptionSchema = $subscriptionSchema;
 
         // Build type map now to detect any errors within this schema.
         $map = [];
@@ -132,6 +135,11 @@ class Schema
     public function getMutationType()
     {
         return $this->mutationSchema;
+    }
+
+    public function getSubscriptionType()
+    {
+        return $this->subscriptionSchema;
     }
 
     /**

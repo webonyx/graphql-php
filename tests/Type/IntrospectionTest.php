@@ -116,6 +116,21 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                             'deprecationReason' => NULL,
                                                         ),
                                                     3 =>
+                                                        array(
+                                                            'name' => 'subscriptionType',
+                                                            'args' =>
+                                                                array(
+                                                                ),
+                                                            'type' =>
+                                                                array(
+                                                                    'kind' => 'OBJECT',
+                                                                    'name' => '__Type',
+                                                                    'ofType' => NULL,
+                                                                ),
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => NULL,
+                                                        ),
+                                                    4 =>
                                                         array (
                                                             'name' => 'directives',
                                                             'args' =>
@@ -1409,6 +1424,10 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                             'name' => 'mutationType',
                             'description' => 'If this server supports mutation, the type that ' .
                                 'mutation operations will be rooted at.'
+                        ],
+                        [
+                            'name' => 'subscriptionType',
+                            'description' => 'If this server support subscription, the type that subscription operations will be rooted at.'
                         ],
                         [
                             'name' => 'directives',
