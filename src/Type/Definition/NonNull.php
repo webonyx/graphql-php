@@ -29,9 +29,11 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     }
 
     /**
-     * @return Type|callable
+     * @param bool $recurse
+     * @return Type
+     * @throws \Exception
      */
-    public function getWrappedType()
+    public function getWrappedType($recurse = false)
     {
         $type = Type::resolve($this->ofType);
 
@@ -40,7 +42,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
             'Cannot nest NonNull inside NonNull'
         );
 
-        return $type;
+        return ($recurse && $type instanceof WrappingType) ? $type->getWrappedType($recurse) : $type;
     }
 
     /**

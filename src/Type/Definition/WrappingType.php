@@ -8,5 +8,5 @@ interface WrappingType
 NonNullType
 ListOfType
  */
-    public function getWrappedType();
+    public function getWrappedType($recurse = false);
 }

@@ -64,8 +64,6 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     private $_config;
 
-    private $_initialized = false;
-
     /**
      * @var callable
      */
@@ -75,36 +73,9 @@ class ObjectType extends Type implements OutputType, CompositeType
     {
         Utils::invariant(!empty($config['name']), 'Every type is expected to have name');
 
-        $this->name = $config['name'];
-        $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;
-        $this->_config = $config;
-
-        if (isset($config['interfaces'])) {
-            InterfaceType::addImplementationToInterfaces($this);
-        }
-    }
-
-    /**
-     * Late instance initialization
-     */
-    private function initialize()
-    {
-        if ($this->_initialized) {
-            return ;
-        }
-        $config = $this->_config;
-
-        if (isset($config['fields']) && is_callable($config['fields'])) {
-            $config['fields'] = call_user_func($config['fields']);
-        }
-        if (isset($config['interfaces']) && is_callable($config['interfaces'])) {
-            $config['interfaces'] = call_user_func($config['interfaces']);
-        }
-
         // Note: this validation is disabled by default, because it is resource-consuming
         // TODO: add bin/validate script to check if schema is valid during development
-        Config::validate($this->_config, [
+        Config::validate($config, [
             'name' => Config::STRING | Config::REQUIRED,
             'fields' => Config::arrayOf(
                 FieldDefinition::getDefinition(),
@@ -118,10 +89,15 @@ class ObjectType extends Type implements OutputType, CompositeType
             'resolveField' => Config::CALLBACK
         ]);
 
-        $this->_fields = FieldDefinition::createMap($config['fields']);
-        $this->_interfaces = isset($config['interfaces']) ? $config['interfaces'] : [];
+        $this->name = $config['name'];
+        $this->description = isset($config['description']) ? $config['description'] : null;
+        $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;
         $this->_isTypeOf = isset($config['isTypeOf']) ? $config['isTypeOf'] : null;
-        $this->_initialized = true;
+        $this->_config = $config;
+
+        if (isset($config['interfaces'])) {
+            InterfaceType::addImplementationToInterfaces($this);
+        }
     }
 
     /**
@@ -129,8 +105,10 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function getFields()
     {
-        if (false === $this->_initialized) {
-            $this->initialize();
+        if (null === $this->_fields) {
+            $fields = isset($this->_config['fields']) ? $this->_config['fields'] : [];
+            $fields = is_callable($fields) ? call_user_func($fields) : $fields;
+            $this->_fields = FieldDefinition::createMap($fields);
         }
         return $this->_fields;
     }
@@ -142,8 +120,8 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function getField($name)
     {
-        if (false === $this->_initialized) {
-            $this->initialize();
+        if (null === $this->_fields) {
+            $this->getFields();
         }
         Utils::invariant(isset($this->_fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
         return $this->_fields[$name];
@@ -154,8 +132,10 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function getInterfaces()
     {
-        if (false === $this->_initialized) {
-            $this->initialize();
+        if (null === $this->_interfaces) {
+            $interfaces = isset($this->_config['interfaces']) ? $this->_config['interfaces'] : [];
+            $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
+            $this->_interfaces = $interfaces;
         }
         return $this->_interfaces;
     }

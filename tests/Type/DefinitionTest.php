@@ -342,4 +342,66 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         }
         Config::disableValidation();
     }
+
+    public function testAllowsRecursiveDefinitions()
+    {
+        // See https://github.com/webonyx/graphql-php/issues/16
+        $node = new InterfaceType([
+            'name' => 'Node',
+            'fields' => [
+                'id' => ['type' => Type::nonNull(Type::id())]
+            ]
+        ]);
+
+        $blog = null;
+        $called = false;
+
+        $user = new ObjectType([
+            'name' => 'User',
+            'fields' => function() use (&$blog, &$called) {
+                $this->assertNotNull($blog, 'Blog type is expected to be defined at this point, but it is null');
+                $called = true;
+
+                return [
+                    'id' => ['type' => Type::nonNull(Type::id())],
+                    'blogs' => ['type' => Type::nonNull(Type::listOf(Type::nonNull($blog)))]
+                ];
+            },
+            'interfaces' => function() use ($node) {
+                return [$node];
+            }
+        ]);
+
+        $blog = new ObjectType([
+            'name' => 'Blog',
+            'fields' => function() use ($user) {
+                return [
+                    'id' => ['type' => Type::nonNull(Type::id())],
+                    'owner' => ['type' => Type::nonNull($user)]
+                ];
+            },
+            'interfaces' => function() use ($node) {
+                return [$node];
+            }
+        ]);
+
+        $schema = new Schema(new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'node' => ['type' => $node]
+            ]
+        ]));
+
+        $this->assertTrue($called);
+
+        $this->assertEquals([$node], $blog->getInterfaces());
+        $this->assertEquals([$node], $user->getInterfaces());
+
+        $this->assertNotNull($user->getField('blogs'));
+        $this->assertSame($blog, $user->getField('blogs')->getType()->getWrappedType(true));
+
+        $this->assertNotNull($blog->getField('owner'));
+        $this->assertSame($user, $blog->getField('owner')->getType()->getWrappedType(true));
+
+    }
 }

@@ -34,10 +34,12 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
     }
 
     /**
-     * @return Type
+     * @param bool $recurse
+     * @return mixed
      */
-    public function getWrappedType()
+    public function getWrappedType($recurse = false)
     {
-        return Type::resolve($this->ofType);
+        $type = Type::resolve($this->ofType);
+        return ($recurse && $type instanceof WrappingType) ? $type->getWrappedType($recurse) : $type;
     }
 }
