@@ -58,11 +58,11 @@ class ObjectType extends Type implements OutputType, CompositeType
     private $_isTypeOf;
 
     /**
-     * Keeping reference of config for late bindings
+     * Keeping reference of config for late bindings and custom app-level metadata
      *
      * @var array
      */
-    private $_config;
+    public $config;
 
     /**
      * @var callable
@@ -93,7 +93,7 @@ class ObjectType extends Type implements OutputType, CompositeType
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;
         $this->_isTypeOf = isset($config['isTypeOf']) ? $config['isTypeOf'] : null;
-        $this->_config = $config;
+        $this->config = $config;
 
         if (isset($config['interfaces'])) {
             InterfaceType::addImplementationToInterfaces($this);
@@ -106,7 +106,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     public function getFields()
     {
         if (null === $this->_fields) {
-            $fields = isset($this->_config['fields']) ? $this->_config['fields'] : [];
+            $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
             $fields = is_callable($fields) ? call_user_func($fields) : $fields;
             $this->_fields = FieldDefinition::createMap($fields);
         }
@@ -133,11 +133,20 @@ class ObjectType extends Type implements OutputType, CompositeType
     public function getInterfaces()
     {
         if (null === $this->_interfaces) {
-            $interfaces = isset($this->_config['interfaces']) ? $this->_config['interfaces'] : [];
+            $interfaces = isset($this->config['interfaces']) ? $this->config['interfaces'] : [];
             $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
             $this->_interfaces = $interfaces;
         }
         return $this->_interfaces;
+    }
+
+    /**
+     * @param InterfaceType $iface
+     * @return bool
+     */
+    public function implementsInterface(InterfaceType $iface)
+    {
+        return !!Utils::find($this->getInterfaces(), function($implemented) use ($iface) {return $iface === $implemented;});
     }
 
     /**

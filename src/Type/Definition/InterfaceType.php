@@ -29,6 +29,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     private $_resolveTypeFn;
 
     /**
+     * @var array
+     */
+    public $config;
+
+    /**
      * Update the interfaces to know about this implementation.
      * This is an rare and unfortunate use of mutation in the type definition
      * implementations, but avoids an expensive "getPossibleTypes"
@@ -60,6 +65,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->_fields = !empty($config['fields']) ? FieldDefinition::createMap($config['fields']) : [];
         $this->_resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
+        $this->config = $config;
     }
 
     /**
