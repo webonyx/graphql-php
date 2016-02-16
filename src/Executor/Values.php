@@ -75,9 +75,7 @@ class Values
             if (null === $value) {
                 $value = $argDef->defaultValue;
             }
-            if (null !== $value) {
-                $result[$name] = $value;
-            }
+            $result[$name] = $value;
         }
         return $result;
     }
