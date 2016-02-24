@@ -24,6 +24,7 @@ This implementation will follow JavaScript version as close as possible until Gr
 - [Query Resolution and Data Fetching](#query-resolution)
 - [HTTP endpoint example](#http-endpoint)
 - [More Examples](#more-examples)
+- [Complementary Tools](#complementary-tools)
 
 ## Overview
 GraphQL is intended to be a replacement for REST APIs. [Read more](http://facebook.github.io/react/blog/2015/05/01/graphql-introduction.html) about rationale behind it.
@@ -463,3 +464,10 @@ echo json_encode($result);
 
 ### More Examples
 Make sure to check [tests](https://github.com/webonyx/graphql-php/tree/master/tests) for more usage examples.
+
+### Complementary Tools
+- [Integration with Relay](https://github.com/ivome/graphql-relay-php)
+- [Use GraphQL with Laravel 5](https://github.com/Folkloreatelier/laravel-graphql)
+- [Relay helpers for laravel-graphql](https://github.com/nuwave/laravel-graphql-relay)
+
+Also check [Awesome GraphQL](https://github.com/chentsulin/awesome-graphql) for full picture of GraphQL ecosystem.
