@@ -402,6 +402,37 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertNotNull($blog->getField('owner'));
         $this->assertSame($user, $blog->getField('owner')->getType()->getWrappedType(true));
+    }
 
+    public function testInputObjectTypeAllowsRecursiveDefinitions()
+    {
+        $called = false;
+        $inputObject = new InputObjectType([
+            'name' => 'InputObject',
+            'fields' => function() use (&$inputObject, &$called) {
+                $called = true;
+                return [
+                    'value' => ['type' => Type::string()],
+                    'nested' => ['type' => $inputObject ]
+                ];
+            }
+        ]);
+        $someMutation = new ObjectType([
+            'name' => 'SomeMutation',
+            'fields' => [
+                'mutateSomething' => [
+                    'type' => $this->blogArticle,
+                    'args' => ['input' => ['type' => $inputObject]]
+                ]
+            ]
+        ]);
+
+        $schema = new Schema($this->blogQuery, $someMutation);
+
+        $this->assertTrue($called);
+        $this->assertSame($inputObject, $schema->getType('InputObject'));
+        $this->assertEquals(count($inputObject->getFields()), 2);
+        $this->assertSame($inputObject->getField('nested')->getType(), $inputObject);
+        $this->assertSame($inputObject->getField('value')->getType(), Type::string());
     }
 }
