@@ -79,11 +79,12 @@ class ObjectType extends Type implements OutputType, CompositeType
             'name' => Config::STRING | Config::REQUIRED,
             'fields' => Config::arrayOf(
                 FieldDefinition::getDefinition(),
-                Config::KEY_AS_NAME
+                Config::KEY_AS_NAME | Config::MAYBE_THUNK
             ),
             'description' => Config::STRING,
             'interfaces' => Config::arrayOf(
-                Config::INTERFACE_TYPE
+                Config::INTERFACE_TYPE,
+                Config::MAYBE_THUNK
             ),
             'isTypeOf' => Config::CALLBACK, // ($value, ResolveInfo $info) => boolean
             'resolveField' => Config::CALLBACK

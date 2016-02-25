@@ -21,7 +21,7 @@ class InputObjectType extends Type implements InputType
                 'type' => Config::INPUT_TYPE | Config::REQUIRED,
                 'defaultValue' => Config::ANY,
                 'description' => Config::STRING
-            ], Config::KEY_AS_NAME),
+            ], Config::KEY_AS_NAME | Config::MAYBE_THUNK),
             'description' => Config::STRING
         ]);
 

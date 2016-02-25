@@ -21,6 +21,7 @@ class Config
 
     const REQUIRED = 65536;
     const KEY_AS_NAME = 131072;
+    const MAYBE_THUNK = 262144;
 
     private static $enableValidation = false;
 
@@ -105,7 +106,11 @@ class Config
             if ($def->flags & self::REQUIRED === 0 && $value === null) {
                 return ;
             }
-            Utils::invariant(is_array($value), $err, 'array');
+            if (($def->flags & self::MAYBE_THUNK) > 0) {
+                Utils::invariant(is_array($value) || is_callable($value), $err, 'array or callable');
+            } else {
+                Utils::invariant(is_array($value), $err, 'array');
+            }
 
             if (!empty($def->isMap)) {
                 if ($def->flags & self::KEY_AS_NAME) {
