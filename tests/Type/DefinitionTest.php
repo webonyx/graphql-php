@@ -433,6 +433,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($inputObject, $schema->getType('InputObject'));
         $this->assertEquals(count($inputObject->getFields()), 2);
         $this->assertSame($inputObject->getField('nested')->getType(), $inputObject);
+        $this->assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
     }
 
     public function testInterfaceTypeAllowsRecursiveDefinitions()
