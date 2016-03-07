@@ -469,5 +469,6 @@ Make sure to check [tests](https://github.com/webonyx/graphql-php/tree/master/te
 - [Integration with Relay](https://github.com/ivome/graphql-relay-php)
 - [Use GraphQL with Laravel 5](https://github.com/Folkloreatelier/laravel-graphql)
 - [Relay helpers for laravel-graphql](https://github.com/nuwave/laravel-graphql-relay)
+- [GraphQL and Relay with Symfony2](https://github.com/overblog/GraphQLBundle)
 
 Also check [Awesome GraphQL](https://github.com/chentsulin/awesome-graphql) for full picture of GraphQL ecosystem.
