@@ -55,7 +55,7 @@ class Executor
      * @param $fn
      * @throws \Exception
      */
-    public function setDefaultResolveFn($fn)
+    public static function setDefaultResolveFn($fn)
     {
         Utils::invariant(is_callable($fn), 'Expecting callable, but got ' . Utils::getVariableType($fn));
         self::$defaultResolveFn = $fn;
