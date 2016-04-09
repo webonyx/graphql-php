@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Language;
+namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\EnumValue;
@@ -10,6 +10,8 @@ use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\Parser;
+use GraphQL\Language\Printer;
 
 class PrinterTest extends \PHPUnit_Framework_TestCase
 {

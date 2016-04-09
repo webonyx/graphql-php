@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Type;
+namespace GraphQL\Tests\Type;
 
 use GraphQL\Type\Definition\Type;
 

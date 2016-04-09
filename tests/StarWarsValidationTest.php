@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL;
+namespace GraphQL\Tests;
 
 use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;

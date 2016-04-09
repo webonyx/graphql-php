@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Type;
+namespace GraphQL\Tests\Type;
 
 use GraphQL\FormattedError;
 use GraphQL\Language\SourceLocation;
@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Introspection;
 use GraphQL\Validator\Rules\ProvidedNonNullArguments;
 
 class IntrospectionTest extends \PHPUnit_Framework_TestCase

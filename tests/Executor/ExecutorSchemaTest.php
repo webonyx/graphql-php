@@ -1,6 +1,7 @@
 <?php
-namespace GraphQL\Executor;
+namespace GraphQL\Tests\Executor;
 
+use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Config;

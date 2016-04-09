@@ -23,10 +23,8 @@
     }
   },
   "autoload-dev": {
-    "classmap": [
-      "tests/"
-    ],
-    "files": [
-    ]
+    "psr-4": {
+      "GraphQL\\Tests\\": "tests/"
+    }
   }
 }

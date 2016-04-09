@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Language;
+namespace GraphQL\Tests\Language;
 
 use GraphQL\Error;
 use GraphQL\Language\AST\Argument;
@@ -10,6 +10,9 @@ use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\Parser;
+use GraphQL\Language\Source;
+use GraphQL\Language\SourceLocation;
 use GraphQL\SyntaxError;
 
 class ParserTest extends \PHPUnit_Framework_TestCase

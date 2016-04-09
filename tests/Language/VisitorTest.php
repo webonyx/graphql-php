@@ -1,10 +1,12 @@
 <?php
-namespace GraphQL\Language;
+namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\Parser;
+use GraphQL\Language\Visitor;
 
 class VisitorTest extends \PHPUnit_Framework_TestCase
 {

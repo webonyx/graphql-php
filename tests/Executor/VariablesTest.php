@@ -1,9 +1,10 @@
 <?php
-namespace GraphQL\Executor;
+namespace GraphQL\Tests\Executor;
 
 require_once __DIR__ . '/TestClasses.php';
 
 use GraphQL\Error;
+use GraphQL\Executor\Executor;
 use GraphQL\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
