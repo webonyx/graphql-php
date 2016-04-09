@@ -5,6 +5,8 @@ use GraphQL\Utils;
 
 class FieldDefinition
 {
+    const DEFAULT_COMPLEXITY_FN = 'GraphQL\Type\Definition\FieldDefinition::defaultComplexity';
+
     /**
      * @var string
      */
@@ -72,6 +74,7 @@ class FieldDefinition
             'map' => Config::CALLBACK,
             'description' => Config::STRING,
             'deprecationReason' => Config::STRING,
+            'complexity' => Config::CALLBACK,
         ]);
     }
 
@@ -113,6 +116,8 @@ class FieldDefinition
         $this->deprecationReason = isset($config['deprecationReason']) ? $config['deprecationReason'] : null;
 
         $this->config = $config;
+
+        $this->complexityFn = isset($config['complexity']) ? $config['complexity'] : static::DEFAULT_COMPLEXITY_FN;
     }
 
     /**
@@ -140,5 +145,18 @@ class FieldDefinition
             $this->resolvedType = Type::resolve($this->type);
         }
         return $this->resolvedType;
+    }
+
+    /**
+     * @return callable|\Closure
+     */
+    public function getComplexityFn()
+    {
+        return $this->complexityFn;
+    }
+
+    public static function defaultComplexity($childrenComplexity)
+    {
+        return $childrenComplexity + 1;
     }
 }

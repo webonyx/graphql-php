@@ -462,6 +462,42 @@ header('Content-Type: application/json');
 echo json_encode($result);
 ```
 
+### Security
+
+#### Query Complexity Analysis
+
+This is a PHP port of [Query Complexity Analysis](http://sangria-graphql.org/learn/#query-complexity-analysis) in Sangria implementation.
+Introspection query with description max complexity is **109**.
+
+This document validator rule is disabled by default. Here an example to enabled it:
+
+```php
+use GraphQL\GraphQL;
+
+/** @var \GraphQL\Validator\Rules\QueryComplexity $queryComplexity */
+$queryComplexity = DocumentValidator::getRule('QueryComplexity');
+$queryComplexity->setMaxQueryComplexity($maxQueryComplexity = 110);
+
+GraphQL::execute(/*...*/);
+```
+
+#### Limiting Query Depth
+
+This is a PHP port of [Limiting Query Depth](http://sangria-graphql.org/learn/#limiting-query-depth) in Sangria implementation.
+Introspection query with description max depth is **7**.
+
+This document validator rule is disabled by default. Here an example to enabled it:
+
+```php
+use GraphQL\GraphQL;
+
+/** @var \GraphQL\Validator\Rules\QueryDepth $queryDepth */
+$queryDepth = DocumentValidator::getRule('QueryDepth');
+$queryDepth->setMaxQueryDepth($maxQueryDepth = 10);
+
+GraphQL::execute(/*...*/);
+```
+
 ### More Examples
 Make sure to check [tests](https://github.com/webonyx/graphql-php/tree/master/tests) for more usage examples.
 

@@ -34,6 +34,8 @@ use GraphQL\Validator\Rules\NoUnusedVariables;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 use GraphQL\Validator\Rules\ProvidedNonNullArguments;
+use GraphQL\Validator\Rules\QueryComplexity;
+use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\Rules\ScalarLeafs;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
@@ -82,6 +84,9 @@ class DocumentValidator
                 'DefaultValuesOfCorrectType' => new DefaultValuesOfCorrectType(),
                 'VariablesInAllowedPosition' => new VariablesInAllowedPosition(),
                 'OverlappingFieldsCanBeMerged' => new OverlappingFieldsCanBeMerged(),
+                // Query Security
+                'QueryDepth' => new QueryDepth(QueryDepth::DISABLED), // default disabled
+                'QueryComplexity' => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
             ];
         }
 
@@ -90,17 +95,14 @@ class DocumentValidator
 
     public static function getRule($name)
     {
-        return isset(self::$rules[$name]) ? self::$rules[$name] : null ;
+        $rules = static::allRules();
+
+        return isset($rules[$name]) ? $rules[$name] : null ;
     }
 
     public static function addRule($name, callable $rule)
     {
         self::$rules[$name] = $rule;
-    }
-
-    public static function removeRule($name)
-    {
-        unset(self::$rules[$name]);
     }
 
     public static function validate(Schema $schema, Document $ast, array $rules = null)
