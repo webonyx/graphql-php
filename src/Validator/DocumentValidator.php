@@ -40,53 +40,83 @@ use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
 class DocumentValidator
 {
-    private static $allRules;
+    private static $rules = [];
 
-    static function allRules()
+    private static $defaultRules;
+
+    private static $initRules = false;
+
+    public static function allRules()
     {
-        if (null === self::$allRules) {
-            self::$allRules = [
+        if (!self::$initRules) {
+            self::$rules = array_merge(static::defaultRules(), self::$rules);
+            self::$initRules = true;
+        }
+
+        return self::$rules;
+    }
+
+    public static function defaultRules()
+    {
+        if (null === self::$defaultRules) {
+            self::$defaultRules = [
                 // new UniqueOperationNames,
                 // new LoneAnonymousOperation,
-                new KnownTypeNames,
-                new FragmentsOnCompositeTypes,
-                new VariablesAreInputTypes,
-                new ScalarLeafs,
-                new FieldsOnCorrectType,
+                'KnownTypeNames' => new KnownTypeNames(),
+                'FragmentsOnCompositeTypes' => new FragmentsOnCompositeTypes(),
+                'VariablesAreInputTypes' => new VariablesAreInputTypes(),
+                'ScalarLeafs' => new ScalarLeafs(),
+                'FieldsOnCorrectType' => new FieldsOnCorrectType(),
                 // new UniqueFragmentNames,
-                new KnownFragmentNames,
-                new NoUnusedFragments,
-                new PossibleFragmentSpreads,
-                new NoFragmentCycles,
-                new NoUndefinedVariables,
-                new NoUnusedVariables,
-                new KnownDirectives,
-                new KnownArgumentNames,
+                'KnownFragmentNames' => new KnownFragmentNames(),
+                'NoUnusedFragments' => new NoUnusedFragments(),
+                'PossibleFragmentSpreads' => new PossibleFragmentSpreads(),
+                'NoFragmentCycles' => new NoFragmentCycles(),
+                'NoUndefinedVariables' => new NoUndefinedVariables(),
+                'NoUnusedVariables' => new NoUnusedVariables(),
+                'KnownDirectives' => new KnownDirectives(),
+                'KnownArgumentNames' => new KnownArgumentNames(),
                 // new UniqueArgumentNames,
-                new ArgumentsOfCorrectType,
-                new ProvidedNonNullArguments,
-                new DefaultValuesOfCorrectType,
-                new VariablesInAllowedPosition,
-                new OverlappingFieldsCanBeMerged,
+                'ArgumentsOfCorrectType' => new ArgumentsOfCorrectType(),
+                'ProvidedNonNullArguments' => new ProvidedNonNullArguments(),
+                'DefaultValuesOfCorrectType' => new DefaultValuesOfCorrectType(),
+                'VariablesInAllowedPosition' => new VariablesInAllowedPosition(),
+                'OverlappingFieldsCanBeMerged' => new OverlappingFieldsCanBeMerged(),
             ];
         }
-        return self::$allRules;
+
+        return self::$defaultRules;
+    }
+
+    public static function getRule($name)
+    {
+        return isset(self::$rules[$name]) ? self::$rules[$name] : null ;
+    }
+
+    public static function addRule($name, callable $rule)
+    {
+        self::$rules[$name] = $rule;
+    }
+
+    public static function removeRule($name)
+    {
+        unset(self::$rules[$name]);
     }
 
     public static function validate(Schema $schema, Document $ast, array $rules = null)
     {
-        $errors = self::visitUsingRules($schema, $ast, $rules ?: self::allRules());
+        $errors = static::visitUsingRules($schema, $ast, $rules ?: static::allRules());
         return $errors;
     }
 
-    static function isError($value)
+    public static function isError($value)
     {
         return is_array($value)
             ? count(array_filter($value, function($item) { return $item instanceof \Exception;})) === count($value)
             : $value instanceof \Exception;
     }
 
-    static function append(&$arr, $items)
+    public static function append(&$arr, $items)
     {
         if (is_array($items)) {
             $arr = array_merge($arr, $items);
@@ -96,7 +126,7 @@ class DocumentValidator
         return $arr;
     }
 
-    static function isValidLiteralValue($valueAST, Type $type)
+    public static function isValidLiteralValue($valueAST, Type $type)
     {
         // A value can only be not provided if the type is nullable.
         if (!$valueAST) {
@@ -105,7 +135,7 @@ class DocumentValidator
 
         // Unwrap non-null.
         if ($type instanceof NonNull) {
-            return self::isValidLiteralValue($valueAST, $type->getWrappedType());
+            return static::isValidLiteralValue($valueAST, $type->getWrappedType());
         }
 
         // This function only tests literals, and assumes variables will provide
@@ -123,13 +153,13 @@ class DocumentValidator
             $itemType = $type->getWrappedType();
             if ($valueAST instanceof ListValue) {
                 foreach($valueAST->values as $itemAST) {
-                    if (!self::isValidLiteralValue($itemAST, $itemType)) {
+                    if (!static::isValidLiteralValue($itemAST, $itemType)) {
                         return false;
                     }
                 }
                 return true;
             } else {
-                return self::isValidLiteralValue($valueAST, $itemType);
+                return static::isValidLiteralValue($valueAST, $itemType);
             }
         }
 
@@ -157,7 +187,7 @@ class DocumentValidator
                 }
             }
             foreach ($fieldASTs as $fieldAST) {
-                if (empty($fields[$fieldAST->name->value]) || !self::isValidLiteralValue($fieldAST->value, $fields[$fieldAST->name->value]->getType())) {
+                if (empty($fields[$fieldAST->name->value]) || !static::isValidLiteralValue($fieldAST->value, $fields[$fieldAST->name->value]->getType())) {
                     return false;
                 }
             }
@@ -231,8 +261,8 @@ class DocumentValidator
                             } else if ($result->doBreak) {
                                 $instances[$i] = null;
                             }
-                        } else if ($result && self::isError($result)) {
-                            self::append($errors, $result);
+                        } else if ($result && static::isError($result)) {
+                            static::append($errors, $result);
                             for ($j = $i - 1; $j >= 0; $j--) {
                                 $leaveFn = Visitor::getVisitFn($instances[$j], true, $node->kind);
                                 if ($leaveFn) {
@@ -243,8 +273,8 @@ class DocumentValidator
                                         if ($result->doBreak) {
                                             $instances[$j] = null;
                                         }
-                                    } else if (self::isError($result)) {
-                                        self::append($errors, $result);
+                                    } else if (static::isError($result)) {
+                                        static::append($errors, $result);
                                     } else if ($result !== null) {
                                         throw new \Exception("Config cannot edit document.");
                                     }
@@ -294,8 +324,8 @@ class DocumentValidator
                                 if ($result->doBreak) {
                                     $instances[$i] = null;
                                 }
-                            } else if (self::isError($result)) {
-                                self::append($errors, $result);
+                            } else if (static::isError($result)) {
+                                static::append($errors, $result);
                             } else if ($result !== null) {
                                 throw new \Exception("Config cannot edit document.");
                             }
@@ -309,7 +339,7 @@ class DocumentValidator
         // Visit the whole document with instances of all provided rules.
         $allRuleInstances = [];
         foreach ($rules as $rule) {
-            $allRuleInstances[] = $rule($context);
+            $allRuleInstances[] = call_user_func_array($rule, [$context]);
         }
         $visitInstances($documentAST, $allRuleInstances);
 
