@@ -18,9 +18,9 @@
     "bin-dir": "bin"
   },
   "autoload": {
-    "classmap": [
-      "src/"
-    ]
+    "psr-4": {
+      "GraphQL\\": "src/"
+    }
   },
   "autoload-dev": {
     "classmap": [
