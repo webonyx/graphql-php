@@ -1,8 +1,8 @@
 <?php
-namespace GraphQL\Executor;
+namespace GraphQL\Tests\Executor;
 
-require_once __DIR__ . '/TestClasses.php';
-
+use GraphQL\Executor\ExecutionResult;
+use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\InterfaceType;

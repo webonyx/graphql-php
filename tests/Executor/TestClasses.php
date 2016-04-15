@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Executor;
+namespace GraphQL\Tests\Executor;
 
 use GraphQL\Type\Definition\ScalarType;
 

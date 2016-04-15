@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Type;
+namespace GraphQL\Tests\Type;
 
 use GraphQL\Schema;
 use GraphQL\Type\Definition\InputObjectType;
@@ -9,6 +9,8 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Introspection;
+use GraphQL\Type\SchemaValidator;
 
 class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
 {

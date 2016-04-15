@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Validator;
+namespace GraphQL\Tests\Validator;
 
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
@@ -10,6 +10,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Validator\DocumentValidator;
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {

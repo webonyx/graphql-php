@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL;
+namespace GraphQL\Tests;
 
 class StarWarsData
 {

@@ -6,6 +6,7 @@ use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Validator\DocumentValidator;
+use GraphQL\Validator\Rules\QueryComplexity;
 
 class GraphQL
 {
@@ -35,6 +36,11 @@ class GraphQL
         try {
             $source = new Source($requestString ?: '', 'GraphQL request');
             $documentAST = Parser::parse($source);
+
+            /** @var QueryComplexity $queryComplexity */
+            $queryComplexity = DocumentValidator::getRule('QueryComplexity');
+            $queryComplexity->setRawVariableValues($variableValues);
+
             $validationErrors = DocumentValidator::validate($schema, $documentAST);
 
             if (!empty($validationErrors)) {

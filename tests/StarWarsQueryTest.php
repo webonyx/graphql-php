@@ -1,6 +1,8 @@
 <?php
-namespace GraphQL;
+namespace GraphQL\Tests;
 
+
+use GraphQL\GraphQL;
 
 class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Validator;
+namespace GraphQL\Tests\Validator;
 
 use GraphQL\FormattedError;
 use GraphQL\Language\SourceLocation;
