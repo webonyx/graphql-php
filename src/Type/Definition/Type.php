@@ -98,7 +98,7 @@ GraphQLNonNull;
     }
 
     /**
-     * @return Type
+     * @return Type[]
      */
     public static function getInternalTypes()
     {
