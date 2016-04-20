@@ -232,20 +232,22 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     public function testIncludesInterfacesThunkSubtypesInTheTypeMap()
     {
         // includes interfaces' thunk subtypes in the type map
-        $someInterface = new InterfaceType([
-            'name' => 'SomeInterface',
-            'fields' => [
-                'f' => ['type' => Type::int()]
-            ]
-        ]);
+        $someInterface = null;
 
         $someSubtype = new ObjectType([
             'name' => 'SomeSubtype',
             'fields' => [
                 'f' => ['type' => Type::int()]
             ],
-            'interfaces' => function() use ($someInterface) { return [$someInterface]; },
+            'interfaces' => function() use (&$someInterface) { return [$someInterface]; },
             'isTypeOf' => function() {return true;}
+        ]);
+
+        $someInterface = new InterfaceType([
+            'name' => 'SomeInterface',
+            'fields' => [
+                'f' => ['type' => Type::int()]
+            ]
         ]);
 
         $schema = new Schema(new ObjectType([

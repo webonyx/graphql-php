@@ -60,10 +60,10 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public static function loadImplementationToInterfaces()
     {
-        foreach (self::$_lazyLoadImplementations as $i => &$lazyLoadImplementation) {
-            call_user_func($lazyLoadImplementation);
-            unset(self::$_lazyLoadImplementations[$i]);
+        foreach (self::$_lazyLoadImplementations as $lazyLoadImplementation) {
+            $lazyLoadImplementation();
         }
+        self::$_lazyLoadImplementations = [];
     }
 
     /**
