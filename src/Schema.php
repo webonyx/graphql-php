@@ -33,6 +33,8 @@ class Schema
         $this->mutationSchema = $mutationSchema;
         $this->subscriptionSchema = $subscriptionSchema;
 
+        InterfaceType::loadImplementationToInterfaces();
+
         // Build type map now to detect any errors within this schema.
         $map = [];
         foreach ([$this->getQueryType(), $this->getMutationType(), Introspection::_schema()] as $type) {

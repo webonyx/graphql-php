@@ -19,6 +19,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     private $_implementations = [];
 
     /**
+     * @var \Closure[]
+     */
+    private static $_lazyLoadImplementations = [];
+
+    /**
      * @var {[typeName: string]: boolean}
      */
     private $_possibleTypeNames;
@@ -34,18 +39,30 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public $config;
 
     /**
-     * Update the interfaces to know about this implementation.
+     * Queue the update of the interfaces to know about this implementation.
      * This is an rare and unfortunate use of mutation in the type definition
      * implementations, but avoids an expensive "getPossibleTypes"
      * implementation for Interface types.
      *
      * @param ObjectType $impl
-     * @param InterfaceType[] $interfaces
      */
     public static function addImplementationToInterfaces(ObjectType $impl)
     {
-        foreach ($impl->getInterfaces() as $interface) {
-            $interface->_implementations[] = $impl;
+        self::$_lazyLoadImplementations[] = function() use ($impl) {
+            foreach ($impl->getInterfaces() as $interface) {
+                $interface->_implementations[] = $impl;
+            }
+        };
+    }
+
+    /**
+     * Process ImplementationToInterfaces Queue
+     */
+    public static function loadImplementationToInterfaces()
+    {
+        foreach (self::$_lazyLoadImplementations as $i => &$lazyLoadImplementation) {
+            call_user_func($lazyLoadImplementation);
+            unset(self::$_lazyLoadImplementations[$i]);
         }
     }
 
