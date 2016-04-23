@@ -4,6 +4,13 @@ namespace GraphQL\Language;
 // language/parser.js
 
 use GraphQL\Language\AST\Argument;
+use GraphQL\Language\AST\DirectiveDefinition;
+use GraphQL\Language\AST\EnumTypeDefinition;
+use GraphQL\Language\AST\EnumValueDefinition;
+use GraphQL\Language\AST\FieldDefinition;
+use GraphQL\Language\AST\InputObjectTypeDefinition;
+use GraphQL\Language\AST\InputValueDefinition;
+use GraphQL\Language\AST\InterfaceTypeDefinition;
 use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\BooleanValue;
 use GraphQL\Language\AST\Directive;
@@ -21,10 +28,16 @@ use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Language\AST\ObjectField;
+use GraphQL\Language\AST\ObjectTypeDefinition;
 use GraphQL\Language\AST\ObjectValue;
 use GraphQL\Language\AST\OperationDefinition;
+use GraphQL\Language\AST\ScalarTypeDefinition;
+use GraphQL\Language\AST\SchemaDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\TypeExtensionDefinition;
+use GraphQL\Language\AST\TypeSystemDefinition;
+use GraphQL\Language\AST\UnionTypeDefinition;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
 use GraphQL\SyntaxError;
@@ -48,7 +61,7 @@ class Parser
      * @param array $options
      * @return Document
      */
-    public static function parse($source, array $options = array())
+    public static function parse($source, array $options = [])
     {
         $sourceObj = $source instanceof Source ? $source : new Source($source);
         $parser = new self($sourceObj, $options);
@@ -80,7 +93,7 @@ class Parser
      */
     private $token;
 
-    function __construct(Source $source, array $options = array())
+    function __construct(Source $source, array $options = [])
     {
         $this->lexer = new Lexer($source);
         $this->source = $source;
@@ -212,13 +225,13 @@ class Parser
      * @param callable $parseFn
      * @param int $closeKind
      * @return array
-     * @throws Exception
+     * @throws SyntaxError
      */
     function any($openKind, $parseFn, $closeKind)
     {
         $this->expect($openKind);
 
-        $nodes = array();
+        $nodes = [];
         while (!$this->skip($closeKind)) {
             $nodes[] = $parseFn($this);
         }
@@ -235,13 +248,13 @@ class Parser
      * @param $parseFn
      * @param $closeKind
      * @return array
-     * @throws Exception
+     * @throws SyntaxError
      */
     function many($openKind, $parseFn, $closeKind)
     {
         $this->expect($openKind);
 
-        $nodes = array($parseFn($this));
+        $nodes = [$parseFn($this)];
         while (!$this->skip($closeKind)) {
             $nodes[] = $parseFn($this);
         }
@@ -252,16 +265,16 @@ class Parser
      * Converts a name lex token into a name parse node.
      *
      * @return Name
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseName()
     {
         $token = $this->expect(Token::NAME);
 
-        return new Name(array(
+        return new Name([
             'value' => $token->value,
             'loc' => $this->loc($token->start)
-        ));
+        ]);
     }
 
     /**
@@ -280,66 +293,113 @@ class Parser
      * Implements the parsing rules in the Document section.
      *
      * @return Document
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseDocument()
     {
         $start = $this->token->start;
-        $definitions = array();
+        $definitions = [];
 
         do {
-            if ($this->peek(Token::BRACE_L)) {
-                $definitions[] = $this->parseOperationDefinition();
-            } else if ($this->peek(Token::NAME)) {
-                if ($this->token->value === 'query' || $this->token->value === 'mutation') {
-                    $definitions[] = $this->parseOperationDefinition();
-                } else if ($this->token->value === 'fragment') {
-                    $definitions[] = $this->parseFragmentDefinition();
-                } else {
-                    throw $this->unexpected();
-                }
-            } else {
-                throw $this->unexpected();
-            }
+            $definitions[] = $this->parseDefinition();
         } while (!$this->skip(Token::EOF));
 
-        return new Document(array(
+        return new Document([
             'definitions' => $definitions,
             'loc' => $this->loc($start)
-        ));
+        ]);
+    }
+
+    /**
+     * @return OperationDefinition|FragmentDefinition|TypeSystemDefinition
+     * @throws SyntaxError
+     */
+    function parseDefinition()
+    {
+        if ($this->peek(Token::BRACE_L)) {
+            return $this->parseOperationDefinition();
+        }
+
+        if ($this->peek(Token::NAME)) {
+            switch ($this->token->value) {
+                case 'query':
+                case 'mutation':
+                // Note: subscription is an experimental non-spec addition.
+                case 'subscription':
+                    return $this->parseOperationDefinition();
+
+                case 'fragment':
+                    return $this->parseFragmentDefinition();
+
+                // Note: the Type System IDL is an experimental non-spec addition.
+                case 'schema':
+                case 'scalar':
+                case 'type':
+                case 'interface':
+                case 'union':
+                case 'enum':
+                case 'input':
+                case 'extend':
+                case 'directive':
+                    return $this->parseTypeSystemDefinition();
+            }
+        }
+
+        throw $this->unexpected();
     }
 
     // Implements the parsing rules in the Operations section.
 
     /**
      * @return OperationDefinition
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseOperationDefinition()
     {
         $start = $this->token->start;
         if ($this->peek(Token::BRACE_L)) {
-            return new OperationDefinition(array(
+            return new OperationDefinition([
                 'operation' => 'query',
                 'name' => null,
                 'variableDefinitions' => null,
-                'directives' => array(),
+                'directives' => [],
                 'selectionSet' => $this->parseSelectionSet(),
                 'loc' => $this->loc($start)
-            ));
+            ]);
         }
 
-        $operationToken = $this->expect(Token::NAME);
-        $operation = $operationToken->value;
+        $operation = $this->parseOperationType();
 
-        return new OperationDefinition(array(
+        $name = null;
+        if ($this->peek(Token::NAME)) {
+            $name = $this->parseName();
+        }
+
+        return new OperationDefinition([
             'operation' => $operation,
-            'name' => $this->parseName(),
+            'name' => $name,
             'variableDefinitions' => $this->parseVariableDefinitions(),
             'directives' => $this->parseDirectives(),
             'selectionSet' => $this->parseSelectionSet(),
             'loc' => $this->loc($start)
-        ));
+        ]);
+    }
+
+    /**
+     * @return string
+     * @throws SyntaxError
+     */
+    function parseOperationType()
+    {
+        $operationToken = $this->expect(Token::NAME);
+        switch ($operationToken->value) {
+            case 'query': return 'query';
+            case 'mutation': return 'mutation';
+            // Note: subscription is an experimental non-spec addition.
+            case 'subscription': return 'subscription';
+        }
+
+        throw $this->unexpected($operationToken);
     }
 
     /**
@@ -350,15 +410,15 @@ class Parser
       return $this->peek(Token::PAREN_L) ?
         $this->many(
           Token::PAREN_L,
-          array($this, 'parseVariableDefinition'),
+          [$this, 'parseVariableDefinition'],
           Token::PAREN_R
         ) :
-        array();
+        [];
     }
 
     /**
      * @return VariableDefinition
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseVariableDefinition()
     {
@@ -368,44 +428,47 @@ class Parser
         $this->expect(Token::COLON);
         $type = $this->parseType();
 
-        return new VariableDefinition(array(
+        return new VariableDefinition([
             'variable' => $var,
             'type' => $type,
             'defaultValue' =>
                 ($this->skip(Token::EQUALS) ? $this->parseValueLiteral(true) : null),
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     /**
      * @return Variable
-     * @throws Exception
+     * @throws SyntaxError
      */
-    function parseVariable() {
+    function parseVariable()
+    {
         $start = $this->token->start;
         $this->expect(Token::DOLLAR);
 
-        return new Variable(array(
+        return new Variable([
             'name' => $this->parseName(),
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     /**
      * @return SelectionSet
      */
-    function parseSelectionSet() {
+    function parseSelectionSet()
+    {
         $start = $this->token->start;
-        return new SelectionSet(array(
-            'selections' => $this->many(Token::BRACE_L, array($this, 'parseSelection'), Token::BRACE_R),
+        return new SelectionSet([
+            'selections' => $this->many(Token::BRACE_L, [$this, 'parseSelection'], Token::BRACE_R),
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     /**
      * @return mixed
      */
-    function parseSelection() {
+    function parseSelection()
+    {
         return $this->peek(Token::SPREAD) ?
             $this->parseFragment() :
             $this->parseField();
@@ -414,7 +477,8 @@ class Parser
     /**
      * @return Field
      */
-    function parseField() {
+    function parseField()
+    {
         $start = $this->token->start;
         $nameOrAlias = $this->parseName();
 
@@ -426,28 +490,29 @@ class Parser
             $name = $nameOrAlias;
         }
 
-        return new Field(array(
+        return new Field([
             'alias' => $alias,
             'name' => $name,
             'arguments' => $this->parseArguments(),
             'directives' => $this->parseDirectives(),
             'selectionSet' => $this->peek(Token::BRACE_L) ? $this->parseSelectionSet() : null,
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     /**
      * @return array<Argument>
      */
-    function parseArguments() {
+    function parseArguments()
+    {
         return $this->peek(Token::PAREN_L) ?
-            $this->many(Token::PAREN_L, array($this, 'parseArgument'), Token::PAREN_R) :
-            array();
+            $this->many(Token::PAREN_L, [$this, 'parseArgument'], Token::PAREN_R) :
+            [];
     }
 
     /**
      * @return Argument
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseArgument()
     {
@@ -457,44 +522,52 @@ class Parser
         $this->expect(Token::COLON);
         $value = $this->parseValueLiteral(false);
 
-        return new Argument(array(
+        return new Argument([
             'name' => $name,
             'value' => $value,
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     // Implements the parsing rules in the Fragments section.
 
     /**
      * @return FragmentSpread|InlineFragment
-     * @throws Exception
+     * @throws SyntaxError
      */
-    function parseFragment() {
+    function parseFragment()
+    {
         $start = $this->token->start;
         $this->expect(Token::SPREAD);
 
+        if ($this->peek(Token::NAME) && $this->token->value !== 'on') {
+            return new FragmentSpread([
+                'name' => $this->parseFragmentName(),
+                'directives' => $this->parseDirectives(),
+                'loc' => $this->loc($start)
+            ]);
+        }
+
+        $typeCondition = null;
         if ($this->token->value === 'on') {
             $this->advance();
-            return new InlineFragment(array(
-                'typeCondition' => $this->parseNamedType(),
-                'directives' => $this->parseDirectives(),
-                'selectionSet' => $this->parseSelectionSet(),
-                'loc' => $this->loc($start)
-            ));
+            $typeCondition = $this->parseNamedType();
         }
-        return new FragmentSpread(array(
-            'name' => $this->parseFragmentName(),
+
+        return new InlineFragment([
+            'typeCondition' => $typeCondition,
             'directives' => $this->parseDirectives(),
+            'selectionSet' => $this->parseSelectionSet(),
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     /**
      * @return FragmentDefinition
      * @throws SyntaxError
      */
-    function parseFragmentDefinition() {
+    function parseFragmentDefinition()
+    {
         $start = $this->token->start;
         $this->expectKeyword('fragment');
 
@@ -502,13 +575,13 @@ class Parser
         $this->expectKeyword('on');
         $typeCondition = $this->parseNamedType();
 
-        return new FragmentDefinition(array(
+        return new FragmentDefinition([
             'name' => $name,
             'typeCondition' => $typeCondition,
             'directives' => $this->parseDirectives(),
             'selectionSet' => $this->parseSelectionSet(),
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     // Implements the parsing rules in the Values section.
@@ -519,7 +592,7 @@ class Parser
 
     /**
      * @return BooleanValue|EnumValue|FloatValue|IntValue|StringValue|Variable
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseConstValue()
     {
@@ -531,7 +604,8 @@ class Parser
      * @return BooleanValue|EnumValue|FloatValue|IntValue|StringValue|Variable
      * @throws SyntaxError
      */
-    function parseValueLiteral($isConst) {
+    function parseValueLiteral($isConst)
+    {
         $token = $this->token;
         switch ($token->kind) {
             case Token::BRACKET_L:
@@ -540,35 +614,35 @@ class Parser
                 return $this->parseObject($isConst);
             case Token::INT:
                 $this->advance();
-                return new IntValue(array(
+                return new IntValue([
                     'value' => $token->value,
                     'loc' => $this->loc($token->start)
-                ));
+                ]);
             case Token::FLOAT:
                 $this->advance();
-                return new FloatValue(array(
+                return new FloatValue([
                     'value' => $token->value,
                     'loc' => $this->loc($token->start)
-                ));
+                ]);
             case Token::STRING:
                 $this->advance();
-                return new StringValue(array(
+                return new StringValue([
                     'value' => $token->value,
                     'loc' => $this->loc($token->start)
-                ));
+                ]);
             case Token::NAME:
                 if ($token->value === 'true' || $token->value === 'false') {
                     $this->advance();
-                    return new BooleanValue(array(
+                    return new BooleanValue([
                         'value' => $token->value === 'true',
                         'loc' => $this->loc($token->start)
-                    ));
+                    ]);
                 } else if ($token->value !== 'null') {
                     $this->advance();
-                    return new EnumValue(array(
+                    return new EnumValue([
                         'value' => $token->value,
                         'loc' => $this->loc($token->start)
-                    ));
+                    ]);
                 }
                 break;
 
@@ -589,25 +663,25 @@ class Parser
     {
         $start = $this->token->start;
         $item = $isConst ? 'parseConstValue' : 'parseVariableValue';
-        return new ListValue(array(
-            'values' => $this->any(Token::BRACKET_L, array($this, $item), Token::BRACKET_R),
+        return new ListValue([
+            'values' => $this->any(Token::BRACKET_L, [$this, $item], Token::BRACKET_R),
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     function parseObject($isConst)
     {
         $start = $this->token->start;
         $this->expect(Token::BRACE_L);
-        $fieldNames = array();
-        $fields = array();
+        $fieldNames = [];
+        $fields = [];
         while (!$this->skip(Token::BRACE_R)) {
             $fields[] = $this->parseObjectField($isConst, $fieldNames);
         }
-        return new ObjectValue(array(
+        return new ObjectValue([
             'fields' => $fields,
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     function parseObjectField($isConst, &$fieldNames)
@@ -621,11 +695,11 @@ class Parser
         $fieldNames[$name->value] = true;
         $this->expect(Token::COLON);
 
-        return new ObjectField(array(
+        return new ObjectField([
             'name' => $name,
             'value' => $this->parseValueLiteral($isConst),
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     // Implements the parsing rules in the Directives section.
@@ -635,7 +709,7 @@ class Parser
      */
     function parseDirectives()
     {
-        $directives = array();
+        $directives = [];
         while ($this->peek(Token::AT)) {
             $directives[] = $this->parseDirective();
         }
@@ -644,17 +718,17 @@ class Parser
 
     /**
      * @return Directive
-     * @throws Exception
+     * @throws SyntaxError
      */
     function parseDirective()
     {
         $start = $this->token->start;
         $this->expect(Token::AT);
-        return new Directive(array(
+        return new Directive([
             'name' => $this->parseName(),
             'arguments' => $this->parseArguments(),
             'loc' => $this->loc($start)
-        ));
+        ]);
     }
 
     // Implements the parsing rules in the Types section.
@@ -672,18 +746,18 @@ class Parser
         if ($this->skip(Token::BRACKET_L)) {
             $type = $this->parseType();
             $this->expect(Token::BRACKET_R);
-            $type = new ListType(array(
+            $type = new ListType([
                 'type' => $type,
                 'loc' => $this->loc($start)
-            ));
+            ]);
         } else {
             $type = $this->parseNamedType();
         }
         if ($this->skip(Token::BANG)) {
-            return new NonNullType(array(
+            return new NonNullType([
                 'type' => $type,
                 'loc' => $this->loc($start)
-            ));
+            ]);
 
         }
         return $type;
@@ -697,6 +771,333 @@ class Parser
             'name' => $this->parseName(),
             'loc' => $this->loc($start)
         ]);
+    }
 
+    // Implements the parsing rules in the Type Definition section.
+
+    /**
+     * TypeSystemDefinition :
+     *   - TypeDefinition
+     *   - TypeExtensionDefinition
+     *   - DirectiveDefinition
+     *
+     * TypeDefinition :
+     *   - ScalarTypeDefinition
+     *   - ObjectTypeDefinition
+     *   - InterfaceTypeDefinition
+     *   - UnionTypeDefinition
+     *   - EnumTypeDefinition
+     *   - InputObjectTypeDefinition
+     *
+     * @return TypeSystemDefinition
+     * @throws SyntaxError
+     */
+    function parseTypeSystemDefinition()
+    {
+        if ($this->peek(Token::NAME)) {
+            switch ($this->token->value) {
+                case 'schema': return $this->parseSchemaDefinition();
+                case 'scalar': return $this->parseScalarTypeDefinition();
+                case 'type': return $this->parseObjectTypeDefinition();
+                case 'interface': return $this->parseInterfaceTypeDefinition();
+                case 'union': return $this->parseUnionTypeDefinition();
+                case 'enum': return $this->parseEnumTypeDefinition();
+                case 'input': return $this->parseInputObjectTypeDefinition();
+                case 'extend': return $this->parseTypeExtensionDefinition();
+                case 'directive': return $this->parseDirectiveDefinition();
+            }
+        }
+
+        throw $this->unexpected();
+    }
+
+    /**
+     * @return SchemaDefinition
+     * @throws SyntaxError
+     */
+    function parseSchemaDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('schema');
+
+        $operationTypes = $this->many(
+            Token::BRACE_L,
+            [$this, 'parseOperationTypeDefinition'],
+            Token::BRACE_R
+        );
+
+        return new SchemaDefinition([
+            'operationTypes' => $operationTypes,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return ScalarTypeDefinition
+     * @throws SyntaxError
+     */
+    function parseScalarTypeDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('scalar');
+        $name = $this->parseName();
+
+        return new ScalarTypeDefinition([
+            'name' => $name,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return ObjectTypeDefinition
+     * @throws SyntaxError
+     */
+    function parseObjectTypeDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('type');
+        $name = $this->parseName();
+        $interfaces = $this->parseImplementsInterfaces();
+        $fields = $this->any(
+            Token::BRACE_L,
+            [$this, 'parseFieldDefinition'],
+            Token::BRACE_R
+        );
+
+        return new ObjectTypeDefinition([
+            'name' => $name,
+            'interfaces' => $interfaces,
+            'fields' => $fields,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return NamedType[]
+     */
+    function parseImplementsInterfaces()
+    {
+        $types = [];
+        if ($this->token->value === 'implements') {
+            $this->advance();
+            do {
+                $types[] = $this->parseNamedType();
+            } while (!$this->peek(Token::BRACE_L));
+        }
+        return $types;
+    }
+
+    /**
+     * @return FieldDefinition
+     * @throws SyntaxError
+     */
+    function parseFieldDefinition()
+    {
+        $start = $this->token->start;
+        $name = $this->parseName();
+        $args = $this->parseArgumentDefs();
+        $this->expect(Token::COLON);
+        $type = $this->parseType();
+
+        return new FieldDefinition([
+            'name' => $name,
+            'arguments' => $args,
+            'type' => $type,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return InputValueDefinition[]
+     */
+    function parseArgumentDefs()
+    {
+        if (!$this->peek(Token::PAREN_L)) {
+            return [];
+        }
+        return $this->many(Token::PAREN_L, [$this, 'parseInputValueDef'], Token::PAREN_R);
+    }
+
+    /**
+     * @return InputValueDefinition
+     * @throws SyntaxError
+     */
+    function parseInputValueDef()
+    {
+        $start = $this->token->start;
+        $name = $this->parseName();
+        $this->expect(Token::COLON);
+        $type = $this->parseType();
+        $defaultValue = null;
+        if ($this->skip(Token::EQUALS)) {
+            $defaultValue = $this->parseConstValue();
+        }
+        return new InputValueDefinition([
+            'name' => $name,
+            'type' => $type,
+            'defaultValue' => $defaultValue,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return InterfaceTypeDefinition
+     * @throws SyntaxError
+     */
+    function parseInterfaceTypeDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('interface');
+        $name = $this->parseName();
+        $fields = $this->any(
+            Token::BRACE_L,
+            [$this, 'parseFieldDefinition'],
+            Token::BRACE_R
+        );
+
+        return new InterfaceTypeDefinition([
+            'name' => $name,
+            'fields' => $fields,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return UnionTypeDefinition
+     * @throws SyntaxError
+     */
+    function parseUnionTypeDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('union');
+        $name = $this->parseName();
+        $this->expect(Token::EQUALS);
+        $types = $this->parseUnionMembers();
+
+        return new UnionTypeDefinition([
+            'name' => $name,
+            'types' => $types,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return NamedType[]
+     */
+    function parseUnionMembers()
+    {
+        $members = [];
+        do {
+            $members[] = $this->parseNamedType();
+        } while ($this->skip(Token::PIPE));
+        return $members;
+    }
+
+    /**
+     * @return EnumTypeDefinition
+     * @throws SyntaxError
+     */
+    function parseEnumTypeDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('enum');
+        $name = $this->parseName();
+        $values = $this->many(
+            Token::BRACE_L,
+            [$this, 'parseEnumValueDefinition'],
+            Token::BRACE_R
+        );
+
+        return new EnumTypeDefinition([
+            'name' => $name,
+            'values' => $values,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return EnumValueDefinition
+     */
+    function parseEnumValueDefinition()
+    {
+        $start = $this->token->start;
+        $name = $this->parseName();
+
+        return new EnumValueDefinition([
+            'name' => $name,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return InputObjectTypeDefinition
+     * @throws SyntaxError
+     */
+    function parseInputObjectTypeDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('input');
+        $name = $this->parseName();
+        $fields = $this->any(
+            Token::BRACE_L,
+            [$this, 'parseInputValueDef'],
+            Token::BRACE_R
+        );
+
+        return new InputObjectTypeDefinition([
+            'name' => $name,
+            'fields' => $fields,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return TypeExtensionDefinition
+     * @throws SyntaxError
+     */
+    function parseTypeExtensionDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('extend');
+        $definition = $this->parseObjectTypeDefinition();
+
+        return new TypeExtensionDefinition([
+            'definition' => $definition,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return DirectiveDefinition
+     * @throws SyntaxError
+     */
+    function parseDirectiveDefinition()
+    {
+        $start = $this->token->start;
+        $this->expectKeyword('directive');
+        $this->expect(Token::AT);
+        $name = $this->parseName();
+        $args = $this->parseArgumentDefs();
+        $this->expectKeyword('on');
+        $locations = $this->parseDirectiveLocations();
+
+        return new DirectiveDefinition([
+            'name' => $name,
+            'arguments' => $args,
+            'locations' => $locations,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return Name[]
+     */
+    function parseDirectiveLocations()
+    {
+        $locations = [];
+        do {
+            $locations[] = $this->parseName();
+        } while ($this->skip(Token::PIPE));
+        return $locations;
     }
 }
