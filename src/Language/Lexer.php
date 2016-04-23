@@ -46,10 +46,16 @@ class Lexer
         $bodyLength = $this->source->length;
 
         $position = $this->positionAfterWhitespace($body, $fromPosition);
-        $code = Utils::charCodeAt($body, $position);
 
         if ($position >= $bodyLength) {
             return new Token(Token::EOF, $position, $position);
+        }
+
+        $code = Utils::charCodeAt($body, $position);
+
+        // SourceCharacter
+        if ($code < 0x0020 && $code !== 0x0009 && $code !== 0x000A && $code !== 0x000D) {
+            throw new SyntaxError($this->source,  $position, 'Invalid character ' . Utils::printCharCode($code));
         }
 
         switch ($code) {
@@ -99,7 +105,7 @@ class Lexer
             return $this->readName($position);
             // -
             case 45:
-                // 0-9
+            // 0-9
             case 48: case 49: case 50: case 51: case 52:
             case 53: case 54: case 55: case 56: case 57:
             return $this->readNumber($position, $code);
@@ -107,7 +113,7 @@ class Lexer
             case 34: return $this->readString($position);
         }
 
-        throw new SyntaxError($this->source, $position, 'Unexpected character "' . Utils::chr($code). '"');
+        throw new SyntaxError($this->source, $position, 'Unexpected character ' . Utils::printCharCode($code));
     }
 
     /**
@@ -163,25 +169,21 @@ class Lexer
 
         if ($code === 48) { // 0
             $code = Utils::charCodeAt($body, ++$position);
-        } else if ($code >= 49 && $code <= 57) { // 1 - 9
-            do {
-                $code = Utils::charCodeAt($body, ++$position);
-            } while ($code >= 48 && $code <= 57); // 0 - 9
+
+            if ($code >= 48 && $code <= 57) {
+                throw new SyntaxError($this->source, $position, "Invalid number, unexpected digit after 0: " . Utils::printCharCode($code));
+            }
         } else {
-            throw new SyntaxError($this->source, $position, 'Invalid number');
+            $position = $this->readDigits($position, $code);
+            $code = Utils::charCodeAt($body, $position);
         }
 
         if ($code === 46) { // .
             $isFloat = true;
 
             $code = Utils::charCodeAt($body, ++$position);
-            if ($code >= 48 && $code <= 57) { // 0 - 9
-                do {
-                    $code = Utils::charCodeAt($body, ++$position);
-                } while ($code >= 48 && $code <= 57); // 0 - 9
-            } else {
-                throw new SyntaxError($this->source, $position, 'Invalid number');
-            }
+            $position = $this->readDigits($position, $code);
+            $code = Utils::charCodeAt($body, $position);
         }
 
         if ($code === 69 || $code === 101) { // E e
@@ -191,13 +193,7 @@ class Lexer
             if ($code === 43 || $code === 45) { // + -
                 $code = Utils::charCodeAt($body, ++$position);
             }
-            if ($code >= 48 && $code <= 57) { // 0 - 9
-                do {
-                    $code = Utils::charCodeAt($body, ++$position);
-                } while ($code >= 48 && $code <= 57); // 0 - 9
-            } else {
-                throw new SyntaxError($this->source, $position, 'Invalid number');
-            }
+            $position = $this->readDigits($position, $code);
         }
         return new Token(
             $isFloat ? Token::FLOAT : Token::INT,
@@ -207,6 +203,32 @@ class Lexer
         );
     }
 
+    /**
+     * Returns the new position in the source after reading digits.
+     */
+    private function readDigits($start, $firstCode)
+    {
+        $body = $this->source->body;
+        $position = $start;
+        $code = $firstCode;
+        if ($code >= 48 && $code <= 57) { // 0 - 9
+            do {
+                $code = Utils::charCodeAt($body, ++$position);
+            } while ($code >= 48 && $code <= 57); // 0 - 9
+
+            return $position;
+        }
+        if ($position > $this->source->length - 1) {
+            $code = null;
+        }
+        throw new SyntaxError($this->source, $position, "Invalid number, expected digit but got: " . Utils::printCharCode($code));
+    }
+
+    /**
+     * @param $start
+     * @return Token
+     * @throws SyntaxError
+     */
     private function readString($start)
     {
         $body = $this->source->body;
@@ -220,9 +242,13 @@ class Lexer
         while (
             $position < $bodyLength &&
             ($code = Utils::charCodeAt($body, $position)) &&
-            $code !== 34 &&
-            $code !== 10 && $code !== 13 && $code !== 0x2028 && $code !== 0x2029
+            // not LineTerminator
+            $code !== 0x000A && $code !== 0x000D &&
+            // not Quote (")
+            $code !== 34
         ) {
+            $this->assertValidStringCharacterCode($code, $position);
+
             ++$position;
             if ($code === 92) { // \
                 $value .= mb_substr($body, $chunkStart, $position - 1 - $chunkStart, 'UTF-8');
@@ -239,13 +265,15 @@ class Lexer
                     case 117:
                         $hex = mb_substr($body, $position + 1, 4);
                         if (!preg_match('/[0-9a-fA-F]{4}/', $hex)) {
-                            throw new SyntaxError($this->source, $position, 'Bad character escape sequence');
+                            throw new SyntaxError($this->source, $position, 'Invalid character escape sequence: \\u' . $hex);
                         }
-                        $value .= Utils::chr(hexdec($hex));
+                        $code = hexdec($hex);
+                        $this->assertValidStringCharacterCode($code, $position - 1);
+                        $value .= Utils::chr($code);
                         $position += 4;
                         break;
                     default:
-                        throw new SyntaxError($this->source, $position, 'Bad character escape sequence');
+                        throw new SyntaxError($this->source, $position, 'Invalid character escape sequence: \\' . Utils::chr($code));
                 }
                 ++$position;
                 $chunkStart = $position;
@@ -258,6 +286,18 @@ class Lexer
 
         $value .= mb_substr($body, $chunkStart, $position - $chunkStart, 'UTF-8');
         return new Token(Token::STRING, $start, $position + 1, $value);
+    }
+
+    private function assertValidStringCharacterCode($code, $position)
+    {
+        // SourceCharacter
+        if ($code < 0x0020 && $code !== 0x0009) {
+            throw new SyntaxError(
+                $this->source,
+                $position,
+                "Invalid character within String: " . Utils::printCharCode($code)
+            );
+        }
     }
 
     /**
@@ -279,12 +319,12 @@ class Lexer
 
             // Skip whitespace
             if (
-                $code === 32 || // space
-                $code === 44 || // comma
-                $code === 160 || // '\xa0'
-                $code === 0x2028 || // line separator
-                $code === 0x2029 || // paragraph separator
-                $code > 8 && $code < 14 // whitespace
+                $code === 0xFEFF || // BOM
+                $code === 0x0009 || // tab
+                $code === 0x0020 || // space
+                $code === 0x000A || // new line
+                $code === 0x000D || // carriage return
+                $code === 0x002C
             ) {
                 ++$position;
                 // Skip comments
@@ -293,7 +333,8 @@ class Lexer
                 while (
                     $position < $bodyLength &&
                     ($code = Utils::charCodeAt($body, $position)) &&
-                    $code !== 10 && $code !== 13 && $code !== 0x2028 && $code !== 0x2029
+                    // SourceCharacter but not LineTerminator
+                    ($code > 0x001F || $code === 0x0009) && $code !== 0x000A && $code !== 0x000D
                 ) {
                     ++$position;
                 }
