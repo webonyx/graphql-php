@@ -20,7 +20,6 @@ class Token
     const PIPE = 13;
     const BRACE_R = 14;
     const NAME = 15;
-    const VARIABLE = 16;
     const INT = 17;
     const FLOAT = 18;
     const STRING = 19;
@@ -43,7 +42,6 @@ class Token
         $description[self::PIPE] = '|';
         $description[self::BRACE_R] = '}';
         $description[self::NAME] = 'Name';
-        $description[self::VARIABLE] = 'Variable';
         $description[self::INT] = 'Int';
         $description[self::FLOAT] = 'Float';
         $description[self::STRING] = 'String';

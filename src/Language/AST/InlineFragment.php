@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class InlineFragment extends Node
+class InlineFragment extends Node implements Selection
 {
     public $kind = Node::INLINE_FRAGMENT;
 

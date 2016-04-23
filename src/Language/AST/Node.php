@@ -46,7 +46,31 @@ abstract class Node
     const LIST_TYPE = 'ListType';
     const NON_NULL_TYPE = 'NonNullType';
 
-    
+    // Type System Definitions
+
+    const SCHEMA_DEFINITION = 'SchemaDefinition';
+    const OPERATION_TYPE_DEFINITION = 'OperationTypeDefinition';
+
+    // Type Definitions
+
+    const SCALAR_TYPE_DEFINITION = 'ScalarTypeDefinition';
+    const OBJECT_TYPE_DEFINITION = 'ObjectTypeDefinition';
+    const FIELD_DEFINITION = 'FieldDefinition';
+    const INPUT_VALUE_DEFINITION = 'InputValueDefinition';
+    const INTERFACE_TYPE_DEFINITION = 'InterfaceTypeDefinition';
+    const UNION_TYPE_DEFINITION = 'UnionTypeDefinition';
+    const ENUM_TYPE_DEFINITION = 'EnumTypeDefinition';
+    const ENUM_VALUE_DEFINITION = 'EnumValueDefinition';
+    const INPUT_OBJECT_TYPE_DEFINITION = 'InputObjectTypeDefinition';
+
+    // Type Extensions
+
+    const TYPE_EXTENSION_DEFINITION = 'TypeExtensionDefinition';
+
+    // Directive Definitions
+
+    const DIRECTIVE_DEFINITION = 'DirectiveDefinition';
+
     /**
         type Node = Name
     | Document
