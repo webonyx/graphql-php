@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Error;
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
@@ -10,16 +9,20 @@ use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\SyntaxError;
+use GraphQL\Utils;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @it accepts option to not include source
+     */
     public function testAcceptsOptionToNotIncludeSource()
     {
-        // accepts option to not include source
         $actual = Parser::parse('{ field }', ['noSource' => true]);
 
         $expected = new Document([
@@ -54,6 +57,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $actual);
     }
 
+    /**
+     * @it parse provides useful errors
+     */
     public function testParseProvidesUsefulErrors()
     {
         $run = function($num, $str, $expectedMessage, $expectedPositions = null, $expectedLocations = null) {
@@ -72,6 +78,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             }
         };
 
+        $run(0, '{', "Syntax Error GraphQL (1:2) Expected Name, found EOF\n\n1: {\n    ^\n", [1], [new SourceLocation(1,2)]);
         $run(1,
 '{ ...MissingOn }
 fragment MissingOn Type
@@ -82,25 +89,33 @@ fragment MissingOn Type
         $run(2, '{ field: {} }', "Syntax Error GraphQL (1:10) Expected Name, found {\n\n1: { field: {} }\n            ^\n");
         $run(3, 'notanoperation Foo { field }', "Syntax Error GraphQL (1:1) Unexpected Name \"notanoperation\"\n\n1: notanoperation Foo { field }\n   ^\n");
         $run(4, '...', "Syntax Error GraphQL (1:1) Unexpected ...\n\n1: ...\n   ^\n");
-        $run(5, '{', "Syntax Error GraphQL (1:2) Expected Name, found EOF\n\n1: {\n    ^\n", [1], [new SourceLocation(1,2)]);
     }
 
+    /**
+     * @it parse provides useful error when using source
+     */
     public function testParseProvidesUsefulErrorWhenUsingSource()
     {
         try {
             Parser::parse(new Source('query', 'MyQuery.graphql'));
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
-            $this->assertEquals("Syntax Error MyQuery.graphql (1:6) Expected Name, found EOF\n\n1: query\n        ^\n", $e->getMessage());
+            $this->assertEquals("Syntax Error MyQuery.graphql (1:6) Expected {, found EOF\n\n1: query\n        ^\n", $e->getMessage());
         }
     }
 
+    /**
+     * @it parses variable inline values
+     */
     public function testParsesVariableInlineValues()
     {
         // Following line should not throw:
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
     }
 
+    /**
+     * @it parses constant default values
+     */
     public function testParsesConstantDefaultValues()
     {
         try {
@@ -114,39 +129,71 @@ fragment MissingOn Type
         }
     }
 
-    public function testDuplicateKeysInInputObjectIsSyntaxError()
-    {
-        try {
-            Parser::parse('{ field(arg: { a: 1, a: 2 }) }');
-            $this->fail('Expected exception not thrown');
-        } catch (SyntaxError $e) {
-            $this->assertEquals(
-                "Syntax Error GraphQL (1:22) Duplicate input object field a.\n\n1: { field(arg: { a: 1, a: 2 }) }\n                        ^\n",
-                $e->getMessage()
-            );
-        }
-    }
-
+    /**
+     * @it does not accept fragments spread of "on"
+     */
     public function testDoesNotAcceptFragmentsNamedOn()
     {
-        // does not accept fragments named "on"
         $this->setExpectedException('GraphQL\SyntaxError', 'Syntax Error GraphQL (1:10) Unexpected Name "on"');
         Parser::parse('fragment on on on { on }');
     }
 
+    /**
+     * @it does not accept fragments spread of "on"
+     */
     public function testDoesNotAcceptFragmentSpreadOfOn()
     {
-        // does not accept fragments spread of "on"
         $this->setExpectedException('GraphQL\SyntaxError', 'Syntax Error GraphQL (1:9) Expected Name, found }');
         Parser::parse('{ ...on }');
     }
 
+    /**
+     * @it does not allow null as value
+     */
     public function testDoesNotAllowNullAsValue()
     {
         $this->setExpectedException('GraphQL\SyntaxError', 'Syntax Error GraphQL (1:39) Unexpected Name "null"');
         Parser::parse('{ fieldWithNullableStringInput(input: null) }');
     }
 
+    /**
+     * @it parses multi-byte characters
+     */
+    public function testParsesMultiByteCharacters()
+    {
+        // Note: \u0A0A could be naively interpretted as two line-feed chars.
+
+        $char = Utils::chr(0x0A0A);
+        $query = <<<HEREDOC
+        # This comment has a $char multi-byte character.
+        { field(arg: "Has a $char multi-byte character.") }
+HEREDOC;
+
+        $result = Parser::parse($query, ['noLocation' => true]);
+
+        $expected = new SelectionSet([
+            'selections' => [
+                new Field([
+                    'name' => new Name(['value' => 'field']),
+                    'arguments' => [
+                        new Argument([
+                            'name' => new Name(['value' => 'arg']),
+                            'value' => new StringValue([
+                                'value' => "Has a $char multi-byte character."
+                            ])
+                        ])
+                    ],
+                    'directives' => []
+                ])
+            ]
+        ]);
+
+        $this->assertEquals($expected, $result->definitions[0]->selectionSet);
+    }
+
+    /**
+     * @it parses kitchen sink
+     */
     public function testParsesKitchenSink()
     {
         // Following should not throw:
@@ -155,14 +202,17 @@ fragment MissingOn Type
         $this->assertNotEmpty($result);
     }
 
+    /**
+     * allows non-keywords anywhere a Name is allowed
+     */
     public function testAllowsNonKeywordsAnywhereANameIsAllowed()
     {
-        // allows non-keywords anywhere a Name is allowed
         $nonKeywords = [
             'on',
             'fragment',
             'query',
             'mutation',
+            'subscription',
             'true',
             'false'
         ];
@@ -185,6 +235,60 @@ fragment $fragmentName on Type {
         }
     }
 
+    /**
+     * @it parses anonymous mutation operations
+     */
+    public function testParsessAnonymousMutationOperations()
+    {
+        // Should not throw:
+        Parser::parse('
+          mutation {
+            mutationField
+          }
+        ');
+    }
+
+    /**
+     * @it parses anonymous subscription operations
+     */
+    public function testParsesAnonymousSubscriptionOperations()
+    {
+        // Should not throw:
+        Parser::parse('
+          subscription {
+            subscriptionField
+          }
+        ');
+    }
+
+    /**
+     * @it parses named mutation operations
+     */
+    public function testParsesNamedMutationOperations()
+    {
+        // Should not throw:
+        Parser::parse('
+          mutation Foo {
+            mutationField
+          }
+        ');
+    }
+
+    /**
+     * @it parses named subscription operations
+     */
+    public function testParsesNamedSubscriptionOperations()
+    {
+        Parser::parse('
+          subscription Foo {
+            subscriptionField
+          }
+        ');
+    }
+
+    /**
+     * @it parse creates ast
+     */
     public function testParseCreatesAst()
     {
         $source = new Source('{
