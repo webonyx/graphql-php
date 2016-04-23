@@ -247,4 +247,20 @@ class Utils
         $char = mb_substr($string, $position, 1, 'UTF-8');
         return self::ord($char);
     }
+
+    /**
+     * @param $code
+     * @return string
+     */
+    public static function printCharCode($code)
+    {
+        if (null === $code) {
+            return '<EOF>';
+        }
+        return $code < 0x007F
+            // Trust JSON for ASCII.
+             ? json_encode(Utils::chr($code))
+            // Otherwise print the escaped form.
+            : '"\\u' . dechex($code) . '"';
+    }
 }
