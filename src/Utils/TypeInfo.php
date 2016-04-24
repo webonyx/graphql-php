@@ -41,7 +41,7 @@ class TypeInfo
             return $innerType ? new NonNull($innerType) : null;
         }
 
-        Utils::invariant($inputTypeAst->kind === Node::NAMED_TYPE, 'Must be a named type');
+        Utils::invariant($inputTypeAst && $inputTypeAst->kind === Node::NAMED_TYPE, 'Must be a named type');
         return $schema->getType($inputTypeAst->name->value);
     }
 
@@ -197,11 +197,7 @@ class TypeInfo
                     // isCompositeType is a type refining predicate, so this is safe.
                     $compositeType = $namedType;
                 }
-                array_push($this->_parentTypeStack, $compositeType);
-                break;
-
-            case Node::DIRECTIVE:
-                $this->_directive = $schema->getDirective($node->name->value);
+                $this->_parentTypeStack[] = $compositeType; // push
                 break;
 
             case Node::FIELD:
@@ -210,8 +206,12 @@ class TypeInfo
                 if ($parentType) {
                     $fieldDef = self::_getFieldDef($schema, $parentType, $node);
                 }
-                array_push($this->_fieldDefStack, $fieldDef);
-                array_push($this->_typeStack, $fieldDef ? $fieldDef->getType() : null);
+                $this->_fieldDefStack[] = $fieldDef; // push
+                $this->_typeStack[] = $fieldDef ? $fieldDef->getType() : null; // push
+                break;
+
+            case Node::DIRECTIVE:
+                $this->_directive = $schema->getDirective($node->name->value);
                 break;
 
             case Node::OPERATION_DEFINITION:
@@ -220,18 +220,22 @@ class TypeInfo
                     $type = $schema->getQueryType();
                 } else if ($node->operation === 'mutation') {
                     $type = $schema->getMutationType();
+                } else if ($node->operation === 'subscription') {
+                    $type = $schema->getSubscriptionType();
                 }
-                array_push($this->_typeStack, $type);
+                $this->_typeStack[] = $type; // push
                 break;
 
             case Node::INLINE_FRAGMENT:
             case Node::FRAGMENT_DEFINITION:
-                $type = self::typeFromAST($schema, $node->typeCondition);
-                array_push($this->_typeStack, $type);
+                $typeConditionAST = $node->typeCondition;
+                $outputType = $typeConditionAST ? self::typeFromAST($schema, $typeConditionAST) : $this->getType();
+                $this->_typeStack[] = $outputType; // push
                 break;
 
             case Node::VARIABLE_DEFINITION:
-                array_push($this->_inputTypeStack, self::typeFromAST($schema, $node->type));
+                $inputType = self::typeFromAST($schema, $node->type);
+                $this->_inputTypeStack[] = $inputType; // push
                 break;
 
             case Node::ARGUMENT:
@@ -244,15 +248,12 @@ class TypeInfo
                     }
                 }
                 $this->_argument = $argDef;
-                array_push($this->_inputTypeStack, $argType);
+                $this->_inputTypeStack[] = $argType; // push
                 break;
 
             case Node::LST:
                 $listType = Type::getNullableType($this->getInputType());
-                array_push(
-                    $this->_inputTypeStack,
-                    $listType instanceof ListOfType ? $listType->getWrappedType() : null
-                );
+                $this->_inputTypeStack[] = ($listType instanceof ListOfType ? $listType->getWrappedType() : null); // push
                 break;
 
             case Node::OBJECT_FIELD:
@@ -263,7 +264,7 @@ class TypeInfo
                     $inputField = isset($tmp[$node->name->value]) ? $tmp[$node->name->value] : null;
                     $fieldType = $inputField ? $inputField->getType() : null;
                 }
-                array_push($this->_inputTypeStack, $fieldType);
+                $this->_inputTypeStack[] = $fieldType;
             break;
         }
     }

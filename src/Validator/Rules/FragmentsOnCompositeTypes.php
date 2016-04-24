@@ -30,21 +30,21 @@ class FragmentsOnCompositeTypes
             Node::INLINE_FRAGMENT => function(InlineFragment $node) use ($context) {
                 $type = $context->getType();
 
-                if ($type && !Type::isCompositeType($type)) {
-                    return new Error(
-                        self::inlineFragmentOnNonCompositeErrorMessage($type),
+                if ($node->typeCondition && $type && !Type::isCompositeType($type)) {
+                    $context->reportError(new Error(
+                        static::inlineFragmentOnNonCompositeErrorMessage($type),
                         [$node->typeCondition]
-                    );
+                    ));
                 }
             },
             Node::FRAGMENT_DEFINITION => function(FragmentDefinition $node) use ($context) {
                 $type = $context->getType();
 
                 if ($type && !Type::isCompositeType($type)) {
-                    return new Error(
-                        self::fragmentOnNonCompositeErrorMessage($node->name->value, Printer::doPrint($node->typeCondition)),
+                    $context->reportError(new Error(
+                        static::fragmentOnNonCompositeErrorMessage($node->name->value, Printer::doPrint($node->typeCondition)),
                         [$node->typeCondition]
-                    );
+                    ));
                 }
             }
         ];

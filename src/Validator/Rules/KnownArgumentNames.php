@@ -40,10 +40,10 @@ class KnownArgumentNames
                         if (!$fieldArgDef) {
                             $parentType = $context->getParentType();
                             Utils::invariant($parentType);
-                            return new Error(
+                            $context->reportError(new Error(
                                 self::unknownArgMessage($node->name->value, $fieldDef->name, $parentType->name),
                                 [$node]
-                            );
+                            ));
                         }
                     }
                 } else if ($argumentOf->kind === Node::DIRECTIVE) {
@@ -57,10 +57,10 @@ class KnownArgumentNames
                             }
                         }
                         if (!$directiveArgDef) {
-                            return new Error(
+                            $context->reportError(new Error(
                                 self::unknownDirectiveArgMessage($node->name->value, $directive->name),
                                 [$node]
-                            );
+                            ));
                         }
                     }
                 }

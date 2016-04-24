@@ -2,7 +2,7 @@
 namespace GraphQL\Language\AST;
 
 
-class FragmentDefinition extends Node implements Definition
+class FragmentDefinition extends Node implements Definition, HasSelectionSet
 {
     public $kind = Node::FRAGMENT_DEFINITION;
 

@@ -54,18 +54,15 @@ class OverlappingFieldsCanBeMerged
 
                     $conflicts = $this->findConflicts($fieldMap, $context, $comparedSet);
 
-                    if (!empty($conflicts)) {
-                        return array_map(function ($conflict) {
-                            $responseName = $conflict[0][0];
-                            $reason = $conflict[0][1];
-                            $fields = $conflict[1];
+                    foreach ($conflicts as $conflict) {
+                        $responseName = $conflict[0][0];
+                        $reason = $conflict[0][1];
+                        $fields = $conflict[1];
 
-                            return new Error(
-                                self::fieldsConflictMessage($responseName, $reason),
-                                $fields
-                            );
-                        }, $conflicts);
-
+                        $context->reportError(new Error(
+                            self::fieldsConflictMessage($responseName, $reason),
+                            $fields
+                        ));
                     }
                 }
             ]

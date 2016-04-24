@@ -32,10 +32,10 @@ class PossibleFragmentSpreads
                 $fragType = Type::getNamedType($context->getType());
                 $parentType = $context->getParentType();
                 if ($fragType && $parentType && !$this->doTypesOverlap($fragType, $parentType)) {
-                    return new Error(
+                    $context->reportError(new Error(
                         self::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
                         [$node]
-                    );
+                    ));
                 }
             },
             Node::FRAGMENT_SPREAD => function(FragmentSpread $node) use ($context) {
@@ -44,10 +44,10 @@ class PossibleFragmentSpreads
                 $parentType = $context->getParentType();
 
                 if ($fragType && $parentType && !$this->doTypesOverlap($fragType, $parentType)) {
-                    return new Error(
+                    $context->reportError(new Error(
                         self::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
                         [$node]
-                    );
+                    ));
                 }
             }
         ];

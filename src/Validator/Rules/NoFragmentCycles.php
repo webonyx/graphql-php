@@ -14,6 +14,7 @@ use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Visitor;
+use GraphQL\Utils;
 use GraphQL\Validator\ValidationContext;
 
 class NoFragmentCycles
@@ -24,83 +25,86 @@ class NoFragmentCycles
         return "Cannot spread fragment \"$fragName\" within itself$via.";
     }
 
+    public $visitedFrags;
+
+    public $spreadPath;
+
+    public $spreadPathIndexByName;
+
     public function __invoke(ValidationContext $context)
     {
-        // Gather all the fragment spreads ASTs for each fragment definition.
-        // Importantly this does not include inline fragments.
-        $definitions = $context->getDocument()->definitions;
-        $spreadsInFragment = [];
-        foreach ($definitions as $node) {
-            if ($node instanceof FragmentDefinition) {
-                $spreadsInFragment[$node->name->value] = $this->gatherSpreads($node);
-            }
-        }
+        // Tracks already visited fragments to maintain O(N) and to ensure that cycles
+        // are not redundantly reported.
+        $this->visitedFrags = [];
 
-        // Tracks spreads known to lead to cycles to ensure that cycles are not
-        // redundantly reported.
-        $knownToLeadToCycle = new \SplObjectStorage();
+        // Array of AST nodes used to produce meaningful errors
+        $this->spreadPath = [];
+
+        // Position in the spread path
+        $this->spreadPathIndexByName = [];
 
         return [
-            Node::FRAGMENT_DEFINITION => function(FragmentDefinition $node) use ($spreadsInFragment, $knownToLeadToCycle) {
-                $errors = [];
-                $initialName = $node->name->value;
-
-                // Array of AST nodes used to produce meaningful errors
-                $spreadPath = [];
-
-                $this->detectCycleRecursive($initialName, $spreadsInFragment, $knownToLeadToCycle, $initialName, $spreadPath, $errors);
-
-                if (!empty($errors)) {
-                    return $errors;
+            Node::OPERATION_DEFINITION => function () {
+                return Visitor::skipNode();
+            },
+            Node::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
+                if (!isset($this->visitedFrags[$node->name->value])) {
+                    $this->detectCycleRecursive($node, $context);
                 }
+                return Visitor::skipNode();
             }
         ];
     }
 
-    private function detectCycleRecursive($fragmentName, array $spreadsInFragment, \SplObjectStorage $knownToLeadToCycle, $initialName, array &$spreadPath, &$errors)
+    private function detectCycleRecursive(FragmentDefinition $fragment, ValidationContext $context)
     {
-        $spreadNodes = $spreadsInFragment[$fragmentName];
+        $fragmentName = $fragment->name->value;
+        $this->visitedFrags[$fragmentName] = true;
 
-        for ($i = 0; $i < count($spreadNodes); ++$i) {
-            $spreadNode = $spreadNodes[$i];
-            if (isset($knownToLeadToCycle[$spreadNode])) {
-                continue ;
-            }
-            if ($spreadNode->name->value === $initialName) {
-                $cyclePath = array_merge($spreadPath, [$spreadNode]);
-                foreach ($cyclePath as $spread) {
-                    $knownToLeadToCycle[$spread] = true;
-                }
-                $errors[] = new Error(
-                    self::cycleErrorMessage($initialName, array_map(function ($s) {
-                        return $s->name->value;
-                    }, $spreadPath)),
-                    $cyclePath
-                );
-                continue;
-            }
+        $spreadNodes = $context->getFragmentSpreads($fragment);
 
-            foreach ($spreadPath as $spread) {
-                if ($spread === $spreadNode) {
-                    continue 2;
-                }
-            }
-
-            $spreadPath[] = $spreadNode;
-            $this->detectCycleRecursive($spreadNode->name->value, $spreadsInFragment, $knownToLeadToCycle, $initialName, $spreadPath, $errors);
-            array_pop($spreadPath);
+        if (empty($spreadNodes)) {
+            return;
         }
-    }
 
+        $this->spreadPathIndexByName[$fragmentName] = count($this->spreadPath);
 
-    private function gatherSpreads($node)
-    {
-        $spreadNodes = [];
-        Visitor::visit($node, [
-            Node::FRAGMENT_SPREAD => function(FragmentSpread $spread) use (&$spreadNodes) {
-                $spreadNodes[] = $spread;
+        for ($i = 0; $i < count($spreadNodes); $i++) {
+            $spreadNode = $spreadNodes[$i];
+            $spreadName = $spreadNode->name->value;
+            $cycleIndex = isset($this->spreadPathIndexByName[$spreadName]) ? $this->spreadPathIndexByName[$spreadName] : null;
+
+            if ($cycleIndex === null) {
+                $this->spreadPath[] = $spreadNode;
+                if (empty($this->visitedFrags[$spreadName])) {
+                    $spreadFragment = $context->getFragment($spreadName);
+                    if ($spreadFragment) {
+                        $this->detectCycleRecursive($spreadFragment, $context);
+                    }
+                }
+                array_pop($this->spreadPath);
+            } else {
+                $cyclePath = array_slice($this->spreadPath, $cycleIndex);
+                $nodes = $cyclePath;
+
+                if (is_array($spreadNode)) {
+                    $nodes = array_merge($nodes, $spreadNode);
+                } else {
+                    $nodes[] = $spreadNode;
+                }
+
+                $context->reportError(new Error(
+                    self::cycleErrorMessage(
+                        $spreadName,
+                        Utils::map($cyclePath, function ($s) {
+                            return $s->name->value;
+                        })
+                    ),
+                    $nodes
+                ));
             }
-        ]);
-        return $spreadNodes;
+        }
+
+        $this->spreadPathIndexByName[$fragmentName] = null;
     }
 }

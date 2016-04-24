@@ -13,6 +13,19 @@ use GraphQL\Validator\ValidationContext;
 
 class DefaultValuesOfCorrectType
 {
+    static function badValueForDefaultArgMessage($varName, $type, $value, $verboseErrors = null)
+    {
+        $message = $verboseErrors ? ("\n" . implode("\n", $verboseErrors)) : '';
+        return "Variable \$$varName has invalid default value: $value.$message";
+    }
+
+    static function defaultForNonNullArgMessage($varName, $type, $guessType)
+    {
+        return "Variable \$$varName of type $type " .
+        "is required and will never use the default value. " .
+        "Perhaps you meant to use type $guessType.";
+    }
+
     public function __invoke(ValidationContext $context)
     {
         return [
@@ -22,16 +35,19 @@ class DefaultValuesOfCorrectType
                 $type = $context->getInputType();
 
                 if ($type instanceof NonNull && $defaultValue) {
-                    return new Error(
-                        Messages::defaultForNonNullArgMessage($name, $type, $type->getWrappedType()),
+                    $context->reportError(new Error(
+                        static::defaultForNonNullArgMessage($name, $type, $type->getWrappedType()),
                         [$defaultValue]
-                    );
+                    ));
                 }
-                if ($type && $defaultValue && !DocumentValidator::isValidLiteralValue($defaultValue, $type)) {
-                    return new Error(
-                        Messages::badValueForDefaultArgMessage($name, $type, Printer::doPrint($defaultValue)),
-                        [$defaultValue]
-                    );
+                if ($type && $defaultValue) {
+                    $errors = DocumentValidator::isValidLiteralValue($type, $defaultValue);
+                    if (!empty($errors)) {
+                        $context->reportError(new Error(
+                            static::badValueForDefaultArgMessage($name, $type, Printer::doPrint($defaultValue), $errors),
+                            [$defaultValue]
+                        ));
+                    }
                 }
                 return null;
             }

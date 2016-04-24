@@ -47,10 +47,10 @@ class VariablesInAllowedPosition
                 if ($varType && $inputType &&
                     !$this->varTypeAllowedForType($this->effectiveType($varType, $varDef), $inputType)
                 ) {
-                    return new Error(
+                    $context->reportError(new Error(
                         Messages::badVarPosMessage($varName, $varType, $inputType),
                         [$variableAST]
-                    );
+                    ));
                 }
             }
         ];

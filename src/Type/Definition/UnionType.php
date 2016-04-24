@@ -6,7 +6,7 @@ use GraphQL\Utils;
 class UnionType extends Type implements AbstractType, OutputType, CompositeType
 {
     /**
-     * @var Array<GraphQLObjectType>
+     * @var ObjectType[]
      */
     private $_types;
 
@@ -48,10 +48,16 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
         $this->_config = $config;
     }
 
-    /**
-     * @return array<ObjectType>
-     */
     public function getPossibleTypes()
+    {
+        trigger_error(__METHOD__ . ' is deprecated in favor of ' . __CLASS__ . '::getTypes()', E_USER_DEPRECATED);
+        return $this->getTypes();
+    }
+
+    /**
+     * @return ObjectType[]
+     */
+    public function getTypes()
     {
         if ($this->_types instanceof \Closure) {
             $this->_types = call_user_func($this->_types);
@@ -71,7 +77,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
 
         if (null === $this->_possibleTypeNames) {
             $this->_possibleTypeNames = [];
-            foreach ($this->getPossibleTypes() as $possibleType) {
+            foreach ($this->getTypes() as $possibleType) {
                 $this->_possibleTypeNames[$possibleType->name] = true;
             }
         }

@@ -29,16 +29,16 @@ class ScalarLeafs
                 if ($type) {
                     if (Type::isLeafType($type)) {
                         if ($node->selectionSet) {
-                            return new Error(
+                            $context->reportError(new Error(
                                 self::noSubselectionAllowedMessage($node->name->value, $type),
                                 [$node->selectionSet]
-                            );
+                            ));
                         }
                     } else if (!$node->selectionSet) {
-                        return new Error(
+                        $context->reportError(new Error(
                             self::requiredSubselectionMessage($node->name->value, $type),
                             [$node]
-                        );
+                        ));
                     }
                 }
             }

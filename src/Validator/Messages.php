@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Validator;
 
+use GraphQL\Utils;
+
 class Messages
 {
     static function missingArgMessage($fieldName, $argName, $typeName)
@@ -11,23 +13,6 @@ class Messages
     static function badValueMessage($argName, $typeName, $value)
     {
         return "Argument $argName expected type $typeName but got: $value.";
-    }
-
-    static function defaultForNonNullArgMessage($varName, $typeName, $guessTypeName)
-    {
-        return "Variable \$$varName of type $typeName " .
-        "is required and will never use the default value. " .
-        "Perhaps you meant to use type $guessTypeName.";
-    }
-
-    static function badValueForDefaultArgMessage($varName, $typeName, $value)
-    {
-        return "Variable \$$varName of type $typeName has invalid default value: $value.";
-    }
-
-    static function undefinedFieldMessage($field, $type)
-    {
-        return 'Cannot query field ' . $field . ' on ' . $type;
     }
 
     static function fragmentOnNonCompositeErrorMessage($fragName, $typeName)

@@ -12,16 +12,16 @@ GraphQLUnionType;
     /**
      * @return array<ObjectType>
      */
-    public function getPossibleTypes();
+    // public function getPossibleTypes();
 
     /**
      * @return ObjectType
      */
-    public function getObjectType($value, ResolveInfo $info);
+    // public function getObjectType($value, ResolveInfo $info);
 
     /**
      * @param Type $type
      * @return bool
      */
-    public function isPossibleType(Type $type);
+    // public function isPossibleType(Type $type);
 }
