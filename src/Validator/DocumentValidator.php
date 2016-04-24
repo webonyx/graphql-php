@@ -8,11 +8,13 @@ use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\Value;
 use GraphQL\Language\AST\Variable;
+use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
@@ -27,6 +29,7 @@ use GraphQL\Validator\Rules\KnownArgumentNames;
 use GraphQL\Validator\Rules\KnownDirectives;
 use GraphQL\Validator\Rules\KnownFragmentNames;
 use GraphQL\Validator\Rules\KnownTypeNames;
+use GraphQL\Validator\Rules\LoneAnonymousOperation;
 use GraphQL\Validator\Rules\NoFragmentCycles;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 use GraphQL\Validator\Rules\NoUnusedFragments;
@@ -62,28 +65,31 @@ class DocumentValidator
     {
         if (null === self::$defaultRules) {
             self::$defaultRules = [
-                // new UniqueOperationNames,
-                // new LoneAnonymousOperation,
+                // 'UniqueOperationNames' => new UniqueOperationNames(),
+                'LoneAnonymousOperation' => new LoneAnonymousOperation(),
                 'KnownTypeNames' => new KnownTypeNames(),
                 'FragmentsOnCompositeTypes' => new FragmentsOnCompositeTypes(),
                 'VariablesAreInputTypes' => new VariablesAreInputTypes(),
                 'ScalarLeafs' => new ScalarLeafs(),
                 'FieldsOnCorrectType' => new FieldsOnCorrectType(),
-                // new UniqueFragmentNames,
+                // 'UniqueFragmentNames' => new UniqueFragmentNames(),
                 'KnownFragmentNames' => new KnownFragmentNames(),
                 'NoUnusedFragments' => new NoUnusedFragments(),
                 'PossibleFragmentSpreads' => new PossibleFragmentSpreads(),
                 'NoFragmentCycles' => new NoFragmentCycles(),
+                // 'UniqueVariableNames' => new UniqueVariableNames(),
                 'NoUndefinedVariables' => new NoUndefinedVariables(),
                 'NoUnusedVariables' => new NoUnusedVariables(),
                 'KnownDirectives' => new KnownDirectives(),
                 'KnownArgumentNames' => new KnownArgumentNames(),
-                // new UniqueArgumentNames,
+                // 'UniqueArgumentNames' => new UniqueArgumentNames(),
                 'ArgumentsOfCorrectType' => new ArgumentsOfCorrectType(),
                 'ProvidedNonNullArguments' => new ProvidedNonNullArguments(),
                 'DefaultValuesOfCorrectType' => new DefaultValuesOfCorrectType(),
                 'VariablesInAllowedPosition' => new VariablesInAllowedPosition(),
                 'OverlappingFieldsCanBeMerged' => new OverlappingFieldsCanBeMerged(),
+                // 'UniqueInputFieldNames' => new UniqueInputFieldNames(),
+
                 // Query Security
                 'QueryDepth' => new QueryDepth(QueryDepth::DISABLED), // default disabled
                 'QueryComplexity' => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
@@ -107,7 +113,8 @@ class DocumentValidator
 
     public static function validate(Schema $schema, Document $ast, array $rules = null)
     {
-        $errors = static::visitUsingRules($schema, $ast, $rules ?: static::allRules());
+        $typeInfo = new TypeInfo($schema);
+        $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules ?: static::allRules());
         return $errors;
     }
 
@@ -128,76 +135,109 @@ class DocumentValidator
         return $arr;
     }
 
-    public static function isValidLiteralValue($valueAST, Type $type)
+    /**
+     * Utility for validators which determines if a value literal AST is valid given
+     * an input type.
+     *
+     * Note that this only validates literal values, variables are assumed to
+     * provide values of the correct type.
+     *
+     * @return array
+     */
+    public static function isValidLiteralValue(Type $type, $valueAST)
     {
-        // A value can only be not provided if the type is nullable.
-        if (!$valueAST) {
-            return !($type instanceof NonNull);
+        // A value must be provided if the type is non-null.
+        if ($type instanceof NonNull) {
+            $wrappedType = $type->getWrappedType();
+            if (!$valueAST) {
+                if ($wrappedType->name) {
+                    return [ "Expected \"{$wrappedType->name}!\", found null." ];
+                }
+                return ['Expected non-null value, found null.'];
+            }
+            return static::isValidLiteralValue($wrappedType, $valueAST);
         }
 
-        // Unwrap non-null.
-        if ($type instanceof NonNull) {
-            return static::isValidLiteralValue($valueAST, $type->getWrappedType());
+        if (!$valueAST) {
+            return [];
         }
 
         // This function only tests literals, and assumes variables will provide
         // values of the correct type.
         if ($valueAST instanceof Variable) {
-            return true;
-        }
-
-        if (!$valueAST instanceof Value) {
-            return false;
+            return [];
         }
 
         // Lists accept a non-list value as a list of one.
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             if ($valueAST instanceof ListValue) {
-                foreach($valueAST->values as $itemAST) {
-                    if (!static::isValidLiteralValue($itemAST, $itemType)) {
-                        return false;
+                $errors = [];
+                foreach($valueAST->values as $index => $itemAST) {
+                    $tmp = static::isValidLiteralValue($itemType, $itemAST);
+
+                    if ($tmp) {
+                        $errors = array_merge($errors, Utils::map($tmp, function($error) use ($index) {
+                            return "In element #$index: $error";
+                        }));
                     }
                 }
-                return true;
+                return $errors;
             } else {
-                return static::isValidLiteralValue($valueAST, $itemType);
+                return static::isValidLiteralValue($itemType, $valueAST);
             }
         }
 
-        // Scalar/Enum input checks to ensure the type can serialize the value to
-        // a non-null value.
-        if ($type instanceof ScalarType || $type instanceof EnumType) {
-            return $type->parseLiteral($valueAST) !== null;
-        }
-
-        // Input objects check each defined field, ensuring it is of the correct
-        // type and provided if non-nullable.
+        // Input objects check each defined field and look for undefined fields.
         if ($type instanceof InputObjectType) {
-            $fields = $type->getFields();
             if ($valueAST->kind !== Node::OBJECT) {
-                return false;
+                return [ "Expected \"{$type->name}\", found not an object." ];
             }
-            $fieldASTs = $valueAST->fields;
-            $fieldASTMap = Utils::keyMap($fieldASTs, function($field) {return $field->name->value;});
 
-            foreach ($fields as $fieldKey => $field) {
-                $fieldName = $field->name ?: $fieldKey;
-                if (!isset($fieldASTMap[$fieldName]) && $field->getType() instanceof NonNull) {
-                    // Required fields missing
-                    return false;
+            $fields = $type->getFields();
+            $errors = [];
+
+            // Ensure every provided field is defined.
+            $fieldASTs = $valueAST->fields;
+
+            foreach ($fieldASTs as $providedFieldAST) {
+                if (empty($fields[$providedFieldAST->name->value])) {
+                    $errors[] = "In field \"{$providedFieldAST->name->value}\": Unknown field.";
                 }
             }
-            foreach ($fieldASTs as $fieldAST) {
-                if (empty($fields[$fieldAST->name->value]) || !static::isValidLiteralValue($fieldAST->value, $fields[$fieldAST->name->value]->getType())) {
-                    return false;
+
+            // Ensure every defined field is valid.
+            $fieldASTMap = Utils::keyMap($fieldASTs, function($fieldAST) {return $fieldAST->name->value;});
+            foreach ($fields as $fieldName => $field) {
+                $result = static::isValidLiteralValue(
+                    $field->getType(),
+                    isset($fieldASTMap[$fieldName]) ? $fieldASTMap[$fieldName]->value : null
+                );
+                if ($result) {
+                    $errors = array_merge($errors, Utils::map($result, function($error) use ($fieldName) {
+                        return "In field \"$fieldName\": $error";
+                    }));
                 }
             }
-            return true;
+
+            return $errors;
         }
 
-        // Any other kind of type is not an input type, and a literal cannot be used.
-        return false;
+        Utils::invariant(
+            $type instanceof ScalarType || $type instanceof EnumType,
+            'Must be input type'
+        );
+
+        // Scalar/Enum input checks to ensure the type can parse the value to
+        // a non-null value.
+        $parseResult = $type->parseLiteral($valueAST);
+
+        if (null === $parseResult) {
+            $printed = Printer::doPrint($valueAST);
+            return [ "Expected type \"{$type->name}\", found $printed." ];
+        }
+
+        return [];
     }
 
     /**
@@ -205,14 +245,23 @@ class DocumentValidator
      * while maintaining the visitor skip and break API.
      *
      * @param Schema $schema
+     * @param TypeInfo $typeInfo
      * @param Document $documentAST
      * @param array $rules
      * @return array
      */
-    public static function visitUsingRules(Schema $schema, Document $documentAST, array $rules)
+    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, Document $documentAST, array $rules)
     {
-        $typeInfo = new TypeInfo($schema);
         $context = new ValidationContext($schema, $documentAST, $typeInfo);
+        $visitors = [];
+        foreach ($rules as $rule) {
+            $visitors[] = $rule($context);
+        }
+        Visitor::visit($documentAST, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
+        return $context->getErrors();
+
+
+
         $errors = [];
 
         // TODO: convert to class
@@ -237,7 +286,7 @@ class DocumentValidator
                         if ($node->kind === Node::FRAGMENT_DEFINITION && $key !== null && !empty($instances[$i]['visitSpreadFragments'])) {
                             $result = Visitor::skipNode();
                         } else {
-                            $enter = Visitor::getVisitFn($instances[$i], false, $node->kind);
+                            $enter = Visitor::getVisitFn($instances[$i], $node->kind, false);
                             if ($enter instanceof \Closure) {
                                 // $enter = $enter->bindTo($instances[$i]);
                                 $result = call_user_func_array($enter, func_get_args());
@@ -266,7 +315,7 @@ class DocumentValidator
                         } else if ($result && static::isError($result)) {
                             static::append($errors, $result);
                             for ($j = $i - 1; $j >= 0; $j--) {
-                                $leaveFn = Visitor::getVisitFn($instances[$j], true, $node->kind);
+                                $leaveFn = Visitor::getVisitFn($instances[$j], $node->kind, true);
                                 if ($leaveFn) {
                                     // $leaveFn = $leaveFn->bindTo($instances[$j])
                                     $result = call_user_func_array($leaveFn, func_get_args());
@@ -316,7 +365,7 @@ class DocumentValidator
                             }
                             continue;
                         }
-                        $leaveFn = Visitor::getVisitFn($instances[$i], true, $node->kind);
+                        $leaveFn = Visitor::getVisitFn($instances[$i], $node->kind, true);
 
                         if ($leaveFn) {
                             // $leaveFn = $leaveFn.bindTo($instances[$i]);

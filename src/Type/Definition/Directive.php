@@ -5,6 +5,16 @@ class Directive
 {
     public static $internalDirectives;
 
+    public static $directiveLocations = [
+        'QUERY' => 'QUERY',
+        'MUTATION' => 'MUTATION',
+        'SUBSCRIPTION' => 'SUBSCRIPTION',
+        'FIELD' => 'FIELD',
+        'FRAGMENT_DEFINITION' => 'FRAGMENT_DEFINITION',
+        'FRAGMENT_SPREAD' => 'FRAGMENT_SPREAD',
+        'INLINE_FRAGMENT' => 'INLINE_FRAGMENT',
+    ];
+
     /**
      * @return Directive
      */
@@ -30,6 +40,11 @@ class Directive
                 'include' => new self([
                     'name' => 'include',
                     'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
+                    'locations' => [
+                        self::$directiveLocations['FIELD'],
+                        self::$directiveLocations['FRAGMENT_SPREAD'],
+                        self::$directiveLocations['INLINE_FRAGMENT'],
+                    ],
                     'args' => [
                         new FieldArgument([
                             'name' => 'if',
@@ -37,23 +52,22 @@ class Directive
                             'description' => 'Included when true.'
                         ])
                     ],
-                    'onOperation' => false,
-                    'onFragment' => true,
-                    'onField' => true
                 ]),
                 'skip' => new self([
                     'name' => 'skip',
                     'description' => 'Directs the executor to skip this field or fragment when the `if` argument is true.',
+                    'locations' => [
+                        self::$directiveLocations['FIELD'],
+                        self::$directiveLocations['FRAGMENT_SPREAD'],
+                        self::$directiveLocations['INLINE_FRAGMENT']
+                    ],
                     'args' => [
                         new FieldArgument([
                             'name' => 'if',
                             'type' => Type::nonNull(Type::boolean()),
                             'description' => 'Skipped when true'
                         ])
-                    ],
-                    'onOperation' => false,
-                    'onFragment' => true,
-                    'onField' => true
+                    ]
                 ])
             ];
         }
@@ -71,24 +85,16 @@ class Directive
     public $description;
 
     /**
+     * Values from self::$locationMap
+     *
+     * @var array
+     */
+    public $locations;
+
+    /**
      * @var FieldArgument[]
      */
     public $args;
-
-    /**
-     * @var boolean
-     */
-    public $onOperation;
-
-    /**
-     * @var boolean
-     */
-    public $onFragment;
-
-    /**
-     * @var boolean
-     */
-    public $onField;
 
     public function __construct(array $config)
     {

@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL;
 
+use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -16,37 +17,128 @@ use GraphQL\Type\Introspection;
 
 class Schema
 {
-    protected $querySchema;
+    /**
+     * @var ObjectType
+     */
+    protected $_queryType;
 
-    protected $mutationSchema;
+    /**
+     * @var ObjectType
+     */
+    protected $_mutationType;
 
-    protected $subscriptionSchema;
+    /**
+     * @var ObjectType
+     */
+    protected $_subscriptionType;
 
-    protected $_typeMap;
-
+    /**
+     * @var Directive[]
+     */
     protected $_directives;
 
-    public function __construct(Type $querySchema = null, Type $mutationSchema = null, Type $subscriptionSchema = null)
-    {
-        Utils::invariant($querySchema || $mutationSchema, "Either query or mutation type must be set");
-        $this->querySchema = $querySchema;
-        $this->mutationSchema = $mutationSchema;
-        $this->subscriptionSchema = $subscriptionSchema;
+    /**
+     * @var array<string, Type>
+     */
+    protected $_typeMap;
 
-        InterfaceType::loadImplementationToInterfaces();
+    /**
+     * @var array<string, ObjectType[]>
+     */
+    protected $_implementations;
+
+    /**
+     * @var array<string, array<string, boolean>>
+     */
+    protected $_possibleTypeMap;
+
+    /**
+     * Schema constructor.
+     * @param array $config
+     */
+    public function __construct($config = null)
+    {
+        if (func_num_args() > 1 || $config instanceof Type) {
+            trigger_error(
+                'GraphQL\Schema constructor expects config object now instead of types passed as arguments. '.
+                'See https://github.com/webonyx/graphql-php/issues/36',
+                E_USER_DEPRECATED
+            );
+            list($queryType, $mutationType, $subscriptionType) = func_get_args();
+
+            $config = [
+                'query' => $queryType,
+                'mutation' => $mutationType,
+                'subscription' => $subscriptionType
+            ];
+        }
+
+        $this->_init($config);
+    }
+
+    protected function _init(array $config)
+    {
+        Utils::invariant(isset($config['query']) || isset($config['mutation']), "Either query or mutation type must be set");
+
+        $config += [
+            'query' => null,
+            'mutation' => null,
+            'subscription' => null,
+            'directives' => [],
+            'validate' => true
+        ];
+
+        $this->_queryType = $config['query'];
+        $this->_mutationType = $config['mutation'];
+        $this->_subscriptionType = $config['subscription'];
+
+        $this->_directives = array_merge($config['directives'], [
+            Directive::includeDirective(),
+            Directive::skipDirective()
+        ]);
 
         // Build type map now to detect any errors within this schema.
+        $initialTypes = [
+            $config['query'],
+            $config['mutation'],
+            $config['subscription'],
+            Introspection::_schema()
+        ];
+        if (!empty($config['types'])) {
+            $initialTypes = array_merge($initialTypes, $config['types']);
+        }
+
         $map = [];
-        foreach ([$this->getQueryType(), $this->getMutationType(), Introspection::_schema()] as $type) {
+        foreach ($initialTypes as $type) {
             $this->_extractTypes($type, $map);
         }
         $this->_typeMap = $map + Type::getInternalTypes();
 
+        // Keep track of all implementations by interface name.
+        $this->_implementations = [];
+        foreach ($this->_typeMap as $typeName => $type) {
+            if ($type instanceof ObjectType) {
+                foreach ($type->getInterfaces() as $iface) {
+                    $this->_implementations[$iface->name][] = $type;
+                }
+            }
+        }
+
+        if ($config['validate']) {
+            $this->validate();
+        }
+    }
+
+    /**
+     * Additionaly validate schema for integrity
+     */
+    public function validate()
+    {
         // Enforce correct interface implementations
         foreach ($this->_typeMap as $typeName => $type) {
             if ($type instanceof ObjectType) {
                 foreach ($type->getInterfaces() as $iface) {
-                    $this->assertObjectImplementsInterface($type, $iface);
+                    $this->_assertObjectImplementsInterface($type, $iface);
                 }
             }
         }
@@ -57,7 +149,7 @@ class Schema
      * @param InterfaceType $iface
      * @throws \Exception
      */
-    private function assertObjectImplementsInterface(ObjectType $object, InterfaceType $iface)
+    protected function _assertObjectImplementsInterface(ObjectType $object, InterfaceType $iface)
     {
         $objectFieldMap = $object->getFields();
         $ifaceFieldMap = $iface->getFields();
@@ -73,7 +165,7 @@ class Schema
             $objectField = $objectFieldMap[$fieldName];
 
             Utils::invariant(
-                $this->isEqualType($ifaceField->getType(), $objectField->getType()),
+                $this->_isEqualType($ifaceField->getType(), $objectField->getType()),
                 "$iface.$fieldName expects type \"{$ifaceField->getType()}\" but " .
                 "$object.$fieldName provides type \"{$objectField->getType()}"
             );
@@ -93,7 +185,7 @@ class Schema
                 // Assert interface field arg type matches object field arg type.
                 // (invariant)
                 Utils::invariant(
-                    $this->isEqualType($ifaceArg->getType(), $objectArg->getType()),
+                    $this->_isEqualType($ifaceArg->getType(), $objectArg->getType()),
                     "$iface.$fieldName($argName:) expects type \"{$ifaceArg->getType()}\" " .
                     "but $object.$fieldName($argName:) provides " .
                     "type \"{$objectArg->getType()}\""
@@ -118,35 +210,105 @@ class Schema
      * @param $typeB
      * @return bool
      */
-    private function isEqualType($typeA, $typeB)
+    protected function _isEqualType($typeA, $typeB)
     {
         if ($typeA instanceof NonNull && $typeB instanceof NonNull) {
-            return $this->isEqualType($typeA->getWrappedType(), $typeB->getWrappedType());
+            return $this->_isEqualType($typeA->getWrappedType(), $typeB->getWrappedType());
         }
         if ($typeA instanceof ListOfType && $typeB instanceof ListOfType) {
-            return $this->isEqualType($typeA->getWrappedType(), $typeB->getWrappedType());
+            return $this->_isEqualType($typeA->getWrappedType(), $typeB->getWrappedType());
         }
         return $typeA === $typeB;
     }
 
+    /**
+     * @return ObjectType
+     */
     public function getQueryType()
     {
-        return $this->querySchema;
+        return $this->_queryType;
     }
 
+    /**
+     * @return ObjectType
+     */
     public function getMutationType()
     {
-        return $this->mutationSchema;
+        return $this->_mutationType;
     }
 
+    /**
+     * @return ObjectType
+     */
     public function getSubscriptionType()
     {
-        return $this->subscriptionSchema;
+        return $this->_subscriptionType;
+    }
+
+    /**
+     * @return array
+     */
+    public function getTypeMap()
+    {
+        return $this->_typeMap;
+    }
+
+    /**
+     * @param string $name
+     * @return Type
+     */
+    public function getType($name)
+    {
+        $map = $this->getTypeMap();
+        return isset($map[$name]) ? $map[$name] : null;
+    }
+
+    /**
+     * @param AbstractType $abstractType
+     * @return ObjectType[]
+     */
+    public function getPossibleTypes(AbstractType $abstractType)
+    {
+        if ($abstractType instanceof UnionType) {
+            return $abstractType->getTypes();
+        }
+        Utils::invariant($abstractType instanceof InterfaceType);
+        return $this->_implementations[$abstractType->name];
+    }
+
+    /**
+     * @param AbstractType $abstractType
+     * @param ObjectType $possibleType
+     * @return bool
+     */
+    public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType)
+    {
+        if (null === $this->_possibleTypeMap) {
+            $this->_possibleTypeMap = [];
+        }
+
+        if (!isset($this->_possibleTypeMap[$abstractType->name])) {
+            $tmp = [];
+            foreach ($this->getPossibleTypes($abstractType) as $type) {
+                $tmp[$type->name] = true;
+            }
+            $this->_possibleTypeMap[$abstractType->name] = $tmp;
+        }
+
+        return !empty($this->_possibleTypeMap[$abstractType->name][$possibleType->name]);
+    }
+
+    /**
+     * @return Directive[]
+     */
+    public function getDirectives()
+    {
+        return $this->_directives;
     }
 
     /**
      * @param $name
-     * @return null
+     * @return Directive
      */
     public function getDirective($name)
     {
@@ -158,26 +320,7 @@ class Schema
         return null;
     }
 
-    /**
-     * @return array<Directive>
-     */
-    public function getDirectives()
-    {
-        if (!$this->_directives) {
-            $this->_directives = [
-                Directive::includeDirective(),
-                Directive::skipDirective()
-            ];
-        }
-        return $this->_directives;
-    }
-
-    public function getTypeMap()
-    {
-        return $this->_typeMap;
-    }
-
-    private function _extractTypes($type, &$map)
+    protected function _extractTypes($type, &$map)
     {
         if (!$type) {
             return $map;
@@ -198,8 +341,8 @@ class Schema
 
         $nestedTypes = [];
 
-        if ($type instanceof InterfaceType || $type instanceof UnionType) {
-            $nestedTypes = $type->getPossibleTypes();
+        if ($type instanceof UnionType) {
+            $nestedTypes = $type->getTypes();
         }
         if ($type instanceof ObjectType) {
             $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
@@ -217,11 +360,5 @@ class Schema
             $this->_extractTypes($type, $map);
         }
         return $map;
-    }
-
-    public function getType($name)
-    {
-        $map = $this->getTypeMap();
-        return isset($map[$name]) ? $map[$name] : null;
     }
 }

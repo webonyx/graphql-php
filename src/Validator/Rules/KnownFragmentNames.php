@@ -21,10 +21,10 @@ class KnownFragmentNames
                 $fragmentName = $node->name->value;
                 $fragment = $context->getFragment($fragmentName);
                 if (!$fragment) {
-                    return new Error(
+                    $context->reportError(new Error(
                         self::unknownFragmentMessage($fragmentName),
                         [$node->name]
-                    );
+                    ));
                 }
             }
         ];

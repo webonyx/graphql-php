@@ -23,62 +23,43 @@ use GraphQL\Validator\ValidationContext;
  */
 class NoUndefinedVariables
 {
-    static function undefinedVarMessage($varName)
+    static function undefinedVarMessage($varName, $opName = null)
     {
-        return "Variable \"$$varName\" is not defined.";
-    }
-
-    static function undefinedVarByOpMessage($varName, $opName)
-    {
-        return "Variable \"$$varName\" is not defined by operation \"$opName\".";
+        return $opName
+            ? "Variable \"$$varName\" is not defined by operation \"$opName\"."
+            : "Variable \"$$varName\" is not defined.";
     }
 
     public function __invoke(ValidationContext $context)
     {
-        $operation = null;
-        $visitedFragmentNames = [];
-        $definedVariableNames = [];
+        $variableNameDefined = [];
 
         return [
-            // Visit FragmentDefinition after visiting FragmentSpread
-            'visitSpreadFragments' => true,
+            Node::OPERATION_DEFINITION => [
+                'enter' => function() use (&$variableNameDefined) {
+                    $variableNameDefined = [];
+                },
+                'leave' => function(OperationDefinition $operation) use (&$variableNameDefined, $context) {
+                    $usages = $context->getRecursiveVariableUsages($operation);
 
-            Node::OPERATION_DEFINITION => function(OperationDefinition $node, $key, $parent, $path, $ancestors) use (&$operation, &$visitedFragmentNames, &$definedVariableNames) {
-                $operation = $node;
-                $visitedFragmentNames = [];
-                $definedVariableNames = [];
-            },
-            Node::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$definedVariableNames) {
-                $definedVariableNames[$def->variable->name->value] = true;
-            },
-            Node::VARIABLE => function(Variable $variable, $key, $parent, $path, $ancestors) use (&$definedVariableNames, &$visitedFragmentNames, &$operation) {
-                $varName = $variable->name->value;
-                if (empty($definedVariableNames[$varName])) {
-                    $withinFragment = false;
-                    foreach ($ancestors as $ancestor) {
-                        if ($ancestor instanceof FragmentDefinition) {
-                            $withinFragment = true;
-                            break;
+                    foreach ($usages as $usage) {
+                        $node = $usage['node'];
+                        $varName = $node->name->value;
+
+                        if (empty($variableNameDefined[$varName])) {
+                            $context->reportError(new Error(
+                                self::undefinedVarMessage(
+                                    $varName,
+                                    $operation->name ? $operation->name->value : null
+                                ),
+                                [ $node, $operation ]
+                            ));
                         }
                     }
-                    if ($withinFragment && $operation && $operation->name) {
-                        return new Error(
-                            self::undefinedVarByOpMessage($varName, $operation->name->value),
-                            [$variable, $operation]
-                        );
-                    }
-                    return new Error(
-                        self::undefinedVarMessage($varName),
-                        [$variable]
-                    );
                 }
-            },
-            Node::FRAGMENT_SPREAD => function(FragmentSpread $spreadAST) use (&$visitedFragmentNames) {
-                // Only visit fragments of a particular name once per operation
-                if (!empty($visitedFragmentNames[$spreadAST->name->value])) {
-                    return Visitor::skipNode();
-                }
-                $visitedFragmentNames[$spreadAST->name->value] = true;
+            ],
+            Node::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$variableNameDefined) {
+                $variableNameDefined[$def->variable->name->value] = true;
             }
         ];
     }

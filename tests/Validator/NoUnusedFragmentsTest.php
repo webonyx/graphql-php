@@ -8,6 +8,10 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 class NoUnusedFragmentsTest extends TestCase
 {
     // Validate: No unused fragments
+
+    /**
+     * @it all fragment names are used
+     */
     public function testAllFragmentNamesAreUsed()
     {
         $this->expectPassesRule(new NoUnusedFragments(), '
@@ -32,6 +36,9 @@ class NoUnusedFragmentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it all fragment names are used by multiple operations
+     */
     public function testAllFragmentNamesAreUsedByMultipleOperations()
     {
         $this->expectPassesRule(new NoUnusedFragments, '
@@ -58,6 +65,9 @@ class NoUnusedFragmentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it contains unknown fragments
+     */
     public function testContainsUnknownFragments()
     {
         $this->expectFailsRule(new NoUnusedFragments, '
@@ -93,6 +103,9 @@ class NoUnusedFragmentsTest extends TestCase
         ]);
     }
 
+    /**
+     * @it contains unknown fragments with ref cycle
+     */
     public function testContainsUnknownFragmentsWithRefCycle()
     {
         $this->expectFailsRule(new NoUnusedFragments, '
@@ -130,6 +143,9 @@ class NoUnusedFragmentsTest extends TestCase
         ]);
     }
 
+    /**
+     * @it contains unknown and undef fragments
+     */
     public function testContainsUnknownAndUndefFragments()
     {
 

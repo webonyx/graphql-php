@@ -27,10 +27,10 @@ class VariablesAreInputTypes
                 // If the variable type is not an input type, return an error.
                 if ($type && !Type::isInputType($type)) {
                     $variableName = $node->variable->name->value;
-                    return new Error(
+                    $context->reportError(new Error(
                         self::nonInputTypeOnVarMessage($variableName, Printer::doPrint($node->type)),
                         [ $node->type ]
-                    );
+                    ));
                 }
             }
         ];

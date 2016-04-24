@@ -8,6 +8,10 @@ use GraphQL\Validator\Rules\KnownArgumentNames;
 class KnownArgumentNamesTest extends TestCase
 {
     // Validate: Known argument names:
+
+    /**
+     * @it single arg is known
+     */
     public function testSingleArgIsKnown()
     {
         $this->expectPassesRule(new KnownArgumentNames, '
@@ -17,6 +21,9 @@ class KnownArgumentNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it multiple args are known
+     */
     public function testMultipleArgsAreKnown()
     {
         $this->expectPassesRule(new KnownArgumentNames, '
@@ -26,6 +33,9 @@ class KnownArgumentNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it ignores args of unknown fields
+     */
     public function testIgnoresArgsOfUnknownFields()
     {
         $this->expectPassesRule(new KnownArgumentNames, '
@@ -35,6 +45,9 @@ class KnownArgumentNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it multiple args in reverse order are known
+     */
     public function testMultipleArgsInReverseOrderAreKnown()
     {
         $this->expectPassesRule(new KnownArgumentNames, '
@@ -44,6 +57,9 @@ class KnownArgumentNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it no args on optional arg
+     */
     public function testNoArgsOnOptionalArg()
     {
         $this->expectPassesRule(new KnownArgumentNames, '
@@ -53,6 +69,9 @@ class KnownArgumentNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it args are known deeply
+     */
     public function testArgsAreKnownDeeply()
     {
         $this->expectPassesRule(new KnownArgumentNames, '
@@ -71,6 +90,9 @@ class KnownArgumentNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it directive args are known
+     */
     public function testDirectiveArgsAreKnown()
     {
         $this->expectPassesRule(new KnownArgumentNames, '
@@ -80,6 +102,9 @@ class KnownArgumentNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it undirective args are invalid
+     */
     public function testUndirectiveArgsAreInvalid()
     {
         $this->expectFailsRule(new KnownArgumentNames, '
@@ -91,6 +116,9 @@ class KnownArgumentNamesTest extends TestCase
         ]);
     }
 
+    /**
+     * @it invalid arg name
+     */
     public function testInvalidArgName()
     {
         $this->expectFailsRule(new KnownArgumentNames, '
@@ -102,6 +130,9 @@ class KnownArgumentNamesTest extends TestCase
         ]);
     }
 
+    /**
+     * @it unknown args amongst known args
+     */
     public function testUnknownArgsAmongstKnownArgs()
     {
         $this->expectFailsRule(new KnownArgumentNames, '
@@ -114,6 +145,9 @@ class KnownArgumentNamesTest extends TestCase
         ]);
     }
 
+    /**
+     * @it unknown args deeply
+     */
     public function testUnknownArgsDeeply()
     {
         $this->expectFailsRule(new KnownArgumentNames, '

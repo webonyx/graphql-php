@@ -33,7 +33,6 @@ class ProvidedNonNullArguments
                     if (!$fieldDef) {
                         return Visitor::skipNode();
                     }
-                    $errors = [];
                     $argASTs = $fieldAST->arguments ?: [];
 
                     $argASTMap = [];
@@ -43,15 +42,11 @@ class ProvidedNonNullArguments
                     foreach ($fieldDef->args as $argDef) {
                         $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
                         if (!$argAST && $argDef->getType() instanceof NonNull) {
-                            $errors[] = new Error(
+                            $context->reportError(new Error(
                                 self::missingFieldArgMessage($fieldAST->name->value, $argDef->name, $argDef->getType()),
                                 [$fieldAST]
-                            );
+                            ));
                         }
-                    }
-
-                    if (!empty($errors)) {
-                        return $errors;
                     }
                 }
             ],
@@ -61,7 +56,6 @@ class ProvidedNonNullArguments
                     if (!$directiveDef) {
                         return Visitor::skipNode();
                     }
-                    $errors = [];
                     $argASTs = $directiveAST->arguments ?: [];
                     $argASTMap = [];
                     foreach ($argASTs as $argAST) {
@@ -71,14 +65,11 @@ class ProvidedNonNullArguments
                     foreach ($directiveDef->args as $argDef) {
                         $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
                         if (!$argAST && $argDef->getType() instanceof NonNull) {
-                            $errors[] = new Error(
+                            $context->reportError(new Error(
                                 self::missingDirectiveArgMessage($directiveAST->name->value, $argDef->name, $argDef->getType()),
                                 [$directiveAST]
-                            );
+                            ));
                         }
-                    }
-                    if (!empty($errors)) {
-                        return $errors;
                     }
                 }
             ]

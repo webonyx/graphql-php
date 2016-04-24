@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -43,12 +44,24 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ],
         ]);
 
+        $Canine = new InterfaceType([
+            'name' => 'Canine',
+            'fields' => function() {
+                return [
+                    'name' => [
+                        'type' => Type::string(),
+                        'args' => ['surname' => ['type' => Type::boolean()]]
+                    ]
+                ];
+            }
+        ]);
+
         $DogCommand = new EnumType([
             'name' => 'DogCommand',
             'values' => [
                 'SIT' => ['value' => 0],
                 'HEEL' => ['value' => 1],
-                'DOWN' => ['value' => 3]
+                'DOWN' => ['value' => 2]
             ]
         ]);
 
@@ -76,7 +89,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                     'args' => ['x' => ['type' => Type::int()], 'y' => ['type' => Type::int()]]
                 ]
             ],
-            'interfaces' => [$Being, $Pet]
+            'interfaces' => [$Being, $Pet, $Canine]
         ]);
 
         $Cat = new ObjectType([
@@ -277,7 +290,15 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $defaultSchema = new Schema($queryRoot);
+        $defaultSchema = new Schema([
+            'query' => $queryRoot,
+            'directives' => [
+                new Directive([
+                    'name' => 'operationOnly',
+                    'locations' => [ 'QUERY' ],
+                ])
+            ]
+        ]);
         return $defaultSchema;
     }
 

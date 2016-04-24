@@ -9,6 +9,9 @@ class KnownTypeNamesTest extends TestCase
 {
     // Validate: Known type names
 
+    /**
+     * @it known type names are valid
+     */
     public function testKnownTypeNamesAreValid()
     {
         $this->expectPassesRule(new KnownTypeNames, '
@@ -23,6 +26,9 @@ class KnownTypeNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it unknown type names are invalid
+     */
     public function testUnknownTypeNamesAreInvalid()
     {
         $this->expectFailsRule(new KnownTypeNames, '
@@ -39,6 +45,32 @@ class KnownTypeNamesTest extends TestCase
             $this->unknownType('JumbledUpLetters', 2, 23),
             $this->unknownType('Badger', 5, 25),
             $this->unknownType('Peettt', 8, 29)
+        ]);
+    }
+
+    /**
+     * @it ignores type definitions
+     */
+    public function testIgnoresTypeDefinitions()
+    {
+        $this->expectFailsRule(new KnownTypeNames, '
+      type NotInTheSchema {
+        field: FooBar
+      }
+      interface FooBar {
+        field: NotInTheSchema
+      }
+      union U = A | B
+      input Blob {
+        field: UnknownType
+      }
+      query Foo($var: NotInTheSchema) {
+        user(id: $var) {
+          id
+        }
+      }
+    ', [
+            $this->unknownType('NotInTheSchema', 12, 23),
         ]);
     }
 

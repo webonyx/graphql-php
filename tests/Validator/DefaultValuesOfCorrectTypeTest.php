@@ -10,6 +10,9 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
 {
     // Validate: Variable default values of correct type
 
+    /**
+     * @it variables with no default values
+     */
     public function testVariablesWithNoDefaultValues()
     {
         $this->expectPassesRule(new DefaultValuesOfCorrectType, '
@@ -19,6 +22,9 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
         ');
     }
 
+    /**
+     * @it required variables without default values
+     */
     public function testRequiredVariablesWithoutDefaultValues()
     {
         $this->expectPassesRule(new DefaultValuesOfCorrectType, '
@@ -28,6 +34,9 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
         ');
     }
 
+    /**
+     * @it variables with valid default values
+     */
     public function testVariablesWithValidDefaultValues()
     {
         $this->expectPassesRule(new DefaultValuesOfCorrectType, '
@@ -41,6 +50,9 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
         ');
     }
 
+    /**
+     * @it no required variables with default values
+     */
     public function testNoRequiredVariablesWithDefaultValues()
     {
         $this->expectFailsRule(new DefaultValuesOfCorrectType, '
@@ -53,6 +65,9 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
         ]);
     }
 
+    /**
+     * @it variables with invalid default values
+     */
     public function testVariablesWithInvalidDefaultValues()
     {
         $this->expectFailsRule(new DefaultValuesOfCorrectType, '
@@ -64,12 +79,21 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
         dog { name }
       }
         ', [
-            $this->badValue('a', 'Int', '"one"', 3, 19),
-            $this->badValue('b', 'String', '4', 4, 22),
-            $this->badValue('c', 'ComplexInput', '"notverycomplex"', 5, 28)
+            $this->badValue('a', 'Int', '"one"', 3, 19, [
+                'Expected type "Int", found "one".'
+            ]),
+            $this->badValue('b', 'String', '4', 4, 22, [
+                'Expected type "String", found 4.'
+            ]),
+            $this->badValue('c', 'ComplexInput', '"notverycomplex"', 5, 28, [
+                'Expected "ComplexInput", found not an object.'
+            ])
         ]);
     }
 
+    /**
+     * @it complex variables missing required field
+     */
     public function testComplexVariablesMissingRequiredField()
     {
         $this->expectFailsRule(new DefaultValuesOfCorrectType, '
@@ -77,10 +101,15 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
         dog { name }
       }
         ', [
-            $this->badValue('a', 'ComplexInput', '{intField: 3}', 2, 53)
+            $this->badValue('a', 'ComplexInput', '{intField: 3}', 2, 53, [
+                'In field "requiredField": Expected "Boolean!", found null.'
+            ])
         ]);
     }
 
+    /**
+     * @it list variables with invalid item
+     */
     public function testListVariablesWithInvalidItem()
     {
         $this->expectFailsRule(new DefaultValuesOfCorrectType, '
@@ -88,22 +117,26 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
         dog { name }
       }
         ', [
-            $this->badValue('a', '[String]', '["one", 2]', 2, 40)
+            $this->badValue('a', '[String]', '["one", 2]', 2, 40, [
+                'In element #1: Expected type "String", found 2.'
+            ])
         ]);
     }
 
     private function defaultForNonNullArg($varName, $typeName, $guessTypeName, $line, $column)
     {
         return FormattedError::create(
-            Messages::defaultForNonNullArgMessage($varName, $typeName, $guessTypeName),
+            DefaultValuesOfCorrectType::defaultForNonNullArgMessage($varName, $typeName, $guessTypeName),
             [ new SourceLocation($line, $column) ]
         );
     }
 
-    private function badValue($varName, $typeName, $val, $line, $column)
+    private function badValue($varName, $typeName, $val, $line, $column, $errors = null)
     {
+        $realErrors = !$errors ? ["Expected type \"$typeName\", found $val."] : $errors;
+
         return FormattedError::create(
-            Messages::badValueForDefaultArgMessage($varName, $typeName, $val),
+            DefaultValuesOfCorrectType::badValueForDefaultArgMessage($varName, $typeName, $val, $realErrors),
             [ new SourceLocation($line, $column) ]
         );
     }
