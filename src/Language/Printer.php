@@ -3,6 +3,13 @@ namespace GraphQL\Language;
 
 
 use GraphQL\Language\AST\Argument;
+use GraphQL\Language\AST\DirectiveDefinition;
+use GraphQL\Language\AST\EnumTypeDefinition;
+use GraphQL\Language\AST\EnumValueDefinition;
+use GraphQL\Language\AST\FieldDefinition;
+use GraphQL\Language\AST\InputObjectTypeDefinition;
+use GraphQL\Language\AST\InputValueDefinition;
+use GraphQL\Language\AST\InterfaceTypeDefinition;
 use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\BooleanValue;
 use GraphQL\Language\AST\Directive;
@@ -19,10 +26,16 @@ use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Language\AST\ObjectField;
+use GraphQL\Language\AST\ObjectTypeDefinition;
 use GraphQL\Language\AST\ObjectValue;
 use GraphQL\Language\AST\OperationDefinition;
+use GraphQL\Language\AST\OperationTypeDefinition;
+use GraphQL\Language\AST\ScalarTypeDefinition;
+use GraphQL\Language\AST\SchemaDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\TypeExtensionDefinition;
+use GraphQL\Language\AST\UnionTypeDefinition;
 use GraphQL\Language\AST\VariableDefinition;
 
 class Printer
@@ -31,17 +44,20 @@ class Printer
     {
         return Visitor::visit($ast, array(
             'leave' => array(
-                Node::NAME => function($node) {return $node->value . '';},
+                Node::NAME => function($node) {return '' . $node->value;},
                 Node::VARIABLE => function($node) {return '$' . $node->name;},
                 Node::DOCUMENT => function(Document $node) {return self::join($node->definitions, "\n\n") . "\n";},
                 Node::OPERATION_DEFINITION => function(OperationDefinition $node) {
                     $op = $node->operation;
                     $name = $node->name;
-                    $defs = self::wrap('(', self::join($node->variableDefinitions, ', '), ')');
+                    $varDefs = self::wrap('(', self::join($node->variableDefinitions, ', '), ')');
                     $directives = self::join($node->directives, ' ');
                     $selectionSet = $node->selectionSet;
-                    return !$name ? $selectionSet :
-                        self::join([$op, self::join([$name, $defs]), $directives, $selectionSet], ' ');
+                    // Anonymous queries with no directives or variable definitions can use
+                    // the query short form.
+                    return !$name && !$directives && !$varDefs && $op === 'query'
+                        ? $selectionSet
+                        : self::join([$op, self::join([$name, $varDefs]), $directives, $selectionSet], ' ');
                 },
                 Node::VARIABLE_DEFINITION => function(VariableDefinition $node) {
                     return $node->variable . ': ' . $node->type . self::wrap(' = ', $node->defaultValue);
@@ -55,25 +71,6 @@ class Printer
                         self::join($node->directives, ' '),
                         $node->selectionSet
                     ], ' ');
-                    /*
-                    $r11 = self::join([
-                        $node->alias,
-                        $node->name
-                    ], ': ');
-
-                    $r1 = self::join([
-                        $r11,
-                        self::manyList('(', $node->arguments, ', ', ')')
-                    ]);
-
-                    $r2 = self::join($node->directives, ' ');
-
-                    return self::join([
-                        $r1,
-                        $r2,
-                        $node->selectionSet
-                    ], ' ');
-                    */
                 },
                 Node::ARGUMENT => function(Argument $node) {
                     return $node->name . ': ' . $node->value;
@@ -84,9 +81,12 @@ class Printer
                     return '...' . $node->name . self::wrap(' ', self::join($node->directives, ' '));
                 },
                 Node::INLINE_FRAGMENT => function(InlineFragment $node) {
-                    return "... on {$node->typeCondition} "
-                        . self::wrap('', self::join($node->directives, ' '), ' ')
-                        . $node->selectionSet;
+                    return self::join([
+                        "...",
+                        self::wrap('on ', $node->typeCondition),
+                        self::join($node->directives, ' '),
+                        $node->selectionSet
+                    ], ' ');
                 },
                 Node::FRAGMENT_DEFINITION => function(FragmentDefinition $node) {
                     return "fragment {$node->name} on {$node->typeCondition} "
@@ -112,7 +112,42 @@ class Printer
                 // Type
                 Node::NAMED_TYPE => function(NamedType $node) {return $node->name;},
                 Node::LIST_TYPE => function(ListType $node) {return '[' . $node->type . ']';},
-                Node::NON_NULL_TYPE => function(NonNullType $node) {return $node->type . '!';}
+                Node::NON_NULL_TYPE => function(NonNullType $node) {return $node->type . '!';},
+
+                // Type System Definitions
+                Node::SCHEMA_DEFINITION => function(SchemaDefinition $def) {return 'schema ' . self::block($def->operationTypes);},
+                Node::OPERATION_TYPE_DEFINITION => function(OperationTypeDefinition $def) {return $def->operation . ': ' . $def->type;},
+
+                Node::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinition $def) {return "scalar {$def->name}";},
+                Node::OBJECT_TYPE_DEFINITION => function(ObjectTypeDefinition $def) {
+                    return 'type ' . $def->name . ' ' .
+                        self::wrap('implements ', self::join($def->interfaces, ', '), ' ') .
+                        self::block($def->fields);
+                },
+                Node::FIELD_DEFINITION => function(FieldDefinition $def) {
+                    return $def->name . self::wrap('(', self::join($def->arguments, ', '), ')') . ': ' . $def->type;
+                },
+                Node::INPUT_VALUE_DEFINITION => function(InputValueDefinition $def) {
+                    return $def->name . ': ' . $def->type . self::wrap(' = ', $def->defaultValue);
+                },
+                Node::INTERFACE_TYPE_DEFINITION => function(InterfaceTypeDefinition $def) {
+                    return 'interface ' . $def->name . ' ' . self::block($def->fields);
+                },
+                Node::UNION_TYPE_DEFINITION => function(UnionTypeDefinition $def) {
+                    return 'union ' . $def->name . ' = ' . self::join($def->types, ' | ');
+                },
+                Node::ENUM_TYPE_DEFINITION => function(EnumTypeDefinition $def) {
+                    return 'enum ' . $def->name . ' ' . self::block($def->values);
+                },
+                Node::ENUM_VALUE_DEFINITION => function(EnumValueDefinition $def) {return $def->name;},
+                Node::INPUT_OBJECT_TYPE_DEFINITION => function(InputObjectTypeDefinition $def) {
+                    return 'input ' . $def->name . ' ' . self::block($def->fields);
+                },
+                Node::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinition $def) {return "extend {$def->definition}";},
+                Node::DIRECTIVE_DEFINITION => function(DirectiveDefinition $def) {
+                    return 'directive @' . $def->name . self::wrap('(', self::join($def->arguments, ', '), ')')
+                        . ' on ' . self::join($def->locations, ' | ');
+                }
             )
         ));
     }
@@ -132,7 +167,7 @@ class Printer
      */
     public static function block($maybeArray)
     {
-        return self::length($maybeArray) ? self::indent("{\n" . self::join($maybeArray, ",\n")) . "\n}" : '';
+        return self::length($maybeArray) ? self::indent("{\n" . self::join($maybeArray, "\n")) . "\n}" : '';
     }
 
     public static function indent($maybeString)

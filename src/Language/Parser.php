@@ -31,6 +31,7 @@ use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectTypeDefinition;
 use GraphQL\Language\AST\ObjectValue;
 use GraphQL\Language\AST\OperationDefinition;
+use GraphQL\Language\AST\OperationTypeDefinition;
 use GraphQL\Language\AST\ScalarTypeDefinition;
 use GraphQL\Language\AST\SchemaDefinition;
 use GraphQL\Language\AST\SelectionSet;
@@ -828,6 +829,20 @@ class Parser
 
         return new SchemaDefinition([
             'operationTypes' => $operationTypes,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    function parseOperationTypeDefinition()
+    {
+        $start = $this->token->start;
+        $operation = $this->parseOperationType();
+        $this->expect(Token::COLON);
+        $type = $this->parseNamedType();
+
+        return new OperationTypeDefinition([
+            'operation' => $operation,
+            'type' => $type,
             'loc' => $this->loc($start)
         ]);
     }

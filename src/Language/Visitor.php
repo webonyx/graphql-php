@@ -65,6 +65,22 @@ class Visitor
         Node::NAMED_TYPE => ['name'],
         Node::LIST_TYPE => ['type'],
         Node::NON_NULL_TYPE => ['type'],
+
+        Node::SCHEMA_DEFINITION => ['operationTypes'],
+        Node::OPERATION_TYPE_DEFINITION => ['type'],
+        Node::SCALAR_TYPE_DEFINITION => ['name'],
+        Node::OBJECT_TYPE_DEFINITION => ['name', 'interfaces', 'fields'],
+        Node::FIELD_DEFINITION => ['name', 'arguments', 'type'],
+        Node::INPUT_VALUE_DEFINITION => ['name', 'type', 'defaultValue'],
+        Node::INPUT_VALUE_DEFINITION => [ 'name', 'type', 'defaultValue' ],
+        Node::INTERFACE_TYPE_DEFINITION => [ 'name', 'fields' ],
+        Node::UNION_TYPE_DEFINITION => [ 'name', 'types' ],
+        Node::ENUM_TYPE_DEFINITION => [ 'name', 'values' ],
+
+        Node::ENUM_VALUE_DEFINITION => [ 'name' ],
+        Node::INPUT_OBJECT_TYPE_DEFINITION => [ 'name', 'fields' ],
+        Node::TYPE_EXTENSION_DEFINITION => [ 'definition' ],
+        Node::DIRECTIVE_DEFINITION => [ 'name', 'arguments', 'locations' ]
     );
 
     /**
