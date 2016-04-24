@@ -1,15 +1,91 @@
 <?php
 namespace GraphQL\Tests\Language;
 
+use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Visitor;
 
 class VisitorTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @it allows editing a node both on enter and on leave
+     */
+    public function testAllowsEditingNodeOnEnterAndOnLeave()
+    {
+        $ast = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
+
+        $selectionSet = null;
+        $editedAst = Visitor::visit($ast, [
+            Node::OPERATION_DEFINITION => [
+                'enter' => function(OperationDefinition $node) use (&$selectionSet) {
+                    $selectionSet = $node->selectionSet;
+
+                    $newNode = clone $node;
+                    $newNode->selectionSet = new SelectionSet([
+                        'selections' => []
+                    ]);
+                    $newNode->didEnter = true;
+                    return $newNode;
+                },
+                'leave' => function(OperationDefinition $node) use (&$selectionSet) {
+                    $newNode = clone $node;
+                    $newNode->selectionSet = $selectionSet;
+                    $newNode->didLeave = true;
+                    return $newNode;
+                }
+            ]
+        ]);
+
+        $this->assertNotEquals($ast, $editedAst);
+
+        $expected = $ast->cloneDeep();
+        $expected->definitions[0]->didEnter = true;
+        $expected->definitions[0]->didLeave = true;
+
+        $this->assertEquals($expected, $editedAst);
+    }
+
+    /**
+     * @it allows editing the root node on enter and on leave
+     */
+    public function testAllowsEditingRootNodeOnEnterAndLeave()
+    {
+        $ast = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
+        $definitions = $ast->definitions;
+
+        $editedAst = Visitor::visit($ast, [
+            Node::DOCUMENT => [
+                'enter' => function (Document $node) {
+                    $tmp = clone $node;
+                    $tmp->definitions = [];
+                    $tmp->didEnter = true;
+                    return $tmp;
+                },
+                'leave' => function(Document $node) use ($definitions) {
+                    $tmp = clone $node;
+                    $node->definitions = $definitions;
+                    $node->didLeave = true;
+                }
+            ]
+        ]);
+
+        $this->assertNotEquals($ast, $editedAst);
+
+        $tmp = $ast->cloneDeep();
+        $tmp->didEnter = true;
+        $tmp->didLeave = true;
+
+        $this->assertEquals($tmp, $editedAst);
+    }
+
+    /**
+     * @it allows for editing on enter
+     */
     public function testAllowsForEditingOnEnter()
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
@@ -31,6 +107,9 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @it allows for editing on leave
+     */
     public function testAllowsForEditingOnLeave()
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
@@ -53,6 +132,9 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @it visits edited node
+     */
     public function testVisitsEditedNode()
     {
         $addedField = new Field(array(
@@ -83,6 +165,9 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($didVisitAddedField);
     }
 
+    /**
+     * @it allows skipping a sub-tree
+     */
     public function testAllowsSkippingASubTree()
     {
         $visited = [];
@@ -121,6 +206,9 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $visited);
     }
 
+    /**
+     * @it allows early exit while visiting
+     */
     public function testAllowsEarlyExitWhileVisiting()
     {
         $visited = [];
@@ -157,6 +245,48 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $visited);
     }
 
+    /**
+     * @it allows early exit while leaving
+     */
+    public function testAllowsEarlyExitWhileLeaving()
+    {
+        $visited = [];
+
+        $ast = Parser::parse('{ a, b { x }, c }');
+        Visitor::visit($ast, [
+            'enter' => function($node) use (&$visited) {
+                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+            },
+            'leave' => function($node) use (&$visited) {
+                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+
+                if ($node->kind === Node::NAME && $node->value === 'x') {
+                    return Visitor::stop();
+                }
+            }
+        ]);
+
+        $this->assertEquals($visited, [
+            [ 'enter', 'Document', null ],
+            [ 'enter', 'OperationDefinition', null ],
+            [ 'enter', 'SelectionSet', null ],
+            [ 'enter', 'Field', null ],
+            [ 'enter', 'Name', 'a' ],
+            [ 'leave', 'Name', 'a' ],
+            [ 'leave', 'Field', null ],
+            [ 'enter', 'Field', null ],
+            [ 'enter', 'Name', 'b' ],
+            [ 'leave', 'Name', 'b' ],
+            [ 'enter', 'SelectionSet', null ],
+            [ 'enter', 'Field', null ],
+            [ 'enter', 'Name', 'x' ],
+            [ 'leave', 'Name', 'x' ]
+        ]);
+    }
+
+    /**
+     * @it allows a named functions visitor API
+     */
     public function testAllowsANamedFunctionsVisitorAPI()
     {
         $visited = [];
@@ -190,6 +320,9 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $visited);
     }
 
+    /**
+     * @it visits kitchen sink
+     */
     public function testVisitsKitchenSink()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
@@ -319,6 +452,34 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             [ 'leave', 'Field', 0, null ],
             [ 'leave', 'SelectionSet', 'selectionSet', 'InlineFragment' ],
             [ 'leave', 'InlineFragment', 1, null ],
+            [ 'enter', 'InlineFragment', 2, null ],
+            [ 'enter', 'Directive', 0, null ],
+            [ 'enter', 'Name', 'name', 'Directive' ],
+            [ 'leave', 'Name', 'name', 'Directive' ],
+            [ 'enter', 'Argument', 0, null ],
+            [ 'enter', 'Name', 'name', 'Argument' ],
+            [ 'leave', 'Name', 'name', 'Argument' ],
+            [ 'enter', 'Variable', 'value', 'Argument' ],
+            [ 'enter', 'Name', 'name', 'Variable' ],
+            [ 'leave', 'Name', 'name', 'Variable' ],
+            [ 'leave', 'Variable', 'value', 'Argument' ],
+            [ 'leave', 'Argument', 0, null ],
+            [ 'leave', 'Directive', 0, null ],
+            [ 'enter', 'SelectionSet', 'selectionSet', 'InlineFragment' ],
+            [ 'enter', 'Field', 0, null ],
+            [ 'enter', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Field', 0, null ],
+            [ 'leave', 'SelectionSet', 'selectionSet', 'InlineFragment' ],
+            [ 'leave', 'InlineFragment', 2, null ],
+            [ 'enter', 'InlineFragment', 3, null ],
+            [ 'enter', 'SelectionSet', 'selectionSet', 'InlineFragment' ],
+            [ 'enter', 'Field', 0, null ],
+            [ 'enter', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Field', 0, null ],
+            [ 'leave', 'SelectionSet', 'selectionSet', 'InlineFragment' ],
+            [ 'leave', 'InlineFragment', 3, null ],
             [ 'leave', 'SelectionSet', 'selectionSet', 'Field' ],
             [ 'leave', 'Field', 0, null ],
             [ 'leave', 'SelectionSet', 'selectionSet', 'OperationDefinition' ],
@@ -355,7 +516,63 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             [ 'leave', 'Field', 0, null ],
             [ 'leave', 'SelectionSet', 'selectionSet', 'OperationDefinition' ],
             [ 'leave', 'OperationDefinition', 1, null ],
-            [ 'enter', 'FragmentDefinition', 2, null ],
+            [ 'enter', 'OperationDefinition', 2, null ],
+            [ 'enter', 'Name', 'name', 'OperationDefinition' ],
+            [ 'leave', 'Name', 'name', 'OperationDefinition' ],
+            [ 'enter', 'VariableDefinition', 0, null ],
+            [ 'enter', 'Variable', 'variable', 'VariableDefinition' ],
+            [ 'enter', 'Name', 'name', 'Variable' ],
+            [ 'leave', 'Name', 'name', 'Variable' ],
+            [ 'leave', 'Variable', 'variable', 'VariableDefinition' ],
+            [ 'enter', 'NamedType', 'type', 'VariableDefinition' ],
+            [ 'enter', 'Name', 'name', 'NamedType' ],
+            [ 'leave', 'Name', 'name', 'NamedType' ],
+            [ 'leave', 'NamedType', 'type', 'VariableDefinition' ],
+            [ 'leave', 'VariableDefinition', 0, null ],
+            [ 'enter', 'SelectionSet', 'selectionSet', 'OperationDefinition' ],
+            [ 'enter', 'Field', 0, null ],
+            [ 'enter', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Name', 'name', 'Field' ],
+            [ 'enter', 'Argument', 0, null ],
+            [ 'enter', 'Name', 'name', 'Argument' ],
+            [ 'leave', 'Name', 'name', 'Argument' ],
+            [ 'enter', 'Variable', 'value', 'Argument' ],
+            [ 'enter', 'Name', 'name', 'Variable' ],
+            [ 'leave', 'Name', 'name', 'Variable' ],
+            [ 'leave', 'Variable', 'value', 'Argument' ],
+            [ 'leave', 'Argument', 0, null ],
+            [ 'enter', 'SelectionSet', 'selectionSet', 'Field' ],
+            [ 'enter', 'Field', 0, null ],
+            [ 'enter', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Name', 'name', 'Field' ],
+            [ 'enter', 'SelectionSet', 'selectionSet', 'Field' ],
+            [ 'enter', 'Field', 0, null ],
+            [ 'enter', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Name', 'name', 'Field' ],
+            [ 'enter', 'SelectionSet', 'selectionSet', 'Field' ],
+            [ 'enter', 'Field', 0, null ],
+            [ 'enter', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Field', 0, null ],
+            [ 'leave', 'SelectionSet', 'selectionSet', 'Field' ],
+            [ 'leave', 'Field', 0, null ],
+            [ 'enter', 'Field', 1, null ],
+            [ 'enter', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Name', 'name', 'Field' ],
+            [ 'enter', 'SelectionSet', 'selectionSet', 'Field' ],
+            [ 'enter', 'Field', 0, null ],
+            [ 'enter', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Name', 'name', 'Field' ],
+            [ 'leave', 'Field', 0, null ],
+            [ 'leave', 'SelectionSet', 'selectionSet', 'Field' ],
+            [ 'leave', 'Field', 1, null ],
+            [ 'leave', 'SelectionSet', 'selectionSet', 'Field' ],
+            [ 'leave', 'Field', 0, null ],
+            [ 'leave', 'SelectionSet', 'selectionSet', 'Field' ],
+            [ 'leave', 'Field', 0, null ],
+            [ 'leave', 'SelectionSet', 'selectionSet', 'OperationDefinition' ],
+            [ 'leave', 'OperationDefinition', 2, null ],
+            [ 'enter', 'FragmentDefinition', 3, null ],
             [ 'enter', 'Name', 'name', 'FragmentDefinition' ],
             [ 'leave', 'Name', 'name', 'FragmentDefinition' ],
             [ 'enter', 'NamedType', 'typeCondition', 'FragmentDefinition' ],
@@ -396,8 +613,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             [ 'leave', 'Argument', 2, null ],
             [ 'leave', 'Field', 0, null ],
             [ 'leave', 'SelectionSet', 'selectionSet', 'FragmentDefinition' ],
-            [ 'leave', 'FragmentDefinition', 2, null ],
-            [ 'enter', 'OperationDefinition', 3, null ],
+            [ 'leave', 'FragmentDefinition', 3, null ],
+            [ 'enter', 'OperationDefinition', 4, null ],
             [ 'enter', 'SelectionSet', 'selectionSet', 'OperationDefinition' ],
             [ 'enter', 'Field', 0, null ],
             [ 'enter', 'Name', 'name', 'Field' ],
@@ -420,7 +637,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             [ 'leave', 'Name', 'name', 'Field' ],
             [ 'leave', 'Field', 1, null ],
             [ 'leave', 'SelectionSet', 'selectionSet', 'OperationDefinition' ],
-            [ 'leave', 'OperationDefinition', 3, null ],
+            [ 'leave', 'OperationDefinition', 4, null ],
             [ 'leave', 'Document', null, null ]
         ];
 

@@ -111,6 +111,9 @@ abstract class Node
         Utils::assign($this, $vars);
     }
 
+    /**
+     * @return $this
+     */
     public function cloneDeep()
     {
         return $this->_cloneValue($this);
