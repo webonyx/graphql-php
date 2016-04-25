@@ -114,12 +114,6 @@ class Messages
         "got: $value.";
     }
 
-    static function badVarPosMessage($varName, $varType, $expectedType)
-    {
-        return "Variable \$$varName of type $varType used in position expecting ".
-        "type $expectedType.";
-    }
-
     static function fieldsConflictMessage($responseName, $reason)
     {
         $reasonMessage = self::reasonMessage($reason);

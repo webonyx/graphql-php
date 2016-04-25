@@ -30,7 +30,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
 
     /**
      * @param bool $recurse
-     * @return Type
+     * @return mixed
      * @throws \Exception
      */
     public function getWrappedType($recurse = false)

@@ -47,8 +47,8 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema(
-            new ObjectType([
+        $schema = new Schema([
+            'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [
                     'pets' => [
@@ -59,7 +59,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
                     ]
                 ]
             ])
-        );
+        ]);
 
         $query = '{
           pets {
@@ -112,17 +112,19 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             'types' => [$dogType, $catType]
         ]);
 
-        $schema = new Schema(new ObjectType([
-            'name' => 'Query',
-            'fields' => [
-                'pets' => [
-                    'type' => Type::listOf($petType),
-                    'resolve' => function() {
-                        return [ new Dog('Odie', true), new Cat('Garfield', false) ];
-                    }
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'pets' => [
+                        'type' => Type::listOf($petType),
+                        'resolve' => function() {
+                            return [ new Dog('Odie', true), new Cat('Garfield', false) ];
+                        }
+                    ]
                 ]
-            ]
-        ]));
+            ])
+        ]);
 
         $query = '{
           pets {
