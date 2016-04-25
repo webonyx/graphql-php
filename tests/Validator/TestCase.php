@@ -343,11 +343,11 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
     function expectPassesCompleteValidation($queryString)
     {
-        $this->expectValid($this->getDefaultSchema(), $this->getAllRules(), $queryString);
+        $this->expectValid($this->getDefaultSchema(), DocumentValidator::allRules(), $queryString);
     }
 
     function expectFailsCompleteValidation($queryString, $errors)
     {
-        $this->expectInvalid($this->getDefaultSchema(), $this->getAllRules(), $queryString, $errors);
+        $this->expectInvalid($this->getDefaultSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }
 }
