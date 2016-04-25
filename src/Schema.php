@@ -14,6 +14,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
+use GraphQL\Utils\TypeInfo;
 
 class Schema
 {
@@ -165,9 +166,9 @@ class Schema
             $objectField = $objectFieldMap[$fieldName];
 
             Utils::invariant(
-                $this->_isEqualType($ifaceField->getType(), $objectField->getType()),
+                TypeInfo::isTypeSubTypeOf($this, $objectField->getType(), $ifaceField->getType()),
                 "$iface.$fieldName expects type \"{$ifaceField->getType()}\" but " .
-                "$object.$fieldName provides type \"{$objectField->getType()}"
+                "$object.$fieldName provides type \"{$objectField->getType()}\"."
             );
 
             foreach ($ifaceField->args as $ifaceArg) {
@@ -185,7 +186,7 @@ class Schema
                 // Assert interface field arg type matches object field arg type.
                 // (invariant)
                 Utils::invariant(
-                    $this->_isEqualType($ifaceArg->getType(), $objectArg->getType()),
+                    TypeInfo::isEqualType($ifaceArg->getType(), $objectArg->getType()),
                     "$iface.$fieldName($argName:) expects type \"{$ifaceArg->getType()}\" " .
                     "but $object.$fieldName($argName:) provides " .
                     "type \"{$objectArg->getType()}\""
@@ -203,22 +204,6 @@ class Schema
                 }
             }
         }
-    }
-
-    /**
-     * @param $typeA
-     * @param $typeB
-     * @return bool
-     */
-    protected function _isEqualType($typeA, $typeB)
-    {
-        if ($typeA instanceof NonNull && $typeB instanceof NonNull) {
-            return $this->_isEqualType($typeA->getWrappedType(), $typeB->getWrappedType());
-        }
-        if ($typeA instanceof ListOfType && $typeB instanceof ListOfType) {
-            return $this->_isEqualType($typeA->getWrappedType(), $typeB->getWrappedType());
-        }
-        return $typeA === $typeB;
     }
 
     /**
