@@ -8,6 +8,10 @@ use GraphQL\Validator\Rules\ProvidedNonNullArguments;
 class ProvidedNonNullArgumentsTest extends TestCase
 {
     // Validate: Provided required arguments
+
+    /**
+     * @it ignores unknown arguments
+     */
     public function testIgnoresUnknownArguments()
     {
         // ignores unknown arguments
@@ -21,6 +25,10 @@ class ProvidedNonNullArgumentsTest extends TestCase
     }
 
     // Valid non-nullable value:
+
+    /**
+     * @it Arg on optional arg
+     */
     public function testArgOnOptionalArg()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -32,6 +40,23 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it No Arg on optional arg
+     */
+    public function testNoArgOnOptionalArg()
+    {
+        $this->expectPassesRule(new ProvidedNonNullArguments, '
+        {
+          dog {
+            isHousetrained
+          }
+        }
+        ');
+    }
+
+    /**
+     * @it Multiple args
+     */
     public function testMultipleArgs()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -43,6 +68,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it Multiple args reverse order
+     */
     public function testMultipleArgsReverseOrder()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -54,6 +82,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it No args on multiple optional
+     */
     public function testNoArgsOnMultipleOptional()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -65,6 +96,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it One arg on multiple optional
+     */
     public function testOneArgOnMultipleOptional()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -76,6 +110,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it Second arg on multiple optional
+     */
     public function testSecondArgOnMultipleOptional()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -87,6 +124,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it Multiple reqs on mixedList
+     */
     public function testMultipleReqsOnMixedList()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -98,6 +138,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it Multiple reqs and one opt on mixedList
+     */
     public function testMultipleReqsAndOneOptOnMixedList()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -109,6 +152,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it All reqs and opts on mixedList
+     */
     public function testAllReqsAndOptsOnMixedList()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -121,6 +167,10 @@ class ProvidedNonNullArgumentsTest extends TestCase
     }
 
     // Invalid non-nullable value
+
+    /**
+     * @it Missing one non-nullable argument
+     */
     public function testMissingOneNonNullableArgument()
     {
         $this->expectFailsRule(new ProvidedNonNullArguments, '
@@ -134,6 +184,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ]);
     }
 
+    /**
+     * @it Missing multiple non-nullable arguments
+     */
     public function testMissingMultipleNonNullableArguments()
     {
         $this->expectFailsRule(new ProvidedNonNullArguments, '
@@ -148,6 +201,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ]);
     }
 
+    /**
+     * @it Incorrect value and missing argument
+     */
     public function testIncorrectValueAndMissingArgument()
     {
         $this->expectFailsRule(new ProvidedNonNullArguments, '
@@ -161,7 +217,11 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ]);
     }
 
-    // Directive arguments
+    // Describe: Directive arguments
+
+    /**
+     * @it ignores unknown directives
+     */
     public function testIgnoresUnknownDirectives()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -171,6 +231,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it with directives of valid types
+     */
     public function testWithDirectivesOfValidTypes()
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -185,6 +248,9 @@ class ProvidedNonNullArgumentsTest extends TestCase
         ');
     }
 
+    /**
+     * @it with directive with missing types
+     */
     public function testWithDirectiveWithMissingTypes()
     {
         $this->expectFailsRule(new ProvidedNonNullArguments, '

@@ -674,10 +674,9 @@ class Parser
     {
         $start = $this->token->start;
         $this->expect(Token::BRACE_L);
-        $fieldNames = [];
         $fields = [];
         while (!$this->skip(Token::BRACE_R)) {
-            $fields[] = $this->parseObjectField($isConst, $fieldNames);
+            $fields[] = $this->parseObjectField($isConst);
         }
         return new ObjectValue([
             'fields' => $fields,
@@ -685,15 +684,11 @@ class Parser
         ]);
     }
 
-    function parseObjectField($isConst, &$fieldNames)
+    function parseObjectField($isConst)
     {
         $start = $this->token->start;
         $name = $this->parseName();
 
-        if (array_key_exists($name->value, $fieldNames)) {
-            throw new SyntaxError($this->source, $start, "Duplicate input object field " . $name->value . '.');
-        }
-        $fieldNames[$name->value] = true;
         $this->expect(Token::COLON);
 
         return new ObjectField([

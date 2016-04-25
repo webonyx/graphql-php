@@ -77,8 +77,6 @@ class QueryComplexity extends AbstractQuerySecurity
         return $this->invokeIfNeeded(
             $context,
             [
-                // Visit FragmentDefinition after visiting FragmentSpread
-                'visitSpreadFragments' => true,
                 Node::SELECTION_SET => function (SelectionSet $selectionSet) use ($context) {
                     $this->fieldAstAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
@@ -90,7 +88,6 @@ class QueryComplexity extends AbstractQuerySecurity
                 },
                 Node::VARIABLE_DEFINITION => function ($def) {
                     $this->variableDefs[] = $def;
-
                     return Visitor::skipNode();
                 },
                 Node::OPERATION_DEFINITION => [
@@ -98,7 +95,9 @@ class QueryComplexity extends AbstractQuerySecurity
                         $complexity = $this->fieldComplexity($operationDefinition, $complexity);
 
                         if ($complexity > $this->getMaxQueryComplexity()) {
-                            return new Error($this->maxQueryComplexityErrorMessage($this->getMaxQueryComplexity(), $complexity));
+                            $context->reportError(
+                                new Error($this->maxQueryComplexityErrorMessage($this->getMaxQueryComplexity(), $complexity))
+                            );
                         }
                     },
                 ],

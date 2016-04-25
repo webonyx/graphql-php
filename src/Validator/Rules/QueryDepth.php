@@ -54,7 +54,9 @@ class QueryDepth extends AbstractQuerySecurity
                         $maxDepth = $this->fieldDepth($operationDefinition);
 
                         if ($maxDepth > $this->getMaxQueryDepth()) {
-                            return new Error($this->maxQueryDepthErrorMessage($this->getMaxQueryDepth(), $maxDepth));
+                            $context->reportError(
+                                new Error($this->maxQueryDepthErrorMessage($this->getMaxQueryDepth(), $maxDepth))
+                            );
                         }
                     },
                 ],

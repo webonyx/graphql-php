@@ -8,6 +8,10 @@ use GraphQL\Validator\Rules\VariablesAreInputTypes;
 class VariablesAreInputTypesTest extends TestCase
 {
     // Validate: Variables are input types
+
+    /**
+     * @it input types are valid
+     */
     public function testInputTypesAreValid()
     {
         $this->expectPassesRule(new VariablesAreInputTypes(), '
@@ -17,6 +21,9 @@ class VariablesAreInputTypesTest extends TestCase
         ');
     }
 
+    /**
+     * @it output types are invalid
+     */
     public function testOutputTypesAreInvalid()
     {
         $this->expectFailsRule(new VariablesAreInputTypes, '

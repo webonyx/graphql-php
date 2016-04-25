@@ -40,6 +40,11 @@ use GraphQL\Validator\Rules\ProvidedNonNullArguments;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\Rules\ScalarLeafs;
+use GraphQL\Validator\Rules\UniqueArgumentNames;
+use GraphQL\Validator\Rules\UniqueFragmentNames;
+use GraphQL\Validator\Rules\UniqueInputFieldNames;
+use GraphQL\Validator\Rules\UniqueOperationNames;
+use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
@@ -65,30 +70,30 @@ class DocumentValidator
     {
         if (null === self::$defaultRules) {
             self::$defaultRules = [
-                // 'UniqueOperationNames' => new UniqueOperationNames(),
+                'UniqueOperationNames' => new UniqueOperationNames(),
                 'LoneAnonymousOperation' => new LoneAnonymousOperation(),
                 'KnownTypeNames' => new KnownTypeNames(),
                 'FragmentsOnCompositeTypes' => new FragmentsOnCompositeTypes(),
                 'VariablesAreInputTypes' => new VariablesAreInputTypes(),
                 'ScalarLeafs' => new ScalarLeafs(),
                 'FieldsOnCorrectType' => new FieldsOnCorrectType(),
-                // 'UniqueFragmentNames' => new UniqueFragmentNames(),
+                'UniqueFragmentNames' => new UniqueFragmentNames(),
                 'KnownFragmentNames' => new KnownFragmentNames(),
                 'NoUnusedFragments' => new NoUnusedFragments(),
                 'PossibleFragmentSpreads' => new PossibleFragmentSpreads(),
                 'NoFragmentCycles' => new NoFragmentCycles(),
-                // 'UniqueVariableNames' => new UniqueVariableNames(),
+                'UniqueVariableNames' => new UniqueVariableNames(),
                 'NoUndefinedVariables' => new NoUndefinedVariables(),
                 'NoUnusedVariables' => new NoUnusedVariables(),
                 'KnownDirectives' => new KnownDirectives(),
                 'KnownArgumentNames' => new KnownArgumentNames(),
-                // 'UniqueArgumentNames' => new UniqueArgumentNames(),
+                'UniqueArgumentNames' => new UniqueArgumentNames(),
                 'ArgumentsOfCorrectType' => new ArgumentsOfCorrectType(),
                 'ProvidedNonNullArguments' => new ProvidedNonNullArguments(),
                 'DefaultValuesOfCorrectType' => new DefaultValuesOfCorrectType(),
                 'VariablesInAllowedPosition' => new VariablesInAllowedPosition(),
                 'OverlappingFieldsCanBeMerged' => new OverlappingFieldsCanBeMerged(),
-                // 'UniqueInputFieldNames' => new UniqueInputFieldNames(),
+                'UniqueInputFieldNames' => new UniqueInputFieldNames(),
 
                 // Query Security
                 'QueryDepth' => new QueryDepth(QueryDepth::DISABLED), // default disabled
@@ -259,141 +264,5 @@ class DocumentValidator
         }
         Visitor::visit($documentAST, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
         return $context->getErrors();
-
-
-
-        $errors = [];
-
-        // TODO: convert to class
-        $visitInstances = function($ast, $instances) use ($typeInfo, $context, &$errors, &$visitInstances) {
-            $skipUntil = new \SplFixedArray(count($instances));
-            $skipCount = 0;
-
-            Visitor::visit($ast, [
-                'enter' => function ($node, $key) use ($typeInfo, $instances, $skipUntil, &$skipCount, &$errors, $context, $visitInstances) {
-                    $typeInfo->enter($node);
-                    for ($i = 0; $i < count($instances); $i++) {
-                        // Do not visit this instance if it returned false for a previous node
-                        if ($skipUntil[$i]) {
-                            continue;
-                        }
-
-                        $result = null;
-
-                        // Do not visit top level fragment definitions if this instance will
-                        // visit those fragments inline because it
-                        // provided `visitSpreadFragments`.
-                        if ($node->kind === Node::FRAGMENT_DEFINITION && $key !== null && !empty($instances[$i]['visitSpreadFragments'])) {
-                            $result = Visitor::skipNode();
-                        } else {
-                            $enter = Visitor::getVisitFn($instances[$i], $node->kind, false);
-                            if ($enter instanceof \Closure) {
-                                // $enter = $enter->bindTo($instances[$i]);
-                                $result = call_user_func_array($enter, func_get_args());
-                            } else {
-                                $result = null;
-                            }
-                        }
-
-                        if ($result instanceof VisitorOperation) {
-                            if ($result->doContinue) {
-                                $skipUntil[$i] = $node;
-                                $skipCount++;
-                                // If all instances are being skipped over, skip deeper traversal
-                                if ($skipCount === count($instances)) {
-                                    for ($k = 0; $k < count($instances); $k++) {
-                                        if ($skipUntil[$k] === $node) {
-                                            $skipUntil[$k] = null;
-                                            $skipCount--;
-                                        }
-                                    }
-                                    return Visitor::skipNode();
-                                }
-                            } else if ($result->doBreak) {
-                                $instances[$i] = null;
-                            }
-                        } else if ($result && static::isError($result)) {
-                            static::append($errors, $result);
-                            for ($j = $i - 1; $j >= 0; $j--) {
-                                $leaveFn = Visitor::getVisitFn($instances[$j], $node->kind, true);
-                                if ($leaveFn) {
-                                    // $leaveFn = $leaveFn->bindTo($instances[$j])
-                                    $result = call_user_func_array($leaveFn, func_get_args());
-
-                                    if ($result instanceof VisitorOperation) {
-                                        if ($result->doBreak) {
-                                            $instances[$j] = null;
-                                        }
-                                    } else if (static::isError($result)) {
-                                        static::append($errors, $result);
-                                    } else if ($result !== null) {
-                                        throw new \Exception("Config cannot edit document.");
-                                    }
-                                }
-                            }
-                            $typeInfo->leave($node);
-                            return Visitor::skipNode();
-                        } else if ($result !== null) {
-                            throw new \Exception("Config cannot edit document.");
-                        }
-                    }
-
-                    // If any validation instances provide the flag `visitSpreadFragments`
-                    // and this node is a fragment spread, validate the fragment from
-                    // this point.
-                    if ($node instanceof FragmentSpread) {
-                        $fragment = $context->getFragment($node->name->value);
-                        if ($fragment) {
-                            $fragVisitingInstances = [];
-                            foreach ($instances as $idx => $inst) {
-                                if (!empty($inst['visitSpreadFragments']) && !$skipUntil[$idx]) {
-                                    $fragVisitingInstances[] = $inst;
-                                }
-                            }
-                            if (!empty($fragVisitingInstances)) {
-                                $visitInstances($fragment, $fragVisitingInstances);
-                            }
-                        }
-                    }
-                },
-                'leave' => function ($node) use ($instances, $typeInfo, $skipUntil, &$skipCount, &$errors) {
-                    for ($i = count($instances) - 1; $i >= 0; $i--) {
-                        if ($skipUntil[$i]) {
-                            if ($skipUntil[$i] === $node) {
-                                $skipUntil[$i] = null;
-                                $skipCount--;
-                            }
-                            continue;
-                        }
-                        $leaveFn = Visitor::getVisitFn($instances[$i], $node->kind, true);
-
-                        if ($leaveFn) {
-                            // $leaveFn = $leaveFn.bindTo($instances[$i]);
-                            $result = call_user_func_array($leaveFn, func_get_args());
-
-                            if ($result instanceof VisitorOperation) {
-                                if ($result->doBreak) {
-                                    $instances[$i] = null;
-                                }
-                            } else if (static::isError($result)) {
-                                static::append($errors, $result);
-                            } else if ($result !== null) {
-                                throw new \Exception("Config cannot edit document.");
-                            }
-                        }
-                    }
-                    $typeInfo->leave($node);
-                }
-            ]);
-        };
-
-        // Visit the whole document with instances of all provided rules.
-        $allRuleInstances = [];
-        foreach ($rules as $rule) {
-            $allRuleInstances[] = call_user_func_array($rule, [$context]);
-        }
-        $visitInstances($documentAST, $allRuleInstances);
-
-        return $errors;
     }
 }

@@ -24,7 +24,9 @@ class QuerySecuritySchema
             return self::$schema;
         }
 
-        self::$schema = new Schema(static::buildQueryRootType());
+        self::$schema = new Schema([
+            'query' => static::buildQueryRootType()
+        ]);
 
         return self::$schema;
     }
