@@ -14,15 +14,22 @@ class ExecutionResult
      * @var Error[]
      */
     public $errors;
+    
+    /**
+     * @var array[]
+     */
+    public $extensions;
 
     /**
      * @param array $data
      * @param array $errors
+     * @param array $extensions
      */
-    public function __construct(array $data = null, array $errors = [])
+    public function __construct(array $data = null, array $errors = [], array $extensions = [])
     {
         $this->data = $data;
         $this->errors = $errors;
+        $this->extensions = $extensions;
     }
 
     /**
@@ -34,6 +41,10 @@ class ExecutionResult
 
         if (!empty($this->errors)) {
             $result['errors'] = array_map(['GraphQL\Error', 'formatError'], $this->errors);
+        }
+        
+        if (!empty($this->extensions)) {
+            $result['extensions'] = (array) $this->extensions;
         }
 
         return $result;
