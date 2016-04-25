@@ -49,8 +49,9 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public static function addImplementationToInterfaces(ObjectType $impl)
     {
         self::$_lazyLoadImplementations[] = function() use ($impl) {
+            /** @var self $interface */
             foreach ($impl->getInterfaces() as $interface) {
-                $interface->_implementations[] = $impl;
+                $interface->addImplementation($impl);
             }
         };
     }
@@ -64,6 +65,16 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             $lazyLoadImplementation();
         }
         self::$_lazyLoadImplementations = [];
+    }
+
+    /**
+     * Add a implemented object type to interface
+     *
+     * @param ObjectType $impl
+     */
+    protected function addImplementation(ObjectType $impl)
+    {
+        $this->_implementations[] = $impl;
     }
 
     /**
