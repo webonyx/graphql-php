@@ -24,7 +24,8 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "GraphQL\\Tests\\": "tests/"
+      "GraphQL\\Tests\\": "tests/",
+      "GraphQL\\Benchmarks\\": "benchmarks/"
     }
   }
 }
