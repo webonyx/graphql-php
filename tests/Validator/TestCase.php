@@ -15,12 +15,10 @@ use GraphQL\Validator\DocumentValidator;
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
-    public $humanType;
-
     /**
      * @return Schema
      */
-    protected function getDefaultSchema()
+    public static function getDefaultSchema()
     {
         $FurColor = null;
 
@@ -124,7 +122,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $Human = $this->humanType = new ObjectType([
+        $Human = null;
+        $Human = new ObjectType([
             'name' => 'Human',
             'isTypeOf' => function() {return true;},
             'interfaces' => [$Being, $Intelligent],
@@ -134,7 +133,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                     'args' => ['surname' => ['type' => Type::boolean()]]
                 ],
                 'pets' => ['type' => Type::listOf($Pet)],
-                'relatives' => ['type' => function() {return Type::listOf($this->humanType); }],
+                'relatives' => ['type' => function() use (&$Human) {return Type::listOf($Human); }],
                 'iq' => ['type' => Type::int()]
             ]
         ]);
