@@ -19,16 +19,14 @@ class VariablesInAllowedPosition
 {
     static function badVarPosMessage($varName, $varType, $expectedType)
     {
-        return "Variable \$$varName of type $varType used in position expecting ".
-        "type $expectedType.";
+        return "Variable \"\$$varName\" of type \"$varType\" used in position expecting ".
+        "type \"$expectedType\".";
     }
 
     public $varDefMap;
 
     public function __invoke(ValidationContext $context)
     {
-        $varDefMap = [];
-
         return [
             Node::OPERATION_DEFINITION => [
                 'enter' => function () {
