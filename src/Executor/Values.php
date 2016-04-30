@@ -4,24 +4,15 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error;
 use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\ListType;
-use GraphQL\Language\AST\ListValue;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\ObjectValue;
-use GraphQL\Language\AST\Value;
-use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
-use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
@@ -70,7 +61,7 @@ class Values
         foreach ($argDefs as $argDef) {
             $name = $argDef->name;
             $valueAST = isset($argASTMap[$name]) ? $argASTMap[$name]->value : null;
-            $value = self::valueFromAST($valueAST, $argDef->getType(), $variableValues);
+            $value = Utils\AST::valueFromAST($valueAST, $argDef->getType(), $variableValues);
 
             if (null === $value) {
                 $value = $argDef->defaultValue;
@@ -84,57 +75,7 @@ class Values
 
     public static function valueFromAST($valueAST, InputType $type, $variables = null)
     {
-        if ($type instanceof NonNull) {
-            return self::valueFromAST($valueAST, $type->getWrappedType(), $variables);
-        }
-
-        if (!$valueAST) {
-            return null;
-        }
-
-        if ($valueAST instanceof Variable) {
-            $variableName = $valueAST->name->value;
-
-            if (!$variables || !isset($variables[$variableName])) {
-                return null;
-            }
-            return $variables[$variableName];
-        }
-
-        if ($type instanceof ListOfType) {
-            $itemType = $type->getWrappedType();
-            if ($valueAST instanceof ListValue) {
-                return array_map(function($itemAST) use ($itemType, $variables) {
-                    return Values::valueFromAST($itemAST, $itemType, $variables);
-                }, $valueAST->values);
-            } else {
-                return [self::valueFromAST($valueAST, $itemType, $variables)];
-            }
-        }
-
-        if ($type instanceof InputObjectType) {
-            $fields = $type->getFields();
-            if (!$valueAST instanceof ObjectValue) {
-                return null;
-            }
-            $fieldASTs = Utils::keyMap($valueAST->fields, function($field) {return $field->name->value;});
-            $values = [];
-            foreach ($fields as $field) {
-                $fieldAST = isset($fieldASTs[$field->name]) ? $fieldASTs[$field->name] : null;
-                $fieldValue = self::valueFromAST($fieldAST ? $fieldAST->value : null, $field->getType(), $variables);
-
-                if (null === $fieldValue) {
-                    $fieldValue = $field->defaultValue;
-                }
-                if (null !== $fieldValue) {
-                    $values[$field->name] = $fieldValue;
-                }
-            }
-            return $values;
-        }
-
-        Utils::invariant($type instanceof ScalarType || $type instanceof EnumType, 'Must be input type');
-        return $type->parseLiteral($valueAST);
+        return Utils\AST::valueFromAST($valueAST, $type, $variables);
     }
 
     /**
@@ -154,23 +95,37 @@ class Values
                 [ $definitionAST ]
             );
         }
-        if (self::isValidValue($input, $type)) {
+
+        $inputType = $type;
+        $errors = self::isValidPHPValue($input, $inputType);
+
+        if (empty($errors)) {
             if (null === $input) {
                 $defaultValue = $definitionAST->defaultValue;
                 if ($defaultValue) {
-                    return self::valueFromAST($defaultValue, $type);
+                    return Utils\AST::valueFromAST($defaultValue, $inputType);
                 }
             }
-            return self::coerceValue($type, $input);
+            return self::coerceValue($inputType, $input);
         }
 
+        if (null === $input) {
+            $printed = Printer::doPrint($definitionAST->type);
+
+            throw new Error(
+                "Variable \"\${$variable->name->value}\" of required type " .
+                "\"$printed\" was not provided.",
+                [ $definitionAST ]
+            );
+        }
+        $message = $errors ? "\n" . implode("\n", $errors) : '';
+        $val = json_encode($input);
         throw new Error(
-            "Variable \${$definitionAST->variable->name->value} expected value of type " .
-            Printer::doPrint($definitionAST->type) . " but got: " . json_encode($input) . '.',
-            [$definitionAST]
+            "Variable \"\${$variable->name->value}\" got invalid value ".
+            "{$val}.{$message}",
+            [ $definitionAST ]
         );
     }
-
 
     /**
      * Given a PHP value and a GraphQL type, determine if the value will be
@@ -179,63 +134,89 @@ class Values
      *
      * @param $value
      * @param Type $type
-     * @return bool
+     * @return array
      */
-    private static function isValidValue($value, Type $type)
+    private static function isValidPHPValue($value, InputType $type)
     {
+        // A value must be provided if the type is non-null.
         if ($type instanceof NonNull) {
+            $ofType = $type->getWrappedType();
             if (null === $value) {
-                return false;
+                if ($ofType->name) {
+                    return [ "Expected \"{$ofType->name}!\", found null." ];
+                }
+                return [ 'Expected non-null value, found null.' ];
             }
-            return self::isValidValue($value, $type->getWrappedType());
+            return self::isValidPHPValue($value, $ofType);
         }
 
-        if ($value === null) {
-            return true;
+        if (null === $value) {
+            return [];
         }
 
+        // Lists accept a non-list value as a list of one.
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             if (is_array($value)) {
-                foreach ($value as $item) {
-                    if (!self::isValidValue($item, $itemType)) {
-                        return false;
-                    }
-                }
-                return true;
-            } else {
-                return self::isValidValue($value, $itemType);
+                return array_reduce(
+                    $value,
+                    function ($acc, $item, $index) use ($itemType) {
+                        $errors = self::isValidPHPValue($item, $itemType);
+                        return array_merge($acc, Utils::map($errors, function ($error) use ($index) {
+                            return "In element #$index: $error";
+                        }));
+                    },
+                    []
+                );
             }
+            return self::isValidPHPValue($value, $itemType);
         }
 
+        // Input objects check each defined field.
         if ($type instanceof InputObjectType) {
-            if (!is_array($value)) {
-                return false;
+            if (!is_object($value) && !is_array($value)) {
+                return ["Expected \"{$type->name}\", found not an object."];
             }
             $fields = $type->getFields();
-            $fieldMap = [];
-
-            // Ensure every defined field is valid.
-            foreach ($fields as $fieldName => $field) {
-                /** @var FieldDefinition $field */
-                if (!self::isValidValue(isset($value[$fieldName]) ? $value[$fieldName] : null, $field->getType())) {
-                    return false;
-                }
-                $fieldMap[$field->name] = $field;
-            }
+            $errors = [];
 
             // Ensure every provided field is defined.
-            $diff = array_diff_key($value, $fieldMap);
-
-            if (!empty($diff)) {
-                return false;
+            $props = is_object($value) ? get_object_vars($value) : $value;
+            foreach ($props as $providedField => $tmp) {
+                if (!isset($fields[$providedField])) {
+                    $errors[] = "In field \"{$providedField}\": Unknown field.";
+                }
             }
 
-            return true;
+            // Ensure every defined field is valid.
+            foreach ($fields as $fieldName => $tmp) {
+                $newErrors = self::isValidPHPValue($value[$fieldName], $fields[$fieldName]->getType());
+                $errors = array_merge(
+                    $errors,
+                    Utils::map($newErrors, function ($error) use ($fieldName) {
+                        return "In field \"{$fieldName}\": {$error}";
+                    })
+                );
+            }
+            return $errors;
         }
 
-        Utils::invariant($type instanceof ScalarType || $type instanceof EnumType, 'Must be input type');
-        return null !== $type->parseValue($value);
+        Utils::invariant(
+            $type instanceof ScalarType || $type instanceof EnumType,
+            'Must be input type'
+        );
+
+        // Scalar/Enum input checks to ensure the type can parse the value to
+        // a non-null value.
+        $parseResult = $type->parseValue($value);
+        if (null === $parseResult) {
+            $v = json_encode($value);
+            return [
+                "Expected type \"{$type->name}\", found $v."
+            ];
+        }
+
+        return [];
     }
 
     /**
@@ -245,7 +226,7 @@ class Values
     {
         if ($type instanceof NonNull) {
             // Note: we're not checking that the result of coerceValue is non-null.
-            // We only call this function after calling isValidValue.
+            // We only call this function after calling isValidPHPValue.
             return self::coerceValue($type->getWrappedType(), $value);
         }
 
