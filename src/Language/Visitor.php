@@ -256,7 +256,9 @@ class Visitor
                                 array_pop($path);
                                 continue;
                             }
-                            $editValue = null;
+                            if ($result->removeNode) {
+                                $editValue = null;
+                            }
                         } else {
                             $editValue = $result;
                         }
@@ -312,7 +314,6 @@ class Visitor
      */
     static function visitInParallel($visitors)
     {
-        // TODO: implement real parallel visiting once PHP supports it
         $visitorsCount = count($visitors);
         $skipping = new \SplFixedArray($visitorsCount);
 
@@ -330,6 +331,8 @@ class Visitor
                                     $skipping[$i] = $node;
                                 } else if ($result->doBreak) {
                                     $skipping[$i] = $result;
+                                } else if ($result->removeNode) {
+                                    return $result;
                                 }
                             } else if ($result !== null) {
                                 return $result;
@@ -348,6 +351,8 @@ class Visitor
                             if ($result instanceof VisitorOperation) {
                                 if ($result->doBreak) {
                                     $skipping[$i] = $result;
+                                } else if ($result->removeNode) {
+                                    return $result;
                                 }
                             } else if ($result !== null) {
                                 return $result;
