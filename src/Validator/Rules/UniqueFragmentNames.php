@@ -35,7 +35,7 @@ class UniqueFragmentNames
                 } else {
                     $this->knownFragmentNames[$fragmentName] = $node->name;
                 }
-                return false;
+                return Visitor::skipNode();
             }
         ];
     }
