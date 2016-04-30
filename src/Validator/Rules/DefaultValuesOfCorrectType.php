@@ -6,9 +6,9 @@ use GraphQL\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\VariableDefinition;
 use GraphQL\Language\Printer;
+use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Validator\DocumentValidator;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
 
 class DefaultValuesOfCorrectType
@@ -49,8 +49,10 @@ class DefaultValuesOfCorrectType
                         ));
                     }
                 }
-                return null;
-            }
+                return Visitor::skipNode();
+            },
+            Node::SELECTION_SET => function() {return Visitor::skipNode();},
+            Node::FRAGMENT_DEFINITION => function() {return Visitor::skipNode();}
         ];
     }
 }

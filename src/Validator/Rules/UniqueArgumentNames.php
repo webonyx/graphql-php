@@ -4,6 +4,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error;
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
 class UniqueArgumentNames
@@ -36,7 +37,7 @@ class UniqueArgumentNames
                 } else {
                     $this->knownArgNames[$argName] = $node->name;
                 }
-                return false;
+                return Visitor::skipNode();
             }
         ];
     }

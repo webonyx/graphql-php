@@ -34,7 +34,7 @@ class UniqueOperationNames
                         $this->knownOperationNames[$operationName->value] = $operationName;
                     }
                 }
-                return false;
+                return Visitor::skipNode();
             },
             Node::FRAGMENT_DEFINITION => function() {
                 return Visitor::skipNode();
