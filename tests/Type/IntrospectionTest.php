@@ -14,12 +14,19 @@ use GraphQL\Validator\Rules\ProvidedNonNullArguments;
 
 class IntrospectionTest extends \PHPUnit_Framework_TestCase
 {
+    // Describe: Introspection
+
+    /**
+     * @it executes an introspection query
+     */
     function testExecutesAnIntrospectionQuery()
     {
-        $emptySchema = new Schema(new ObjectType([
-            'name' => 'QueryRoot',
-            'fields' => []
-        ]));
+        $emptySchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'QueryRoot',
+                'fields' => []
+            ])
+        ]);
 
         $request = Introspection::getIntrospectionQuery(false);
         $expected = array (
@@ -28,6 +35,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                     '__schema' =>
                         array (
                             'mutationType' => NULL,
+                            'subscriptionType' => NULL,
                             'queryType' =>
                                 array (
                                     'name' => 'QueryRoot',
@@ -44,7 +52,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                 ),
                                             'enumValues' => NULL,
                                             'possibleTypes' => NULL,
-                                            'fields' => []
+                                            'fields' => Array ()
                                         ),
                                     1 =>
                                         array (
@@ -117,13 +125,13 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                             'deprecationReason' => NULL,
                                                         ),
                                                     3 =>
-                                                        array(
+                                                        array (
                                                             'name' => 'subscriptionType',
                                                             'args' =>
-                                                                array(
+                                                                array (
                                                                 ),
                                                             'type' =>
-                                                                array(
+                                                                array (
                                                                     'kind' => 'OBJECT',
                                                                     'name' => '__Type',
                                                                     'ofType' => NULL,
@@ -818,6 +826,35 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                         ),
                                                     2 =>
                                                         array (
+                                                            'name' => 'locations',
+                                                            'args' =>
+                                                                array (
+                                                                ),
+                                                            'type' =>
+                                                                array (
+                                                                    'kind' => 'NON_NULL',
+                                                                    'name' => NULL,
+                                                                    'ofType' =>
+                                                                        array (
+                                                                            'kind' => 'LIST',
+                                                                            'name' => NULL,
+                                                                            'ofType' =>
+                                                                                array (
+                                                                                    'kind' => 'NON_NULL',
+                                                                                    'name' => NULL,
+                                                                                    'ofType' =>
+                                                                                        array (
+                                                                                            'kind' => 'ENUM',
+                                                                                            'name' => '__DirectiveLocation',
+                                                                                        ),
+                                                                                ),
+                                                                        ),
+                                                                ),
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => NULL,
+                                                        ),
+                                                    3 =>
+                                                        array (
                                                             'name' => 'args',
                                                             'args' =>
                                                                 array (
@@ -845,7 +882,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
                                                         ),
-                                                    3 =>
+                                                    4 =>
                                                         array (
                                                             'name' => 'onOperation',
                                                             'args' =>
@@ -862,10 +899,10 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                             'ofType' => NULL,
                                                                         ),
                                                                 ),
-                                                            'isDeprecated' => false,
-                                                            'deprecationReason' => NULL,
+                                                            'isDeprecated' => true,
+                                                            'deprecationReason' => 'Use `locations`.',
                                                         ),
-                                                    4 =>
+                                                    5 =>
                                                         array (
                                                             'name' => 'onFragment',
                                                             'args' =>
@@ -882,10 +919,10 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                             'ofType' => NULL,
                                                                         ),
                                                                 ),
-                                                            'isDeprecated' => false,
-                                                            'deprecationReason' => NULL,
+                                                            'isDeprecated' => true,
+                                                            'deprecationReason' => 'Use `locations`.',
                                                         ),
-                                                    5 =>
+                                                    6 =>
                                                         array (
                                                             'name' => 'onField',
                                                             'args' =>
@@ -902,8 +939,8 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                             'ofType' => NULL,
                                                                         ),
                                                                 ),
-                                                            'isDeprecated' => false,
-                                                            'deprecationReason' => NULL,
+                                                            'isDeprecated' => true,
+                                                            'deprecationReason' => 'Use `locations`.',
                                                         ),
                                                 ),
                                             'inputFields' => NULL,
@@ -913,39 +950,99 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                             'enumValues' => NULL,
                                             'possibleTypes' => NULL,
                                         ),
-                                    10 => [
+                                    10 =>
+                                        array (
+                                            'kind' => 'ENUM',
+                                            'name' => '__DirectiveLocation',
+                                            'fields' => NULL,
+                                            'inputFields' => NULL,
+                                            'interfaces' => NULL,
+                                            'enumValues' =>
+                                                array (
+                                                    0 =>
+                                                        array (
+                                                            'name' => 'QUERY',
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => null
+                                                        ),
+                                                    1 =>
+                                                        array (
+                                                            'name' => 'MUTATION',
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => null
+                                                        ),
+                                                    2 =>
+                                                        array (
+                                                            'name' => 'SUBSCRIPTION',
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => null
+                                                        ),
+                                                    3 =>
+                                                        array (
+                                                            'name' => 'FIELD',
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => null
+                                                        ),
+                                                    4 =>
+                                                        array (
+                                                            'name' => 'FRAGMENT_DEFINITION',
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => null
+                                                        ),
+                                                    5 =>
+                                                        array (
+                                                            'name' => 'FRAGMENT_SPREAD',
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => null
+                                                        ),
+                                                    6 =>
+                                                        array (
+                                                            'name' => 'INLINE_FRAGMENT',
+                                                            'isDeprecated' => false,
+                                                            'deprecationReason' => null
+                                                        ),
+                                                ),
+                                            'possibleTypes' => NULL,
+                                        ),
+                                    11 => array (
                                         'kind' => 'SCALAR',
                                         'name' => 'ID',
-                                        'fields' => null,
-                                        'inputFields' => null,
-                                        'interfaces' => null,
-                                        'enumValues' => null,
-                                        'possibleTypes' => null
-                                    ],
-                                    11 => [
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                    ),
+                                    12 => array (
                                         'kind' => 'SCALAR',
                                         'name' => 'Float',
-                                        'fields' => null,
-                                        'inputFields' => null,
-                                        'interfaces' => null,
-                                        'enumValues' => null,
-                                        'possibleTypes' => null
-                                    ],
-                                    12 => [
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                    ),
+                                    13 => array (
                                         'kind' => 'SCALAR',
                                         'name' => 'Int',
-                                        'fields' => null,
-                                        'inputFields' => null,
-                                        'interfaces' => null,
-                                        'enumValues' => null,
-                                        'possibleTypes' => null
-                                    ],
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                    )
                                 ),
                             'directives' =>
                                 array (
                                     0 =>
                                         array (
                                             'name' => 'include',
+                                            'locations' =>
+                                                array (
+                                                    0 => 'FIELD',
+                                                    1 => 'FRAGMENT_SPREAD',
+                                                    2 => 'INLINE_FRAGMENT',
+                                                ),
                                             'args' =>
                                                 array (
                                                     0 =>
@@ -965,13 +1062,16 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 ),
                                                         ),
                                                 ),
-                                            'onOperation' => false,
-                                            'onFragment' => true,
-                                            'onField' => true,
                                         ),
                                     1 =>
                                         array (
                                             'name' => 'skip',
+                                            'locations' =>
+                                                array (
+                                                    0 => 'FIELD',
+                                                    1 => 'FRAGMENT_SPREAD',
+                                                    2 => 'INLINE_FRAGMENT',
+                                                ),
                                             'args' =>
                                                 array (
                                                     0 =>
@@ -991,20 +1091,23 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 ),
                                                         ),
                                                 ),
-                                            'onOperation' => false,
-                                            'onFragment' => true,
-                                            'onField' => true,
                                         ),
                                 ),
                         ),
-                ),
+                )
         );
 
         $actual = GraphQL::execute($emptySchema, $request);
 
+        // print_r($actual);
+        // exit;
+
         $this->assertEquals($expected, $actual);
     }
 
+    /**
+     * @it introspects on input object
+     */
     function testIntrospectsOnInputObject()
     {
         $TestInputObject = new InputObjectType([
@@ -1028,7 +1131,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema($TestType);
+        $schema = new Schema(['query' => $TestType]);
         $request = '
           {
             __schema {
@@ -1088,6 +1191,9 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertContains($expectedFragment, $result);
     }
 
+    /**
+     * @it supports the __type root field
+     */
     public function testSupportsThe__typeRootField()
     {
 
@@ -1100,7 +1206,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema($TestType);
+        $schema = new Schema(['query' => $TestType]);
         $request = '
           {
             __type(name: "TestType") {
@@ -1118,6 +1224,9 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, GraphQL::execute($schema, $request));
     }
 
+    /**
+     * @it identifies deprecated fields
+     */
     public function testIdentifiesDeprecatedFields()
     {
 
@@ -1134,7 +1243,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema($TestType);
+        $schema = new Schema(['query' => $TestType]);
         $request = '
           {
             __type(name: "TestType") {
@@ -1170,6 +1279,9 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, GraphQL::execute($schema, $request));
     }
 
+    /**
+     * @it respects the includeDeprecated parameter for fields
+     */
     public function testRespectsTheIncludeDeprecatedParameterForFields()
     {
         $TestType = new ObjectType([
@@ -1185,7 +1297,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema($TestType);
+        $schema = new Schema(['query' => $TestType]);
         $request = '
       {
         __type(name: "TestType") {
@@ -1232,6 +1344,9 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, GraphQL::execute($schema, $request));
     }
 
+    /**
+     * @it identifies deprecated enum values
+     */
     public function testIdentifiesDeprecatedEnumValues()
     {
         $TestEnum = new EnumType([
@@ -1252,7 +1367,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema($TestType);
+        $schema = new Schema(['query' => $TestType]);
         $request = '
           {
             __type(name: "TestEnum") {
@@ -1293,6 +1408,9 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, GraphQL::execute($schema, $request));
     }
 
+    /**
+     * @it respects the includeDeprecated parameter for enum values
+     */
     public function testRespectsTheIncludeDeprecatedParameterForEnumValues()
     {
         $TestEnum = new EnumType([
@@ -1313,7 +1431,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema($TestType);
+        $schema = new Schema(['query' => $TestType]);
         $request = '
           {
             __type(name: "TestEnum") {
@@ -1353,9 +1471,11 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, GraphQL::execute($schema, $request));
     }
 
+    /**
+     * @it fails as expected on the __type root field without an arg
+     */
     public function testFailsAsExpectedOnThe__typeRootFieldWithoutAnArg()
     {
-
         $TestType = new ObjectType([
             'name' => 'TestType',
             'fields' => [
@@ -1365,7 +1485,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema($TestType);
+        $schema = new Schema(['query' => $TestType]);
         $request = '
       {
         __type {
@@ -1384,6 +1504,9 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, GraphQL::execute($schema, $request));
     }
 
+    /**
+     * @it exposes descriptions on types and fields
+     */
     public function testExposesDescriptionsOnTypesAndFields()
     {
         $QueryRoot = new ObjectType([
@@ -1391,7 +1514,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             'fields' => []
         ]);
 
-        $schema = new Schema($QueryRoot);
+        $schema = new Schema(['query' => $QueryRoot]);
         $request = '
       {
         schemaType: __type(name: "__Schema") {
@@ -1441,6 +1564,9 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, GraphQL::execute($schema, $request));
     }
 
+    /**
+     * @it exposes descriptions on enums
+     */
     public function testExposesDescriptionsOnEnums()
     {
         $QueryRoot = new ObjectType([
@@ -1448,7 +1574,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             'fields' => []
         ]);
 
-        $schema = new Schema($QueryRoot);
+        $schema = new Schema(['query' => $QueryRoot]);
         $request = '
       {
         typeKindType: __type(name: "__TypeKind") {
@@ -1465,7 +1591,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             'data' => [
                 'typeKindType' => [
                     'name' => '__TypeKind',
-                    'description' => 'An enum describing what kind of type a given __Type is',
+                    'description' => 'An enum describing what kind of type a given __Type is.',
                     'enumValues' => [
                         [
                             'description' => 'Indicates this type is a scalar.',
