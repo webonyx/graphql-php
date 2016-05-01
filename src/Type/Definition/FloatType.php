@@ -9,9 +9,9 @@ class FloatType extends ScalarType
     public $name = Type::FLOAT;
 
     public $description =
-        'The `Float` scalar type represents signed double-precision fractional ' .
-        'values as specified by ' .
-        '[IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ';
+'The `Float` scalar type represents signed double-precision fractional
+values as specified by
+[IEEE 754](http://en.wikipedia.org/wiki/IEEE_floating_point). ';
 
     public function serialize($value)
     {
