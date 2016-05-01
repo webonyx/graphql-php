@@ -8,6 +8,10 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
 {
     // Star Wars Validation Tests
     // Basic Queries
+
+    /**
+     * @it Validates a complex but valid query
+     */
     public function testValidatesAComplexButValidQuery()
     {
         $query = '
@@ -32,9 +36,11 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(true, empty($errors));
     }
 
+    /**
+     * @it Notes that non-existent fields are invalid
+     */
     public function testThatNonExistentFieldsAreInvalid()
     {
-        // Notes that non-existent fields are invalid
         $query = '
         query HeroSpaceshipQuery {
           hero {
@@ -46,6 +52,9 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(false, empty($errors));
     }
 
+    /**
+     * @it Requires fields on objects
+     */
     public function testRequiresFieldsOnObjects()
     {
         $query = '
@@ -58,9 +67,11 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(false, empty($errors));
     }
 
+    /**
+     * @it Disallows fields on scalars
+     */
     public function testDisallowsFieldsOnScalars()
     {
-
       $query = '
         query HeroFieldsOnScalarQuery {
           hero {
@@ -74,6 +85,9 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(false, empty($errors));
     }
 
+    /**
+     * @it Disallows object fields on interfaces
+     */
     public function testDisallowsObjectFieldsOnInterfaces()
     {
         $query = '
@@ -88,6 +102,9 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(false, empty($errors));
     }
 
+    /**
+     * @it Allows object fields in fragments
+     */
     public function testAllowsObjectFieldsInFragments()
     {
         $query = '
@@ -106,6 +123,9 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(true, empty($errors));
     }
 
+    /**
+     * @it Allows object fields in inline fragments
+     */
     public function testAllowsObjectFieldsInInlineFragments()
     {
         $query = '

@@ -158,16 +158,14 @@ class Values
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             if (is_array($value)) {
-                return array_reduce(
-                    $value,
-                    function ($acc, $item, $index) use ($itemType) {
-                        $errors = self::isValidPHPValue($item, $itemType);
-                        return array_merge($acc, Utils::map($errors, function ($error) use ($index) {
-                            return "In element #$index: $error";
-                        }));
-                    },
-                    []
-                );
+                $tmp = [];
+                foreach ($value as $index => $item) {
+                    $errors = self::isValidPHPValue($item, $itemType);
+                    $tmp = array_merge($tmp, Utils::map($errors, function ($error) use ($index) {
+                        return "In element #$index: $error";
+                    }));
+                }
+                return $tmp;
             }
             return self::isValidPHPValue($value, $itemType);
         }
@@ -190,7 +188,7 @@ class Values
 
             // Ensure every defined field is valid.
             foreach ($fields as $fieldName => $tmp) {
-                $newErrors = self::isValidPHPValue($value[$fieldName], $fields[$fieldName]->getType());
+                $newErrors = self::isValidPHPValue(isset($value[$fieldName]) ? $value[$fieldName] : null, $fields[$fieldName]->getType());
                 $errors = array_merge(
                     $errors,
                     Utils::map($newErrors, function ($error) use ($fieldName) {

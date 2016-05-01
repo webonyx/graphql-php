@@ -10,18 +10,7 @@ GraphQLInterfaceType |
 GraphQLUnionType;
 */
     /**
-     * @return array<ObjectType>
+     * @return callable|null
      */
-    // public function getPossibleTypes();
-
-    /**
-     * @return ObjectType
-     */
-    // public function getObjectType($value, ResolveInfo $info);
-
-    /**
-     * @param Type $type
-     * @return bool
-     */
-    // public function isPossibleType(Type $type);
+    public function getResolveTypeFn();
 }

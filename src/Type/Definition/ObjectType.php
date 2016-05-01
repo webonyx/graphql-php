@@ -95,10 +95,6 @@ class ObjectType extends Type implements OutputType, CompositeType
         $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;
         $this->_isTypeOf = isset($config['isTypeOf']) ? $config['isTypeOf'] : null;
         $this->config = $config;
-
-        if (isset($config['interfaces'])) {
-            InterfaceType::addImplementationToInterfaces($this);
-        }
     }
 
     /**
@@ -152,10 +148,11 @@ class ObjectType extends Type implements OutputType, CompositeType
 
     /**
      * @param $value
+     * @param $context
      * @return bool|null
      */
-    public function isTypeOf($value, ResolveInfo $info)
+    public function isTypeOf($value, $context, ResolveInfo $info)
     {
-        return isset($this->_isTypeOf) ? call_user_func($this->_isTypeOf, $value, $info) : null;
+        return isset($this->_isTypeOf) ? call_user_func($this->_isTypeOf, $value, $context, $info) : null;
     }
 }

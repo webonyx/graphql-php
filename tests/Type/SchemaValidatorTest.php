@@ -2,6 +2,8 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Schema;
+use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
@@ -11,63 +13,402 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\SchemaValidator;
+use GraphQL\Utils;
 
 class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
 {
-    public $someInputType;
+    private $someInputObjectType;
+
+    private $someScalarType;
+
+    private $someObjectType;
+
+    private $objectWithIsTypeOf;
+
+    private $someEnumType;
+
+    private $someUnionType;
+
+    private $someInterfaceType;
+
+    private $outputTypes;
+
+    private $noOutputTypes;
+
+    private $inputTypes;
+
+    private $noInputTypes;
 
     public function setUp()
     {
-        $this->someInputType = new InputObjectType([
-            'name' => 'SomeInputType',
+        $this->someScalarType = new CustomScalarType([
+            'name' => 'SomeScalar',
+            'serialize' => function() {},
+            'parseValue' => function() {},
+            'parseLiteral' => function() {}
+        ]);
+
+        $this->someObjectType = new ObjectType([
+            'name' => 'SomeObject',
+            'fields' => ['f' => ['type' => Type::string()]]
+        ]);
+
+        $this->objectWithIsTypeOf = new ObjectType([
+            'name' => 'ObjectWithIsTypeOf',
+            'isTypeOf' => function() {return true;},
+            'fields' => ['f' => ['type' => Type::string()]]
+        ]);
+
+        $this->someUnionType = new UnionType([
+            'name' => 'SomeUnion',
+            'resolveType' => function() {return null;},
+            'types' => [$this->someObjectType]
+        ]);
+
+        $this->someInterfaceType = new InterfaceType([
+            'name' => 'SomeInterface',
+            'resolveType' => function() {return null;},
+            'fields' => ['f' => ['type' => Type::string()]]
+        ]);
+
+        $this->someEnumType = new EnumType([
+            'name' => 'SomeEnum',
+            'resolveType' => function() {return null;},
+            'fields' => ['f' => ['type' => Type::string()]]
+        ]);
+
+        $this->someInputObjectType = new InputObjectType([
+            'name' => 'SomeInputObject',
             'fields' => [
-                'val' => [ 'type' => Type::float(), 'defaultValue' => 42 ]
+                'val' => ['type' => Type::float(), 'defaultValue' => 42]
             ]
+        ]);
+
+        $this->outputTypes = $this->withModifiers([
+            Type::string(),
+            $this->someScalarType,
+            $this->someEnumType,
+            $this->someObjectType,
+            $this->someUnionType,
+            $this->someInterfaceType
+        ]);
+
+        $this->noOutputTypes = $this->withModifiers([
+            $this->someInputObjectType
+        ]);
+        $this->noOutputTypes[] = 'SomeString';
+
+        $this->inputTypes = $this->withModifiers([
+            Type::string(),
+            $this->someScalarType,
+            $this->someEnumType,
+            $this->someInputObjectType
+        ]);
+
+        $this->noInputTypes = $this->withModifiers([
+            $this->someObjectType,
+            $this->someUnionType,
+            $this->someInterfaceType
+        ]);
+        $this->noInputTypes[] = 'SomeString';
+    }
+
+    private function withModifiers($types)
+    {
+        return array_merge(
+            Utils::map($types, function($type) {return Type::listOf($type);}),
+            Utils::map($types, function($type) {return Type::nonNull($type);}),
+            Utils::map($types, function($type) {return Type::nonNull(Type::listOf($type));})
+        );
+    }
+
+    private function schemaWithFieldType($type)
+    {
+        return [
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => ['f' => ['type' => $type]]
+            ]),
+            'types' => [$type],
+        ];
+    }
+
+    private function expectPasses($schemaConfig)
+    {
+        $schema = new Schema(['validate' => true] + $schemaConfig);
+        $errors = SchemaValidator::validate($schema);
+        $this->assertEquals([], $errors);
+    }
+
+    private function expectFails($schemaConfig, $error)
+    {
+        try {
+            $schema = new Schema($schemaConfig);
+            $errors = SchemaValidator::validate($schema);
+            if ($errors) {
+                throw $errors[0];
+            }
+            $this->fail('Expected exception not thrown');
+        } catch (\Exception $e) {
+            $this->assertEquals($e->getMessage(), $error);
+        }
+    }
+
+    // Type System: A Schema must have Object root types
+
+    /**
+     * @it accepts a Schema whose query type is an object type
+     */
+    public function testAcceptsSchemaWithQueryTypeOfObjectType()
+    {
+        $this->expectPasses([
+            'query' => $this->someObjectType
         ]);
     }
 
+    /**
+     * @it accepts a Schema whose query and mutation types are object types
+     */
+    public function testAcceptsSchemaWithQueryAndMutationTypesOfObjectType()
+    {
+        $MutationType = new ObjectType([
+            'name' => 'Mutation',
+            'fields' => ['edit' => ['type' => Type::string()]]
+        ]);
+
+        $this->expectPasses([
+            'query' => $this->someObjectType,
+            'mutation' => $MutationType
+        ]);
+    }
+
+    /**
+     * @it accepts a Schema whose query and subscription types are object types
+     */
+    public function testAcceptsSchemaWhoseQueryAndSubscriptionTypesAreObjectTypes()
+    {
+        $SubscriptionType = new ObjectType([
+            'name' => 'Subscription',
+            'fields' => ['subscribe' => ['type' => Type::string()]]
+        ]);
+
+        $this->expectPasses([
+            'query' => $this->someObjectType,
+            'subscription' => $SubscriptionType
+        ]);
+    }
+
+    /**
+     * @it rejects a Schema without a query type
+     */
+    public function testRejectsSchemaWithoutQueryType()
+    {
+        $this->expectFails([], 'Schema query must be Object Type but got: NULL');
+    }
+
+    /**
+     * @it rejects a Schema whose query type is an input type
+     */
+    public function testRejectsSchemaWhoseQueryTypeIsAnInputType()
+    {
+        $this->expectFails(
+            ['query' => $this->someInputObjectType],
+            'Schema query must be Object Type but got: SomeInputObject'
+        );
+    }
+
+    /**
+     * @it rejects a Schema whose mutation type is an input type
+     */
+    public function testRejectsSchemaWhoseMutationTypeIsInputType()
+    {
+        $this->expectFails(
+            ['query' => $this->someObjectType, 'mutation' => $this->someInputObjectType],
+            'Schema mutation must be Object Type if provided but got: SomeInputObject'
+        );
+    }
+
+    /**
+     * @it rejects a Schema whose subscription type is an input type
+     */
+    public function testRejectsSchemaWhoseSubscriptionTypeIsInputType()
+    {
+        $this->expectFails(
+            [
+                'query' => $this->someObjectType,
+                'subscription' => $this->someInputObjectType
+            ],
+            'Schema subscription must be Object Type if provided but got: SomeInputObject'
+        );
+    }
+
+    /**
+     * @it rejects a Schema whose directives are incorrectly typed
+     */
+    public function testRejectsSchemaWhoseDirectivesAreIncorrectlyTyped()
+    {
+        $this->expectFails(
+            [
+                'query' => $this->someObjectType,
+                'directives' => [ 'somedirective' ]
+            ],
+            'Schema directives must be Directive[] if provided but got array'
+        );
+    }
+
+    // Type System: A Schema must contain uniquely named types
+
+    /**
+     * @it rejects a Schema which redefines a built-in type
+     */
+    public function testRejectsSchemaWhichRedefinesBuiltInType()
+    {
+        $FakeString = new CustomScalarType([
+            'name' => 'String',
+            'serialize' => function() {return null;},
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'normal' => [ 'type' => Type::string() ],
+                'fake' => [ 'type' => $FakeString ],
+            ]
+        ]);
+
+        $this->expectFails(
+            [ 'query' => $QueryType ],
+            'Schema must contain unique named types but contains multiple types named "String".'
+        );
+    }
+
+    /**
+     * @it rejects a Schema which defines an object type twice
+     */
+    public function testRejectsSchemaWhichDefinesObjectTypeTwice()
+    {
+        $A = new ObjectType([
+            'name' => 'SameName',
+            'fields' => ['f' => ['type' => Type::string()]],
+        ]);
+
+        $B = new ObjectType([
+            'name' => 'SameName',
+            'fields' => ['f' => ['type' => Type::string()]],
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'a' => ['type' => $A],
+                'b' => ['type' => $B]
+            ]
+        ]);
+
+        $this->expectFails(
+            ['query' => $QueryType],
+            'Schema must contain unique named types but contains multiple types named "SameName".'
+        );
+    }
+
+    /**
+     * @it rejects a Schema which have same named objects implementing an interface
+     */
+    public function testRejectsSchemaWhichHaveSameNamedObjectsImplementingInterface()
+    {
+        $AnotherInterface = new InterfaceType([
+            'name' => 'AnotherInterface',
+            'resolveType' => function () {
+                return null;
+            },
+            'fields' => ['f' => ['type' => Type::string()]],
+        ]);
+
+        $FirstBadObject = new ObjectType([
+            'name' => 'BadObject',
+            'interfaces' => [$AnotherInterface],
+            'fields' => ['f' => ['type' => Type::string()]],
+        ]);
+
+        $SecondBadObject = new ObjectType([
+            'name' => 'BadObject',
+            'interfaces' => [$AnotherInterface],
+            'fields' => ['f' => ['type' => Type::string()]],
+        ]);
+
+        $QueryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'iface' => ['type' => $AnotherInterface],
+            ]
+        ]);
+
+        $this->expectFails(
+            [
+                'query' => $QueryType,
+                'types' => [$FirstBadObject, $SecondBadObject]
+            ],
+            'Schema must contain unique named types but contains multiple types named "BadObject".'
+        );
+    }
+
+    // Type System: Objects must have fields
+
+    /**
+     * @it accepts an Object type with fields object
+     */
+    public function testAcceptsAnObjectTypeWithFieldsObject()
+    {
+        $schemaConfig = $this->schemaWithFieldType(new ObjectType([
+            'name' => 'SomeObject',
+            'fields' => [
+                'f' => [ 'type' => Type::string() ]
+            ]
+        ]));
+        $this->expectPasses($schemaConfig);
+    }
+
+    /**
+     * @it accepts an Object type with a field function
+     */
+    public function testAcceptsAnObjectTypeWithFieldFunction()
+    {
+        $schemaConfig = $this->schemaWithFieldType(new ObjectType([
+            'name' => 'SomeObject',
+            'fields' => function() {
+                return [
+                    'f' => ['type' => Type::string()]
+                ];
+            }
+        ]));
+        $this->expectPasses($schemaConfig);
+    }
 
     // Type System Config
     public function testPassesOnTheIntrospectionSchema()
     {
-        $schema = new Schema(Introspection::_schema());
-        $errors = SchemaValidator::validate($schema);
-        $this->assertEmpty($errors);
-    }
-
-
-    // Rule: NoInputTypesAsOutputFields
-    public function testRejectsSchemaWhoseQueryOrMutationTypeIsAnInputType()
-    {
-        $schema = new Schema($this->someInputType);
-        $validationResult = SchemaValidator::validate($schema, [SchemaValidator::noInputTypesAsOutputFieldsRule()]);
-        $this->checkValidationResult($validationResult, 'query');
-
-        $schema = new Schema(null, $this->someInputType);
-        $validationResult = SchemaValidator::validate($schema, [SchemaValidator::noInputTypesAsOutputFieldsRule()]);
-        $this->checkValidationResult($validationResult, 'mutation');
+        $this->expectPasses(['query' => Introspection::_schema()]);
     }
 
     public function testRejectsASchemaThatUsesAnInputTypeAsAField()
     {
         $kinds = [
             'GraphQL\Type\Definition\ObjectType',
-            'GraphQL\Type\Definition\InterfaceType',
         ];
         foreach ($kinds as $kind) {
             $someOutputType = new $kind([
                 'name' => 'SomeOutputType',
                 'fields' => [
-                    'sneaky' => ['type' => function() {return $this->someInputType;}]
+                    'sneaky' => ['type' => function() {return $this->someInputObjectType;}]
                 ]
             ]);
 
-            $schema = new Schema($someOutputType);
+            $schema = new Schema(['query' => $someOutputType]);
             $validationResult = SchemaValidator::validate($schema, [SchemaValidator::noInputTypesAsOutputFieldsRule()]);
 
             $this->assertSame(1, count($validationResult));
             $this->assertSame(
-                'Field SomeOutputType.sneaky is of type SomeInputType, which is an ' .
+                'Field SomeOutputType.sneaky is of type SomeInputObject, which is an ' .
                 'input type, but field types must be output types!',
                 $validationResult[0]->message
             );
@@ -85,13 +426,13 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
             'name' => 'SomeOutputType',
             'fields' => [
                 'fieldWithArg' => [
-                    'args' => ['someArg' => ['type' => $this->someInputType]],
+                    'args' => ['someArg' => ['type' => $this->someInputObjectType]],
                     'type' => Type::float()
                 ]
             ]
         ]);
 
-        $schema = new Schema($someOutputType);
+        $schema = new Schema(['query' => $someOutputType]);
         $errors = SchemaValidator::validate($schema, [$rule]);
         $this->assertEmpty($errors);
     }
@@ -101,7 +442,7 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($validationErrors, "Should not validate");
         $this->assertEquals(1, count($validationErrors));
         $this->assertEquals(
-            "Schema $operationType type SomeInputType must be an object type!",
+            "Schema $operationType must be Object Type but got: SomeInputObject.",
             $validationErrors[0]->message
         );
     }
@@ -153,7 +494,7 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
     {
         // rejects a schema with a list of objects as an input field arg
         $listObjects = new ListOfType(new ObjectType([
-            'name' => 'SomeInputType',
+            'name' => 'SomeInputObject',
             'fields' => ['f' => ['type' => Type::float()]]
         ]));
         $this->assertRejectingFieldArgOfType($listObjects);
@@ -174,7 +515,7 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
     {
         // accepts a schema with a list of input type as an input field arg
         $this->assertAcceptingFieldArgOfType(new ListOfType(new InputObjectType([
-            'name' => 'SomeInputType'
+            'name' => 'SomeInputObject'
         ])));
     }
 
@@ -182,7 +523,7 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
     {
         // accepts a schema with a nonnull input type as an input field arg
         $this->assertAcceptingFieldArgOfType(new NonNull(new InputObjectType([
-            'name' => 'SomeInputType'
+            'name' => 'SomeInputObject'
         ])));
     }
 
@@ -219,7 +560,7 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        return new Schema($queryType);
+        return new Schema(['query' => $queryType]);
     }
 
     private function expectRejectionBecauseFieldIsNotInputType($errors, $fieldTypeName)
@@ -233,83 +574,8 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    // Rule: InterfacePossibleTypesMustImplementTheInterface
-
-    public function testAcceptsInterfaceWithSubtypeDeclaredUsingOurInfra()
-    {
-        // accepts an interface with a subtype declared using our infra
-        $this->assertAcceptingAnInterfaceWithANormalSubtype(SchemaValidator::interfacePossibleTypesMustImplementTheInterfaceRule());
-    }
-
     public function testRejectsWhenAPossibleTypeDoesNotImplementTheInterface()
     {
         // TODO: Validation for interfaces / implementors
-    }
-
-    private function assertAcceptingAnInterfaceWithANormalSubtype($rule)
-    {
-        $interfaceType = new InterfaceType([
-            'name' => 'InterfaceType',
-            'fields' => []
-        ]);
-
-        $subType = new ObjectType([
-            'name' => 'SubType',
-            'fields' => [],
-            'interfaces' => [$interfaceType]
-        ]);
-
-        $schema = new Schema($interfaceType, $subType);
-
-        $errors = SchemaValidator::validate($schema, [$rule]);
-        $this->assertEmpty($errors);
-    }
-
-
-    // Rule: TypesInterfacesMustShowThemAsPossible
-
-    public function testAcceptsInterfaceWithASubtypeDeclaredUsingOurInfra()
-    {
-        // accepts an interface with a subtype declared using our infra
-        $this->assertAcceptingAnInterfaceWithANormalSubtype(SchemaValidator::typesInterfacesMustShowThemAsPossibleRule());
-    }
-
-    public function testRejectsWhenAnImplementationIsNotAPossibleType()
-    {
-        // rejects when an implementation is not a possible type
-        $interfaceType = new InterfaceType([
-            'name' => 'InterfaceType',
-            'fields' => []
-        ]);
-
-        $subType = new ObjectType([
-            'name' => 'SubType',
-            'fields' => [],
-            'interfaces' => []
-        ]);
-
-        $tmp = new \ReflectionObject($subType);
-        $prop = $tmp->getProperty('_interfaces');
-        $prop->setAccessible(true);
-        $prop->setValue($subType, [$interfaceType]);
-
-        // Sanity check the test.
-        $this->assertEquals([$interfaceType], $subType->getInterfaces());
-        $this->assertSame(false, $interfaceType->isPossibleType($subType));
-
-        // Need to make sure SubType is in the schema! We rely on
-        // possibleTypes to be able to see it unless it's explicitly used.
-        $schema = new Schema($interfaceType, $subType);
-
-        // Another sanity check.
-        $this->assertSame($subType, $schema->getType('SubType'));
-
-        $errors = SchemaValidator::validate($schema, [SchemaValidator::typesInterfacesMustShowThemAsPossibleRule()]);
-        $this->assertSame(1, count($errors));
-        $this->assertSame(
-            'SubType implements interface InterfaceType, but InterfaceType does ' .
-            'not list it as possible!',
-            $errors[0]->message
-        );
     }
 }

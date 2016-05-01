@@ -185,30 +185,18 @@ GraphQLNonNull;
 
     /**
      * @param $value
+     * @param mixed $context
      * @param AbstractType $abstractType
      * @return Type
      * @throws \Exception
      */
-    public static function getTypeOf($value, ResolveInfo $info, AbstractType $abstractType)
+    public static function getTypeOf($value, $context, ResolveInfo $info, AbstractType $abstractType)
     {
-        $possibleTypes = $abstractType->getPossibleTypes();
+        $possibleTypes = $info->schema->getPossibleTypes($abstractType);
 
-        for ($i = 0; $i < count($possibleTypes); $i++) {
+        foreach ($possibleTypes as $type) {
             /** @var ObjectType $type */
-            $type = $possibleTypes[$i];
-            $isTypeOf = $type->isTypeOf($value, $info);
-
-            if ($isTypeOf === null) {
-                // TODO: move this to a JS impl specific type system validation step
-                // so the error can be found before execution.
-                throw new \Exception(
-                    'Non-Object Type ' . $abstractType->name . ' does not implement ' .
-                    'getObjectType and Object Type ' . $type->name . ' does not implement ' .
-                    'isTypeOf. There is no way to determine if a value is of this type.'
-                );
-            }
-
-            if ($isTypeOf) {
+            if ($type->isTypeOf($value, $context, $info)) {
                 return $type;
             }
         }

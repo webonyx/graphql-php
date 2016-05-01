@@ -9,9 +9,11 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
     // Star Wars Query Tests
     // Basic Queries
 
+    /**
+     * @it Correctly identifies R2-D2 as the hero of the Star Wars Saga
+     */
     public function testCorrectlyIdentifiesR2D2AsTheHeroOfTheStarWarsSaga()
     {
-        // Correctly identifies R2-D2 as the hero of the Star Wars Saga
         $query = '
         query HeroNameQuery {
           hero {
@@ -27,6 +29,9 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
+    /**
+     * @it Allows us to query for the ID and friends of R2-D2
+     */
     public function testAllowsUsToQueryForTheIDAndFriendsOfR2D2()
     {
         $query = '
@@ -60,7 +65,11 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // Nested Queries
+    // Describe: Nested Queries
+
+    /**
+     * @it Allows us to query for the friends of friends of R2-D2
+     */
     public function testAllowsUsToQueryForTheFriendsOfFriendsOfR2D2()
     {
         $query = '
@@ -117,7 +126,11 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // Using IDs and query parameters to refetch objects
+    // Describe: Using IDs and query parameters to refetch objects
+
+    /**
+     * @it Using IDs and query parameters to refetch objects
+     */
     public function testAllowsUsToQueryForLukeSkywalkerDirectlyUsingHisID()
     {
         $query = '
@@ -136,9 +149,11 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
+    /**
+     * @it Allows us to create a generic query, then use it to fetch Luke Skywalker using his ID
+     */
     public function testGenericQueryToGetLukeSkywalkerById()
     {
-        // Allows us to create a generic query, then use it to fetch Luke Skywalker using his ID
         $query = '
         query FetchSomeIDQuery($someId: String!) {
           human(id: $someId) {
@@ -158,9 +173,11 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQueryWithParams($query, $params, $expected);
     }
 
+    /**
+     * @it Allows us to create a generic query, then use it to fetch Han Solo using his ID
+     */
     public function testGenericQueryToGetHanSoloById()
     {
-        // Allows us to create a generic query, then use it to fetch Han Solo using his ID
         $query = '
         query FetchSomeIDQuery($someId: String!) {
           human(id: $someId) {
@@ -179,9 +196,11 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQueryWithParams($query, $params, $expected);
     }
 
+    /**
+     * @it Allows us to create a generic query, then pass an invalid ID to get null back
+     */
     public function testGenericQueryWithInvalidId()
     {
-        // Allows us to create a generic query, then pass an invalid ID to get null back
         $query = '
         query humanQuery($id: String!) {
           human(id: $id) {
@@ -199,9 +218,12 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
     }
 
     // Using aliases to change the key in the response
+
+    /**
+     * @it Allows us to query for Luke, changing his key with an alias
+     */
     function testLukeKeyAlias()
     {
-        // Allows us to query for Luke, changing his key with an alias
         $query = '
         query FetchLukeAliased {
           luke: human(id: "1000") {
@@ -217,9 +239,11 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
+    /**
+     * @it Allows us to query for both Luke and Leia, using two root fields and an alias
+     */
     function testTwoRootKeysAsAnAlias()
     {
-        // Allows us to query for both Luke and Leia, using two root fields and an alias
         $query = '
         query FetchLukeAndLeiaAliased {
           luke: human(id: "1000") {
@@ -242,9 +266,12 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
     }
 
     // Uses fragments to express more complex queries
+
+    /**
+     * @it Allows us to query using duplicated content
+     */
     function testQueryUsingDuplicatedContent()
     {
-        // Allows us to query using duplicated content
         $query = '
         query DuplicateFields {
           luke: human(id: "1000") {
@@ -270,9 +297,11 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
+    /**
+     * @it Allows us to use a fragment to avoid duplicating content
+     */
     function testUsingFragment()
     {
-        // Allows us to use a fragment to avoid duplicating content
         $query = '
         query UseFragment {
           luke: human(id: "1000") {
@@ -302,7 +331,9 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // Using __typename to find the type of an object
+    /**
+     * @it Using __typename to find the type of an object
+     */
     public function testVerifyThatR2D2IsADroid()
     {
         $query = '
@@ -322,6 +353,9 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
+    /**
+     * @it Allows us to verify that Luke is a human
+     */
     public function testVerifyThatLukeIsHuman()
     {
         $query = '
@@ -356,6 +390,6 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
      */
     private function assertValidQueryWithParams($query, $params, $expected)
     {
-        $this->assertEquals(['data' => $expected], GraphQL::execute(StarWarsSchema::build(), $query, null, $params));
+        $this->assertEquals(['data' => $expected], GraphQL::execute(StarWarsSchema::build(), $query, null, null, $params));
     }
 }

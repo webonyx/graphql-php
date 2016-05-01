@@ -1099,9 +1099,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
 
         $actual = GraphQL::execute($emptySchema, $request);
 
-        // print_r($actual);
-        // exit;
-
         $this->assertEquals($expected, $actual);
     }
 

@@ -17,6 +17,9 @@ class FieldDefinition
      */
     private $type;
 
+    /**
+     * @var OutputType
+     */
     private $resolvedType;
 
     /**
