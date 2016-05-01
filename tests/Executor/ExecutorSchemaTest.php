@@ -11,6 +11,10 @@ use GraphQL\Type\Definition\Type;
 class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
 {
     // Execute: Handles execution with a complex schema
+
+    /**
+     * @it executes using a schema
+     */
     public function testExecutesUsingASchema()
     {
         $BlogArticle = null;
@@ -83,7 +87,7 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $BlogSchema = new Schema($BlogQuery);
+        $BlogSchema = new Schema(['query' => $BlogQuery]);
 
 
         $request = '

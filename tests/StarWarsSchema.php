@@ -291,6 +291,6 @@ class StarWarsSchema
             ]
         ]);
 
-        return new Schema($queryType);
+        return new Schema(['query' => $queryType]);
     }
 }

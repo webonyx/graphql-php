@@ -24,9 +24,14 @@ class ExecutionContext
     public $fragments;
 
     /**
-     * @var
+     * @var mixed
      */
     public $rootValue;
+
+    /**
+     * @var mixed
+     */
+    public $contextValue;
 
     /**
      * @var OperationDefinition
@@ -48,11 +53,12 @@ class ExecutionContext
      */
     public $memoized = [];
 
-    public function __construct($schema, $fragments, $root, $operation, $variables, $errors)
+    public function __construct($schema, $fragments, $root, $contextValue, $operation, $variables, $errors)
     {
         $this->schema = $schema;
         $this->fragments = $fragments;
         $this->rootValue = $root;
+        $this->contextValue = $contextValue;
         $this->operation = $operation;
         $this->variableValues = $variables;
         $this->errors = $errors ?: [];

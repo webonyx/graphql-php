@@ -14,21 +14,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public $description;
 
     /**
-     * @var array<GraphQLObjectType>
-     */
-    private $_implementations = [];
-
-    /**
-     * @var \Closure[]
-     */
-    private static $_lazyLoadImplementations = [];
-
-    /**
-     * @var {[typeName: string]: boolean}
-     */
-    private $_possibleTypeNames;
-
-    /**
      * @var callback
      */
     private $_resolveTypeFn;
@@ -37,45 +22,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      * @var array
      */
     public $config;
-
-    /**
-     * Queue the update of the interfaces to know about this implementation.
-     * This is an rare and unfortunate use of mutation in the type definition
-     * implementations, but avoids an expensive "getPossibleTypes"
-     * implementation for Interface types.
-     *
-     * @param ObjectType $impl
-     */
-    public static function addImplementationToInterfaces(ObjectType $impl)
-    {
-        self::$_lazyLoadImplementations[] = function() use ($impl) {
-            /** @var self $interface */
-            foreach ($impl->getInterfaces() as $interface) {
-                $interface->addImplementation($impl);
-            }
-        };
-    }
-
-    /**
-     * Process ImplementationToInterfaces Queue
-     */
-    public static function loadImplementationToInterfaces()
-    {
-        foreach (self::$_lazyLoadImplementations as $lazyLoadImplementation) {
-            $lazyLoadImplementation();
-        }
-        self::$_lazyLoadImplementations = [];
-    }
-
-    /**
-     * Add a implemented object type to interface
-     *
-     * @param ObjectType $impl
-     */
-    protected function addImplementation(ObjectType $impl)
-    {
-        $this->_implementations[] = $impl;
-    }
 
     /**
      * InterfaceType constructor.
@@ -89,7 +35,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
                 FieldDefinition::getDefinition(),
                 Config::KEY_AS_NAME | Config::MAYBE_THUNK
             ),
-            'resolveType' => Config::CALLBACK, // function($value, ResolveInfo $info) => ObjectType
+            'resolveType' => Config::CALLBACK, // function($value, $context, ResolveInfo $info) => ObjectType
             'description' => Config::STRING
         ]);
 
@@ -128,38 +74,10 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     }
 
     /**
-     * @return array<GraphQLObjectType>
+     * @return callable|null
      */
-    public function getPossibleTypes()
+    public function getResolveTypeFn()
     {
-        return $this->_implementations;
-    }
-
-    /**
-     * @param Type $type
-     * @return bool
-     */
-    public function isPossibleType(Type $type)
-    {
-        $possibleTypeNames = $this->_possibleTypeNames;
-        if (null === $possibleTypeNames) {
-            $this->_possibleTypeNames = $possibleTypeNames = array_reduce($this->getPossibleTypes(), function(&$map, Type $possibleType) {
-                $map[$possibleType->name] = true;
-                return $map;
-            }, []);
-        }
-        return !empty($possibleTypeNames[$type->name]);
-    }
-
-    /**
-     * @param $value
-     * @param ResolveInfo $info
-     * @return Type|null
-     * @throws \Exception
-     */
-    public function getObjectType($value, ResolveInfo $info)
-    {
-        $resolver = $this->_resolveTypeFn;
-        return $resolver ? call_user_func($resolver, $value, $info) : Type::getTypeOf($value, $info, $this);
+        return $this->_resolveTypeFn;
     }
 }

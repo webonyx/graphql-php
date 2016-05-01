@@ -135,7 +135,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'article' => [
                     'type' => $article,
-                    'resolve' => function($value, $args, ResolveInfo $info) use (&$hasCalled, &$actualDefaultSelection, &$actualDeepSelection) {
+                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDefaultSelection, &$actualDeepSelection) {
                         $hasCalled = true;
                         $actualDefaultSelection = $info->getFieldSelection();
                         $actualDeepSelection = $info->getFieldSelection(5);
@@ -145,7 +145,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema($blogQuery);
+        $schema = new Schema(['query' => $blogQuery]);
         $result = GraphQL::execute($schema, $doc);
 
         $this->assertTrue($hasCalled);

@@ -68,10 +68,14 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $this->schema = new Schema($dataType);
+        $this->schema = new Schema(['query' => $dataType]);
     }
 
     // Execute: handles non-nullable types
+
+    /**
+     * @it nulls a nullable field that throws synchronously
+     */
     public function testNullsANullableFieldThatThrowsSynchronously()
     {
         $doc = '
@@ -93,7 +97,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 )
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, [], 'Q')->toArray());
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsSynchronously()
@@ -117,7 +121,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 FormattedError::create($this->nonNullSyncError->message, [new SourceLocation(4, 11)])
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, [], 'Q')->toArray());
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsAComplexTreeOfNullableFieldsThatThrow()
@@ -149,7 +153,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 FormattedError::create($this->syncError->message, [new SourceLocation(6, 13)]),
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, [], 'Q')->toArray());
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsANullableFieldThatSynchronouslyReturnsNull()
@@ -167,7 +171,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'sync' => null,
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, [], 'Q')->toArray());
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
     public function test4()
@@ -188,10 +192,10 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'nest' => null
             ],
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable type.', [new SourceLocation(4, 11)])
+                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(4, 11)])
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, [], 'Q')->toArray());
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
     public function test5()
@@ -227,7 +231,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 ],
             ]
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, [], 'Q')->toArray());
+        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsTheTopLevelIfSyncNonNullableFieldThrows()
@@ -255,7 +259,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'data' => null,
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable type.', [new SourceLocation(2, 17)]),
+                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(2, 17)]),
             ]
         ];
         $this->assertEquals($expected, Executor::execute($this->schema, Parser::parse($doc), $this->nullingData)->toArray());

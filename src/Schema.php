@@ -3,18 +3,13 @@ namespace GraphQL;
 
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
-use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
-use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
-use GraphQL\Utils\TypeInfo;
 
 class Schema
 {
@@ -79,19 +74,43 @@ class Schema
 
     protected function _init(array $config)
     {
-        Utils::invariant(isset($config['query']) || isset($config['mutation']), "Either query or mutation type must be set");
-
         $config += [
             'query' => null,
             'mutation' => null,
             'subscription' => null,
+            'types' => [],
             'directives' => [],
             'validate' => true
         ];
 
+        Utils::invariant(
+            $config['query'] instanceof ObjectType,
+            "Schema query must be Object Type but got: " . Utils::getVariableType($config['query'])
+        );
+
         $this->_queryType = $config['query'];
+
+        Utils::invariant(
+            !$config['mutation'] || $config['mutation'] instanceof ObjectType,
+            "Schema mutation must be Object Type if provided but got: " . Utils::getVariableType($config['mutation'])
+        );
         $this->_mutationType = $config['mutation'];
+
+        Utils::invariant(
+            !$config['subscription'] || $config['subscription'] instanceof ObjectType,
+            "Schema subscription must be Object Type if provided but got: " . Utils::getVariableType($config['subscription'])
+        );
         $this->_subscriptionType = $config['subscription'];
+
+        Utils::invariant(
+            !$config['types'] || is_array($config['types']),
+            "Schema types must be Array if provided but got: " . Utils::getVariableType($config['types'])
+        );
+
+        Utils::invariant(
+            !$config['directives'] || (is_array($config['directives']) && Utils::every($config['directives'], function($d) {return $d instanceof Directive;})),
+            "Schema directives must be Directive[] if provided but got " . Utils::getVariableType($config['directives'])
+        );
 
         $this->_directives = array_merge($config['directives'], [
             Directive::includeDirective(),
@@ -109,11 +128,10 @@ class Schema
             $initialTypes = array_merge($initialTypes, $config['types']);
         }
 
-        $map = [];
         foreach ($initialTypes as $type) {
-            $this->_extractTypes($type, $map);
+            $this->_extractTypes($type);
         }
-        $this->_typeMap = $map + Type::getInternalTypes();
+        $this->_typeMap += Type::getInternalTypes();
 
         // Keep track of all implementations by interface name.
         $this->_implementations = [];
@@ -121,86 +139,6 @@ class Schema
             if ($type instanceof ObjectType) {
                 foreach ($type->getInterfaces() as $iface) {
                     $this->_implementations[$iface->name][] = $type;
-                }
-            }
-        }
-
-        if ($config['validate']) {
-            $this->validate();
-        }
-    }
-
-    /**
-     * Additionaly validate schema for integrity
-     */
-    public function validate()
-    {
-        // Enforce correct interface implementations
-        foreach ($this->_typeMap as $typeName => $type) {
-            if ($type instanceof ObjectType) {
-                foreach ($type->getInterfaces() as $iface) {
-                    $this->_assertObjectImplementsInterface($type, $iface);
-                }
-            }
-        }
-    }
-
-    /**
-     * @param ObjectType $object
-     * @param InterfaceType $iface
-     * @throws \Exception
-     */
-    protected function _assertObjectImplementsInterface(ObjectType $object, InterfaceType $iface)
-    {
-        $objectFieldMap = $object->getFields();
-        $ifaceFieldMap = $iface->getFields();
-
-        foreach ($ifaceFieldMap as $fieldName => $ifaceField) {
-            Utils::invariant(
-                isset($objectFieldMap[$fieldName]),
-                "\"$iface\" expects field \"$fieldName\" but \"$object\" does not provide it"
-            );
-
-            /** @var $ifaceField FieldDefinition */
-            /** @var $objectField FieldDefinition */
-            $objectField = $objectFieldMap[$fieldName];
-
-            Utils::invariant(
-                TypeInfo::isTypeSubTypeOf($this, $objectField->getType(), $ifaceField->getType()),
-                "$iface.$fieldName expects type \"{$ifaceField->getType()}\" but " .
-                "$object.$fieldName provides type \"{$objectField->getType()}\"."
-            );
-
-            foreach ($ifaceField->args as $ifaceArg) {
-                /** @var $ifaceArg FieldArgument */
-                /** @var $objectArg FieldArgument */
-                $argName = $ifaceArg->name;
-                $objectArg = $objectField->getArg($argName);
-
-                // Assert interface field arg exists on object field.
-                Utils::invariant(
-                    $objectArg,
-                    "$iface.$fieldName expects argument \"$argName\" but $object.$fieldName does not provide it."
-                );
-
-                // Assert interface field arg type matches object field arg type.
-                // (invariant)
-                Utils::invariant(
-                    TypeInfo::isEqualType($ifaceArg->getType(), $objectArg->getType()),
-                    "$iface.$fieldName($argName:) expects type \"{$ifaceArg->getType()}\" " .
-                    "but $object.$fieldName($argName:) provides " .
-                    "type \"{$objectArg->getType()}\""
-                );
-
-                // Assert argument set invariance.
-                foreach ($objectField->args as $objectArg) {
-                    $argName = $objectArg->name;
-                    $ifaceArg = $ifaceField->getArg($argName);
-                    Utils::invariant(
-                        $ifaceArg,
-                        "$iface.$fieldName does not define argument \"$argName\" but " .
-                        "$object.$fieldName provides it."
-                    );
                 }
             }
         }
@@ -258,7 +196,7 @@ class Schema
             return $abstractType->getTypes();
         }
         Utils::invariant($abstractType instanceof InterfaceType);
-        return $this->_implementations[$abstractType->name];
+        return isset($this->_implementations[$abstractType->name]) ? $this->_implementations[$abstractType->name] : [];
     }
 
     /**
@@ -305,24 +243,24 @@ class Schema
         return null;
     }
 
-    protected function _extractTypes($type, &$map)
+    protected function _extractTypes($type)
     {
         if (!$type) {
-            return $map;
+            return $this->_typeMap;
         }
 
         if ($type instanceof WrappingType) {
-            return $this->_extractTypes($type->getWrappedType(), $map);
+            return $this->_extractTypes($type->getWrappedType(true));
         }
 
-        if (!empty($map[$type->name])) {
+        if (!empty($this->_typeMap[$type->name])) {
             Utils::invariant(
-                $map[$type->name] === $type,
+                $this->_typeMap[$type->name] === $type,
                 "Schema must contain unique named types but contains multiple types named \"$type\"."
             );
-            return $map;
+            return $this->_typeMap;
         }
-        $map[$type->name] = $type;
+        $this->_typeMap[$type->name] = $type;
 
         $nestedTypes = [];
 
@@ -342,8 +280,8 @@ class Schema
             }
         }
         foreach ($nestedTypes as $type) {
-            $this->_extractTypes($type, $map);
+            $this->_extractTypes($type);
         }
-        return $map;
+        return $this->_typeMap;
     }
 }

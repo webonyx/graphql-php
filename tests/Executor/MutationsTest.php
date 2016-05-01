@@ -12,6 +12,10 @@ use GraphQL\Type\Definition\Type;
 class MutationsTest extends \PHPUnit_Framework_TestCase
 {
     // Execute: Handles mutation execution ordering
+
+    /**
+     * @it evaluates mutations serially
+     */
     public function testEvaluatesMutationsSerially()
     {
         $doc = 'mutation M {
@@ -32,7 +36,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
       }
     }';
         $ast = Parser::parse($doc);
-        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6), null, 'M');
+        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
         $expected = [
             'data' => [
                 'first' => [
@@ -55,6 +59,9 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $mutationResult->toArray());
     }
 
+    /**
+     * @it evaluates mutations correctly in the presense of a failed mutation
+     */
     public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation()
     {
         $doc = 'mutation M {
@@ -78,7 +85,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
       }
     }';
         $ast = Parser::parse($doc);
-        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6), null, 'M');
+        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
         $expected = [
             'data' => [
                 'first' => [
@@ -118,14 +125,14 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
             ],
             'name' => 'NumberHolder',
         ]);
-        $schema = new Schema(
-            new ObjectType([
+        $schema = new Schema([
+            'query' => new ObjectType([
                 'fields' => [
                     'numberHolder' => ['type' => $numberHolderType],
                 ],
                 'name' => 'Query',
             ]),
-            new ObjectType([
+            'mutation' => new ObjectType([
                 'fields' => [
                     'immediatelyChangeTheNumber' => [
                         'type' => $numberHolderType,
@@ -158,7 +165,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 ],
                 'name' => 'Mutation',
             ])
-        );
+        ]);
         return $schema;
     }
 }

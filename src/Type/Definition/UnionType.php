@@ -18,7 +18,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
     /**
      * @var callback
      */
-    private $_resolveType;
+    private $_resolveTypeFn;
 
     /**
      * @var array
@@ -44,7 +44,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->_types = $config['types'];
-        $this->_resolveType = isset($config['resolveType']) ? $config['resolveType'] : null;
+        $this->_resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
         $this->_config = $config;
     }
 
@@ -85,15 +85,10 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
     }
 
     /**
-     * @param ObjectType $value
-     * @param ResolveInfo $info
-     *
-     * @return Type
-     * @throws \Exception
+     * @return callable|null
      */
-    public function getObjectType($value, ResolveInfo $info)
+    public function getResolveTypeFn()
     {
-        $resolver = $this->_resolveType;
-        return $resolver ? call_user_func($resolver, $value, $info) : Type::getTypeOf($value, $info, $this);
+        return $this->_resolveTypeFn;
     }
 }

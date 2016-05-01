@@ -3,6 +3,7 @@ namespace GraphQL;
 
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
+use GraphQL\Language\AST\Document;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Validator\DocumentValidator;
@@ -18,9 +19,9 @@ class GraphQL
      * @param string|null $operationName
      * @return array
      */
-    public static function execute(Schema $schema, $requestString, $rootValue = null, $variableValues = null, $operationName = null)
+    public static function execute(Schema $schema, $requestString, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
     {
-        return self::executeAndReturnResult($schema, $requestString, $rootValue, $variableValues, $operationName)->toArray();
+        return self::executeAndReturnResult($schema, $requestString, $rootValue, $contextValue, $variableValues, $operationName)->toArray();
     }
 
     /**
@@ -31,11 +32,15 @@ class GraphQL
      * @param null $operationName
      * @return array|ExecutionResult
      */
-    public static function executeAndReturnResult(Schema $schema, $requestString, $rootValue = null, $variableValues = null, $operationName = null)
+    public static function executeAndReturnResult(Schema $schema, $requestString, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
     {
         try {
-            $source = new Source($requestString ?: '', 'GraphQL request');
-            $documentAST = Parser::parse($source);
+            if ($requestString instanceof Document) {
+                $documentAST = $requestString;
+            } else {
+                $source = new Source($requestString ?: '', 'GraphQL request');
+                $documentAST = Parser::parse($source);
+            }
 
             /** @var QueryComplexity $queryComplexity */
             $queryComplexity = DocumentValidator::getRule('QueryComplexity');
@@ -46,7 +51,7 @@ class GraphQL
             if (!empty($validationErrors)) {
                 return new ExecutionResult(null, $validationErrors);
             } else {
-                return Executor::execute($schema, $documentAST, $rootValue, $variableValues, $operationName);
+                return Executor::execute($schema, $documentAST, $rootValue, $contextValue, $variableValues, $operationName);
             }
         } catch (Error $e) {
             return new ExecutionResult(null, [$e]);

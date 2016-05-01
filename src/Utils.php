@@ -1,6 +1,9 @@
 <?php
 namespace GraphQL;
 
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Utils\SchemaUtils;
 use \Traversable, \InvalidArgumentException;
 
 class Utils
@@ -169,6 +172,21 @@ class Utils
     }
 
     /**
+     * @param $traversable
+     * @param callable $predicate
+     * @return bool
+     */
+    public static function every($traversable, callable $predicate)
+    {
+        foreach ($traversable as $key => $value) {
+            if (!$predicate($value, $key)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      * @param $test
      * @param string $message
      * @param mixed $sprintfParam1
@@ -193,6 +211,13 @@ class Utils
      */
     public static function getVariableType($var)
     {
+        if ($var instanceof Type) {
+            // FIXME: Replace with schema printer call
+            if ($var instanceof WrappingType) {
+                $var = $var->getWrappedType(true);
+            }
+            return $var->name;
+        }
         return is_object($var) ? get_class($var) : gettype($var);
     }
 

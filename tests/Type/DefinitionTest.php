@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Utils;
 
 class DefinitionTest extends \PHPUnit_Framework_TestCase
 {
@@ -415,7 +416,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 $this->fail('Expected exception not thrown');
             } catch (\Exception $e) {
                 $this->assertSame(
-                    'Error in "BadUnion" type definition: expecting callable or instance of GraphQL\Type\Definition\ObjectType at "types:0", but got "' . get_class($type) . '"',
+                    'Error in "BadUnion" type definition: expecting callable or instance of GraphQL\Type\Definition\ObjectType at "types:0", but got "' . Utils::getVariableType($type) . '"',
                     $e->getMessage()
                 );
             }

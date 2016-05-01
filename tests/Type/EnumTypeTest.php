@@ -189,6 +189,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                 $this->schema,
                 'query test($color: Color!) { colorEnum(fromEnum: $color) }',
                 null,
+                null,
                 ['color' => 'BLUE']
             )
         );
@@ -204,6 +205,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             GraphQL::execute(
                 $this->schema,
                 'mutation x($color: Color!) { favoriteEnum(color: $color) }',
+                null,
                 null,
                 ['color' => 'GREEN']
             )
@@ -223,6 +225,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             GraphQL::execute(
                 $this->schema,
                 'subscription x($color: Color!) { subscribeToEnum(color: $color) }',
+                null,
                 null,
                 ['color' => 'GREEN']
             )
@@ -295,7 +298,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
 
     private function expectFailure($query, $vars, $err)
     {
-        $result = GraphQL::executeAndReturnResult($this->schema, $query, null, $vars);
+        $result = GraphQL::executeAndReturnResult($this->schema, $query, null, null, $vars);
         $this->assertEquals(1, count($result->errors));
 
         $this->assertEquals(

@@ -426,7 +426,7 @@ EOD;
                         ],
                         'possibleTypes' => [
                             'type' => Type::listOf(Type::nonNull([__CLASS__, '_type'])),
-                            'resolve' => function ($type, $args, ResolveInfo $info) {
+                            'resolve' => function ($type, $args, $context, ResolveInfo $info) {
                                 if ($type instanceof InterfaceType || $type instanceof UnionType) {
                                     return $info->schema->getPossibleTypes($type);
                                 }
@@ -635,6 +635,7 @@ EOD;
                 'resolve' => function (
                     $source,
                     $args,
+                    $context,
                     ResolveInfo $info
                 ) {
                     return $info->schema;
@@ -654,7 +655,7 @@ EOD;
                 'args' => [
                     ['name' => 'name', 'type' => Type::nonNull(Type::string())]
                 ],
-                'resolve' => function ($source, $args, ResolveInfo $info) {
+                'resolve' => function ($source, $args, $context, ResolveInfo $info) {
                     return $info->schema->getType($args['name']);
                 }
             ]);
@@ -673,6 +674,7 @@ EOD;
                 'resolve' => function (
                     $source,
                     $args,
+                    $context,
                     ResolveInfo $info
                 ) {
                     return $info->parentType->name;

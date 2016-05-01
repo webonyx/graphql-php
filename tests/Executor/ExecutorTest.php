@@ -137,9 +137,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 'deeper' => [ 'type' => Type::listOf($dataType) ]
             ]
         ]);
-        $schema = new Schema($dataType);
+        $schema = new Schema(['query' => $dataType]);
 
-        $this->assertEquals($expected, Executor::execute($schema, $ast, $data, ['size' => 100], 'Example')->toArray());
+        $this->assertEquals($expected, Executor::execute($schema, $ast, $data, null, ['size' => 100], 'Example')->toArray());
     }
 
     public function testMergesParallelFragments()
@@ -180,7 +180,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ]);
-        $schema = new Schema($Type);
+        $schema = new Schema(['query' => $Type]);
         $expected = [
             'data' => [
                 'a' => 'Apple',
@@ -212,20 +212,22 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         ];
 
         $ast = Parser::parse($doc);
-        $schema = new Schema(new ObjectType([
-            'name' => 'Type',
-            'fields' => [
-                'a' => [
-                    'type' => Type::string(),
-                    'resolve' => function ($context) use ($doc, &$gotHere) {
-                        $this->assertEquals('thing', $context['contextThing']);
-                        $gotHere = true;
-                    }
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => [
+                        'type' => Type::string(),
+                        'resolve' => function ($context) use ($doc, &$gotHere) {
+                            $this->assertEquals('thing', $context['contextThing']);
+                            $gotHere = true;
+                        }
+                    ]
                 ]
-            ]
-        ]));
+            ])
+        ]);
 
-        Executor::execute($schema, $ast, $data, [], 'Example');
+        Executor::execute($schema, $ast, $data, null, [], 'Example');
         $this->assertEquals(true, $gotHere);
     }
 
@@ -240,24 +242,26 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $gotHere = false;
 
         $docAst = Parser::parse($doc);
-        $schema = new Schema(new ObjectType([
-            'name' => 'Type',
-            'fields' => [
-                'b' => [
-                    'args' => [
-                        'numArg' => ['type' => Type::int()],
-                        'stringArg' => ['type' => Type::string()]
-                    ],
-                    'type' => Type::string(),
-                    'resolve' => function ($_, $args) use (&$gotHere) {
-                        $this->assertEquals(123, $args['numArg']);
-                        $this->assertEquals('foo', $args['stringArg']);
-                        $gotHere = true;
-                    }
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'b' => [
+                        'args' => [
+                            'numArg' => ['type' => Type::int()],
+                            'stringArg' => ['type' => Type::string()]
+                        ],
+                        'type' => Type::string(),
+                        'resolve' => function ($_, $args) use (&$gotHere) {
+                            $this->assertEquals(123, $args['numArg']);
+                            $this->assertEquals('foo', $args['stringArg']);
+                            $gotHere = true;
+                        }
+                    ]
                 ]
-            ]
-        ]));
-        Executor::execute($schema, $docAst, null, [], 'Example');
+            ])
+        ]);
+        Executor::execute($schema, $docAst, null, null, [], 'Example');
         $this->assertSame($gotHere, true);
     }
 
@@ -296,17 +300,19 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         ];
 
         $docAst = Parser::parse($doc);
-        $schema = new Schema(new ObjectType([
-            'name' => 'Type',
-            'fields' => [
-                'sync' => ['type' => Type::string()],
-                'syncError' => ['type' => Type::string()],
-                'syncRawError' => [ 'type' => Type::string() ],
-                'async' => ['type' => Type::string()],
-                'asyncReject' => ['type' => Type::string() ],
-                'asyncError' => ['type' => Type::string()],
-            ]
-        ]));
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'sync' => ['type' => Type::string()],
+                    'syncError' => ['type' => Type::string()],
+                    'syncRawError' => [ 'type' => Type::string() ],
+                    'async' => ['type' => Type::string()],
+                    'asyncReject' => ['type' => Type::string() ],
+                    'asyncError' => ['type' => Type::string()],
+                ]
+            ])
+        ]);
 
         $expected = [
             'data' => [
@@ -336,12 +342,14 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $doc = '{ a }';
         $data = ['a' => 'b'];
         $ast = Parser::parse($doc);
-        $schema = new Schema(new ObjectType([
-            'name' => 'Type',
-            'fields' => [
-                'a' => ['type' => Type::string()],
-            ]
-        ]));
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => ['type' => Type::string()],
+                ]
+            ])
+        ]);
 
         $ex = Executor::execute($schema, $ast, $data);
 
@@ -353,12 +361,14 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $doc = 'query Example { a }';
         $data = [ 'a' => 'b' ];
         $ast = Parser::parse($doc);
-        $schema = new Schema(new ObjectType([
-            'name' => 'Type',
-            'fields' => [
-                'a' => [ 'type' => Type::string() ],
-            ]
-        ]));
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => [ 'type' => Type::string() ],
+                ]
+            ])
+        ]);
 
         $ex = Executor::execute($schema, $ast, $data);
         $this->assertEquals(['data' => ['a' => 'b']], $ex->toArray());
@@ -369,12 +379,14 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $doc = 'query Example { a } query OtherExample { a }';
         $data = [ 'a' => 'b' ];
         $ast = Parser::parse($doc);
-        $schema = new Schema(new ObjectType([
-            'name' => 'Type',
-            'fields' => [
-                'a' => [ 'type' => Type::string() ],
-            ]
-        ]));
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => [ 'type' => Type::string() ],
+                ]
+            ])
+        ]);
 
         try {
             Executor::execute($schema, $ast, $data);
@@ -389,22 +401,22 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $doc = 'query Q { a } mutation M { c }';
         $data = ['a' => 'b', 'c' => 'd'];
         $ast = Parser::parse($doc);
-        $schema = new Schema(
-            new ObjectType([
+        $schema = new Schema([
+            'query' => new ObjectType([
                 'name' => 'Q',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ]
             ]),
-            new ObjectType([
+            'mutation' => new ObjectType([
                 'name' => 'M',
                 'fields' => [
                     'c' => ['type' => Type::string()],
                 ]
             ])
-        );
+        ]);
 
-        $queryResult = Executor::execute($schema, $ast, $data, [], 'Q');
+        $queryResult = Executor::execute($schema, $ast, $data, null, [], 'Q');
         $this->assertEquals(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
@@ -413,21 +425,21 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $doc = 'query Q { a } mutation M { c }';
         $data = [ 'a' => 'b', 'c' => 'd' ];
         $ast = Parser::parse($doc);
-        $schema = new Schema(
-            new ObjectType([
+        $schema = new Schema([
+            'query' => new ObjectType([
                 'name' => 'Q',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ]
             ]),
-            new ObjectType([
+            'mutation' => new ObjectType([
                 'name' => 'M',
                 'fields' => [
                     'c' => [ 'type' => Type::string() ],
                 ]
             ])
-        );
-        $mutationResult = Executor::execute($schema, $ast, $data, [], 'M');
+        ]);
+        $mutationResult = Executor::execute($schema, $ast, $data, null, [], 'M');
         $this->assertEquals(['data' => ['c' => 'd']], $mutationResult->toArray());
     }
 
@@ -447,14 +459,16 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         ';
         $data = ['a' => 'b'];
         $ast = Parser::parse($doc);
-        $schema = new Schema(new ObjectType([
-            'name' => 'Type',
-            'fields' => [
-                'a' => ['type' => Type::string()],
-            ]
-        ]));
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => ['type' => Type::string()],
+                ]
+            ])
+        ]);
 
-        $queryResult = Executor::execute($schema, $ast, $data, [], 'Q');
+        $queryResult = Executor::execute($schema, $ast, $data, null, [], 'Q');
         $this->assertEquals(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
@@ -464,28 +478,28 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
       thisIsIllegalDontIncludeMe
     }';
         $ast = Parser::parse($doc);
-        $schema = new Schema(
-            new ObjectType([
+        $schema = new Schema([
+            'query' => new ObjectType([
                 'name' => 'Q',
                 'fields' => [
                     'a' => ['type' => Type::string()],
                 ]
             ]),
-            new ObjectType([
+            'mutation' => new ObjectType([
                 'name' => 'M',
                 'fields' => [
                     'c' => ['type' => Type::string()],
                 ]
             ])
-        );
+        ]);
         $mutationResult = Executor::execute($schema, $ast);
         $this->assertEquals(['data' => []], $mutationResult->toArray());
     }
 
     public function testDoesNotIncludeArgumentsThatWereNotSet()
     {
-        $schema = new Schema(
-            new ObjectType([
+        $schema = new Schema([
+            'query' => new ObjectType([
                 'name' => 'Type',
                 'fields' => [
                     'field' => [
@@ -501,7 +515,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                     ]
                 ]
             ])
-        );
+        ]);
 
         $query = Parser::parse('{ field(a: true, c: false, e: 0) }');
         $result = Executor::execute($schema, $query);
@@ -516,8 +530,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
     public function testSubstitutesArgumentWithDefaultValue()
     {
-        $schema = new Schema(
-            new ObjectType([
+        $schema = new Schema([
+            'query' => new ObjectType([
                 'name' => 'Type',
                 'fields' => [
                     'field' => [
@@ -535,7 +549,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                     ]
                 ]
             ])
-        );
+        ]);
 
         $query = Parser::parse('{ field }');
         $result = Executor::execute($schema, $query);
