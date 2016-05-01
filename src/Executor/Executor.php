@@ -196,9 +196,18 @@ class Executor
                     );
                 }
                 return $mutationType;
+            case 'subscription':
+                $subscriptionType = $schema->getSubscriptionType();
+                if (!$subscriptionType) {
+                    throw new Error(
+                        'Schema is not configured for subscriptions',
+                        [ $operation ]
+                    );
+                }
+                return $subscriptionType;
             default:
                 throw new Error(
-                    'Can only execute queries and mutations',
+                    'Can only execute queries, mutations and subscriptions',
                     [$operation]
                 );
         }

@@ -218,10 +218,8 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsEnumLiteralsAsInputArgumentsToSubscriptions()
     {
-        $this->markTestIncomplete('Enable when subscription support is implemented');
-
         $this->assertEquals(
-            ['data' => ['subscribeToEnum' => 'GREEN'], 'errors' => [[]]],
+            ['data' => ['subscribeToEnum' => 'GREEN']],
             GraphQL::execute(
                 $this->schema,
                 'subscription x($color: Color!) { subscribeToEnum(color: $color) }',
