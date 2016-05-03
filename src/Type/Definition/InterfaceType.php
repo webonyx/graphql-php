@@ -128,10 +128,15 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     }
 
     /**
+     * Returns possible types, loads implementations if they were not loaded previously
+     *
      * @return array<GraphQLObjectType>
      */
     public function getPossibleTypes()
     {
+        if (self::$_lazyLoadImplementations) {
+            self::loadImplementationToInterfaces();
+        }
         return $this->_implementations;
     }
 
