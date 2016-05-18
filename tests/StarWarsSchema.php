@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -161,8 +162,18 @@ class StarWarsSchema
                 'friends' => [
                     'type' => Type::listOf($characterInterface),
                     'description' => 'The friends of the human, or an empty list if they have none.',
-                    'resolve' => function ($human) {
-                        return StarWarsData::getFriends($human);
+                    'resolve' => function ($human, $args, ResolveInfo $info) {
+                        $fieldSelection = $info->getFieldSelection();
+                        $fieldSelection['id'] = true;
+
+                        $friends = array_map(
+                            function($friend) use ($fieldSelection) {
+                                return array_intersect_key($friend, $fieldSelection);
+                            },
+                            StarWarsData::getFriends($human)
+                        );
+
+                        return $friends;
                     },
                 ],
                 'appearsIn' => [
