@@ -302,6 +302,57 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
+    function testFragmentWithProjection()
+    {
+        $query = '
+        query UseFragment {
+          human(id: "1003") {
+            name
+            ...fa
+            ...fb
+          }
+        }
+
+        fragment fa on Character {
+          friends {
+            id
+          }
+        }
+        fragment fb on Character {
+          friends {
+            name
+          }
+        }
+        ';
+
+        $expected = [
+            'human' => [
+                'name' => 'Leia Organa',
+                'friends' => [
+                    [
+                        'name' => 'Luke Skywalker',
+                        'id' => '1000'
+
+                    ],
+                    [
+                        'name' => 'Han Solo',
+                        'id' => '1002'
+                    ],
+                    [
+                        'name' => 'C-3PO',
+                        'id' => '2000'
+                    ],
+                    [
+                        'name' => 'R2-D2',
+                        'id' => '2001'
+                    ]
+                ]
+            ]
+        ];
+
+        $this->assertValidQuery($query, $expected);
+    }
+
     // Using __typename to find the type of an object
     public function testVerifyThatR2D2IsADroid()
     {

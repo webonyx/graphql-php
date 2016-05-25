@@ -95,9 +95,14 @@ class ResolveInfo
      */
     public function getFieldSelection($depth = 0)
     {
+        $fields = [];
+
         /** @var Field $fieldAST */
-        $fieldAST = $this->fieldASTs[0];
-        return $this->foldSelectionSet($fieldAST->selectionSet, $depth);
+        foreach ($this->fieldASTs as $fieldAST) {
+            $fields = array_merge_recursive($fields, $this->foldSelectionSet($fieldAST->selectionSet, $depth));
+        }
+
+        return $fields;
     }
 
     private function foldSelectionSet(SelectionSet $selectionSet, $descend)
