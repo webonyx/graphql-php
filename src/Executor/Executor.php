@@ -360,89 +360,58 @@ class Executor
     {
         $fieldAST = $fieldASTs[0];
 
-        $uid = self::getFieldUid($fieldAST, $parentType);
+        $fieldName = $fieldAST->name->value;
 
-        // Get memoized variables if they exist
-        if (isset($exeContext->memoized['resolveField'][$uid])) {
-            $memoized = $exeContext->memoized['resolveField'][$uid];
-            $fieldDef = $memoized['fieldDef'];
-            $returnType = $fieldDef->getType();
-            $args = $memoized['args'];
-            $info = $memoized['info'];
-        }
-        else {
-            $fieldName = $fieldAST->name->value;
+        $fieldDef = self::getFieldDef($exeContext->schema, $parentType, $fieldName);
 
-            $fieldDef = self::getFieldDef($exeContext->schema, $parentType, $fieldName);
-
-            if (!$fieldDef) {
-                return self::$UNDEFINED;
-            }
-
-            $returnType = $fieldDef->getType();
-
-            // Build hash of arguments from the field.arguments AST, using the
-            // variables scope to fulfill any variable references.
-            $args = Values::getArgumentValues(
-                $fieldDef->args,
-                $fieldAST->arguments,
-                $exeContext->variableValues
-            );
-
-            // The resolve function's optional third argument is a collection of
-            // information about the current execution state.
-            $info = new ResolveInfo([
-                'fieldName' => $fieldName,
-                'fieldASTs' => $fieldASTs,
-                'returnType' => $returnType,
-                'parentType' => $parentType,
-                'schema' => $exeContext->schema,
-                'fragments' => $exeContext->fragments,
-                'rootValue' => $exeContext->rootValue,
-                'operation' => $exeContext->operation,
-                'variableValues' => $exeContext->variableValues,
-            ]);
-
-            // Memoizing results for same query field
-            // (useful for lists when several values are resolved against the same field)
-            $exeContext->memoized['resolveField'][$uid] = $memoized = [
-                'fieldDef' => $fieldDef,
-                'args' => $args,
-                'info' => $info,
-                'results' => new \SplObjectStorage
-            ];
+        if (!$fieldDef) {
+            return self::$UNDEFINED;
         }
 
-        // When source value is object it is possible to memoize certain subset of results
-        $isObject = is_object($source);
+        $returnType = $fieldDef->getType();
 
-        if ($isObject && isset($memoized['results'][$source])) {
-            $result = $memoized['results'][$source];
+        // Build hash of arguments from the field.arguments AST, using the
+        // variables scope to fulfill any variable references.
+        $args = Values::getArgumentValues(
+            $fieldDef->args,
+            $fieldAST->arguments,
+            $exeContext->variableValues
+        );
+
+        // The resolve function's optional third argument is a collection of
+        // information about the current execution state.
+        $info = new ResolveInfo([
+            'fieldName' => $fieldName,
+            'fieldASTs' => $fieldASTs,
+            'returnType' => $returnType,
+            'parentType' => $parentType,
+            'schema' => $exeContext->schema,
+            'fragments' => $exeContext->fragments,
+            'rootValue' => $exeContext->rootValue,
+            'operation' => $exeContext->operation,
+            'variableValues' => $exeContext->variableValues,
+        ]);
+
+
+        if (isset($fieldDef->resolveFn)) {
+            $resolveFn = $fieldDef->resolveFn;
+        } else if (isset($parentType->resolveFieldFn)) {
+            $resolveFn = $parentType->resolveFieldFn;
         } else {
-            if (isset($fieldDef->resolveFn)) {
-                $resolveFn = $fieldDef->resolveFn;
-            } else if (isset($parentType->resolveFieldFn)) {
-                $resolveFn = $parentType->resolveFieldFn;
-            } else {
-                $resolveFn = self::$defaultResolveFn;
-            }
-
-            // Get the resolve function, regardless of if its result is normal
-            // or abrupt (error).
-            $result = self::resolveOrError($resolveFn, $source, $args, $info);
-
-            $result = self::completeValueCatchingError(
-                $exeContext,
-                $returnType,
-                $fieldASTs,
-                $info,
-                $result
-            );
-
-            if ($isObject) {
-                $memoized['results'][$source] = $result;
-            }
+            $resolveFn = self::$defaultResolveFn;
         }
+
+        // Get the resolve function, regardless of if its result is normal
+        // or abrupt (error).
+        $result = self::resolveOrError($resolveFn, $source, $args, $info);
+
+        $result = self::completeValueCatchingError(
+            $exeContext,
+            $returnType,
+            $fieldASTs,
+            $info,
+            $result
+        );
 
         return $result;
     }
