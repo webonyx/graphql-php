@@ -42,6 +42,8 @@ $> curl -sS https://getcomposer.org/installer | php
 $> php composer.phar require webonyx/graphql-php='dev-master'
 ```
 
+If you are upgrading, see [upgrade instructions](UPGRADE.md)
+
 ## Requirements
 PHP >=5.4
 
@@ -52,7 +54,7 @@ Examples below implement the type system described in this document.
 ### Type System
 To start using GraphQL you are expected to implement a Type system.
 
-GraphQL PHP provides several *kinds* of types to build hierarchical type system:
+GraphQL PHP provides several *kinds* of types to build a hierarchical type system:
  `scalar`, `enum`, `object`, `interface`, `union`, `listOf`, `nonNull`.
 
 #### Internal types
@@ -357,7 +359,17 @@ $queryType = new ObjectType([
 // TODOC
 $mutationType = null;
 
-$schema = new Schema($queryType, $mutationType);
+$schema = new Schema([
+    'query' => $queryType, 
+    'mutation' => $mutationType,
+    
+    // We need to pass the types that implement interfaces in case the types are only created on demand.
+    // This ensures that they are available during query validation phase for interfaces. 
+    'types' => [
+        $humanType,
+        $droidType
+    ]
+]);
 ```
 
 **Notes:**
@@ -447,6 +459,7 @@ try {
         $schema,
         $requestString,
         /* $rootValue */ null,
+        /* $context */ null, // A custom context that can be used to pass current User object etc to resolvers.
         $variableValues,
         $operationName
     );
