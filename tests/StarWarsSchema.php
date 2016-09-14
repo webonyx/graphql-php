@@ -162,7 +162,7 @@ class StarWarsSchema
                 'friends' => [
                     'type' => Type::listOf($characterInterface),
                     'description' => 'The friends of the human, or an empty list if they have none.',
-                    'resolve' => function ($human, $args, ResolveInfo $info) {
+                    'resolve' => function ($human, $args, $context, ResolveInfo $info) {
                         $fieldSelection = $info->getFieldSelection();
                         $fieldSelection['id'] = true;
 
