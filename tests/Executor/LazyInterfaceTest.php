@@ -44,9 +44,6 @@ class LazyInterfaceTest extends \PHPUnit_Framework_TestCase
                         'resolve' => function() {
                             return [];
                         }
-                    ],
-                    'testObject' => [
-                        'type' => $this->getTestObjectType()
                     ]
                 ];
             }
