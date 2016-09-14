@@ -58,8 +58,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new Token(Token::STRING, 0, 8, 'simple'), $this->lexOne('"simple"'));
         $this->assertEquals(new Token(Token::STRING, 0, 15, ' white space '), $this->lexOne('" white space "'));
         $this->assertEquals(new Token(Token::STRING, 0, 10, 'quote "'), $this->lexOne('"quote \\""'));
-        $this->assertEquals(new Token(Token::STRING, 0, 20, 'escaped \n\r\b\t\f'), $this->lexOne('"escaped \\n\\r\\b\\t\\f"'));
-        $this->assertEquals(new Token(Token::STRING, 0, 15, 'slashes \\ \/'), $this->lexOne('"slashes \\\\ \\/"'));
+        $this->assertEquals(new Token(Token::STRING, 0, 25, 'escaped \n\r\b\t\f'), $this->lexOne('"escaped \\\\n\\\\r\\\\b\\\\t\\\\f"'));
+        $this->assertEquals(new Token(Token::STRING, 0, 16, 'slashes \\ \/'), $this->lexOne('"slashes \\\\ \\\\/"'));
 
         $this->assertEquals(new Token(Token::STRING, 0, 13, 'unicode яуц'), $this->lexOne('"unicode яуц"'));
 

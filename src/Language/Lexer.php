@@ -229,13 +229,13 @@ class Lexer
                 $code = Utils::charCodeAt($body, $position);
                 switch ($code) {
                     case 34: $value .= '"'; break;
-                    case 47: $value .= '\/'; break;
+                    case 47: $value .= '/'; break;
                     case 92: $value .= '\\'; break;
-                    case 98: $value .= '\b'; break;
-                    case 102: $value .= '\f'; break;
-                    case 110: $value .= '\n'; break;
-                    case 114: $value .= '\r'; break;
-                    case 116: $value .= '\t'; break;
+                    case 98: $value .= chr(8); break; // \b (backspace)
+                    case 102: $value .= "\f"; break;
+                    case 110: $value .= "\n"; break;
+                    case 114: $value .= "\r"; break;
+                    case 116: $value .= "\t"; break;
                     case 117:
                         $hex = mb_substr($body, $position + 1, 4);
                         if (!preg_match('/[0-9a-fA-F]{4}/', $hex)) {
