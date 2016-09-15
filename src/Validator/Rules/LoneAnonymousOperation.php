@@ -14,7 +14,7 @@ use GraphQL\Validator\ValidationContext;
  * A GraphQL document is only valid if when it contains an anonymous operation
  * (the query short-hand) that it contains only that one operation definition.
  */
-class LoneAnonymousOperation extends \PHPUnit_Framework_TestCase
+class LoneAnonymousOperation
 {
     static function anonOperationNotAloneMessage()
     {
