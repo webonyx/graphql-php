@@ -60,7 +60,7 @@ class Schema
                 'See https://github.com/webonyx/graphql-php/issues/36',
                 E_USER_DEPRECATED
             );
-            list($queryType, $mutationType, $subscriptionType) = func_get_args();
+            list($queryType, $mutationType, $subscriptionType) = func_get_args() + [null, null, null];
 
             $config = [
                 'query' => $queryType,
