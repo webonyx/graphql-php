@@ -7,22 +7,49 @@ with the spec of April2016
 
 ### 1. Context for resolver
 
-You can now pass a custom context to the `GraphQL::execute` function that is available in all resolvers. 
-This can for example be used to pass the current user etc. The new signature looks like this:
+You can now pass a custom context to the `GraphQL::execute` function that is available in all resolvers as 3rd argument. 
+This can for example be used to pass the current user etc.
 
+Make sure to update all calls to `GraphQL::execute`, `GraphQL::executeAndReturnResult`, `Executor::execute` and all 
+`'resolve'` callbacks in your app.
+ 
+Before v0.7.0 `GraphQL::execute` signature looked this way:
+ ```php
+ GraphQL::execute(
+     $schema,
+     $query,
+     $rootValue,
+     $variables,
+     $operationName
+ );
+ ```
+
+Starting from v0.7.0 the signature looks this way (note the new `$context` argument):
 ```php
 GraphQL::execute(
     $schema,
     $query,
-    $rootObject,
+    $rootValue,
     $context,
     $variables,
     $operationName
 );
 ```
 
-The signature of all resolve methods has changed to the following: 
+Before v.0.7.0 resolve callbacks had following signature:
+```php
+/**
+ * @param mixed $object The parent resolved object
+ * @param array $args Input arguments
+ * @param ResolveInfo $info ResolveInfo object
+ * @return mixed
+ */
+function resolveMyField($object, array $args, ResolveInfo $info) {
+    //...
+}
+```
 
+Starting from v0.7.0 the signature has changed to (note the new `$context` argument): 
 ```php
 /**
  * @param mixed $object The parent resolved object
@@ -38,8 +65,14 @@ function resolveMyField($object, array $args, $context, ResolveInfo $info){
 
 ### 2. Schema constructor signature
 
-The signature of the Schema constructor now accepts an associative config array instead of positional arguments: 
+The signature of the Schema constructor now accepts an associative config array instead of positional arguments:
+ 
+Before v0.7.0:
+```php
+$schema = new Schema($queryType, $mutationType);
+```
 
+Starting from v0.7.0:
 ```php
 $schema = new Schema([
     'query' => $queryType,
@@ -50,9 +83,25 @@ $schema = new Schema([
 
 ### 3. Types can be directly passed to schema
 
-In case your implementation creates types on demand, the types might not be available when an interface
-is queried and query validation will fail. In that case, you need to pass the types that implement the
-interfaces directly to the schema, so it knows of their existence during query validation. 
-Also see webonyx/graphql-php#38
+There are edge cases when GraphQL cannot infer some types from your schema. 
+One example is when you define a field of interface type and object types implementing 
+this interface are not referenced anywhere else.
 
-If your types are created each time the Schema is created, this can be ignored. 
+In such case object types might not be available when an interface is queried and query 
+validation will fail. In that case, you need to pass the types that implement the
+interfaces directly to the schema, so that GraphQL knows of their existence during query validation.
+
+For example:
+```php
+$schema = new Schema([
+    'query' => $queryType,
+    'mutation' => $mutationType,
+    'types' => $arrayOfTypesWithInterfaces
+]);
+```
+
+Note that you don't need to pass all types here - only those types that GraphQL "doesn't see" 
+automatically. Before v7.0.0 the workaround for this was to create a dumb (non-used) field per 
+each "invisible" object type.
+
+Also see [webonyx/graphql-php#38](https://github.com/webonyx/graphql-php/issues/38)
