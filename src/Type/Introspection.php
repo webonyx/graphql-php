@@ -282,25 +282,25 @@ EOD;
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
                         'resolve' => function($d) {
-                            return in_array(Directive::$directiveLocations['QUERY'], $d['locations']) ||
-                                in_array(Directive::$directiveLocations['MUTATION'], $d['locations']) ||
-                                in_array(Directive::$directiveLocations['SUBSCRIPTION'], $d['locations']);
+                            return in_array(Directive::$directiveLocations['QUERY'], $d->locations) ||
+                                in_array(Directive::$directiveLocations['MUTATION'], $d->locations) ||
+                                in_array(Directive::$directiveLocations['SUBSCRIPTION'], $d->locations);
                         }
                     ],
                     'onFragment' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
                         'resolve' => function($d) {
-                            return in_array(Directive::$directiveLocations['FRAGMENT_SPREAD'], $d['locations']) ||
-                            in_array(Directive::$directiveLocations['INLINE_FRAGMENT'], $d['locations']) ||
-                            in_array(Directive::$directiveLocations['FRAGMENT_DEFINITION'], $d['locations']);
+                            return in_array(Directive::$directiveLocations['FRAGMENT_SPREAD'], $d->locations) ||
+                            in_array(Directive::$directiveLocations['INLINE_FRAGMENT'], $d->locations) ||
+                            in_array(Directive::$directiveLocations['FRAGMENT_DEFINITION'], $d->locations);
                         }
                     ],
                     'onField' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
                         'resolve' => function($d) {
-                            return in_array(Directive::$directiveLocations['FIELD'], $d['locations']);
+                            return in_array(Directive::$directiveLocations['FIELD'], $d->locations);
                         }
                     ]
                 ]
