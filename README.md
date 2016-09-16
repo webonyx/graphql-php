@@ -34,7 +34,9 @@ This PHP implementation is a thin wrapper around your existing data layer and bu
 - Schema validation and introspection
 - Ability to parse and execute GraphQL queries against type system
 
-Actual data fetching has to be implemented on the user land.
+Actual data fetching has to be implemented on the user land. 
+
+Check out single-file [hello world](https://gist.github.com/leocavalcante/9e61ca6065130e37737f24892d81fa40) example for quick introduction.
 
 ## Installing graphql-php
 ```
