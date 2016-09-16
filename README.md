@@ -186,7 +186,7 @@ Option | Type | Notes
 name | `string` | Required. Unique name of this interface type within Schema
 fields | `array` | Required. List of fields required to be defined by interface implementors. See [Fields](#fields) section for available options.
 description | `string` | Textual description of this interface for clients
-resolveType | `callback(value) => objectType` | Any `callable` that receives data from data layer of your application and returns concrete interface implementor for that data.
+resolveType | `callback($value, $context, ResolveInfo $info) => objectType` | Any `callable` that receives data from data layer of your application and returns concrete interface implementor for that data.
 
 
 **Notes**:
@@ -254,7 +254,7 @@ name | `string` | Required. Unique name of this object type within Schema
 fields | `array` | Required. List of fields describing object properties. See [Fields](#Fields) section for available options.
 description | `string` | Textual description of this type for clients
 interfaces | `array` or `callback() => ObjectType[]` | List of interfaces implemented by this type (or callback returning list of interfaces)
-isTypeOf | `callback($value, GraphQL\Type\Definition\ResolveInfo $info)` | Callback that takes `$value` provided by your data layer and returns true if that `$value` qualifies for this type
+isTypeOf | `callback($value, $context, GraphQL\Type\Definition\ResolveInfo $info)` | Callback that takes `$value` provided by your data layer and returns true if that `$value` qualifies for this type
 
 **Notes:**
 
@@ -263,7 +263,7 @@ isTypeOf | `callback($value, GraphQL\Type\Definition\ResolveInfo $info)` | Callb
 2. Object types are responsible for data fetching. Each of their fields may have optional `resolve` callback option. This callback takes `$value` that corresponds to instance of this type and returns `data` accepted by type of given field.
 If `resolve` option is not set, GraphQL will try to get `data` from `$value[$fieldName]`.
 
-3. `resolve` callback is a place where you can use your existing data fetching logic.
+3. `resolve` callback is a place where you can use your existing data fetching logic. `$context` is defined by your application on the top level of query execution (useful for storing current user, environment details, etc)
 
 4. Other `ObjectType` mentioned in examples is `Droid`. Check out tests for this type: https://github.com/webonyx/graphql-php/blob/master/tests/StarWarsSchema.php
 
@@ -282,7 +282,7 @@ Option | Type | Notes
 name | `string` | Required. Name of the field. If not set - GraphQL will look use `key` of fields array on type definition.
 type | `Type` or `callback() => Type` | Required. One of internal or custom types. Alternatively - callback that returns `type`.
 args | `array` | Array of possible type arguments. Each entry is expected to be an array with following keys: **name** (`string`), **type** (`Type` or `callback() => Type`), **defaultValue** (`any`)
-resolve | `callback($value, $args, ResolveInfo $info) => $fieldValue` | Function that receives `$value` of parent type and returns value for this field.
+resolve | `callback($value, $args, $context, ResolveInfo $info) => $fieldValue` | Function that receives `$value` of parent type and returns value for this field. `$context` is also defined by your application in the root call to `GraphQL::execute()`
 description | `string` | Field description for clients
 deprecationReason | `string` | Text describing why this field is deprecated. When not empty - field will not be returned by introspection queries (unless forced)
 
@@ -461,7 +461,7 @@ try {
         $schema,
         $requestString,
         /* $rootValue */ null,
-        /* $context */ null, // A custom context that can be used to pass current User object etc to resolvers.
+        /* $context */ null, // A custom context that can be used to pass current User object etc to all resolvers.
         $variableValues,
         $operationName
     );
