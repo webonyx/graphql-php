@@ -46,7 +46,7 @@ $result = GraphQL::execute(
 ```
 
 Result returned:
-```
+```php
 [
   'hero' => [
     'id' => '2001',
