@@ -29,7 +29,7 @@ This implementation will follow JavaScript version as close as possible until Gr
 ## Overview
 GraphQL is intended to be a replacement for REST APIs. [Read more](http://facebook.github.io/react/blog/2015/05/01/graphql-introduction.html) about rationale behind it.
 
-Example:
+Example usage:
 ```php
 $result = GraphQL::execute(
   StarWarsSchema::build(),
@@ -59,7 +59,7 @@ Result returned:
   ]
 ]
 ```
-
+(see also [schema definition](https://github.com/webonyx/graphql-php/blob/master/tests/StarWarsSchema.php#L22) for type system of this example).
 
 This PHP implementation is a thin wrapper around your existing data layer and business logic. It doesn't dictate how these layers are implemented or which storage engines are used. Instead it provides tools for creating API for your existing app. These tools include:
 - Type system
