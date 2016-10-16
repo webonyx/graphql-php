@@ -4,51 +4,106 @@ namespace GraphQL\Language;
 use GraphQL\SyntaxError;
 use GraphQL\Utils;
 
-// language/lexer.js
-
+/**
+ * A Lexer is a stateful stream generator in that every time
+ * it is advanced, it returns the next token in the Source. Assuming the
+ * source lexes, the final Token emitted by the lexer will be of kind
+ * EOF, after which the lexer will repeatedly return the same EOF token
+ * whenever called.
+ */
 class Lexer
 {
     /**
-     * @var int
-     */
-    private $prevPosition;
-
-    /**
      * @var Source
      */
-    private $source;
+    public $source;
 
-    public function __construct(Source $source)
+    /**
+     * @var array
+     */
+    public $options;
+
+    /**
+     * The previously focused non-ignored token.
+     *
+     * @var Token
+     */
+    public $lastToken;
+
+    /**
+     * The currently focused non-ignored token.
+     *
+     * @var Token
+     */
+    public $token;
+
+    /**
+     * The (1-indexed) line containing the current token.
+     *
+     * @var int
+     */
+    public $line;
+
+    /**
+     * The character offset at which the current line begins.
+     *
+     * @var int
+     */
+    public $lineStart;
+
+    public function __construct(Source $source, array $options = [])
     {
-        $this->prevPosition = 0;
+        $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0, null);
+
         $this->source = $source;
+        $this->options = $options;
+        $this->lastToken = $startOfFileToken;
+        $this->token = $startOfFileToken;
+        $this->line = 1;
+        $this->lineStart = 0;
     }
 
     /**
-     * @param int|null $resetPosition
      * @return Token
      */
-    public function nextToken($resetPosition = null)
+    public function advance()
     {
-        $token = $this->readToken($resetPosition === null ? $this->prevPosition : $resetPosition);
-        $this->prevPosition = $token->end;
+        $token = $this->lastToken = $this->token;
+
+        if ($token->kind !== Token::EOF) {
+            do {
+                $token = $token->next = $this->readToken($token);
+            } while ($token->kind === Token::COMMENT);
+            $this->token = $token;
+        }
         return $token;
     }
 
     /**
-     * @param int $fromPosition
+     * @return Token
+     */
+    public function nextToken()
+    {
+        trigger_error(__METHOD__ . ' is deprecated in favor of advance()', E_USER_DEPRECATED);
+        return $this->advance();
+    }
+
+    /**
+     * @param Token $prev
      * @return Token
      * @throws SyntaxError
      */
-    private function readToken($fromPosition)
+    private function readToken(Token $prev)
     {
         $body = $this->source->body;
         $bodyLength = $this->source->length;
 
-        $position = $this->positionAfterWhitespace($body, $fromPosition);
+        $position = $this->positionAfterWhitespace($prev->end);
+        $line = $this->line;
+        $col = 1 + $position - $this->lineStart;
 
         if ($position >= $bodyLength) {
-            return new Token(Token::EOF, $position, $position);
+            return new Token(Token::EOF, $bodyLength, $bodyLength, $line, $col, $prev);
         }
 
         $code = Utils::charCodeAt($body, $position);
@@ -60,36 +115,38 @@ class Lexer
 
         switch ($code) {
             // !
-            case 33: return new Token(Token::BANG, $position, $position + 1);
+            case 33: return new Token(Token::BANG, $position, $position + 1, $line, $col, $prev);
+            // #
+            case 35: return $this->readComment($position, $line, $col, $prev);
             // $
-            case 36: return new Token(Token::DOLLAR, $position, $position + 1);
+            case 36: return new Token(Token::DOLLAR, $position, $position + 1, $line, $col, $prev);
             // (
-            case 40: return new Token(Token::PAREN_L, $position, $position + 1);
+            case 40: return new Token(Token::PAREN_L, $position, $position + 1, $line, $col, $prev);
             // )
-            case 41: return new Token(Token::PAREN_R, $position, $position + 1);
+            case 41: return new Token(Token::PAREN_R, $position, $position + 1, $line, $col, $prev);
             // .
             case 46:
                 if (Utils::charCodeAt($body, $position+1) === 46 &&
                     Utils::charCodeAt($body, $position+2) === 46) {
-                    return new Token(Token::SPREAD, $position, $position + 3);
+                    return new Token(Token::SPREAD, $position, $position + 3, $line, $col, $prev);
                 }
                 break;
             // :
-            case 58: return new Token(Token::COLON, $position, $position + 1);
+            case 58: return new Token(Token::COLON, $position, $position + 1, $line, $col, $prev);
             // =
-            case 61: return new Token(Token::EQUALS, $position, $position + 1);
+            case 61: return new Token(Token::EQUALS, $position, $position + 1, $line, $col, $prev);
             // @
-            case 64: return new Token(Token::AT, $position, $position + 1);
+            case 64: return new Token(Token::AT, $position, $position + 1, $line, $col, $prev);
             // [
-            case 91: return new Token(Token::BRACKET_L, $position, $position + 1);
+            case 91: return new Token(Token::BRACKET_L, $position, $position + 1, $line, $col, $prev);
             // ]
-            case 93: return new Token(Token::BRACKET_R, $position, $position + 1);
+            case 93: return new Token(Token::BRACKET_R, $position, $position + 1, $line, $col, $prev);
             // {
-            case 123: return new Token(Token::BRACE_L, $position, $position + 1);
+            case 123: return new Token(Token::BRACE_L, $position, $position + 1, $line, $col, $prev);
             // |
-            case 124: return new Token(Token::PIPE, $position, $position + 1);
+            case 124: return new Token(Token::PIPE, $position, $position + 1, $line, $col, $prev);
             // }
-            case 125: return new Token(Token::BRACE_R, $position, $position + 1);
+            case 125: return new Token(Token::BRACE_R, $position, $position + 1, $line, $col, $prev);
             // A-Z
             case 65: case 66: case 67: case 68: case 69: case 70: case 71: case 72:
             case 73: case 74: case 75: case 76: case 77: case 78: case 79: case 80:
@@ -102,15 +159,15 @@ class Lexer
             case 105: case 106: case 107: case 108: case 109: case 110: case 111:
             case 112: case 113: case 114: case 115: case 116: case 117: case 118:
             case 119: case 120: case 121: case 122:
-            return $this->readName($position);
+            return $this->readName($position, $line, $col, $prev);
             // -
             case 45:
             // 0-9
             case 48: case 49: case 50: case 51: case 52:
             case 53: case 54: case 55: case 56: case 57:
-            return $this->readNumber($position, $code);
+            return $this->readNumber($position, $code, $line, $col, $prev);
             // "
-            case 34: return $this->readString($position);
+            case 34: return $this->readString($position, $line, $col, $prev);
         }
 
         throw new SyntaxError($this->source, $position, 'Unexpected character ' . Utils::printCharCode($code));
@@ -120,10 +177,14 @@ class Lexer
      * Reads an alphanumeric + underscore name from the source.
      *
      * [_A-Za-z][_0-9A-Za-z]*
+     *
      * @param int $position
+     * @param int $line
+     * @param int $col
+     * @param Token $prev
      * @return Token
      */
-    private function readName($position)
+    private function readName($position, $line, $col, Token $prev)
     {
         $body = $this->source->body;
         $bodyLength = $this->source->length;
@@ -141,7 +202,15 @@ class Lexer
         ) {
             ++$end;
         }
-        return new Token(Token::NAME, $position, $end, mb_substr($body, $position, $end - $position, 'UTF-8'));
+        return new Token(
+            Token::NAME,
+            $position,
+            $end,
+            $line,
+            $col,
+            $prev,
+            mb_substr($body, $position, $end - $position, 'UTF-8')
+        );
     }
 
     /**
@@ -151,12 +220,15 @@ class Lexer
      * Int:   -?(0|[1-9][0-9]*)
      * Float: -?(0|[1-9][0-9]*)(\.[0-9]+)?((E|e)(+|-)?[0-9]+)?
      *
-     * @param $start
-     * @param $firstCode
+     * @param int $start
+     * @param string $firstCode
+     * @param int $line
+     * @param int $col
+     * @param Token $prev
      * @return Token
      * @throws SyntaxError
      */
-    private function readNumber($start, $firstCode)
+    private function readNumber($start, $firstCode, $line, $col, Token $prev)
     {
         $code = $firstCode;
         $body = $this->source->body;
@@ -199,6 +271,9 @@ class Lexer
             $isFloat ? Token::FLOAT : Token::INT,
             $start,
             $position,
+            $line,
+            $col,
+            $prev,
             mb_substr($body, $start, $position - $start, 'UTF-8')
         );
     }
@@ -225,11 +300,14 @@ class Lexer
     }
 
     /**
-     * @param $start
+     * @param int $start
+     * @param int $line
+     * @param int $col
+     * @param Token $prev
      * @return Token
      * @throws SyntaxError
      */
-    private function readString($start)
+    private function readString($start, $line, $col, Token $prev)
     {
         $body = $this->source->body;
         $bodyLength = $this->source->length;
@@ -263,7 +341,7 @@ class Lexer
                     case 114: $value .= "\r"; break;
                     case 116: $value .= "\t"; break;
                     case 117:
-                        $hex = mb_substr($body, $position + 1, 4);
+                        $hex = mb_substr($body, $position + 1, 4, 'UTF-8');
                         if (!preg_match('/[0-9a-fA-F]{4}/', $hex)) {
                             throw new SyntaxError($this->source, $position, 'Invalid character escape sequence: \\u' . $hex);
                         }
@@ -285,7 +363,7 @@ class Lexer
         }
 
         $value .= mb_substr($body, $chunkStart, $position - $chunkStart, 'UTF-8');
-        return new Token(Token::STRING, $start, $position + 1, $value);
+        return new Token(Token::STRING, $start, $position + 1, $line, $col, $prev, $value);
     }
 
     private function assertValidStringCharacterCode($code, $position)
@@ -305,43 +383,73 @@ class Lexer
      * or commented character, then returns the position of that character for
      * lexing.
      *
-     * @param $body
      * @param $startPosition
      * @return int
      */
-    private function positionAfterWhitespace($body, $startPosition)
+    private function positionAfterWhitespace($startPosition)
     {
-        $bodyLength = mb_strlen($body, 'UTF-8');
+        $body = $this->source->body;
+        $bodyLength = $this->source->length;
         $position = $startPosition;
 
         while ($position < $bodyLength) {
             $code = Utils::charCodeAt($body, $position);
 
             // Skip whitespace
-            if (
-                $code === 0xFEFF || // BOM
-                $code === 0x0009 || // tab
-                $code === 0x0020 || // space
-                $code === 0x000A || // new line
-                $code === 0x000D || // carriage return
-                $code === 0x002C
-            ) {
-                ++$position;
-                // Skip comments
-            } else if ($code === 35) { // #
-                ++$position;
-                while (
-                    $position < $bodyLength &&
-                    ($code = Utils::charCodeAt($body, $position)) &&
-                    // SourceCharacter but not LineTerminator
-                    ($code > 0x001F || $code === 0x0009) && $code !== 0x000A && $code !== 0x000D
-                ) {
-                    ++$position;
+            // tab | space | comma | BOM
+            if ($code === 9 || $code === 32 || $code === 44 || $code === 0xFEFF) {
+                $position++;
+            } else if ($code === 10) { // new line
+                $position++;
+                $this->line++;
+                $this->lineStart = $position;
+            } else if ($code === 13) { // carriage return
+                if (Utils::charCodeAt($body, $position + 1) === 10) {
+                    $position += 2;
+                } else {
+                    $position ++;
                 }
+                $this->line++;
+                $this->lineStart = $position;
             } else {
                 break;
             }
         }
         return $position;
+    }
+
+    /**
+     * Reads a comment token from the source file.
+     *
+     * #[\u0009\u0020-\uFFFF]*
+     *
+     * @param $start
+     * @param $line
+     * @param $col
+     * @param Token $prev
+     * @return Token
+     */
+    private function readComment($start, $line, $col, Token $prev)
+    {
+        $body = $this->source->body;
+        $position = $start;
+
+        do {
+            $code = Utils::charCodeAt($body, ++$position);
+        } while (
+            $code !== null &&
+            // SourceCharacter but not LineTerminator
+            ($code > 0x001F || $code === 0x0009)
+        );
+
+        return new Token(
+            Token::COMMENT,
+            $start,
+            $position,
+            $line,
+            $col,
+            $prev,
+            mb_substr($body, $start + 1, $position - $start + 1, 'UTF-8')
+        );
     }
 }
