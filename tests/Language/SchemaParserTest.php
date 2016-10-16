@@ -13,6 +13,7 @@ use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\NamedType;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Language\AST\ObjectTypeDefinition;
 use GraphQL\Language\AST\ScalarTypeDefinition;
@@ -23,6 +24,8 @@ use GraphQL\Language\Source;
 
 class SchemaParserTest extends \PHPUnit_Framework_TestCase
 {
+    // Describe: Schema Parser
+
     /**
      * @it Simple type
      */
@@ -33,13 +36,16 @@ type Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ObjectTypeDefinition([
+                [
+                    'kind' => Node::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
+                    'directives' => [],
                     'fields' => [
                         $this->fieldNode(
                             $this->nameNode('world', $loc(16, 21)),
@@ -48,11 +54,11 @@ type Hello {
                         )
                     ],
                     'loc' => $loc(1, 31)
-                ])
+                ]
             ],
-            'loc' => $loc(1, 31)
-        ]);
-        $this->assertEquals($doc, $expected);
+            'loc' => $loc(0, 31)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -63,15 +69,22 @@ type Hello {
         $body = '
 extend type Hello {
   world: String
-}';
+}
+';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
-        $expected = new Document([
+        $loc = function($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new TypeExtensionDefinition([
-                    'definition' => new ObjectTypeDefinition([
+                [
+                    'kind' => Node::TYPE_EXTENSION_DEFINITION,
+                    'definition' => [
+                        'kind' => Node::OBJECT_TYPE_DEFINITION,
                         'name' => $this->nameNode('Hello', $loc(13, 18)),
                         'interfaces' => [],
+                        'directives' => [],
                         'fields' => [
                             $this->fieldNode(
                                 $this->nameNode('world', $loc(23, 28)),
@@ -80,13 +93,13 @@ extend type Hello {
                             )
                         ],
                         'loc' => $loc(8, 38)
-                    ]),
+                    ],
                     'loc' => $loc(1, 38)
-                ])
+                ]
             ],
-            'loc' => $loc(1, 38)
-        ]);
-        $this->assertEquals($expected, $doc);
+            'loc' => $loc(0, 39)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -98,31 +111,37 @@ extend type Hello {
 type Hello {
   world: String!
 }';
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
         $doc = Parser::parse($body);
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ObjectTypeDefinition([
+                [
+                    'kind' => Node::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6,11)),
                     'interfaces' => [],
+                    'directives' => [],
                     'fields' => [
                         $this->fieldNode(
                             $this->nameNode('world', $loc(16, 21)),
-                            new NonNullType([
+                            [
+                                'kind' => Node::NON_NULL_TYPE,
                                 'type' => $this->typeNode('String', $loc(23, 29)),
                                 'loc' => $loc(23, 30)
-                            ]),
+                            ],
                             $loc(16,30)
                         )
                     ],
                     'loc' => $loc(1,32)
-                ])
+                ]
             ],
-            'loc' => $loc(1,32)
-        ]);
+            'loc' => $loc(0,32)
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -131,24 +150,27 @@ type Hello {
     public function testSimpleTypeInheritingInterface()
     {
         $body = 'type Hello implements World { }';
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) { return TestUtils::locArray($start, $end); };
         $doc = Parser::parse($body);
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ObjectTypeDefinition([
+                [
+                    'kind' => Node::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'interfaces' => [
                         $this->typeNode('World', $loc(22, 27))
                     ],
+                    'directives' => [],
                     'fields' => [],
                     'loc' => $loc(0,31)
-                ])
+                ]
             ],
             'loc' => $loc(0,31)
-        ]);
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -157,25 +179,28 @@ type Hello {
     public function testSimpleTypeInheritingMultipleInterfaces()
     {
         $body = 'type Hello implements Wo, rld { }';
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $doc = Parser::parse($body);
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ObjectTypeDefinition([
+                [
+                    'kind' => Node::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'interfaces' => [
                         $this->typeNode('Wo', $loc(22,24)),
                         $this->typeNode('rld', $loc(26,29))
                     ],
+                    'directives' => [],
                     'fields' => [],
                     'loc' => $loc(0, 33)
-                ])
+                ]
             ],
             'loc' => $loc(0, 33)
-        ]);
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -184,21 +209,24 @@ type Hello {
     public function testSingleValueEnum()
     {
         $body = 'enum Hello { WORLD }';
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $doc = Parser::parse($body);
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new EnumTypeDefinition([
+                [
+                    'kind' => Node::ENUM_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
+                    'directives' => [],
                     'values' => [$this->enumValueNode('WORLD', $loc(13, 18))],
                     'loc' => $loc(0, 20)
-                ])
+                ]
             ],
             'loc' => $loc(0, 20)
-        ]);
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -207,24 +235,27 @@ type Hello {
     public function testDoubleValueEnum()
     {
         $body = 'enum Hello { WO, RLD }';
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $doc = Parser::parse($body);
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new EnumTypeDefinition([
+                [
+                    'kind' => Node::ENUM_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
+                    'directives' => [],
                     'values' => [
                         $this->enumValueNode('WO', $loc(13, 15)),
                         $this->enumValueNode('RLD', $loc(17, 20))
                     ],
                     'loc' => $loc(0, 22)
-                ])
+                ]
             ],
             'loc' => $loc(0, 22)
-        ]);
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -237,12 +268,15 @@ interface Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new InterfaceTypeDefinition([
+                [
+                    'kind' => Node::INTERFACE_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(11, 16)),
+                    'directives' => [],
                     'fields' => [
                         $this->fieldNode(
                             $this->nameNode('world', $loc(21, 26)),
@@ -251,11 +285,11 @@ interface Hello {
                         )
                     ],
                     'loc' => $loc(1, 36)
-                ])
+                ]
             ],
-            'loc' => $loc(1,36)
-        ]);
-        $this->assertEquals($expected, $doc);
+            'loc' => $loc(0,36)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -268,13 +302,16 @@ type Hello {
   world(flag: Boolean): String
 }';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ObjectTypeDefinition([
+                [
+                    'kind' => Node::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
+                    'directives' => [],
                     'fields' => [
                         $this->fieldNodeWithArgs(
                             $this->nameNode('world', $loc(16, 21)),
@@ -291,12 +328,12 @@ type Hello {
                         )
                     ],
                     'loc' => $loc(1, 46)
-                ])
+                ]
             ],
-            'loc' => $loc(1, 46)
-        ]);
+            'loc' => $loc(0, 46)
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -309,13 +346,16 @@ type Hello {
   world(flag: Boolean = true): String
 }';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ObjectTypeDefinition([
+                [
+                    'kind' => Node::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
+                    'directives' => [],
                     'fields' => [
                         $this->fieldNodeWithArgs(
                             $this->nameNode('world', $loc(16, 21)),
@@ -324,7 +364,7 @@ type Hello {
                                 $this->inputValueNode(
                                     $this->nameNode('flag', $loc(22, 26)),
                                     $this->typeNode('Boolean', $loc(28, 35)),
-                                    new BooleanValue(['value' => true, 'loc' => $loc(38, 42)]),
+                                    ['kind' => Node::BOOLEAN, 'value' => true, 'loc' => $loc(38, 42)],
                                     $loc(22, 42)
                                 )
                             ],
@@ -332,11 +372,11 @@ type Hello {
                         )
                     ],
                     'loc' => $loc(1, 53)
-                ])
+                ]
             ],
-            'loc' => $loc(1, 53)
-        ]);
-        $this->assertEquals($expected, $doc);
+            'loc' => $loc(0, 53)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -349,13 +389,16 @@ type Hello {
   world(things: [String]): String
 }';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ObjectTypeDefinition([
+                [
+                    'kind' => Node::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
+                    'directives' => [],
                     'fields' => [
                         $this->fieldNodeWithArgs(
                             $this->nameNode('world', $loc(16, 21)),
@@ -363,7 +406,7 @@ type Hello {
                             [
                                 $this->inputValueNode(
                                     $this->nameNode('things', $loc(22,28)),
-                                    new ListType(['type' => $this->typeNode('String', $loc(31, 37)), 'loc' => $loc(30, 38)]),
+                                    ['kind' => Node::LIST_TYPE, 'type' => $this->typeNode('String', $loc(31, 37)), 'loc' => $loc(30, 38)],
                                     null,
                                     $loc(22, 38)
                                 )
@@ -372,12 +415,12 @@ type Hello {
                         )
                     ],
                     'loc' => $loc(1, 49)
-                ])
+                ]
             ],
-            'loc' => $loc(1, 49)
-        ]);
+            'loc' => $loc(0, 49)
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -390,13 +433,16 @@ type Hello {
   world(argOne: Boolean, argTwo: Int): String
 }';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ObjectTypeDefinition([
+                [
+                    'kind' => Node::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
+                    'directives' => [],
                     'fields' => [
                         $this->fieldNodeWithArgs(
                             $this->nameNode('world', $loc(16, 21)),
@@ -419,12 +465,12 @@ type Hello {
                         )
                     ],
                     'loc' => $loc(1, 61)
-                ])
+                ]
             ],
-            'loc' => $loc(1, 61)
-        ]);
+            'loc' => $loc(0, 61)
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -434,19 +480,22 @@ type Hello {
     {
         $body = 'union Hello = World';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
-        $expected = new Document([
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new UnionTypeDefinition([
+                [
+                    'kind' => Node::UNION_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
+                    'directives' => [],
                     'types' => [$this->typeNode('World', $loc(14, 19))],
                     'loc' => $loc(0, 19)
-                ])
+                ]
             ],
             'loc' => $loc(0, 19)
-        ]);
+        ];
 
-        $this->assertEquals($expected, $doc);
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -456,22 +505,25 @@ type Hello {
     {
         $body = 'union Hello = Wo | Rld';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new UnionTypeDefinition([
+                [
+                    'kind' => Node::UNION_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
+                    'directives' => [],
                     'types' => [
                         $this->typeNode('Wo', $loc(14, 16)),
                         $this->typeNode('Rld', $loc(19, 22))
                     ],
                     'loc' => $loc(0, 22)
-                ])
+                ]
             ],
             'loc' => $loc(0, 22)
-        ]);
-        $this->assertEquals($expected, $doc);
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -481,17 +533,20 @@ type Hello {
     {
         $body = 'scalar Hello';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
-        $expected = new Document([
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new ScalarTypeDefinition([
+                [
+                    'kind' => Node::SCALAR_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(7, 12)),
+                    'directives' => [],
                     'loc' => $loc(0, 12)
-                ])
+                ]
             ],
             'loc' => $loc(0, 12)
-        ]);
-        $this->assertEquals($expected, $doc);
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -504,12 +559,15 @@ input Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = $this->createLocFn($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
-        $expected = new Document([
+        $expected = [
+            'kind' => Node::DOCUMENT,
             'definitions' => [
-                new InputObjectTypeDefinition([
+                [
+                    'kind' => Node::INPUT_OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(7, 12)),
+                    'directives' => [],
                     'fields' => [
                         $this->inputValueNode(
                             $this->nameNode('world', $loc(17, 22)),
@@ -519,11 +577,11 @@ input Hello {
                         )
                     ],
                     'loc' => $loc(1, 32)
-                ])
+                ]
             ],
-            'loc' => $loc(1, 32)
-        ]);
-        $this->assertEquals($expected, $doc);
+            'loc' => $loc(0, 32)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -539,28 +597,22 @@ input Hello {
         Parser::parse($body);
     }
 
-
-    private function createLocFn($body)
-    {
-        return function($start, $end) use ($body) {
-            return new Location($start, $end, new Source($body));
-        };
-    }
-
     private function typeNode($name, $loc)
     {
-        return new NamedType([
-            'name' => new Name(['value' => $name, 'loc' => $loc]),
+        return [
+            'kind' => Node::NAMED_TYPE,
+            'name' => ['kind' => Node::NAME, 'value' => $name, 'loc' => $loc],
             'loc' => $loc
-        ]);
+        ];
     }
 
     private function nameNode($name, $loc)
     {
-        return new Name([
+        return [
+            'kind' => Node::NAME,
             'value' => $name,
             'loc' => $loc
-        ]);
+        ];
     }
 
     private function fieldNode($name, $type, $loc)
@@ -570,29 +622,35 @@ input Hello {
 
     private function fieldNodeWithArgs($name, $type, $args, $loc)
     {
-        return new FieldDefinition([
+        return [
+            'kind' => Node::FIELD_DEFINITION,
             'name' => $name,
             'arguments' => $args,
             'type' => $type,
+            'directives' => [],
             'loc' => $loc
-        ]);
+        ];
     }
 
     private function enumValueNode($name, $loc)
     {
-        return new EnumValueDefinition([
+        return [
+            'kind' => Node::ENUM_VALUE_DEFINITION,
             'name' => $this->nameNode($name, $loc),
+            'directives' => [],
             'loc' => $loc
-        ]);
+        ];
     }
 
     private function inputValueNode($name, $type, $defaultValue, $loc)
     {
-        return new InputValueDefinition([
+        return [
+            'kind' => Node::INPUT_VALUE_DEFINITION,
             'name' => $name,
             'type' => $type,
             'defaultValue' => $defaultValue,
+            'directives' => [],
             'loc' => $loc
-        ]);
+        ];
     }
 }

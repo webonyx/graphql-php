@@ -12,4 +12,9 @@ class EnumValueDefinition extends Node
      * @var Name
      */
     public $name;
+
+    /**
+     * @var Directive[]
+     */
+    public $directives;
 }

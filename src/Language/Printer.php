@@ -115,33 +115,77 @@ class Printer
                 Node::NON_NULL_TYPE => function(NonNullType $node) {return $node->type . '!';},
 
                 // Type System Definitions
-                Node::SCHEMA_DEFINITION => function(SchemaDefinition $def) {return 'schema ' . self::block($def->operationTypes);},
+                Node::SCHEMA_DEFINITION => function(SchemaDefinition $def) {
+                    return self::join([
+                        'schema',
+                        self::join($def->directives, ' '),
+                        self::block($def->operationTypes)
+                    ], ' ');
+                },
                 Node::OPERATION_TYPE_DEFINITION => function(OperationTypeDefinition $def) {return $def->operation . ': ' . $def->type;},
 
-                Node::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinition $def) {return "scalar {$def->name}";},
+                Node::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinition $def) {
+                    return self::join(['scalar', $def->name, self::join($def->directives, ' ')], ' ');
+                },
                 Node::OBJECT_TYPE_DEFINITION => function(ObjectTypeDefinition $def) {
-                    return 'type ' . $def->name . ' ' .
-                        self::wrap('implements ', self::join($def->interfaces, ', '), ' ') .
-                        self::block($def->fields);
+                    return self::join([
+                        'type',
+                        $def->name,
+                        self::wrap('implements ', self::join($def->interfaces, ', ')),
+                        self::join($def->directives, ' '),
+                        self::block($def->fields)
+                    ], ' ');
                 },
                 Node::FIELD_DEFINITION => function(FieldDefinition $def) {
-                    return $def->name . self::wrap('(', self::join($def->arguments, ', '), ')') . ': ' . $def->type;
+                    return $def->name
+                         . self::wrap('(', self::join($def->arguments, ', '), ')')
+                         . ': ' . $def->type
+                         . self::wrap(' ', self::join($def->directives, ' '));
                 },
                 Node::INPUT_VALUE_DEFINITION => function(InputValueDefinition $def) {
-                    return $def->name . ': ' . $def->type . self::wrap(' = ', $def->defaultValue);
+                    return self::join([
+                        $def->name . ': ' . $def->type,
+                        self::wrap('= ', $def->defaultValue),
+                        self::join($def->directives, ' ')
+                    ], ' ');
                 },
                 Node::INTERFACE_TYPE_DEFINITION => function(InterfaceTypeDefinition $def) {
-                    return 'interface ' . $def->name . ' ' . self::block($def->fields);
+                    return self::join([
+                        'interface',
+                        $def->name,
+                        self::join($def->directives, ' '),
+                        self::block($def->fields)
+                    ], ' ');
                 },
                 Node::UNION_TYPE_DEFINITION => function(UnionTypeDefinition $def) {
-                    return 'union ' . $def->name . ' = ' . self::join($def->types, ' | ');
+                    return self::join([
+                        'union',
+                        $def->name,
+                        self::join($def->directives, ' '),
+                        '= ' . self::join($def->types, ' | ')
+                    ], ' ');
                 },
                 Node::ENUM_TYPE_DEFINITION => function(EnumTypeDefinition $def) {
-                    return 'enum ' . $def->name . ' ' . self::block($def->values);
+                    return self::join([
+                        'enum',
+                        $def->name,
+                        self::join($def->directives, ' '),
+                        self::block($def->values)
+                    ], ' ');
                 },
-                Node::ENUM_VALUE_DEFINITION => function(EnumValueDefinition $def) {return $def->name;},
+                Node::ENUM_VALUE_DEFINITION => function(EnumValueDefinition $def) {
+                    return self::join([
+                        $def->name,
+                        self::join($def->directives, ' ')
+                    ], ' ');
+                },
                 Node::INPUT_OBJECT_TYPE_DEFINITION => function(InputObjectTypeDefinition $def) {
-                    return 'input ' . $def->name . ' ' . self::block($def->fields);
+                    return self::join([
+                        'input',
+                        $def->name,
+                        self::join($def->directives, ' '),
+                        self::block($def->fields)
+                    ], ' ');
                 },
                 Node::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinition $def) {return "extend {$def->definition}";},
                 Node::DIRECTIVE_DEFINITION => function(DirectiveDefinition $def) {
@@ -162,12 +206,12 @@ class Printer
     }
 
     /**
-     * Given maybeArray, print an empty string if it is null or empty, otherwise
-     * print each item on it's own line, wrapped in an indented "{ }" block.
+     * Given array, print each item on its own line, wrapped in an
+     * indented "{ }" block.
      */
-    public static function block($maybeArray)
+    public static function block($array)
     {
-        return self::length($maybeArray) ? self::indent("{\n" . self::join($maybeArray, "\n")) . "\n}" : '';
+        return $array && self::length($array) ? self::indent("{\n" . self::join($array, "\n")) . "\n}" : '{}';
     }
 
     public static function indent($maybeString)

@@ -3,6 +3,10 @@ namespace GraphQL\Language\AST;
 
 use GraphQL\Utils;
 
+/**
+ * Class Node
+ * @package GraphQL\Language\AST
+ */
 abstract class Node
 {
     // constants from language/kinds.js:

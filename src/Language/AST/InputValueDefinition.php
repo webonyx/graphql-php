@@ -22,4 +22,9 @@ class InputValueDefinition extends Node
      * @var Value
      */
     public $defaultValue;
+
+    /**
+     * @var Directive[]
+     */
+    public $directives;
 }

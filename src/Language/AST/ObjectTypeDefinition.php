@@ -19,6 +19,11 @@ class ObjectTypeDefinition extends Node implements TypeDefinition
     public $interfaces = [];
 
     /**
+     * @var Directive[]
+     */
+    public $directives;
+
+    /**
      * @var FieldDefinition[]
      */
     public $fields;

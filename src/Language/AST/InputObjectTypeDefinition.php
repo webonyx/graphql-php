@@ -14,6 +14,11 @@ class InputObjectTypeDefinition extends Node implements TypeDefinition
     public $name;
 
     /**
+     * @var Directive[]
+     */
+    public $directives;
+
+    /**
      * @var InputValueDefinition[]
      */
     public $fields;

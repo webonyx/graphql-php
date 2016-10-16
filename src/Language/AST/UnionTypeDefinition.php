@@ -14,6 +14,11 @@ class UnionTypeDefinition extends Node implements TypeDefinition
     public $name;
 
     /**
+     * @var Directive[]
+     */
+    public $directives;
+
+    /**
      * @var NamedType[]
      */
     public $types = [];

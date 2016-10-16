@@ -14,6 +14,11 @@ class InterfaceTypeDefinition extends Node implements TypeDefinition
     public $name;
 
     /**
+     * @var Directive[]
+     */
+    public $directives;
+
+    /**
      * @var FieldDefinition[]
      */
     public $fields = [];
