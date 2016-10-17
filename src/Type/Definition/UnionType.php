@@ -3,28 +3,36 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Utils;
 
+/**
+ * Class UnionType
+ * @package GraphQL\Type\Definition
+ */
 class UnionType extends Type implements AbstractType, OutputType, CompositeType
 {
     /**
      * @var ObjectType[]
      */
-    private $_types;
+    private $types;
 
     /**
      * @var array<string, ObjectType>
      */
-    private $_possibleTypeNames;
+    private $possibleTypeNames;
 
     /**
      * @var callback
      */
-    private $_resolveTypeFn;
+    private $resolveTypeFn;
 
     /**
      * @var array
      */
-    private $_config;
+    public $config;
 
+    /**
+     * UnionType constructor.
+     * @param $config
+     */
     public function __construct($config)
     {
         Config::validate($config, [
@@ -43,11 +51,14 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
          */
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->_types = $config['types'];
-        $this->_resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
-        $this->_config = $config;
+        $this->types = $config['types'];
+        $this->resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
+        $this->config = $config;
     }
 
+    /**
+     * @return ObjectType[]
+     */
     public function getPossibleTypes()
     {
         trigger_error(__METHOD__ . ' is deprecated in favor of ' . __CLASS__ . '::getTypes()', E_USER_DEPRECATED);
@@ -59,10 +70,10 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
      */
     public function getTypes()
     {
-        if ($this->_types instanceof \Closure) {
-            $this->_types = call_user_func($this->_types);
+        if ($this->types instanceof \Closure) {
+            $this->types = call_user_func($this->types);
         }
-        return $this->_types;
+        return $this->types;
     }
 
     /**
@@ -75,13 +86,13 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
             return false;
         }
 
-        if (null === $this->_possibleTypeNames) {
-            $this->_possibleTypeNames = [];
+        if (null === $this->possibleTypeNames) {
+            $this->possibleTypeNames = [];
             foreach ($this->getTypes() as $possibleType) {
-                $this->_possibleTypeNames[$possibleType->name] = true;
+                $this->possibleTypeNames[$possibleType->name] = true;
             }
         }
-        return isset($this->_possibleTypeNames[$type->name]);
+        return isset($this->possibleTypeNames[$type->name]);
     }
 
     /**
@@ -89,6 +100,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
      */
     public function getResolveTypeFn()
     {
-        return $this->_resolveTypeFn;
+        return $this->resolveTypeFn;
     }
 }

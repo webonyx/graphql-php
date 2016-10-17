@@ -3,8 +3,6 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Utils;
 
-abstract class Type
-{
 /*
 export type GraphQLType =
 GraphQLScalarType |
@@ -16,14 +14,22 @@ GraphQLInputObjectType |
 GraphQLList |
 GraphQLNonNull;
 */
+abstract class Type
+{
     const STRING = 'String';
     const INT = 'Int';
     const BOOLEAN = 'Boolean';
     const FLOAT = 'Float';
     const ID = 'ID';
 
+    /**
+     * @var array
+     */
     private static $internalTypes;
 
+    /**
+     * @return IDType
+     */
     public static function id()
     {
         return self::getInternalType(self::ID);
@@ -81,7 +87,7 @@ GraphQLNonNull;
 
     /**
      * @param $name
-     * @return Type
+     * @return Type|array
      */
     private static function getInternalType($name = null)
     {
@@ -125,21 +131,29 @@ GraphQLNonNull;
         return $nakedType instanceof OutputType;
     }
 
+    /**
+     * @param $type
+     * @return bool
+     */
     public static function isLeafType($type)
     {
-        // TODO: add LeafType interface
         $nakedType = self::getNamedType($type);
-        return (
-            $nakedType instanceof ScalarType ||
-            $nakedType instanceof EnumType
-        );
+        return $nakedType instanceof LeafType;
     }
 
+    /**
+     * @param $type
+     * @return bool
+     */
     public static function isCompositeType($type)
     {
         return $type instanceof CompositeType;
     }
 
+    /**
+     * @param $type
+     * @return bool
+     */
     public static function isAbstractType($type)
     {
         return $type instanceof AbstractType;
@@ -169,6 +183,11 @@ GraphQLNonNull;
         return self::resolve($type);
     }
 
+    /**
+     * @param $type
+     * @deprecated in favor of defining ObjectType 'fields' as closure (vs defining closure per field type)
+     * @return mixed
+     */
     public static function resolve($type)
     {
         if (is_callable($type)) {
@@ -213,11 +232,17 @@ GraphQLNonNull;
      */
     public $description;
 
+    /**
+     * @return string
+     */
     public function toString()
     {
         return $this->name;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         try {

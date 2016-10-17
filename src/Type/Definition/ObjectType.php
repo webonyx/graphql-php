@@ -11,19 +11,19 @@ use GraphQL\Utils;
  *
  * Example:
  *
- *     var AddressType = new GraphQLObjectType({
- *       name: 'Address',
- *       fields: {
- *         street: { type: GraphQLString },
- *         number: { type: GraphQLInt },
- *         formatted: {
- *           type: GraphQLString,
- *           resolve(obj) {
- *             return obj.number + ' ' + obj.street
+ *     $AddressType = new ObjectType([
+ *       'name' => 'Address',
+ *       'fields' => [
+ *         'street' => [ 'type' => GraphQL\Type\Definition\Type::string() ],
+ *         'number' => [ 'type' => GraphQL\Type\Definition\Type::int() ],
+ *         'formatted' => [
+ *           'type' => GraphQL\Type\Definition\Type::string(),
+ *           'resolve' => function($obj) {
+ *             return $obj->number . ' ' . $obj->street;
  *           }
- *         }
- *       }
- *     });
+ *         ]
+ *       ]
+ *     ]);
  *
  * When two types need to refer to each other, or a type needs to refer to
  * itself in a field, you can use a function expression (aka a closure or a
@@ -31,31 +31,34 @@ use GraphQL\Utils;
  *
  * Example:
  *
- *     var PersonType = new GraphQLObjectType({
- *       name: 'Person',
- *       fields: () => ({
- *         name: { type: GraphQLString },
- *         bestFriend: { type: PersonType },
- *       })
- *     });
+ *     $PersonType = null;
+ *     $PersonType = new ObjectType([
+ *       'name' => 'Person',
+ *       'fields' => function() use (&$PersonType) {
+ *          return [
+ *              'name' => ['type' => GraphQL\Type\Definition\Type::string() ],
+ *              'bestFriend' => [ 'type' => $PersonType ],
+ *          ];
+ *        }
+ *     ]);
  *
  */
 class ObjectType extends Type implements OutputType, CompositeType
 {
     /**
-     * @var array<Field>
+     * @var FieldDefinition[]
      */
-    private $_fields;
+    private $fields;
 
     /**
-     * @var array<InterfaceType>
+     * @var InterfaceType[]
      */
-    private $_interfaces;
+    private $interfaces;
 
     /**
      * @var callable
      */
-    private $_isTypeOf;
+    private $isTypeOf;
 
     /**
      * Keeping reference of config for late bindings and custom app-level metadata
@@ -69,6 +72,10 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public $resolveFieldFn;
 
+    /**
+     * ObjectType constructor.
+     * @param array $config
+     */
     public function __construct(array $config)
     {
         Utils::invariant(!empty($config['name']), 'Every type is expected to have name');
@@ -93,7 +100,7 @@ class ObjectType extends Type implements OutputType, CompositeType
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;
-        $this->_isTypeOf = isset($config['isTypeOf']) ? $config['isTypeOf'] : null;
+        $this->isTypeOf = isset($config['isTypeOf']) ? $config['isTypeOf'] : null;
         $this->config = $config;
     }
 
@@ -102,12 +109,12 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function getFields()
     {
-        if (null === $this->_fields) {
+        if (null === $this->fields) {
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
             $fields = is_callable($fields) ? call_user_func($fields) : $fields;
-            $this->_fields = FieldDefinition::createMap($fields);
+            $this->fields = FieldDefinition::createMap($fields);
         }
-        return $this->_fields;
+        return $this->fields;
     }
 
     /**
@@ -117,24 +124,24 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function getField($name)
     {
-        if (null === $this->_fields) {
+        if (null === $this->fields) {
             $this->getFields();
         }
-        Utils::invariant(isset($this->_fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
-        return $this->_fields[$name];
+        Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
+        return $this->fields[$name];
     }
 
     /**
-     * @return array<InterfaceType>
+     * @return InterfaceType[]
      */
     public function getInterfaces()
     {
-        if (null === $this->_interfaces) {
+        if (null === $this->interfaces) {
             $interfaces = isset($this->config['interfaces']) ? $this->config['interfaces'] : [];
             $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
-            $this->_interfaces = $interfaces;
+            $this->interfaces = $interfaces;
         }
-        return $this->_interfaces;
+        return $this->interfaces;
     }
 
     /**
@@ -153,6 +160,6 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function isTypeOf($value, $context, ResolveInfo $info)
     {
-        return isset($this->_isTypeOf) ? call_user_func($this->_isTypeOf, $value, $context, $info) : null;
+        return isset($this->isTypeOf) ? call_user_func($this->isTypeOf, $value, $context, $info) : null;
     }
 }

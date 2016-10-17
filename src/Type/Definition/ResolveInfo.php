@@ -10,6 +10,10 @@ use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Schema;
 use GraphQL\Utils;
 
+/**
+ * Class ResolveInfo
+ * @package GraphQL\Type\Definition
+ */
 class ResolveInfo
 {
     /**

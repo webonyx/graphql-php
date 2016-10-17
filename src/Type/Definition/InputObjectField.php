@@ -1,19 +1,16 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils;
-
+/**
+ * Class InputObjectField
+ * @package GraphQL\Type\Definition
+ */
 class InputObjectField
 {
     /**
      * @var string
      */
     public $name;
-
-    /**
-     * @var callback|InputType
-     */
-    private $type;
 
     /**
      * @var mixed|null
@@ -25,6 +22,15 @@ class InputObjectField
      */
     public $description;
 
+    /**
+     * @var callback|InputType
+     */
+    public $type;
+
+    /**
+     * InputObjectField constructor.
+     * @param array $opts
+     */
     public function __construct(array $opts)
     {
         foreach ($opts as $k => $v) {
@@ -32,6 +38,10 @@ class InputObjectField
         }
     }
 
+    /**
+     * @deprecated in favor of defining all object 'fields' as closure vs defining closure per field
+     * @return mixed
+     */
     public function getType()
     {
         return Type::resolve($this->type);

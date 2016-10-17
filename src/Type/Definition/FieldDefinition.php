@@ -1,8 +1,11 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils;
-
+/**
+ * Class FieldDefinition
+ * @package GraphQL\Type\Definition
+ * @todo Move complexity-related code to it's own place
+ */
 class FieldDefinition
 {
     const DEFAULT_COMPLEXITY_FN = 'GraphQL\Type\Definition\FieldDefinition::defaultComplexity';
@@ -11,16 +14,6 @@ class FieldDefinition
      * @var string
      */
     public $name;
-
-    /**
-     * @var OutputType
-     */
-    private $type;
-
-    /**
-     * @var OutputType
-     */
-    private $resolvedType;
 
     /**
      * @var array<GraphQLFieldArgument>
@@ -60,8 +53,21 @@ class FieldDefinition
      */
     public $config;
 
+    /**
+     * @var OutputType|callable
+     */
+    private $type;
+
+    /**
+     * @var OutputType
+     */
+    private $resolvedType;
+
     private static $def;
 
+    /**
+     * @return array
+     */
     public static function getDefinition()
     {
         return self::$def ?: (self::$def = [
@@ -107,6 +113,10 @@ class FieldDefinition
         return new self($field);
     }
 
+    /**
+     * FieldDefinition constructor.
+     * @param array $config
+     */
     protected function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -139,6 +149,7 @@ class FieldDefinition
     }
 
     /**
+     * @deprecated as of 17.10.2016 in favor of setting 'fields' as closure per ObjectType vs setting on field level
      * @return Type
      */
     public function getType()
@@ -151,6 +162,14 @@ class FieldDefinition
     }
 
     /**
+     * @return bool
+     */
+    public function isDeprecated()
+    {
+        return !!$this->deprecationReason;
+    }
+
+    /**
      * @return callable|\Closure
      */
     public function getComplexityFn()
@@ -158,6 +177,10 @@ class FieldDefinition
         return $this->complexityFn;
     }
 
+    /**
+     * @param $childrenComplexity
+     * @return mixed
+     */
     public static function defaultComplexity($childrenComplexity)
     {
         return $childrenComplexity + 1;

@@ -1,11 +1,21 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-
+/**
+ * Class CustomScalarType
+ * @package GraphQL\Type\Definition
+ */
 class CustomScalarType extends ScalarType
 {
-    private $config;
+    /**
+     * @var array
+     */
+    public $config;
 
+    /**
+     * CustomScalarType constructor.
+     * @param array $config
+     */
     function __construct(array $config)
     {
         $this->name = $config['name'];
@@ -13,16 +23,28 @@ class CustomScalarType extends ScalarType
         parent::__construct();
     }
 
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
     public function serialize($value)
     {
         return call_user_func($this->config['serialize'], $value);
     }
 
+    /**
+     * @param mixed $value
+     * @return mixed
+     */
     public function parseValue($value)
     {
         return call_user_func($this->config['parseValue'], $value);
     }
 
+    /**
+     * @param $valueAST
+     * @return mixed
+     */
     public function parseLiteral(/* GraphQL\Language\AST\Value */ $valueAST)
     {
         return call_user_func($this->config['parseLiteral'], $valueAST);

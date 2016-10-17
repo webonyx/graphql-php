@@ -1,10 +1,20 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+/**
+ * Class Directive
+ * @package GraphQL\Type\Definition
+ */
 class Directive
 {
+    /**
+     * @var array
+     */
     public static $internalDirectives;
 
+    /**
+     * @var array
+     */
     public static $directiveLocations = [
         'QUERY' => 'QUERY',
         'MUTATION' => 'MUTATION',
@@ -33,6 +43,9 @@ class Directive
         return $internal['skip'];
     }
 
+    /**
+     * @return array
+     */
     public static function getInternalDirectives()
     {
         if (!self::$internalDirectives) {
@@ -96,6 +109,10 @@ class Directive
      */
     public $args;
 
+    /**
+     * Directive constructor.
+     * @param array $config
+     */
     public function __construct(array $config)
     {
         foreach ($config as $key => $value) {

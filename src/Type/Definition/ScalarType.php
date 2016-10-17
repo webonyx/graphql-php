@@ -12,24 +12,46 @@ use GraphQL\Utils;
  *
  * Example:
  *
- *     var OddType = new GraphQLScalarType({
- *       name: 'Odd',
- *       serialize(value) {
- *         return value % 2 === 1 ? value : null;
- *       }
- *     });
- *
+ * class OddType extends ScalarType
+ * {
+ *     public $name = 'Odd',
+ *     public function serialize($value)
+ *     {
+ *         return $value % 2 === 1 ? $value : null;
+ *     }
+ * }
  */
-abstract class ScalarType extends Type implements OutputType, InputType
+abstract class ScalarType extends Type implements OutputType, InputType, LeafType
 {
+    /**
+     * ScalarType constructor.
+     */
     protected function __construct()
     {
         Utils::invariant($this->name, 'Type must be named.');
     }
 
+    /**
+     * Serializes an internal value to include in a response.
+     *
+     * @param mixed $value
+     * @return mixed
+     */
     abstract public function serialize($value);
 
+    /**
+     * Parses an externally provided value to use as an input
+     *
+     * @param mixed $value
+     * @return mixed
+     */
     abstract public function parseValue($value);
 
+    /**
+     * Parses an externally provided literal value to use as an input
+     *
+     * @param $valueAST
+     * @return mixed
+     */
     abstract public function parseLiteral(/* GraphQL\Language\AST\Value */$valueAST);
 }

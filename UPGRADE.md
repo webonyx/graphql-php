@@ -1,5 +1,25 @@
 # Upgrade
 
+## Upgrade v0.7.x > v1.0.x
+
+### 1. Protected property and method naming
+In order to unify coding style, leading underscores were removed from all private and protected properties 
+and methods. 
+
+Example before the change:
+```php
+GraphQL\Schema::$_queryType
+```
+
+Correct usage after the change:
+```php
+GraphQL\Schema::$queryType
+```
+
+So if you rely on any protected properties or methods of any GraphQL class, make sure to 
+delete leading underscores.
+
+
 ## Upgrade v0.6.x > v0.7.x
 
 There are a few new breaking changes in v0.7.0 that were added to the graphql-js reference implementation 

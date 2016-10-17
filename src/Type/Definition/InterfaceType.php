@@ -1,22 +1,28 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-
 use GraphQL\Utils;
 
+/**
+ * Class InterfaceType
+ * @package GraphQL\Type\Definition
+ */
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType
 {
     /**
      * @var array<string,FieldDefinition>
      */
-    private $_fields;
+    private $fields;
 
+    /**
+     * @var mixed|null
+     */
     public $description;
 
     /**
      * @var callback
      */
-    private $_resolveTypeFn;
+    private $resolveTypeFn;
 
     /**
      * @var array
@@ -41,7 +47,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->_resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
+        $this->resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
         $this->config = $config;
     }
 
@@ -50,13 +56,13 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public function getFields()
     {
-        if (null === $this->_fields) {
-            $this->_fields = [];
+        if (null === $this->fields) {
+            $this->fields = [];
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
             $fields = is_callable($fields) ? call_user_func($fields) : $fields;
-            $this->_fields = FieldDefinition::createMap($fields);
+            $this->fields = FieldDefinition::createMap($fields);
         }
-        return $this->_fields;
+        return $this->fields;
     }
 
     /**
@@ -66,11 +72,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public function getField($name)
     {
-        if (null === $this->_fields) {
+        if (null === $this->fields) {
             $this->getFields();
         }
-        Utils::invariant(isset($this->_fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
-        return $this->_fields[$name];
+        Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
+        return $this->fields[$name];
     }
 
     /**
@@ -78,6 +84,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public function getResolveTypeFn()
     {
-        return $this->_resolveTypeFn;
+        return $this->resolveTypeFn;
     }
 }

@@ -2,8 +2,6 @@
 namespace GraphQL\Type\Definition;
 
 
-use GraphQL\Utils;
-
 /**
  * Class FieldArgument
  *
@@ -18,13 +16,6 @@ class FieldArgument
     public $name;
 
     /**
-     * @var InputType
-     */
-    private $type;
-
-    private $resolvedType;
-
-    /**
      * @var mixed
      */
     public $defaultValue;
@@ -34,6 +25,25 @@ class FieldArgument
      */
     public $description;
 
+    /**
+     * @var array
+     */
+    public $config;
+
+    /**
+     * @var InputType|callable
+     */
+    private $type;
+
+    /**
+     * @var InputType
+     */
+    private $resolvedType;
+
+    /**
+     * @param array $config
+     * @return array
+     */
     public static function createMap(array $config)
     {
         $map = [];
@@ -43,13 +53,30 @@ class FieldArgument
         return $map;
     }
 
+    /**
+     * FieldArgument constructor.
+     * @param array $def
+     */
     public function __construct(array $def)
     {
-        foreach ($def as $key => $value) {
-            $this->{$key} = $value;
-        }
+        $def += [
+            'type' => null,
+            'name' => null,
+            'defaultValue' => null,
+            'description' => null
+        ];
+
+        $this->type = $def['type'];
+        $this->name = $def['name'];
+        $this->description = $def['description'];
+        $this->defaultValue = $def['defaultValue'];
+        $this->config = $def;
     }
 
+    /**
+     * @return InputType
+     * @deprecated in favor of setting 'fields' as closure per objectType vs on individual field/argument level
+     */
     public function getType()
     {
         if (null === $this->resolvedType) {

@@ -117,6 +117,11 @@ class Parser
      */
     private $lexer;
 
+    /**
+     * Parser constructor.
+     * @param Source $source
+     * @param array $options
+     */
     function __construct(Source $source, array $options = [])
     {
         $this->lexer = new Lexer($source, $options);

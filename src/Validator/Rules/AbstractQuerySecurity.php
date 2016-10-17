@@ -17,7 +17,9 @@ abstract class AbstractQuerySecurity
 {
     const DISABLED = 0;
 
-    /** @var FragmentDefinition[] */
+    /**
+     * @var FragmentDefinition[]
+     */
     private $fragments = [];
 
     /**

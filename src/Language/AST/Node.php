@@ -76,7 +76,7 @@ abstract class Node
     const DIRECTIVE_DEFINITION = 'DirectiveDefinition';
 
     /**
-        type Node = Name
+      type Node = Name
     | Document
     | OperationDefinition
     | VariableDefinition
@@ -120,20 +120,24 @@ abstract class Node
      */
     public function cloneDeep()
     {
-        return $this->_cloneValue($this);
+        return $this->cloneValue($this);
     }
 
-    private function _cloneValue($value)
+    /**
+     * @param $value
+     * @return array|Node
+     */
+    private function cloneValue($value)
     {
         if (is_array($value)) {
             $cloned = [];
             foreach ($value as $key => $arrValue) {
-                $cloned[$key] = $this->_cloneValue($arrValue);
+                $cloned[$key] = $this->cloneValue($arrValue);
             }
         } else if ($value instanceof Node) {
             $cloned = clone $value;
             foreach (get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = $this->_cloneValue($propValue);
+                $cloned->{$prop} = $this->cloneValue($propValue);
             }
         } else {
             $cloned = $value;
@@ -147,6 +151,11 @@ abstract class Node
      */
     public function __toString()
     {
-        return json_encode($this);
+        $tmp = (array) $this;
+        $tmp['loc'] = [
+            'start' => $this->loc->start,
+            'end' => $this->loc->end
+        ];
+        return json_encode($tmp);
     }
 }

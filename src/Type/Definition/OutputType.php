@@ -2,8 +2,6 @@
 namespace GraphQL\Type\Definition;
 
 
-interface OutputType
-{
 /*
 GraphQLScalarType |
 GraphQLObjectType |
@@ -13,4 +11,6 @@ GraphQLEnumType |
 GraphQLList |
 GraphQLNonNull;
 */
+interface OutputType
+{
 }

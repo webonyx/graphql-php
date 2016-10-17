@@ -4,22 +4,26 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Language\AST\EnumValue;
 use GraphQL\Utils;
 
-class EnumType extends Type implements InputType, OutputType
+/**
+ * Class EnumType
+ * @package GraphQL\Type\Definition
+ */
+class EnumType extends Type implements InputType, OutputType, LeafType
 {
     /**
      * @var array<EnumValueDefinition>
      */
-    private $_values;
+    private $values;
 
     /**
      * @var \ArrayObject<mixed, EnumValueDefinition>
      */
-    private $_valueLookup;
+    private $valueLookup;
 
     /**
      * @var \ArrayObject<string, EnumValueDefinition>
      */
-    private $_nameLookup;
+    private $nameLookup;
 
     public function __construct($config)
     {
@@ -36,11 +40,11 @@ class EnumType extends Type implements InputType, OutputType
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->_values = [];
+        $this->values = [];
 
         if (!empty($config['values'])) {
             foreach ($config['values'] as $name => $value) {
-                $this->_values[] = Utils::assign(new EnumValueDefinition(), $value + ['name' => $name, 'value' => $name]); // value will be equal to name only if 'value'  is not set in definition
+                $this->values[] = Utils::assign(new EnumValueDefinition(), $value + ['name' => $name, 'value' => $name]); // value will be equal to name only if 'value'  is not set in definition
             }
         }
     }
@@ -50,7 +54,7 @@ class EnumType extends Type implements InputType, OutputType
      */
     public function getValues()
     {
-        return $this->_values;
+        return $this->values;
     }
 
     /**
@@ -59,7 +63,7 @@ class EnumType extends Type implements InputType, OutputType
      */
     public function serialize($value)
     {
-        $lookup = $this->_getValueLookup();
+        $lookup = $this->getValueLookup();
         return isset($lookup[$value]) ? $lookup[$value]->name : null;
     }
 
@@ -69,7 +73,7 @@ class EnumType extends Type implements InputType, OutputType
      */
     public function parseValue($value)
     {
-        $lookup = $this->_getNameLookup();
+        $lookup = $this->getNameLookup();
         return isset($lookup[$value]) ? $lookup[$value]->value : null;
     }
 
@@ -80,7 +84,7 @@ class EnumType extends Type implements InputType, OutputType
     public function parseLiteral($value)
     {
         if ($value instanceof EnumValue) {
-            $lookup = $this->_getNameLookup();
+            $lookup = $this->getNameLookup();
             if (isset($lookup[$value->value])) {
                 $enumValue = $lookup[$value->value];
                 if ($enumValue) {
@@ -95,31 +99,31 @@ class EnumType extends Type implements InputType, OutputType
      * @todo Value lookup for any type, not just scalars
      * @return \ArrayObject<mixed, EnumValueDefinition>
      */
-    protected function _getValueLookup()
+    private function getValueLookup()
     {
-        if (null === $this->_valueLookup) {
-            $this->_valueLookup = new \ArrayObject();
+        if (null === $this->valueLookup) {
+            $this->valueLookup = new \ArrayObject();
 
             foreach ($this->getValues() as $valueName => $value) {
-                $this->_valueLookup[$value->value] = $value;
+                $this->valueLookup[$value->value] = $value;
             }
         }
 
-        return $this->_valueLookup;
+        return $this->valueLookup;
     }
 
     /**
      * @return \ArrayObject<string, GraphQLEnumValueDefinition>
      */
-    protected function _getNameLookup()
+    private function getNameLookup()
     {
-        if (!$this->_nameLookup) {
+        if (!$this->nameLookup) {
             $lookup = new \ArrayObject();
             foreach ($this->getValues() as $value) {
                 $lookup[$value->name] = $value;
             }
-            $this->_nameLookup = $lookup;
+            $this->nameLookup = $lookup;
         }
-        return $this->_nameLookup;
+        return $this->nameLookup;
     }
 }

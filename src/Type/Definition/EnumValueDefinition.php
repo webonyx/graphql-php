@@ -1,6 +1,10 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+/**
+ * Class EnumValueDefinition
+ * @package GraphQL\Type\Definition
+ */
 class EnumValueDefinition
 {
     /**

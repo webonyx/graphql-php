@@ -1,60 +1,86 @@
 <?php
 namespace GraphQL\Utils;
 
-
+/**
+ * Class PairSet
+ * @package GraphQL\Utils
+ */
 class PairSet
 {
     /**
      * @var \SplObjectStorage<any, Set<any>>
      */
-    private $_data;
+    private $data;
 
-    private $_wrappers = [];
+    /**
+     * @var array
+     */
+    private $wrappers = [];
 
+    /**
+     * PairSet constructor.
+     */
     public function __construct()
     {
-        $this->_data = new \SplObjectStorage(); // SplObject hash instead?
+        $this->data = new \SplObjectStorage(); // SplObject hash instead?
     }
 
+    /**
+     * @param $a
+     * @param $b
+     * @return null|object
+     */
     public function has($a, $b)
     {
-        $a = $this->_toObj($a);
-        $b = $this->_toObj($b);
+        $a = $this->toObj($a);
+        $b = $this->toObj($b);
 
         /** @var \SplObjectStorage $first */
-        $first = isset($this->_data[$a]) ? $this->_data[$a] : null;
+        $first = isset($this->data[$a]) ? $this->data[$a] : null;
         return isset($first, $first[$b]) ? $first[$b] : null;
     }
 
+    /**
+     * @param $a
+     * @param $b
+     */
     public function add($a, $b)
     {
-        $this->_pairSetAdd($a, $b);
-        $this->_pairSetAdd($b, $a);
+        $this->pairSetAdd($a, $b);
+        $this->pairSetAdd($b, $a);
     }
 
-    private function _toObj($var)
+    /**
+     * @param $var
+     * @return mixed
+     */
+    private function toObj($var)
     {
         // SplObjectStorage expects objects, so wrapping non-objects to objects
         if (is_object($var)) {
             return $var;
         }
-        if (!isset($this->_wrappers[$var])) {
+        if (!isset($this->wrappers[$var])) {
             $tmp = new \stdClass();
             $tmp->_internal = $var;
-            $this->_wrappers[$var] = $tmp;
+            $this->wrappers[$var] = $tmp;
         }
-        return $this->_wrappers[$var];
+        return $this->wrappers[$var];
     }
 
-    private function _pairSetAdd($a, $b)
+    /**
+     * @param $a
+     * @param $b
+     */
+    private function pairSetAdd($a, $b)
     {
-        $a = $this->_toObj($a);
-        $b = $this->_toObj($b);
-        $set = isset($this->_data[$a]) ? $this->_data[$a] : null;
+        $a = $this->toObj($a);
+        $b = $this->toObj($b);
+        $set = isset($this->data[$a]) ? $this->data[$a] : null;
 
         if (!isset($set)) {
             $set = new \SplObjectStorage();
-            $this->_data[$a] = $set;
+            $this->data[$a] = $set;
         }
         $set[$b] = true;
     }

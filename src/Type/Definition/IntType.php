@@ -4,6 +4,10 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Language\AST\IntValue;
 use GraphQL\Language\AST\Value;
 
+/**
+ * Class IntType
+ * @package GraphQL\Type\Definition
+ */
 class IntType extends ScalarType
 {
     // As per the GraphQL Spec, Integers are only treated as valid when a valid
@@ -14,22 +18,40 @@ class IntType extends ScalarType
     const MAX_INT = 2147483647;
     const MIN_INT = -2147483648;
 
+    /**
+     * @var string
+     */
     public $name = Type::INT;
 
+    /**
+     * @var string
+     */
     public $description =
 'The `Int` scalar type represents non-fractional signed whole numeric
 values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
+    /**
+     * @param mixed $value
+     * @return int|null
+     */
     public function serialize($value)
     {
         return $this->coerceInt($value);
     }
 
+    /**
+     * @param mixed $value
+     * @return int|null
+     */
     public function parseValue($value)
     {
         return $this->coerceInt($value);
     }
 
+    /**
+     * @param $value
+     * @return int|null
+     */
     private function coerceInt($value)
     {
         if (false === $value || true === $value) {
@@ -41,6 +63,10 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         return null;
     }
 
+    /**
+     * @param $ast
+     * @return int|null
+     */
     public function parseLiteral($ast)
     {
         if ($ast instanceof IntValue) {

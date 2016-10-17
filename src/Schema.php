@@ -11,42 +11,46 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 
+/**
+ * Class Schema
+ * @package GraphQL
+ */
 class Schema
 {
     /**
      * @var ObjectType
      */
-    protected $_queryType;
+    protected $queryType;
 
     /**
      * @var ObjectType
      */
-    protected $_mutationType;
+    protected $mutationType;
 
     /**
      * @var ObjectType
      */
-    protected $_subscriptionType;
+    protected $subscriptionType;
 
     /**
      * @var Directive[]
      */
-    protected $_directives;
+    protected $directives;
 
     /**
      * @var array<string, Type>
      */
-    protected $_typeMap;
+    protected $typeMap;
 
     /**
      * @var array<string, ObjectType[]>
      */
-    protected $_implementations;
+    protected $implementations;
 
     /**
      * @var array<string, array<string, boolean>>
      */
-    protected $_possibleTypeMap;
+    protected $possibleTypeMap;
 
     /**
      * Schema constructor.
@@ -69,10 +73,13 @@ class Schema
             ];
         }
 
-        $this->_init($config);
+        $this->init($config);
     }
 
-    protected function _init(array $config)
+    /**
+     * @param array $config
+     */
+    protected function init(array $config)
     {
         $config += [
             'query' => null,
@@ -88,19 +95,19 @@ class Schema
             "Schema query must be Object Type but got: " . Utils::getVariableType($config['query'])
         );
 
-        $this->_queryType = $config['query'];
+        $this->queryType = $config['query'];
 
         Utils::invariant(
             !$config['mutation'] || $config['mutation'] instanceof ObjectType,
             "Schema mutation must be Object Type if provided but got: " . Utils::getVariableType($config['mutation'])
         );
-        $this->_mutationType = $config['mutation'];
+        $this->mutationType = $config['mutation'];
 
         Utils::invariant(
             !$config['subscription'] || $config['subscription'] instanceof ObjectType,
             "Schema subscription must be Object Type if provided but got: " . Utils::getVariableType($config['subscription'])
         );
-        $this->_subscriptionType = $config['subscription'];
+        $this->subscriptionType = $config['subscription'];
 
         Utils::invariant(
             !$config['types'] || is_array($config['types']),
@@ -112,7 +119,7 @@ class Schema
             "Schema directives must be Directive[] if provided but got " . Utils::getVariableType($config['directives'])
         );
 
-        $this->_directives = array_merge($config['directives'], [
+        $this->directives = array_merge($config['directives'], [
             Directive::includeDirective(),
             Directive::skipDirective()
         ]);
@@ -129,16 +136,16 @@ class Schema
         }
 
         foreach ($initialTypes as $type) {
-            $this->_extractTypes($type);
+            $this->extractTypes($type);
         }
-        $this->_typeMap += Type::getInternalTypes();
+        $this->typeMap += Type::getInternalTypes();
 
         // Keep track of all implementations by interface name.
-        $this->_implementations = [];
-        foreach ($this->_typeMap as $typeName => $type) {
+        $this->implementations = [];
+        foreach ($this->typeMap as $typeName => $type) {
             if ($type instanceof ObjectType) {
                 foreach ($type->getInterfaces() as $iface) {
-                    $this->_implementations[$iface->name][] = $type;
+                    $this->implementations[$iface->name][] = $type;
                 }
             }
         }
@@ -149,7 +156,7 @@ class Schema
      */
     public function getQueryType()
     {
-        return $this->_queryType;
+        return $this->queryType;
     }
 
     /**
@@ -157,7 +164,7 @@ class Schema
      */
     public function getMutationType()
     {
-        return $this->_mutationType;
+        return $this->mutationType;
     }
 
     /**
@@ -165,7 +172,7 @@ class Schema
      */
     public function getSubscriptionType()
     {
-        return $this->_subscriptionType;
+        return $this->subscriptionType;
     }
 
     /**
@@ -173,7 +180,7 @@ class Schema
      */
     public function getTypeMap()
     {
-        return $this->_typeMap;
+        return $this->typeMap;
     }
 
     /**
@@ -196,7 +203,7 @@ class Schema
             return $abstractType->getTypes();
         }
         Utils::invariant($abstractType instanceof InterfaceType);
-        return isset($this->_implementations[$abstractType->name]) ? $this->_implementations[$abstractType->name] : [];
+        return isset($this->implementations[$abstractType->name]) ? $this->implementations[$abstractType->name] : [];
     }
 
     /**
@@ -206,19 +213,19 @@ class Schema
      */
     public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType)
     {
-        if (null === $this->_possibleTypeMap) {
-            $this->_possibleTypeMap = [];
+        if (null === $this->possibleTypeMap) {
+            $this->possibleTypeMap = [];
         }
 
-        if (!isset($this->_possibleTypeMap[$abstractType->name])) {
+        if (!isset($this->possibleTypeMap[$abstractType->name])) {
             $tmp = [];
             foreach ($this->getPossibleTypes($abstractType) as $type) {
                 $tmp[$type->name] = true;
             }
-            $this->_possibleTypeMap[$abstractType->name] = $tmp;
+            $this->possibleTypeMap[$abstractType->name] = $tmp;
         }
 
-        return !empty($this->_possibleTypeMap[$abstractType->name][$possibleType->name]);
+        return !empty($this->possibleTypeMap[$abstractType->name][$possibleType->name]);
     }
 
     /**
@@ -226,7 +233,7 @@ class Schema
      */
     public function getDirectives()
     {
-        return $this->_directives;
+        return $this->directives;
     }
 
     /**
@@ -243,24 +250,39 @@ class Schema
         return null;
     }
 
+    /**
+     * @param $type
+     * @deprecated since 17.10.2016 in favor of $this->extractTypes
+     * @return array
+     */
     protected function _extractTypes($type)
     {
+        trigger_error(__METHOD__ . ' is deprecated in favor of ' . __CLASS__ . '::extractTypes', E_USER_DEPRECATED);
+        return $this->extractTypes($type);
+    }
+
+    /**
+     * @param $type
+     * @return array
+     */
+    protected function extractTypes($type)
+    {
         if (!$type) {
-            return $this->_typeMap;
+            return $this->typeMap;
         }
 
         if ($type instanceof WrappingType) {
-            return $this->_extractTypes($type->getWrappedType(true));
+            return $this->extractTypes($type->getWrappedType(true));
         }
 
-        if (!empty($this->_typeMap[$type->name])) {
+        if (!empty($this->typeMap[$type->name])) {
             Utils::invariant(
-                $this->_typeMap[$type->name] === $type,
+                $this->typeMap[$type->name] === $type,
                 "Schema must contain unique named types but contains multiple types named \"$type\"."
             );
-            return $this->_typeMap;
+            return $this->typeMap;
         }
-        $this->_typeMap[$type->name] = $type;
+        $this->typeMap[$type->name] = $type;
 
         $nestedTypes = [];
 
@@ -280,8 +302,8 @@ class Schema
             }
         }
         foreach ($nestedTypes as $type) {
-            $this->_extractTypes($type);
+            $this->extractTypes($type);
         }
-        return $this->_typeMap;
+        return $this->typeMap;
     }
 }

@@ -29,47 +29,47 @@ class ValidationContext
     /**
      * @var Schema
      */
-    private $_schema;
+    private $schema;
 
     /**
      * @var Document
      */
-    private $_ast;
+    private $ast;
 
     /**
      * @var TypeInfo
      */
-    private $_typeInfo;
+    private $typeInfo;
 
     /**
      * @var Error[]
      */
-    private $_errors;
+    private $errors;
 
     /**
      * @var array<string, FragmentDefinition>
      */
-    private $_fragments;
+    private $fragments;
 
     /**
      * @var SplObjectStorage
      */
-    private $_fragmentSpreads;
+    private $fragmentSpreads;
 
     /**
      * @var SplObjectStorage
      */
-    private $_recursivelyReferencedFragments;
+    private $recursivelyReferencedFragments;
 
     /**
      * @var SplObjectStorage
      */
-    private $_variableUsages;
+    private $variableUsages;
 
     /**
      * @var SplObjectStorage
      */
-    private $_recursiveVariableUsages;
+    private $recursiveVariableUsages;
 
     /**
      * ValidationContext constructor.
@@ -80,14 +80,14 @@ class ValidationContext
      */
     function __construct(Schema $schema, Document $ast, TypeInfo $typeInfo)
     {
-        $this->_schema = $schema;
-        $this->_ast = $ast;
-        $this->_typeInfo = $typeInfo;
-        $this->_errors = [];
-        $this->_fragmentSpreads = new SplObjectStorage();
-        $this->_recursivelyReferencedFragments = new SplObjectStorage();
-        $this->_variableUsages = new SplObjectStorage();
-        $this->_recursiveVariableUsages = new SplObjectStorage();
+        $this->schema = $schema;
+        $this->ast = $ast;
+        $this->typeInfo = $typeInfo;
+        $this->errors = [];
+        $this->fragmentSpreads = new SplObjectStorage();
+        $this->recursivelyReferencedFragments = new SplObjectStorage();
+        $this->variableUsages = new SplObjectStorage();
+        $this->recursiveVariableUsages = new SplObjectStorage();
     }
 
     /**
@@ -95,7 +95,7 @@ class ValidationContext
      */
     function reportError(Error $error)
     {
-        $this->_errors[] = $error;
+        $this->errors[] = $error;
     }
 
     /**
@@ -103,7 +103,7 @@ class ValidationContext
      */
     function getErrors()
     {
-        return $this->_errors;
+        return $this->errors;
     }
 
     /**
@@ -111,7 +111,7 @@ class ValidationContext
      */
     function getSchema()
     {
-        return $this->_schema;
+        return $this->schema;
     }
 
     /**
@@ -119,7 +119,7 @@ class ValidationContext
      */
     function getDocument()
     {
-        return $this->_ast;
+        return $this->ast;
     }
 
     /**
@@ -128,9 +128,9 @@ class ValidationContext
      */
     function getFragment($name)
     {
-        $fragments = $this->_fragments;
+        $fragments = $this->fragments;
         if (!$fragments) {
-            $this->_fragments = $fragments =
+            $this->fragments = $fragments =
                 array_reduce($this->getDocument()->definitions, function($frags, $statement) {
                     if ($statement->kind === Node::FRAGMENT_DEFINITION) {
                         $frags[$statement->name->value] = $statement;
@@ -147,7 +147,7 @@ class ValidationContext
      */
     function getFragmentSpreads(HasSelectionSet $node)
     {
-        $spreads = isset($this->_fragmentSpreads[$node]) ? $this->_fragmentSpreads[$node] : null;
+        $spreads = isset($this->fragmentSpreads[$node]) ? $this->fragmentSpreads[$node] : null;
         if (!$spreads) {
             $spreads = [];
             $setsToVisit = [$node->selectionSet];
@@ -163,7 +163,7 @@ class ValidationContext
                     }
                 }
             }
-            $this->_fragmentSpreads[$node] = $spreads;
+            $this->fragmentSpreads[$node] = $spreads;
         }
         return $spreads;
     }
@@ -174,7 +174,7 @@ class ValidationContext
      */
     function getRecursivelyReferencedFragments(OperationDefinition $operation)
     {
-        $fragments = isset($this->_recursivelyReferencedFragments[$operation]) ? $this->_recursivelyReferencedFragments[$operation] : null;
+        $fragments = isset($this->recursivelyReferencedFragments[$operation]) ? $this->recursivelyReferencedFragments[$operation] : null;
 
         if (!$fragments) {
             $fragments = [];
@@ -196,7 +196,7 @@ class ValidationContext
                     }
                 }
             }
-            $this->_recursivelyReferencedFragments[$operation] = $fragments;
+            $this->recursivelyReferencedFragments[$operation] = $fragments;
         }
         return $fragments;
     }
@@ -207,11 +207,11 @@ class ValidationContext
      */
     function getVariableUsages(HasSelectionSet $node)
     {
-        $usages = isset($this->_variableUsages[$node]) ? $this->_variableUsages[$node] : null;
+        $usages = isset($this->variableUsages[$node]) ? $this->variableUsages[$node] : null;
 
         if (!$usages) {
             $newUsages = [];
-            $typeInfo = new TypeInfo($this->_schema);
+            $typeInfo = new TypeInfo($this->schema);
             Visitor::visit($node, Visitor::visitWithTypeInfo($typeInfo, [
                 Node::VARIABLE_DEFINITION => function () {
                     return false;
@@ -221,7 +221,7 @@ class ValidationContext
                 }
             ]));
             $usages = $newUsages;
-            $this->_variableUsages[$node] = $usages;
+            $this->variableUsages[$node] = $usages;
         }
         return $usages;
     }
@@ -232,7 +232,7 @@ class ValidationContext
      */
     function getRecursiveVariableUsages(OperationDefinition $operation)
     {
-        $usages = isset($this->_recursiveVariableUsages[$operation]) ? $this->_recursiveVariableUsages[$operation] : null;
+        $usages = isset($this->recursiveVariableUsages[$operation]) ? $this->recursiveVariableUsages[$operation] : null;
 
         if (!$usages) {
             $usages = $this->getVariableUsages($operation);
@@ -243,7 +243,7 @@ class ValidationContext
                 $tmp[] = $this->getVariableUsages($fragments[$i]);
             }
             $usages = call_user_func_array('array_merge', $tmp);
-            $this->_recursiveVariableUsages[$operation] = $usages;
+            $this->recursiveVariableUsages[$operation] = $usages;
         }
         return $usages;
     }
@@ -255,7 +255,7 @@ class ValidationContext
      */
     function getType()
     {
-        return $this->_typeInfo->getType();
+        return $this->typeInfo->getType();
     }
 
     /**
@@ -263,7 +263,7 @@ class ValidationContext
      */
     function getParentType()
     {
-        return $this->_typeInfo->getParentType();
+        return $this->typeInfo->getParentType();
     }
 
     /**
@@ -271,7 +271,7 @@ class ValidationContext
      */
     function getInputType()
     {
-        return $this->_typeInfo->getInputType();
+        return $this->typeInfo->getInputType();
     }
 
     /**
@@ -279,16 +279,16 @@ class ValidationContext
      */
     function getFieldDef()
     {
-        return $this->_typeInfo->getFieldDef();
+        return $this->typeInfo->getFieldDef();
     }
 
     function getDirective()
     {
-        return $this->_typeInfo->getDirective();
+        return $this->typeInfo->getDirective();
     }
 
     function getArgument()
     {
-        return $this->_typeInfo->getArgument();
+        return $this->typeInfo->getArgument();
     }
 }

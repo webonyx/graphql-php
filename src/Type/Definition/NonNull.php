@@ -4,6 +4,10 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Type\TypeKind;
 use GraphQL\Utils;
 
+/**
+ * Class NonNull
+ * @package GraphQL\Type\Definition
+ */
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
     /**

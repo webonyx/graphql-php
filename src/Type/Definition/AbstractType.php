@@ -1,14 +1,13 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-
-interface AbstractType
-{
 /*
 export type GraphQLAbstractType =
 GraphQLInterfaceType |
 GraphQLUnionType;
 */
+interface AbstractType
+{
     /**
      * @return callable|null
      */

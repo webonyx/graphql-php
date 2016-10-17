@@ -22,6 +22,10 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
 
+/**
+ * Class AST
+ * @package GraphQL\Utils
+ */
 class AST
 {
     /**

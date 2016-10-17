@@ -32,7 +32,7 @@ class TypeKind {
 
 class Introspection
 {
-    private static $_map = [];
+    private static $map = [];
 
     /**
      * @return string
@@ -198,8 +198,8 @@ EOD;
 
     public static function _schema()
     {
-        if (!isset(self::$_map['__Schema'])) {
-            self::$_map['__Schema'] = new ObjectType([
+        if (!isset(self::$map['__Schema'])) {
+            self::$map['__Schema'] = new ObjectType([
                 'name' => '__Schema',
                 'description' =>
                     'A GraphQL Schema defines the capabilities of a GraphQL ' .
@@ -247,13 +247,13 @@ EOD;
                 ]
             ]);
         }
-        return self::$_map['__Schema'];
+        return self::$map['__Schema'];
     }
 
     public static function _directive()
     {
-        if (!isset(self::$_map['__Directive'])) {
-            self::$_map['__Directive'] = new ObjectType([
+        if (!isset(self::$map['__Directive'])) {
+            self::$map['__Directive'] = new ObjectType([
                 'name' => '__Directive',
                 'description' =>     'A Directive provides a way to describe alternate runtime execution and ' .
                     'type validation behavior in a GraphQL document.' .
@@ -306,13 +306,13 @@ EOD;
                 ]
             ]);
         }
-        return self::$_map['__Directive'];
+        return self::$map['__Directive'];
     }
 
     public static function _directiveLocation()
     {
-        if (!isset(self::$_map['__DirectiveLocation'])) {
-            self::$_map['__DirectiveLocation'] = new EnumType([
+        if (!isset(self::$map['__DirectiveLocation'])) {
+            self::$map['__DirectiveLocation'] = new EnumType([
                 'name' => '__DirectiveLocation',
                 'description' =>
                     'A Directive can be adjacent to many parts of the GraphQL language, a ' .
@@ -349,13 +349,13 @@ EOD;
                 ]
             ]);
         }
-        return self::$_map['__DirectiveLocation'];
+        return self::$map['__DirectiveLocation'];
     }
 
     public static function _type()
     {
-        if (!isset(self::$_map['__Type'])) {
-            self::$_map['__Type'] = new ObjectType([
+        if (!isset(self::$map['__Type'])) {
+            self::$map['__Type'] = new ObjectType([
                 'name' => '__Type',
                 'description' =>
                     'The fundamental unit of any GraphQL Schema is the type. There are ' .
@@ -474,14 +474,14 @@ EOD;
                 }
             ]);
         }
-        return self::$_map['__Type'];
+        return self::$map['__Type'];
     }
 
     public static function _field()
     {
-        if (!isset(self::$_map['__Field'])) {
+        if (!isset(self::$map['__Field'])) {
 
-            self::$_map['__Field'] = new ObjectType([
+            self::$map['__Field'] = new ObjectType([
                 'name' => '__Field',
                 'description' =>
                     'Object and Interface types are described by a list of Fields, each of ' .
@@ -515,13 +515,13 @@ EOD;
                 }
             ]);
         }
-        return self::$_map['__Field'];
+        return self::$map['__Field'];
     }
 
     public static function _inputValue()
     {
-        if (!isset(self::$_map['__InputValue'])) {
-            self::$_map['__InputValue'] = new ObjectType([
+        if (!isset(self::$map['__InputValue'])) {
+            self::$map['__InputValue'] = new ObjectType([
                 'name' => '__InputValue',
                 'description' =>
                     'Arguments provided to Fields or Directives and the input fields of an ' .
@@ -549,13 +549,13 @@ EOD;
                 }
             ]);
         }
-        return self::$_map['__InputValue'];
+        return self::$map['__InputValue'];
     }
 
     public static function _enumValue()
     {
-        if (!isset(self::$_map['__EnumValue'])) {
-            self::$_map['__EnumValue'] = new ObjectType([
+        if (!isset(self::$map['__EnumValue'])) {
+            self::$map['__EnumValue'] = new ObjectType([
                 'name' => '__EnumValue',
                 'description' =>
                     'One possible value for a given Enum. Enum values are unique values, not ' .
@@ -576,13 +576,13 @@ EOD;
                 ]
             ]);
         }
-        return self::$_map['__EnumValue'];
+        return self::$map['__EnumValue'];
     }
 
     public static function _typeKind()
     {
-        if (!isset(self::$_map['__TypeKind'])) {
-            self::$_map['__TypeKind'] = new EnumType([
+        if (!isset(self::$map['__TypeKind'])) {
+            self::$map['__TypeKind'] = new EnumType([
                 'name' => '__TypeKind',
                 'description' => 'An enum describing what kind of type a given __Type is.',
                 'values' => [
@@ -621,13 +621,13 @@ EOD;
                 ]
             ]);
         }
-        return self::$_map['__TypeKind'];
+        return self::$map['__TypeKind'];
     }
 
     public static function schemaMetaFieldDef()
     {
-        if (!isset(self::$_map['__schema'])) {
-            self::$_map['__schema'] = FieldDefinition::create([
+        if (!isset(self::$map['__schema'])) {
+            self::$map['__schema'] = FieldDefinition::create([
                 'name' => '__schema',
                 'type' => Type::nonNull(self::_schema()),
                 'description' => 'Access the current type schema of this server.',
@@ -642,13 +642,13 @@ EOD;
                 }
             ]);
         }
-        return self::$_map['__schema'];
+        return self::$map['__schema'];
     }
 
     public static function typeMetaFieldDef()
     {
-        if (!isset(self::$_map['__type'])) {
-            self::$_map['__type'] = FieldDefinition::create([
+        if (!isset(self::$map['__type'])) {
+            self::$map['__type'] = FieldDefinition::create([
                 'name' => '__type',
                 'type' => self::_type(),
                 'description' => 'Request the type information of a single type.',
@@ -660,13 +660,13 @@ EOD;
                 }
             ]);
         }
-        return self::$_map['__type'];
+        return self::$map['__type'];
     }
 
     public static function typeNameMetaFieldDef()
     {
-        if (!isset(self::$_map['__typename'])) {
-            self::$_map['__typename'] = FieldDefinition::create([
+        if (!isset(self::$map['__typename'])) {
+            self::$map['__typename'] = FieldDefinition::create([
                 'name' => '__typename',
                 'type' => Type::nonNull(Type::string()),
                 'description' => 'The name of the current Object type at runtime.',
@@ -681,6 +681,6 @@ EOD;
                 }
             ]);
         }
-        return self::$_map['__typename'];
+        return self::$map['__typename'];
     }
 }

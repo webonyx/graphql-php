@@ -1,15 +1,18 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-
 use GraphQL\Utils;
 
+/**
+ * Class ListOfType
+ * @package GraphQL\Type\Definition
+ */
 class ListOfType extends Type implements WrappingType, OutputType, InputType
 {
     /**
      * @var callable|Type
      */
-    private $ofType;
+    public $ofType;
 
     /**
      * @param callable|Type $type

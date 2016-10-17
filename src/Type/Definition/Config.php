@@ -3,6 +3,10 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Utils;
 
+/**
+ * Class Config
+ * @package GraphQL\Type\Definition
+ */
 class Config
 {
     const BOOLEAN = 1;
@@ -23,8 +27,14 @@ class Config
     const KEY_AS_NAME = 131072;
     const MAYBE_THUNK = 262144;
 
+    /**
+     * @var bool
+     */
     private static $enableValidation = false;
 
+    /**
+     * Disables config validation
+     */
     public static function disableValidation()
     {
         self::$enableValidation = false;
@@ -39,11 +49,15 @@ class Config
         self::$enableValidation = true;
     }
 
+    /**
+     * @param array $config
+     * @param array $definition
+     */
     public static function validate(array $config, array $definition)
     {
         if (self::$enableValidation) {
             $name = isset($config['name']) ? $config['name'] : 'UnnamedType';
-            self::_validateMap($name, $config, $definition);
+            self::validateMap($name, $config, $definition);
         }
     }
 
@@ -75,7 +89,13 @@ class Config
         return $tmp;
     }
 
-    private static function _validateMap($typeName, array $map, array $definitions, $pathStr = null)
+    /**
+     * @param $typeName
+     * @param array $map
+     * @param array $definitions
+     * @param null $pathStr
+     */
+    private static function validateMap($typeName, array $map, array $definitions, $pathStr = null)
     {
         $suffix = $pathStr ? " at $pathStr" : '';
 
@@ -87,17 +107,25 @@ class Config
         }
 
         // Make sure that all required keys are present in map
-        $requiredKeys = array_filter($definitions, function($def) {return (self::_getFlags($def) & self::REQUIRED) > 0;});
+        $requiredKeys = array_filter($definitions, function($def) {return (self::getFlags($def) & self::REQUIRED) > 0;});
         $missingKeys = array_keys(array_diff_key($requiredKeys, $map));
         Utils::invariant(empty($missingKeys), 'Error in "'.$typeName.'" type definition: Required keys missing: "%s"' . $suffix, implode(', ', $missingKeys));
 
         // Make sure that every map value is valid given the definition
         foreach ($map as $key => $value) {
-            self::_validateEntry($typeName, $key, $value, $definitions[$key], $pathStr ? "$pathStr:$key" : $key);
+            self::validateEntry($typeName, $key, $value, $definitions[$key], $pathStr ? "$pathStr:$key" : $key);
         }
     }
 
-    private static function _validateEntry($typeName, $key, $value, $def, $pathStr)
+    /**
+     * @param $typeName
+     * @param $key
+     * @param $value
+     * @param $def
+     * @param $pathStr
+     * @throws \Exception
+     */
+    private static function validateEntry($typeName, $key, $value, $def, $pathStr)
     {
         $type = Utils::getVariableType($value);
         $err = 'Error in "'.$typeName.'" type definition: expecting %s at "' . $pathStr . '", but got "' . $type . '"';
@@ -116,7 +144,7 @@ class Config
                 if ($def->flags & self::KEY_AS_NAME) {
                     $value += ['name' => $key];
                 }
-                self::_validateMap($typeName, $value, $def->definition, $pathStr);
+                self::validateMap($typeName, $value, $def->definition, $pathStr);
             } else if (!empty($def->isArray)) {
 
                 if ($def->flags & self::REQUIRED) {
@@ -132,9 +160,9 @@ class Config
                         if ($def->flags & self::KEY_AS_NAME) {
                             $arrValue += ['name' => $arrKey];
                         }
-                        self::_validateMap($typeName, $arrValue, $def->definition, "$pathStr:$arrKey");
+                        self::validateMap($typeName, $arrValue, $def->definition, "$pathStr:$arrKey");
                     } else {
-                        self::_validateEntry($typeName, $arrKey, $arrValue, $def->definition, "$pathStr:$arrKey");
+                        self::validateEntry($typeName, $arrKey, $arrValue, $def->definition, "$pathStr:$arrKey");
                     }
                 }
             } else {
@@ -209,7 +237,11 @@ class Config
         }
     }
 
-    private static function _getFlags($def)
+    /**
+     * @param $def
+     * @return mixed
+     */
+    private static function getFlags($def)
     {
         return is_object($def) ? $def->flags : $def;
     }
