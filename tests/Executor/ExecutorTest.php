@@ -1,12 +1,15 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+require_once __DIR__ . '/TestClasses.php';
+
 use GraphQL\Error;
 use GraphQL\Executor\Executor;
 use GraphQL\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -17,6 +20,10 @@ use GraphQL\Utils;
 class ExecutorTest extends \PHPUnit_Framework_TestCase
 {
     // Execute: Handles basic execution tasks
+
+    /**
+     * @it executes arbitrary code
+     */
     public function testExecutesArbitraryCode()
     {
         $deepData = null;
@@ -142,6 +149,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, Executor::execute($schema, $ast, $data, null, ['size' => 100], 'Example')->toArray());
     }
 
+    /**
+     * @it merges parallel fragments
+     */
     public function testMergesParallelFragments()
     {
         $ast = Parser::parse('
@@ -200,6 +210,61 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, Executor::execute($schema, $ast)->toArray());
     }
 
+    /**
+     * @it provides info about current execution state
+     */
+    public function testProvidesInfoAboutCurrentExecutionState()
+    {
+        $ast = Parser::parse('query ($var: String) { result: test }');
+
+        /** @var ResolveInfo $info */
+        $info = null;
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Test',
+                'fields' => [
+                    'test' => [
+                        'type' => Type::string(),
+                        'resolve' => function($val, $args, $ctx, $_info) use (&$info) {
+                            $info = $_info;
+                        }
+                    ]
+                ]
+            ])
+        ]);
+
+        $rootValue = [ 'root' => 'val' ];
+
+        Executor::execute($schema, $ast, $rootValue, null, [ 'var' => 123 ]);
+
+        $this->assertEquals([
+            'fieldName',
+            'fieldASTs',
+            'returnType',
+            'parentType',
+            'path',
+            'schema',
+            'fragments',
+            'rootValue',
+            'operation',
+            'variableValues',
+        ], array_keys((array) $info));
+
+        $this->assertEquals('test', $info->fieldName);
+        $this->assertEquals(1, count($info->fieldASTs));
+        $this->assertSame($ast->definitions[0]->selectionSet->selections[0], $info->fieldASTs[0]);
+        $this->assertSame(Type::string(), $info->returnType);
+        $this->assertSame($schema->getQueryType(), $info->parentType);
+        $this->assertEquals(['result'], $info->path);
+        $this->assertSame($schema, $info->schema);
+        $this->assertSame($rootValue, $info->rootValue);
+        $this->assertEquals($ast->definitions[0], $info->operation);
+        $this->assertEquals(['var' => '123'], $info->variableValues);
+    }
+
+    /**
+     * @it threads root value context correctly
+     */
     public function testThreadsContextCorrectly()
     {
         // threads context correctly
@@ -231,6 +296,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(true, $gotHere);
     }
 
+    /**
+     * @it correctly threads arguments
+     */
     public function testCorrectlyThreadsArguments()
     {
         $doc = '
@@ -265,6 +333,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($gotHere, true);
     }
 
+    /**
+     * @it nulls out error subtrees
+     */
     public function testNullsOutErrorSubtrees()
     {
         $doc = '{
@@ -336,9 +407,11 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
+    /**
+     * @it uses the inline operation if no operation name is provided
+     */
     public function testUsesTheInlineOperationIfNoOperationIsProvided()
     {
-        // uses the inline operation if no operation is provided
         $doc = '{ a }';
         $data = ['a' => 'b'];
         $ast = Parser::parse($doc);
@@ -356,6 +429,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['data' => ['a' => 'b']], $ex->toArray());
     }
 
+    /**
+     * @it uses the only operation if no operation name is provided
+     */
     public function testUsesTheOnlyOperationIfNoOperationIsProvided()
     {
         $doc = 'query Example { a }';
@@ -374,6 +450,55 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['data' => ['a' => 'b']], $ex->toArray());
     }
 
+    /**
+     * @it uses the named operation if operation name is provided
+     */
+    public function testUsesTheNamedOperationIfOperationNameIsProvided()
+    {
+        $doc = 'query Example { first: a } query OtherExample { second: a }';
+        $data = [ 'a' => 'b' ];
+        $ast = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => [ 'type' => Type::string() ],
+                ]
+            ])
+        ]);
+
+        $result = Executor::execute($schema, $ast, $data, null, null, 'OtherExample');
+        $this->assertEquals(['data' => ['second' => 'b']], $result->toArray());
+    }
+
+    /**
+     * @it throws if no operation is provided
+     */
+    public function testThrowsIfNoOperationIsProvided()
+    {
+        $doc = 'fragment Example on Type { a }';
+        $data = [ 'a' => 'b' ];
+        $ast = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => [ 'type' => Type::string() ],
+                ]
+            ])
+        ]);
+
+        try {
+            Executor::execute($schema, $ast, $data);
+            $this->fail('Expected exception was not thrown');
+        } catch (Error $e) {
+            $this->assertEquals('Must provide an operation.', $e->getMessage());
+        }
+    }
+
+    /**
+     * @it throws if no operation name is provided with multiple operations
+     */
     public function testThrowsIfNoOperationIsProvidedWithMultipleOperations()
     {
         $doc = 'query Example { a } query OtherExample { a }';
@@ -396,6 +521,34 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @it throws if unknown operation name is provided
+     */
+    public function testThrowsIfUnknownOperationNameIsProvided()
+    {
+        $doc = 'query Example { a } query OtherExample { a }';
+        $data = [ 'a' => 'b' ];
+        $ast = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Type',
+                'fields' => [
+                    'a' => [ 'type' => Type::string() ],
+                ]
+            ])
+        ]);
+
+        try {
+            Executor::execute($schema, $ast, $data, null, null, 'UnknownExample');
+            $this->fail('Expected exception was not thrown');
+        } catch (Error $e) {
+            $this->assertEquals('Unknown operation named "UnknownExample".', $e->getMessage());
+        }
+    }
+
+    /**
+     * @it uses the query schema for queries
+     */
     public function testUsesTheQuerySchemaForQueries()
     {
         $doc = 'query Q { a } mutation M { c }';
@@ -420,6 +573,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
+    /**
+     * @it uses the mutation schema for mutations
+     */
     public function testUsesTheMutationSchemaForMutations()
     {
         $doc = 'query Q { a } mutation M { c }';
@@ -443,6 +599,36 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['data' => ['c' => 'd']], $mutationResult->toArray());
     }
 
+    /**
+     * @it uses the subscription schema for subscriptions
+     */
+    public function testUsesTheSubscriptionSchemaForSubscriptions()
+    {
+        $doc = 'query Q { a } subscription S { a }';
+        $data = [ 'a' => 'b', 'c' => 'd' ];
+        $ast = Parser::parse($doc);
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Q',
+                'fields' => [
+                    'a' => [ 'type' => Type::string() ],
+                ]
+            ]),
+            'subscription' => new ObjectType([
+                'name' => 'S',
+                'fields' => [
+                    'a' => [ 'type' => Type::string() ],
+                ]
+            ])
+        ]);
+
+        $subscriptionResult = Executor::execute($schema, $ast, $data, null, [], 'S');
+        $this->assertEquals(['data' => ['a' => 'b']], $subscriptionResult->toArray());
+    }
+
+    /**
+     * @it Avoids recursion
+     */
     public function testAvoidsRecursion()
     {
         $doc = '
@@ -472,6 +658,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['data' => ['a' => 'b']], $queryResult->toArray());
     }
 
+    /**
+     * @it does not include illegal fields in output
+     */
     public function testDoesNotIncludeIllegalFieldsInOutput()
     {
         $doc = 'mutation M {
@@ -496,6 +685,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['data' => []], $mutationResult->toArray());
     }
 
+    /**
+     * @it does not include arguments that were not set
+     */
     public function testDoesNotIncludeArgumentsThatWereNotSet()
     {
         $schema = new Schema([
@@ -528,6 +720,86 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
+    /**
+     * @it fails when an isTypeOf check is not met
+     */
+    public function testFailsWhenAnIsTypeOfCheckIsNotMet()
+    {
+        $SpecialType = new ObjectType([
+            'name' => 'SpecialType',
+            'isTypeOf' => function($obj) {
+                return $obj instanceof Special;
+            },
+            'fields' => [
+                'value' => ['type' => Type::string()]
+            ]
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'specials' => [
+                        'type' => Type::listOf($SpecialType),
+                        'resolve' => function($rootValue) {
+                            return $rootValue['specials'];
+                        }
+                    ]
+                ]
+            ])
+        ]);
+
+        $query = Parser::parse('{ specials { value } }');
+        $value = [
+            'specials' => [ new Special('foo'), new NotSpecial('bar') ]
+        ];
+        $result = Executor::execute($schema, $query, $value);
+
+        $this->assertEquals([
+            'specials' => [
+                ['value' => 'foo'],
+                null
+            ]
+        ], $result->data);
+
+        $this->assertEquals(1, count($result->errors));
+        $this->assertArraySubset([
+            'message' => 'Expected value of type SpecialType but got: GraphQL\Tests\Executor\NotSpecial',
+            'locations' => [['line' => 1, 'column' => 3]]
+        ], $result->errors[0]->toSerializableArray());
+    }
+
+    /**
+     * @it fails to execute a query containing a type definition
+     */
+    public function testFailsToExecuteQueryContainingTypeDefinition()
+    {
+        $query = Parser::parse('
+      { foo }
+
+      type Query { foo: String }
+    ');
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'foo' => ['type' => Type::string() ]
+                ]
+            ])
+        ]);
+
+        try {
+            Executor::execute($schema, $query);
+            $this->fail('Expected exception was not thrown');
+        } catch (Error $e) {
+            $this->assertEquals([
+                'message' => 'GraphQL cannot execute a request containing a ObjectTypeDefinition.',
+                'locations' => [['line' => 4, 'column' => 7]]
+            ], $e->toSerializableArray());
+        }
+    }
+
     public function testSubstitutesArgumentWithDefaultValue()
     {
         $schema = new Schema([
@@ -544,7 +816,14 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                             'd' => ['type' => Type::int(), 'defaultValue' => false],
                             'e' => ['type' => Type::int(), 'defaultValue' => '0'],
                             'f' => ['type' => Type::int(), 'defaultValue' => 'some-string'],
-                            'g' => ['type' => Type::boolean()]
+                            'g' => ['type' => Type::boolean()],
+                            'h' => ['type' => new InputObjectType([
+                                'name' => 'ComplexType',
+                                'fields' => [
+                                    'a' => ['type' => Type::int()],
+                                    'b' => ['type' => Type::string()]
+                                ]
+                            ]), 'defaultValue' => ['a' => 1, 'b' => 'test']]
                         ]
                     ]
                 ]
@@ -555,7 +834,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $result = Executor::execute($schema, $query);
         $expected = [
             'data' => [
-                'field' => '{"a":1,"c":0,"d":false,"e":"0","f":"some-string"}'
+                'field' => '{"a":1,"c":0,"d":false,"e":"0","f":"some-string","h":{"a":1,"b":"test"}}'
             ]
         ];
 

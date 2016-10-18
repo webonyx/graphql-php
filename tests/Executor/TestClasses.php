@@ -76,3 +76,39 @@ class ComplexScalar extends ScalarType
         return null;
     }
 }
+
+class Special
+{
+    public $value;
+
+    public function __construct($value)
+    {
+        $this->value = $value;
+    }
+}
+
+class NotSpecial
+{
+    public $value;
+
+    public function __construct($value)
+    {
+        $this->value = $value;
+    }
+}
+
+class Adder
+{
+    public $num;
+
+    public $test;
+
+    public function __construct($num)
+    {
+        $this->num = $num;
+
+        $this->test = function($args, $context)  {
+            return $this->num + $args['addend1'] + $context['addend2'];
+        };
+    }
+}

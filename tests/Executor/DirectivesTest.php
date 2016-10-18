@@ -105,9 +105,6 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
             b
           }
         }
-        fragment Frag on TestType {
-          b
-        }
         ';
         $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
 
@@ -118,9 +115,6 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
           ... on TestType @include(if: true) {
             b
           }
-        }
-        fragment Frag on TestType {
-          b
         }
         ';
         $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
@@ -133,9 +127,6 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
             b
           }
         }
-        fragment Frag on TestType {
-          b
-        }
         ';
         $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
 
@@ -146,9 +137,6 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
           ... on TestType @skip(if: true) {
             b
           }
-        }
-        fragment Frag on TestType {
-          b
         }
         ';
         $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
