@@ -149,7 +149,6 @@ class FieldDefinition
     }
 
     /**
-     * @deprecated as of 17.10.2016 in favor of setting 'fields' as closure per ObjectType vs setting on field level
      * @return Type
      */
     public function getType()

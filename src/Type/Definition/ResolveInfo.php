@@ -37,6 +37,11 @@ class ResolveInfo
     public $parentType;
 
     /**
+     * @var array
+     */
+    public $path;
+
+    /**
      * @var Schema
      */
     public $schema;

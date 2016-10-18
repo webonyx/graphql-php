@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
@@ -291,12 +292,12 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $defaultSchema = new Schema([
             'query' => $queryRoot,
-            'directives' => [
+            'directives' => array_merge(GraphQL::getInternalDirectives(), [
                 new Directive([
                     'name' => 'operationOnly',
                     'locations' => [ 'QUERY' ],
                 ])
-            ]
+            ])
         ]);
         return $defaultSchema;
     }

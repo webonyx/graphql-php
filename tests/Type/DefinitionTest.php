@@ -226,6 +226,54 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it defines an enum type with deprecated value
+     */
+    public function testDefinesEnumTypeWithDeprecatedValue()
+    {
+        $enumTypeWithDeprecatedValue = new EnumType([
+            'name' => 'EnumWithDeprecatedValue',
+            'values' => [
+                'foo' => ['deprecationReason' => 'Just because']
+            ]
+        ]);
+
+        $value = $enumTypeWithDeprecatedValue->getValues()[0];
+
+        $this->assertEquals([
+            'name' => 'foo',
+            'description' => null,
+            'deprecationReason' => 'Just because',
+            'value' => 'foo'
+        ], (array) $value);
+
+        $this->assertEquals(true, $value->isDeprecated());
+    }
+
+    /**
+     * @it defines an object type with deprecated field
+     */
+    public function testDefinesAnObjectTypeWithDeprecatedField()
+    {
+        $TypeWithDeprecatedField = new ObjectType([
+          'name' => 'foo',
+          'fields' => [
+            'bar' => [
+              'type' => Type::string(),
+              'deprecationReason' => 'A terrible reason'
+            ]
+          ]
+        ]);
+
+        $field = $TypeWithDeprecatedField->getField('bar');
+
+        $this->assertEquals(Type::string(), $field->getType());
+        $this->assertEquals(true, $field->isDeprecated());
+        $this->assertEquals('A terrible reason', $field->deprecationReason);
+        $this->assertEquals('bar', $field->name);
+        $this->assertEquals([], $field->args);
+    }
+
+    /**
      * @it includes nested input objects in the map
      */
     public function testIncludesNestedInputObjectInTheMap()
@@ -422,6 +470,21 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             }
         }
         Config::disableValidation();
+    }
+
+    /**
+     * @it allows a thunk for Union\'s types
+     */
+    public function testAllowsThunkForUnionTypes()
+    {
+        $union = new UnionType([
+            'name' => 'ThunkUnion',
+            'types' => function() {return [$this->objectType]; }
+        ]);
+
+        $types = $union->getTypes();
+        $this->assertEquals(1, count($types));
+        $this->assertSame($this->objectType, $types[0]);
     }
 
     public function testAllowsRecursiveDefinitions()

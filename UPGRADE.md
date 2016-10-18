@@ -2,7 +2,27 @@
 
 ## Upgrade v0.7.x > v1.0.x
 
-### 1. Protected property and method naming
+### 1. Custom directives handling
+When passing custom directives to schema, default directives (like `@skip` and `@include`) 
+are not added to schema automatically anymore. If you need them - add them explicitly with your other directives
+
+Before the change:
+```php
+$schema = new Schema([
+   // ...
+   'directives' => [$myDirective]
+]);
+```
+
+After the change:
+```php
+$schema = new Schema([
+    // ...
+    'directives' => array_merge(GraphQL::getInternalDirectives(), [$myDirective])
+]);
+```
+
+### 2. Protected property and method naming
 In order to unify coding style, leading underscores were removed from all private and protected properties 
 and methods. 
 
@@ -19,7 +39,7 @@ GraphQL\Schema::$queryType;
 So if you rely on any protected properties or methods of any GraphQL class, make sure to 
 delete leading underscores.
 
-### 2. Returning closure from field resolver
+### 3. Returning closure from field resolver
 Previously when you returned closure from any resolver, expected signature of this closure
 was `function($sourceValue)`, new signature is `function($args, $context)` 
 (now mirrors reference graphql-js implementation)

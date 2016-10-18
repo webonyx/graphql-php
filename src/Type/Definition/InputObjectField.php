@@ -39,7 +39,6 @@ class InputObjectField
     }
 
     /**
-     * @deprecated in favor of defining all object 'fields' as closure vs defining closure per field
      * @return mixed
      */
     public function getType()

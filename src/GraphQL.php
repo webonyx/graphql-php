@@ -6,6 +6,7 @@ use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 
@@ -56,5 +57,13 @@ class GraphQL
         } catch (Error $e) {
             return new ExecutionResult(null, [$e]);
         }
+    }
+
+    /**
+     * @return array
+     */
+    public static function getInternalDirectives()
+    {
+        return array_values(Directive::getInternalDirectives());
     }
 }

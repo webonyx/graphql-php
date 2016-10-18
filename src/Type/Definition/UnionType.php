@@ -72,6 +72,11 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
     {
         if ($this->types instanceof \Closure) {
             $this->types = call_user_func($this->types);
+            Utils::invariant(
+                is_array($this->types),
+                'Closure for option "types" of union "%s" is expected to return array of types',
+                $this->name
+            );
         }
         return $this->types;
     }

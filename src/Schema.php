@@ -12,7 +12,30 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 
 /**
- * Class Schema
+ * Schema Definition
+ *
+ * A Schema is created by supplying the root types of each type of operation:
+ * query, mutation (optional) and subscription (optional). A schema definition is
+ * then supplied to the validator and executor.
+ *
+ * Example:
+ *
+ *     $schema = new GraphQL\Schema([
+ *       'query' => $MyAppQueryRootType,
+ *       'mutation' => $MyAppMutationRootType,
+ *     ]);
+ *
+ * Note: If an array of `directives` are provided to GraphQL\Schema, that will be
+ * the exact list of directives represented and allowed. If `directives` is not
+ * provided then a default set of the specified directives (e.g. @include and
+ * @skip) will be used. If you wish to provide *additional* directives to these
+ * specified directives, you must explicitly declare them. Example:
+ *
+ *     $mySchema = new GraphQL\Schema([
+ *       ...
+ *       'directives' => array_merge(GraphQL::getInternalDirectives(), [ $myCustomDirective ]),
+ *     ])
+ *
  * @package GraphQL
  */
 class Schema
@@ -119,10 +142,7 @@ class Schema
             "Schema directives must be Directive[] if provided but got " . Utils::getVariableType($config['directives'])
         );
 
-        $this->directives = array_merge($config['directives'], [
-            Directive::includeDirective(),
-            Directive::skipDirective()
-        ]);
+        $this->directives = $config['directives'] ?: GraphQL::getInternalDirectives();
 
         // Build type map now to detect any errors within this schema.
         $initialTypes = [
@@ -222,6 +242,15 @@ class Schema
             foreach ($this->getPossibleTypes($abstractType) as $type) {
                 $tmp[$type->name] = true;
             }
+
+            Utils::invariant(
+                !empty($tmp),
+                'Could not find possible implementing types for $%s ' .
+                'in schema. Check that schema.types is defined and is an array of ' .
+                'all possible types in the schema.',
+                $abstractType->name
+            );
+
             $this->possibleTypeMap[$abstractType->name] = $tmp;
         }
 

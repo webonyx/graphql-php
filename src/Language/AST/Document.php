@@ -6,7 +6,7 @@ class Document extends Node
     public $kind = Node::DOCUMENT;
 
     /**
-     * @var array<Definition>
+     * @var Definition[]
      */
     public $definitions;
 }

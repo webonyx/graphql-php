@@ -234,11 +234,10 @@ class Values
 
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            // TODO: support iterable input
-            if (is_array($value)) {
-                return array_map(function ($item) use ($itemType) {
+            if (is_array($value) || $value instanceof \Traversable) {
+                return Utils::map($value, function($item) use ($itemType) {
                     return Values::coerceValue($itemType, $item);
-                }, $value);
+                });
             } else {
                 return [self::coerceValue($itemType, $value)];
             }

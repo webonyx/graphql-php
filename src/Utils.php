@@ -222,6 +222,31 @@ class Utils
     }
 
     /**
+     * @param $var
+     * @return string
+     */
+    public static function printSafe($var)
+    {
+        if ($var instanceof Type) {
+            // FIXME: Replace with schema printer call
+            if ($var instanceof WrappingType) {
+                $var = $var->getWrappedType(true);
+            }
+            return $var->name;
+        }
+        if (is_object($var)) {
+            return 'instance of ' . get_class($var);
+        }
+        if (is_scalar($var)) {
+            return (string) $var;
+        }
+        if (null === $var) {
+            return 'null';
+        }
+        return gettype($var);
+    }
+
+    /**
      * UTF-8 compatible chr()
      *
      * @param string $ord
