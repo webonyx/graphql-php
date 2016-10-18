@@ -3,14 +3,28 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error;
 use GraphQL\GraphQL;
+use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Introspection;
 
 class EnumTypeTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Schema
+     */
     private $schema;
+
+    /**
+     * @var EnumType
+     */
+    private $ComplexEnum;
+
+    private $Complex1;
+
+    private $Complex2;
 
     public function setUp()
     {
@@ -20,6 +34,17 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                 'RED' => ['value' => 0],
                 'GREEN' => ['value' => 1],
                 'BLUE' => ['value' => 2],
+            ]
+        ]);
+
+        $Complex1 = ['someRandomFunction' => function() {}];
+        $Complex2 = new \ArrayObject(['someRandomValue' => 123]);
+
+        $ComplexEnum = new EnumType([
+            'name' => 'Complex',
+            'values' => [
+                'ONE' => ['value' => $Complex1],
+                'TWO' => ['value' => $Complex2]
             ]
         ]);
 
@@ -59,6 +84,36 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                             return $args['fromEnum'];
                         }
                     }
+                ],
+                'complexEnum' => [
+                    'type' => $ComplexEnum,
+                    'args' => [
+                        'fromEnum' => [
+                            'type' => $ComplexEnum,
+                            // Note: defaultValue is provided an *internal* representation for
+                            // Enums, rather than the string name.
+                            'defaultValue' => $Complex1
+                        ],
+                        'provideGoodValue' => [
+                            'type' => Type::boolean(),
+                        ],
+                        'provideBadValue' => [
+                            'type' => Type::boolean()
+                        ]
+                    ],
+                    'resolve' => function($value, $args) use ($Complex1, $Complex2) {
+                        if (!empty($args['provideGoodValue'])) {
+                            // Note: this is one of the references of the internal values which
+                            // ComplexEnum allows.
+                            return $Complex2;
+                        }
+                        if (!empty($args['provideBadValue'])) {
+                            // Note: similar shape, but not the same *reference*
+                            // as Complex2 above. Enum internal values require === equality.
+                            return new \ArrayObject(['someRandomValue' => 123]);
+                        }
+                        return $args['fromEnum'];
+                    }
                 ]
             ]
         ]);
@@ -88,6 +143,10 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ]);
+
+        $this->Complex1 = $Complex1;
+        $this->Complex2 = $Complex2;
+        $this->ComplexEnum = $ComplexEnum;
 
         $this->schema = new Schema([
             'query' => $QueryType,
@@ -139,7 +198,10 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             '{ colorEnum(fromEnum: "GREEN") }',
             null,
-            "Argument \"fromEnum\" has invalid value \"GREEN\".\nExpected type \"Color\", found \"GREEN\"."
+            [
+                'message' => "Argument \"fromEnum\" has invalid value \"GREEN\".\nExpected type \"Color\", found \"GREEN\".",
+                'locations' => [new SourceLocation(1, 23)]
+            ]
         );
     }
 
@@ -148,9 +210,13 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testDoesNotAcceptIncorrectInternalValue()
     {
-        $this->assertEquals(
-            ['data' => ['colorEnum' => null]],
-            GraphQL::execute($this->schema, '{ colorEnum(fromString: "GREEN") }')
+        $this->expectFailure(
+            '{ colorEnum(fromString: "GREEN") }',
+            null,
+            [
+                'message' => 'Expected a value of type "Color" but received: GREEN',
+                'locations' => [new SourceLocation(1, 3)]
+            ]
         );
     }
 
@@ -294,14 +360,78 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @it may present a values API for complex enums
+     */
+    public function testMayPresentValuesAPIForComplexEnums()
+    {
+        $ComplexEnum = $this->ComplexEnum;
+        $values = $ComplexEnum->getValues();
+
+        $this->assertEquals(2, count($values));
+        $this->assertEquals('ONE', $values[0]->name);
+        $this->assertEquals($this->Complex1, $values[0]->value);
+        $this->assertEquals('TWO', $values[1]->name);
+        $this->assertEquals($this->Complex2, $values[1]->value);
+    }
+
+    /**
+     * @it may be internally represented with complex values
+     */
+    public function testMayBeInternallyRepresentedWithComplexValues()
+    {
+        $result = GraphQL::execute($this->schema, '{
+        first: complexEnum
+        second: complexEnum(fromEnum: TWO)
+        good: complexEnum(provideGoodValue: true)
+        bad: complexEnum(provideBadValue: true)
+        }');
+
+        $expected = [
+            'data' => [
+                'first' => 'ONE',
+                'second' => 'TWO',
+                'good' => 'TWO',
+                'bad' => null
+            ],
+            'errors' => [[
+                'message' =>
+                    'Expected a value of type "Complex" but received: instance of ArrayObject',
+                'locations' => [['line' => 5, 'column' => 9]]
+            ]]
+        ];
+
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @it can be introspected without error
+     */
+    public function testCanBeIntrospectedWithoutError()
+    {
+        $result = GraphQL::execute($this->schema, Introspection::getIntrospectionQuery());
+        $this->assertArrayNotHasKey('errors', $result);
+    }
+
     private function expectFailure($query, $vars, $err)
     {
         $result = GraphQL::executeAndReturnResult($this->schema, $query, null, null, $vars);
         $this->assertEquals(1, count($result->errors));
 
-        $this->assertEquals(
-            $err,
-            $result->errors[0]->getMessage()
-        );
+        if (is_array($err)) {
+            $this->assertEquals(
+                $err['message'],
+                $result->errors[0]->getMessage()
+            );
+            $this->assertEquals(
+                $err['locations'],
+                $result->errors[0]->getLocations()
+            );
+        } else {
+            $this->assertEquals(
+                $err,
+                $result->errors[0]->getMessage()
+            );
+        }
     }
 }

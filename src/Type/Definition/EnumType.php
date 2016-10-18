@@ -44,13 +44,14 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
         if (!empty($config['values'])) {
             foreach ($config['values'] as $name => $value) {
-                $this->values[] = Utils::assign(new EnumValueDefinition(), $value + ['name' => $name, 'value' => $name]); // value will be equal to name only if 'value'  is not set in definition
+                // value will be equal to name only if 'value'  is not set in definition
+                $this->values[] = new EnumValueDefinition($value + ['name' => $name, 'value' => $name]);
             }
         }
     }
 
     /**
-     * @return array<EnumValueDefinition>
+     * @return EnumValueDefinition[]
      */
     public function getValues()
     {
@@ -96,16 +97,15 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     }
 
     /**
-     * @todo Value lookup for any type, not just scalars
-     * @return \ArrayObject<mixed, EnumValueDefinition>
+     * @return Utils\MixedStore<mixed, EnumValueDefinition>
      */
     private function getValueLookup()
     {
         if (null === $this->valueLookup) {
-            $this->valueLookup = new \ArrayObject();
+            $this->valueLookup = new Utils\MixedStore();
 
             foreach ($this->getValues() as $valueName => $value) {
-                $this->valueLookup[$value->value] = $value;
+                $this->valueLookup->offsetSet($value->value, $value);
             }
         }
 

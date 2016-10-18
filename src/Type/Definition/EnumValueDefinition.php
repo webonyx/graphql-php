@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Utils;
 
 /**
  * Class EnumValueDefinition
@@ -26,4 +27,17 @@ class EnumValueDefinition
      * @var string|null
      */
     public $description;
+
+    public function __construct(array $config)
+    {
+        Utils::assign($this, $config);
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeprecated()
+    {
+        return !!$this->deprecationReason;
+    }
 }
