@@ -37,7 +37,11 @@ class ExecutionResult
      */
     public function toArray()
     {
-        $result = ['data' => $this->data];
+        $result = [];
+
+        if (null !== $this->data) {
+            $result['data'] = $this->data;
+        }
 
         if (!empty($this->errors)) {
             $result['errors'] = array_map(['GraphQL\Error', 'formatError'], $this->errors);

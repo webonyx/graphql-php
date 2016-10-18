@@ -243,7 +243,6 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         ';
 
         $expected = [
-            'data' => null,
             'errors' => [
                 FormattedError::create($this->nonNullSyncError->getMessage(), [new SourceLocation(2, 17)])
             ]
@@ -259,7 +258,6 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         ';
 
         $expected = [
-            'data' => null,
             'errors' => [
                 FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(2, 17)]),
             ]
