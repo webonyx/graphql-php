@@ -734,6 +734,11 @@ class Executor
             call_user_func($resolveType, $result, $exeContext->contextValue, $info) :
             Type::getTypeOf($result, $exeContext->contextValue, $info, $returnType);
 
+        // If resolveType returns a string, we assume it's a ObjectType name.
+        if (is_string($runtimeType)) {
+            $runtimeType = $exeContext->schema->getType($runtimeType);
+        }
+
         if (!($runtimeType instanceof ObjectType)) {
             throw new Error(
                 "Abstract type {$returnType} must resolve to an Object type at runtime " .

@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+require_once __DIR__ . '/TestClasses.php';
+
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\FormattedError;
@@ -12,8 +14,6 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-
-spl_autoload_call('GraphQL\Tests\Executor\TestClasses');
 
 class AbstractTest extends \PHPUnit_Framework_TestCase
 {
@@ -357,5 +357,82 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             ]
         ];
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * @it resolveType allows resolving with type name
+     */
+    public function testResolveTypeAllowsResolvingWithTypeName()
+    {
+        $PetType = new InterfaceType([
+            'name' => 'Pet',
+            'resolveType' => function($obj) {
+                if ($obj instanceof Dog) return 'Dog';
+                if ($obj instanceof Cat) return 'Cat';
+                return null;
+            },
+            'fields' => [
+                'name' => [ 'type' => Type::string() ]
+            ]
+        ]);
+
+        $DogType = new ObjectType([
+            'name' => 'Dog',
+            'interfaces' => [ $PetType ],
+            'fields' => [
+                'name' => [ 'type' => Type::string() ],
+                'woofs' => [ 'type' => Type::boolean() ],
+            ]
+        ]);
+
+        $CatType = new ObjectType([
+            'name' => 'Cat',
+            'interfaces' => [ $PetType ],
+            'fields' => [
+                'name' => [ 'type' => Type::string() ],
+                'meows' => [ 'type' => Type::boolean() ],
+            ]
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'pets' => [
+                        'type' => Type::listOf($PetType),
+                        'resolve' => function() {
+                            return [
+                                new Dog('Odie', true),
+                                new Cat('Garfield', false)
+                            ];
+                        }
+                    ]
+                ]
+            ]),
+            'types' => [ $CatType, $DogType ]
+        ]);
+
+        $query = '{
+          pets {
+            name
+            ... on Dog {
+              woofs
+            }
+            ... on Cat {
+              meows
+            }
+          }
+        }';
+
+        $result = GraphQL::execute($schema, $query);
+
+        $this->assertEquals([
+            'data' => [
+                'pets' => [
+                    ['name' => 'Odie', 'woofs' => true],
+                    ['name' => 'Garfield', 'meows' => false]
+                ]
+            ]
+        ], $result);
     }
 }
