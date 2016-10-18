@@ -17,6 +17,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Utils;
 use GraphQL\Utils\AST;
 
 class TypeKind {
@@ -111,6 +112,22 @@ class Introspection
         ofType {
           kind
           name
+          ofType {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -127,7 +144,6 @@ EOD;
       }
       directives {
         name
-
         locations
         args {
           ...InputValue
@@ -139,10 +155,8 @@ EOD;
   fragment FullType on __Type {
     kind
     name
-
     fields(includeDeprecated: true) {
       name
-
       args {
         ...InputValue
       }
@@ -160,7 +174,6 @@ EOD;
     }
     enumValues(includeDeprecated: true) {
       name
-
       isDeprecated
       deprecationReason
     }
@@ -171,7 +184,6 @@ EOD;
 
   fragment InputValue on __InputValue {
     name
-
     type { ...TypeRef }
     defaultValue
   }
@@ -188,6 +200,22 @@ EOD;
         ofType {
           kind
           name
+          ofType {
+            kind
+            name
+            ofType {
+              kind
+              name
+              ofType {
+                kind
+                name
+                ofType {
+                  kind
+                  name
+                }
+              }
+            }
+          }
         }
       }
     }
@@ -346,6 +374,51 @@ EOD;
                         'value' => Directive::$directiveLocations['INLINE_FRAGMENT'],
                         'description' => 'Location adjacent to an inline fragment.'
                     ],
+                    'SCHEMA' => [
+                      'value' =>  Directive::$directiveLocations['SCHEMA'],
+                      'description' =>  'Location adjacent to a schema definition.'
+                    ],
+                    'SCALAR' => [
+                      'value' =>  Directive::$directiveLocations['SCALAR'],
+                      'description' =>  'Location adjacent to a scalar definition.'
+                    ],
+                    'OBJECT' => [
+                      'value' =>  Directive::$directiveLocations['OBJECT'],
+                      'description' =>  'Location adjacent to an object type definition.'
+                    ],
+                    'FIELD_DEFINITION' => [
+                      'value' =>  Directive::$directiveLocations['FIELD_DEFINITION'],
+                      'description' =>  'Location adjacent to a field definition.'
+                    ],
+                    'ARGUMENT_DEFINITION' => [
+                      'value' =>  Directive::$directiveLocations['ARGUMENT_DEFINITION'],
+                      'description' =>  'Location adjacent to an argument definition.'
+                    ],
+                    'INTERFACE' => [
+                      'value' =>  Directive::$directiveLocations['INTERFACE'],
+                      'description' =>  'Location adjacent to an interface definition.'
+                    ],
+                    'UNION' => [
+                      'value' =>  Directive::$directiveLocations['UNION'],
+                      'description' =>  'Location adjacent to a union definition.'
+                    ],
+                    'ENUM' => [
+                      'value' =>  Directive::$directiveLocations['ENUM'],
+                      'description' =>  'Location adjacent to an enum definition.'
+                    ],
+                    'ENUM_VALUE' => [
+                      'value' =>  Directive::$directiveLocations['ENUM_VALUE'],
+                      'description' =>  'Location adjacent to an enum value definition.'
+                    ],
+                    'INPUT_OBJECT' => [
+                      'value' =>  Directive::$directiveLocations['INPUT_OBJECT'],
+                      'description' =>  'Location adjacent to an input object type definition.'
+                    ],
+                    'INPUT_FIELD_DEFINITION' => [
+                      'value' =>  Directive::$directiveLocations['INPUT_FIELD_DEFINITION'],
+                      'description' =>  'Location adjacent to an input object field definition.'
+                    ]
+
                 ]
             ]);
         }
@@ -390,7 +463,7 @@ EOD;
                                     case $type instanceof UnionType:
                                         return TypeKind::UNION;
                                     default:
-                                        throw new \Exception("Unknown kind of type: " . print_r($type, true));
+                                        throw new \Exception("Unknown kind of type: " . Utils::printSafe($type));
                                 }
                             }
                         ],
@@ -469,7 +542,8 @@ EOD;
                                     return $type->getWrappedType();
                                 }
                                 return null;
-                            }]
+                            }
+                        ]
                     ];
                 }
             ]);

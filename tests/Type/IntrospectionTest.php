@@ -81,7 +81,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                                     'ofType' =>
                                                                                         array (
                                                                                             'kind' => 'OBJECT',
-                                                                                            'name' => '__Type',
+                                                                                            'name' => '__Type'
                                                                                         ),
                                                                                 ),
                                                                         ),
@@ -103,7 +103,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'OBJECT',
                                                                             'name' => '__Type',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -119,7 +118,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'OBJECT',
                                                                     'name' => '__Type',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -134,7 +132,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'OBJECT',
                                                                     'name' => '__Type',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -196,7 +193,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'ENUM',
                                                                             'name' => '__TypeKind',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -212,7 +208,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -227,7 +222,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -244,7 +238,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                                 array (
                                                                                     'kind' => 'SCALAR',
                                                                                     'name' => 'Boolean',
-                                                                                    'ofType' => NULL,
                                                                                 ),
                                                                             'defaultValue' => 'false',
                                                                         ),
@@ -261,7 +254,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                                 array (
                                                                                     'kind' => 'OBJECT',
                                                                                     'name' => '__Field',
-                                                                                    'ofType' => NULL,
                                                                                 ),
                                                                         ),
                                                                 ),
@@ -286,7 +278,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                                 array (
                                                                                     'kind' => 'OBJECT',
                                                                                     'name' => '__Type',
-                                                                                    'ofType' => NULL,
                                                                                 ),
                                                                         ),
                                                                 ),
@@ -311,7 +302,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                                 array (
                                                                                     'kind' => 'OBJECT',
                                                                                     'name' => '__Type',
-                                                                                    'ofType' => NULL,
                                                                                 ),
                                                                         ),
                                                                 ),
@@ -330,7 +320,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                                 array (
                                                                                     'kind' => 'SCALAR',
                                                                                     'name' => 'Boolean',
-                                                                                    'ofType' => NULL,
                                                                                 ),
                                                                             'defaultValue' => 'false',
                                                                         ),
@@ -347,7 +336,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                                 array (
                                                                                     'kind' => 'OBJECT',
                                                                                     'name' => '__EnumValue',
-                                                                                    'ofType' => NULL,
                                                                                 ),
                                                                         ),
                                                                 ),
@@ -372,7 +360,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                                 array (
                                                                                     'kind' => 'OBJECT',
                                                                                     'name' => '__InputValue',
-                                                                                    'ofType' => NULL,
                                                                                 ),
                                                                         ),
                                                                 ),
@@ -389,7 +376,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'OBJECT',
                                                                     'name' => '__Type',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -502,7 +488,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'String',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -518,7 +503,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -566,7 +550,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'OBJECT',
                                                                             'name' => '__Type',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -586,7 +569,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'Boolean',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -602,7 +584,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -635,7 +616,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'String',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -651,7 +631,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -670,7 +649,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'OBJECT',
                                                                             'name' => '__Type',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -686,7 +664,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -719,7 +696,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'String',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -735,7 +711,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -754,7 +729,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'Boolean',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -770,7 +744,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -803,7 +776,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'String',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => false,
@@ -819,7 +791,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                 array (
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'String',
-                                                                    'ofType' => NULL,
                                                                 ),
                                                             'isDeprecated' => false,
                                                             'deprecationReason' => NULL,
@@ -896,7 +867,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'Boolean',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => true,
@@ -916,7 +886,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'Boolean',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => true,
@@ -936,7 +905,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'Boolean',
-                                                                            'ofType' => NULL,
+
                                                                         ),
                                                                 ),
                                                             'isDeprecated' => true,
@@ -1057,7 +1026,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'Boolean',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                         ),
@@ -1086,7 +1054,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                                         array (
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'Boolean',
-                                                                            'ofType' => NULL,
                                                                         ),
                                                                 ),
                                                         ),
@@ -1099,7 +1066,8 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
 
         $actual = GraphQL::execute($emptySchema, $request);
 
-        $this->assertEquals($expected, $actual);
+        // $this->assertEquals($expected, $actual);
+        $this->assertArraySubset($expected, $actual);
     }
 
     /**
@@ -1491,7 +1459,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
       }
     ';
         $expected = [
-            'data' => null,
             'errors' => [
                 FormattedError::create(
                     ProvidedNonNullArguments::missingFieldArgMessage('__type', 'name', 'String!'), [new SourceLocation(3, 9)]
