@@ -649,12 +649,11 @@ class Executor
         throw new \RuntimeException("Cannot complete value of unexpected type \"{$returnType}\".");
     }
 
-
     /**
      * If a resolve function is not given, then a default resolve behavior is used
      * which takes the property of the source object of the same name as the field
      * and returns it as the result, or if it's a function, returns the result
-     * of calling that function.
+     * of calling that function while passing along args and context.
      */
     public static function defaultResolveFn($source, $args, $context, ResolveInfo $info)
     {
@@ -671,7 +670,7 @@ class Executor
             }
         }
 
-        return $property instanceof \Closure ? $property($source) : $property;
+        return $property instanceof \Closure ? $property($args, $context) : $property;
     }
 
     /**

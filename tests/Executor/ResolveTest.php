@@ -6,6 +6,8 @@ use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
+require_once __DIR__ . '/TestClasses.php';
+
 class ResolveTest extends \PHPUnit_Framework_TestCase
 {
     // Execute: resolve function
@@ -56,6 +58,24 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
             ['data' => ['test' => $_secret]],
             GraphQL::execute($schema, '{ test }', $source)
         );
+    }
+
+    /**
+     * @it default function passes args and context
+     */
+    public function testDefaultFunctionPassesArgsAndContext()
+    {
+        $schema = $this->buildSchema([
+            'type' => Type::int(),
+            'args' => [
+                'addend1' => [ 'type' => Type::int() ],
+            ],
+        ]);
+
+        $source = new Adder(700);
+
+        $result = GraphQL::execute($schema, '{ test(addend1: 80) }', $source, ['addend2' => 9]);
+        $this->assertEquals(['data' => ['test' => 789]], $result);
     }
 
     /**

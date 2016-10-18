@@ -8,17 +8,56 @@ and methods.
 
 Example before the change:
 ```php
-GraphQL\Schema::$_queryType
+GraphQL\Schema::$_queryType;
 ```
 
 Correct usage after the change:
 ```php
-GraphQL\Schema::$queryType
+GraphQL\Schema::$queryType;
 ```
 
 So if you rely on any protected properties or methods of any GraphQL class, make sure to 
 delete leading underscores.
 
+### 2. Returning closure from field resolver
+Previously when you returned closure from any resolver, expected signature of this closure
+was `function($sourceValue)`, new signature is `function($args, $context)` 
+(now mirrors reference graphql-js implementation)
+
+Before the change:
+```php
+new ObjectType([
+    'name' => 'Test',
+    'fields' => [
+        'a' => [
+            'type' => Type::string(),
+            'resolve' => function() {
+                return function($value) {
+                    return 'something';
+                }
+            }
+        ]
+    ]
+])
+
+```
+After the change:
+```php
+new ObjectType([
+    'name' => 'Test',
+    'fields' => [
+        'a' => [
+            'type' => Type::string(),
+            'resolve' => function() {
+                return function($args, $context) {
+                    return 'something';
+                }
+            }
+        ]
+    ]
+])
+```
+(note the closure signature change)
 
 ## Upgrade v0.6.x > v0.7.x
 
