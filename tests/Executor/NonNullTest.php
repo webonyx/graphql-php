@@ -12,8 +12,10 @@ use GraphQL\Type\Definition\Type;
 
 class NonNullTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var Error */
+    /** @var \Exception */
     public $syncError;
+
+    /** @var \Exception */
     public $nonNullSyncError;
     public $throwingData;
     public $nullingData;
@@ -21,8 +23,8 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->syncError = new Error('sync');
-        $this->nonNullSyncError = new Error('nonNullSync');
+        $this->syncError = new \Exception('sync');
+        $this->nonNullSyncError = new \Exception('nonNullSync');
 
         $this->throwingData = [
             'sync' => function () {
@@ -92,7 +94,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ],
             'errors' => [
                 FormattedError::create(
-                    $this->syncError->message,
+                    $this->syncError->getMessage(),
                     [new SourceLocation(3, 9)]
                 )
             ]
@@ -118,7 +120,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'nest' => null
             ],
             'errors' => [
-                FormattedError::create($this->nonNullSyncError->message, [new SourceLocation(4, 11)])
+                FormattedError::create($this->nonNullSyncError->getMessage(), [new SourceLocation(4, 11)])
             ]
         ];
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
@@ -149,8 +151,8 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 ]
             ],
             'errors' => [
-                FormattedError::create($this->syncError->message, [new SourceLocation(4, 11)]),
-                FormattedError::create($this->syncError->message, [new SourceLocation(6, 13)]),
+                FormattedError::create($this->syncError->getMessage(), [new SourceLocation(4, 11)]),
+                FormattedError::create($this->syncError->getMessage(), [new SourceLocation(6, 13)]),
             ]
         ];
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
@@ -243,7 +245,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'data' => null,
             'errors' => [
-                FormattedError::create($this->nonNullSyncError->message, [new SourceLocation(2, 17)])
+                FormattedError::create($this->nonNullSyncError->getMessage(), [new SourceLocation(2, 17)])
             ]
         ];
         $this->assertEquals($expected, Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray());

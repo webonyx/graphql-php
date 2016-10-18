@@ -166,11 +166,12 @@ class Executor
         $type = self::getOperationRootType($exeContext->schema, $operation);
         $fields = self::collectFields($exeContext, $type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
 
+        $path = [];
         if ($operation->operation === 'mutation') {
-            return self::executeFieldsSerially($exeContext, $type, $rootValue, $fields);
+            return self::executeFieldsSerially($exeContext, $type, $rootValue, $path, $fields);
         }
 
-        return self::executeFields($exeContext, $type, $rootValue, $fields);
+        return self::executeFields($exeContext, $type, $rootValue, $path, $fields);
     }
 
 
@@ -217,11 +218,12 @@ class Executor
      * Implements the "Evaluating selection sets" section of the spec
      * for "write" mode.
      */
-    private static function executeFieldsSerially(ExecutionContext $exeContext, ObjectType $parentType, $sourceValue, $fields)
+    private static function executeFieldsSerially(ExecutionContext $exeContext, ObjectType $parentType, $sourceValue, $path, $fields)
     {
         $results = [];
         foreach ($fields as $responseName => $fieldASTs) {
-            $result = self::resolveField($exeContext, $parentType, $sourceValue, $fieldASTs);
+            $path[] = $responseName;
+            $result = self::resolveField($exeContext, $parentType, $sourceValue, $fieldASTs, $path);
 
             if ($result !== self::$UNDEFINED) {
                 // Undefined means that field is not defined in schema
@@ -235,11 +237,11 @@ class Executor
      * Implements the "Evaluating selection sets" section of the spec
      * for "read" mode.
      */
-    private static function executeFields(ExecutionContext $exeContext, ObjectType $parentType, $source, $fields)
+    private static function executeFields(ExecutionContext $exeContext, ObjectType $parentType, $source, $path, $fields)
     {
         // Native PHP doesn't support promises.
         // Custom executor should be built for platforms like ReactPHP
-        return self::executeFieldsSerially($exeContext, $parentType, $source, $fields);
+        return self::executeFieldsSerially($exeContext, $parentType, $source, $path, $fields);
     }
 
 
@@ -387,7 +389,7 @@ class Executor
      * then calls completeValue to complete promises, serialize scalars, or execute
      * the sub-selection-set for objects.
      */
-    private static function resolveField(ExecutionContext $exeContext, ObjectType $parentType, $source, $fieldASTs)
+    private static function resolveField(ExecutionContext $exeContext, ObjectType $parentType, $source, $fieldASTs, $path)
     {
         $fieldAST = $fieldASTs[0];
 
@@ -416,6 +418,7 @@ class Executor
             'fieldASTs' => $fieldASTs,
             'returnType' => $returnType,
             'parentType' => $parentType,
+            'path' => $path,
             'schema' => $exeContext->schema,
             'fragments' => $exeContext->fragments,
             'rootValue' => $exeContext->rootValue,
@@ -446,6 +449,7 @@ class Executor
             $returnType,
             $fieldASTs,
             $info,
+            $path,
             $result
         );
 
@@ -463,31 +467,93 @@ class Executor
         }
     }
 
-    // This is a small wrapper around completeValue which detects and logs errors
-    // in the execution context.
-    public static function completeValueCatchingError(
+    /**
+     * This is a small wrapper around completeValue which detects and logs errors
+     * in the execution context.
+     *
+     * @param ExecutionContext $exeContext
+     * @param Type $returnType
+     * @param $fieldASTs
+     * @param ResolveInfo $info
+     * @param $path
+     * @param $result
+     * @return array|null
+     */
+    private static function completeValueCatchingError(
         ExecutionContext $exeContext,
         Type $returnType,
         $fieldASTs,
         ResolveInfo $info,
+        $path,
         $result
     )
     {
         // If the field type is non-nullable, then it is resolved without any
         // protection from errors.
         if ($returnType instanceof NonNull) {
-            return self::completeValue($exeContext, $returnType, $fieldASTs, $info, $result);
+            return self::completeValueWithLocatedError(
+                $exeContext,
+                $returnType,
+                $fieldASTs,
+                $info,
+                $path,
+                $result
+            );
         }
 
         // Otherwise, error protection is applied, logging the error and resolving
         // a null value for this field if one is encountered.
         try {
-            return self::completeValue($exeContext, $returnType, $fieldASTs, $info, $result);
+            return self::completeValueWithLocatedError(
+                $exeContext,
+                $returnType,
+                $fieldASTs,
+                $info,
+                $path,
+                $result
+            );
         } catch (Error $err) {
-            // If `completeValue` returned abruptly (threw an error), log the error
+            // If `completeValueWithLocatedError` returned abruptly (threw an error), log the error
             // and return null.
             $exeContext->addError($err);
             return null;
+        }
+    }
+
+
+    /**
+     * This is a small wrapper around completeValue which annotates errors with
+     * location information.
+     *
+     * @param ExecutionContext $exeContext
+     * @param Type $returnType
+     * @param $fieldASTs
+     * @param ResolveInfo $info
+     * @param $path
+     * @param $result
+     * @return array|null
+     * @throws Error
+     */
+    static function completeValueWithLocatedError(
+        ExecutionContext $exeContext,
+        Type $returnType,
+        $fieldASTs,
+        ResolveInfo $info,
+        $path,
+        $result
+    )
+    {
+        try {
+            return self::completeValue(
+                $exeContext,
+                $returnType,
+                $fieldASTs,
+                $info,
+                $path,
+                $result
+            );
+        } catch (\Exception $error) {
+            throw Error::createLocatedError($error, $fieldASTs, $path);
         }
     }
 
@@ -516,15 +582,23 @@ class Executor
      * @param Type $returnType
      * @param Field[] $fieldASTs
      * @param ResolveInfo $info
+     * @param array $path
      * @param $result
      * @return array|null
      * @throws Error
      * @throws \Exception
      */
-    private static function completeValue(ExecutionContext $exeContext, Type $returnType, $fieldASTs, ResolveInfo $info, &$result)
+    private static function completeValue(
+        ExecutionContext $exeContext,
+        Type $returnType,
+        $fieldASTs,
+        ResolveInfo $info,
+        $path,
+        &$result
+    )
     {
         if ($result instanceof \Exception) {
-            throw Error::createLocatedError($result, $fieldASTs);
+            throw $result;
         }
 
         // If field type is NonNull, complete for inner type, and throw field error
@@ -535,12 +609,12 @@ class Executor
                 $returnType->getWrappedType(),
                 $fieldASTs,
                 $info,
+                $path,
                 $result
             );
             if ($completed === null) {
-                throw new Error(
-                    'Cannot return null for non-nullable field ' . $info->parentType . '.' . $info->fieldName . '.',
-                    $fieldASTs instanceof \ArrayObject ? $fieldASTs->getArrayCopy() : $fieldASTs
+                throw new \UnexpectedValueException(
+                    'Cannot return null for non-nullable field ' . $info->parentType . '.' . $info->fieldName . '.'
                 );
             }
             return $completed;
@@ -553,7 +627,7 @@ class Executor
 
         // If field type is List, complete each item in the list with the inner type
         if ($returnType instanceof ListOfType) {
-            return self::completeListValue($exeContext, $returnType, $fieldASTs, $info, $result);
+            return self::completeListValue($exeContext, $returnType, $fieldASTs, $info, $path, $result);
         }
 
         // If field type is Scalar or Enum, serialize to a valid value, returning
@@ -564,15 +638,15 @@ class Executor
         }
 
         if ($returnType instanceof AbstractType) {
-            return self::completeAbstractValue($exeContext, $returnType, $fieldASTs, $info, $result);
+            return self::completeAbstractValue($exeContext, $returnType, $fieldASTs, $info, $path, $result);
         }
 
         // Field type must be Object, Interface or Union and expect sub-selections.
         if ($returnType instanceof ObjectType) {
-            return self::completeObjectValue($exeContext, $returnType, $fieldASTs, $info, $result);
+            return self::completeObjectValue($exeContext, $returnType, $fieldASTs, $info, $path, $result);
         }
 
-        throw new Error("Cannot complete value of unexpected type \"{$returnType}\".");
+        throw new \RuntimeException("Cannot complete value of unexpected type \"{$returnType}\".");
     }
 
 
@@ -648,11 +722,12 @@ class Executor
      * @param AbstractType $returnType
      * @param $fieldASTs
      * @param ResolveInfo $info
+     * @param array $path
      * @param $result
      * @return mixed
      * @throws Error
      */
-    private static function completeAbstractValue(ExecutionContext $exeContext, AbstractType $returnType, $fieldASTs, ResolveInfo $info, &$result)
+    private static function completeAbstractValue(ExecutionContext $exeContext, AbstractType $returnType, $fieldASTs, ResolveInfo $info, $path, &$result)
     {
         $resolveType = $returnType->getResolveTypeFn();
 
@@ -675,7 +750,7 @@ class Executor
                 $fieldASTs
             );
         }
-        return self::completeObjectValue($exeContext, $runtimeType, $fieldASTs, $info, $result);
+        return self::completeObjectValue($exeContext, $runtimeType, $fieldASTs, $info, $path, $result);
     }
 
     /**
@@ -686,11 +761,12 @@ class Executor
      * @param ListOfType $returnType
      * @param $fieldASTs
      * @param ResolveInfo $info
+     * @param array $path
      * @param $result
      * @return array
      * @throws \Exception
      */
-    private static function completeListValue(ExecutionContext $exeContext, ListOfType $returnType, $fieldASTs, ResolveInfo $info, &$result)
+    private static function completeListValue(ExecutionContext $exeContext, ListOfType $returnType, $fieldASTs, ResolveInfo $info, $path, &$result)
     {
         $itemType = $returnType->getWrappedType();
         Utils::invariant(
@@ -698,9 +774,11 @@ class Executor
             'User Error: expected iterable, but did not find one for field ' . $info->parentType . '.' . $info->fieldName . '.'
         );
 
+        $i = 0;
         $tmp = [];
         foreach ($result as $item) {
-            $tmp[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $item);
+            $path[] = $i++;
+            $tmp[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $path, $item);
         }
         return $tmp;
     }
@@ -727,11 +805,12 @@ class Executor
      * @param ObjectType $returnType
      * @param $fieldASTs
      * @param ResolveInfo $info
+     * @param array $path
      * @param $result
      * @return array
      * @throws Error
      */
-    private static function completeObjectValue(ExecutionContext $exeContext, ObjectType $returnType, $fieldASTs, ResolveInfo $info, &$result)
+    private static function completeObjectValue(ExecutionContext $exeContext, ObjectType $returnType, $fieldASTs, ResolveInfo $info, $path, &$result)
     {
         // If there is an isTypeOf predicate function, call it with the
         // current result. If isTypeOf returns false, then raise an error rather
@@ -768,6 +847,6 @@ class Executor
             }
         }
 
-        return self::executeFields($exeContext, $returnType, $result, $subFieldASTs);
+        return self::executeFields($exeContext, $returnType, $result, $path, $subFieldASTs);
     }
 }

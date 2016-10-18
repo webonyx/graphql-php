@@ -352,7 +352,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 return 'sync';
             },
             'syncError' => function () {
-                throw new Error('Error getting syncError');
+                throw new \Exception('Error getting syncError');
             },
             'syncRawError' => function() {
                 throw new \Exception('Error getting syncRawError');
