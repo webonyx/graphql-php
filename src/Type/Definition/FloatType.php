@@ -3,6 +3,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\FloatValue;
 use GraphQL\Language\AST\IntValue;
+use GraphQL\Utils;
 
 /**
  * Class FloatType
@@ -47,7 +48,15 @@ values as specified by
      */
     private function coerceFloat($value)
     {
-        return is_numeric($value) || $value === true || $value === false ? (float) $value : null;
+        if ($value === '') {
+            throw new \UnexpectedValueException(
+                'Float cannot represent non numeric value: (empty string)'
+            );
+        }
+        if (is_numeric($value) || $value === true || $value === false) {
+            return (float)$value;
+        }
+        throw new \UnexpectedValueException('Float cannot represent non numeric value: ' . Utils::printSafe($value));
     }
 
     /**

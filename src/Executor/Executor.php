@@ -799,7 +799,14 @@ class Executor
     private static function completeLeafValue(Type $returnType, &$result)
     {
         Utils::invariant(method_exists($returnType, 'serialize'), 'Missing serialize method on type');
-        return $returnType->serialize($result);
+        $serializedResult = $returnType->serialize($result);
+
+        if ($serializedResult === null) {
+            throw new \UnexpectedValueException(
+                'Expected a value of type "'. $returnType . '" but received: ' . Utils::printSafe($result)
+            );
+        }
+        return $serializedResult;
     }
 
     /**
