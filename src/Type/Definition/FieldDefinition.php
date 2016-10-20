@@ -16,7 +16,7 @@ class FieldDefinition
     public $name;
 
     /**
-     * @var array<GraphQLFieldArgument>
+     * @var FieldArgument[]
      */
     public $args;
 

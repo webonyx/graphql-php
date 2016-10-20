@@ -625,7 +625,13 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             'fields' => function() use (&$interface) {
                 return [
                     'value' => Type::string(),
-                    'nested' => $interface
+                    'nested' => $interface,
+                    'withArg' => [
+                        'type' => Type::string(),
+                        'args' => [
+                            'arg1' => Type::int()
+                        ]
+                    ]
                 ];
             }
         ]);
@@ -646,6 +652,12 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(Type::string(), $valueField->getType());
         $this->assertEquals($interface, $nestedField->getType());
+
+        $withArg = $schema->getType('SomeInterface')->getField('withArg');
+        $this->assertEquals(Type::string(), $withArg->getType());
+
+        $this->assertEquals('arg1', $withArg->args[0]->name);
+        $this->assertEquals(Type::int(), $withArg->args[0]->getType());
 
         $testField = $schema->getType('Query')->getField('test');
         $this->assertEquals($interface, $testField->getType());
