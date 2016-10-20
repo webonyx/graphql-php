@@ -44,6 +44,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
         if (!empty($config['values'])) {
             foreach ($config['values'] as $name => $value) {
+
+                if (is_string($value) && is_int($name)) {
+                    $value = ['name' => $value, 'value' => $value];
+                }
+
                 // value will be equal to name only if 'value'  is not set in definition
                 $this->values[] = new EnumValueDefinition($value + ['name' => $name, 'value' => $name]);
             }

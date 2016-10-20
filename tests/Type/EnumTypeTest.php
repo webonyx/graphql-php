@@ -37,6 +37,13 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
+        $simpleEnum = new EnumType([
+            'name' => 'SimpleEnum',
+            'values' => [
+                'ONE', 'TWO', 'THREE'
+            ]
+        ]);
+
         $Complex1 = ['someRandomFunction' => function() {}];
         $Complex2 = new \ArrayObject(['someRandomValue' => 123]);
 
@@ -67,6 +74,21 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                         }
                         if (isset($args['fromEnum'])) {
                             return $args['fromEnum'];
+                        }
+                    }
+                ],
+                'simpleEnum' => [
+                    'type' => $simpleEnum,
+                    'args' => [
+                        'fromName' => ['type' => Type::string()],
+                        'fromValue' => ['type' => Type::string()]
+                    ],
+                    'resolve' => function($value, $args) {
+                        if (isset($args['fromName'])) {
+                            return $args['fromName'];
+                        }
+                        if (isset($args['fromValue'])) {
+                            return $args['fromValue'];
                         }
                     }
                 ],
@@ -411,6 +433,26 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $result = GraphQL::execute($this->schema, Introspection::getIntrospectionQuery());
         $this->assertArrayNotHasKey('errors', $result);
+    }
+
+    public function testAllowsSimpleArrayAsValues()
+    {
+        $q = '{
+            first: simpleEnum(fromName: "ONE")
+            second: simpleEnum(fromValue: "TWO")
+            third: simpleEnum(fromValue: "WRONG")
+        }';
+
+        $this->assertEquals(
+            [
+                'data' => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
+                'errors' => [[
+                    'message' => 'Expected a value of type "SimpleEnum" but received: WRONG',
+                    'locations' => [['line' => 4, 'column' => 13]]
+                ]]
+            ],
+            GraphQL::execute($this->schema, $q)
+        );
     }
 
     private function expectFailure($query, $vars, $err)
