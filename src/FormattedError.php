@@ -6,6 +6,7 @@ use GraphQL\Language\SourceLocation;
 class FormattedError
 {
     /**
+     * @deprecated since 2016-10-21
      * @param $error
      * @param SourceLocation[] $locations
      * @return array

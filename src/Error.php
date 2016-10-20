@@ -95,7 +95,7 @@ class Error extends \Exception implements \JsonSerializable
      */
     public static function formatError(Error $error)
     {
-        return FormattedError::create($error->getMessage(), $error->getLocations());
+        return $error->toSerializableArray();
     }
 
     /**
@@ -179,7 +179,10 @@ class Error extends \Exception implements \JsonSerializable
             'message' => $this->getMessage(),
         ];
 
-        $locations = Utils::map($this->getLocations(), function(SourceLocation $loc) {return $loc->toArray();});
+        $locations = Utils::map($this->getLocations(), function(SourceLocation $loc) {
+            return $loc->toSerializableArray();
+        });
+
         if (!empty($locations)) {
             $arr['locations'] = $locations;
         }

@@ -222,8 +222,9 @@ class Executor
     {
         $results = [];
         foreach ($fields as $responseName => $fieldASTs) {
-            $path[] = $responseName;
-            $result = self::resolveField($exeContext, $parentType, $sourceValue, $fieldASTs, $path);
+            $fieldPath = $path;
+            $fieldPath[] = $responseName;
+            $result = self::resolveField($exeContext, $parentType, $sourceValue, $fieldASTs, $fieldPath);
 
             if ($result !== self::$UNDEFINED) {
                 // Undefined means that field is not defined in schema
