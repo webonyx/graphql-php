@@ -95,6 +95,9 @@ class FieldDefinition
     {
         $map = [];
         foreach ($fields as $name => $field) {
+            if ($field instanceof Type) {
+                $field = ['type' => $field];
+            }
             if (!isset($field['name'])) {
                 $field['name'] = $name;
             }

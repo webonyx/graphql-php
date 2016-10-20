@@ -617,4 +617,38 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($interface->getField('nested')->getType(), $interface);
         $this->assertSame($interface->getField('value')->getType(), Type::string());
     }
+
+    public function testAllowsShorthandFieldDefinition()
+    {
+        $interface = new InterfaceType([
+            'name' => 'SomeInterface',
+            'fields' => function() use (&$interface) {
+                return [
+                    'value' => Type::string(),
+                    'nested' => $interface
+                ];
+            }
+        ]);
+
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'test' => $interface
+            ]
+        ]);
+
+        $schema = new Schema([
+            'query' => $query
+        ]);
+
+        $valueField = $schema->getType('SomeInterface')->getField('value');
+        $nestedField = $schema->getType('SomeInterface')->getField('nested');
+
+        $this->assertEquals(Type::string(), $valueField->getType());
+        $this->assertEquals($interface, $nestedField->getType());
+
+        $testField = $schema->getType('Query')->getField('test');
+        $this->assertEquals($interface, $testField->getType());
+        $this->assertEquals('test', $testField->name);
+    }
 }
