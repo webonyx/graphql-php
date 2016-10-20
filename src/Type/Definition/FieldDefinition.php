@@ -95,7 +95,7 @@ class FieldDefinition
     {
         $map = [];
         foreach ($fields as $name => $field) {
-            if ($field instanceof Type) {
+            if (!is_array($field)) {
                 $field = ['type' => $field];
             }
             if (!isset($field['name'])) {
