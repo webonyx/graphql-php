@@ -50,8 +50,8 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     /**
      * Parses an externally provided literal value to use as an input
      *
-     * @param $valueAST
+     * @param \GraphQL\Language\AST\Value $valueAST
      * @return mixed
      */
-    abstract public function parseLiteral(/* GraphQL\Language\AST\Value */$valueAST);
+    abstract public function parseLiteral($valueAST);
 }

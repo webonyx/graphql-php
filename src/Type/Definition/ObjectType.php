@@ -93,7 +93,7 @@ class ObjectType extends Type implements OutputType, CompositeType
                 Config::INTERFACE_TYPE,
                 Config::MAYBE_THUNK
             ),
-            'isTypeOf' => Config::CALLBACK, // ($value, ResolveInfo $info) => boolean
+            'isTypeOf' => Config::CALLBACK, // ($value, $context, ResolveInfo $info) => boolean
             'resolveField' => Config::CALLBACK
         ]);
 
@@ -156,6 +156,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     /**
      * @param $value
      * @param $context
+     * @param ResolveInfo $info
      * @return bool|null
      */
     public function isTypeOf($value, $context, ResolveInfo $info)

@@ -11,12 +11,12 @@ use GraphQL\Utils;
 class EnumType extends Type implements InputType, OutputType, LeafType
 {
     /**
-     * @var array<EnumValueDefinition>
+     * @var EnumValueDefinition[]
      */
     private $values;
 
     /**
-     * @var \ArrayObject<mixed, EnumValueDefinition>
+     * @var Utils\MixedStore<mixed, EnumValueDefinition>
      */
     private $valueLookup;
 
@@ -44,11 +44,13 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
         if (!empty($config['values'])) {
             foreach ($config['values'] as $name => $value) {
-
-                if (is_string($value) && is_int($name)) {
-                    $value = ['name' => $value, 'value' => $value];
+                if (!is_array($value)) {
+                    if (is_string($name)) {
+                        $value = ['name' => $name, 'value' => $value];
+                    } else if (is_int($name) && is_string($value)) {
+                        $value = ['name' => $value, 'value' => $value];
+                    }
                 }
-
                 // value will be equal to name only if 'value'  is not set in definition
                 $this->values[] = new EnumValueDefinition($value + ['name' => $name, 'value' => $name]);
             }
