@@ -41,7 +41,7 @@ use GraphQL\Language\AST\TypeSystemDefinition;
 use GraphQL\Language\AST\UnionTypeDefinition;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
-use GraphQL\SyntaxError;
+use GraphQL\Error\SyntaxError;
 
 class Parser
 {

@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Validator;
 
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\FragmentSpread;

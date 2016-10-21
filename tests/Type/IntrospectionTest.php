@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests\Type;
 
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
 use GraphQL\GraphQL;

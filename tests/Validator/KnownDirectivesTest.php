@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\KnownDirectives;
 

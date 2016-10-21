@@ -2,7 +2,7 @@
 
 namespace GraphQL\Validator\Rules;
 
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\FragmentSpread;

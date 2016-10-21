@@ -593,7 +593,7 @@ input Hello {
 input Hello {
   world(foo: Int): String
 }';
-        $this->setExpectedException('GraphQL\SyntaxError');
+        $this->setExpectedException('GraphQL\Error\SyntaxError');
         Parser::parse($body);
     }
 

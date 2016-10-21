@@ -316,7 +316,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
 
         $this->assertNotEmpty($errors, 'GraphQL should not validate');
-        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error', 'formatError'], $errors));
+        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));
 
         return $errors;
     }

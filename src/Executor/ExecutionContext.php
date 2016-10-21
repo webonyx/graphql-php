@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Executor;
 
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Schema;
 

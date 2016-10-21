@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
@@ -46,7 +46,7 @@ abstract class AbstractQuerySecurityTest extends \PHPUnit_Framework_TestCase
             [$this->getRule($max)]
         );
 
-        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error', 'formatError'], $errors), $queryString);
+        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors), $queryString);
 
         return $errors;
     }

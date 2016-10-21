@@ -2,7 +2,7 @@
 namespace GraphQL\Validator\Rules;
 
 
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils;

@@ -1,26 +1,16 @@
 <?php
 namespace GraphQL;
 
-use GraphQL\Language\SourceLocation;
+trigger_error(
+    'GraphQL\FormattedError was moved to GraphQL\Error\FormattedError and will be deleted on next release',
+    E_USER_DEPRECATED
+);
 
-class FormattedError
+/**
+ * Class FormattedError
+ * @deprecated since 2016-10-21 in favor of GraphQL\Error\FormattedError
+ * @package GraphQL
+ */
+class FormattedError extends \GraphQL\Error\FormattedError
 {
-    /**
-     * @deprecated since 2016-10-21
-     * @param $error
-     * @param SourceLocation[] $locations
-     * @return array
-     */
-    public static function create($error, array $locations = [])
-    {
-        $formatted = [
-            'message' => $error
-        ];
-
-        if (!empty($locations)) {
-            $formatted['locations'] = array_map(function($loc) { return $loc->toArray();}, $locations);
-        }
-
-        return $formatted;
-    }
 }

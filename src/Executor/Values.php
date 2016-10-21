@@ -2,7 +2,7 @@
 namespace GraphQL\Executor;
 
 
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\VariableDefinition;
 use GraphQL\Language\Printer;

@@ -14,7 +14,7 @@ use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
-use GraphQL\SyntaxError;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Utils;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
@@ -96,7 +96,7 @@ fragment MissingOn Type
      */
     public function testDoesNotAcceptFragmentsNamedOn()
     {
-        $this->setExpectedException('GraphQL\SyntaxError', 'Syntax Error GraphQL (1:10) Unexpected Name "on"');
+        $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:10) Unexpected Name "on"');
         Parser::parse('fragment on on on { on }');
     }
 
@@ -105,7 +105,7 @@ fragment MissingOn Type
      */
     public function testDoesNotAcceptFragmentSpreadOfOn()
     {
-        $this->setExpectedException('GraphQL\SyntaxError', 'Syntax Error GraphQL (1:9) Expected Name, found }');
+        $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:9) Expected Name, found }');
         Parser::parse('{ ...on }');
     }
 
@@ -114,7 +114,7 @@ fragment MissingOn Type
      */
     public function testDoesNotAllowNullAsValue()
     {
-        $this->setExpectedException('GraphQL\SyntaxError', 'Syntax Error GraphQL (1:39) Unexpected Name "null"');
+        $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:39) Unexpected Name "null"');
         Parser::parse('{ fieldWithNullableStringInput(input: null) }');
     }
 

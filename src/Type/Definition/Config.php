@@ -178,9 +178,9 @@ class Config
                         if ($def->flags & self::KEY_AS_NAME) {
                             $arrValue += ['name' => $arrKey];
                         }
-                        self::validateMap($typeName, $arrValue, $def->definition, "$pathStr: $arrKey");
+                        self::validateMap($typeName, $arrValue, $def->definition, "$pathStr:$arrKey");
                     } else {
-                        self::validateEntry($typeName, $arrKey, $arrValue, $def->definition, "$pathStr: $arrKey");
+                        self::validateEntry($typeName, $arrKey, $arrValue, $def->definition, "$pathStr:$arrKey");
                     }
                 }
             } else {

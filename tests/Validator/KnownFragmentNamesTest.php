@@ -2,7 +2,7 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\KnownFragmentNames;
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 
 class KnownFragmentNamesTest extends TestCase

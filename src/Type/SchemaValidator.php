@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type;
 
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;

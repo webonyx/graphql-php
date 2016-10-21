@@ -7,7 +7,7 @@ use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\Visitor;
 use \SplObjectStorage;
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Schema;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\FragmentDefinition;

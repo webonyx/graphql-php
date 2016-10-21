@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\OperationDefinition;

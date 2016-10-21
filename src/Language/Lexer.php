@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language;
 
-use GraphQL\SyntaxError;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Utils;
 
 /**

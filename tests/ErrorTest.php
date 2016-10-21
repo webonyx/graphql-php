@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests;
 
-use GraphQL\Error;
+use GraphQL\Error\Error;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;

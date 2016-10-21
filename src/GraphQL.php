@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL;
 
+use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\Document;
