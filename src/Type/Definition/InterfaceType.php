@@ -60,7 +60,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             $this->fields = [];
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
             $fields = is_callable($fields) ? call_user_func($fields) : $fields;
-            $this->fields = FieldDefinition::createMap($fields);
+            $this->fields = FieldDefinition::createMap($fields, $this->name);
         }
         return $this->fields;
     }

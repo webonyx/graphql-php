@@ -112,7 +112,7 @@ class ObjectType extends Type implements OutputType, CompositeType
         if (null === $this->fields) {
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
             $fields = is_callable($fields) ? call_user_func($fields) : $fields;
-            $this->fields = FieldDefinition::createMap($fields);
+            $this->fields = FieldDefinition::createMap($fields, $this->name);
         }
         return $this->fields;
     }

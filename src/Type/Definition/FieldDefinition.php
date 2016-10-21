@@ -1,5 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Utils;
 
 /**
  * Class FieldDefinition
@@ -89,30 +91,39 @@ class FieldDefinition
 
     /**
      * @param array|Config $fields
+     * @param string $typeName
      * @return array
      */
-    public static function createMap(array $fields)
+    public static function createMap(array $fields, $typeName = null)
     {
         $map = [];
         foreach ($fields as $name => $field) {
             if (!is_array($field)) {
-                $field = ['type' => $field];
-            }
-            if (!isset($field['name'])) {
+                if (is_string($name)) {
+                    $field = ['name' => $name, 'type' => $field];
+                } else {
+                    throw new InvariantViolation(
+                        "Unexpected field definition for type $typeName at key $name: " . Utils::printSafe($field)
+                    );
+                }
+            } elseif (!isset($field['name']) && is_string($name)) {
                 $field['name'] = $name;
             }
-            $map[$name] = self::create($field);
+            $map[$name] = self::create($field, $typeName);
         }
         return $map;
     }
 
     /**
      * @param array|Config $field
+     * @param string $typeName
      * @return FieldDefinition
      */
-    public static function create($field)
+    public static function create($field, $typeName = null)
     {
-        Config::validate($field, self::getDefinition());
+        if ($typeName) {
+            Config::validateField($typeName, $field, self::getDefinition());
+        }
         return new self($field);
     }
 

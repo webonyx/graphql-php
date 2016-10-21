@@ -65,8 +65,27 @@ class Config
     public static function validate(array $config, array $definition)
     {
         if (self::$enableValidation) {
-            $name = isset($config['name']) ? $config['name'] : 'UnnamedType';
+            $name = isset($config['name']) ? $config['name'] : '(Unnamed Type)';
             self::validateMap($name, $config, $definition);
+        }
+    }
+
+    /**
+     * @param $typeName
+     * @param array $config
+     * @param array $definition
+     */
+    public static function validateField($typeName, array $config, array $definition)
+    {
+        if (self::$enableValidation) {
+            if (!isset($config['name'])) {
+                $pathStr = isset($config['type'])
+                    ? '(Unknown Field of type: ' . Utils::printSafe($config['type']) . ')'
+                    : '(Unknown Field)';
+            } else {
+                $pathStr = '';
+            }
+            self::validateMap($typeName ?: '(Unnamed Type)', $config, $definition, $pathStr);
         }
     }
 
@@ -121,7 +140,10 @@ class Config
         // Make sure that all required keys are present in map
         $requiredKeys = array_filter($definitions, function($def) {return (self::getFlags($def) & self::REQUIRED) > 0;});
         $missingKeys = array_keys(array_diff_key($requiredKeys, $map));
-        Utils::invariant(empty($missingKeys), 'Error in "'.$typeName.'" type definition: Required keys missing: "%s"' . $suffix, implode(', ', $missingKeys));
+        Utils::invariant(
+            empty($missingKeys),
+            "Error in '$typeName' type definition: Required keys missing: '%s' $suffix", implode(', ', $missingKeys)
+        );
 
         // Make sure that every map value is valid given the definition
         foreach ($map as $key => $value) {
@@ -226,28 +248,28 @@ class Config
                     Utils::invariant(
                         is_callable($value) || $value instanceof InputType,
                         $err,
-                        'callable or instance of GraphQL\Type\Definition\InputType'
+                        'callable or InputType definition'
                     );
                     break;
                 case $def & self::OUTPUT_TYPE:
                     Utils::invariant(
                         is_callable($value) || $value instanceof OutputType,
                         $err,
-                        'callable or instance of GraphQL\Type\Definition\OutputType'
+                        'callable or OutputType definition'
                     );
                     break;
                 case $def & self::INTERFACE_TYPE:
                     Utils::invariant(
                         is_callable($value) || $value instanceof InterfaceType,
                         $err,
-                        'callable or instance of GraphQL\Type\Definition\InterfaceType'
+                        'callable or InterfaceType definition'
                     );
                     break;
                 case $def & self::OBJECT_TYPE:
                     Utils::invariant(
                         is_callable($value) || $value instanceof ObjectType,
                         $err,
-                        'callable or instance of GraphQL\Type\Definition\ObjectType'
+                        'callable or ObjectType definition'
                     );
                     break;
                 default:
