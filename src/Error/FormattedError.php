@@ -72,6 +72,11 @@ class FormattedError
             array_shift($trace);
         }
 
+        // Remove root call as it's likely error handler trace:
+        else if (!isset($trace[0]['file'])) {
+            array_shift($trace);
+        }
+
         return array_map(function($err) {
             $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
 
