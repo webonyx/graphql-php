@@ -404,7 +404,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $result = Executor::execute($schema, $docAst, $data);
 
-        $this->assertEquals($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray());
     }
 
     /**

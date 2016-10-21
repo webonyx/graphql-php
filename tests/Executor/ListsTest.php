@@ -41,7 +41,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ nest { test } }');
 
         $result = Executor::execute($schema, $ast, $data);
-        $this->assertEquals($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray());
     }
 
     // Describe: Execute: Handles list nullability

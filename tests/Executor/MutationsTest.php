@@ -114,7 +114,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 )
             ]
         ];
-        $this->assertEquals($expected, $mutationResult->toArray());
+        $this->assertArraySubset($expected, $mutationResult->toArray());
     }
 
     private function schema()

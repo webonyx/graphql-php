@@ -26,6 +26,7 @@ class Config
     const REQUIRED = 65536;
     const KEY_AS_NAME = 131072;
     const MAYBE_THUNK = 262144;
+    const MAYBE_TYPE = 524288;
 
     /**
      * @var bool
@@ -155,7 +156,11 @@ class Config
 
                 foreach ($value as $arrKey => $arrValue) {
                     if (is_array($def->definition)) {
-                        Utils::invariant(is_array($arrValue), $err, $arrKey, Utils::getVariableType($arrValue));
+                        if ($def->flags & self::MAYBE_TYPE) {
+                            Utils::invariant(is_array($arrValue) || $arrValue instanceof Type, $err, $arrKey, Utils::getVariableType($arrValue));
+                        } else {
+                            Utils::invariant(is_array($arrValue), $err, $arrKey, Utils::getVariableType($arrValue));
+                        }
 
                         if ($def->flags & self::KEY_AS_NAME) {
                             $arrValue += ['name' => $arrKey];

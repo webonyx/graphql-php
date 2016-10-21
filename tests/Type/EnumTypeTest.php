@@ -423,7 +423,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             ]]
         ];
 
-        $this->assertEquals($expected, $result);
+        $this->assertArraySubset($expected, $result);
     }
 
     /**
@@ -443,7 +443,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             third: simpleEnum(fromValue: "WRONG")
         }';
 
-        $this->assertEquals(
+        $this->assertArraySubset(
             [
                 'data' => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [[

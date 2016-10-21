@@ -86,7 +86,7 @@ class ObjectType extends Type implements OutputType, CompositeType
             'name' => Config::STRING | Config::REQUIRED,
             'fields' => Config::arrayOf(
                 FieldDefinition::getDefinition(),
-                Config::KEY_AS_NAME | Config::MAYBE_THUNK
+                Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE
             ),
             'description' => Config::STRING,
             'interfaces' => Config::arrayOf(
