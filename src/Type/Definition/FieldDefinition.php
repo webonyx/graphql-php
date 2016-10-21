@@ -78,7 +78,7 @@ class FieldDefinition
                 'type' => Config::INPUT_TYPE | Config::REQUIRED,
                 'description' => Config::STRING,
                 'defaultValue' => Config::ANY
-            ], Config::KEY_AS_NAME),
+            ], Config::KEY_AS_NAME | Config::MAYBE_TYPE),
             'resolve' => Config::CALLBACK,
             'map' => Config::CALLBACK,
             'description' => Config::STRING,

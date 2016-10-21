@@ -39,7 +39,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             'name' => Config::STRING,
             'fields' => Config::arrayOf(
                 FieldDefinition::getDefinition(),
-                Config::KEY_AS_NAME | Config::MAYBE_THUNK
+                Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE
             ),
             'resolveType' => Config::CALLBACK, // function($value, $context, ResolveInfo $info) => ObjectType
             'description' => Config::STRING

@@ -34,7 +34,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
                 'value' => Config::ANY,
                 'deprecationReason' => Config::STRING,
                 'description' => Config::STRING
-            ], Config::KEY_AS_NAME),
+            ], Config::KEY_AS_NAME | Config::MAYBE_NAME),
             'description' => Config::STRING
         ]);
 

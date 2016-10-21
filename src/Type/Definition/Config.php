@@ -27,11 +27,17 @@ class Config
     const KEY_AS_NAME = 131072;
     const MAYBE_THUNK = 262144;
     const MAYBE_TYPE = 524288;
+    const MAYBE_NAME = 1048576;
 
     /**
      * @var bool
      */
     private static $enableValidation = false;
+
+    /**
+     * @var bool
+     */
+    private static $allowCustomOptions = true;
 
     /**
      * Disables config validation
@@ -45,9 +51,10 @@ class Config
      * Enable deep config validation (disabled by default because it creates significant performance overhead).
      * Useful only at development to catch type definition errors quickly.
      */
-    public static function enableValidation()
+    public static function enableValidation($allowCustomOptions = true)
     {
         self::$enableValidation = true;
+        self::$allowCustomOptions = $allowCustomOptions;
     }
 
     /**
@@ -102,8 +109,11 @@ class Config
 
         // Make sure there are no unexpected keys in map
         $unexpectedKeys = array_keys(array_diff_key($map, $definitions));
+
         if (!empty($unexpectedKeys)) {
-            trigger_error(sprintf('"%s" type definition: Unexpected keys "%s" ' . $suffix, $typeName, implode(', ', $unexpectedKeys)));
+            if (!self::$allowCustomOptions) {
+                trigger_error(sprintf('"%s" type definition: Non-standard keys "%s" ' . $suffix, $typeName, implode(', ', $unexpectedKeys)));
+            }
             $map = array_intersect_key($map, $definitions);
         }
 
@@ -152,29 +162,32 @@ class Config
                     Utils::invariant(!empty($value), 'Error in "'.$typeName.'" type definition: ' . "Value at '$pathStr' cannot be empty array");
                 }
 
-                $err = 'Error in "'.$typeName.'" type definition:' . "Each entry at '$pathStr' must be an array, but '%s' is '%s'";
+                $err = 'Error in "'.$typeName.'" type definition: ' . "Each entry at '$pathStr' must be an array, but '%s' is '%s'";
 
                 foreach ($value as $arrKey => $arrValue) {
                     if (is_array($def->definition)) {
-                        if ($def->flags & self::MAYBE_TYPE) {
-                            Utils::invariant(is_array($arrValue) || $arrValue instanceof Type, $err, $arrKey, Utils::getVariableType($arrValue));
-                        } else {
-                            Utils::invariant(is_array($arrValue), $err, $arrKey, Utils::getVariableType($arrValue));
+                        if ($def->flags & self::MAYBE_TYPE && $arrValue instanceof Type) {
+                            $arrValue = ['type' => $arrValue];
                         }
+                        if ($def->flags & self::MAYBE_NAME && is_string($arrValue)) {
+                            $arrValue = ['name' => $arrValue];
+                        }
+
+                        Utils::invariant(is_array($arrValue), $err, $arrKey, Utils::getVariableType($arrValue));
 
                         if ($def->flags & self::KEY_AS_NAME) {
                             $arrValue += ['name' => $arrKey];
                         }
-                        self::validateMap($typeName, $arrValue, $def->definition, "$pathStr:$arrKey");
+                        self::validateMap($typeName, $arrValue, $def->definition, "$pathStr: $arrKey");
                     } else {
-                        self::validateEntry($typeName, $arrKey, $arrValue, $def->definition, "$pathStr:$arrKey");
+                        self::validateEntry($typeName, $arrKey, $arrValue, $def->definition, "$pathStr: $arrKey");
                     }
                 }
             } else {
-                throw new \Exception('Error in "'.$typeName.'" type definition:' . "unexpected definition: " . print_r($def, true));
+                throw new \Exception('Error in "'.$typeName.'" type definition: ' . "unexpected definition: " . print_r($def, true));
             }
         } else {
-            Utils::invariant(is_int($def), 'Error in "'.$typeName.'" type definition:' . "Definition for '$pathStr' is expected to be single integer value");
+            Utils::invariant(is_int($def), 'Error in "'.$typeName.'" type definition: ' . "Definition for '$pathStr' is expected to be single integer value");
 
             if ($def & self::REQUIRED) {
                 Utils::invariant($value !== null, 'Value at "%s" can not be null', $pathStr);
