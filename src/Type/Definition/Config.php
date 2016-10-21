@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils;
 
 /**
@@ -184,7 +185,7 @@ class Config
                     }
                 }
             } else {
-                throw new \Exception('Error in "'.$typeName.'" type definition: ' . "unexpected definition: " . print_r($def, true));
+                throw new InvariantViolation('Error in "'.$typeName.'" type definition: ' . "unexpected definition: " . print_r($def, true));
             }
         } else {
             Utils::invariant(is_int($def), 'Error in "'.$typeName.'" type definition: ' . "Definition for '$pathStr' is expected to be single integer value");
@@ -250,7 +251,7 @@ class Config
                     );
                     break;
                 default:
-                    throw new \Exception("Unexpected validation rule: " . $def);
+                    throw new InvariantViolation("Unexpected validation rule: " . $def);
             }
         }
     }

@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\SchemaUtils;
@@ -201,7 +202,7 @@ class Utils
                 array_shift($args);
                 $message = call_user_func_array('sprintf', $args);
             }
-            throw new \Exception($message);
+            throw new InvariantViolation($message);
         }
     }
 
