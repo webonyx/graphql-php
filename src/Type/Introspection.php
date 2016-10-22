@@ -498,7 +498,7 @@ EOD;
                             }
                         ],
                         'possibleTypes' => [
-                            'type' => Type::listOf(Type::nonNull([__CLASS__, '_type'])),
+                            'type' => Type::listOf(Type::nonNull(self::_type())),
                             'resolve' => function ($type, $args, $context, ResolveInfo $info) {
                                 if ($type instanceof InterfaceType || $type instanceof UnionType) {
                                     return $info->schema->getPossibleTypes($type);

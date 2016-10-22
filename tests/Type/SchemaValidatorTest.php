@@ -398,9 +398,11 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
         foreach ($kinds as $kind) {
             $someOutputType = new $kind([
                 'name' => 'SomeOutputType',
-                'fields' => [
-                    'sneaky' => ['type' => function() {return $this->someInputObjectType;}]
-                ]
+                'fields' => function() {
+                    return [
+                        'sneaky' => $this->someInputObjectType
+                    ];
+                }
             ]);
 
             $schema = new Schema(['query' => $someOutputType]);
@@ -545,9 +547,11 @@ class SchemaValidatorTest extends \PHPUnit_Framework_TestCase
     {
         $someIncorrectInputType = new InputObjectType([
             'name' => 'SomeIncorrectInputType',
-            'fields' => [
-                'val' => ['type' => function() use ($argType) {return $argType;} ]
-            ]
+            'fields' => function() use ($argType) {
+                return [
+                    'val' => ['type' => $argType ]
+                ];
+            }
         ]);
 
         $queryType = new ObjectType([

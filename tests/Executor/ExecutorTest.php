@@ -116,23 +116,25 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $deepDataType = null;
         $dataType = new ObjectType([
             'name' => 'DataType',
-            'fields' => [
-                'a' => [ 'type' => Type::string() ],
-                'b' => [ 'type' => Type::string() ],
-                'c' => [ 'type' => Type::string() ],
-                'd' => [ 'type' => Type::string() ],
-                'e' => [ 'type' => Type::string() ],
-                'f' => [ 'type' => Type::string() ],
-                'pic' => [
-                    'args' => [ 'size' => ['type' => Type::int() ] ],
-                    'type' => Type::string(),
-                    'resolve' => function($obj, $args) {
-                        return $obj['pic']($args['size']);
-                    }
-                ],
-                'promise' => ['type' => function() use (&$dataType) {return $dataType;}],
-                'deep' => [ 'type' => function() use(&$deepDataType) {return $deepDataType; }],
-            ]
+            'fields' => function() use (&$dataType, &$deepDataType) {
+                return [
+                    'a' => [ 'type' => Type::string() ],
+                    'b' => [ 'type' => Type::string() ],
+                    'c' => [ 'type' => Type::string() ],
+                    'd' => [ 'type' => Type::string() ],
+                    'e' => [ 'type' => Type::string() ],
+                    'f' => [ 'type' => Type::string() ],
+                    'pic' => [
+                        'args' => [ 'size' => ['type' => Type::int() ] ],
+                        'type' => Type::string(),
+                        'resolve' => function($obj, $args) {
+                            return $obj['pic']($args['size']);
+                        }
+                    ],
+                    'promise' => ['type' => $dataType],
+                    'deep' => ['type' => $deepDataType],
+                ];
+            }
         ]);
 
         $deepDataType = new ObjectType([
@@ -170,25 +172,25 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $Type = new ObjectType([
             'name' => 'Type',
-            'fields' => [
-                'a' => ['type' => Type::string(), 'resolve' => function () {
-                    return 'Apple';
-                }],
-                'b' => ['type' => Type::string(), 'resolve' => function () {
-                    return 'Banana';
-                }],
-                'c' => ['type' => Type::string(), 'resolve' => function () {
-                    return 'Cherry';
-                }],
-                'deep' => [
-                    'type' => function () use (&$Type) {
-                        return $Type;
-                    },
-                    'resolve' => function () {
-                        return [];
-                    }
-                ]
-            ]
+            'fields' => function() use (&$Type) {
+                return [
+                    'a' => ['type' => Type::string(), 'resolve' => function () {
+                        return 'Apple';
+                    }],
+                    'b' => ['type' => Type::string(), 'resolve' => function () {
+                        return 'Banana';
+                    }],
+                    'c' => ['type' => Type::string(), 'resolve' => function () {
+                        return 'Cherry';
+                    }],
+                    'deep' => [
+                        'type' => $Type,
+                        'resolve' => function () {
+                            return [];
+                        }
+                    ]
+                ];
+            }
         ]);
         $schema = new Schema(['query' => $Type]);
         $expected = [

@@ -92,15 +92,17 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
         $this->blogAuthor = new ObjectType([
             'name' => 'Author',
-            'fields' => [
-                'id' => ['type' => Type::string()],
-                'name' => ['type' => Type::string()],
-                'pic' => [ 'type' => $this->blogImage, 'args' => [
-                    'width' => ['type' => Type::int()],
-                    'height' => ['type' => Type::int()]
-                ]],
-                'recentArticle' => ['type' => function() {return $this->blogArticle;}],
-            ],
+            'fields' => function() {
+                return [
+                    'id' => ['type' => Type::string()],
+                    'name' => ['type' => Type::string()],
+                    'pic' => [ 'type' => $this->blogImage, 'args' => [
+                        'width' => ['type' => Type::int()],
+                        'height' => ['type' => Type::int()]
+                    ]],
+                    'recentArticle' => $this->blogArticle,
+                ];
+            },
         ]);
 
         $this->blogArticle = new ObjectType([

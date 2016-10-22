@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils;
 
 /*
@@ -191,14 +192,19 @@ abstract class Type
     public static function resolve($type)
     {
         if (is_callable($type)) {
+            trigger_error(
+                'Passing type as closure is deprecated (see https://github.com/webonyx/graphql-php/issues/35 for alternatives)',
+                E_USER_DEPRECATED
+            );
             $type = $type();
         }
 
-        Utils::invariant(
-            $type instanceof Type,
-            'Expecting instance of ' . __CLASS__ . ' (or callable returning instance of that type), got "%s"',
-            Utils::getVariableType($type)
-        );
+        if (!$type instanceof Type) {
+            throw new InvariantViolation(sprintf(
+                'Expecting instance of ' . __CLASS__ . ', got "%s"',
+                Utils::getVariableType($type)
+            ));
+        }
         return $type;
     }
 

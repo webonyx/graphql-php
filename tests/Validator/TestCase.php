@@ -94,16 +94,18 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $Cat = new ObjectType([
             'name' => 'Cat',
             'isTypeOf' => function() {return true;},
-            'fields' => [
-                'name' => [
-                    'type' => Type::string(),
-                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
-                ],
-                'nickname' => ['type' => Type::string()],
-                'meows' => ['type' => Type::boolean()],
-                'meowVolume' => ['type' => Type::int()],
-                'furColor' => ['type' => function() use (&$FurColor) {return $FurColor;}]
-            ],
+            'fields' => function() use (&$FurColor) {
+                return [
+                    'name' => [
+                        'type' => Type::string(),
+                        'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                    ],
+                    'nickname' => ['type' => Type::string()],
+                    'meows' => ['type' => Type::boolean()],
+                    'meowVolume' => ['type' => Type::int()],
+                    'furColor' => $FurColor
+                ];
+            },
             'interfaces' => [$Being, $Pet]
         ]);
 
@@ -128,15 +130,17 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             'name' => 'Human',
             'isTypeOf' => function() {return true;},
             'interfaces' => [$Being, $Intelligent],
-            'fields' => [
-                'name' => [
-                    'type' => Type::string(),
-                    'args' => ['surname' => ['type' => Type::boolean()]]
-                ],
-                'pets' => ['type' => Type::listOf($Pet)],
-                'relatives' => ['type' => function() use (&$Human) {return Type::listOf($Human); }],
-                'iq' => ['type' => Type::int()]
-            ]
+            'fields' => function() use (&$Human, $Pet) {
+                return [
+                    'name' => [
+                        'type' => Type::string(),
+                        'args' => ['surname' => ['type' => Type::boolean()]]
+                    ],
+                    'pets' => ['type' => Type::listOf($Pet)],
+                    'relatives' => ['type' => Type::listOf($Human)],
+                    'iq' => ['type' => Type::int()]
+                ];
+            }
         ]);
 
         $Alien = new ObjectType([

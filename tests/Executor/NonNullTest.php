@@ -58,16 +58,14 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
 
         $dataType = new ObjectType([
             'name' => 'DataType',
-            'fields' => [
-                'sync' => ['type' => Type::string()],
-                'nonNullSync' => ['type' => Type::nonNull(Type::string())],
-                'nest' => ['type' => function () use (&$dataType) {
-                    return $dataType;
-                }],
-                'nonNullNest' => ['type' => function () use (&$dataType) {
-                    return Type::nonNull($dataType);
-                }]
-            ]
+            'fields' => function() use (&$dataType) {
+                return [
+                    'sync' => ['type' => Type::string()],
+                    'nonNullSync' => ['type' => Type::nonNull(Type::string())],
+                    'nest' => $dataType,
+                    'nonNullNest' => Type::nonNull($dataType)
+                ];
+            }
         ]);
 
         $this->schema = new Schema(['query' => $dataType]);

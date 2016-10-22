@@ -29,20 +29,20 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
 
         $BlogAuthor = new ObjectType([
             'name' => 'Author',
-            'fields' => [
-                'id' => ['type' => Type::string()],
-                'name' => ['type' => Type::string()],
-                'pic' => [
-                    'args' => ['width' => ['type' => Type::int()], 'height' => ['type' => Type::int()]],
-                    'type' => $BlogImage,
-                    'resolve' => function ($obj, $args) {
-                        return $obj['pic']($args['width'], $args['height']);
-                    }
-                ],
-                'recentArticle' => ['type' => function () use (&$BlogArticle) {
-                    return $BlogArticle;
-                }]
-            ]
+            'fields' => function() use (&$BlogArticle, &$BlogImage) {
+                return [
+                    'id' => ['type' => Type::string()],
+                    'name' => ['type' => Type::string()],
+                    'pic' => [
+                        'args' => ['width' => ['type' => Type::int()], 'height' => ['type' => Type::int()]],
+                        'type' => $BlogImage,
+                        'resolve' => function ($obj, $args) {
+                            return $obj['pic']($args['width'], $args['height']);
+                        }
+                    ],
+                    'recentArticle' => $BlogArticle
+                ];
+            }
         ]);
 
         $BlogArticle = new ObjectType([
