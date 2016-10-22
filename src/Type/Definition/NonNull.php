@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Type\DefinitionContainer;
 use GraphQL\Type\TypeKind;
 use GraphQL\Utils;
 
@@ -16,13 +17,13 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     protected $ofType;
 
     /**
-     * @param callable|Type $type
+     * @param callable|Type|DefinitionContainer $type
      * @throws \Exception
      */
     public function __construct($type)
     {
         Utils::invariant(
-            $type instanceof Type || is_callable($type),
+            $type instanceof Type || $type instanceof DefinitionContainer || is_callable($type),
             'Expecting instance of GraphQL\Type\Definition\Type or callable returning instance of that class'
         );
         Utils::invariant(

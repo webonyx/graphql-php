@@ -9,6 +9,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Type\DefinitionContainer;
 use GraphQL\Type\Introspection;
 
 /**
@@ -112,6 +113,18 @@ class Schema
             'directives' => [],
             'validate' => true
         ];
+
+        if ($config['query'] instanceof DefinitionContainer) {
+            $config['query'] = $config['query']->getDefinition();
+        }
+
+        if ($config['mutation'] instanceof DefinitionContainer) {
+            $config['mutation'] = $config['mutation']->getDefinition();
+        }
+
+        if ($config['subscription'] instanceof DefinitionContainer) {
+            $config['subscription'] = $config['subscription']->getDefinition();
+        }
 
         Utils::invariant(
             $config['query'] instanceof ObjectType,
@@ -298,6 +311,9 @@ class Schema
     {
         if (!$type) {
             return $this->typeMap;
+        }
+        if ($type instanceof DefinitionContainer) {
+            $type = $type->getDefinition();
         }
 
         if ($type instanceof WrappingType) {

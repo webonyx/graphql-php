@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Type\DefinitionContainer;
 use GraphQL\Utils;
 
 
@@ -139,6 +140,12 @@ class ObjectType extends Type implements OutputType, CompositeType
         if (null === $this->interfaces) {
             $interfaces = isset($this->config['interfaces']) ? $this->config['interfaces'] : [];
             $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
+
+            // TODO: Return some sort of generator to avoid multiple loops
+            $interfaces = Utils::map($interfaces, function($iface) {
+                return $iface instanceof DefinitionContainer ? $iface->getDefinition() : $iface;
+            });
+
             $this->interfaces = $interfaces;
         }
         return $this->interfaces;

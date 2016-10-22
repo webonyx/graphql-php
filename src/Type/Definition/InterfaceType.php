@@ -52,7 +52,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     }
 
     /**
-     * @return array<FieldDefinition>
+     * @return FieldDefinition[]
      */
     public function getFields()
     {

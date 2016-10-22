@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Type\DefinitionContainer;
 use GraphQL\Utils;
 
 /**
@@ -42,8 +43,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
             'description' => Config::STRING
         ]);
 
-        Utils::invariant(!empty($config['types']), "");
-
         /**
          * Optionally provide a custom type resolver function. If one is not provided,
          * the default implemenation will call `isTypeOf` on each implementing
@@ -51,7 +50,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
          */
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->types = $config['types'];
         $this->resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
         $this->config = $config;
     }
@@ -70,13 +68,23 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
      */
     public function getTypes()
     {
-        if ($this->types instanceof \Closure) {
-            $this->types = call_user_func($this->types);
+        if (null === $this->types) {
+            if ($this->config['types'] instanceof \Closure) {
+                $types = call_user_func($this->config['types']);
+            } else {
+                $types = $this->config['types'];
+            }
+
             Utils::invariant(
-                is_array($this->types),
-                'Closure for option "types" of union "%s" is expected to return array of types',
+                is_array($types),
+                'Option "types" of union "%s" is expected to return array of types (or closure returning array of types)',
                 $this->name
             );
+
+            // TODO: Return some sort of generator to avoid multiple loops
+            $this->types = Utils::map($types, function($type) {
+                return $type instanceof DefinitionContainer ? $type->getDefinition() : $type;
+            });
         }
         return $this->types;
     }

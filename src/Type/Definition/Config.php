@@ -2,6 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Type\DefinitionContainer;
 use GraphQL\Utils;
 
 /**
@@ -188,6 +189,10 @@ class Config
                 $err = 'Error in "'.$typeName.'" type definition: ' . "Each entry at '$pathStr' must be an array, but '%s' is '%s'";
 
                 foreach ($value as $arrKey => $arrValue) {
+                    if ($arrValue instanceof DefinitionContainer) {
+                        $arrValue = $arrValue->getDefinition();
+                    }
+
                     if (is_array($def->definition)) {
                         if ($def->flags & self::MAYBE_TYPE && $arrValue instanceof Type) {
                             $arrValue = ['type' => $arrValue];
@@ -218,6 +223,10 @@ class Config
 
             if (null === $value) {
                 return ; // Allow nulls for non-required fields
+            }
+
+            if ($value instanceof DefinitionContainer) {
+                $value = $value->getDefinition();
             }
 
             switch (true) {

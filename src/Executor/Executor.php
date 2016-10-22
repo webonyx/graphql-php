@@ -19,6 +19,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\DefinitionContainer;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils;
 
@@ -742,6 +743,10 @@ class Executor
         // If resolveType returns a string, we assume it's a ObjectType name.
         if (is_string($runtimeType)) {
             $runtimeType = $exeContext->schema->getType($runtimeType);
+        }
+
+        if ($runtimeType instanceof DefinitionContainer) {
+            $runtimeType = $runtimeType->getDefinition();
         }
 
         if (!($runtimeType instanceof ObjectType)) {
