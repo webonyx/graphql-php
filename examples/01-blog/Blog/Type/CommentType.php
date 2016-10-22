@@ -43,9 +43,17 @@ class CommentType extends BaseType
         ]);
     }
 
+    public function author(Comment $comment, $args, AppContext $context)
+    {
+        return $context->dataSource->findUser($comment->authorId);
+    }
+
     public function parent(Comment $comment, $args, AppContext $context)
     {
-        return $context->dataSource->findReplies($comment->id, $args['limit'], $args['after']);
+        if ($comment->parentId) {
+            return $context->dataSource->findComment($comment->parentId);
+        }
+        return null;
     }
 
     public function replies(Comment $comment, $args, AppContext $context)
