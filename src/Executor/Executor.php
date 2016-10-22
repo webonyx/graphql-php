@@ -96,7 +96,7 @@ class Executor
             $data = null;
         }
 
-        return new ExecutionResult($data, $exeContext->errors);
+        return new ExecutionResult((array) $data, $exeContext->errors);
     }
 
     /**
@@ -231,7 +231,11 @@ class Executor
                 $results[$responseName] = $result;
             }
         }
-        return $results;
+        // see #59
+        if ([] === $results) {
+            $results = new \stdClass();
+        }
+        return  $results;
     }
 
     /**

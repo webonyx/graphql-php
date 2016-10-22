@@ -840,4 +840,84 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, $result->toArray());
     }
+
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/59
+     */
+    public function testSerializesToEmptyObjectVsEmptyArray()
+    {
+        $iface = null;
+
+        $a = new ObjectType([
+            'name' => 'A',
+            'fields' => [
+                'id' => Type::id()
+            ],
+            'interfaces' => function() use (&$iface) {
+                return [$iface];
+            }
+        ]);
+
+        $b = new ObjectType([
+            'name' => 'B',
+            'fields' => [
+                'id' => Type::id()
+            ],
+            'interfaces' => function() use (&$iface) {
+                return [$iface];
+            }
+        ]);
+
+        $iface = new InterfaceType([
+            'name' => 'Iface',
+            'fields' => [
+                'id' => Type::id()
+            ],
+            'resolveType' => function($v) use ($a, $b) {
+                return $v['type'] === 'A' ? $a : $b;
+            }
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'ab' => Type::listOf($iface)
+                ]
+            ]),
+            'types' => [$a, $b]
+        ]);
+
+        $data = [
+            'ab' => [
+                ['id' => 1, 'type' => 'A'],
+                ['id' => 2, 'type' => 'A'],
+                ['id' => 3, 'type' => 'B'],
+                ['id' => 4, 'type' => 'B']
+            ]
+        ];
+
+        $query = Parser::parse('
+            {
+                ab {
+                    ... on A{
+                        id
+                    }
+                }
+            }
+        ');
+
+        $result = Executor::execute($schema, $query, $data, null);
+
+        $this->assertEquals([
+            'data' => [
+                'ab' => [
+                    ['id' => '1'],
+                    ['id' => '2'],
+                    new \stdClass(),
+                    new \stdClass()
+                ]
+            ]
+        ], $result->toArray());
+    }
 }
