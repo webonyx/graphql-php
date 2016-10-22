@@ -26,7 +26,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     /**
      * ScalarType constructor.
      */
-    protected function __construct()
+    public function __construct()
     {
         Utils::invariant($this->name, 'Type must be named.');
     }

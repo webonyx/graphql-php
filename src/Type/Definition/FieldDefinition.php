@@ -91,25 +91,30 @@ class FieldDefinition
 
     /**
      * @param array|Config $fields
-     * @param string $typeName
+     * @param string $parentTypeName
      * @return array
      */
-    public static function createMap(array $fields, $typeName = null)
+    public static function createMap(array $fields, $parentTypeName = null)
     {
         $map = [];
         foreach ($fields as $name => $field) {
-            if (!is_array($field)) {
+            if (is_array($field)) {
+                if (!isset($field['name']) && is_string($name)) {
+                    $field['name'] = $name;
+                }
+                $fieldDef = self::create($field, $parentTypeName);
+            } else if ($field instanceof FieldDefinition) {
+                $fieldDef = $field;
+            } else {
                 if (is_string($name)) {
-                    $field = ['name' => $name, 'type' => $field];
+                    $fieldDef = self::create(['name' => $name, 'type' => $field], $parentTypeName);
                 } else {
                     throw new InvariantViolation(
-                        "Unexpected field definition for type $typeName at key $name: " . Utils::printSafe($field)
+                        "Unexpected field definition for type $parentTypeName at key $name: " . Utils::printSafe($field)
                     );
                 }
-            } elseif (!isset($field['name']) && is_string($name)) {
-                $field['name'] = $name;
             }
-            $map[$name] = self::create($field, $typeName);
+            $map[$fieldDef->name] = $fieldDef;
         }
         return $map;
     }
