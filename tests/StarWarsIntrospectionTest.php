@@ -190,6 +190,13 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                         ]
                     ],
                     [
+                        'name' => 'secretBackstory',
+                        'type' => [
+                            'name' => 'String',
+                            'kind' => 'SCALAR'
+                        ]
+                    ],
+                    [
                         'name' => 'primaryFunction',
                         'type' => [
                             'name' => 'String',
@@ -268,6 +275,14 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                                 'name' => 'Episode',
                                 'kind' => 'ENUM'
                             ]
+                        ]
+                    ],
+                    [
+                        'name' => 'secretBackstory',
+                        'type' => [
+                            'name' => 'String',
+                            'kind' => 'SCALAR',
+                            'ofType' => null
                         ]
                     ],
                     [

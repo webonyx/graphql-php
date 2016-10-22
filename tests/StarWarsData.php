@@ -119,6 +119,14 @@ class StarWarsData
     }
 
     /**
+     * Allows us to query for a character's friends.
+     */
+    static function getFriends($character)
+    {
+        return array_map([__CLASS__, 'getCharacter'], $character['friends']);
+    }
+
+    /**
      * @param $episode
      * @return array
      */
@@ -133,10 +141,22 @@ class StarWarsData
     }
 
     /**
-     * Allows us to query for a character's friends.
+     * @param $id
+     * @return mixed|null
      */
-    static function getFriends($character)
+    static function getHuman($id)
     {
-        return array_map([__CLASS__, 'getCharacter'], $character['friends']);
+        $humans = self::humans();
+        return isset($humans[$id]) ? $humans[$id] : null;
+    }
+
+    /**
+     * @param $id
+     * @return mixed|null
+     */
+    static function getDroid($id)
+    {
+        $droids = self::droids();
+        return isset($droids[$id]) ? $droids[$id] : null;
     }
 }
