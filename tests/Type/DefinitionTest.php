@@ -457,6 +457,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             $this->inputObjectType
         ];
 
+        // TODO: extract config validation to separate test
         Config::enableValidation();
         foreach ($badUnionTypes as $type) {
             try {
@@ -464,7 +465,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 $this->fail('Expected exception not thrown');
             } catch (\Exception $e) {
                 $this->assertSame(
-                    'Error in "BadUnion" type definition: expecting callable or instance of GraphQL\Type\Definition\ObjectType at "types:0", but got "' . Utils::getVariableType($type) . '"',
+                    'Error in "BadUnion" type definition: expecting callable or ObjectType definition at "types:0", but got "' . Utils::getVariableType($type) . '"',
                     $e->getMessage()
                 );
             }
