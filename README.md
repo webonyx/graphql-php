@@ -13,6 +13,7 @@ This implementation will follow JavaScript version as close as possible until Gr
 
 - [Overview](#overview)
 - [Installation](#installing-graphql-php)
+- [Learn by example](#learn-by-example)
 - [Type System](#type-system)
     - [Internal Types](#internal-types)
     - [Enums](#enums)
@@ -80,6 +81,13 @@ If you are upgrading, see [upgrade instructions](UPGRADE.md)
 
 ## Requirements
 PHP >=5.4
+
+## Learn by example
+It is often easier to start with full-featured example and then get back to documentation
+for your own work. 
+
+Check out full-featured [example of GraphQL API](https://github.com/webonyx/graphql-php/tree/master/examples/01-blog).
+Follow instructions and try it yourself in ~10 minutes.
 
 ## Getting Started
 First, make sure to read [Getting Started](https://github.com/facebook/graphql#getting-started) section of GraphQL documentation.
@@ -283,7 +291,7 @@ $humanType = new ObjectType([
 Option | Type | Notes
 ------ | ---- | -----
 name | `string` | Required. Unique name of this object type within Schema
-fields | `array` | Required. List of fields describing object properties. See [Fields](#Fields) section for available options.
+fields | `array` | Required. List of fields describing object properties. See [Fields](#fields) section for available options.
 description | `string` | Textual description of this type for clients
 interfaces | `array` or `callback() => ObjectType[]` | List of interfaces implemented by this type (or callback returning list of interfaces)
 isTypeOf | `callback($value, $context, GraphQL\Type\Definition\ResolveInfo $info)` | Callback that takes `$value` provided by your data layer and returns true if that `$value` qualifies for this type
