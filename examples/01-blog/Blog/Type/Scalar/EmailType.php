@@ -1,17 +1,21 @@
 <?php
 namespace GraphQL\Examples\Blog\Type\Scalar;
 
+use GraphQL\Examples\Blog\Type\BaseType;
 use GraphQL\Language\AST\StringValue;
-use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Utils;
 
-class EmailType extends ScalarType
+class EmailType extends BaseType
 {
-    public $name = 'Email';
-
-    public static function create()
+    public function __construct()
     {
-        return new self();
+        $this->definition = new CustomScalarType([
+            'name' => 'Email',
+            'serialize' => [$this, 'serialize'],
+            'parseValue' => [$this, 'parseValue'],
+            'parseLiteral' => [$this, 'parseLiteral'],
+        ]);
     }
 
     /**

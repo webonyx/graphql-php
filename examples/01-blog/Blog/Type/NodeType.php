@@ -3,30 +3,30 @@ namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
-use GraphQL\Examples\Blog\Image;
+use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\TypeSystem;
 use GraphQL\Type\Definition\InterfaceType;
 
-class NodeType
+class NodeType extends BaseType
 {
     /**
+     * NodeType constructor.
      * @param TypeSystem $types
-     * @return InterfaceType
      */
-    public static function getDefinition(TypeSystem $types)
+    public function __construct(TypeSystem $types)
     {
-        return new InterfaceType([
+        $this->definition = new InterfaceType([
             'name' => 'Node',
             'fields' => [
                 'id' => $types->id()
             ],
             'resolveType' => function ($object) use ($types) {
-                return self::resolveType($object, $types);
+                return $this->resolveType($object, $types);
             }
         ]);
     }
 
-    public static function resolveType($object, TypeSystem $types)
+    public function resolveType($object, TypeSystem $types)
     {
         if ($object instanceof User) {
             return $types->user();

@@ -7,13 +7,11 @@ use GraphQL\Examples\Blog\TypeSystem;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class UserType
+class UserType extends BaseType
 {
-    public static function getDefinition(TypeSystem $types)
+    public function __construct(TypeSystem $types)
     {
-        $handler = new self();
-
-        return new ObjectType([
+        $this->definition = new ObjectType([
             'name' => 'User',
             'fields' => function() use ($types) {
                 return [
@@ -33,7 +31,7 @@ class UserType
                         'type' => $types->string(),
                     ],
                     'lastStoryPosted' => $types->story(),
-                    'error' => [
+                    'fieldWithError' => [
                         'type' => $types->string(),
                         'resolve' => function() {
                             throw new \Exception("This is error field");
@@ -44,9 +42,9 @@ class UserType
             'interfaces' => [
                 $types->node()
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) use ($handler) {
-                if (method_exists($handler, $info->fieldName)) {
-                    return $handler->{$info->fieldName}($value, $args, $context, $info);
+            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+                if (method_exists($this, $info->fieldName)) {
+                    return $this->{$info->fieldName}($value, $args, $context, $info);
                 } else {
                     return $value->{$info->fieldName};
                 }
@@ -56,7 +54,7 @@ class UserType
 
     public function photo(User $user, $args, AppContext $context)
     {
-        return $context->dataSource->getUserPhoto($user, $args['size']);
+        return $context->dataSource->getUserPhoto($user->id, $args['size']);
     }
 
     public function lastStoryPosted(User $user, $args, AppContext $context)

@@ -1,24 +1,29 @@
 <?php
 namespace GraphQL\Examples\Blog;
 
+use GraphQL\Examples\Blog\Type\CommentType;
+use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeEnumType;
+use GraphQL\Examples\Blog\Type\Field\HtmlField;
+use GraphQL\Examples\Blog\Type\FieldDefinitions;
+use GraphQL\Examples\Blog\Type\MentionType;
 use GraphQL\Examples\Blog\Type\NodeType;
 use GraphQL\Examples\Blog\Type\QueryType;
 use GraphQL\Examples\Blog\Type\Scalar\EmailType;
 use GraphQL\Examples\Blog\Type\StoryType;
-use GraphQL\Examples\Blog\Type\Scalar\UrlType;
+use GraphQL\Examples\Blog\Type\Scalar\UrlTypeDefinition;
 use GraphQL\Examples\Blog\Type\UserType;
 use GraphQL\Examples\Blog\Type\ImageType;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\DefinitionContainer;
 
 /**
  * Class TypeSystem
  *
  * Acts as a registry and factory for your types.
+ *
  * As simplistic as possible for the sake of clarity of this example.
  * Your own may be more dynamic (or even code-generated).
  *
@@ -27,65 +32,95 @@ use GraphQL\Type\Definition\Type;
 class TypeSystem
 {
     // Object types:
-    private $story;
     private $user;
+    private $story;
+    private $comment;
     private $image;
     private $query;
 
     /**
-     * @return ObjectType
-     */
-    public function story()
-    {
-        return $this->story ?: ($this->story = StoryType::getDefinition($this));
-    }
-
-    /**
-     * @return ObjectType
+     * @return UserType
      */
     public function user()
     {
-        return $this->user ?: ($this->user = UserType::getDefinition($this));
+        return $this->user ?: ($this->user = new UserType($this));
     }
 
     /**
-     * @return ObjectType
+     * @return StoryType
+     */
+    public function story()
+    {
+        return $this->story ?: ($this->story = new StoryType($this));
+    }
+
+    /**
+     * @return CommentType
+     */
+    public function comment()
+    {
+        return $this->comment ?: ($this->comment = new CommentType($this));
+    }
+
+    /**
+     * @return ImageType
      */
     public function image()
     {
-        return $this->image ?: ($this->image = ImageType::getDefinition($this));
+        return $this->image ?: ($this->image = new ImageType($this));
     }
 
     /**
-     * @return ObjectType
+     * @return QueryType
      */
     public function query()
     {
-        return $this->query ?: ($this->query = QueryType::getDefinition($this));
+        return $this->query ?: ($this->query = new QueryType($this));
     }
 
 
-    // Interfaces
-    private $nodeDefinition;
+    // Interface types
+    private $node;
 
     /**
-     * @return \GraphQL\Type\Definition\InterfaceType
+     * @return NodeType
      */
     public function node()
     {
-        return $this->nodeDefinition ?: ($this->nodeDefinition = NodeType::getDefinition($this));
+        return $this->node ?: ($this->node = new NodeType($this));
     }
 
 
-    // Enums
-    private $imageSizeEnum;
+    // Unions types:
+    private $mention;
 
     /**
-     * @return EnumType
+     * @return MentionType
+     */
+    public function mention()
+    {
+        return $this->mention ?: ($this->mention = new MentionType($this));
+    }
+
+
+    // Enum types
+    private $imageSizeEnum;
+    private $contentFormatEnum;
+
+    /**
+     * @return ImageSizeEnumType
      */
     public function imageSizeEnum()
     {
-        return $this->imageSizeEnum ?: ($this->imageSizeEnum = ImageSizeEnumType::getDefinition());
+        return $this->imageSizeEnum ?: ($this->imageSizeEnum = new ImageSizeEnumType());
+    }
+
+    /**
+     * @return ContentFormatEnum
+     */
+    public function contentFormatEnum()
+    {
+        return $this->contentFormatEnum ?: ($this->contentFormatEnum = new ContentFormatEnum());
     }
 
     // Custom Scalar types:
@@ -94,16 +129,27 @@ class TypeSystem
 
     public function email()
     {
-        return $this->emailType ?: ($this->emailType = EmailType::create());
+        return $this->emailType ?: ($this->emailType = new EmailType);
     }
 
     /**
-     * @return UrlType
+     * @return UrlTypeDefinition
      */
     public function url()
     {
-        return $this->urlType ?: ($this->urlType = UrlType::create());
+        return $this->urlType ?: ($this->urlType = new UrlTypeDefinition);
     }
+
+    /**
+     * @param $name
+     * @param null $objectKey
+     * @return array
+     */
+    public function htmlField($name, $objectKey = null)
+    {
+        return HtmlField::build($this, $name, $objectKey);
+    }
+
 
 
     // Let's add internal types as well for consistent experience
@@ -146,7 +192,7 @@ class TypeSystem
     }
 
     /**
-     * @param Type $type
+     * @param Type|DefinitionContainer $type
      * @return ListOfType
      */
     public function listOf($type)
@@ -155,7 +201,7 @@ class TypeSystem
     }
 
     /**
-     * @param $type
+     * @param Type|DefinitionContainer $type
      * @return NonNull
      */
     public function nonNull($type)

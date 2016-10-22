@@ -9,6 +9,7 @@ use \GraphQL\Examples\Blog\Data\DataSource;
 use \GraphQL\Schema;
 use \GraphQL\GraphQL;
 use \GraphQL\Type\Definition\Config;
+use \GraphQL\Error\FormattedError;
 
 // Disable default PHP error reporting - we have better one for debug mode (see bellow)
 ini_set('display_errors', 0);
@@ -49,6 +50,12 @@ try {
     }
     $data += ['query' => null, 'variables' => null];
 
+    if (null === $data['query']) {
+        $data['query'] = '
+            {hello}
+        ';
+    }
+
     // GraphQL schema to be passed to query executor:
     $schema = new Schema([
         'query' => $typeSystem->query()
@@ -73,9 +80,9 @@ try {
 } catch (\Exception $error) {
     $httpStatus = 500;
     if (!empty($_GET['debug'])) {
-        $result['extensions']['exception'] = \GraphQL\Error\FormattedError::createFromException($error);
+        $result['extensions']['exception'] = FormattedError::createFromException($error);
     } else {
-        $result['errors'] = \GraphQL\Error\FormattedError::create('Unexpected Error');
+        $result['errors'] = [FormattedError::create('Unexpected Error')];
     }
 }
 

@@ -7,13 +7,11 @@ use GraphQL\Examples\Blog\TypeSystem;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 
-class ImageType
+class ImageType extends BaseType
 {
-    public static function getDefinition(TypeSystem $types)
+    public function __construct(TypeSystem $types)
     {
-        $handler = new self();
-
-        return new ObjectType([
+        $this->definition = new ObjectType([
             'name' => 'ImageType',
             'fields' => [
                 'id' => $types->id(),
@@ -28,12 +26,20 @@ class ImageType
                 'height' => $types->int(),
                 'url' => [
                     'type' => $types->url(),
-                    'resolve' => [$handler, 'resolveUrl']
+                    'resolve' => [$this, 'resolveUrl']
                 ],
-                'error' => [
+
+                // Just for the sake of example
+                'fieldWithError' => [
                     'type' => $types->string(),
                     'resolve' => function() {
-                        throw new \Exception("This is error field");
+                        throw new \Exception("Field with exception");
+                    }
+                ],
+                'nonNullFieldWithError' => [
+                    'type' => $types->nonNull($types->string()),
+                    'resolve' => function() {
+                        throw new \Exception("Non-null field with exception");
                     }
                 ]
             ]

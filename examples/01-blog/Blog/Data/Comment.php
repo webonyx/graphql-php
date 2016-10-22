@@ -1,19 +1,22 @@
 <?php
 namespace GraphQL\Examples\Blog\Data;
 
+
 use GraphQL\Utils;
 
-class Story
+class Comment
 {
     public $id;
 
     public $authorId;
 
-    public $title;
+    public $storyId;
+
+    public $parentId;
 
     public $body;
 
-    public $isAnonymous = false;
+    public $isAnonymous;
 
     public function __construct(array $data)
     {

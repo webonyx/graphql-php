@@ -5,17 +5,14 @@ use GraphQL\Language\AST\StringValue;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils;
 
-class UrlType extends ScalarType
+/**
+ * Class UrlTypeDefinition
+ *
+ * @package GraphQL\Examples\Blog\Type\Scalar
+ */
+class UrlTypeDefinition extends ScalarType
 {
     public $name = 'Url';
-
-    /**
-     * @return UrlType
-     */
-    public static function create()
-    {
-        return new self();
-    }
 
     /**
      * Serializes an internal value to include in a response.

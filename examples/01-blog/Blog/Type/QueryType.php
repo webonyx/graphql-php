@@ -5,34 +5,53 @@ use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\TypeSystem;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\Type;
 
-class QueryType
+class QueryType extends BaseType
 {
-    public static function getDefinition(TypeSystem $types)
+    public function __construct(TypeSystem $types)
     {
-        $handler = new self();
-
-        return new ObjectType([
+        $this->definition = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 'user' => [
                     'type' => $types->user(),
+                    'description' => 'Returns user by id (in range of 1-5)',
                     'args' => [
-                        'id' => [
+                        'id' => $types->nonNull($types->id())
+                    ]
+                ],
+                'viewer' => [
+                    'type' => $types->user(),
+                    'description' => 'Represents currently logged-in user (for the sake of example - simply returns user with id == 1)'
+                ],
+                'stories' => [
+                    'type' => $types->listOf($types->story()),
+                    'description' => 'Returns subset of stories posted for this blog',
+                    'args' => [
+                        'after' => [
                             'type' => $types->id(),
-                            'defaultValue' => 1
+                            'description' => 'Fetch stories listed after the story with this ID'
+                        ],
+                        'limit' => [
+                            'type' => $types->int(),
+                            'description' => 'Number of stories to be returned',
+                            'defaultValue' => 10
                         ]
                     ]
                 ],
-                'viewer' => $types->user(),
-                'lastStoryPosted' => $types->story(),
-                'stories' => [
-                    'type' => $types->listOf($types->story()),
-                    'args' => []
-                ]
+                'lastStoryPosted' => [
+                    'type' => $types->story(),
+                    'description' => 'Returns last story posted for this blog'
+                ],
+                'deprecatedField' => [
+                    'type' => $types->string(),
+                    'deprecationReason' => 'This field is deprecated!'
+                ],
+                'hello' => Type::string()
             ],
-            'resolveField' => function($val, $args, $context, ResolveInfo $info) use ($handler) {
-                return $handler->{$info->fieldName}($val, $args, $context, $info);
+            'resolveField' => function($val, $args, $context, ResolveInfo $info) {
+                return $this->{$info->fieldName}($val, $args, $context, $info);
             }
         ]);
     }
@@ -47,8 +66,24 @@ class QueryType
         return $context->viewer;
     }
 
+    public function stories($val, $args, AppContext $context)
+    {
+        $args += ['after' => null];
+        return $context->dataSource->findStories($args['limit'], $args['after']);
+    }
+
     public function lastStoryPosted($val, $args, AppContext $context)
     {
         return $context->dataSource->findLatestStory();
+    }
+
+    public function hello()
+    {
+        return 'Your graphql-php endpoint is ready! Use GraphiQL to browse API';
+    }
+
+    public function deprecatedField()
+    {
+        return 'You can request deprecated field, but it is not displayed in auto-generated documentation by default.';
     }
 }

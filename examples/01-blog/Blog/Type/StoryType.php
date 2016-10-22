@@ -13,92 +13,74 @@ use GraphQL\Type\Definition\ResolveInfo;
  * Class StoryType
  * @package GraphQL\Examples\Social\Type
  */
-class StoryType
+class StoryType extends BaseType
 {
     const EDIT = 'EDIT';
     const DELETE = 'DELETE';
     const LIKE = 'LIKE';
     const UNLIKE = 'UNLIKE';
+    const REPLY = 'REPLY';
 
-    const FORMAT_TEXT = 'TEXT';
-    const FORMAT_HTML = 'HTML';
-
-    /**
-     * @param TypeSystem $types
-     * @return ObjectType
-     */
-    public static function getDefinition(TypeSystem $types)
+    public function __construct(TypeSystem $types)
     {
-        // Type instance containing resolvers for field definitions
-        $handler = new self();
-
-        // Return definition for this type:
-        return new ObjectType([
+        $this->definition = new ObjectType([
             'name' => 'Story',
             'fields' => function() use ($types) {
                 return [
                     'id' => $types->id(),
                     'author' => $types->user(),
-                    'body' => [
-                        'type' => $types->string(),
+                    'mentions' => $types->listOf($types->mention()),
+                    'totalCommentCount' => $types->int(),
+                    'comments' => [
+                        'type' => $types->listOf($types->comment()),
                         'args' => [
-                            'format' => new EnumType([
-                                'name' => 'StoryFormatEnum',
-                                'values' => [self::FORMAT_TEXT, self::FORMAT_HTML]
-                            ]),
-                            'maxLength' => $types->int()
+                            'after' => [
+                                'type' => $types->id(),
+                                'description' => 'Load all comments listed after given comment ID'
+                            ],
+                            'limit' => [
+                                'type' => $types->int(),
+                                'defaultValue' => 5
+                            ]
                         ]
                     ],
-                    'isLiked' => $types->boolean(),
                     'affordances' => $types->listOf(new EnumType([
                         'name' => 'StoryAffordancesEnum',
                         'values' => [
                             self::EDIT,
                             self::DELETE,
                             self::LIKE,
-                            self::UNLIKE
+                            self::UNLIKE,
+                            self::REPLY
                         ]
-                    ]))
+                    ])),
+                    'hasViewerLiked' => $types->boolean(),
+
+                    $types->htmlField('body'),
                 ];
             },
             'interfaces' => [
                 $types->node()
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) use ($handler) {
-                if (method_exists($handler, $info->fieldName)) {
-                    return $handler->{$info->fieldName}($value, $args, $context, $info);
+            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+                if (method_exists($this, $info->fieldName)) {
+                    return $this->{$info->fieldName}($value, $args, $context, $info);
                 } else {
                     return $value->{$info->fieldName};
                 }
-            },
-            'containerType' => $handler
+            }
         ]);
     }
 
-    /**
-     * @param Story $story
-     * @param $args
-     * @param AppContext $context
-     * @return User|null
-     */
     public function author(Story $story, $args, AppContext $context)
     {
-        if ($story->isAnonymous) {
-            return null;
-        }
         return $context->dataSource->findUser($story->authorId);
     }
 
-    /**
-     * @param Story $story
-     * @param $args
-     * @param AppContext $context
-     * @return array
-     */
     public function affordances(Story $story, $args, AppContext $context)
     {
         $isViewer = $context->viewer === $context->dataSource->findUser($story->authorId);
-        $isLiked = $context->dataSource->isLikedBy($story, $context->viewer);
+        $isLiked = $context->dataSource->isLikedBy($story->id, $context->viewer->id);
 
         if ($isViewer) {
             $affordances[] = self::EDIT;
@@ -110,5 +92,21 @@ class StoryType
             $affordances[] = self::LIKE;
         }
         return $affordances;
+    }
+
+    public function hasViewerLiked(Story $story, $args, AppContext $context)
+    {
+        return $context->dataSource->isLikedBy($story->id, $context->viewer->id);
+    }
+
+    public function totalCommentCount(Story $story, $args, AppContext $context)
+    {
+        return $context->dataSource->countComments($story->id);
+    }
+
+    public function comments(Story $story, $args, AppContext $context)
+    {
+        $args += ['after' => null];
+        return $context->dataSource->findComments($story->id, $args['limit'], $args['after']);
     }
 }

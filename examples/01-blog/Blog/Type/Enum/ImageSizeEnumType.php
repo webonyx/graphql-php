@@ -2,16 +2,17 @@
 namespace GraphQL\Examples\Blog\Type\Enum;
 
 use GraphQL\Examples\Blog\Data\Image;
+use GraphQL\Examples\Blog\Type\BaseType;
 use GraphQL\Type\Definition\EnumType;
 
-class ImageSizeEnumType
+class ImageSizeEnumType extends BaseType
 {
     /**
-     * @return EnumType
+     * ImageSizeEnumType constructor.
      */
-    public static function getDefinition()
+    public function __construct()
     {
-        return new EnumType([
+        $this->definition = new EnumType([
             'name' => 'ImageSizeEnum',
             'values' => [
                 'ICON' => Image::SIZE_ICON,
