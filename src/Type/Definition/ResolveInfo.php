@@ -4,6 +4,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
+use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\Selection;
 use GraphQL\Language\AST\SelectionSet;
@@ -129,6 +130,12 @@ class ResolveInfo
                     /** @var FragmentDefinition $fragment */
                     $fragment = $this->fragments[$spreadName];
                     $fields += $this->foldSelectionSet($fragment->selectionSet, $descend);
+                }
+            } else if ($selectionAST instanceof InlineFragment) {
+                $fragmentFields = $this->foldSelectionSet($selectionAST->selectionSet, $descend - 1);
+                $fragmentType = $selectionAST->typeCondition->name->value;
+                foreach ($fragmentFields as $name => $subFields) {
+                    $fields[$fragmentType . ':' . $name] = $subFields;
                 }
             }
         }
