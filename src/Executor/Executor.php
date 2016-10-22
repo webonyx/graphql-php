@@ -675,7 +675,7 @@ class Executor
             }
         }
 
-        return $property instanceof \Closure ? $property($args, $context) : $property;
+        return $property instanceof \Closure ? $property($source, $args, $context) : $property;
     }
 
     /**

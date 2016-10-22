@@ -39,46 +39,6 @@ GraphQL\Schema::$queryType;
 So if you rely on any protected properties or methods of any GraphQL class, make sure to 
 delete leading underscores.
 
-### 3. Returning closure from field resolver
-Previously when you returned closure from any resolver, expected signature of this closure
-was `function($sourceValue)`, new signature is `function($args, $context)` 
-(now mirrors reference graphql-js implementation)
-
-Before the change:
-```php
-new ObjectType([
-    'name' => 'Test',
-    'fields' => [
-        'a' => [
-            'type' => Type::string(),
-            'resolve' => function() {
-                return function($value) {
-                    return 'something';
-                }
-            }
-        ]
-    ]
-])
-
-```
-After the change:
-```php
-new ObjectType([
-    'name' => 'Test',
-    'fields' => [
-        'a' => [
-            'type' => Type::string(),
-            'resolve' => function() {
-                return function($args, $context) {
-                    return 'something';
-                }
-            }
-        ]
-    ]
-])
-```
-(note the closure signature change)
-
 ## Upgrade v0.6.x > v0.7.x
 
 There are a few new breaking changes in v0.7.0 that were added to the graphql-js reference implementation 

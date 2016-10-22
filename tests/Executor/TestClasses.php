@@ -107,7 +107,7 @@ class Adder
     {
         $this->num = $num;
 
-        $this->test = function($args, $context)  {
+        $this->test = function($source, $args, $context)  {
             return $this->num + $args['addend1'] + $context['addend2'];
         };
     }
