@@ -36,6 +36,10 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
      */
     public function __construct($config)
     {
+        if (!isset($config['name'])) {
+            $config['name'] = $this->tryInferName();
+        }
+
         Config::validate($config, [
             'name' => Config::STRING | Config::REQUIRED,
             'types' => Config::arrayOf(Config::OBJECT_TYPE, Config::MAYBE_THUNK | Config::REQUIRED),

@@ -25,6 +25,10 @@ class InputObjectType extends Type implements InputType
      */
     public function __construct(array $config)
     {
+        if (!isset($config['name'])) {
+            $config['name'] = $this->tryInferName();
+        }
+
         Config::validate($config, [
             'name' => Config::STRING | Config::REQUIRED,
             'fields' => Config::arrayOf([
@@ -32,7 +36,7 @@ class InputObjectType extends Type implements InputType
                 'type' => Config::INPUT_TYPE | Config::REQUIRED,
                 'defaultValue' => Config::ANY,
                 'description' => Config::STRING
-            ], Config::KEY_AS_NAME | Config::MAYBE_THUNK),
+            ], Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE),
             'description' => Config::STRING
         ]);
 

@@ -35,6 +35,10 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public function __construct(array $config)
     {
+        if (!isset($config['name'])) {
+            $config['name'] = $this->tryInferName();
+        }
+
         Config::validate($config, [
             'name' => Config::STRING,
             'fields' => Config::arrayOf(

@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Tests\Type;
 
+require_once __DIR__ . '/TestClasses.php';
+
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Config;
 use GraphQL\Type\Definition\EnumType;
@@ -666,4 +668,14 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($interface, $testField->getType());
         $this->assertEquals('test', $testField->name);
     }
+
+    public function testInfersNameFromClassname()
+    {
+        $myObj = new MyCustomType();
+        $this->assertEquals('MyCustom', $myObj->name);
+
+        $otherCustom = new OtherCustom();
+        $this->assertEquals('OtherCustom', $otherCustom->name);
+    }
 }
+
