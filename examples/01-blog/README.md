@@ -1,5 +1,6 @@
 ## Blog Example
-Simple yet full-featured example of GraphQL API. Models simple blog with Stories and Users. 
+Simple yet full-featured example of GraphQL API. Models blogging platform with Stories, Users
+and hierarchical comments. 
 
 ### Run locally
 ```

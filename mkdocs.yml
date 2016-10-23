@@ -1,0 +1,7 @@
+site_name: graphql-php
+pages:
+- About: index.md
+- Overview: overview.md
+- Getting Started: getting-started.md
+- Type System: type-system.md
+theme: readthedocs
