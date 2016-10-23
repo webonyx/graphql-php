@@ -3,7 +3,7 @@ Simple yet full-featured example of GraphQL API. Models simple blog with Stories
 
 ### Run locally
 ```
-php -S localhost:8080 ./index.php
+php -S localhost:8080 ./graphql.php
 ```
 
 ### Test if GraphQL is running
