@@ -9,12 +9,9 @@ use GraphQL\Type\Definition\InterfaceType;
 
 class NodeType extends BaseType
 {
-    /**
-     * NodeType constructor.
-     * @param TypeSystem $types
-     */
     public function __construct(TypeSystem $types)
     {
+        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
         $this->definition = new InterfaceType([
             'name' => 'Node',
             'fields' => [

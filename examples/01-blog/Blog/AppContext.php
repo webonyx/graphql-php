@@ -7,7 +7,7 @@ use GraphQL\Utils;
 
 /**
  * Class AppContext
- * Instance available in all GraphQL resolvers
+ * Instance available in all GraphQL resolvers as 3rd argument
  *
  * @package GraphQL\Examples\Social
  */

@@ -5,13 +5,12 @@ use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeEnumType;
 use GraphQL\Examples\Blog\Type\Field\HtmlField;
-use GraphQL\Examples\Blog\Type\FieldDefinitions;
 use GraphQL\Examples\Blog\Type\MentionType;
 use GraphQL\Examples\Blog\Type\NodeType;
 use GraphQL\Examples\Blog\Type\QueryType;
 use GraphQL\Examples\Blog\Type\Scalar\EmailType;
 use GraphQL\Examples\Blog\Type\StoryType;
-use GraphQL\Examples\Blog\Type\Scalar\UrlTypeDefinition;
+use GraphQL\Examples\Blog\Type\Scalar\UrlType;
 use GraphQL\Examples\Blog\Type\UserType;
 use GraphQL\Examples\Blog\Type\ImageType;
 use GraphQL\Type\Definition\ListOfType;
@@ -129,15 +128,15 @@ class TypeSystem
 
     public function email()
     {
-        return $this->emailType ?: ($this->emailType = new EmailType);
+        return $this->emailType ?: ($this->emailType = new EmailType());
     }
 
     /**
-     * @return UrlTypeDefinition
+     * @return UrlType
      */
     public function url()
     {
-        return $this->urlType ?: ($this->urlType = new UrlTypeDefinition);
+        return $this->urlType ?: ($this->urlType = new UrlType());
     }
 
     /**

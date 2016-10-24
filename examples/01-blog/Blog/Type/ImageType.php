@@ -7,11 +7,12 @@ use GraphQL\Examples\Blog\TypeSystem;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 
-class ImageType extends BaseType
+class ImageType extends ObjectType
 {
     public function __construct(TypeSystem $types)
     {
-        $this->definition = new ObjectType([
+        // Option #2: define type using inheritance, see any other object type for compositional example
+        $config = [
             'name' => 'ImageType',
             'fields' => [
                 'id' => $types->id(),
@@ -43,7 +44,9 @@ class ImageType extends BaseType
                     }
                 ]
             ]
-        ]);
+        ];
+
+        parent::__construct($config);
     }
 
     public function resolveUrl(Image $value, $args, AppContext $context)
