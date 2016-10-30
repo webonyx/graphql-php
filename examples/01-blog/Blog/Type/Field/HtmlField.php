@@ -10,6 +10,9 @@ class HtmlField
     {
         $objectKey = $objectKey ?: $name;
 
+        // Demonstrates how to organize re-usable fields
+        // Usual example: when the same field with same args shows up in different types
+        // (for example when it is a part of some interface)
         return [
             'name' => $name,
             'type' => $types->string(),

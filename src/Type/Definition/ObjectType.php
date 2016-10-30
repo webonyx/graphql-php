@@ -79,6 +79,10 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function __construct(array $config)
     {
+        if (!isset($config['name'])) {
+            $config['name'] = $this->tryInferName();
+        }
+
         Utils::invariant(!empty($config['name']), 'Every type is expected to have name');
 
         // Note: this validation is disabled by default, because it is resource-consuming

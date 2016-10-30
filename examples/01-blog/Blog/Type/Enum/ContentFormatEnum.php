@@ -11,6 +11,7 @@ class ContentFormatEnum extends BaseType
 
     public function __construct()
     {
+        // Option #1: Define type using composition over inheritance, see ImageSizeEnumType for inheritance option
         $this->definition = new EnumType([
             'name' => 'ContentFormatEnum',
             'values' => [self::FORMAT_TEXT, self::FORMAT_HTML]

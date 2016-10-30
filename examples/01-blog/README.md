@@ -1,9 +1,10 @@
 ## Blog Example
-Simple yet full-featured example of GraphQL API. Models simple blog with Stories and Users. 
+Simple yet full-featured example of GraphQL API. Models blogging platform with Stories, Users
+and hierarchical comments. 
 
 ### Run locally
 ```
-php -S localhost:8080 ./index.php
+php -S localhost:8080 ./graphql.php
 ```
 
 ### Test if GraphQL is running

@@ -11,6 +11,7 @@ class CommentType extends BaseType
 {
     public function __construct(TypeSystem $types)
     {
+        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
         $this->definition = new ObjectType([
             'name' => 'Comment',
             'fields' => function() use ($types) {
@@ -18,6 +19,7 @@ class CommentType extends BaseType
                     'id' => $types->id(),
                     'author' => $types->user(),
                     'parent' => $types->comment(),
+                    'isAnonymous' => $types->boolean(),
                     'replies' => [
                         'type' => $types->listOf($types->comment()),
                         'args' => [
@@ -43,9 +45,20 @@ class CommentType extends BaseType
         ]);
     }
 
+    public function author(Comment $comment, $args, AppContext $context)
+    {
+        if ($comment->isAnonymous) {
+            return null;
+        }
+        return $context->dataSource->findUser($comment->authorId);
+    }
+
     public function parent(Comment $comment, $args, AppContext $context)
     {
-        return $context->dataSource->findReplies($comment->id, $args['limit'], $args['after']);
+        if ($comment->parentId) {
+            return $context->dataSource->findComment($comment->parentId);
+        }
+        return null;
     }
 
     public function replies(Comment $comment, $args, AppContext $context)

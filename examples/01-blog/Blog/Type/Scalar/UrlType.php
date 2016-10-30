@@ -5,14 +5,9 @@ use GraphQL\Language\AST\StringValue;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils;
 
-/**
- * Class UrlTypeDefinition
- *
- * @package GraphQL\Examples\Blog\Type\Scalar
- */
-class UrlTypeDefinition extends ScalarType
+class UrlType extends ScalarType
 {
-    public $name = 'Url';
+    // Option #2: Displays scalar type defined using inheritance. See EmailType for definition via composition
 
     /**
      * Serializes an internal value to include in a response.

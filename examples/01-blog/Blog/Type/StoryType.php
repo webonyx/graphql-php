@@ -23,6 +23,7 @@ class StoryType extends BaseType
 
     public function __construct(TypeSystem $types)
     {
+        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
         $this->definition = new ObjectType([
             'name' => 'Story',
             'fields' => function() use ($types) {

@@ -27,6 +27,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
     public function __construct($config)
     {
+        if (!isset($config['name'])) {
+            $config['name'] = $this->tryInferName();
+        }
+
         Config::validate($config, [
             'name' => Config::STRING | Config::REQUIRED,
             'values' => Config::arrayOf([

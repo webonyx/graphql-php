@@ -10,6 +10,7 @@ class EmailType extends BaseType
 {
     public function __construct()
     {
+        // Option #1: define scalar types using composition (see UrlType fo option #2 using inheritance)
         $this->definition = new CustomScalarType([
             'name' => 'Email',
             'serialize' => [$this, 'serialize'],

@@ -243,6 +243,27 @@ abstract class Type
     public $description;
 
     /**
+     * @return null|string
+     */
+    protected function tryInferName()
+    {
+        if ($this->name) {
+            return $this->name;
+        }
+
+        // If class is extended - infer name from className
+        // QueryType -> Type
+        // SomeOtherType -> SomeOther
+        $tmp = new \ReflectionClass($this);
+        $name = $tmp->getShortName();
+
+        if ($tmp->getNamespaceName() !== __NAMESPACE__) {
+            return preg_replace('~Type$~', '', $name);
+        }
+        return null;
+    }
+
+    /**
      * @return string
      */
     public function toString()

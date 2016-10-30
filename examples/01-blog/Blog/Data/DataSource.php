@@ -104,6 +104,11 @@ class DataSource
         return isset($this->stories[$id]) ? $this->stories[$id] : null;
     }
 
+    public function findComment($id)
+    {
+        return isset($this->comments[$id]) ? $this->comments[$id] : null;
+    }
+
     public function findLastStoryFor($authorId)
     {
         $storiesFound = array_filter($this->stories, function(Story $story) use ($authorId) {
