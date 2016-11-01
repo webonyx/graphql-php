@@ -55,7 +55,11 @@ class InputObjectType extends Type implements InputType
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
             $fields = is_callable($fields) ? call_user_func($fields) : $fields;
             foreach ($fields as $name => $field) {
-                $this->fields[$name] = new InputObjectField($field + ['name' => $name]);
+                if ($field instanceof Type) {
+                    $field = ['type' => $field];
+                }
+                $field = new InputObjectField($field + ['name' => $name]);
+                $this->fields[$field->name] = $field;
             }
         }
 
