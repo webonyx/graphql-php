@@ -99,7 +99,7 @@ class ObjectType extends Type implements OutputType, CompositeType
                 Config::MAYBE_THUNK
             ),
             'isTypeOf' => Config::CALLBACK, // ($value, $context, ResolveInfo $info) => boolean
-            'resolveField' => Config::CALLBACK
+            'resolveField' => Config::CALLBACK // ($value, $args, $context, ResolveInfo $info) => $fieldValue
         ]);
 
         $this->name = $config['name'];

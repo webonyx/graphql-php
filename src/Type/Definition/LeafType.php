@@ -17,7 +17,7 @@ interface LeafType
     public function serialize($value);
 
     /**
-     * Parses an externally provided value to use as an input
+     * Parses an externally provided value (query variable) to use as an input
      *
      * @param mixed $value
      * @return mixed
@@ -25,9 +25,9 @@ interface LeafType
     public function parseValue($value);
 
     /**
-     * Parses an externally provided literal value to use as an input
+     * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input
      *
-     * @param \GraphQL\Language\AST\Value $valueAST
+     * @param \GraphQL\Language\AST\Node $valueAST
      * @return mixed
      */
     public function parseLiteral($valueAST);
