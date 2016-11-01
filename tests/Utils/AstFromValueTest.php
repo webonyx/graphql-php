@@ -11,7 +11,6 @@ use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectValue;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
@@ -25,43 +24,66 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsBooleanValueToASTs()
     {
-        $this->assertEquals(new BooleanValue(['value' => true]), AST::astFromValue(true));
-        $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(false));
+        $this->assertEquals(new BooleanValue(['value' => true]), AST::astFromValue(true, Type::boolean()));
+        $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(false, Type::boolean()));
+        $this->assertEquals(null, AST::astFromValue(null, Type::boolean()));
+        $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(0, Type::boolean()));
+        $this->assertEquals(new BooleanValue(['value' => true]), AST::astFromValue(1, Type::boolean()));
     }
 
     /**
-     * @it converts numeric values to ASTs
+     * @it converts Int values to Int ASTs
      */
-    public function testConvertsNumericValuesToASTs()
+    public function testConvertsIntValuesToASTs()
     {
-        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123));
-        // $this->assertEquals(new IntValue(['value' => 123]), AST::astFromValue(123.0)); // doesn't make sense for PHP because it has float and int natively unlike JS
-        $this->assertEquals(new FloatValue(['value' => '123.5']), AST::astFromValue(123.5));
-        $this->assertEquals(new IntValue(['value' => '10000']), AST::astFromValue(1e4));
-        $this->assertEquals(new FloatValue(['value' => '1.0E+40']), AST::astFromValue(1e40)); // Note: js version will produce 1e+40, both values are valid GraphQL floats
+        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123.0, Type::int()));
+        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123.5, Type::int()));
+        $this->assertEquals(new IntValue(['value' => '10000']), AST::astFromValue(1e4, Type::int()));
+
+        try {
+            AST::astFromValue(1e40, Type::int()); // Note: js version will produce 1e+40, both values are valid GraphQL floats
+            $this->fail('Expected exception is not thrown');
+        } catch (\Exception $e) {
+            $this->assertSame('Int cannot represent non 32-bit signed integer value: 1.0E+40', $e->getMessage());
+        }
     }
 
     /**
-     * @it converts numeric values to Float ASTs
+     * @it converts Float values to Int/Float ASTs
      */
-    public function testConvertsNumericValuesToFloatASTs()
+    public function testConvertsFloatValuesToIntOrFloatASTs()
     {
-        $this->assertEquals(new FloatValue(['value' => '123.0']), AST::astFromValue(123, Type::float()));
-        $this->assertEquals(new FloatValue(['value' => '123.0']), AST::astFromValue(123.0, Type::float()));
+        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123, Type::float()));
+        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123.0, Type::float()));
         $this->assertEquals(new FloatValue(['value' => '123.5']), AST::astFromValue(123.5, Type::float()));
-        $this->assertEquals(new FloatValue(['value' => '10000.0']), AST::astFromValue(1e4, Type::float()));
+        $this->assertEquals(new IntValue(['value' => '10000']), AST::astFromValue(1e4, Type::float()));
         $this->assertEquals(new FloatValue(['value' => '1e+40']), AST::astFromValue(1e40, Type::float()));
     }
 
     /**
-     * @it converts string values to ASTs
+     * @it converts String values to String ASTs
      */
     public function testConvertsStringValuesToASTs()
     {
-        $this->assertEquals(new StringValue(['value' => 'hello']), AST::astFromValue('hello'));
-        $this->assertEquals(new StringValue(['value' => 'VALUE']), AST::astFromValue('VALUE'));
-        $this->assertEquals(new StringValue(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE"));
-        $this->assertEquals(new StringValue(['value' => '123']), AST::astFromValue('123'));
+        $this->assertEquals(new StringValue(['value' => 'hello']), AST::astFromValue('hello', Type::string()));
+        $this->assertEquals(new StringValue(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::string()));
+        $this->assertEquals(new StringValue(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::string()));
+        $this->assertEquals(new StringValue(['value' => '123']), AST::astFromValue(123, Type::string()));
+        $this->assertEquals(new StringValue(['value' => 'false']), AST::astFromValue(false, Type::string()));
+        $this->assertEquals(null, AST::astFromValue(null, Type::string()));
+    }
+
+    /**
+     * @it converts ID values to Int/String ASTs
+     */
+    public function testConvertIdValuesToIntOrStringASTs()
+    {
+        $this->assertEquals(new StringValue(['value' => 'hello']), AST::astFromValue('hello', Type::id()));
+        $this->assertEquals(new StringValue(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::id()));
+        $this->assertEquals(new StringValue(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::id()));
+        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123, Type::id()));
+        $this->assertEquals(new StringValue(['value' => 'false']), AST::astFromValue(false, Type::id()));
+        $this->assertEquals(null, AST::astFromValue(null, Type::id()));
     }
 
     /**
@@ -69,11 +91,14 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsStringValuesToEnumASTsIfPossible()
     {
-        $this->assertEquals(new EnumValue(['value' => 'hello']), AST::astFromValue('hello', $this->myEnum()));
         $this->assertEquals(new EnumValue(['value' => 'HELLO']), AST::astFromValue('HELLO', $this->myEnum()));
-        $this->assertEquals(new EnumValue(['value' => 'VALUE']), AST::astFromValue('VALUE', $this->myEnum()));
-        $this->assertEquals(new StringValue(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", $this->myEnum()));
-        $this->assertEquals(new StringValue(['value' => '123']), AST::astFromValue("123", $this->myEnum()));
+        $this->assertEquals(new EnumValue(['value' => 'COMPLEX']), AST::astFromValue($this->complexValue(), $this->myEnum()));
+
+        // Note: case sensitive
+        $this->assertEquals(null, AST::astFromValue('hello', $this->myEnum()));
+
+        // Note: Not a valid enum value
+        $this->assertEquals(null, AST::astFromValue('VALUE', $this->myEnum()));
     }
 
     /**
@@ -87,15 +112,15 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
                 new StringValue(['value' => 'BAR'])
             ]
         ]);
-        $this->assertEquals($value1, AST::astFromValue(['FOO', 'BAR']));
+        $this->assertEquals($value1, AST::astFromValue(['FOO', 'BAR'], Type::listOf(Type::string())));
 
         $value2 = new ListValue([
             'values' => [
-                new EnumValue(['value' => 'FOO']),
-                new EnumValue(['value' => 'BAR']),
+                new EnumValue(['value' => 'HELLO']),
+                new EnumValue(['value' => 'GOODBYE']),
             ]
         ]);
-        $this->assertEquals($value2, AST::astFromValue(['FOO', 'BAR'], Type::listOf($this->myEnum())));
+        $this->assertEquals($value2, AST::astFromValue(['HELLO', 'GOODBYE'], Type::listOf($this->myEnum())));
     }
 
     /**
@@ -103,7 +128,7 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsListSingletons()
     {
-        $this->assertEquals(new EnumValue(['value' => 'FOO']), AST::astFromValue('FOO', Type::listOf($this->myEnum())));
+        $this->assertEquals(new StringValue(['value' => 'FOO']), AST::astFromValue('FOO', Type::listOf(Type::string())));
     }
 
     /**
@@ -111,25 +136,35 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsInputObjects()
     {
+        $inputObj = new InputObjectType([
+            'name' => 'MyInputObj',
+            'fields' => [
+                'foo' => Type::float(),
+                'bar' => $this->myEnum()
+            ]
+        ]);
+
         $expected = new ObjectValue([
             'fields' => [
-                $this->objectField('foo', new IntValue(['value' => 3])),
-                $this->objectField('bar', new StringValue(['value' => 'HELLO']))
+                $this->objectField('foo', new IntValue(['value' => '3'])),
+                $this->objectField('bar', new EnumValue(['value' => 'HELLO']))
             ]
         ]);
 
         $data = ['foo' => 3, 'bar' => 'HELLO'];
-        $this->assertEquals($expected, AST::astFromValue($data));
-        $this->assertEquals($expected, AST::astFromValue((object) $data));
+        $this->assertEquals($expected, AST::astFromValue($data, $inputObj));
+        $this->assertEquals($expected, AST::astFromValue((object) $data, $inputObj));
+    }
 
-        $expected = new ObjectValue([
-            'fields' => [
-                $this->objectField('foo', new FloatValue(['value' => '3.0'])),
-                $this->objectField('bar', new EnumValue(['value' => 'HELLO'])),
-            ]
-        ]);
-        $this->assertEquals($expected, AST::astFromValue($data, $this->inputObj()));
-        $this->assertEquals($expected, AST::astFromValue((object) $data, $this->inputObj()));
+    private $complexValue;
+
+    private function complexValue()
+    {
+        if (!$this->complexValue) {
+            $this->complexValue = new \stdClass();
+            $this->complexValue->someArbitrary = 'complexValue';
+        }
+        return $this->complexValue;
     }
 
     /**
@@ -142,20 +177,7 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
             'values' => [
                 'HELLO' => [],
                 'GOODBYE' => [],
-            ]
-        ]);
-    }
-
-    /**
-     * @return InputObjectField
-     */
-    private function inputObj()
-    {
-        return new InputObjectType([
-            'name' => 'MyInputObj',
-            'fields' => [
-                'foo' => ['type' => Type::float()],
-                'bar' => ['type' => $this->myEnum()]
+                'COMPLEX' => ['value' => $this->complexValue()]
             ]
         ]);
     }

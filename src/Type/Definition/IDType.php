@@ -31,7 +31,7 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function serialize($value)
     {
-        return (string) $value;
+        return $this->parseValue($value);
     }
 
     /**
@@ -40,6 +40,12 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function parseValue($value)
     {
+        if ($value === true) {
+            return 'true';
+        }
+        if ($value === false) {
+            return 'false';
+        }
         return (string) $value;
     }
 
