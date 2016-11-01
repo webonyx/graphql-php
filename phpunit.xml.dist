@@ -19,10 +19,15 @@
 
     <filter>
         <whitelist>
-            <directory>./</directory>
+            <directory suffix=".php">./src</directory>
             <exclude>
+                <directory>./bin</directory>
+                <directory>./docs</directory>
+                <directory>./build</directory>
                 <directory>./tests</directory>
                 <directory>./vendor</directory>
+                <directory>./examples</directory>
+                <directory>./benchmarks</directory>
             </exclude>
         </whitelist>
     </filter>
