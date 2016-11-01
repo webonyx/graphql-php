@@ -135,7 +135,7 @@ class Values
      * runtime values of query variables.
      *
      * @param $value
-     * @param Type $type
+     * @param InputType $type
      * @return array
      */
     private static function isValidPHPValue($value, InputType $type)
@@ -258,7 +258,11 @@ class Values
             return $obj;
 
         }
-        Utils::invariant($type instanceof ScalarType || $type instanceof EnumType, 'Must be input type');
-        return $type->parseValue($value);
+
+        if ($type instanceof LeafType) {
+            return $type->parseValue($value);
+        }
+
+        throw new InvariantViolation('Must be input type');
     }
 }
