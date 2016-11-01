@@ -19,6 +19,7 @@ class Config
     const SCALAR = 32;
     const CALLBACK = 64;
     const ANY = 128;
+    const NAME = 256;
 
     const OUTPUT_TYPE = 2048;
     const INPUT_TYPE = 4096;
@@ -252,6 +253,13 @@ class Config
                     break;
                 case $def & self::SCALAR:
                     Utils::invariant(is_scalar($value), $err, 'scalar');
+                    break;
+                case $def & self::NAME:
+                    Utils::invariant(
+                        preg_match('~^[_a-zA-Z][_a-zA-Z0-9]*$~', $value),
+                        'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "%s" does not.',
+                        $value
+                    );
                     break;
                 case $def & self::INPUT_TYPE:
                     Utils::invariant(

@@ -41,7 +41,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
         }
 
         Config::validate($config, [
-            'name' => Config::STRING | Config::REQUIRED,
+            'name' => Config::NAME | Config::REQUIRED,
             'types' => Config::arrayOf(Config::OBJECT_TYPE, Config::MAYBE_THUNK | Config::REQUIRED),
             'resolveType' => Config::CALLBACK, // function($value, ResolveInfo $info) => ObjectType
             'description' => Config::STRING

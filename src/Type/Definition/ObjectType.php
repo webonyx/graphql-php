@@ -88,7 +88,7 @@ class ObjectType extends Type implements OutputType, CompositeType
         // Note: this validation is disabled by default, because it is resource-consuming
         // TODO: add bin/validate script to check if schema is valid during development
         Config::validate($config, [
-            'name' => Config::STRING | Config::REQUIRED,
+            'name' => Config::NAME | Config::REQUIRED,
             'fields' => Config::arrayOf(
                 FieldDefinition::getDefinition(),
                 Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE

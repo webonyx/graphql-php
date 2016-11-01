@@ -30,9 +30,9 @@ class InputObjectType extends Type implements InputType
         }
 
         Config::validate($config, [
-            'name' => Config::STRING | Config::REQUIRED,
+            'name' => Config::NAME | Config::REQUIRED,
             'fields' => Config::arrayOf([
-                'name' => Config::STRING | Config::REQUIRED,
+                'name' => Config::NAME | Config::REQUIRED,
                 'type' => Config::INPUT_TYPE | Config::REQUIRED,
                 'defaultValue' => Config::ANY,
                 'description' => Config::STRING

@@ -32,9 +32,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType
         }
 
         Config::validate($config, [
-            'name' => Config::STRING | Config::REQUIRED,
+            'name' => Config::NAME | Config::REQUIRED,
             'values' => Config::arrayOf([
-                'name' => Config::STRING | Config::REQUIRED,
+                'name' => Config::NAME | Config::REQUIRED,
                 'value' => Config::ANY,
                 'deprecationReason' => Config::STRING,
                 'description' => Config::STRING

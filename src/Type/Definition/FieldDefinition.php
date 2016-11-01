@@ -73,10 +73,10 @@ class FieldDefinition
     public static function getDefinition()
     {
         return self::$def ?: (self::$def = [
-            'name' => Config::STRING | Config::REQUIRED,
+            'name' => Config::NAME | Config::REQUIRED,
             'type' => Config::OUTPUT_TYPE | Config::REQUIRED,
             'args' => Config::arrayOf([
-                'name' => Config::STRING | Config::REQUIRED,
+                'name' => Config::NAME | Config::REQUIRED,
                 'type' => Config::INPUT_TYPE | Config::REQUIRED,
                 'description' => Config::STRING,
                 'defaultValue' => Config::ANY

@@ -40,7 +40,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         }
 
         Config::validate($config, [
-            'name' => Config::STRING,
+            'name' => Config::NAME,
             'fields' => Config::arrayOf(
                 FieldDefinition::getDefinition(),
                 Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE
