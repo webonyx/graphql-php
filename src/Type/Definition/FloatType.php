@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FloatValue;
 use GraphQL\Language\AST\IntValue;
 use GraphQL\Utils;
@@ -49,14 +50,14 @@ values as specified by
     private function coerceFloat($value)
     {
         if ($value === '') {
-            throw new \UnexpectedValueException(
+            throw new InvariantViolation(
                 'Float cannot represent non numeric value: (empty string)'
             );
         }
         if (is_numeric($value) || $value === true || $value === false) {
             return (float)$value;
         }
-        throw new \UnexpectedValueException('Float cannot represent non numeric value: ' . Utils::printSafe($value));
+        throw new InvariantViolation('Float cannot represent non numeric value: ' . Utils::printSafe($value));
     }
 
     /**

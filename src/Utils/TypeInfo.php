@@ -156,7 +156,7 @@ class TypeInfo
             return $innerType ? new NonNull($innerType) : null;
         }
 
-        Utils::invariant($inputTypeAst && $inputTypeAst->kind === Node::NAMED_TYPE, 'Must be a named type');
+        Utils::invariant($inputTypeAst && $inputTypeAst instanceof NamedType, 'Must be a named type');
         return $schema->getType($inputTypeAst->name->value);
     }
 
@@ -180,11 +180,7 @@ class TypeInfo
             return $typeMeta;
         }
         $typeNameMeta = Introspection::typeNameMetaFieldDef();
-        if ($name === $typeNameMeta->name &&
-            ($parentType instanceof ObjectType ||
-            $parentType instanceof InterfaceType ||
-            $parentType instanceof UnionType)
-        ) {
+        if ($name === $typeNameMeta->name && $parentType instanceof CompositeType) {
             return $typeNameMeta;
         }
         if ($parentType instanceof ObjectType ||

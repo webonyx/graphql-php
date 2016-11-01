@@ -2,6 +2,7 @@
 namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\FragmentDefinition;
@@ -11,13 +12,12 @@ use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\DefinitionContainer;
 use GraphQL\Type\Introspection;
@@ -619,7 +619,7 @@ class Executor
                 $result
             );
             if ($completed === null) {
-                throw new \UnexpectedValueException(
+                throw new InvariantViolation(
                     'Cannot return null for non-nullable field ' . $info->parentType . '.' . $info->fieldName . '.'
                 );
             }
@@ -638,8 +638,7 @@ class Executor
 
         // If field type is Scalar or Enum, serialize to a valid value, returning
         // null if serialization is not possible.
-        if ($returnType instanceof ScalarType ||
-            $returnType instanceof EnumType) {
+        if ($returnType instanceof LeafType) {
             return self::completeLeafValue($returnType, $result);
         }
 
@@ -745,6 +744,7 @@ class Executor
             $runtimeType = $exeContext->schema->getType($runtimeType);
         }
 
+        // FIXME: Executor should never face with DefinitionContainer - it should be unwrapped in Schema
         if ($runtimeType instanceof DefinitionContainer) {
             $runtimeType = $runtimeType->getDefinition();
         }
@@ -801,19 +801,18 @@ class Executor
      * Complete a Scalar or Enum by serializing to a valid value, returning
      * null if serialization is not possible.
      *
-     * @param Type $returnType
+     * @param LeafType $returnType
      * @param $result
      * @return mixed
      * @throws \Exception
      */
-    private static function completeLeafValue(Type $returnType, &$result)
+    private static function completeLeafValue(LeafType $returnType, &$result)
     {
-        Utils::invariant(method_exists($returnType, 'serialize'), 'Missing serialize method on type');
         $serializedResult = $returnType->serialize($result);
 
         if ($serializedResult === null) {
-            throw new \UnexpectedValueException(
-                'Expected a value of type "'. $returnType . '" but received: ' . Utils::printSafe($result)
+            throw new InvariantViolation(
+                'Expected a value of type "'. Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result)
             );
         }
         return $serializedResult;

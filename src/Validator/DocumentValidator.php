@@ -2,6 +2,7 @@
 namespace GraphQL\Validator;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\FragmentSpread;
@@ -12,12 +13,11 @@ use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Schema;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
 use GraphQL\Utils\TypeInfo;
@@ -228,21 +228,20 @@ class DocumentValidator
             return $errors;
         }
 
-        Utils::invariant(
-            $type instanceof ScalarType || $type instanceof EnumType,
-            'Must be input type'
-        );
+        if ($type instanceof LeafType) {
+            // Scalar/Enum input checks to ensure the type can parse the value to
+            // a non-null value.
+            $parseResult = $type->parseLiteral($valueAST);
 
-        // Scalar/Enum input checks to ensure the type can parse the value to
-        // a non-null value.
-        $parseResult = $type->parseLiteral($valueAST);
+            if (null === $parseResult) {
+                $printed = Printer::doPrint($valueAST);
+                return [ "Expected type \"{$type->name}\", found $printed." ];
+            }
 
-        if (null === $parseResult) {
-            $printed = Printer::doPrint($valueAST);
-            return [ "Expected type \"{$type->name}\", found $printed." ];
+            return [];
         }
 
-        return [];
+        throw new InvariantViolation('Must be input type');
     }
 
     /**

@@ -187,7 +187,6 @@ abstract class Type
 
     /**
      * @param $type
-     * @deprecated in favor of defining ObjectType 'fields' as closure (vs defining closure per field type)
      * @return mixed
      */
     public static function resolve($type)

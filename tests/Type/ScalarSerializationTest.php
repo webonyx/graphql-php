@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Type;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\Type;
 
 class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
@@ -27,28 +28,28 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
         try {
             $intType->serialize(9876504321);
             $this->fail('Expected exception was not thrown');
-        } catch (\UnexpectedValueException $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: 9876504321', $e->getMessage());
         }
 
         try {
             $intType->serialize(-9876504321);
             $this->fail('Expected exception was not thrown');
-        } catch (\UnexpectedValueException $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: -9876504321', $e->getMessage());
         }
 
         try {
             $intType->serialize(1e100);
             $this->fail('Expected exception was not thrown');
-        } catch (\UnexpectedValueException $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: 1.0E+100', $e->getMessage());
         }
 
         try {
             $intType->serialize(-1e100);
             $this->fail('Expected exception was not thrown');
-        } catch (\UnexpectedValueException $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: -1.0E+100', $e->getMessage());
         }
 
@@ -57,14 +58,14 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
         try {
             $intType->serialize('one');
             $this->fail('Expected exception was not thrown');
-        } catch (\UnexpectedValueException $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: one', $e->getMessage());
         }
 
         try {
             $intType->serialize('');
             $this->fail('Expected exception was not thrown');
-        } catch (\UnexpectedValueException $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: (empty string)', $e->getMessage());
         }
 
@@ -91,14 +92,14 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
         try {
             $floatType->serialize('one');
             $this->fail('Expected exception was not thrown');
-        } catch (\UnexpectedValueException $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Float cannot represent non numeric value: one', $e->getMessage());
         }
 
         try {
             $floatType->serialize('');
             $this->fail('Expected exception was not thrown');
-        } catch (\UnexpectedValueException $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Float cannot represent non numeric value: (empty string)', $e->getMessage());
         }
 

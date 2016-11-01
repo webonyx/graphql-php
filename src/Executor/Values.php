@@ -3,6 +3,7 @@ namespace GraphQL\Executor;
 
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\VariableDefinition;
 use GraphQL\Language\Printer;
@@ -11,6 +12,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
@@ -199,22 +201,20 @@ class Values
             return $errors;
         }
 
-        Utils::invariant(
-            $type instanceof ScalarType || $type instanceof EnumType,
-            'Must be input type'
-        );
-
-        // Scalar/Enum input checks to ensure the type can parse the value to
-        // a non-null value.
-        $parseResult = $type->parseValue($value);
-        if (null === $parseResult) {
-            $v = json_encode($value);
-            return [
-                "Expected type \"{$type->name}\", found $v."
-            ];
+        if ($type instanceof LeafType) {
+            // Scalar/Enum input checks to ensure the type can parse the value to
+            // a non-null value.
+            $parseResult = $type->parseValue($value);
+            if (null === $parseResult) {
+                $v = json_encode($value);
+                return [
+                    "Expected type \"{$type->name}\", found $v."
+                ];
+            }
+            return [];
         }
 
-        return [];
+        throw new InvariantViolation('Must be input type');
     }
 
     /**
