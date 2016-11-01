@@ -34,28 +34,4 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
 
         Utils::invariant($this->name, 'Type must be named.');
     }
-
-    /**
-     * Serializes an internal value to include in a response.
-     *
-     * @param mixed $value
-     * @return mixed
-     */
-    abstract public function serialize($value);
-
-    /**
-     * Parses an externally provided value to use as an input
-     *
-     * @param mixed $value
-     * @return mixed
-     */
-    abstract public function parseValue($value);
-
-    /**
-     * Parses an externally provided literal value to use as an input
-     *
-     * @param \GraphQL\Language\AST\Value $valueAST
-     * @return mixed
-     */
-    abstract public function parseLiteral($valueAST);
 }
