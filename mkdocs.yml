@@ -1,7 +1,16 @@
 site_name: graphql-php
 pages:
 - About: index.md
-- Overview: overview.md
 - Getting Started: getting-started.md
-- Type System: type-system.md
+- Schema Definition:
+  - Introduction: type-system/index.md
+  - Object Types: type-system/object-types.md
+  - Scalar Types: type-system/scalar-types.md
+  - Enumeration Types: type-system/enum-types.md
+  - Lists and Non-Null: type-system/lists-and-nonnulls.md
+  - Interfaces and Unions: type-system/abstract-types.md
+  - Defining Schema: type-system/schema.md
+- Data Fetching: data-fetching.md
+- Best Practices: best-practices.md
+- Complementary Tools: complementary-tools.md
 theme: readthedocs

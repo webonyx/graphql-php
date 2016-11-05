@@ -1,14 +1,14 @@
-# Concepts
+# Overview
 GraphQL is data-centric. On the very top level it is built around three major concepts: 
 **Schema**, **Query** and **Mutation**.
-
-You are expected to expresses your application as **Schema** (aka Type System) and expose it
-with single HTTP endpoint. Application clients (e.g. web or mobile clients) send **Queries** 
-to this endpoint to request structured data and **Mutations** to perform changes.
-
+ 
+You are expected to express your application as **Schema** (aka Type System) and expose it
+with single [HTTP endpoint](http-endpoint/). Application clients (e.g. web or mobile clients) send **Queries** 
+to this endpoint to request structured data and **Mutations** to perform changes (usually with HTTP POST method).
+ 
 ## Queries
 Queries are expressed in simple language that resembles JSON:
-
+ 
 ```graphql
 {
   hero {
@@ -19,7 +19,7 @@ Queries are expressed in simple language that resembles JSON:
   }
 }
 ```
-
+ 
 It was designed to mirror the structure of expected response:
 ```json
 {
@@ -34,11 +34,13 @@ It was designed to mirror the structure of expected response:
 }
 ```
 **graphql-php** runtime parses Queries, makes sure that they are valid for given Type System 
-and executes using data resolving tools provided by you as a part of integration.
+and executes using [data fetching tools](type-system/object-types/#data-fetching) provided by you 
+as a part of integration. Queries are supposed to be idempotent.
  
 ## Mutations
 Mutations use advanced features of the very same query language (like arguments and variables)  
 and have only semantic difference from Queries:
+
 ```graphql
 mutation CreateReviewForEpisode($ep: Episode!, $review: ReviewInput!) {
   createReview(episode: $ep, review: $review) {
@@ -78,17 +80,59 @@ returned after mutation. In our example mutation will return:
 ```
 
 # Type System
+Conceptually GraphQL type is a collection of fields. Each field in turn
+has it's own type which allows to build complex hierarchies.
+
+Quick example on pseudo-language:
+```
+type BlogPost {
+    title: String!
+    author: User
+    body: String
+}
+
+type User {
+    id: Id!
+    firstName: String
+    lastName: String
+}
+```
+
 Type system is a heart of GraphQL integration. That's where **graphql-php** comes into play.
  
 It provides following tools and primitives to describe your App as hierarchy of types:
 
- * Primitives to work with **objects** and **interfaces**
+ * Primitives for defining **objects** and **interfaces**
  * Primitives for defining **enumerations** and **unions**
  * Primitives for defining custom **scalar types**
  * Built-in scalar types: `ID`, `String`, `Int`, `Float`, `Boolean`
  * Built-in type modifiers: `ListOf` and `NonNull`
 
-# Further Reading
-To get deeper understanding of GraphQL concepts - [read the docs on official website](http://graphql.org/learn/)
+Same example expressed in **graphql-php**:
+```php
+<?php
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\ObjectType;
 
-To get started with your own app - continue to next section ["Getting Started"](getting-started/)
+$userType = new ObjectType([
+    'name' => 'User',
+    'fields' => [
+        'id' => Type::nonNull(Type::id()),
+        'firstName' => Type::string(),
+        'lastName' => Type::string()
+    ]
+]);
+
+$blogPostType = new ObjectType([
+    'name' => 'BlogPost',
+    'fields' => [
+        'title' => Type::nonNull(Type::string()),
+        'author' => $userType
+    ]
+]);
+```
+
+# Further Reading
+To get deeper understanding of GraphQL concepts - [read the docs on official GraphQL website](http://graphql.org/learn/)
+
+To get started with **graphql-php** - continue to next section ["Getting Started"](getting-started/)

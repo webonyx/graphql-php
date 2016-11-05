@@ -13,9 +13,9 @@ All of them equally apply to this PHP implementation.
 
 # About graphql-php
 
-**graphql-php** is an implementation of GraphQL specification in PHP (5.4+, 7.0+). 
-It is based on [JavaScript implementation](https://github.com/graphql/graphql-js) 
-published by Facebook as a reference for others.
+**graphql-php** is a feature-complete implementation of GraphQL specification in PHP (5.4+, 7.0+). 
+It was originally inspired by [reference JavaScript implementation](https://github.com/graphql/graphql-js) 
+published by Facebook.
 
 This library is a thin wrapper around your existing data layer and business logic. 
 It doesn't dictate how these layers are implemented or which storage engines 
@@ -24,54 +24,13 @@ are used. Instead it provides tools for creating rich API for your existing app.
 These tools include:
 
  - Primitives to express your app as a Type System
- - Tools for validation and introspection of this Type System
+ - Tools for validation and introspection of this Type System (for compatibility with tools like [GraphiQL](complementary-tools/#graphiql))
  - Tools for parsing, validating and executing GraphQL queries against this Type System
- - Rich error reporting
+ - Rich error reporting, including query validation and execution errors
+ - Optional tools for parsing GraphQL Schema Definition language
 
-## Usage Example
-```php
-use GraphQL\GraphQL;
-use GraphQL\Schema;
-
-$query = '
-{
-  hero {
-    id
-    name
-    friends {
-      name
-    }
-  }
-}
-';
-
-$schema = new Schema([
-    // ...
-    // Type System definition for your app goes here
-    // ...
-]);
-
-$result = GraphQL::execute($schema, $query);
-```
-
-Result returned:
-```php
-[
-  'hero' => [
-    'id' => '2001',
-    'name' => 'R2-D2',
-    'friends' => [
-      ['name' => 'Luke Skywalker'],
-      ['name' => 'Han Solo'],
-      ['name' => 'Leia Organa'],
-    ]
-  ]
-]
-```
-
-Also check out full [Type System](https://github.com/webonyx/graphql-php/blob/master/tests/StarWarsSchema.php)
-and [data source](https://github.com/webonyx/graphql-php/blob/master/tests/StarWarsData.php)
-of this example.
+Also several [complementary tools](complementary-tools/) are available which provide integrations with 
+existing PHP frameworks, add support for Relay, etc.
 
 ## Current Status
 Current version supports all features described by GraphQL specification 

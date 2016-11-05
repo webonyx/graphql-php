@@ -1,3 +1,7 @@
+# Prerequisites
+This documentation assumes your familiarity with GraphQL concepts. If it is not the case - 
+first learn about  GraphQL on [official website](http://graphql.org/learn/).
+
 # Installation
 
 Using [composer](https://getcomposer.org/doc/00-intro.md):
@@ -5,7 +9,7 @@ add `composer.json` file to your project root folder with following contents:
 ```
 {
     "require": {
-        "webonyx/graphql-php": "^0.8"
+        "webonyx/graphql-php": "^0.7"
     }
 }
 ```
@@ -63,77 +67,13 @@ $queryType = new ObjectType([
 ]);
 ```
 
-Same could be written as separate class:
-
-```php
-<?php
-namespace MyApp\Type;
-
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
-
-class QueryType extends ObjectType
-{
-    public function __construct()
-    {
-        $config = [
-            // Note: name is not required in this form, as it will be inferred
-            // from className ("Type" suffix will be dropped)
-            'fields' => [
-                'echo' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'message' => Type::nonNull(Type::string()),
-                    ],
-                    'resolve' => function ($root, $args) {
-                        return $root['prefix'] . $args['message'];
-                    }
-                ],
-            ],
-       ];
-       parent::__construct($config);
-    }
-}
-```
-
-Or for those who prefer composition over inheritance:
-```php
-<?php
-namespace MyApp\Type;
-
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\DefinitionContainer;
-
-class QueryType implements DefinitionContainer
-{
-    private $definition;
-    
-    public function getDefinition() 
-    {
-        return $this->definition ?: ($this->definition = new \GraphQL\Type\Definition\ObjectType([
-            'name' => 'Query',
-            'fields' => [
-                'echo' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'message' => Type::nonNull(Type::string()),
-                    ],
-                    'resolve' => function ($root, $args) {
-                        return $root['prefix'] . $args['message'];
-                    }
-                ],
-            ],
-        ]));
-    }
-}
-```
+(Note: type definition can be expressed in [different styles](type-system/#type-definition-styles), 
+including **inheritance**, **composition** and **inline**. This example uses **inline** style for simplicity)
 
 The interesting piece here is `resolve` option of field definition. It is responsible for retuning 
-value for our field. **Scalar** values will be directly included in response while **complex object** 
-values will be passed down to nested field resolvers (not in this example though).
-
-Field resolvers is the main mechanism of **graphql-php** to bind type system with your 
-underlying data source.
+value of our field. Values of **scalar** fields will be directly included in response while values of 
+**complex** fields (objects, interfaces, unions) will be passed down to nested field resolvers 
+(not in this example though).
 
 Now when our type is ready, let's create GraphQL endpoint for it `graphql.php`:
 
@@ -143,7 +83,7 @@ use GraphQL\GraphQL;
 use GraphQL\Schema;
 
 $schema = new Schema([
-    'query' => $queryType, // or new MyApp\Type\QueryType()
+    'query' => $queryType
 ]);
 
 $rawInput = file_get_contents('php://input');
@@ -168,11 +108,11 @@ php -S localhost:8000 graphql.php
 curl http://localhost:8000 -d "query { echo(message: \"Hello World\") }"
 ```
 
-Or grab the full [source code](https://github.com/webonyx/graphql-php/blob/master/examples/00-hello-world).
-Obviously hello world only scratches the surface of what is possible.
+Check out the full [source code](https://github.com/webonyx/graphql-php/blob/master/examples/00-hello-world) of this example.
+
+Obviously hello world only scratches the surface of what is possible. 
 So check out next example, which is closer to real-world apps.
- 
-Or just keep reading about [type system](types/) definitions.
+Or keep reading about [schema definition](type-system/).
 
 # Blog example
 It is often easier to start with full-featured example and then get back to documentation
