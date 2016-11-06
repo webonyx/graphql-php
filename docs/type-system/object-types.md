@@ -77,16 +77,26 @@ Below is a full list of available field configuration options:
 
 Option | Type | Notes
 ------ | ---- | -----
-name | `string` | **Required.** Name of the field. When not set - inferred from array key (read about [shorthand field definition](#) below)
+name | `string` | **Required.** Name of the field. When not set - inferred from **fields** array key (read about [shorthand field definition](#) below)
 type | `Type` | **Required.** Instance of internal or custom type. Note: type must be represented by single instance within schema (see also [Type Registry](#))
-args | `array` | Array of possible type arguments. Each entry is expected to be an array with keys: **name**, **type**, **description**, **defaultValue**
+args | `array` | Array of possible type arguments. Each entry is expected to be an array with keys: **name**, **type**, **description**, **defaultValue**. See [Field Arguments](#field-arguments) section below.
 resolve | `callback` | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** Given the `$value` of this type it is expected to return value for current field. See section on [Data Fetching](#) for details
-description | `string` | Plain-text description of this field description for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
+description | `string` | Plain-text description of this field for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 deprecationReason | `string` | Text describing why this field is deprecated. When not empty - field will not be returned by introspection queries (unless forced)
 
- 
+# Field arguments
+Every field on a GraphQL object type can have zero or more arguments, defined in **args** option of field definition.
+Each argument is an array with following options:
+
+Option | Type | Notes
+------ | ---- | -----
+name | `string` | **Required.** Name of the argument. When not set - inferred from **args** array key
+type | `Type` | **Required.** Instance of one of [Input Types](input-types/) (`scalar`, `enum`, `InputObjectType` + any combination of those with `nonNull` and `listOf` modifiers)
+description | `string` | Plain-text description of this argument for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
+defaultValue | `scalar` | Default value for this argument
+
 # Shorthand field definitions
-Fields can be also defined in **shorthand** notation (without `description`, `args` and `defaultValue`):
+Fields can be also defined in **shorthand** notation (with only **name** and **type** options):
 ```php
 'fields' => [
     'id' => Type::id(),

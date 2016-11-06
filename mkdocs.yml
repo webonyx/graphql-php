@@ -2,7 +2,7 @@ site_name: graphql-php
 pages:
 - About: index.md
 - Getting Started: getting-started.md
-- Schema Definition:
+- Type System:
   - Introduction: type-system/index.md
   - Object Types: type-system/object-types.md
   - Scalar Types: type-system/scalar-types.md
@@ -10,6 +10,7 @@ pages:
   - Lists and Non-Null: type-system/lists-and-nonnulls.md
   - Interfaces: type-system/interfaces.md
   - Unions: type-system/unions.md
+  - Input Types: type-system/input-types.md
   - Defining Schema: type-system/schema.md
   - Custom Metadata: type-system/metadata.md
 - Data Fetching: data-fetching.md

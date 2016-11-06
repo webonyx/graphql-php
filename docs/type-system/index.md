@@ -5,7 +5,7 @@ In **graphql-php** `type` is an instance of internal class from
 `GraphQL\Type\Definition` namespace: `ScalarType`, `ObjectType`, `InterfaceType`, 
 `UnionType`, `InputObjectType` (or one of it's subclasses).
 
-But most of the types in your schema will be [object types](object-types/).
+But most of the types in your schema will be [object types](/type-system/object-types/).
 
 # Type Definition Styles
 Several styles of type definitions are supported depending on your preferences.
@@ -155,4 +155,4 @@ Obviously you can automate this registry as you wish to reduce boilerplate or ev
 introduce Dependency Injection Container if your types have other dependencies.
 
 Alternatively all methods of registry could be static if you prefer - then there is no need
-to pass it in constructor - instead just use use `MyTypes::myAType()` in your type definitions.
+to pass it in constructor - instead just use use `TypeRegistry::myAType()` in your type definitions.
