@@ -2,11 +2,11 @@
 namespace GraphQL\Examples\Blog\Type\Field;
 
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
-use GraphQL\Examples\Blog\TypeSystem;
+use GraphQL\Examples\Blog\Types;
 
 class HtmlField
 {
-    public static function build(TypeSystem $types, $name, $objectKey = null)
+    public static function build($name, $objectKey = null)
     {
         $objectKey = $objectKey ?: $name;
 
@@ -15,13 +15,13 @@ class HtmlField
         // (for example when it is a part of some interface)
         return [
             'name' => $name,
-            'type' => $types->string(),
+            'type' => Types::string(),
             'args' => [
                 'format' => [
-                    'type' => $types->contentFormatEnum(),
+                    'type' => Types::contentFormatEnum(),
                     'defaultValue' => ContentFormatEnum::FORMAT_HTML
                 ],
-                'maxLength' => $types->int()
+                'maxLength' => Types::int()
             ],
             'resolve' => function($object, $args) use ($objectKey) {
                 $html = $object->{$objectKey};

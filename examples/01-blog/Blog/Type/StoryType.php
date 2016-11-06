@@ -2,9 +2,9 @@
 namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\AppContext;
+use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\Story;
-use GraphQL\Examples\Blog\Data\User;
-use GraphQL\Examples\Blog\TypeSystem;
+use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -21,31 +21,44 @@ class StoryType extends BaseType
     const UNLIKE = 'UNLIKE';
     const REPLY = 'REPLY';
 
-    public function __construct(TypeSystem $types)
+    public function __construct()
     {
         // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
         $this->definition = new ObjectType([
             'name' => 'Story',
-            'fields' => function() use ($types) {
+            'fields' => function() {
                 return [
-                    'id' => $types->id(),
-                    'author' => $types->user(),
-                    'mentions' => $types->listOf($types->mention()),
-                    'totalCommentCount' => $types->int(),
+                    'id' => Types::id(),
+                    'author' => Types::user(),
+                    'mentions' => Types::listOf(Types::mention()),
+                    'totalCommentCount' => Types::int(),
                     'comments' => [
-                        'type' => $types->listOf($types->comment()),
+                        'type' => Types::listOf(Types::comment()),
                         'args' => [
                             'after' => [
-                                'type' => $types->id(),
+                                'type' => Types::id(),
                                 'description' => 'Load all comments listed after given comment ID'
                             ],
                             'limit' => [
-                                'type' => $types->int(),
+                                'type' => Types::int(),
                                 'defaultValue' => 5
                             ]
                         ]
                     ],
-                    'affordances' => $types->listOf(new EnumType([
+                    'likes' => [
+                        'type' => Types::listOf(Types::user()),
+                        'args' => [
+                            'limit' => [
+                                'type' => Types::int(),
+                                'description' => 'Limit the number of recent likes returned',
+                                'defaultValue' => 5
+                            ]
+                        ]
+                    ],
+                    'likedBy' => [
+                        'type' => Types::listOf(Types::user()),
+                    ],
+                    'affordances' => Types::listOf(new EnumType([
                         'name' => 'StoryAffordancesEnum',
                         'values' => [
                             self::EDIT,
@@ -55,13 +68,13 @@ class StoryType extends BaseType
                             self::REPLY
                         ]
                     ])),
-                    'hasViewerLiked' => $types->boolean(),
+                    'hasViewerLiked' => Types::boolean(),
 
-                    $types->htmlField('body'),
+                    Types::htmlField('body'),
                 ];
             },
             'interfaces' => [
-                $types->node()
+                Types::node()
             ],
             'resolveField' => function($value, $args, $context, ResolveInfo $info) {
                 if (method_exists($this, $info->fieldName)) {
@@ -73,15 +86,15 @@ class StoryType extends BaseType
         ]);
     }
 
-    public function author(Story $story, $args, AppContext $context)
+    public function author(Story $story)
     {
-        return $context->dataSource->findUser($story->authorId);
+        return DataSource::findUser($story->authorId);
     }
 
     public function affordances(Story $story, $args, AppContext $context)
     {
-        $isViewer = $context->viewer === $context->dataSource->findUser($story->authorId);
-        $isLiked = $context->dataSource->isLikedBy($story->id, $context->viewer->id);
+        $isViewer = $context->viewer === DataSource::findUser($story->authorId);
+        $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
 
         if ($isViewer) {
             $affordances[] = self::EDIT;
@@ -97,17 +110,17 @@ class StoryType extends BaseType
 
     public function hasViewerLiked(Story $story, $args, AppContext $context)
     {
-        return $context->dataSource->isLikedBy($story->id, $context->viewer->id);
+        return DataSource::isLikedBy($story->id, $context->viewer->id);
     }
 
-    public function totalCommentCount(Story $story, $args, AppContext $context)
+    public function totalCommentCount(Story $story)
     {
-        return $context->dataSource->countComments($story->id);
+        return DataSource::countComments($story->id);
     }
 
-    public function comments(Story $story, $args, AppContext $context)
+    public function comments(Story $story, $args)
     {
         $args += ['after' => null];
-        return $context->dataSource->findComments($story->id, $args['limit'], $args['after']);
+        return DataSource::findComments($story->id, $args['limit'], $args['after']);
     }
 }

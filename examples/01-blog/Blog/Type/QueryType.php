@@ -2,51 +2,52 @@
 namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\AppContext;
-use GraphQL\Examples\Blog\TypeSystem;
+use GraphQL\Examples\Blog\Data\DataSource;
+use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 
 class QueryType extends BaseType
 {
-    public function __construct(TypeSystem $types)
+    public function __construct()
     {
         // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
         $this->definition = new ObjectType([
             'name' => 'Query',
             'fields' => [
                 'user' => [
-                    'type' => $types->user(),
+                    'type' => Types::user(),
                     'description' => 'Returns user by id (in range of 1-5)',
                     'args' => [
-                        'id' => $types->nonNull($types->id())
+                        'id' => Types::nonNull(Types::id())
                     ]
                 ],
                 'viewer' => [
-                    'type' => $types->user(),
+                    'type' => Types::user(),
                     'description' => 'Represents currently logged-in user (for the sake of example - simply returns user with id == 1)'
                 ],
                 'stories' => [
-                    'type' => $types->listOf($types->story()),
+                    'type' => Types::listOf(Types::story()),
                     'description' => 'Returns subset of stories posted for this blog',
                     'args' => [
                         'after' => [
-                            'type' => $types->id(),
+                            'type' => Types::id(),
                             'description' => 'Fetch stories listed after the story with this ID'
                         ],
                         'limit' => [
-                            'type' => $types->int(),
+                            'type' => Types::int(),
                             'description' => 'Number of stories to be returned',
                             'defaultValue' => 10
                         ]
                     ]
                 ],
                 'lastStoryPosted' => [
-                    'type' => $types->story(),
+                    'type' => Types::story(),
                     'description' => 'Returns last story posted for this blog'
                 ],
                 'deprecatedField' => [
-                    'type' => $types->string(),
+                    'type' => Types::string(),
                     'deprecationReason' => 'This field is deprecated!'
                 ],
                 'hello' => Type::string()
@@ -57,25 +58,25 @@ class QueryType extends BaseType
         ]);
     }
 
-    public function user($val, $args, AppContext $context)
+    public function user($rootValue, $args)
     {
-        return $context->dataSource->findUser($args['id']);
+        return DataSource::findUser($args['id']);
     }
 
-    public function viewer($val, $args, AppContext $context)
+    public function viewer($rootValue, $args, AppContext $context)
     {
         return $context->viewer;
     }
 
-    public function stories($val, $args, AppContext $context)
+    public function stories($rootValue, $args)
     {
         $args += ['after' => null];
-        return $context->dataSource->findStories($args['limit'], $args['after']);
+        return DataSource::findStories($args['limit'], $args['after']);
     }
 
-    public function lastStoryPosted($val, $args, AppContext $context)
+    public function lastStoryPosted()
     {
-        return $context->dataSource->findLatestStory();
+        return DataSource::findLatestStory();
     }
 
     public function hello()

@@ -3,7 +3,7 @@
 // php -S localhost:8080 ./index.php
 require_once '../../vendor/autoload.php';
 
-use \GraphQL\Examples\Blog\TypeSystem;
+use \GraphQL\Examples\Blog\Types;
 use \GraphQL\Examples\Blog\AppContext;
 use \GraphQL\Examples\Blog\Data\DataSource;
 use \GraphQL\Schema;
@@ -27,17 +27,12 @@ if (!empty($_GET['debug'])) {
 }
 
 try {
-    // Initialize user-land registry/factory of our app types:
-    $typeSystem = new TypeSystem();
-
-    // Init stub data source
-    // (in real-world apps this might be Doctrine's EntityManager for instance, or just DB connection):
-    $dataSource = new DataSource();
+    // Initialize our fake data source
+    DataSource::init();
 
     // Prepare context that will be available in all field resolvers (as 3rd argument):
     $appContext = new AppContext();
-    $appContext->viewer = $dataSource->findUser(1); // simulated "currently logged-in user"
-    $appContext->dataSource = $dataSource;
+    $appContext->viewer = DataSource::findUser('1'); // simulated "currently logged-in user"
     $appContext->rootUrl = 'http://localhost:8080';
     $appContext->request = $_REQUEST;
 
@@ -58,7 +53,7 @@ try {
 
     // GraphQL schema to be passed to query executor:
     $schema = new Schema([
-        'query' => $typeSystem->query()
+        'query' => Types::query()
     ]);
 
     $result = GraphQL::execute(

@@ -1,30 +1,29 @@
 <?php
 namespace GraphQL\Examples\Blog\Type;
 
-use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\Story;
 use GraphQL\Examples\Blog\Data\User;
-use GraphQL\Examples\Blog\TypeSystem;
+use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\UnionType;
 
-class MentionType extends BaseType
+class SearchResultType extends BaseType
 {
-    public function __construct(TypeSystem $types)
+    public function __construct()
     {
         // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
         $this->definition = new UnionType([
-            'name' => 'Mention',
-            'types' => function() use ($types) {
+            'name' => 'SearchResultType',
+            'types' => function() {
                 return [
-                    $types->story(),
-                    $types->user()
+                    Types::story(),
+                    Types::user()
                 ];
             },
-            'resolveType' => function($value) use ($types) {
+            'resolveType' => function($value) {
                 if ($value instanceof Story) {
-                    return $types->story();
+                    return Types::story();
                 } else if ($value instanceof User) {
-                    return $types->user();
+                    return Types::user();
                 }
             }
         ]);

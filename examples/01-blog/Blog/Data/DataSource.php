@@ -1,6 +1,5 @@
 <?php
 namespace GraphQL\Examples\Blog\Data;
-use GraphQL\Utils;
 
 /**
  * Class DataSource
@@ -12,14 +11,17 @@ use GraphQL\Utils;
  */
 class DataSource
 {
-    private $users = [];
-    private $stories = [];
-    private $storyLikes = [];
-    private $comments = [];
+    private static $users = [];
+    private static $stories = [];
+    private static $storyLikes = [];
+    private static $comments = [];
+    private static $storyComments = [];
+    private static $commentReplies = [];
+    private static $storyMentions = [];
 
-    public function __construct()
+    public static function init()
     {
-        $this->users = [
+        self::$users = [
             '1' => new User([
                 'id' => '1',
                 'email' => 'john@example.com',
@@ -40,19 +42,19 @@ class DataSource
             ]),
         ];
 
-        $this->stories = [
+        self::$stories = [
             '1' => new Story(['id' => '1', 'authorId' => '1', 'body' => '<h1>GraphQL is awesome!</h1>']),
             '2' => new Story(['id' => '2', 'authorId' => '1', 'body' => '<a>Test this</a>']),
             '3' => new Story(['id' => '3', 'authorId' => '3', 'body' => "This\n<br>story\n<br>spans\n<br>newlines"]),
         ];
 
-        $this->storyLikes = [
+        self::$storyLikes = [
             '1' => ['1', '2', '3'],
             '2' => [],
             '3' => ['1']
         ];
 
-        $this->comments = [
+        self::$comments = [
             // thread #1:
             '100' => new Comment(['id' => '100', 'authorId' => '3', 'storyId' => '1', 'body' => 'Likes']),
                 '110' => new Comment(['id' =>'110', 'authorId' =>'2', 'storyId' => '1', 'body' => 'Reply <b>#1</b>', 'parentId' => '100']),
@@ -73,57 +75,69 @@ class DataSource
             '500' => new Comment(['id' => '500', 'authorId' => '2', 'storyId' => '2', 'body' => 'Nice!']),
         ];
 
-        $this->storyComments = [
+        self::$storyComments = [
             '1' => ['100', '200', '300'],
             '2' => ['400', '500']
         ];
 
-        $this->commentReplies = [
+        self::$commentReplies = [
             '100' => ['110', '120', '130'],
             '110' => ['111', '112', '113', '114', '115', '116', '117'],
         ];
 
-        $this->storyMentions = [
+        self::$storyMentions = [
             '1' => [
-                $this->users['2']
+                self::$users['2']
             ],
             '2' => [
-                $this->stories['1'],
-                $this->users['3']
+                self::$stories['1'],
+                self::$users['3']
             ]
         ];
     }
 
-    public function findUser($id)
+    public static function findUser($id)
     {
-        return isset($this->users[$id]) ? $this->users[$id] : null;
+        return isset(self::$users[$id]) ? self::$users[$id] : null;
     }
 
-    public function findStory($id)
+    public static function findStory($id)
     {
-        return isset($this->stories[$id]) ? $this->stories[$id] : null;
+        return isset(self::$stories[$id]) ? self::$stories[$id] : null;
     }
 
-    public function findComment($id)
+    public static function findComment($id)
     {
-        return isset($this->comments[$id]) ? $this->comments[$id] : null;
+        return isset(self::$comments[$id]) ? self::$comments[$id] : null;
     }
 
-    public function findLastStoryFor($authorId)
+    public static function findLastStoryFor($authorId)
     {
-        $storiesFound = array_filter($this->stories, function(Story $story) use ($authorId) {
+        $storiesFound = array_filter(self::$stories, function(Story $story) use ($authorId) {
             return $story->authorId == $authorId;
         });
         return !empty($storiesFound) ? $storiesFound[count($storiesFound) - 1] : null;
     }
 
-    public function isLikedBy($storyId, $userId)
+    public static function findLikes($storyId, $limit)
     {
-        $subscribers = isset($this->storyLikes[$storyId]) ? $this->storyLikes[$storyId] : [];
+        $likes = isset(self::$storyLikes[$storyId]) ? self::$storyLikes[$storyId] : [];
+        $result = array_map(
+            function($userId) {
+                return self::$users[$userId];
+            },
+            $likes
+        );
+        return array_slice($result, 0, $limit);
+    }
+
+    public static function isLikedBy($storyId, $userId)
+    {
+        $subscribers = isset(self::$storyLikes[$storyId]) ? self::$storyLikes[$storyId] : [];
         return in_array($userId, $subscribers);
     }
 
-    public function getUserPhoto($userId, $size)
+    public static function getUserPhoto($userId, $size)
     {
         return new Image([
             'id' => $userId,
@@ -134,59 +148,59 @@ class DataSource
         ]);
     }
 
-    public function findLatestStory()
+    public static function findLatestStory()
     {
-        return array_pop($this->stories);
+        return array_pop(self::$stories);
     }
 
-    public function findStories($limit, $afterId = null)
+    public static function findStories($limit, $afterId = null)
     {
-        $start = $afterId ? (int) array_search($afterId, array_keys($this->stories)) + 1 : 0;
-        return array_slice(array_values($this->stories), $start, $limit);
+        $start = $afterId ? (int) array_search($afterId, array_keys(self::$stories)) + 1 : 0;
+        return array_slice(array_values(self::$stories), $start, $limit);
     }
 
-    public function findComments($storyId, $limit = 5, $afterId = null)
+    public static function findComments($storyId, $limit = 5, $afterId = null)
     {
-        $storyComments = isset($this->storyComments[$storyId]) ? $this->storyComments[$storyId] : [];
+        $storyComments = isset(self::$storyComments[$storyId]) ? self::$storyComments[$storyId] : [];
 
         $start = isset($after) ? (int) array_search($afterId, $storyComments) + 1 : 0;
         $storyComments = array_slice($storyComments, $start, $limit);
 
         return array_map(
             function($commentId) {
-                return $this->comments[$commentId];
+                return self::$comments[$commentId];
             },
             $storyComments
         );
     }
 
-    public function findReplies($commentId, $limit = 5, $afterId = null)
+    public static function findReplies($commentId, $limit = 5, $afterId = null)
     {
-        $commentReplies = isset($this->commentReplies[$commentId]) ? $this->commentReplies[$commentId] : [];
+        $commentReplies = isset(self::$commentReplies[$commentId]) ? self::$commentReplies[$commentId] : [];
 
         $start = isset($after) ? (int) array_search($afterId, $commentReplies) + 1: 0;
         $commentReplies = array_slice($commentReplies, $start, $limit);
 
         return array_map(
             function($replyId) {
-                return $this->comments[$replyId];
+                return self::$comments[$replyId];
             },
             $commentReplies
         );
     }
 
-    public function countComments($storyId)
+    public static function countComments($storyId)
     {
-        return isset($this->storyComments[$storyId]) ? count($this->storyComments[$storyId]) : 0;
+        return isset(self::$storyComments[$storyId]) ? count(self::$storyComments[$storyId]) : 0;
     }
 
-    public function countReplies($commentId)
+    public static function countReplies($commentId)
     {
-        return isset($this->commentReplies[$commentId]) ? count($this->commentReplies[$commentId]) : 0;
+        return isset(self::$commentReplies[$commentId]) ? count(self::$commentReplies[$commentId]) : 0;
     }
 
-    public function findStoryMentions($storyId)
+    public static function findStoryMentions($storyId)
     {
-        return isset($this->storyMentions[$storyId]) ? $this->storyMentions[$storyId] :[];
+        return isset(self::$storyMentions[$storyId]) ? self::$storyMentions[$storyId] :[];
     }
 }

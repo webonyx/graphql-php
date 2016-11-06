@@ -3,42 +3,42 @@ namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\Image;
-use GraphQL\Examples\Blog\TypeSystem;
+use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 
 class ImageType extends ObjectType
 {
-    public function __construct(TypeSystem $types)
+    public function __construct()
     {
         // Option #2: define type using inheritance, see any other object type for compositional example
         $config = [
             'name' => 'ImageType',
             'fields' => [
-                'id' => $types->id(),
+                'id' => Types::id(),
                 'type' => new EnumType([
                     'name' => 'ImageTypeEnum',
                     'values' => [
                         'USERPIC' => Image::TYPE_USERPIC
                     ]
                 ]),
-                'size' => $types->imageSizeEnum(),
-                'width' => $types->int(),
-                'height' => $types->int(),
+                'size' => Types::imageSizeEnum(),
+                'width' => Types::int(),
+                'height' => Types::int(),
                 'url' => [
-                    'type' => $types->url(),
+                    'type' => Types::url(),
                     'resolve' => [$this, 'resolveUrl']
                 ],
 
                 // Just for the sake of example
                 'fieldWithError' => [
-                    'type' => $types->string(),
+                    'type' => Types::string(),
                     'resolve' => function() {
                         throw new \Exception("Field with exception");
                     }
                 ],
                 'nonNullFieldWithError' => [
-                    'type' => $types->nonNull($types->string()),
+                    'type' => Types::nonNull(Types::string()),
                     'resolve' => function() {
                         throw new \Exception("Non-null field with exception");
                     }

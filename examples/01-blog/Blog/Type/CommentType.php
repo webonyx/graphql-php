@@ -3,36 +3,37 @@ namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\AppContext;
 use GraphQL\Examples\Blog\Data\Comment;
-use GraphQL\Examples\Blog\TypeSystem;
+use GraphQL\Examples\Blog\Data\DataSource;
+use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
 class CommentType extends BaseType
 {
-    public function __construct(TypeSystem $types)
+    public function __construct()
     {
         // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
         $this->definition = new ObjectType([
             'name' => 'Comment',
-            'fields' => function() use ($types) {
+            'fields' => function() {
                 return [
-                    'id' => $types->id(),
-                    'author' => $types->user(),
-                    'parent' => $types->comment(),
-                    'isAnonymous' => $types->boolean(),
+                    'id' => Types::id(),
+                    'author' => Types::user(),
+                    'parent' => Types::comment(),
+                    'isAnonymous' => Types::boolean(),
                     'replies' => [
-                        'type' => $types->listOf($types->comment()),
+                        'type' => Types::listOf(Types::comment()),
                         'args' => [
-                            'after' => $types->int(),
+                            'after' => Types::int(),
                             'limit' => [
-                                'type' => $types->int(),
+                                'type' => Types::int(),
                                 'defaultValue' => 5
                             ]
                         ]
                     ],
-                    'totalReplyCount' => $types->int(),
+                    'totalReplyCount' => Types::int(),
 
-                    $types->htmlField('body')
+                    Types::htmlField('body')
                 ];
             },
             'resolveField' => function($value, $args, $context, ResolveInfo $info) {
@@ -45,30 +46,30 @@ class CommentType extends BaseType
         ]);
     }
 
-    public function author(Comment $comment, $args, AppContext $context)
+    public function author(Comment $comment)
     {
         if ($comment->isAnonymous) {
             return null;
         }
-        return $context->dataSource->findUser($comment->authorId);
+        return DataSource::findUser($comment->authorId);
     }
 
-    public function parent(Comment $comment, $args, AppContext $context)
+    public function parent(Comment $comment)
     {
         if ($comment->parentId) {
-            return $context->dataSource->findComment($comment->parentId);
+            return DataSource::findComment($comment->parentId);
         }
         return null;
     }
 
-    public function replies(Comment $comment, $args, AppContext $context)
+    public function replies(Comment $comment, $args)
     {
         $args += ['after' => null];
-        return $context->dataSource->findReplies($comment->id, $args['limit'], $args['after']);
+        return DataSource::findReplies($comment->id, $args['limit'], $args['after']);
     }
 
-    public function totalReplyCount(Comment $comment, $args, AppContext $context)
+    public function totalReplyCount(Comment $comment)
     {
-        return $context->dataSource->countReplies($comment->id);
+        return DataSource::countReplies($comment->id);
     }
 }

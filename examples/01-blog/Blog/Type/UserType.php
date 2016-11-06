@@ -2,38 +2,40 @@
 namespace GraphQL\Examples\Blog\Type;
 
 use GraphQL\Examples\Blog\AppContext;
+use GraphQL\Examples\Blog\Data\DataSource;
 use GraphQL\Examples\Blog\Data\User;
-use GraphQL\Examples\Blog\TypeSystem;
+use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
 class UserType extends BaseType
 {
-    public function __construct(TypeSystem $types)
+    public function __construct()
     {
         // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
         $this->definition = new ObjectType([
             'name' => 'User',
-            'fields' => function() use ($types) {
+            'description' => 'Our blog authors',
+            'fields' => function() {
                 return [
-                    'id' => $types->id(),
-                    'email' => $types->email(),
+                    'id' => Types::id(),
+                    'email' => Types::email(),
                     'photo' => [
-                        'type' => $types->image(),
+                        'type' => Types::image(),
                         'description' => 'User photo URL',
                         'args' => [
-                            'size' => $types->nonNull($types->imageSizeEnum()),
+                            'size' => Types::nonNull(Types::imageSizeEnum()),
                         ]
                     ],
                     'firstName' => [
-                        'type' => $types->string(),
+                        'type' => Types::string(),
                     ],
                     'lastName' => [
-                        'type' => $types->string(),
+                        'type' => Types::string(),
                     ],
-                    'lastStoryPosted' => $types->story(),
+                    'lastStoryPosted' => Types::story(),
                     'fieldWithError' => [
-                        'type' => $types->string(),
+                        'type' => Types::string(),
                         'resolve' => function() {
                             throw new \Exception("This is error field");
                         }
@@ -41,7 +43,7 @@ class UserType extends BaseType
                 ];
             },
             'interfaces' => [
-                $types->node()
+                Types::node()
             ],
             'resolveField' => function($value, $args, $context, ResolveInfo $info) {
                 if (method_exists($this, $info->fieldName)) {
@@ -53,13 +55,13 @@ class UserType extends BaseType
         ]);
     }
 
-    public function photo(User $user, $args, AppContext $context)
+    public function photo(User $user, $args)
     {
-        return $context->dataSource->getUserPhoto($user->id, $args['size']);
+        return DataSource::getUserPhoto($user->id, $args['size']);
     }
 
-    public function lastStoryPosted(User $user, $args, AppContext $context)
+    public function lastStoryPosted(User $user)
     {
-        return $context->dataSource->findLastStoryFor($user->id);
+        return DataSource::findLastStoryFor($user->id);
     }
 }

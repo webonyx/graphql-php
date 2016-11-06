@@ -9,7 +9,7 @@ use GraphQL\Utils;
  * Class AppContext
  * Instance available in all GraphQL resolvers as 3rd argument
  *
- * @package GraphQL\Examples\Social
+ * @package GraphQL\Examples\Blog
  */
 class AppContext
 {
@@ -27,9 +27,4 @@ class AppContext
      * @var \mixed
      */
     public $request;
-
-    /**
-     * @var DataSource
-     */
-    public $dataSource;
 }

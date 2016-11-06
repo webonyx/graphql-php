@@ -5,7 +5,7 @@ use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeEnumType;
 use GraphQL\Examples\Blog\Type\Field\HtmlField;
-use GraphQL\Examples\Blog\Type\MentionType;
+use GraphQL\Examples\Blog\Type\SearchResultType;
 use GraphQL\Examples\Blog\Type\NodeType;
 use GraphQL\Examples\Blog\Type\QueryType;
 use GraphQL\Examples\Blog\Type\Scalar\EmailType;
@@ -19,7 +19,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\DefinitionContainer;
 
 /**
- * Class TypeSystem
+ * Class Types
  *
  * Acts as a registry and factory for your types.
  *
@@ -28,115 +28,115 @@ use GraphQL\Type\DefinitionContainer;
  *
  * @package GraphQL\Examples\Blog
  */
-class TypeSystem
+class Types
 {
     // Object types:
-    private $user;
-    private $story;
-    private $comment;
-    private $image;
-    private $query;
+    private static $user;
+    private static $story;
+    private static $comment;
+    private static $image;
+    private static $query;
 
     /**
      * @return UserType
      */
-    public function user()
+    public static function user()
     {
-        return $this->user ?: ($this->user = new UserType($this));
+        return self::$user ?: (self::$user = new UserType());
     }
 
     /**
      * @return StoryType
      */
-    public function story()
+    public static function story()
     {
-        return $this->story ?: ($this->story = new StoryType($this));
+        return self::$story ?: (self::$story = new StoryType());
     }
 
     /**
      * @return CommentType
      */
-    public function comment()
+    public static function comment()
     {
-        return $this->comment ?: ($this->comment = new CommentType($this));
+        return self::$comment ?: (self::$comment = new CommentType());
     }
 
     /**
      * @return ImageType
      */
-    public function image()
+    public static function image()
     {
-        return $this->image ?: ($this->image = new ImageType($this));
+        return self::$image ?: (self::$image = new ImageType());
     }
 
     /**
      * @return QueryType
      */
-    public function query()
+    public static function query()
     {
-        return $this->query ?: ($this->query = new QueryType($this));
+        return self::$query ?: (self::$query = new QueryType());
     }
 
 
     // Interface types
-    private $node;
+    private static $node;
 
     /**
      * @return NodeType
      */
-    public function node()
+    public static function node()
     {
-        return $this->node ?: ($this->node = new NodeType($this));
+        return self::$node ?: (self::$node = new NodeType());
     }
 
 
     // Unions types:
-    private $mention;
+    private static $mention;
 
     /**
-     * @return MentionType
+     * @return SearchResultType
      */
-    public function mention()
+    public static function mention()
     {
-        return $this->mention ?: ($this->mention = new MentionType($this));
+        return self::$mention ?: (self::$mention = new SearchResultType());
     }
 
 
     // Enum types
-    private $imageSizeEnum;
-    private $contentFormatEnum;
+    private static $imageSizeEnum;
+    private static $contentFormatEnum;
 
     /**
      * @return ImageSizeEnumType
      */
-    public function imageSizeEnum()
+    public static function imageSizeEnum()
     {
-        return $this->imageSizeEnum ?: ($this->imageSizeEnum = new ImageSizeEnumType());
+        return self::$imageSizeEnum ?: (self::$imageSizeEnum = new ImageSizeEnumType());
     }
 
     /**
      * @return ContentFormatEnum
      */
-    public function contentFormatEnum()
+    public static function contentFormatEnum()
     {
-        return $this->contentFormatEnum ?: ($this->contentFormatEnum = new ContentFormatEnum());
+        return self::$contentFormatEnum ?: (self::$contentFormatEnum = new ContentFormatEnum());
     }
 
     // Custom Scalar types:
-    private $urlType;
-    private $emailType;
+    private static $urlType;
+    private static $emailType;
 
-    public function email()
+    public static function email()
     {
-        return $this->emailType ?: ($this->emailType = new EmailType());
+        return self::$emailType ?: (self::$emailType = new EmailType());
     }
 
     /**
      * @return UrlType
      */
-    public function url()
+    public static function url()
     {
-        return $this->urlType ?: ($this->urlType = new UrlType());
+        return self::$urlType ?: (self::$urlType = new UrlType());
     }
 
     /**
@@ -144,16 +144,16 @@ class TypeSystem
      * @param null $objectKey
      * @return array
      */
-    public function htmlField($name, $objectKey = null)
+    public static function htmlField($name, $objectKey = null)
     {
-        return HtmlField::build($this, $name, $objectKey);
+        return HtmlField::build($name, $objectKey);
     }
 
 
 
     // Let's add internal types as well for consistent experience
 
-    public function boolean()
+    public static function boolean()
     {
         return Type::boolean();
     }
@@ -161,7 +161,7 @@ class TypeSystem
     /**
      * @return \GraphQL\Type\Definition\FloatType
      */
-    public function float()
+    public static function float()
     {
         return Type::float();
     }
@@ -169,7 +169,7 @@ class TypeSystem
     /**
      * @return \GraphQL\Type\Definition\IDType
      */
-    public function id()
+    public static function id()
     {
         return Type::id();
     }
@@ -177,7 +177,7 @@ class TypeSystem
     /**
      * @return \GraphQL\Type\Definition\IntType
      */
-    public function int()
+    public static function int()
     {
         return Type::int();
     }
@@ -185,7 +185,7 @@ class TypeSystem
     /**
      * @return \GraphQL\Type\Definition\StringType
      */
-    public function string()
+    public static function string()
     {
         return Type::string();
     }
@@ -194,7 +194,7 @@ class TypeSystem
      * @param Type|DefinitionContainer $type
      * @return ListOfType
      */
-    public function listOf($type)
+    public static function listOf($type)
     {
         return new ListOfType($type);
     }
@@ -203,7 +203,7 @@ class TypeSystem
      * @param Type|DefinitionContainer $type
      * @return NonNull
      */
-    public function nonNull($type)
+    public static function nonNull($type)
     {
         return new NonNull($type);
     }
