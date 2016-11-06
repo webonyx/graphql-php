@@ -8,8 +8,10 @@ pages:
   - Scalar Types: type-system/scalar-types.md
   - Enumeration Types: type-system/enum-types.md
   - Lists and Non-Null: type-system/lists-and-nonnulls.md
-  - Interfaces and Unions: type-system/abstract-types.md
+  - Interfaces: type-system/interfaces.md
+  - Unions: type-system/unions.md
   - Defining Schema: type-system/schema.md
+  - Custom Metadata: type-system/metadata.md
 - Data Fetching: data-fetching.md
 - Best Practices: best-practices.md
 - Complementary Tools: complementary-tools.md
