@@ -103,7 +103,7 @@ $humanType = new ObjectType([
 ```
 
 In this case field definitions are created only once (as a part of Interface Type) and then 
-re-used by all interface implementors. It can save several microseconds and memory + ensures that 
+re-used by all interface implementors. It can save several microseconds and kilobytes + ensures that 
 field definitions of Interface and implementors are always in sync.
 
 Yet it creates a problem with resolution of such fields. There are two ways how shared fields could 

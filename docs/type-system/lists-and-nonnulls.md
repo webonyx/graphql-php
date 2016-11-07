@@ -21,13 +21,13 @@ $userType = new ObjectType([
 ]);
 ```
 
-Resolvers for such fields are expected to return `array` or instance of `Traversable` interface 
-(`null` is allowed by default too). 
+Resolvers for such fields are expected to return `array` or instance of PHP internal `Traversable` 
+interface (`null` is allowed by default too). 
 
 If returned value is not of one of these types - **graphql-php** will add an error to result 
 and set field value to `null` (only if field is nullable, see below for non-null fields).
 
-# Non-Null types
+# Non-Null fields
 By default in GraphQL every field can have `null` value. To indicate that some field always 
 returns `non-null` value - use `GraphQL\Type\Definition\Type::nonNull()` modifier:
 
