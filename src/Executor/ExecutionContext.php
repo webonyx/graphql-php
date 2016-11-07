@@ -48,11 +48,6 @@ class ExecutionContext
      */
     public $errors;
 
-    /**
-     * @var array
-     */
-    public $memoized = [];
-
     public function __construct($schema, $fragments, $root, $contextValue, $operation, $variables, $errors)
     {
         $this->schema = $schema;

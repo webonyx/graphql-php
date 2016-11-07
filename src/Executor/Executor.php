@@ -708,17 +708,6 @@ class Executor
     }
 
     /**
-     * Get an unique identifier for a FieldAST.
-     *
-     * @param  object $fieldAST
-     * @return string
-     */
-    private static function getFieldUid($fieldAST, ObjectType $fieldType)
-    {
-        return $fieldAST->loc->start . '-' . $fieldAST->loc->end . '-' . $fieldType->name;
-    }
-
-    /**
      * Complete a value of an abstract type by determining the runtime object type
      * of that value, then complete the value for that type.
      *
@@ -846,24 +835,15 @@ class Executor
         $subFieldASTs = new \ArrayObject();
         $visitedFragmentNames = new \ArrayObject();
 
-        $fieldsCount = count($fieldASTs);
-        for ($i = 0; $i < $fieldsCount; $i++) {
-            // Get memoized value if it exists
-            $uid = self::getFieldUid($fieldASTs[$i], $returnType);
-            if (isset($exeContext->memoized['collectSubFields'][$uid])) {
-                $subFieldASTs = $exeContext->memoized['collectSubFields'][$uid];
-            } else {
-                $selectionSet = $fieldASTs[$i]->selectionSet;
-                if ($selectionSet) {
-                    $subFieldASTs = self::collectFields(
-                        $exeContext,
-                        $returnType,
-                        $selectionSet,
-                        $subFieldASTs,
-                        $visitedFragmentNames
-                    );
-                    $exeContext->memoized['collectSubFields'][$uid] = $subFieldASTs;
-                }
+        foreach ($fieldASTs as $fieldAST) {
+            if (isset($fieldAST->selectionSet)) {
+                $subFieldASTs = self::collectFields(
+                    $exeContext,
+                    $returnType,
+                    $fieldAST->selectionSet,
+                    $subFieldASTs,
+                    $visitedFragmentNames
+                );
             }
         }
 
