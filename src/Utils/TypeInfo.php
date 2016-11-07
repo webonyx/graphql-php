@@ -3,11 +3,11 @@ namespace GraphQL\Utils;
 
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\ListType;
-use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Schema;
+use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
@@ -19,7 +19,6 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils;
 
@@ -113,8 +112,8 @@ class TypeInfo
             return true;
         }
 
-        if ($typeA instanceof InterfaceType || $typeA instanceof UnionType) {
-            if ($typeB instanceof InterfaceType || $typeB instanceof UnionType) {
+        if ($typeA instanceof AbstractType) {
+            if ($typeB instanceof AbstractType) {
                 // If both types are abstract, then determine if there is any intersection
                 // between possible concrete types of each.
                 foreach ($schema->getPossibleTypes($typeA) as $type) {
@@ -125,11 +124,13 @@ class TypeInfo
                 return false;
             }
 
+            /** @var $typeB ObjectType */
             // Determine if the latter type is a possible concrete type of the former.
             return $schema->isPossibleType($typeA, $typeB);
         }
 
-        if ($typeB instanceof InterfaceType || $typeB instanceof UnionType) {
+        if ($typeB instanceof AbstractType) {
+            /** @var $typeA ObjectType */
             // Determine if the former type is a possible concrete type of the latter.
             return $schema->isPossibleType($typeB, $typeA);
         }
@@ -142,7 +143,7 @@ class TypeInfo
     /**
      * @param Schema $schema
      * @param $inputTypeAst
-     * @return ListOfType|NonNull|Name
+     * @return Type
      * @throws \Exception
      */
     public static function typeFromAST(Schema $schema, $inputTypeAst)

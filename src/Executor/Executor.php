@@ -691,9 +691,11 @@ class Executor
      */
     private static function getFieldDef(Schema $schema, ObjectType $parentType, $fieldName)
     {
-        $schemaMetaFieldDef = Introspection::schemaMetaFieldDef();
-        $typeMetaFieldDef = Introspection::typeMetaFieldDef();
-        $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
+        static $schemaMetaFieldDef, $typeMetaFieldDef, $typeNameMetaFieldDef;
+
+        $schemaMetaFieldDef = $schemaMetaFieldDef ?: Introspection::schemaMetaFieldDef();
+        $typeMetaFieldDef = $typeMetaFieldDef ?: Introspection::typeMetaFieldDef();
+        $typeNameMetaFieldDef = $typeNameMetaFieldDef ?: Introspection::typeNameMetaFieldDef();
 
         if ($fieldName === $schemaMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $schemaMetaFieldDef;
