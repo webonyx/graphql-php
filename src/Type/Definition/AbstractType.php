@@ -9,7 +9,12 @@ GraphQLUnionType;
 interface AbstractType
 {
     /**
-     * @return callable|null
+     * Resolves concrete ObjectType for given object value
+     *
+     * @param $objectValue
+     * @param $context
+     * @param ResolveInfo $info
+     * @return mixed
      */
-    public function getResolveTypeFn();
+    public function resolveType($objectValue, $context, ResolveInfo $info);
 }

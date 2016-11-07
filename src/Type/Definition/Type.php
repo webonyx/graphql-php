@@ -212,26 +212,6 @@ abstract class Type
     }
 
     /**
-     * @param $value
-     * @param mixed $context
-     * @param AbstractType $abstractType
-     * @return Type
-     * @throws \Exception
-     */
-    public static function getTypeOf($value, $context, ResolveInfo $info, AbstractType $abstractType)
-    {
-        $possibleTypes = $info->schema->getPossibleTypes($abstractType);
-
-        foreach ($possibleTypes as $type) {
-            /** @var ObjectType $type */
-            if ($type->isTypeOf($value, $context, $info)) {
-                return $type;
-            }
-        }
-        return null;
-    }
-
-    /**
      * @var string
      */
     public $name;

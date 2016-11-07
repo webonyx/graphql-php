@@ -722,11 +722,11 @@ class Executor
      */
     private static function completeAbstractValue(ExecutionContext $exeContext, AbstractType $returnType, $fieldASTs, ResolveInfo $info, $path, &$result)
     {
-        $resolveType = $returnType->getResolveTypeFn();
+        $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
 
-        $runtimeType = $resolveType ?
-            call_user_func($resolveType, $result, $exeContext->contextValue, $info) :
-            Type::getTypeOf($result, $exeContext->contextValue, $info, $returnType);
+        if (null === $runtimeType) {
+            $runtimeType = self::inferTypeOf($result, $exeContext->contextValue, $info, $returnType);
+        }
 
         // If resolveType returns a string, we assume it's a ObjectType name.
         if (is_string($runtimeType)) {
@@ -848,5 +848,26 @@ class Executor
         }
 
         return self::executeFields($exeContext, $returnType, $result, $path, $subFieldASTs);
+    }
+
+    /**
+     * Infer type of the value using isTypeOf of corresponding AbstractType
+     *
+     * @param $value
+     * @param $context
+     * @param ResolveInfo $info
+     * @param AbstractType $abstractType
+     * @return ObjectType|null
+     */
+    private static function inferTypeOf($value, $context, ResolveInfo $info, AbstractType $abstractType)
+    {
+        $possibleTypes = $info->schema->getPossibleTypes($abstractType);
+
+        foreach ($possibleTypes as $type) {
+            if ($type->isTypeOf($value, $context, $info)) {
+                return $type;
+            }
+        }
+        return null;
     }
 }

@@ -20,11 +20,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public $description;
 
     /**
-     * @var callback
-     */
-    private $resolveTypeFn;
-
-    /**
      * @var array
      */
     public $config;
@@ -51,7 +46,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
         $this->config = $config;
     }
 
@@ -84,10 +78,19 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     }
 
     /**
+     * Resolves concrete ObjectType for given object value
+     *
+     * @param $objectValue
+     * @param $context
+     * @param ResolveInfo $info
      * @return callable|null
      */
-    public function getResolveTypeFn()
+    public function resolveType($objectValue, $context, ResolveInfo $info)
     {
-        return $this->resolveTypeFn;
+        if (isset($this->config['resolveType'])) {
+            $fn = $this->config['resolveType'];
+            return $fn($objectValue, $context, $info);
+        }
+        return null;
     }
 }
