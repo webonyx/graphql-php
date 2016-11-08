@@ -1,5 +1,5 @@
 # Type System
-To start using GraphQL you are expected to implement a Type system. 
+To start using GraphQL you are expected to implement a type hierarchy and expose it as [Schema](type-system/schema/). 
 
 In **graphql-php** `type` is an instance of internal class from 
 `GraphQL\Type\Definition` namespace: `ScalarType`, `ObjectType`, `InterfaceType`, 
@@ -156,10 +156,3 @@ introduce Dependency Injection Container if your types have other dependencies.
 
 Alternatively all methods of registry could be static if you prefer - then there is no need
 to pass it in constructor - instead just use use `TypeRegistry::myAType()` in your type definitions.
-
-# Custom Metadata
-All types in **graphql-php** accept configuration array. In some cases you may be interested in 
-passing your own metadata for type or field definition.
-
-**graphql-php** preserves original configuration array in every type or field instance in 
-public property `$config`. Use it to implement app-level mappings and definitions.

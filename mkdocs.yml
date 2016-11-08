@@ -12,7 +12,7 @@ pages:
   - Unions: type-system/unions.md
   - Input Types: type-system/input-types.md
   - Directives: type-system/directives.md
-  - Defining Schema: type-system/schema.md
+  - Schema: type-system/schema.md
 - Executing Queries: executing-queries.md
 - Handling Errors: error-handling.md
 - Fetching Data: data-fetching.md

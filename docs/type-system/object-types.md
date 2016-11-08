@@ -196,3 +196,10 @@ It is implemented using `resolveField` callback in type definition or `resolve`
 callback in field definition (which has precedence).
 
 Read section on [Data Fetching]() for complete description of this process.
+
+# Custom Metadata
+All types in **graphql-php** accept configuration array. In some cases you may be interested in 
+passing your own metadata for type or field definition.
+
+**graphql-php** preserves original configuration array in every type or field instance in 
+public property `$config`. Use it to implement app-level mappings and definitions.

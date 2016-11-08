@@ -1,6 +1,6 @@
 # Overview
 Query execution is a complex process involving multiple steps, including query **parsing**, 
-**validating** and finally **executing** against your schema.
+**validating** and finally **executing** against your [schema](type-system/schema/).
 
 **graphql-php** provides convenient facade for this process in class `GraphQL\GraphQL`:
 
@@ -34,12 +34,11 @@ contextValue  | `mixed` | Any value that holds information shared between all fi
 variableValues | `array` | Map of variable values passed along with query string. See section on [query variables on official GraphQL website](http://graphql.org/learn/queries/#variables)
 operationName | `string` | Allows the caller to specify which operation in queryString will be run, in cases where queryString contains multiple top-level operations.
 
+# Parsing
 Following reading describes implementation details of query execution process. It may clarify some 
 internals of GraphQL but is not required in order to use it. Feel free to skip to next section 
 on [Error Handling](error-handling/) for essentials.
 
-
-# Parsing
 TODOC
 
 # Validating
