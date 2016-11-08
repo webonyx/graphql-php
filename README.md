@@ -12,6 +12,9 @@ This implementation will follow JavaScript version as close as possible until Gr
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
 [![License](https://poser.pugx.org/webonyx/graphql-php/license)](https://packagist.org/packages/webonyx/graphql-php)
 
+Work is in progress on new [Documentation site](http://webonyx.github.io/graphql-php/). It already
+contains more information than this Readme, so try it first.
+
 ## Table of Contents
 
 - [Overview](#overview)
