@@ -68,15 +68,15 @@ class KnownDirectives
         switch ($appliedTo->kind) {
             case Node::OPERATION_DEFINITION:
                 switch ($appliedTo->operation) {
-                    case 'query': return DirectiveDef::$directiveLocations['QUERY'];
-                    case 'mutation': return DirectiveDef::$directiveLocations['MUTATION'];
-                    case 'subscription': return DirectiveDef::$directiveLocations['SUBSCRIPTION'];
+                    case 'query': return DirectiveDef::LOCATION_QUERY;
+                    case 'mutation': return DirectiveDef::LOCATION_MUTATION;
+                    case 'subscription': return DirectiveDef::LOCATION_SUBSCRIPTION;
                 }
                 break;
-            case Node::FIELD: return DirectiveDef::$directiveLocations['FIELD'];
-            case Node::FRAGMENT_SPREAD: return DirectiveDef::$directiveLocations['FRAGMENT_SPREAD'];
-            case Node::INLINE_FRAGMENT: return DirectiveDef::$directiveLocations['INLINE_FRAGMENT'];
-            case Node::FRAGMENT_DEFINITION: return DirectiveDef::$directiveLocations['FRAGMENT_DEFINITION'];
+            case Node::FIELD: return DirectiveDef::LOCATION_FIELD;
+            case Node::FRAGMENT_SPREAD: return DirectiveDef::LOCATION_FRAGMENT_SPREAD;
+            case Node::INLINE_FRAGMENT: return DirectiveDef::LOCATION_INLINE_FRAGMENT;
+            case Node::FRAGMENT_DEFINITION: return DirectiveDef::LOCATION_FRAGMENT_DEFINITION;
         }
     }
 }
