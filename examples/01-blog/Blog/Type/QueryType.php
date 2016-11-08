@@ -50,6 +50,12 @@ class QueryType extends BaseType
                     'type' => Types::string(),
                     'deprecationReason' => 'This field is deprecated!'
                 ],
+                'fieldWithException' => [
+                    'type' => Types::string(),
+                    'resolve' => function() {
+                        throw new \Exception("Exception message thrown in field resolver");
+                    }
+                ],
                 'hello' => Type::string()
             ],
             'resolveField' => function($val, $args, $context, ResolveInfo $info) {

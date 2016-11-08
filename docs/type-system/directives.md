@@ -1,6 +1,6 @@
 # Built-in directives
-Directive is a way to dynamically change the structure and shape of queries using variables.
-Directive can be attached to a field or fragment inclusion, and can affect execution of the 
+Directive is a way for client to give GraphQL server additional context and hints on how to execute
+the query. Directive can be attached to a field or fragment inclusion, and can affect execution of the 
 query in any way the server desires.
 
 GraphQL specification includes two built-in directives:
@@ -21,7 +21,7 @@ query Hero($episode: Episode, $withFriends: Boolean!) {
 ```
 Here if `$withFriends` variable is set to `false` - friends section will be ignored and excluded 
 from response. Important implementation detail: those fields will never be executed 
-(and not just removed from response after execution).
+(not just removed from response after execution).
 
 # Custom directives
 **graphql-php** supports custom directives even though their presence does not affect execution of fields.

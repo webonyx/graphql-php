@@ -46,9 +46,7 @@ try {
     $data += ['query' => null, 'variables' => null];
 
     if (null === $data['query']) {
-        $data['query'] = '
-            {hello}
-        ';
+        $data['query'] = '{hello}';
     }
 
     // GraphQL schema to be passed to query executor:
