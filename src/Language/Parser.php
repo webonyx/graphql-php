@@ -789,10 +789,10 @@ class Parser
             $type = $this->parseNamedType();
         }
         if ($this->skip(Token::BANG)) {
-            return new NonNullType([
-                'type' => $type,
-                'loc' => $this->loc($start)
-            ]);
+            return new NonNullType(
+                $type,
+                $this->loc($start)
+            );
 
         }
         return $type;

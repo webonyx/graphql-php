@@ -134,7 +134,9 @@ class Printer
                 NodeType::LIST_TYPE => function(ListType $node) {
                     return '[' . $node->getType() . ']';
                 },
-                NodeType::NON_NULL_TYPE => function(NonNullType $node) {return $node->type . '!';},
+                NodeType::NON_NULL_TYPE => function(NonNullType $node) {
+                    return $node->getType() . '!';
+                },
 
                 // Type System Definitions
                 NodeType::SCHEMA_DEFINITION => function(SchemaDefinition $def) {
