@@ -101,7 +101,7 @@ abstract class Node
     | NonNullType
      */
 
-    public $kind;
+    protected $kind;
 
     /**
      * @var Location
@@ -158,5 +158,25 @@ abstract class Node
             'end' => $this->loc->end
         ];
         return json_encode($tmp);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getKind()
+    {
+        return $this->kind;
+    }
+
+    /**
+     * @param mixed $kind
+     *
+     * @return Node
+     */
+    public function setKind($kind)
+    {
+        $this->kind = $kind;
+
+        return $this;
     }
 }

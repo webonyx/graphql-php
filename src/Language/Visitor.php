@@ -250,7 +250,7 @@ class Visitor
                     throw new \Exception('Invalid AST Node: ' . json_encode($node));
                 }
 
-                $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
+                $visitFn = self::getVisitFn($visitor, $node->getKind(), $isLeaving);
 
                 if ($visitFn) {
                     $result = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
@@ -298,7 +298,7 @@ class Visitor
                 ];
                 $inArray = is_array($node);
 
-                $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?: [];
+                $keys = ($inArray ? $node : $visitorKeys[$node->getKind()]) ?: [];
                 $index = -1;
                 $edits = [];
                 if ($parent) {
