@@ -26,7 +26,8 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
         $astCopy = $ast->cloneDeep();
         $this->assertEquals($astCopy, $ast);
 
-        Printer::doPrint($ast);
+        $printer = new Printer();
+        $printer->doPrint($ast);
         $this->assertEquals($astCopy, $ast);
     }
 
@@ -35,8 +36,10 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testPrintsMinimalAst()
     {
+        $printer = new Printer();
+
         $ast = new Field(['name' => new Name(['value' => 'foo'])]);
-        $this->assertEquals('foo', Printer::doPrint($ast));
+        $this->assertEquals('foo', $printer->doPrint($ast));
     }
 
     /**
@@ -46,7 +49,8 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     {
         $badAst1 = new \ArrayObject(array('random' => 'Data'));
         try {
-            Printer::doPrint($badAst1);
+            $printer = new Printer();
+            $printer->doPrint($badAst1);
             $this->fail('Expected exception not thrown');
         } catch (\Exception $e) {
             $this->assertEquals('Invalid AST Node: {"random":"Data"}', $e->getMessage());
@@ -60,12 +64,14 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     {
         $queryAstShorthanded = Parser::parse('query { id, name }');
 
+        $printer = new Printer();
+
         $expected = '{
   id
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($queryAstShorthanded));
+        $this->assertEquals($expected, $printer->doPrint($queryAstShorthanded));
 
         $mutationAst = Parser::parse('mutation { id, name }');
         $expected = 'mutation {
@@ -73,7 +79,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAst));
+        $this->assertEquals($expected, $printer->doPrint($mutationAst));
 
         $queryAstWithArtifacts = Parser::parse(
             'query ($foo: TestType) @testDirective { id, name }'
@@ -83,7 +89,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($queryAstWithArtifacts));
+        $this->assertEquals($expected, $printer->doPrint($queryAstWithArtifacts));
 
         $mutationAstWithArtifacts = Parser::parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
@@ -93,7 +99,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        $this->assertEquals($expected, $printer->doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -104,7 +110,8 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast = Parser::parse($kitchenSink);
 
-        $printed = Printer::doPrint($ast);
+        $printer = new Printer();
+        $printed = $printer->doPrint($ast);
 
         $expected = <<<'EOT'
 query queryName($foo: ComplexType, $site: Site = MOBILE) {
