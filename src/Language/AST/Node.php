@@ -30,7 +30,6 @@ abstract class Node
     | ListType
     | NonNullType
      */
-
     protected $kind;
 
     /**
@@ -44,6 +43,46 @@ abstract class Node
     public function __construct(array $vars)
     {
         Utils::assign($this, $vars);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getKind()
+    {
+        return $this->kind;
+    }
+
+    /**
+     * @param mixed $kind
+     *
+     * @return Node
+     */
+    public function setKind($kind)
+    {
+        $this->kind = $kind;
+
+        return $this;
+    }
+
+    /**
+     * @return Location
+     */
+    public function getLoc()
+    {
+        return $this->loc;
+    }
+
+    /**
+     * @param Location $loc
+     *
+     * @return Node
+     */
+    public function setLoc($loc)
+    {
+        $this->loc = $loc;
+
+        return $this;
     }
 
     /**
@@ -88,45 +127,5 @@ abstract class Node
             'end' => $this->getLoc()->end
         ];
         return json_encode($tmp);
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getKind()
-    {
-        return $this->kind;
-    }
-
-    /**
-     * @param mixed $kind
-     *
-     * @return Node
-     */
-    public function setKind($kind)
-    {
-        $this->kind = $kind;
-
-        return $this;
-    }
-
-    /**
-     * @return Location
-     */
-    public function getLoc()
-    {
-        return $this->loc;
-    }
-
-    /**
-     * @param Location $loc
-     *
-     * @return Node
-     */
-    public function setLoc($loc)
-    {
-        $this->loc = $loc;
-
-        return $this;
     }
 }
