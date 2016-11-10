@@ -65,8 +65,8 @@ If such field throws or returns unexpected value the value of the field in respo
 replaced with `null` and error entry will be added to response.
 
 If exception is thrown in non-null field - it will be bubbled up to first nullable field which will
-be replaced with `null` (and error entry added to response). If all fields up to the root are non-null
-**data** entry will be missing in response and only **errors** key will be presented.
+be replaced with `null` (and error entry added to response). If all fields up to the root are non-null - 
+**data** entry will be removed from n response and only **errors** key will be presented.
 
 # Debugging tools
 
@@ -110,11 +110,12 @@ property and data in **$data** property.
 
 Each entry of **$errors** array contains instance of `GraphQL\Error\Error` which wraps original 
 exceptions thrown by resolvers. To access original exceptions use `$error->getPrevious()` method.
-But note that previous exception is only available for **Execution** errors.
+But note that previous exception is only available for **Execution** errors and will be `null`
+for **Syntax** or **Validation** errors.
 
 # Schema Errors
-We only covered errors which occur during query execution process. But schema definition can also  
-throw if there is an error in one of type definitions.
+So far we only covered errors which occur during query execution process. But schema definition can 
+also throw if there is an error in one of type definitions.
 
 Usually such errors mean that there is some logical error in your schema and it is the only case 
 when it makes sense to return `500` error code for GraphQL endpoint:
