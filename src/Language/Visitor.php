@@ -4,6 +4,15 @@ namespace GraphQL\Language;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\TypeInfo;
 
+class VisitorOperation
+{
+    public $doBreak;
+
+    public $doContinue;
+
+    public $removeNode;
+}
+
 class Visitor
 {
     /**
@@ -445,14 +454,4 @@ class Visitor
         }
         return null;
     }
-}
-
-
-class VisitorOperation
-{
-    public $doBreak;
-
-    public $doContinue;
-
-    public $removeNode;
 }
