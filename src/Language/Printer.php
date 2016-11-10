@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Language;
 
-
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\DirectiveDefinition;
 use GraphQL\Language\AST\EnumTypeDefinition;
@@ -22,6 +21,7 @@ use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\IntValue;
 use GraphQL\Language\AST\ListType;
+use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
@@ -45,7 +45,7 @@ class Printer
     {
         return Visitor::visit($ast, [
             'leave' => [
-                NodeType::NAME => function($node) {
+                NodeType::NAME => function(Node $node) {
                     return '' . $node->value;
                 },
                 NodeType::VARIABLE => function($node) {
