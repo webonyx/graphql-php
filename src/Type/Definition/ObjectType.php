@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\DefinitionContainer;
 use GraphQL\Utils;
 
@@ -57,11 +58,6 @@ class ObjectType extends Type implements OutputType, CompositeType
     private $interfaces;
 
     /**
-     * @var callable
-     */
-    private $isTypeOf;
-
-    /**
      * Keeping reference of config for late bindings and custom app-level metadata
      *
      * @var array
@@ -105,7 +101,6 @@ class ObjectType extends Type implements OutputType, CompositeType
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;
-        $this->isTypeOf = isset($config['isTypeOf']) ? $config['isTypeOf'] : null;
         $this->config = $config;
     }
 
@@ -132,7 +127,9 @@ class ObjectType extends Type implements OutputType, CompositeType
         if (null === $this->fields) {
             $this->getFields();
         }
-        Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
+        if (!isset($this->fields[$name])) {
+            throw new InvariantViolation(sprintf("Field '%s' is not defined for type '%s'", $name, $this->name));
+        }
         return $this->fields[$name];
     }
 
@@ -145,22 +142,25 @@ class ObjectType extends Type implements OutputType, CompositeType
             $interfaces = isset($this->config['interfaces']) ? $this->config['interfaces'] : [];
             $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
 
-            // TODO: Return some sort of generator to avoid multiple loops
-            $interfaces = Utils::map($interfaces, function($iface) {
-                return $iface instanceof DefinitionContainer ? $iface->getDefinition() : $iface;
-            });
-
-            $this->interfaces = $interfaces;
+            $this->interfaces = [];
+            foreach ($interfaces as $iface) {
+                $iface = Type::resolve($iface);
+                if (!$iface instanceof InterfaceType) {
+                    throw new InvariantViolation("Expecting interface type, got " . Utils::printSafe($iface));
+                }
+                $this->interfaces[] = $iface;
+            }
         }
         return $this->interfaces;
     }
 
     /**
-     * @param InterfaceType $iface
+     * @param InterfaceType|DefinitionContainer $iface
      * @return bool
      */
-    public function implementsInterface(InterfaceType $iface)
+    public function implementsInterface($iface)
     {
+        $iface = Type::resolve($iface);
         return !!Utils::find($this->getInterfaces(), function($implemented) use ($iface) {return $iface === $implemented;});
     }
 
@@ -172,6 +172,6 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function isTypeOf($value, $context, ResolveInfo $info)
     {
-        return isset($this->isTypeOf) ? call_user_func($this->isTypeOf, $value, $context, $info) : null;
+        return isset($this->config['isTypeOf']) ? call_user_func($this->config['isTypeOf'], $value, $context, $info) : null;
     }
 }
