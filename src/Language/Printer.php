@@ -53,7 +53,7 @@ class Printer
                     return '$' . $node->name;
                 },
                 NodeType::DOCUMENT => function(Document $node) {
-                    return $this->join($node->definitions, "\n\n") . "\n";
+                    return $this->join($node->getDefinitions(), "\n\n") . "\n";
                 },
                 NodeType::OPERATION_DEFINITION => function(OperationDefinition $node) {
                     $op = $node->operation;

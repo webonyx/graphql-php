@@ -312,10 +312,7 @@ class Parser
             $definitions[] = $this->parseDefinition();
         } while (!$this->skip(Token::EOF));
 
-        return new Document([
-            'definitions' => $definitions,
-            'loc' => $this->loc($start)
-        ]);
+        return new Document($definitions, $this->loc($start));
     }
 
     /**
