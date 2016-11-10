@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class ListType extends Node implements Type
 {
-    public $kind = Node::LIST_TYPE;
+    protected $kind = Node::LIST_TYPE;
 
     /**
      * @var Node

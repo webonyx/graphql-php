@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class Document extends Node
 {
-    public $kind = Node::DOCUMENT;
+    protected $kind = Node::DOCUMENT;
 
     /**
      * @var Definition[]

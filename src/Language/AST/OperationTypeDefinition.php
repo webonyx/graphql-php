@@ -7,7 +7,7 @@ class OperationTypeDefinition extends Node
     /**
      * @var string
      */
-    public $kind = Node::OPERATION_TYPE_DEFINITION;
+    protected $kind = Node::OPERATION_TYPE_DEFINITION;
 
     /**
      * One of 'query' | 'mutation' | 'subscription'

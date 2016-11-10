@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class Variable extends Node
 {
-    public $kind = Node::VARIABLE;
+    protected $kind = Node::VARIABLE;
 
     /**
      * @var Name

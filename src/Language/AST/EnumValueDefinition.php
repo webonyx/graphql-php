@@ -7,7 +7,7 @@ class EnumValueDefinition extends Node
     /**
      * @var string
      */
-    public $kind = Node::ENUM_VALUE_DEFINITION;
+    protected $kind = Node::ENUM_VALUE_DEFINITION;
 
     /**
      * @var Name

@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class Argument extends Node
 {
-    public $kind = Node::ARGUMENT;
+    protected $kind = Node::ARGUMENT;
 
     /**
      * @var Value
