@@ -638,10 +638,10 @@ class Parser
                 ]);
             case Token::FLOAT:
                 $this->lexer->advance();
-                return new FloatValue([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token)
-                ]);
+                return new FloatValue(
+                    $token->value,
+                    $this->loc($token)
+                );
             case Token::STRING:
                 $this->lexer->advance();
                 return new StringValue([
