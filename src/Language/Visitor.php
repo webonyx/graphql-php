@@ -224,7 +224,12 @@ class Visitor
                             if (is_array($node)) {
                                 $node[$editKey] = $editValue;
                             } else {
-                                $node->{$editKey} = $editValue;
+                                $keyFunc = 'set'.ucfirst($editKey);
+                                if (method_exists($node, $keyFunc)) {
+                                    $node->{$keyFunc}($editValue);
+                                } else {
+                                    $node->{$editKey} = $editValue;
+                                }
                             }
                         }
                     }

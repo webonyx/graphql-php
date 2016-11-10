@@ -118,7 +118,9 @@ class Printer
                 },
 
                 // Type
-                NodeType::NAMED_TYPE => function(NamedType $node) {return $node->name;},
+                NodeType::NAMED_TYPE => function(NamedType $node) {
+                    return $node->getName();
+                },
                 NodeType::LIST_TYPE => function(ListType $node) {return '[' . $node->type . ']';},
                 NodeType::NON_NULL_TYPE => function(NonNullType $node) {return $node->type . '!';},
 

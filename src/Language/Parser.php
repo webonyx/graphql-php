@@ -812,10 +812,7 @@ class Parser
     {
         $start = $this->lexer->token;
 
-        return new NamedType([
-            'name' => $this->parseName(),
-            'loc' => $this->loc($start)
-        ]);
+        return new NamedType($this->parseName(), $this->loc($start));
     }
 
     // Implements the parsing rules in the Type Definition section.
