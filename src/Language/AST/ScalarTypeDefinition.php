@@ -7,7 +7,7 @@ class ScalarTypeDefinition extends Node implements TypeDefinition
     /**
      * @var string
      */
-    protected $kind = Node::SCALAR_TYPE_DEFINITION;
+    protected $kind = NodeType::SCALAR_TYPE_DEFINITION;
 
     /**
      * @var Name

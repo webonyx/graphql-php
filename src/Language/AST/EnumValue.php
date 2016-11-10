@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class EnumValue extends Node implements Value
 {
-    protected $kind = Node::ENUM;
+    protected $kind = NodeType::ENUM;
 
     /**
      * @var string

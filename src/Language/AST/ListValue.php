@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class ListValue extends Node implements Value
 {
-    protected $kind = Node::LST;
+    protected $kind = NodeType::LST;
 
     /**
      * @var array<Value>

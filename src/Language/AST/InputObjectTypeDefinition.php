@@ -7,7 +7,7 @@ class InputObjectTypeDefinition extends Node implements TypeDefinition
     /**
      * @var string
      */
-    protected $kind = Node::INPUT_OBJECT_TYPE_DEFINITION;
+    protected $kind = NodeType::INPUT_OBJECT_TYPE_DEFINITION;
 
     /**
      * @var Name

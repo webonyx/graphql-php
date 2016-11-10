@@ -7,7 +7,7 @@ class DirectiveDefinition extends Node implements TypeSystemDefinition
     /**
      * @var string
      */
-    protected $kind = Node::DIRECTIVE_DEFINITION;
+    protected $kind = NodeType::DIRECTIVE_DEFINITION;
 
     /**
      * @var Name

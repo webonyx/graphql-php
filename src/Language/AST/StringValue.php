@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class StringValue extends Node implements Value
 {
-    protected $kind = Node::STRING;
+    protected $kind = NodeType::STRING;
 
     /**
      * @var string

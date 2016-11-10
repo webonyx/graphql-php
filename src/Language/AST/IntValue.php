@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class IntValue extends Node implements Value
 {
-    protected $kind = Node::INT;
+    protected $kind = NodeType::INT;
 
     /**
      * @var string

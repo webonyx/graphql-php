@@ -6,6 +6,7 @@ use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\Lexer;
@@ -286,39 +287,39 @@ fragment $fragmentName on Type {
         };
 
         $expected = [
-            'kind' => Node::DOCUMENT,
+            'kind' => NodeType::DOCUMENT,
             'loc' => $loc(0, 41),
             'definitions' => [
                 [
-                    'kind' => Node::OPERATION_DEFINITION,
+                    'kind' => NodeType::OPERATION_DEFINITION,
                     'loc' => $loc(0, 40),
                     'operation' => 'query',
                     'name' => null,
                     'variableDefinitions' => null,
                     'directives' => [],
                     'selectionSet' => [
-                        'kind' => Node::SELECTION_SET,
+                        'kind' => NodeType::SELECTION_SET,
                         'loc' => $loc(0, 40),
                         'selections' => [
                             [
-                                'kind' => Node::FIELD,
+                                'kind' => NodeType::FIELD,
                                 'loc' => $loc(4, 38),
                                 'alias' => null,
                                 'name' => [
-                                    'kind' => Node::NAME,
+                                    'kind' => NodeType::NAME,
                                     'loc' => $loc(4, 8),
                                     'value' => 'node'
                                 ],
                                 'arguments' => [
                                     [
-                                        'kind' => Node::ARGUMENT,
+                                        'kind' => NodeType::ARGUMENT,
                                         'name' => [
-                                            'kind' => Node::NAME,
+                                            'kind' => NodeType::NAME,
                                             'loc' => $loc(9, 11),
                                             'value' => 'id'
                                         ],
                                         'value' => [
-                                            'kind' => Node::INT,
+                                            'kind' => NodeType::INT,
                                             'loc' => $loc(13, 14),
                                             'value' => '4'
                                         ],
@@ -327,15 +328,15 @@ fragment $fragmentName on Type {
                                 ],
                                 'directives' => [],
                                 'selectionSet' => [
-                                    'kind' => Node::SELECTION_SET,
+                                    'kind' => NodeType::SELECTION_SET,
                                     'loc' => $loc(16, 38),
                                     'selections' => [
                                         [
-                                            'kind' => Node::FIELD,
+                                            'kind' => NodeType::FIELD,
                                             'loc' => $loc(22, 24),
                                             'alias' => null,
                                             'name' => [
-                                                'kind' => Node::NAME,
+                                                'kind' => NodeType::NAME,
                                                 'loc' => $loc(22, 24),
                                                 'value' => 'id'
                                             ],
@@ -344,11 +345,11 @@ fragment $fragmentName on Type {
                                             'selectionSet' => null
                                         ],
                                         [
-                                            'kind' => Node::FIELD,
+                                            'kind' => NodeType::FIELD,
                                             'loc' => $loc(30, 34),
                                             'alias' => null,
                                             'name' => [
-                                                'kind' => Node::NAME,
+                                                'kind' => NodeType::NAME,
                                                 'loc' => $loc(30, 34),
                                                 'value' => 'name'
                                             ],
@@ -424,16 +425,16 @@ fragment $fragmentName on Type {
         $parser = new Parser(new Lexer());
 
         $this->assertEquals([
-            'kind' => Node::LST,
+            'kind' => NodeType::LST,
             'loc' => ['start' => 0, 'end' => 11],
             'values' => [
                 [
-                    'kind' => Node::INT,
+                    'kind' => NodeType::INT,
                     'loc' => ['start' => 1, 'end' => 4],
                     'value' => '123'
                 ],
                 [
-                    'kind' => Node::STRING,
+                    'kind' => NodeType::STRING,
                     'loc' => ['start' => 5, 'end' => 10],
                     'value' => 'abc'
                 ]
@@ -451,10 +452,10 @@ fragment $fragmentName on Type {
         $parser = new Parser(new Lexer());
 
         $this->assertEquals([
-            'kind' => Node::NAMED_TYPE,
+            'kind' => NodeType::NAMED_TYPE,
             'loc' => ['start' => 0, 'end' => 6],
             'name' => [
-                'kind' => Node::NAME,
+                'kind' => NodeType::NAME,
                 'loc' => ['start' => 0, 'end' => 6],
                 'value' => 'String'
             ]
@@ -469,10 +470,10 @@ fragment $fragmentName on Type {
         $parser = new Parser(new Lexer());
 
         $this->assertEquals([
-            'kind' => Node::NAMED_TYPE,
+            'kind' => NodeType::NAMED_TYPE,
             'loc' => ['start' => 0, 'end' => 6],
             'name' => [
-                'kind' => Node::NAME,
+                'kind' => NodeType::NAME,
                 'loc' => ['start' => 0, 'end' => 6],
                 'value' => 'MyType'
             ]
@@ -487,13 +488,13 @@ fragment $fragmentName on Type {
         $parser = new Parser(new Lexer());
 
         $this->assertEquals([
-            'kind' => Node::LIST_TYPE,
+            'kind' => NodeType::LIST_TYPE,
             'loc' => ['start' => 0, 'end' => 8],
             'type' => [
-                'kind' => Node::NAMED_TYPE,
+                'kind' => NodeType::NAMED_TYPE,
                 'loc' => ['start' => 1, 'end' => 7],
                 'name' => [
-                    'kind' => Node::NAME,
+                    'kind' => NodeType::NAME,
                     'loc' => ['start' => 1, 'end' => 7],
                     'value' => 'MyType'
                 ]
@@ -509,13 +510,13 @@ fragment $fragmentName on Type {
         $parser = new Parser(new Lexer());
 
         $this->assertEquals([
-            'kind' => Node::NON_NULL_TYPE,
+            'kind' => NodeType::NON_NULL_TYPE,
             'loc' => ['start' => 0, 'end' => 7],
             'type' => [
-                'kind' => Node::NAMED_TYPE,
+                'kind' => NodeType::NAMED_TYPE,
                 'loc' => ['start' => 0, 'end' => 6],
                 'name' => [
-                    'kind' => Node::NAME,
+                    'kind' => NodeType::NAME,
                     'loc' => ['start' => 0, 'end' => 6],
                     'value' => 'MyType'
                 ]
@@ -531,16 +532,16 @@ fragment $fragmentName on Type {
         $parser = new Parser(new Lexer());
 
         $this->assertEquals([
-            'kind' => Node::LIST_TYPE,
+            'kind' => NodeType::LIST_TYPE,
             'loc' => ['start' => 0, 'end' => 9],
             'type' => [
-                'kind' => Node::NON_NULL_TYPE,
+                'kind' => NodeType::NON_NULL_TYPE,
                 'loc' => ['start' => 1, 'end' => 8],
                 'type' => [
-                    'kind' => Node::NAMED_TYPE,
+                    'kind' => NodeType::NAMED_TYPE,
                     'loc' => ['start' => 1, 'end' => 7],
                     'name' => [
-                        'kind' => Node::NAME,
+                        'kind' => NodeType::NAME,
                         'loc' => ['start' => 1, 'end' => 7],
                         'value' => 'MyType'
                     ]

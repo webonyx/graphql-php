@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class FloatValue extends Node implements Value
 {
-    protected $kind = Node::FLOAT;
+    protected $kind = NodeType::FLOAT;
 
     /**
      * @var string

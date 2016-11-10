@@ -7,7 +7,7 @@ class TypeExtensionDefinition extends Node implements TypeSystemDefinition
     /**
      * @var string
      */
-    protected $kind = Node::TYPE_EXTENSION_DEFINITION;
+    protected $kind = NodeType::TYPE_EXTENSION_DEFINITION;
 
     /**
      * @var ObjectTypeDefinition

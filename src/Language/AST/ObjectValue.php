@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class ObjectValue extends Node implements Value
 {
-    protected $kind = Node::OBJECT;
+    protected $kind = NodeType::OBJECT;
 
     /**
      * @var array<ObjectField>

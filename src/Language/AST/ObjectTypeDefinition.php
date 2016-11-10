@@ -7,7 +7,7 @@ class ObjectTypeDefinition extends Node implements TypeDefinition
     /**
      * @var string
      */
-    protected $kind = Node::OBJECT_TYPE_DEFINITION;
+    protected $kind = NodeType::OBJECT_TYPE_DEFINITION;
 
     /**
      * @var Name

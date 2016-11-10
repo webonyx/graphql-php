@@ -7,7 +7,7 @@ class UnionTypeDefinition extends Node implements TypeDefinition
     /**
      * @var string
      */
-    protected $kind = self::UNION_TYPE_DEFINITION;
+    protected $kind = NodeType::UNION_TYPE_DEFINITION;
 
     /**
      * @var Name
