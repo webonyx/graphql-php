@@ -91,9 +91,9 @@ class Printer
                 NodeType::INLINE_FRAGMENT => function(InlineFragment $node) {
                     return $this->join([
                         "...",
-                        $this->wrap('on ', $node->typeCondition),
-                        $this->join($node->directives, ' '),
-                        $node->selectionSet
+                        $this->wrap('on ', $node->getTypeCondition()),
+                        $this->join($node->getDirectives(), ' '),
+                        $node->getSelectionSet()
                     ], ' ');
                 },
                 NodeType::FRAGMENT_DEFINITION => function(FragmentDefinition $node) {

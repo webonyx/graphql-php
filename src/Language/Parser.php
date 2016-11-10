@@ -559,12 +559,12 @@ class Parser
             $typeCondition = $this->parseNamedType();
         }
 
-        return new InlineFragment([
-            'typeCondition' => $typeCondition,
-            'directives' => $this->parseDirectives(),
-            'selectionSet' => $this->parseSelectionSet(),
-            'loc' => $this->loc($start)
-        ]);
+        return new InlineFragment(
+            $typeCondition,
+            $this->parseDirectives(),
+            $this->parseSelectionSet(),
+            $this->loc($start)
+        );
     }
 
     /**
