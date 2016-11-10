@@ -644,10 +644,10 @@ class Parser
                 );
             case Token::STRING:
                 $this->lexer->advance();
-                return new StringValue([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token)
-                ]);
+                return new StringValue(
+                    $token->value,
+                    $this->loc($token)
+                );
             case Token::NAME:
                 if ($token->value === 'true' || $token->value === 'false') {
                     $this->lexer->advance();

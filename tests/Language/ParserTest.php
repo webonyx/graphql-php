@@ -151,9 +151,9 @@ HEREDOC;
                     [
                         new Argument(
                             new Name('arg'),
-                            new StringValue([
-                                'value' => "Has a $char multi-byte character."
-                            ])
+                            new StringValue(
+                                "Has a $char multi-byte character."
+                            )
                         )
                     ]
                 )

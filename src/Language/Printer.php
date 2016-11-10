@@ -109,7 +109,9 @@ class Printer
                 NodeType::FLOAT => function(FloatValue $node) {
                     return $node->getValue();
                 },
-                NodeType::STRING => function(StringValue $node) {return json_encode($node->value);},
+                NodeType::STRING => function(StringValue $node) {
+                    return json_encode($node->getValue());
+                },
                 NodeType::BOOLEAN => function(BooleanValue $node) {
                     return $node->getValue() ? 'true' : 'false';
                 },
