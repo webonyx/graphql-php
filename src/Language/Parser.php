@@ -730,11 +730,11 @@ class Parser
 
         $this->expect(Token::COLON);
 
-        return new ObjectField([
-            'name' => $name,
-            'value' => $this->parseValueLiteral($isConst),
-            'loc' => $this->loc($start)
-        ]);
+        return new ObjectField(
+            $name,
+            $this->parseValueLiteral($isConst),
+            $this->loc($start)
+        );
     }
 
     // Implements the parsing rules in the Directives section.

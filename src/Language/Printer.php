@@ -120,7 +120,9 @@ class Printer
                     return '[' . $this->join($node->getValues(), ', ') . ']';
                 },
                 NodeType::OBJECT => function(ObjectValue $node) {return '{' . $this->join($node->fields, ', ') . '}';},
-                NodeType::OBJECT_FIELD => function(ObjectField $node) {return $node->name . ': ' . $node->value;},
+                NodeType::OBJECT_FIELD => function(ObjectField $node) {
+                    return $node->getName() . ': ' . $node->getValue();
+                },
 
                 // Directive
                 NodeType::DIRECTIVE => function(Directive $node) {
