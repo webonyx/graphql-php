@@ -180,9 +180,9 @@ class Printer
                 NodeType::ENUM_TYPE_DEFINITION => function(EnumTypeDefinition $def) {
                     return $this->join([
                         'enum',
-                        $def->name,
-                        $this->join($def->directives, ' '),
-                        $this->block($def->values)
+                        $def->getName(),
+                        $this->join($def->getDirectives(), ' '),
+                        $this->block($def->getValues())
                     ], ' ');
                 },
                 NodeType::ENUM_VALUE_DEFINITION => function(EnumValueDefinition $def) {

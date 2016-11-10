@@ -1078,12 +1078,12 @@ class Parser
             Token::BRACE_R
         );
 
-        return new EnumTypeDefinition([
-            'name' => $name,
-            'directives' => $directives,
-            'values' => $values,
-            'loc' => $this->loc($start)
-        ]);
+        return new EnumTypeDefinition(
+            $name,
+            $directives,
+            $values,
+            $this->loc($start)
+        );
     }
 
     /**
