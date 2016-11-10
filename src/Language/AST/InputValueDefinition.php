@@ -6,7 +6,7 @@ class InputValueDefinition extends Node
     /**
      * @var string
      */
-    public $kind = Node::INPUT_VALUE_DEFINITION;
+    public $kind = NodeType::INPUT_VALUE_DEFINITION;
 
     /**
      * @var Name

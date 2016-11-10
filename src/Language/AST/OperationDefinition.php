@@ -6,7 +6,7 @@ class OperationDefinition extends Node implements Definition, HasSelectionSet
     /**
      * @var string
      */
-    public $kind = Node::OPERATION_DEFINITION;
+    public $kind = NodeType::OPERATION_DEFINITION;
 
     /**
      * @var Name

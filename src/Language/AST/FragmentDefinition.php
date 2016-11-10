@@ -1,10 +1,9 @@
 <?php
 namespace GraphQL\Language\AST;
 
-
 class FragmentDefinition extends Node implements Definition, HasSelectionSet
 {
-    public $kind = Node::FRAGMENT_DEFINITION;
+    public $kind = NodeType::FRAGMENT_DEFINITION;
 
     /**
      * @var Name

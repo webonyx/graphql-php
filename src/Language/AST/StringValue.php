@@ -1,10 +1,9 @@
 <?php
 namespace GraphQL\Language\AST;
 
-
 class StringValue extends Node implements Value
 {
-    public $kind = Node::STRING;
+    public $kind = NodeType::STRING;
 
     /**
      * @var string

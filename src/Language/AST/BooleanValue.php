@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 
 class BooleanValue extends Node implements Value
 {
-    public $kind = Node::BOOLEAN;
+    public $kind = NodeType::BOOLEAN;
 
     /**
      * @var string

@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class VariableDefinition extends Node implements Definition
 {
-    public $kind = Node::VARIABLE_DEFINITION;
+    public $kind = NodeType::VARIABLE_DEFINITION;
 
     /**
      * @var Variable

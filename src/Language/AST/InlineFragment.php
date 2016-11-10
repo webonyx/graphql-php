@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class InlineFragment extends Node implements Selection
 {
-    public $kind = Node::INLINE_FRAGMENT;
+    public $kind = NodeType::INLINE_FRAGMENT;
 
     /**
      * @var NamedType

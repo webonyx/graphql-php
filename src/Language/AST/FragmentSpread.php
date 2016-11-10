@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class FragmentSpread extends Node implements Selection
 {
-    public $kind = Node::FRAGMENT_SPREAD;
+    public $kind = NodeType::FRAGMENT_SPREAD;
 
     /**
      * @var Name

@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class Field extends Node implements Selection
 {
-    public $kind = Node::FIELD;
+    public $kind = NodeType::FIELD;
 
     /**
      * @var Name
