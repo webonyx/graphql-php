@@ -145,18 +145,18 @@ HEREDOC;
 
         $expected = new SelectionSet([
             'selections' => [
-                new Field([
-                    'name' => new Name('field'),
-                    'arguments' => [
+                new Field(
+                    new Name('field'),
+                    null,
+                    [
                         new Argument(
                             new Name('arg'),
                             new StringValue([
                                 'value' => "Has a $char multi-byte character."
                             ])
                         )
-                    ],
-                    'directives' => []
-                ])
+                    ]
+                )
             ]
         ]);
 

@@ -75,9 +75,9 @@ class Printer
                 },
                 NodeType::FIELD => function(Field $node) {
                     return $this->join([
-                        $this->wrap('', $node->alias, ': ') . $node->name . $this->wrap('(', $this->join($node->arguments, ', '), ')'),
-                        $this->join($node->directives, ' '),
-                        $node->selectionSet
+                        $this->wrap('', $node->getAlias(), ': ') . $node->getName() . $this->wrap('(', $this->join($node->getArguments(), ', '), ')'),
+                        $this->join($node->getDirectives(), ' '),
+                        $node->getSelectionSet()
                     ], ' ');
                 },
                 NodeType::ARGUMENT => function(Argument $node) {

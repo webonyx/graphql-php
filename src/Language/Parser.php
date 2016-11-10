@@ -499,14 +499,14 @@ class Parser
             $name = $nameOrAlias;
         }
 
-        return new Field([
-            'alias' => $alias,
-            'name' => $name,
-            'arguments' => $this->parseArguments(),
-            'directives' => $this->parseDirectives(),
-            'selectionSet' => $this->peek(Token::BRACE_L) ? $this->parseSelectionSet() : null,
-            'loc' => $this->loc($start)
-        ]);
+        return new Field(
+            $name,
+            $alias,
+            $this->parseArguments(),
+            $this->parseDirectives(),
+            $this->peek(Token::BRACE_L) ? $this->parseSelectionSet() : null,
+            $this->loc($start)
+        );
     }
 
     /**
