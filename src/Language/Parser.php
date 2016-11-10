@@ -713,10 +713,10 @@ class Parser
         while (!$this->skip(Token::BRACE_R)) {
             $fields[] = $this->parseObjectField($isConst);
         }
-        return new ObjectValue([
-            'fields' => $fields,
-            'loc' => $this->loc($start)
-        ]);
+        return new ObjectValue(
+            $fields,
+            $this->loc($start)
+        );
     }
 
     /**

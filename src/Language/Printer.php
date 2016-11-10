@@ -119,7 +119,9 @@ class Printer
                 NodeType::LST => function(ListValue $node) {
                     return '[' . $this->join($node->getValues(), ', ') . ']';
                 },
-                NodeType::OBJECT => function(ObjectValue $node) {return '{' . $this->join($node->fields, ', ') . '}';},
+                NodeType::OBJECT => function(ObjectValue $node) {
+                    return '{' . $this->join($node->getFields(), ', ') . '}';
+                },
                 NodeType::OBJECT_FIELD => function(ObjectField $node) {
                     return $node->getName() . ': ' . $node->getValue();
                 },
