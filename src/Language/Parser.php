@@ -1017,12 +1017,12 @@ class Parser
             Token::BRACE_R
         );
 
-        return new InterfaceTypeDefinition([
-            'name' => $name,
-            'directives' => $directives,
-            'fields' => $fields,
-            'loc' => $this->loc($start)
-        ]);
+        return new InterfaceTypeDefinition(
+            $name,
+            $directives,
+            $fields,
+            $this->loc($start)
+        );
     }
 
     /**

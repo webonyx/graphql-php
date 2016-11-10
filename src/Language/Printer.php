@@ -168,9 +168,9 @@ class Printer
                 NodeType::INTERFACE_TYPE_DEFINITION => function(InterfaceTypeDefinition $def) {
                     return $this->join([
                         'interface',
-                        $def->name,
-                        $this->join($def->directives, ' '),
-                        $this->block($def->fields)
+                        $def->getName(),
+                        $this->join($def->getDirectives(), ' '),
+                        $this->block($def->getFields())
                     ], ' ');
                 },
                 NodeType::UNION_TYPE_DEFINITION => function(UnionTypeDefinition $def) {
