@@ -160,7 +160,7 @@ HEREDOC;
             ]
         );
 
-        $this->assertEquals($expected, $result->getDefinitions()[0]->selectionSet);
+        $this->assertEquals($expected, $result->getDefinitions()[0]->getSelectionSet());
     }
 
     /**

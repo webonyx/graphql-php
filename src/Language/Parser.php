@@ -362,14 +362,14 @@ class Parser
     {
         $start = $this->lexer->token;
         if ($this->peek(Token::BRACE_L)) {
-            return new OperationDefinition([
-                'operation' => 'query',
-                'name' => null,
-                'variableDefinitions' => null,
-                'directives' => [],
-                'selectionSet' => $this->parseSelectionSet(),
-                'loc' => $this->loc($start)
-            ]);
+            return new OperationDefinition(
+                null,
+                'query',
+                null,
+                [],
+                $this->parseSelectionSet(),
+                $this->loc($start)
+            );
         }
 
         $operation = $this->parseOperationType();
@@ -379,14 +379,14 @@ class Parser
             $name = $this->parseName();
         }
 
-        return new OperationDefinition([
-            'operation' => $operation,
-            'name' => $name,
-            'variableDefinitions' => $this->parseVariableDefinitions(),
-            'directives' => $this->parseDirectives(),
-            'selectionSet' => $this->parseSelectionSet(),
-            'loc' => $this->loc($start)
-        ]);
+        return new OperationDefinition(
+            $name,
+            $operation,
+            $this->parseVariableDefinitions(),
+            $this->parseDirectives(),
+            $this->parseSelectionSet(),
+            $this->loc($start)
+        );
     }
 
     /**

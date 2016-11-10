@@ -57,11 +57,11 @@ class Printer
                     return $this->join($node->getDefinitions(), "\n\n") . "\n";
                 },
                 NodeType::OPERATION_DEFINITION => function(OperationDefinition $node) {
-                    $op = $node->operation;
-                    $name = $node->name;
-                    $varDefs = $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')');
-                    $directives = $this->join($node->directives, ' ');
-                    $selectionSet = $node->selectionSet;
+                    $op = $node->getOperation();
+                    $name = $node->getName();
+                    $varDefs = $this->wrap('(', $this->join($node->getVariableDefinitions(), ', '), ')');
+                    $directives = $this->join($node->getDirectives(), ' ');
+                    $selectionSet = $node->getSelectionSet();
                     // Anonymous queries with no directives or variable definitions can use
                     // the query short form.
                     return !$name && !$directives && !$varDefs && $op === 'query'
