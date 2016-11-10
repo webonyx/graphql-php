@@ -38,6 +38,7 @@ use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\AST\TypeExtensionDefinition;
 use GraphQL\Language\AST\UnionTypeDefinition;
+use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
 
 class Printer
@@ -49,8 +50,8 @@ class Printer
                 NodeType::NAME => function(Name $node) {
                     return '' . $node->getValue();
                 },
-                NodeType::VARIABLE => function($node) {
-                    return '$' . $node->name;
+                NodeType::VARIABLE => function(Variable $node) {
+                    return '$' . $node->getName();
                 },
                 NodeType::DOCUMENT => function(Document $node) {
                     return $this->join($node->getDefinitions(), "\n\n") . "\n";

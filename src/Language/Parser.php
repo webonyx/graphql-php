@@ -450,10 +450,10 @@ class Parser
         $start = $this->lexer->token;
         $this->expect(Token::DOLLAR);
 
-        return new Variable([
-            'name' => $this->parseName(),
-            'loc' => $this->loc($start)
-        ]);
+        return new Variable(
+            $this->parseName(),
+            $this->loc($start)
+        );
     }
 
     /**
