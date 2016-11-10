@@ -17,7 +17,7 @@ class SelectionSet extends Node
      * @param array $selections
      * @param null  $loc
      */
-    public function __construct(array $selections, $loc = null)
+    public function __construct(array $selections = [], $loc = null)
     {
         $this->selections = $selections;
         $this->loc = $loc;

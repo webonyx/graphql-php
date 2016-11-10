@@ -348,7 +348,7 @@ class Visitor
             'enter' => function ($node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if (empty($skipping[$i])) {
-                        $fn = self::getVisitFn($visitors[$i], $node->kind, /* isLeaving */ false);
+                        $fn = self::getVisitFn($visitors[$i], $node->getKind(), /* isLeaving */ false);
 
                         if ($fn) {
                             $result = call_user_func_array($fn, func_get_args());
@@ -371,7 +371,7 @@ class Visitor
             'leave' => function ($node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if (empty($skipping[$i])) {
-                        $fn = self::getVisitFn($visitors[$i], $node->kind, /* isLeaving */ true);
+                        $fn = self::getVisitFn($visitors[$i], $node->getKind(), /* isLeaving */ true);
 
                         if ($fn) {
                             $result = call_user_func_array($fn, func_get_args());
@@ -402,7 +402,7 @@ class Visitor
         return [
             'enter' => function ($node) use ($typeInfo, $visitor) {
                 $typeInfo->enter($node);
-                $fn = self::getVisitFn($visitor, $node->kind, false);
+                $fn = self::getVisitFn($visitor, $node->getKind(), false);
 
                 if ($fn) {
                     $result = call_user_func_array($fn, func_get_args());
@@ -417,7 +417,7 @@ class Visitor
                 return null;
             },
             'leave' => function ($node) use ($typeInfo, $visitor) {
-                $fn = self::getVisitFn($visitor, $node->kind, true);
+                $fn = self::getVisitFn($visitor, $node->getKind(), true);
                 $result = $fn ? call_user_func_array($fn, func_get_args()) : null;
                 $typeInfo->leave($node);
                 return $result;

@@ -5,8 +5,10 @@ use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
@@ -21,24 +23,23 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowsEditingNodeOnEnterAndOnLeave()
     {
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
+        $parser = new Parser(new Lexer(), [ 'noLocation' => true ]);
+        $ast = $parser->parse('{ a, b, c { a, b, c } }');
 
         $selectionSet = null;
         $editedAst = Visitor::visit($ast, [
-            Node::OPERATION_DEFINITION => [
+            NodeType::OPERATION_DEFINITION => [
                 'enter' => function(OperationDefinition $node) use (&$selectionSet) {
-                    $selectionSet = $node->selectionSet;
+                    $selectionSet = $node->getSelectionSet();
 
                     $newNode = clone $node;
-                    $newNode->selectionSet = new SelectionSet([
-                        'selections' => []
-                    ]);
+                    $newNode->setSelectionSet(new SelectionSet([]));
                     $newNode->didEnter = true;
                     return $newNode;
                 },
                 'leave' => function(OperationDefinition $node) use (&$selectionSet) {
                     $newNode = clone $node;
-                    $newNode->selectionSet = $selectionSet;
+                    $newNode->setSelectionSet($selectionSet);
                     $newNode->didLeave = true;
                     return $newNode;
                 }
@@ -48,8 +49,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEquals($ast, $editedAst);
 
         $expected = $ast->cloneDeep();
-        $expected->definitions[0]->didEnter = true;
-        $expected->definitions[0]->didLeave = true;
+        $expected->getDefinitions()[0]->didEnter = true;
+        $expected->getDefinitions()[0]->didLeave = true;
 
         $this->assertEquals($expected, $editedAst);
     }
@@ -59,20 +60,21 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowsEditingRootNodeOnEnterAndLeave()
     {
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
-        $definitions = $ast->definitions;
+        $parser = new Parser(new Lexer(), [ 'noLocation' => true ]);
+        $ast = $parser->parse('{ a, b, c { a, b, c } }');
+        $definitions = $ast->getDefinitions();
 
         $editedAst = Visitor::visit($ast, [
-            Node::DOCUMENT => [
+            NodeType::DOCUMENT => [
                 'enter' => function (Document $node) {
                     $tmp = clone $node;
-                    $tmp->definitions = [];
+                    $tmp->setDefinitions([]);
                     $tmp->didEnter = true;
                     return $tmp;
                 },
                 'leave' => function(Document $node) use ($definitions) {
                     $tmp = clone $node;
-                    $node->definitions = $definitions;
+                    $node->setDefinitions($definitions);
                     $node->didLeave = true;
                 }
             ]
@@ -92,21 +94,22 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowsForEditingOnEnter()
     {
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
+        $parser = new Parser(new Lexer(), [ 'noLocation' => true ]);
+        $ast = $parser->parse('{ a, b, c { a, b, c } }');
         $editedAst = Visitor::visit($ast, [
             'enter' => function($node) {
-                if ($node instanceof Field && $node->name->value === 'b') {
+                if ($node instanceof Field && $node->getName()->getValue() === 'b') {
                     return Visitor::removeNode();
                 }
             }
         ]);
 
         $this->assertEquals(
-            Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
+            $parser->parse('{ a, b, c { a, b, c } }'),
             $ast
         );
         $this->assertEquals(
-            Parser::parse('{ a,    c { a,    c } }', ['noLocation' => true]),
+            $parser->parse('{ a,    c { a,    c } }'),
             $editedAst
         );
     }
@@ -116,22 +119,23 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowsForEditingOnLeave()
     {
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
+        $parser = new Parser(new Lexer(), [ 'noLocation' => true ]);
+        $ast = $parser->parse('{ a, b, c { a, b, c } }');
         $editedAst = Visitor::visit($ast, [
             'leave' => function($node) {
-                if ($node instanceof Field && $node->name->value === 'b') {
+                if ($node instanceof Field && $node->getName()->getValue() === 'b') {
                     return Visitor::removeNode();
                 }
             }
         ]);
 
         $this->assertEquals(
-            Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
+            $parser->parse('{ a, b, c { a, b, c } }'),
             $ast
         );
 
         $this->assertEquals(
-            Parser::parse('{ a,    c { a,    c } }', ['noLocation' => true]),
+            $parser->parse('{ a,    c { a,    c } }'),
             $editedAst
         );
     }
@@ -141,24 +145,29 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testVisitsEditedNode()
     {
-        $addedField = new Field(array(
-            'name' => new Name(array(
-                'value' => '__typename'
-            ))
-        ));
+        $addedField = new Field(
+            new Name(
+                '__typename'
+            )
+        );
 
         $didVisitAddedField = false;
 
-        $ast = Parser::parse('{ a { x } }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a { x } }');
 
         Visitor::visit($ast, [
             'enter' => function($node) use ($addedField, &$didVisitAddedField) {
-                if ($node instanceof Field && $node->name->value === 'a') {
-                    return new Field([
-                        'selectionSet' => new SelectionSet(array(
-                            'selections' => array_merge([$addedField], $node->selectionSet->selections)
-                        ))
-                    ]);
+                if ($node instanceof Field && $node->getName()->getValue() === 'a') {
+                    return new Field(
+                        null,
+                        null,
+                        [],
+                        [],
+                        new SelectionSet(
+                            array_merge([$addedField], $node->getSelectionSet()->getSelections())
+                        )
+                    );
                 }
                 if ($node === $addedField) {
                     $didVisitAddedField = true;
@@ -175,17 +184,18 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testAllowsSkippingASubTree()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
             'enter' => function(Node $node) use (&$visited) {
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
-                if ($node instanceof Field && $node->name->value === 'b') {
+                $visited[] = ['enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
+                if ($node instanceof Field && $node->getName()->getValue() === 'b') {
                     return Visitor::skipNode();
                 }
             },
             'leave' => function (Node $node) use (&$visited) {
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
             }
         ]);
 
@@ -216,17 +226,18 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testAllowsEarlyExitWhileVisiting()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
             'enter' => function(Node $node) use (&$visited) {
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
-                if ($node instanceof Name && $node->value === 'x') {
+                $visited[] = ['enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
+                if ($node instanceof Name && $node->getValue() === 'x') {
                     return Visitor::stop();
                 }
             },
             'leave' => function(Node $node) use (&$visited) {
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
             }
         ]);
 
@@ -255,16 +266,16 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testAllowsEarlyExitWhileLeaving()
     {
         $visited = [];
-
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a, b { x }, c }');
         Visitor::visit($ast, [
             'enter' => function($node) use (&$visited) {
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
             },
             'leave' => function($node) use (&$visited) {
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
 
-                if ($node->kind === Node::NAME && $node->value === 'x') {
+                if ($node->getKind() === NodeType::NAME && $node->getValue() === 'x') {
                     return Visitor::stop();
                 }
             }
@@ -294,18 +305,19 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testAllowsANamedFunctionsVisitorAPI()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
-            Node::NAME => function(Name $node) use (&$visited) {
-                $visited[] = ['enter', $node->kind, $node->value];
+            NodeType::NAME => function(Name $node) use (&$visited) {
+                $visited[] = ['enter', $node->getKind(), $node->getValue()];
             },
-            Node::SELECTION_SET => [
+            NodeType::SELECTION_SET => [
                 'enter' => function(SelectionSet $node) use (&$visited) {
-                    $visited[] = ['enter', $node->kind, null];
+                    $visited[] = ['enter', $node->getKind(), null];
                 },
                 'leave' => function(SelectionSet $node) use (&$visited) {
-                    $visited[] = ['leave', $node->kind, null];
+                    $visited[] = ['leave', $node->getKind(), null];
                 }
             ]
         ]);
@@ -330,16 +342,17 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testVisitsKitchenSink()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
 
         $visited = [];
         Visitor::visit($ast, [
             'enter' => function(Node $node, $key, $parent) use (&$visited) {
-                $r = ['enter', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
+                $r = ['enter', $node->getKind(), $key, $parent instanceof Node ? $parent->getKind() : null];
                 $visited[] = $r;
             },
             'leave' => function(Node $node, $key, $parent) use (&$visited) {
-                $r = ['leave', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
+                $r = ['leave', $node->getKind(), $key, $parent instanceof Node ? $parent->getKind() : null];
                 $visited[] = $r;
             }
         ]);
@@ -658,19 +671,20 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function($node) use (&$visited) {
-                    $visited[] = [ 'enter', $node->kind, isset($node->value) ?  $node->value : null];
+                'enter' => function(Node $node) use (&$visited) {
+                    $visited[] = [ 'enter', $node->getKind(), method_exists($node, 'getValue') ?  $node->getValue() : null];
 
-                    if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
+                    if ($node->getKind() === 'Field' && $node->getName() && $node->getName()->getValue() === 'b') {
                         return Visitor::skipNode();
                     }
                 },
 
-                'leave' => function($node) use (&$visited) {
-                    $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+                'leave' => function(Node $node) use (&$visited) {
+                    $visited[] = ['leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
                 }
             ]
         ]));
@@ -701,28 +715,29 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a { x }, b { y} }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a { x }, b { y} }');
         Visitor::visit($ast, Visitor::visitInParallel([
         [
-            'enter' => function($node) use (&$visited) {
-                $visited[] = ['no-a', 'enter', $node->kind, isset($node->value) ? $node->value : null];
-                if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'a') {
+            'enter' => function(Node $node) use (&$visited) {
+                $visited[] = ['no-a', 'enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
+                if ($node->getKind() === 'Field' && method_exists($node, 'getName') && $node->getName()->getValue() === 'a') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function($node) use (&$visited) {
-                $visited[] = [ 'no-a', 'leave', $node->kind, isset($node->value) ? $node->value : null ];
+            'leave' => function(Node $node) use (&$visited) {
+                $visited[] = [ 'no-a', 'leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null ];
             }
         ],
         [
-            'enter' => function($node) use (&$visited) {
-                $visited[] = ['no-b', 'enter', $node->kind, isset($node->value) ? $node->value : null];
-                if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
+            'enter' => function(Node $node) use (&$visited) {
+                $visited[] = ['no-b', 'enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
+                if ($node->getKind() === 'Field' && method_exists($node, 'getName') && $node->getName()->getValue() === 'b') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function($node) use (&$visited) {
-                $visited[] = ['no-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
+            'leave' => function(Node $node) use (&$visited) {
+                $visited[] = ['no-b', 'leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
             }
         ]
         ]));
@@ -772,17 +787,18 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([ [
-            'enter' => function($node) use (&$visited) {
-                $value = isset($node->value) ? $node->value : null;
-                $visited[] = ['enter', $node->kind, $value];
-                if ($node->kind === 'Name' && $value === 'x') {
+            'enter' => function(Node $node) use (&$visited) {
+                $value = method_exists($node, 'getValue') ? $node->getValue() : null;
+                $visited[] = ['enter', $node->getKind(), $value];
+                if ($node->getKind() === 'Name' && $value === 'x') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+            'leave' => function(Node $node) use (&$visited) {
+                $visited[] = ['leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
             }
         ] ]));
 
@@ -810,30 +826,31 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a { y }, b { x } }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a { y }, b { x } }');
         Visitor::visit($ast, Visitor::visitInParallel([
         [
-            'enter' => function($node) use (&$visited) {
-                $value = isset($node->value) ? $node->value : null;
-                $visited[] = ['break-a', 'enter', $node->kind, $value];
-                if ($node->kind === 'Name' && $value === 'a') {
+            'enter' => function(Node $node) use (&$visited) {
+                $value = method_exists($node, 'getValue') ? $node->getValue() : null;
+                $visited[] = ['break-a', 'enter', $node->getKind(), $value];
+                if ($node->getKind() === 'Name' && $value === 'a') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
-                $visited[] = [ 'break-a', 'leave', $node->kind, isset($node->value) ? $node->value : null ];
+            'leave' => function(Node $node) use (&$visited) {
+                $visited[] = [ 'break-a', 'leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null ];
             }
         ],
         [
-            'enter' => function($node) use (&$visited) {
-                $value = isset($node->value) ? $node->value : null;
-                $visited[] = ['break-b', 'enter', $node->kind, $value];
-                if ($node->kind === 'Name' && $value === 'b') {
+            'enter' => function(Node $node) use (&$visited) {
+                $value = method_exists($node, 'getValue') ? $node->getValue() : null;
+                $visited[] = ['break-b', 'enter', $node->getKind(), $value];
+                if ($node->getKind() === 'Name' && $value === 'b') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
-                $visited[] = ['break-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
+            'leave' => function(Node $node) use (&$visited) {
+                $visited[] = ['break-b', 'leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
             }
         ],
         ]));
@@ -869,15 +886,16 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([ [
-            'enter' => function($node) use (&$visited) {
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+            'enter' => function(Node $node) use (&$visited) {
+                $visited[] = ['enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
             },
-            'leave' => function($node) use (&$visited) {
-                $value = isset($node->value) ? $node->value : null;
-                $visited[] = ['leave', $node->kind, $value];
-                if ($node->kind === 'Name' && $value === 'x') {
+            'leave' => function(Node $node) use (&$visited) {
+                $value = method_exists($node, 'getValue') ? $node->getValue() : null;
+                $visited[] = ['leave', $node->getKind(), $value];
+                if ($node->getKind() === 'Name' && $value === 'x') {
                     return Visitor::stop();
                 }
             }
@@ -908,26 +926,27 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a { y }, b { x } }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ a { y }, b { x } }');
         Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function($node) use (&$visited) {
-                    $visited[] = ['break-a', 'enter', $node->kind, isset($node->value) ? $node->value : null];
+                'enter' => function(Node $node) use (&$visited) {
+                    $visited[] = ['break-a', 'enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
                 },
-                'leave' => function($node) use (&$visited) {
-                    $visited[] = ['break-a', 'leave', $node->kind, isset($node->value) ? $node->value : null];
-                    if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'a') {
+                'leave' => function(Node $node) use (&$visited) {
+                    $visited[] = ['break-a', 'leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
+                    if ($node->getKind() === 'Field' && method_exists($node, 'getName') && $node->getName()->getValue() === 'a') {
                         return Visitor::stop();
                     }
                 }
             ],
             [
                 'enter' => function($node) use (&$visited) {
-                    $visited[] = ['break-b', 'enter', $node->kind, isset($node->value) ? $node->value : null];
+                    $visited[] = ['break-b', 'enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
                 },
                 'leave' => function($node) use (&$visited) {
-                    $visited[] = ['break-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
-                    if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
+                    $visited[] = ['break-b', 'leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
+                    if ($node->getKind() === 'Field' && method_exists($node, 'getName') && $node->getName()->getValue() === 'b') {
                         return Visitor::stop();
                     }
                 }
@@ -981,32 +1000,33 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
+        $parser = new Parser(new Lexer(), [ 'noLocation' => true ]);
+        $ast = $parser->parse('{ a, b, c { a, b, c } }');
         $editedAst = Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function ($node) use (&$visited) {
-                    if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
+                'enter' => function (Node $node) use (&$visited) {
+                    if ($node->getKind() === 'Field' && method_exists($node, 'getName') && $node->getName()->getValue() === 'b') {
                         return Visitor::removeNode();
                     }
                 }
             ],
             [
-                'enter' => function ($node) use (&$visited) {
-                    $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                'enter' => function (Node $node) use (&$visited) {
+                    $visited[] = ['enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
                 },
-                'leave' => function ($node) use (&$visited) {
-                    $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+                'leave' => function (Node $node) use (&$visited) {
+                    $visited[] = ['leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
                 }
             ],
         ]));
 
         $this->assertEquals(
-            Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
+            $parser->parse('{ a, b, c { a, b, c } }'),
             $ast
         );
 
         $this->assertEquals(
-            Parser::parse('{ a,    c { a,    c } }', ['noLocation' => true]),
+            $parser->parse('{ a,    c { a,    c } }'),
             $editedAst
         );
 
@@ -1045,32 +1065,33 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
+        $parser = new Parser(new Lexer(), [ 'noLocation' => true ]);
+        $ast = $parser->parse('{ a, b, c { a, b, c } }');
         $editedAst = Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'leave' => function ($node) use (&$visited) {
-                    if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
+                'leave' => function (Node $node) use (&$visited) {
+                    if ($node->getKind() === 'Field' && method_exists($node, 'getName') && $node->getName()->getValue() === 'b') {
                         return Visitor::removeNode();
                     }
                 }
             ],
             [
-                'enter' => function ($node) use (&$visited) {
-                    $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                'enter' => function (Node $node) use (&$visited) {
+                    $visited[] = ['enter', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
                 },
-                'leave' => function ($node) use (&$visited) {
-                    $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+                'leave' => function (Node $node) use (&$visited) {
+                    $visited[] = ['leave', $node->getKind(), method_exists($node, 'getValue') ? $node->getValue() : null];
                 }
             ],
         ]));
 
         $this->assertEquals(
-            Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
+            $parser->parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
             $ast
         );
 
         $this->assertEquals(
-            Parser::parse('{ a,    c { a,    c } }', ['noLocation' => true]),
+            $parser->parse('{ a,    c { a,    c } }', ['noLocation' => true]),
             $editedAst
         );
 
@@ -1119,29 +1140,30 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $typeInfo = new TypeInfo(TestCase::getDefaultSchema());
 
-        $ast = Parser::parse('{ human(id: 4) { name, pets { name }, unknown } }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ human(id: 4) { name, pets { name }, unknown } }');
         Visitor::visit($ast, Visitor::visitWithTypeInfo($typeInfo, [
-            'enter' => function ($node) use ($typeInfo, &$visited) {
+            'enter' => function (Node $node) use ($typeInfo, &$visited) {
                 $parentType = $typeInfo->getParentType();
                 $type = $typeInfo->getType();
                 $inputType = $typeInfo->getInputType();
                 $visited[] = [
                     'enter',
-                    $node->kind,
-                    $node->kind === 'Name' ? $node->value : null,
+                    $node->getKind(),
+                    $node->getKind() === 'Name' ? $node->getValue() : null,
                     $parentType ? (string)$parentType : null,
                     $type ? (string)$type : null,
                     $inputType ? (string)$inputType : null
                 ];
             },
-            'leave' => function ($node) use ($typeInfo, &$visited) {
+            'leave' => function (Node $node) use ($typeInfo, &$visited) {
                 $parentType = $typeInfo->getParentType();
                 $type = $typeInfo->getType();
                 $inputType = $typeInfo->getInputType();
                 $visited[] = [
                     'leave',
-                    $node->kind,
-                    $node->kind === 'Name' ? $node->value : null,
+                    $node->getKind(),
+                    $node->getKind() === 'Name' ? $node->getValue() : null,
                     $parentType ? (string)$parentType : null,
                     $type ? (string)$type : null,
                     $inputType ? (string)$inputType : null
@@ -1197,18 +1219,19 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $visited = [];
         $typeInfo = new TypeInfo(TestCase::getDefaultSchema());
 
-        $ast = Parser::parse(
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse(
             '{ human(id: 4) { name, pets }, alien }'
         );
         $editedAst = Visitor::visit($ast, Visitor::visitWithTypeInfo($typeInfo, [
-            'enter' => function ($node) use ($typeInfo, &$visited) {
+            'enter' => function (Node $node) use ($typeInfo, &$visited) {
                 $parentType = $typeInfo->getParentType();
                 $type = $typeInfo->getType();
                 $inputType = $typeInfo->getInputType();
                 $visited[] = [
                     'enter',
-                    $node->kind,
-                    $node->kind === 'Name' ? $node->value : null,
+                    $node->getKind(),
+                    $node->getKind() === 'Name' ? $node->getValue() : null,
                     $parentType ? (string)$parentType : null,
                     $type ? (string)$type : null,
                     $inputType ? (string)$inputType : null
@@ -1216,34 +1239,33 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
                 // Make a query valid by adding missing selection sets.
                 if (
-                    $node->kind === 'Field' &&
-                    !$node->selectionSet &&
+                    $node->getKind() === 'Field' &&
+                    !$node->getSelectionSet() &&
                     Type::isCompositeType(Type::getNamedType($type))
                 ) {
-                    return new Field([
-                        'alias' => $node->alias,
-                        'name' => $node->name,
-                        'arguments' => $node->arguments,
-                        'directives' => $node->directives,
-                        'selectionSet' => new SelectionSet([
-                            'kind' => 'SelectionSet',
-                            'selections' => [
-                                new Field([
-                                    'name' => new Name(['value' => '__typename'])
-                                ])
+                    return new Field(
+                        $node->getName(),
+                        $node->getAlias(),
+                        $node->getArguments(),
+                        $node->getDirectives(),
+                        new SelectionSet(
+                            [
+                                new Field(
+                                    new Name('__typename')
+                                )
                             ]
-                        ])
-                    ]);
+                        )
+                    );
                 }
             },
-            'leave' => function ($node) use ($typeInfo, &$visited) {
+            'leave' => function (Node $node) use ($typeInfo, &$visited) {
                 $parentType = $typeInfo->getParentType();
                 $type = $typeInfo->getType();
                 $inputType = $typeInfo->getInputType();
                 $visited[] = [
                     'leave',
-                    $node->kind,
-                    $node->kind === 'Name' ? $node->value : null,
+                    $node->getKind(),
+                    $node->getKind() === 'Name' ? $node->getValue() : null,
                     $parentType ? (string)$parentType : null,
                     $type ? (string)$type : null,
                     $inputType ? (string)$inputType : null
@@ -1251,13 +1273,14 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             }
         ]));
 
-        $this->assertEquals(Printer::doPrint(Parser::parse(
+        $printer = new Printer();
+        $this->assertEquals($printer->doPrint($parser->parse(
             '{ human(id: 4) { name, pets }, alien }'
-        )), Printer::doPrint($ast));
+        )), $printer->doPrint($ast));
 
-        $this->assertEquals(Printer::doPrint(Parser::parse(
+        $this->assertEquals($printer->doPrint($parser->parse(
             '{ human(id: 4) { name, pets { __typename } }, alien { __typename } }'
-        )), Printer::doPrint($editedAst));
+        )), $printer->doPrint($editedAst));
 
         $this->assertEquals([
             ['enter', 'Document', null, null, null, null],
