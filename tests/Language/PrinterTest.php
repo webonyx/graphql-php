@@ -10,6 +10,7 @@ use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 
@@ -21,7 +22,8 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     public function testDoesntAlterAST()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
 
         $astCopy = $ast->cloneDeep();
         $this->assertEquals($astCopy, $ast);
@@ -58,7 +60,8 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testCorrectlyPrintsOpsWithoutName()
     {
-        $queryAstShorthanded = Parser::parse('query { id, name }');
+        $parser = new Parser(new Lexer());
+        $queryAstShorthanded = $parser->parse('query { id, name }');
 
         $expected = '{
   id
@@ -67,7 +70,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
 ';
         $this->assertEquals($expected, Printer::doPrint($queryAstShorthanded));
 
-        $mutationAst = Parser::parse('mutation { id, name }');
+        $mutationAst = $parser->parse('mutation { id, name }');
         $expected = 'mutation {
   id
   name
@@ -75,7 +78,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
 ';
         $this->assertEquals($expected, Printer::doPrint($mutationAst));
 
-        $queryAstWithArtifacts = Parser::parse(
+        $queryAstWithArtifacts = $parser->parse(
             'query ($foo: TestType) @testDirective { id, name }'
         );
         $expected = 'query ($foo: TestType) @testDirective {
@@ -85,7 +88,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
 ';
         $this->assertEquals($expected, Printer::doPrint($queryAstWithArtifacts));
 
-        $mutationAstWithArtifacts = Parser::parse(
+        $mutationAstWithArtifacts = $parser->parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
         );
         $expected = 'mutation ($foo: TestType) @testDirective {
@@ -102,7 +105,8 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     public function testPrintsKitchenSink()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
 
         $printed = Printer::doPrint($ast);
 

@@ -1,16 +1,14 @@
 <?php
+
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\IntValue;
-use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -26,7 +24,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     {
         $run = function($num, $str, $expectedMessage, $expectedPositions = null, $expectedLocations = null) {
             try {
-                Parser::parse($str);
+                $parser = new Parser(new Lexer());
+
+                $parser->parse($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);
             } catch (SyntaxError $e) {
                 $this->assertEquals($expectedMessage, $e->getMessage(), "Test case $num failed");
@@ -59,7 +59,9 @@ fragment MissingOn Type
     public function testParseProvidesUsefulErrorWhenUsingSource()
     {
         try {
-            Parser::parse(new Source('query', 'MyQuery.graphql'));
+            $parser = new Parser(new Lexer());
+
+            $parser->parse(new Source('query', 'MyQuery.graphql'));
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
             $this->assertEquals("Syntax Error MyQuery.graphql (1:6) Expected {, found <EOF>\n\n1: query\n        ^\n", $e->getMessage());
@@ -72,7 +74,9 @@ fragment MissingOn Type
     public function testParsesVariableInlineValues()
     {
         // Following line should not throw:
-        Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
+        $parser = new Parser(new Lexer());
+
+        $parser->parse('{ field(complex: { a: { b: [ $var ] } }) }');
     }
 
     /**
@@ -81,7 +85,8 @@ fragment MissingOn Type
     public function testParsesConstantDefaultValues()
     {
         try {
-            Parser::parse('query Foo($x: Complex = { a: { b: [ $var ] } }) { field }');
+            $parser = new Parser(new Lexer());
+            $parser->parse('query Foo($x: Complex = { a: { b: [ $var ] } }) { field }');
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
             $this->assertEquals(
@@ -97,7 +102,8 @@ fragment MissingOn Type
     public function testDoesNotAcceptFragmentsNamedOn()
     {
         $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:10) Unexpected Name "on"');
-        Parser::parse('fragment on on on { on }');
+        $parser = new Parser(new Lexer());
+        $parser->parse('fragment on on on { on }');
     }
 
     /**
@@ -106,7 +112,8 @@ fragment MissingOn Type
     public function testDoesNotAcceptFragmentSpreadOfOn()
     {
         $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:9) Expected Name, found }');
-        Parser::parse('{ ...on }');
+        $parser = new Parser(new Lexer());
+        $parser->parse('{ ...on }');
     }
 
     /**
@@ -115,7 +122,8 @@ fragment MissingOn Type
     public function testDoesNotAllowNullAsValue()
     {
         $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:39) Unexpected Name "null"');
-        Parser::parse('{ fieldWithNullableStringInput(input: null) }');
+        $parser = new Parser(new Lexer());
+        $parser->parse('{ fieldWithNullableStringInput(input: null) }');
     }
 
     /**
@@ -131,7 +139,8 @@ fragment MissingOn Type
         { field(arg: "Has a $char multi-byte character.") }
 HEREDOC;
 
-        $result = Parser::parse($query, ['noLocation' => true]);
+        $parser = new Parser(new Lexer(), ['noLocation' => true]);
+        $result = $parser->parse($query);
 
         $expected = new SelectionSet([
             'selections' => [
@@ -160,7 +169,8 @@ HEREDOC;
     {
         // Following should not throw:
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $result = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($kitchenSink);
         $this->assertNotEmpty($result);
     }
 
@@ -185,7 +195,8 @@ HEREDOC;
             }
 
             // Expected not to throw:
-            $result = Parser::parse("query $keyword {
+            $parser = new Parser(new Lexer());
+            $result = $parser->parse("query $keyword {
   ... $fragmentName
   ... on $keyword { field }
 }
@@ -203,7 +214,8 @@ fragment $fragmentName on Type {
     public function testParsessAnonymousMutationOperations()
     {
         // Should not throw:
-        Parser::parse('
+        $parser = new Parser(new Lexer());
+        $parser->parse('
           mutation {
             mutationField
           }
@@ -216,7 +228,8 @@ fragment $fragmentName on Type {
     public function testParsesAnonymousSubscriptionOperations()
     {
         // Should not throw:
-        Parser::parse('
+        $parser = new Parser(new Lexer());
+        $parser->parse('
           subscription {
             subscriptionField
           }
@@ -229,7 +242,8 @@ fragment $fragmentName on Type {
     public function testParsesNamedMutationOperations()
     {
         // Should not throw:
-        Parser::parse('
+        $parser = new Parser(new Lexer());
+        $parser->parse('
           mutation Foo {
             mutationField
           }
@@ -241,7 +255,8 @@ fragment $fragmentName on Type {
      */
     public function testParsesNamedSubscriptionOperations()
     {
-        Parser::parse('
+        $parser = new Parser(new Lexer());
+        $parser->parse('
           subscription Foo {
             subscriptionField
           }
@@ -260,7 +275,8 @@ fragment $fragmentName on Type {
   }
 }
 ');
-        $result = Parser::parse($source);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($source);
 
         $loc = function($start, $end) use ($source) {
             return [
@@ -358,7 +374,8 @@ fragment $fragmentName on Type {
     public function testAllowsParsingWithoutSourceLocationInformation()
     {
         $source = new Source('{ id }');
-        $result = Parser::parse($source, ['noLocation' => true]);
+        $parser = new Parser(new Lexer(), ['noLocation' => true]);
+        $result = $parser->parse($source);
 
         $this->assertEquals(null, $result->loc);
     }
@@ -369,7 +386,8 @@ fragment $fragmentName on Type {
     public function testConvertToArray()
     {
         $source = new Source('{ id }');
-        $result = Parser::parse($source);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($source);
         $this->assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->loc));
     }
 
@@ -379,7 +397,8 @@ fragment $fragmentName on Type {
     public function testContainsReferencesToSource()
     {
         $source = new Source('{ id }');
-        $result = Parser::parse($source);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($source);
         $this->assertEquals($source, $result->loc->source);
     }
 
@@ -389,7 +408,8 @@ fragment $fragmentName on Type {
     public function testContainsReferencesToStartAndEndTokens()
     {
         $source = new Source('{ id }');
-        $result = Parser::parse($source);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($source);
         $this->assertEquals('<SOF>', $result->loc->startToken->kind);
         $this->assertEquals('<EOF>', $result->loc->endToken->kind);
     }
@@ -401,6 +421,8 @@ fragment $fragmentName on Type {
      */
     public function testParsesListValues()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
             'kind' => Node::LST,
             'loc' => ['start' => 0, 'end' => 11],
@@ -416,7 +438,7 @@ fragment $fragmentName on Type {
                     'value' => 'abc'
                 ]
             ]
-        ], $this->nodeToArray(Parser::parseValue('[123 "abc"]')));
+        ], $this->nodeToArray($parser->parseValue('[123 "abc"]')));
     }
 
     // Describe: parseType
@@ -426,6 +448,8 @@ fragment $fragmentName on Type {
      */
     public function testParsesWellKnownTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
             'kind' => Node::NAMED_TYPE,
             'loc' => ['start' => 0, 'end' => 6],
@@ -434,7 +458,7 @@ fragment $fragmentName on Type {
                 'loc' => ['start' => 0, 'end' => 6],
                 'value' => 'String'
             ]
-        ], $this->nodeToArray(Parser::parseType('String')));
+        ], $this->nodeToArray($parser->parseType('String')));
     }
 
     /**
@@ -442,6 +466,8 @@ fragment $fragmentName on Type {
      */
     public function testParsesCustomTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
             'kind' => Node::NAMED_TYPE,
             'loc' => ['start' => 0, 'end' => 6],
@@ -450,7 +476,7 @@ fragment $fragmentName on Type {
                 'loc' => ['start' => 0, 'end' => 6],
                 'value' => 'MyType'
             ]
-        ], $this->nodeToArray(Parser::parseType('MyType')));
+        ], $this->nodeToArray($parser->parseType('MyType')));
     }
 
     /**
@@ -458,6 +484,8 @@ fragment $fragmentName on Type {
      */
     public function testParsesListTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
             'kind' => Node::LIST_TYPE,
             'loc' => ['start' => 0, 'end' => 8],
@@ -470,7 +498,7 @@ fragment $fragmentName on Type {
                     'value' => 'MyType'
                 ]
             ]
-        ], $this->nodeToArray(Parser::parseType('[MyType]')));
+        ], $this->nodeToArray($parser->parseType('[MyType]')));
     }
 
     /**
@@ -478,6 +506,8 @@ fragment $fragmentName on Type {
      */
     public function testParsesNonNullTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
             'kind' => Node::NON_NULL_TYPE,
             'loc' => ['start' => 0, 'end' => 7],
@@ -490,7 +520,7 @@ fragment $fragmentName on Type {
                     'value' => 'MyType'
                 ]
             ]
-        ], $this->nodeToArray(Parser::parseType('MyType!')));
+        ], $this->nodeToArray($parser->parseType('MyType!')));
     }
 
     /**
@@ -498,6 +528,8 @@ fragment $fragmentName on Type {
      */
     public function testParsesNestedTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
             'kind' => Node::LIST_TYPE,
             'loc' => ['start' => 0, 'end' => 9],
@@ -514,7 +546,7 @@ fragment $fragmentName on Type {
                     ]
                 ]
             ]
-        ], $this->nodeToArray(Parser::parseType('[MyType!]')));
+        ], $this->nodeToArray($parser->parseType('[MyType!]')));
     }
 
     /**

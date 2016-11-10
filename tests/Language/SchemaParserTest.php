@@ -19,6 +19,7 @@ use GraphQL\Language\AST\ObjectTypeDefinition;
 use GraphQL\Language\AST\ScalarTypeDefinition;
 use GraphQL\Language\AST\TypeExtensionDefinition;
 use GraphQL\Language\AST\UnionTypeDefinition;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 
@@ -35,7 +36,8 @@ class SchemaParserTest extends \PHPUnit_Framework_TestCase
 type Hello {
   world: String
 }';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
@@ -71,7 +73,8 @@ extend type Hello {
   world: String
 }
 ';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {
             return TestUtils::locArray($start, $end);
         };
@@ -114,7 +117,8 @@ type Hello {
         $loc = function($start, $end) {
             return TestUtils::locArray($start, $end);
         };
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
 
         $expected = [
             'kind' => Node::DOCUMENT,
@@ -151,7 +155,8 @@ type Hello {
     {
         $body = 'type Hello implements World { }';
         $loc = function($start, $end) { return TestUtils::locArray($start, $end); };
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
 
         $expected = [
             'kind' => Node::DOCUMENT,
@@ -180,7 +185,8 @@ type Hello {
     {
         $body = 'type Hello implements Wo, rld { }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
 
         $expected = [
             'kind' => Node::DOCUMENT,
@@ -210,7 +216,8 @@ type Hello {
     {
         $body = 'enum Hello { WORLD }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
 
         $expected = [
             'kind' => Node::DOCUMENT,
@@ -236,7 +243,8 @@ type Hello {
     {
         $body = 'enum Hello { WO, RLD }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
 
         $expected = [
             'kind' => Node::DOCUMENT,
@@ -267,7 +275,8 @@ type Hello {
 interface Hello {
   world: String
 }';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
@@ -301,7 +310,8 @@ interface Hello {
 type Hello {
   world(flag: Boolean): String
 }';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
@@ -345,7 +355,8 @@ type Hello {
 type Hello {
   world(flag: Boolean = true): String
 }';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
@@ -388,7 +399,8 @@ type Hello {
 type Hello {
   world(things: [String]): String
 }';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
@@ -432,7 +444,8 @@ type Hello {
 type Hello {
   world(argOne: Boolean, argTwo: Int): String
 }';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
@@ -479,7 +492,8 @@ type Hello {
     public function testSimpleUnion()
     {
         $body = 'union Hello = World';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $expected = [
             'kind' => Node::DOCUMENT,
@@ -504,7 +518,8 @@ type Hello {
     public function testUnionWithTwoTypes()
     {
         $body = 'union Hello = Wo | Rld';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
@@ -532,7 +547,8 @@ type Hello {
     public function testScalar()
     {
         $body = 'scalar Hello';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $expected = [
             'kind' => Node::DOCUMENT,
@@ -558,7 +574,8 @@ type Hello {
 input Hello {
   world: String
 }';
-        $doc = Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
@@ -594,7 +611,8 @@ input Hello {
   world(foo: Int): String
 }';
         $this->setExpectedException('GraphQL\Error\SyntaxError');
-        Parser::parse($body);
+        $parser = new Parser(new Lexer());
+        $doc = $parser->parse($body);
     }
 
     private function typeNode($name, $loc)

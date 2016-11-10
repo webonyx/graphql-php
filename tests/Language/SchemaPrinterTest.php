@@ -3,6 +3,7 @@ namespace GraphQL\Tests;
 
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\ScalarTypeDefinition;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 
@@ -37,7 +38,8 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
-        $ast = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
         $astCopy = $ast->cloneDeep();
         Printer::doPrint($ast);
 
@@ -48,7 +50,8 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
-        $ast = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
         $printed = Printer::doPrint($ast);
 
         $expected = 'schema {

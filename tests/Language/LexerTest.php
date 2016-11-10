@@ -405,7 +405,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
     public function testReportsUsefulDashesInfo()
     {
         $q = 'a-b';
-        $lexer = new Lexer(new Source($q));
+        $lexer = new Lexer();
+        $lexer->setSource(new Source($q));
         $this->assertArraySubset(['kind' => Token::NAME, 'start' => 0, 'end' => 1, 'value' => 'a'], (array) $lexer->advance());
 
         try {
@@ -421,7 +422,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      */
     public function testDoubleLinkedList()
     {
-        $lexer = new Lexer(new Source('{
+        $lexer = new Lexer();
+        $lexer->setSource(new Source('{
       #comment
       field
     }'));
@@ -464,7 +466,9 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      */
     private function lexOne($body)
     {
-        $lexer = new Lexer(new Source($body));
+        $lexer = new Lexer();
+        $lexer->setSource(new Source($body));
+
         return $lexer->advance();
     }
 }

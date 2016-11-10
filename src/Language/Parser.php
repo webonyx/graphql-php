@@ -1,8 +1,6 @@
 <?php
 namespace GraphQL\Language;
 
-// language/parser.js
-
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\DirectiveDefinition;
 use GraphQL\Language\AST\EnumTypeDefinition;
@@ -46,6 +44,23 @@ use GraphQL\Error\SyntaxError;
 class Parser
 {
     /**
+     * @var Lexer
+     */
+    private $lexer;
+
+    /**
+     * Parser constructor.
+     *
+     * @param Lexer $lexer
+     * @param array $options
+     */
+    function __construct(Lexer $lexer, array $options = [])
+    {
+        $this->lexer = $lexer;
+        $this->lexer->setOptions($options);
+    }
+
+    /**
      * Available options:
      *
      * noLocation: boolean,
@@ -54,14 +69,16 @@ class Parser
      * disables that behavior for performance or testing.)
      *
      * @param Source|string $source
-     * @param array $options
+     *
      * @return Document
      */
-    public static function parse($source, array $options = [])
+    public function parse($source)
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser = new self($sourceObj, $options);
-        return $parser->parseDocument();
+        $source = $source instanceof Source ? $source : new Source($source);
+
+        $this->lexer->setSource($source);
+
+        return $this->parseDocument();
     }
 
 
@@ -76,16 +93,19 @@ class Parser
      * Consider providing the results to the utility function: valueFromAST().
      *
      * @param Source|string $source
-     * @param array $options
+     *
      * @return BooleanValue|EnumValue|FloatValue|IntValue|ListValue|ObjectValue|StringValue|Variable
      */
-    public static function parseValue($source, array $options = [])
+    public function parseValue($source)
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser = new Parser($sourceObj, $options);
-        $parser->expect(Token::SOF);
-        $value = $parser->parseValueLiteral(false);
-        $parser->expect(Token::EOF);
+        $source = $source instanceof Source ? $source : new Source($source);
+        
+        $this->lexer->setSource($source);
+
+        $this->expect(Token::SOF);
+        $value = $this->parseValueLiteral(false);
+        $this->expect(Token::EOF);
+
         return $value;
     }
 
@@ -99,32 +119,20 @@ class Parser
      *
      * Consider providing the results to the utility function: typeFromAST().
      * @param Source|string $source
-     * @param array $options
+     *
      * @return ListType|Name|NonNullType
      */
-    public static function parseType($source, array $options = [])
+    public function parseType($source)
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser = new Parser($sourceObj, $options);
-        $parser->expect(Token::SOF);
-        $type = $parser->parseTypeReference();
-        $parser->expect(Token::EOF);
+        $source = $source instanceof Source ? $source : new Source($source);
+
+        $this->lexer->setSource($source);
+
+        $this->expect(Token::SOF);
+        $type = $this->parseTypeReference();
+        $this->expect(Token::EOF);
+
         return $type;
-    }
-
-    /**
-     * @var Lexer
-     */
-    private $lexer;
-
-    /**
-     * Parser constructor.
-     * @param Source $source
-     * @param array $options
-     */
-    function __construct(Source $source, array $options = [])
-    {
-        $this->lexer = new Lexer($source, $options);
     }
 
     /**
@@ -136,9 +144,10 @@ class Parser
      */
     function loc(Token $startToken)
     {
-        if (empty($this->lexer->options['noLocation'])) {
-            return new Location($startToken, $this->lexer->lastToken, $this->lexer->source);
+        if (empty($this->lexer->getOptions()['noLocation'])) {
+            return new Location($startToken, $this->lexer->lastToken, $this->lexer->getSource());
         }
+
         return null;
     }
 
@@ -187,7 +196,7 @@ class Parser
         }
 
         throw new SyntaxError(
-            $this->lexer->source,
+            $this->lexer->getSource(),
             $token->start,
             "Expected $kind, found " . $token->getDescription()
         );
@@ -211,7 +220,7 @@ class Parser
             return $token;
         }
         throw new SyntaxError(
-            $this->lexer->source,
+            $this->lexer->getSource(),
             $token->start,
             'Expected "' . $value . '", found ' . $token->getDescription()
         );
@@ -224,7 +233,7 @@ class Parser
     function unexpected(Token $atToken = null)
     {
         $token = $atToken ?: $this->lexer->token;
-        return new SyntaxError($this->lexer->source, $token->start, "Unexpected " . $token->getDescription());
+        return new SyntaxError($this->lexer->getSource(), $token->start, "Unexpected " . $token->getDescription());
     }
 
     /**

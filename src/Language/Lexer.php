@@ -16,12 +16,12 @@ class Lexer
     /**
      * @var Source
      */
-    public $source;
+    protected $source;
 
     /**
      * @var array
      */
-    public $options;
+    protected $options;
 
     /**
      * The previously focused non-ignored token.
@@ -51,16 +51,56 @@ class Lexer
      */
     public $lineStart;
 
-    public function __construct(Source $source, array $options = [])
+    public function __construct(array $options = [])
     {
+        $this->setOptions($options);
+    }
+
+    /**
+     * @return Source
+     */
+    public function getSource()
+    {
+        return $this->source;
+    }
+
+    /**
+     * @param Source $source
+     *
+     * @return Lexer
+     */
+    public function setSource($source)
+    {
+        $this->source = $source;
+
         $startOfFileToken = new Token(Token::SOF, 0, 0, 0, 0, null);
 
-        $this->source = $source;
-        $this->options = $options;
         $this->lastToken = $startOfFileToken;
         $this->token = $startOfFileToken;
         $this->line = 1;
         $this->lineStart = 0;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @return Lexer
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
+
+        return $this;
     }
 
     /**
