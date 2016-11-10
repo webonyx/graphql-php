@@ -71,7 +71,7 @@ class Printer
                     return $node->variable . ': ' . $node->type . $this->wrap(' = ', $node->defaultValue);
                 },
                 NodeType::SELECTION_SET => function(SelectionSet $node) {
-                    return $this->block($node->selections);
+                    return $this->block($node->getSelections());
                 },
                 NodeType::FIELD => function(Field $node) {
                     return $this->join([

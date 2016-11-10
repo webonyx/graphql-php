@@ -462,10 +462,10 @@ class Parser
     function parseSelectionSet()
     {
         $start = $this->lexer->token;
-        return new SelectionSet([
-            'selections' => $this->many(Token::BRACE_L, [$this, 'parseSelection'], Token::BRACE_R),
-            'loc' => $this->loc($start)
-        ]);
+        return new SelectionSet(
+            $this->many(Token::BRACE_L, [$this, 'parseSelection'], Token::BRACE_R),
+            $this->loc($start)
+        );
     }
 
     /**

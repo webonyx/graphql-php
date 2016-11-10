@@ -143,8 +143,8 @@ HEREDOC;
         $parser = new Parser(new Lexer(), ['noLocation' => true]);
         $result = $parser->parse($query);
 
-        $expected = new SelectionSet([
-            'selections' => [
+        $expected = new SelectionSet(
+            [
                 new Field(
                     new Name('field'),
                     null,
@@ -158,7 +158,7 @@ HEREDOC;
                     ]
                 )
             ]
-        ]);
+        );
 
         $this->assertEquals($expected, $result->getDefinitions()[0]->selectionSet);
     }
