@@ -1162,12 +1162,12 @@ class Parser
         $this->expectKeyword('on');
         $locations = $this->parseDirectiveLocations();
 
-        return new DirectiveDefinition([
-            'name' => $name,
-            'arguments' => $args,
-            'locations' => $locations,
-            'loc' => $this->loc($start)
-        ]);
+        return new DirectiveDefinition(
+            $name,
+            $args,
+            $locations,
+            $this->loc($start)
+        );
     }
 
     /**

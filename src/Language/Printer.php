@@ -203,8 +203,8 @@ class Printer
                     return "extend {$def->definition}";
                 },
                 NodeType::DIRECTIVE_DEFINITION => function(DirectiveDefinition $def) {
-                    return 'directive @' . $def->name . $this->wrap('(', $this->join($def->arguments, ', '), ')')
-                        . ' on ' . $this->join($def->locations, ' | ');
+                    return 'directive @' . $def->getName() . $this->wrap('(', $this->join($def->getArguments(), ', '), ')')
+                        . ' on ' . $this->join($def->getLocations(), ' | ');
                 }
             ]
         ]);
