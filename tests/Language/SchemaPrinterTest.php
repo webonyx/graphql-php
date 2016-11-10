@@ -14,10 +14,12 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testPrintsMinimalAst()
     {
+        $printer = new Printer();
+
         $ast = new ScalarTypeDefinition([
             'name' => new Name(['value' => 'foo'])
         ]);
-        $this->assertEquals('scalar foo', Printer::doPrint($ast));
+        $this->assertEquals('scalar foo', $printer->doPrint($ast));
     }
 
     /**
@@ -28,7 +30,9 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
         // $badAst1 = { random: 'Data' };
         $badAst = (object) ['random' => 'Data'];
         $this->setExpectedException('Exception', 'Invalid AST Node: {"random":"Data"}');
-        Printer::doPrint($badAst);
+
+        $printer = new Printer();
+        $printer->doPrint($badAst);
     }
 
     /**
@@ -41,7 +45,9 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
         $parser = new Parser(new Lexer());
         $ast = $parser->parse($kitchenSink);
         $astCopy = $ast->cloneDeep();
-        Printer::doPrint($ast);
+
+        $printer = new Printer();
+        $printer->doPrint($ast);
 
         $this->assertEquals($astCopy, $ast);
     }
@@ -52,7 +58,9 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
 
         $parser = new Parser(new Lexer());
         $ast = $parser->parse($kitchenSink);
-        $printed = Printer::doPrint($ast);
+
+        $printer = new Printer();
+        $printed = $printer->doPrint($ast);
 
         $expected = 'schema {
   query: QueryType
