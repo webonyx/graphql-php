@@ -71,7 +71,7 @@ class QueryComplexity extends AbstractQuerySecurity
     {
         $this->context = $context;
 
-        $this->getVariable()Defs = new \ArrayObject();
+        $this->variableDefs = new \ArrayObject();
         $this->fieldAstAndDefs = new \ArrayObject();
         $complexity = 0;
 
@@ -88,7 +88,7 @@ class QueryComplexity extends AbstractQuerySecurity
                     );
                 },
                 NodeType::VARIABLE_DEFINITION => function ($def) {
-                    $this->getVariable()Defs[] = $def;
+                    $this->variableDefs[] = $def;
                     return Visitor::skipNode();
                 },
                 NodeType::OPERATION_DEFINITION => [
@@ -196,7 +196,7 @@ class QueryComplexity extends AbstractQuerySecurity
         if ($fieldDef instanceof FieldDefinition) {
             $variableValues = Values::getVariableValues(
                 $this->context->getSchema(),
-                $this->getVariable()Defs,
+                $this->variableDefs,
                 $rawVariableValues
             );
             $args = Values::getArgumentValues($fieldDef->args, $node->getArguments(), $variableValues);

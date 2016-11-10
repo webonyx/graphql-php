@@ -32,8 +32,9 @@ class ArgumentsOfCorrectType
                     $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argAST->getValue());
 
                     if (!empty($errors)) {
+                        $printer = new Printer();
                         $context->reportError(new Error(
-                            self::badValueMessage($argAST->getName()->getValue(), $argDef->getType(), Printer::doPrint($argAST->getValue()), $errors),
+                            self::badValueMessage($argAST->getName()->getValue(), $argDef->getType(), $printer->doPrint($argAST->getValue()), $errors),
                             [$argAST->getValue()]
                         ));
                     }

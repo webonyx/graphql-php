@@ -402,7 +402,8 @@ class OverlappingFieldsCanBeMerged
 
     private function sameValue($value1, $value2)
     {
-        return (!$value1 && !$value2) || (Printer::doPrint($value1) === Printer::doPrint($value2));
+        $printer = new Printer();
+        return (!$value1 && !$value2) || ($printer->doPrint($value1) === $printer->doPrint($value2));
     }
 
     function sameType($type1, $type2)

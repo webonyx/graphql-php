@@ -23,14 +23,15 @@ class VariablesAreInputTypes
     {
         return [
             NodeType::VARIABLE_DEFINITION => function(VariableDefinition $node) use ($context) {
-                $type = Utils\TypeInfo::typeFromAST($context->getSchema(), $node->type);
+                $type = Utils\TypeInfo::typeFromAST($context->getSchema(), $node->getType());
 
                 // If the variable type is not an input type, return an error.
                 if ($type && !Type::isInputType($type)) {
                     $variableName = $node->getVariable()->getName()->getValue();
+                    $printer = new Printer();
                     $context->reportError(new Error(
-                        self::nonInputTypeOnVarMessage($variableName, Printer::doPrint($node->type)),
-                        [ $node->type ]
+                        self::nonInputTypeOnVarMessage($variableName, $printer->doPrint($node->getType())),
+                        [ $node->getType() ]
                     ));
                 }
             }

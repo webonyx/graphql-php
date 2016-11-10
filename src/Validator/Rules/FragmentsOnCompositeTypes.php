@@ -42,8 +42,9 @@ class FragmentsOnCompositeTypes
                 $type = $context->getType();
 
                 if ($type && !Type::isCompositeType($type)) {
+                    $printer = new Printer();
                     $context->reportError(new Error(
-                        static::fragmentOnNonCompositeErrorMessage($node->getName()->getValue(), Printer::doPrint($node->getTypeCondition())),
+                        static::fragmentOnNonCompositeErrorMessage($node->getName()->getValue(), $printer->doPrint($node->getTypeCondition())),
                         [$node->getTypeCondition()]
                     ));
                 }

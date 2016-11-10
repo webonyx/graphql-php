@@ -44,8 +44,9 @@ class DefaultValuesOfCorrectType
                 if ($type && $defaultValue) {
                     $errors = DocumentValidator::isValidLiteralValue($type, $defaultValue);
                     if (!empty($errors)) {
+                        $printer = new Printer();
                         $context->reportError(new Error(
-                            static::badValueForDefaultArgMessage($name, $type, Printer::doPrint($defaultValue), $errors),
+                            static::badValueForDefaultArgMessage($name, $type, $printer->doPrint($defaultValue), $errors),
                             [$defaultValue]
                         ));
                     }

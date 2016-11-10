@@ -41,10 +41,10 @@ class ProvidedNonNullArguments
                         $argASTMap[$argAST->getName()->getValue()] = $argASTs;
                     }
                     foreach ($fieldDef->args as $argDef) {
-                        $argAST = method_exists($argDef, 'getName') and isset($argASTMap[$argDef->getName()]) ? $argASTMap[$argDef->getName()] : null;
+                        $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
                         if (!$argAST && $argDef->getType() instanceof NonNull) {
                             $context->reportError(new Error(
-                                self::missingFieldArgMessage($fieldAST->getName()->getValue(), $argDef->getName(), $argDef->getType()),
+                                self::missingFieldArgMessage($fieldAST->getName()->getValue(), $argDef->name, $argDef->getType()),
                                 [$fieldAST]
                             ));
                         }
@@ -64,10 +64,10 @@ class ProvidedNonNullArguments
                     }
 
                     foreach ($directiveDef->args as $argDef) {
-                        $argAST = isset($argASTMap[$argDef->getName()]) ? $argASTMap[$argDef->getName()] : null;
+                        $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
                         if (!$argAST && $argDef->getType() instanceof NonNull) {
                             $context->reportError(new Error(
-                                self::missingDirectiveArgMessage($directiveAST->getName()->getValue(), $argDef->getName(), $argDef->getType()),
+                                self::missingDirectiveArgMessage($directiveAST->getName()->getValue(), $argDef->name, $argDef->getType()),
                                 [$directiveAST]
                             ));
                         }

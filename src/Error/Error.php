@@ -2,6 +2,8 @@
 
 namespace GraphQL\Error;
 
+use GraphQL\Language\AST\Location;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Utils;
@@ -127,8 +129,8 @@ class Error extends \Exception implements \JsonSerializable
     public function getSource()
     {
         if (null === $this->source) {
-            if (!empty($this->nodes[0]) && !empty($this->nodes[0]->loc)) {
-                $this->source = $this->nodes[0]->loc->source;
+            if (!empty($this->nodes[0]) && !empty($this->nodes[0]->getLoc())) {
+                $this->source = $this->nodes[0]->getLoc()->source;
             }
         }
         return $this->source;
@@ -141,8 +143,8 @@ class Error extends \Exception implements \JsonSerializable
     {
         if (null === $this->positions) {
             if (!empty($this->nodes)) {
-                $positions = array_map(function($node) {
-                    return isset($node->loc) ? $node->loc->start : null;
+                $positions = array_map(function(Node $node) {
+                    return $node->getLoc();
                 }, $this->nodes);
                 $this->positions = array_filter($positions, function($p) {
                     return $p !== null;
@@ -162,7 +164,7 @@ class Error extends \Exception implements \JsonSerializable
             $source = $this->getSource();
 
             if ($positions && $source) {
-                $this->locations = array_map(function ($pos) use ($source) {
+                $this->locations = array_map(function (Location $pos) use ($source) {
                     return $source->getLocation($pos);
                 }, $positions);
             } else {

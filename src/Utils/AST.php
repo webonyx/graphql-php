@@ -186,7 +186,7 @@ class AST
         }
 
         if ($valueAST instanceof Variable) {
-            $variableName = $valueAST->name->value;
+            $variableName = $valueAST->getName()->getValue();
 
             if (!$variables || !isset($variables[$variableName])) {
                 return null;
@@ -202,7 +202,7 @@ class AST
             if ($valueAST instanceof ListValue) {
                 return array_map(function($itemAST) use ($itemType, $variables) {
                     return self::valueFromAST($itemAST, $itemType, $variables);
-                }, $valueAST->values);
+                }, $valueAST->getValues());
             } else {
                 return [self::valueFromAST($valueAST, $itemType, $variables)];
             }
@@ -213,11 +213,11 @@ class AST
             if (!$valueAST instanceof ObjectValue) {
                 return null;
             }
-            $fieldASTs = Utils::keyMap($valueAST->fields, function($field) {return $field->name->value;});
+            $fieldASTs = Utils::keyMap($valueAST->getFields(), function($field) {return $field->name->value;});
             $values = [];
             foreach ($fields as $field) {
                 $fieldAST = isset($fieldASTs[$field->name]) ? $fieldASTs[$field->name] : null;
-                $fieldValue = self::valueFromAST($fieldAST ? $fieldAST->value : null, $field->getType(), $variables);
+                $fieldValue = self::valueFromAST($fieldAST ? $fieldAST->getValue() : null, $field->getType(), $variables);
 
                 if (null === $fieldValue) {
                     $fieldValue = $field->defaultValue;

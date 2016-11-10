@@ -72,7 +72,7 @@ class QueryDepth extends AbstractQuerySecurity
 
     private function fieldDepth($node, $depth = 0, $maxDepth = 0)
     {
-        if (method_exists($node, 'getSelectionSet') && $node->getSelectionsSet() instanceof SelectionSet) {
+        if (method_exists($node, 'getSelectionSet') && $node->getSelectionSet() instanceof SelectionSet) {
             foreach ($node->getSelectionSet()->getSelections() as $childNode) {
                 $maxDepth = $this->nodeDepth($childNode, $depth, $maxDepth);
             }

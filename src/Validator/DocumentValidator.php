@@ -156,8 +156,8 @@ class DocumentValidator
         if ($type instanceof NonNull) {
             $wrappedType = $type->getWrappedType();
             if (!$valueAST) {
-                if ($wrappedType->getName()) {
-                    return [ "Expected \"{$wrappedType->getName()}!\", found null." ];
+                if ($wrappedType->name) {
+                    return [ "Expected \"{$wrappedType->name}!\", found null." ];
                 }
                 return ['Expected non-null value, found null.'];
             }
@@ -179,7 +179,7 @@ class DocumentValidator
             $itemType = $type->getWrappedType();
             if ($valueAST instanceof ListValue) {
                 $errors = [];
-                foreach($valueAST->getValues as $index => $itemAST) {
+                foreach($valueAST->getValues() as $index => $itemAST) {
                     $tmp = static::isValidLiteralValue($itemType, $itemAST);
 
                     if ($tmp) {
@@ -197,7 +197,7 @@ class DocumentValidator
         // Input objects check each defined field and look for undefined fields.
         if ($type instanceof InputObjectType) {
             if ($valueAST->getKind() !== NodeType::OBJECT) {
-                return [ "Expected \"{$type->getName()}\", found not an object." ];
+                return [ "Expected \"{$type->name}\", found not an object." ];
             }
 
             $fields = $type->getFields();
@@ -235,8 +235,9 @@ class DocumentValidator
             $parseResult = $type->parseLiteral($valueAST);
 
             if (null === $parseResult) {
-                $printed = Printer::doPrint($valueAST);
-                return [ "Expected type \"{$type->getName()}\", found $printed." ];
+                $printer = new Printer();
+                $printed = $printer->doPrint($valueAST);
+                return [ "Expected type \"{$type->name}\", found $printed." ];
             }
 
             return [];

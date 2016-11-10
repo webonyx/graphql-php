@@ -110,11 +110,11 @@ abstract class AbstractQuerySecurity
                         $typeMetaFieldDef = Introspection::typeMetaFieldDef();
                         $typeNameMetaFieldDef = Introspection::typeNameMetaFieldDef();
 
-                        if ($fieldName === $schemaMetaFieldDef->getName() && $context->getSchema()->getQueryType() === $parentType) {
+                        if ($fieldName === $schemaMetaFieldDef->name && $context->getSchema()->getQueryType() === $parentType) {
                             $fieldDef = $schemaMetaFieldDef;
-                        } elseif ($fieldName === $typeMetaFieldDef->getName() && $context->getSchema()->getQueryType() === $parentType) {
+                        } elseif ($fieldName === $typeMetaFieldDef->name && $context->getSchema()->getQueryType() === $parentType) {
                             $fieldDef = $typeMetaFieldDef;
-                        } elseif ($fieldName === $typeNameMetaFieldDef->getName()) {
+                        } elseif ($fieldName === $typeNameMetaFieldDef->name) {
                             $fieldDef = $typeNameMetaFieldDef;
                         } elseif (isset($tmp[$fieldName])) {
                             $fieldDef = $tmp[$fieldName];

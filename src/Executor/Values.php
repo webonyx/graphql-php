@@ -36,7 +36,7 @@ class Values
     {
         $values = [];
         foreach ($definitionASTs as $defAST) {
-            $varName = $defAST->variable->name->value;
+            $varName = $defAST->getVariable()->getName()->getValue();
             $values[$varName] = self::getvariableValue($schema, $defAST, isset($inputs[$varName]) ? $inputs[$varName] : null);
         }
         return $values;
@@ -57,12 +57,12 @@ class Values
             return [];
         }
         $argASTMap = $argASTs ? Utils::keyMap($argASTs, function ($arg) {
-            return $arg->name->value;
+            return $arg->getName()->getValue();
         }) : [];
         $result = [];
         foreach ($argDefs as $argDef) {
             $name = $argDef->name;
-            $valueAST = isset($argASTMap[$name]) ? $argASTMap[$name]->value : null;
+            $valueAST = isset($argASTMap[$name]) ? $argASTMap[$name]->getValue() : null;
             $value = Utils\AST::valueFromAST($valueAST, $argDef->getType(), $variableValues);
 
             if (null === $value) {
@@ -86,11 +86,11 @@ class Values
      */
     private static function getVariableValue(Schema $schema, VariableDefinition $definitionAST, $input)
     {
-        $type = Utils\TypeInfo::typeFromAST($schema, $definitionAST->type);
-        $variable = $definitionAST->variable;
+        $type = Utils\TypeInfo::typeFromAST($schema, $definitionAST->getType());
+        $variable = $definitionAST->getVariable();
 
         if (!$type || !Type::isInputType($type)) {
-            $printed = Printer::doPrint($definitionAST->type);
+            $printed = Printer::doPrint($definitionAST->getType());
             throw new Error(
                 "Variable \"\${$variable->name->value}\" expected value of type " .
                 "\"$printed\" which cannot be used as an input type.",
@@ -112,10 +112,10 @@ class Values
         }
 
         if (null === $input) {
-            $printed = Printer::doPrint($definitionAST->type);
+            $printed = Printer::doPrint($definitionAST->getType());
 
             throw new Error(
-                "Variable \"\${$variable->name->value}\" of required type " .
+                "Variable \"\${$variable->getName()->getValue()}\" of required type " .
                 "\"$printed\" was not provided.",
                 [ $definitionAST ]
             );
@@ -123,7 +123,7 @@ class Values
         $message = $errors ? "\n" . implode("\n", $errors) : '';
         $val = json_encode($input);
         throw new Error(
-            "Variable \"\${$variable->name->value}\" got invalid value ".
+            "Variable \"\${$variable->getName()->getValue()}\" got invalid value ".
             "{$val}.{$message}",
             [ $definitionAST ]
         );

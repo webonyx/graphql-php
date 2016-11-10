@@ -33,7 +33,7 @@ class KnownArgumentNames
                     if ($fieldDef) {
                         $fieldArgDef = null;
                         foreach ($fieldDef->args as $arg) {
-                            if ($arg->getName() === $node->getName()->getValue()) {
+                            if ($arg->name === $node->getName()->getValue()) {
                                 $fieldArgDef = $arg;
                                 break;
                             }
@@ -42,7 +42,7 @@ class KnownArgumentNames
                             $parentType = $context->getParentType();
                             Utils::invariant($parentType);
                             $context->reportError(new Error(
-                                self::unknownArgMessage($node->getName()->getValue(), $fieldDef->getName(), $parentType->getName()),
+                                self::unknownArgMessage($node->getName()->getValue(), $fieldDef->name, $parentType->name),
                                 [$node]
                             ));
                         }
@@ -52,14 +52,14 @@ class KnownArgumentNames
                     if ($directive) {
                         $directiveArgDef = null;
                         foreach ($directive->args as $arg) {
-                            if ($arg->getName() === $node->getName()->getValue()) {
+                            if ($arg->name === $node->getName()->getValue()) {
                                 $directiveArgDef = $arg;
                                 break;
                             }
                         }
                         if (!$directiveArgDef) {
                             $context->reportError(new Error(
-                                self::unknownDirectiveArgMessage($node->getName()->getValue(), $directive->getName()),
+                                self::unknownDirectiveArgMessage($node->getName()->getValue(), $directive->name),
                                 [$node]
                             ));
                         }

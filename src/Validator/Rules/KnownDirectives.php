@@ -33,7 +33,7 @@ class KnownDirectives
             NodeType::DIRECTIVE => function (Directive $node, $key, $parent, $path, $ancestors) use ($context) {
                 $directiveDef = null;
                 foreach ($context->getSchema()->getDirectives() as $def) {
-                    if ($def->getName() === $node->getName()->getValue()) {
+                    if ($def->name === $node->getName()->getValue()) {
                         $directiveDef = $def;
                         break;
                     }
@@ -68,7 +68,7 @@ class KnownDirectives
     {
         switch ($appliedTo->getKind()) {
             case NodeType::OPERATION_DEFINITION:
-                switch ($appliedTo->operation) {
+                switch ($appliedTo->getOperation()) {
                     case 'query': return DirectiveDef::LOCATION_QUERY;
                     case 'mutation': return DirectiveDef::LOCATION_MUTATION;
                     case 'subscription': return DirectiveDef::LOCATION_SUBSCRIPTION;

@@ -8,6 +8,8 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -76,8 +78,12 @@ class FieldsOnCorrectType
     static function getImplementationsIncludingField(Schema $schema, AbstractType $type, $fieldName)
     {
         $types = $schema->getPossibleTypes($type);
-        $types = Utils::filter($types, function($t) use ($fieldName) {return isset($t->getFields()[$fieldName]);});
-        $types = Utils::map($types, function($t) {return $t->getName();});
+        $types = Utils::filter($types, function(Type $t) use ($fieldName) {
+            return isset($t->getFields()[$fieldName]);
+        });
+        $types = Utils::map($types, function(Type $t) {
+            return $t->name;
+        });
         sort($types);
         return $types;
     }
@@ -91,15 +97,15 @@ class FieldsOnCorrectType
     static function getSiblingInterfacesIncludingField(Schema $schema, AbstractType $type, $fieldName)
     {
         $types = $schema->getPossibleTypes($type);
-        $suggestedInterfaces = array_reduce($types, function ($acc, $t) use ($fieldName) {
+        $suggestedInterfaces = array_reduce($types, function ($acc, ObjectType $t) use ($fieldName) {
             foreach ($t->getInterfaces() as $i) {
                 if (empty($i->getFields()[$fieldName])) {
                     continue;
                 }
-                if (!isset($acc[$i->getName()])) {
-                    $acc[$i->getName()] = 0;
+                if (!isset($acc[$i->name])) {
+                    $acc[$i->name] = 0;
                 }
-                $acc[$i->getName()] += 1;
+                $acc[$i->name] += 1;
             }
             return $acc;
         }, []);

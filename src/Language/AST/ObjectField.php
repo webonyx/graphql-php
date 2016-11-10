@@ -13,7 +13,7 @@ class ObjectField extends Node
     protected $name;
 
     /**
-     * @var Value
+     * @var Value|Variable
      */
     protected $value;
 
@@ -24,7 +24,7 @@ class ObjectField extends Node
      * @param Value $value
      * @param null  $loc
      */
-    public function __construct(Name $name, Value $value, $loc = null)
+    public function __construct(Name $name, $value, $loc = null)
     {
         $this->name = $name;
         $this->value = $value;
@@ -52,7 +52,7 @@ class ObjectField extends Node
     }
 
     /**
-     * @return Value
+     * @return Value|Variable
      */
     public function getValue()
     {
@@ -60,7 +60,7 @@ class ObjectField extends Node
     }
 
     /**
-     * @param Value $value
+     * @param Value|Variable $value
      *
      * @return ObjectField
      */
