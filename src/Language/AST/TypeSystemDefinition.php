@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 interface TypeSystemDefinition extends Definition

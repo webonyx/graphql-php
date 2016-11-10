@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class Field extends Node implements Selection

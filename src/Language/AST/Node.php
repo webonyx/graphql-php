@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 use GraphQL\Utils;
@@ -76,7 +77,7 @@ abstract class Node
     const DIRECTIVE_DEFINITION = 'DirectiveDefinition';
 
     /**
-      type Node = Name
+    |  type Node = Name
     | Document
     | OperationDefinition
     | VariableDefinition

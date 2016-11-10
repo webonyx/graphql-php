@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class SchemaDefinition extends Node implements TypeSystemDefinition

@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class OperationDefinition extends Node implements Definition, HasSelectionSet

@@ -1,6 +1,6 @@
 <?php
-namespace GraphQL\Language;
 
+namespace GraphQL\Language;
 
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\DirectiveDefinition;

@@ -1,6 +1,6 @@
 <?php
-namespace GraphQL\Language\AST;
 
+namespace GraphQL\Language\AST;
 
 class IntValue extends Node implements Value
 {

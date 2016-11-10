@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language;
 
 use GraphQL\Error\SyntaxError;

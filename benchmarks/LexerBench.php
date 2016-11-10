@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Benchmarks;
 
 use GraphQL\Language\Lexer;

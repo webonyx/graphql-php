@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class InputObjectTypeDefinition extends Node implements TypeDefinition

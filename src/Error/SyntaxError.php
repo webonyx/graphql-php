@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Error;
 
 use GraphQL\Language\Source;

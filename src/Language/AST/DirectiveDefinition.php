@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class DirectiveDefinition extends Node implements TypeSystemDefinition

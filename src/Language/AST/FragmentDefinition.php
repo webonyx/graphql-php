@@ -1,6 +1,6 @@
 <?php
-namespace GraphQL\Language\AST;
 
+namespace GraphQL\Language\AST;
 
 class FragmentDefinition extends Node implements Definition, HasSelectionSet
 {

@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class ObjectTypeDefinition extends Node implements TypeDefinition

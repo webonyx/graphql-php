@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL;
 
 use GraphQL\Error\InvariantViolation;

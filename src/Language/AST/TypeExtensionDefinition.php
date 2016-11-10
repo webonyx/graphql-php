@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class TypeExtensionDefinition extends Node implements TypeSystemDefinition

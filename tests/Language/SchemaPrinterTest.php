@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Tests;
 
 use GraphQL\Language\AST\Name;
