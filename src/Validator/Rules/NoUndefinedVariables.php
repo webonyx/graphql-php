@@ -6,6 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
@@ -35,7 +36,7 @@ class NoUndefinedVariables
         $variableNameDefined = [];
 
         return [
-            Node::OPERATION_DEFINITION => [
+            NodeType::OPERATION_DEFINITION => [
                 'enter' => function() use (&$variableNameDefined) {
                     $variableNameDefined = [];
                 },
@@ -58,7 +59,7 @@ class NoUndefinedVariables
                     }
                 }
             ],
-            Node::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$variableNameDefined) {
+            NodeType::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$variableNameDefined) {
                 $variableNameDefined[$def->variable->name->value] = true;
             }
         ];

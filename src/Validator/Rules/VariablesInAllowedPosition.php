@@ -5,6 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
@@ -28,7 +29,7 @@ class VariablesInAllowedPosition
     public function __invoke(ValidationContext $context)
     {
         return [
-            Node::OPERATION_DEFINITION => [
+            NodeType::OPERATION_DEFINITION => [
                 'enter' => function () {
                     $this->varDefMap = [];
                 },
@@ -60,7 +61,7 @@ class VariablesInAllowedPosition
                     }
                 }
             ],
-            Node::VARIABLE_DEFINITION => function (VariableDefinition $varDefAST) {
+            NodeType::VARIABLE_DEFINITION => function (VariableDefinition $varDefAST) {
                 $this->varDefMap[$varDefAST->variable->name->value] = $varDefAST;
             }
         ];

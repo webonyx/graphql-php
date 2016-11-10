@@ -5,6 +5,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
@@ -22,10 +23,10 @@ class UniqueFragmentNames
         $this->knownFragmentNames = [];
 
         return [
-            Node::OPERATION_DEFINITION => function () {
+            NodeType::OPERATION_DEFINITION => function () {
                 return Visitor::skipNode();
             },
-            Node::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
+            NodeType::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
                 $fragmentName = $node->name->value;
                 if (!empty($this->knownFragmentNames[$fragmentName])) {
                     $context->reportError(new Error(

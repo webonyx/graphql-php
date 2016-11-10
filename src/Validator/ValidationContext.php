@@ -3,6 +3,7 @@ namespace GraphQL\Validator;
 
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\HasSelectionSet;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\Visitor;
@@ -132,7 +133,7 @@ class ValidationContext
         if (!$fragments) {
             $this->fragments = $fragments =
                 array_reduce($this->getDocument()->definitions, function($frags, $statement) {
-                    if ($statement->kind === Node::FRAGMENT_DEFINITION) {
+                    if ($statement->kind === NodeType::FRAGMENT_DEFINITION) {
                         $frags[$statement->name->value] = $statement;
                     }
                     return $frags;
@@ -156,7 +157,7 @@ class ValidationContext
 
                 for ($i = 0; $i < count($set->selections); $i++) {
                     $selection = $set->selections[$i];
-                    if ($selection->kind === Node::FRAGMENT_SPREAD) {
+                    if ($selection->kind === NodeType::FRAGMENT_SPREAD) {
                         $spreads[] = $selection;
                     } else if ($selection->selectionSet) {
                         $setsToVisit[] = $selection->selectionSet;
@@ -213,10 +214,10 @@ class ValidationContext
             $newUsages = [];
             $typeInfo = new TypeInfo($this->schema);
             Visitor::visit($node, Visitor::visitWithTypeInfo($typeInfo, [
-                Node::VARIABLE_DEFINITION => function () {
+                NodeType::VARIABLE_DEFINITION => function () {
                     return false;
                 },
-                Node::VARIABLE => function (Variable $variable) use (&$newUsages, $typeInfo) {
+                NodeType::VARIABLE => function (Variable $variable) use (&$newUsages, $typeInfo) {
                     $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
                 }
             ]));

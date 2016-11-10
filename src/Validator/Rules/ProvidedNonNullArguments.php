@@ -6,6 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\Directive;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Utils;
@@ -26,7 +27,7 @@ class ProvidedNonNullArguments
     public function __invoke(ValidationContext $context)
     {
         return [
-            Node::FIELD => [
+            NodeType::FIELD => [
                 'leave' => function(Field $fieldAST) use ($context) {
                     $fieldDef = $context->getFieldDef();
 
@@ -50,7 +51,7 @@ class ProvidedNonNullArguments
                     }
                 }
             ],
-            Node::DIRECTIVE => [
+            NodeType::DIRECTIVE => [
                 'leave' => function(Directive $directiveAST) use ($context) {
                     $directiveDef = $context->getDirective();
                     if (!$directiveDef) {
