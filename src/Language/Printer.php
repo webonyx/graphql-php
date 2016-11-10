@@ -116,7 +116,7 @@ class Printer
 
                 // Directive
                 NodeType::DIRECTIVE => function(Directive $node) {
-                    return '@' . $node->name . $this->wrap('(', $this->join($node->arguments, ', '), ')');
+                    return '@' . $node->getName() . $this->wrap('(', $this->join($node->getArguments(), ', '), ')');
                 },
 
                 // Type

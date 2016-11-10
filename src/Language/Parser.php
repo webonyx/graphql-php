@@ -762,11 +762,11 @@ class Parser
     {
         $start = $this->lexer->token;
         $this->expect(Token::AT);
-        return new Directive([
-            'name' => $this->parseName(),
-            'arguments' => $this->parseArguments(),
-            'loc' => $this->loc($start)
-        ]);
+        return new Directive(
+            $this->parseName(),
+            $this->parseArguments(),
+            $this->loc($start)
+        );
     }
 
     // Implements the parsing rules in the Types section.
