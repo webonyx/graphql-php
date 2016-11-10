@@ -920,13 +920,13 @@ class Parser
             Token::BRACE_R
         );
 
-        return new ObjectTypeDefinition([
-            'name' => $name,
-            'interfaces' => $interfaces,
-            'directives' => $directives,
-            'fields' => $fields,
-            'loc' => $this->loc($start)
-        ]);
+        return new ObjectTypeDefinition(
+            $name,
+            $interfaces,
+            $directives,
+            $fields,
+            $this->loc($start)
+        );
     }
 
     /**

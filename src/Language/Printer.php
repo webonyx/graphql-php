@@ -156,10 +156,10 @@ class Printer
                 NodeType::OBJECT_TYPE_DEFINITION => function(ObjectTypeDefinition $def) {
                     return $this->join([
                         'type',
-                        $def->name,
-                        $this->wrap('implements ', $this->join($def->interfaces, ', ')),
-                        $this->join($def->directives, ' '),
-                        $this->block($def->fields)
+                        $def->getName(),
+                        $this->wrap('implements ', $this->join($def->getInterfaces(), ', ')),
+                        $this->join($def->getDirectives(), ' '),
+                        $this->block($def->getFields())
                     ], ' ');
                 },
                 NodeType::FIELD_DEFINITION => function(FieldDefinition $def) {
