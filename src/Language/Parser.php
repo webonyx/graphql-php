@@ -654,10 +654,10 @@ class Parser
                     return new BooleanValue($token->value === 'true', $this->loc($token));
                 } else if ($token->value !== 'null') {
                     $this->lexer->advance();
-                    return new EnumValue([
-                        'value' => $token->value,
-                        'loc' => $this->loc($token)
-                    ]);
+                    return new EnumValue(
+                        $token->value,
+                        $this->loc($token)
+                    );
                 }
                 break;
 

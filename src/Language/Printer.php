@@ -109,7 +109,9 @@ class Printer
                 NodeType::BOOLEAN => function(BooleanValue $node) {
                     return $node->getValue() ? 'true' : 'false';
                 },
-                NodeType::ENUM => function(EnumValue $node) {return $node->value;},
+                NodeType::ENUM => function(EnumValue $node) {
+                    return $node->getValue();
+                },
                 NodeType::LST => function(ListValue $node) {return '[' . $this->join($node->values, ', ') . ']';},
                 NodeType::OBJECT => function(ObjectValue $node) {return '{' . $this->join($node->fields, ', ') . '}';},
                 NodeType::OBJECT_FIELD => function(ObjectField $node) {return $node->name . ': ' . $node->value;},
