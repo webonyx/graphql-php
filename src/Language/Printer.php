@@ -189,8 +189,8 @@ class Printer
                 },
                 NodeType::ENUM_VALUE_DEFINITION => function(EnumValueDefinition $def) {
                     return $this->join([
-                        $def->name,
-                        $this->join($def->directives, ' ')
+                        $def->getName(),
+                        $this->join($def->getDirectives(), ' ')
                     ], ' ');
                 },
                 NodeType::INPUT_OBJECT_TYPE_DEFINITION => function(InputObjectTypeDefinition $def) {

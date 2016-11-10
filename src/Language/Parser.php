@@ -1095,11 +1095,11 @@ class Parser
         $name = $this->parseName();
         $directives = $this->parseDirectives();
 
-        return new EnumValueDefinition([
-            'name' => $name,
-            'directives' => $directives,
-            'loc' => $this->loc($start)
-        ]);
+        return new EnumValueDefinition(
+            $name,
+            $directives,
+            $this->loc($start)
+        );
     }
 
     /**
