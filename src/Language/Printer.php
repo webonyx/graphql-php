@@ -151,10 +151,10 @@ class Printer
                     ], ' ');
                 },
                 NodeType::FIELD_DEFINITION => function(FieldDefinition $def) {
-                    return $def->name
-                         . $this->wrap('(', $this->join($def->arguments, ', '), ')')
-                         . ': ' . $def->type
-                         . $this->wrap(' ', $this->join($def->directives, ' '));
+                    return $def->getName()
+                         . $this->wrap('(', $this->join($def->getArguments(), ', '), ')')
+                         . ': ' . $def->getType()
+                         . $this->wrap(' ', $this->join($def->getDirectives(), ' '));
                 },
                 NodeType::INPUT_VALUE_DEFINITION => function(InputValueDefinition $def) {
                     return $this->join([

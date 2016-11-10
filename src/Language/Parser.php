@@ -957,13 +957,13 @@ class Parser
         $type = $this->parseTypeReference();
         $directives = $this->parseDirectives();
 
-        return new FieldDefinition([
-            'name' => $name,
-            'arguments' => $args,
-            'type' => $type,
-            'directives' => $directives,
-            'loc' => $this->loc($start)
-        ]);
+        return new FieldDefinition(
+            $name,
+            $args,
+            $type,
+            $directives,
+            $this->loc($start)
+        );
     }
 
     /**
