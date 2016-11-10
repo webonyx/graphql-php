@@ -377,7 +377,7 @@ fragment $fragmentName on Type {
         $parser = new Parser(new Lexer(), ['noLocation' => true]);
         $result = $parser->parse($source);
 
-        $this->assertEquals(null, $result->loc);
+        $this->assertEquals(null, $result->getLoc());
     }
 
     /**
@@ -388,7 +388,7 @@ fragment $fragmentName on Type {
         $source = new Source('{ id }');
         $parser = new Parser(new Lexer());
         $result = $parser->parse($source);
-        $this->assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->loc));
+        $this->assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->getLoc()));
     }
 
     /**
@@ -399,7 +399,7 @@ fragment $fragmentName on Type {
         $source = new Source('{ id }');
         $parser = new Parser(new Lexer());
         $result = $parser->parse($source);
-        $this->assertEquals($source, $result->loc->source);
+        $this->assertEquals($source, $result->getLoc()->source);
     }
 
     /**
@@ -410,8 +410,8 @@ fragment $fragmentName on Type {
         $source = new Source('{ id }');
         $parser = new Parser(new Lexer());
         $result = $parser->parse($source);
-        $this->assertEquals('<SOF>', $result->loc->startToken->kind);
-        $this->assertEquals('<EOF>', $result->loc->endToken->kind);
+        $this->assertEquals('<SOF>', $result->getLoc()->startToken->kind);
+        $this->assertEquals('<EOF>', $result->getLoc()->endToken->kind);
     }
 
     // Describe: parseValue

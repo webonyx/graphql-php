@@ -106,7 +106,7 @@ abstract class Node
     /**
      * @var Location
      */
-    public $loc;
+    protected $loc;
 
     /**
      * @param array $vars
@@ -154,8 +154,8 @@ abstract class Node
     {
         $tmp = (array) $this;
         $tmp['loc'] = [
-            'start' => $this->loc->start,
-            'end' => $this->loc->end
+            'start' => $this->getLoc()->start,
+            'end' => $this->getLoc()->end
         ];
         return json_encode($tmp);
     }
@@ -176,6 +176,26 @@ abstract class Node
     public function setKind($kind)
     {
         $this->kind = $kind;
+
+        return $this;
+    }
+
+    /**
+     * @return Location
+     */
+    public function getLoc()
+    {
+        return $this->loc;
+    }
+
+    /**
+     * @param Location $loc
+     *
+     * @return Node
+     */
+    public function setLoc($loc)
+    {
+        $this->loc = $loc;
 
         return $this;
     }

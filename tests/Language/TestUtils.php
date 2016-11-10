@@ -16,7 +16,7 @@ class TestUtils
     {
         $result = [
             'kind' => $node->getKind(),
-            'loc' => self::locationToArray($node->loc)
+            'loc' => self::locationToArray($node->getLoc())
         ];
 
         foreach (get_object_vars($node) as $prop => $propValue) {
