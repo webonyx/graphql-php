@@ -103,7 +103,9 @@ class Printer
                 },
 
                 // Value
-                NodeType::INT => function(IntValue  $node) {return $node->value;},
+                NodeType::INT => function(IntValue  $node) {
+                    return $node->getValue();
+                },
                 NodeType::FLOAT => function(FloatValue $node) {
                     return $node->getValue();
                 },

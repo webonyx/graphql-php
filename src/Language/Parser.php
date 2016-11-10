@@ -632,10 +632,10 @@ class Parser
                 return $this->parseObject($isConst);
             case Token::INT:
                 $this->lexer->advance();
-                return new IntValue([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token)
-                ]);
+                return new IntValue(
+                    $token->value,
+                    $this->loc($token)
+                );
             case Token::FLOAT:
                 $this->lexer->advance();
                 return new FloatValue(
