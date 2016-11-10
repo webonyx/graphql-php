@@ -1136,10 +1136,10 @@ class Parser
         $this->expectKeyword('extend');
         $definition = $this->parseObjectTypeDefinition();
 
-        return new TypeExtensionDefinition([
-            'definition' => $definition,
-            'loc' => $this->loc($start)
-        ]);
+        return new TypeExtensionDefinition(
+            $definition,
+            $this->loc($start)
+        );
     }
 
     /**

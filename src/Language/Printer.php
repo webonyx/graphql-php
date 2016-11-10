@@ -220,7 +220,7 @@ class Printer
                     ], ' ');
                 },
                 NodeType::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinition $def) {
-                    return "extend {$def->definition}";
+                    return "extend {$def->getDefinition()}";
                 },
                 NodeType::DIRECTIVE_DEFINITION => function(DirectiveDefinition $def) {
                     return 'directive @' . $def->getName() . $this->wrap('(', $this->join($def->getArguments(), ', '), ')')
