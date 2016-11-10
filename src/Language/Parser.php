@@ -654,10 +654,7 @@ class Parser
             case Token::NAME:
                 if ($token->value === 'true' || $token->value === 'false') {
                     $this->lexer->advance();
-                    return new BooleanValue([
-                        'value' => $token->value === 'true',
-                        'loc' => $this->loc($token)
-                    ]);
+                    return new BooleanValue($token->value === 'true', $this->loc($token));
                 } else if ($token->value !== 'null') {
                     $this->lexer->advance();
                     return new EnumValue([
