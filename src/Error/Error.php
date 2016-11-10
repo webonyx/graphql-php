@@ -6,7 +6,6 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Utils;
 
-
 /**
  * Class Error
  * A GraphQLError describes an Error found during the parse, validate, or
@@ -142,8 +141,12 @@ class Error extends \Exception implements \JsonSerializable
     {
         if (null === $this->positions) {
             if (!empty($this->nodes)) {
-                $positions = array_map(function($node) { return isset($node->loc) ? $node->loc->start : null; }, $this->nodes);
-                $this->positions = array_filter($positions, function($p) {return $p !== null;});
+                $positions = array_map(function($node) {
+                    return isset($node->loc) ? $node->loc->start : null;
+                }, $this->nodes);
+                $this->positions = array_filter($positions, function($p) {
+                    return $p !== null;
+                });
             }
         }
         return $this->positions;

@@ -39,7 +39,7 @@ class Visitor
         return $r;
     }
 
-    public static $visitorKeys = array(
+    public static $visitorKeys = [
         Node::NAME => [],
         Node::DOCUMENT => ['definitions'],
         Node::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
@@ -78,7 +78,7 @@ class Visitor
         Node::INPUT_OBJECT_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
         Node::TYPE_EXTENSION_DEFINITION => [ 'definition' ],
         Node::DIRECTIVE_DEFINITION => [ 'name', 'arguments', 'locations' ]
-    );
+    ];
 
     /**
      * visit() will walk through an AST using a depth first traversal, calling
@@ -280,16 +280,16 @@ class Visitor
             }
 
             if (!$isLeaving) {
-                $stack = array(
+                $stack = [
                     'inArray' => $inArray,
                     'index' => $index,
                     'keys' => $keys,
                     'edits' => $edits,
                     'prev' => $stack
-                );
+                ];
                 $inArray = is_array($node);
 
-                $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?: array();
+                $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?: [];
                 $index = -1;
                 $edits = [];
                 if ($parent) {
