@@ -67,7 +67,7 @@ values as specified by
     public function parseLiteral($ast)
     {
         if ($ast instanceof FloatValue || $ast instanceof IntValue) {
-            return (float) $ast->value;
+            return (float) $ast->getValue();
         }
         return null;
     }

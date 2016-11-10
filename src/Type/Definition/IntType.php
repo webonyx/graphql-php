@@ -79,8 +79,8 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     public function parseLiteral($ast)
     {
         if ($ast instanceof IntValue) {
-            $val = (int) $ast->value;
-            if ($ast->value === (string) $val && self::MIN_INT <= $val && $val <= self::MAX_INT) {
+            $val = (int) $ast->getValue();
+            if ($ast->getValue() === (string) $val && self::MIN_INT <= $val && $val <= self::MAX_INT) {
                 return $val;
             }
         }

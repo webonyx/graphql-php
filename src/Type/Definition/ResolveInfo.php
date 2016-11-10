@@ -120,11 +120,11 @@ class ResolveInfo
 
         foreach ($selectionSet->selections as $selectionAST) {
             if ($selectionAST instanceof Field) {
-                $fields[$selectionAST->name->value] = $descend > 0 && !empty($selectionAST->selectionSet)
+                $fields[$selectionAST->name->getValue()] = $descend > 0 && !empty($selectionAST->selectionSet)
                     ? $this->foldSelectionSet($selectionAST->selectionSet, $descend - 1)
                     : true;
             } else if ($selectionAST instanceof FragmentSpread) {
-                $spreadName = $selectionAST->name->value;
+                $spreadName = $selectionAST->name->getValue();
                 if (isset($this->fragments[$spreadName])) {
                     /** @var FragmentDefinition $fragment */
                     $fragment = $this->fragments[$spreadName];

@@ -56,7 +56,7 @@ When expected as an input type, any string (such as `"4"`) or integer
     public function parseLiteral($ast)
     {
         if ($ast instanceof StringValue || $ast instanceof IntValue) {
-            return $ast->value;
+            return $ast->getValue();
         }
         return null;
     }

@@ -53,11 +53,11 @@ class UrlType extends ScalarType
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:
         if (!($ast instanceof StringValue)) {
-            throw new Error('Query error: Can only parse strings got: ' . $ast->kind, [$ast]);
+            throw new Error('Query error: Can only parse strings got: ' . $ast->getKind(), [$ast]);
         }
-        if (!is_string($ast->value) || !filter_var($ast->value, FILTER_VALIDATE_URL)) {
+        if (!is_string($ast->getValue()) || !filter_var($ast->getValue(), FILTER_VALIDATE_URL)) {
             throw new Error('Query error: Not a valid URL', [$ast]);
         }
-        return $ast->value;
+        return $ast->getValue();
     }
 }
