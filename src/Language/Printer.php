@@ -97,9 +97,9 @@ class Printer
                     ], ' ');
                 },
                 NodeType::FRAGMENT_DEFINITION => function(FragmentDefinition $node) {
-                    return "fragment {$node->name} on {$node->typeCondition} "
-                        . $this->wrap('', $this->join($node->directives, ' '), ' ')
-                        . $node->selectionSet;
+                    return "fragment {$node->getName()} on {$node->getTypeCondition()} "
+                        . $this->wrap('', $this->join($node->getDirectives(), ' '), ' ')
+                        . $node->getSelectionSet();
                 },
 
                 // Value
