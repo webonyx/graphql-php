@@ -160,9 +160,9 @@ class Printer
                 },
                 NodeType::INPUT_VALUE_DEFINITION => function(InputValueDefinition $def) {
                     return $this->join([
-                        $def->name . ': ' . $def->type,
-                        $this->wrap('= ', $def->defaultValue),
-                        $this->join($def->directives, ' ')
+                        $def->getName() . ': ' . $def->getType(),
+                        $this->wrap('= ', $def->getDefaultValue()),
+                        $this->join($def->getDirectives(), ' ')
                     ], ' ');
                 },
                 NodeType::INTERFACE_TYPE_DEFINITION => function(InterfaceTypeDefinition $def) {

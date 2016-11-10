@@ -992,13 +992,13 @@ class Parser
             $defaultValue = $this->parseConstValue();
         }
         $directives = $this->parseDirectives();
-        return new InputValueDefinition([
-            'name' => $name,
-            'type' => $type,
-            'defaultValue' => $defaultValue,
-            'directives' => $directives,
-            'loc' => $this->loc($start)
-        ]);
+        return new InputValueDefinition(
+            $name,
+            $type,
+            $defaultValue,
+            $directives,
+            $this->loc($start)
+        );
     }
 
     /**
