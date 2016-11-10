@@ -895,11 +895,11 @@ class Parser
         $name = $this->parseName();
         $directives = $this->parseDirectives();
 
-        return new ScalarTypeDefinition([
-            'name' => $name,
-            'directives' => $directives,
-            'loc' => $this->loc($start)
-        ]);
+        return new ScalarTypeDefinition(
+            $name,
+            $directives,
+            $this->loc($start)
+        );
     }
 
     /**

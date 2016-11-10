@@ -155,7 +155,7 @@ class Printer
                 },
 
                 NodeType::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinition $def) {
-                    return $this->join(['scalar', $def->name, $this->join($def->directives, ' ')], ' ');
+                    return $this->join(['scalar', $def->getName(), $this->join($def->getDirectives(), ' ')], ' ');
                 },
                 NodeType::OBJECT_TYPE_DEFINITION => function(ObjectTypeDefinition $def) {
                     return $this->join([
