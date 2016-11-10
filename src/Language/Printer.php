@@ -150,7 +150,9 @@ class Printer
                         $this->block($def->operationTypes)
                     ], ' ');
                 },
-                NodeType::OPERATION_TYPE_DEFINITION => function(OperationTypeDefinition $def) {return $def->operation . ': ' . $def->type;},
+                NodeType::OPERATION_TYPE_DEFINITION => function(OperationTypeDefinition $def) {
+                    return $def->getOperation() . ': ' . $def->getType();
+                },
 
                 NodeType::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinition $def) {
                     return $this->join(['scalar', $def->name, $this->join($def->directives, ' ')], ' ');

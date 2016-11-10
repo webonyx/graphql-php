@@ -877,11 +877,11 @@ class Parser
         $this->expect(Token::COLON);
         $type = $this->parseNamedType();
 
-        return new OperationTypeDefinition([
-            'operation' => $operation,
-            'type' => $type,
-            'loc' => $this->loc($start)
-        ]);
+        return new OperationTypeDefinition(
+            $operation,
+            $type,
+            $this->loc($start)
+        );
     }
 
     /**
