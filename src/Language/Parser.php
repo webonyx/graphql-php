@@ -432,13 +432,12 @@ class Parser
         $this->expect(Token::COLON);
         $type = $this->parseTypeReference();
 
-        return new VariableDefinition([
-            'variable' => $var,
-            'type' => $type,
-            'defaultValue' =>
-                ($this->skip(Token::EQUALS) ? $this->parseValueLiteral(true) : null),
-            'loc' => $this->loc($start)
-        ]);
+        return new VariableDefinition(
+            $var,
+            $type,
+            $this->skip(Token::EQUALS) ? $this->parseValueLiteral(true) : null,
+            $this->loc($start)
+        );
     }
 
     /**

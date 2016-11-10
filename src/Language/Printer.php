@@ -69,7 +69,7 @@ class Printer
                         : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
                 },
                 NodeType::VARIABLE_DEFINITION => function(VariableDefinition $node) {
-                    return $node->variable . ': ' . $node->type . $this->wrap(' = ', $node->defaultValue);
+                    return $node->getVariable() . ': ' . $node->getType() . $this->wrap(' = ', $node->getDefaultValue());
                 },
                 NodeType::SELECTION_SET => function(SelectionSet $node) {
                     return $this->block($node->getSelections());
