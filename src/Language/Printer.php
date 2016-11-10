@@ -81,7 +81,7 @@ class Printer
                     ], ' ');
                 },
                 NodeType::ARGUMENT => function(Argument $node) {
-                    return $node->name . ': ' . $node->value;
+                    return $node->getName() . ': ' . $node->getValue();
                 },
 
                 // Fragments

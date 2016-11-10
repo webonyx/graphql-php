@@ -534,11 +534,7 @@ class Parser
         $this->expect(Token::COLON);
         $value = $this->parseValueLiteral(false);
 
-        return new Argument([
-            'name' => $name,
-            'value' => $value,
-            'loc' => $this->loc($start)
-        ]);
+        return new Argument($name, $value, $this->loc($start));
     }
 
     // Implements the parsing rules in the Fragments section.

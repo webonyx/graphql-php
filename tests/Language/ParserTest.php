@@ -148,12 +148,12 @@ HEREDOC;
                 new Field([
                     'name' => new Name('field'),
                     'arguments' => [
-                        new Argument([
-                            'name' => new Name('arg'),
-                            'value' => new StringValue([
+                        new Argument(
+                            new Name('arg'),
+                            new StringValue([
                                 'value' => "Has a $char multi-byte character."
                             ])
-                        ])
+                        )
                     ],
                     'directives' => []
                 ])
