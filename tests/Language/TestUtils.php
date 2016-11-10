@@ -19,9 +19,10 @@ class TestUtils
             'loc' => self::locationToArray($node->getLoc())
         ];
 
-        foreach (get_object_vars($node) as $prop => $propValue) {
-            if (isset($result[$prop]))
+        foreach ($node->toArray() as $prop => $propValue) {
+            if (isset($result[$prop])) {
                 continue;
+            }
 
             if (is_array($propValue)) {
                 $tmp = [];

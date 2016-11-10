@@ -18,7 +18,7 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
         $printer = new Printer();
 
         $ast = new ScalarTypeDefinition([
-            'name' => new Name(['value' => 'foo'])
+            'name' => new Name('foo')
         ]);
         $this->assertEquals('scalar foo', $printer->doPrint($ast));
     }

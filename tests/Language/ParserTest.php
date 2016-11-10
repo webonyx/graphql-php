@@ -146,10 +146,10 @@ HEREDOC;
         $expected = new SelectionSet([
             'selections' => [
                 new Field([
-                    'name' => new Name(['value' => 'field']),
+                    'name' => new Name('field'),
                     'arguments' => [
                         new Argument([
-                            'name' => new Name(['value' => 'arg']),
+                            'name' => new Name('arg'),
                             'value' => new StringValue([
                                 'value' => "Has a $char multi-byte character."
                             ])

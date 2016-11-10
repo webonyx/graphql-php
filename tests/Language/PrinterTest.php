@@ -41,7 +41,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     {
         $printer = new Printer();
 
-        $ast = new Field(['name' => new Name(['value' => 'foo'])]);
+        $ast = new Field(['name' => new Name('foo')]);
         $this->assertEquals('foo', $printer->doPrint($ast));
     }
 

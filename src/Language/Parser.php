@@ -293,10 +293,7 @@ class Parser
     {
         $token = $this->expect(Token::NAME);
 
-        return new Name([
-            'value' => $token->value,
-            'loc' => $this->loc($token)
-        ]);
+        return new Name($token->value, $this->loc($token));
     }
 
     /**

@@ -46,7 +46,7 @@ class Printer
         return Visitor::visit($ast, [
             'leave' => [
                 NodeType::NAME => function($node) {
-                    return '' . $node->value;
+                    return '' . $node->getValue();
                 },
                 NodeType::VARIABLE => function($node) {
                     return '$' . $node->name;
