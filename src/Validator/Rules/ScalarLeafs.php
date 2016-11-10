@@ -5,6 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -24,7 +25,7 @@ class ScalarLeafs
     public function __invoke(ValidationContext $context)
     {
         return [
-            Node::FIELD => function(Field $node) use ($context) {
+            NodeType::FIELD => function(Field $node) use ($context) {
                 $type = $context->getType();
                 if ($type) {
                     if (Type::isLeafType($type)) {

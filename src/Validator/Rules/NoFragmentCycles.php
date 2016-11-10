@@ -13,6 +13,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
 use GraphQL\Utils;
 use GraphQL\Validator\ValidationContext;
@@ -44,10 +45,10 @@ class NoFragmentCycles
         $this->spreadPathIndexByName = [];
 
         return [
-            Node::OPERATION_DEFINITION => function () {
+            NodeType::OPERATION_DEFINITION => function () {
                 return Visitor::skipNode();
             },
-            Node::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
+            NodeType::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
                 if (!isset($this->visitedFrags[$node->name->value])) {
                     $this->detectCycleRecursive($node, $context);
                 }

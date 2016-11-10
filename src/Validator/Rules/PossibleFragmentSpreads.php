@@ -6,6 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Utils;
 use GraphQL\Validator\ValidationContext;
 use GraphQL\Utils\TypeInfo;
@@ -25,7 +26,7 @@ class PossibleFragmentSpreads
     public function __invoke(ValidationContext $context)
     {
         return [
-            Node::INLINE_FRAGMENT => function(InlineFragment $node) use ($context) {
+            NodeType::INLINE_FRAGMENT => function(InlineFragment $node) use ($context) {
                 $fragType = $context->getType();
                 $parentType = $context->getParentType();
 
@@ -36,7 +37,7 @@ class PossibleFragmentSpreads
                     ));
                 }
             },
-            Node::FRAGMENT_SPREAD => function(FragmentSpread $node) use ($context) {
+            NodeType::FRAGMENT_SPREAD => function(FragmentSpread $node) use ($context) {
                 $fragName = $node->name->value;
                 $fragType = $this->getFragmentType($context, $fragName);
                 $parentType = $context->getParentType();

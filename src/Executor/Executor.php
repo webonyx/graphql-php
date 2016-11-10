@@ -7,6 +7,7 @@ use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Schema;
@@ -119,7 +120,7 @@ class Executor
 
         foreach ($documentAst->definitions as $definition) {
             switch ($definition->kind) {
-                case Node::OPERATION_DEFINITION:
+                case NodeType::OPERATION_DEFINITION:
                     if (!$operationName && $operation) {
                         throw new Error(
                             'Must provide operation name if query contains multiple operations.'
@@ -130,7 +131,7 @@ class Executor
                         $operation = $definition;
                     }
                     break;
-                case Node::FRAGMENT_DEFINITION:
+                case NodeType::FRAGMENT_DEFINITION:
                     $fragments[$definition->name->value] = $definition;
                     break;
                 default:
@@ -271,7 +272,7 @@ class Executor
     {
         foreach ($selectionSet->selections as $selection) {
             switch ($selection->kind) {
-                case Node::FIELD:
+                case NodeType::FIELD:
                     if (!self::shouldIncludeNode($exeContext, $selection->directives)) {
                         continue;
                     }
@@ -281,7 +282,7 @@ class Executor
                     }
                     $fields[$name][] = $selection;
                     break;
-                case Node::INLINE_FRAGMENT:
+                case NodeType::INLINE_FRAGMENT:
                     if (!self::shouldIncludeNode($exeContext, $selection->directives) ||
                         !self::doesFragmentConditionMatch($exeContext, $selection, $runtimeType)
                     ) {
@@ -295,7 +296,7 @@ class Executor
                         $visitedFragmentNames
                     );
                     break;
-                case Node::FRAGMENT_SPREAD:
+                case NodeType::FRAGMENT_SPREAD:
                     $fragName = $selection->name->value;
                     if (!empty($visitedFragmentNames[$fragName]) || !self::shouldIncludeNode($exeContext, $selection->directives)) {
                         continue;

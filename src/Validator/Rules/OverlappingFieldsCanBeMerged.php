@@ -9,6 +9,7 @@ use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ListOfType;
@@ -52,7 +53,7 @@ class OverlappingFieldsCanBeMerged
         $this->comparedSet = new PairSet();
 
         return [
-            Node::SELECTION_SET => [
+            NodeType::SELECTION_SET => [
                 // Note: we validate on the reverse traversal so deeper conflicts will be
                 // caught first, for clearer error messages.
                 'leave' => function(SelectionSet $selectionSet) use ($context) {
@@ -316,7 +317,7 @@ class OverlappingFieldsCanBeMerged
             $selection = $selectionSet->selections[$i];
 
             switch ($selection->kind) {
-                case Node::FIELD:
+                case NodeType::FIELD:
                     $fieldName = $selection->name->value;
                     $fieldDef = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
@@ -332,7 +333,7 @@ class OverlappingFieldsCanBeMerged
                     }
                     $_astAndDefs[$responseName][] = [$parentType, $selection, $fieldDef];
                     break;
-                case Node::INLINE_FRAGMENT:
+                case NodeType::INLINE_FRAGMENT:
                     $typeCondition = $selection->typeCondition;
                     $inlineFragmentType = $typeCondition
                         ? TypeInfo::typeFromAST($context->getSchema(), $typeCondition)
@@ -346,7 +347,7 @@ class OverlappingFieldsCanBeMerged
                         $_astAndDefs
                     );
                     break;
-                case Node::FRAGMENT_SPREAD:
+                case NodeType::FRAGMENT_SPREAD:
                     /** @var FragmentSpread $selection */
                     $fragName = $selection->name->value;
                     if (!empty($_visitedFragmentNames[$fragName])) {

@@ -49,7 +49,7 @@ class QueryDepth extends AbstractQuerySecurity
         return $this->invokeIfNeeded(
             $context,
             [
-                Node::OPERATION_DEFINITION => [
+                NodeType::OPERATION_DEFINITION => [
                     'leave' => function (OperationDefinition $operationDefinition) use ($context) {
                         $maxDepth = $this->fieldDepth($operationDefinition);
 
@@ -83,7 +83,7 @@ class QueryDepth extends AbstractQuerySecurity
     private function nodeDepth(Node $node, $depth = 0, $maxDepth = 0)
     {
         switch ($node->kind) {
-            case Node::FIELD:
+            case NodeType::FIELD:
                 /* @var Field $node */
                 // node has children?
                 if (null !== $node->selectionSet) {
@@ -95,7 +95,7 @@ class QueryDepth extends AbstractQuerySecurity
                 }
                 break;
 
-            case Node::INLINE_FRAGMENT:
+            case NodeType::INLINE_FRAGMENT:
                 /* @var InlineFragment $node */
                 // node has children?
                 if (null !== $node->selectionSet) {
@@ -103,7 +103,7 @@ class QueryDepth extends AbstractQuerySecurity
                 }
                 break;
 
-            case Node::FRAGMENT_SPREAD:
+            case NodeType::FRAGMENT_SPREAD:
                 /* @var FragmentSpread $node */
                 $fragment = $this->getFragment($node);
 

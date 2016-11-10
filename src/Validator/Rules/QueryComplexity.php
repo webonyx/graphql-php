@@ -8,6 +8,7 @@ use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\Visitor;
@@ -77,7 +78,7 @@ class QueryComplexity extends AbstractQuerySecurity
         return $this->invokeIfNeeded(
             $context,
             [
-                Node::SELECTION_SET => function (SelectionSet $selectionSet) use ($context) {
+                NodeType::SELECTION_SET => function (SelectionSet $selectionSet) use ($context) {
                     $this->fieldAstAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $context->getParentType(),
@@ -86,11 +87,11 @@ class QueryComplexity extends AbstractQuerySecurity
                         $this->fieldAstAndDefs
                     );
                 },
-                Node::VARIABLE_DEFINITION => function ($def) {
+                NodeType::VARIABLE_DEFINITION => function ($def) {
                     $this->variableDefs[] = $def;
                     return Visitor::skipNode();
                 },
-                Node::OPERATION_DEFINITION => [
+                NodeType::OPERATION_DEFINITION => [
                     'leave' => function (OperationDefinition $operationDefinition) use ($context, &$complexity) {
                         $complexity = $this->fieldComplexity($operationDefinition, $complexity);
 
@@ -119,7 +120,7 @@ class QueryComplexity extends AbstractQuerySecurity
     private function nodeComplexity(Node $node, $complexity = 0)
     {
         switch ($node->kind) {
-            case Node::FIELD:
+            case NodeType::FIELD:
                 /* @var Field $node */
                 // default values
                 $args = [];
@@ -147,7 +148,7 @@ class QueryComplexity extends AbstractQuerySecurity
                 $complexity += call_user_func_array($complexityFn, [$childrenComplexity, $args]);
                 break;
 
-            case Node::INLINE_FRAGMENT:
+            case NodeType::INLINE_FRAGMENT:
                 /* @var InlineFragment $node */
                 // node has children?
                 if (isset($node->selectionSet)) {
@@ -155,7 +156,7 @@ class QueryComplexity extends AbstractQuerySecurity
                 }
                 break;
 
-            case Node::FRAGMENT_SPREAD:
+            case NodeType::FRAGMENT_SPREAD:
                 /* @var FragmentSpread $node */
                 $fragment = $this->getFragment($node);
 

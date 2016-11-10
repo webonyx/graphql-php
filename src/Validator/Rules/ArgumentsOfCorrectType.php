@@ -6,6 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\NonNull;
@@ -25,7 +26,7 @@ class ArgumentsOfCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            Node::ARGUMENT => function(Argument $argAST) use ($context) {
+            NodeType::ARGUMENT => function(Argument $argAST) use ($context) {
                 $argDef = $context->getArgument();
                 if ($argDef) {
                     $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argAST->value);
