@@ -116,7 +116,9 @@ class Printer
                 NodeType::ENUM => function(EnumValue $node) {
                     return $node->getValue();
                 },
-                NodeType::LST => function(ListValue $node) {return '[' . $this->join($node->values, ', ') . ']';},
+                NodeType::LST => function(ListValue $node) {
+                    return '[' . $this->join($node->getValues(), ', ') . ']';
+                },
                 NodeType::OBJECT => function(ObjectValue $node) {return '{' . $this->join($node->fields, ', ') . '}';},
                 NodeType::OBJECT_FIELD => function(ObjectField $node) {return $node->name . ': ' . $node->value;},
 

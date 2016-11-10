@@ -695,10 +695,10 @@ class Parser
     {
         $start = $this->lexer->token;
         $item = $isConst ? 'parseConstValue' : 'parseVariableValue';
-        return new ListValue([
-            'values' => $this->any(Token::BRACKET_L, [$this, $item], Token::BRACKET_R),
-            'loc' => $this->loc($start)
-        ]);
+        return new ListValue(
+            $this->any(Token::BRACKET_L, [$this, $item], Token::BRACKET_R),
+            $this->loc($start)
+        );
     }
 
     /**
