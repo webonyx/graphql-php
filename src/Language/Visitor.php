@@ -236,7 +236,20 @@ class Visitor
                 $stack = $stack['prev'];
             } else {
                 $key = $parent ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
-                $node = $parent ? (is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
+
+                if (! $parent) {
+                    $node = $newRoot;
+                } elseif (is_array($parent)) {
+                    $node = $parent[$key];
+                } else {
+                    $keyFunc = 'get'.ucfirst($key);
+                    if (method_exists($parent, $keyFunc)) {
+                        $node = $parent->{$keyFunc}();
+                    } else {
+                        $node = $parent->{$key};
+                    }
+                }
+
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
