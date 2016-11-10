@@ -11,10 +11,12 @@ class Utils
 {
     /**
      * @param object $obj
-     * @param array $vars
+     * @param array  $vars
+     * @param array  $requiredKeys
+     *
      * @return array
      */
-    public static function assign($obj, array $vars, array $requiredKeys = array())
+    public static function assign($obj, array $vars, array $requiredKeys = [])
     {
         foreach ($requiredKeys as $key) {
             if (!isset($key, $vars)) {

@@ -42,11 +42,17 @@ class Printer
 {
     public function doPrint($ast)
     {
-        return Visitor::visit($ast, array(
-            'leave' => array(
-                Node::NAME => function($node) {return '' . $node->value;},
-                Node::VARIABLE => function($node) {return '$' . $node->name;},
-                Node::DOCUMENT => function(Document $node) {return $this->join($node->definitions, "\n\n") . "\n";},
+        return Visitor::visit($ast, [
+            'leave' => [
+                Node::NAME => function($node) {
+                    return '' . $node->value;
+                },
+                Node::VARIABLE => function($node) {
+                    return '$' . $node->name;
+                },
+                Node::DOCUMENT => function(Document $node) {
+                    return $this->join($node->definitions, "\n\n") . "\n";
+                },
                 Node::OPERATION_DEFINITION => function(OperationDefinition $node) {
                     $op = $node->operation;
                     $name = $node->name;
@@ -187,13 +193,15 @@ class Printer
                         $this->block($def->fields)
                     ], ' ');
                 },
-                Node::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinition $def) {return "extend {$def->definition}";},
+                Node::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinition $def) {
+                    return "extend {$def->definition}";
+                },
                 Node::DIRECTIVE_DEFINITION => function(DirectiveDefinition $def) {
                     return 'directive @' . $def->name . $this->wrap('(', $this->join($def->arguments, ', '), ')')
                         . ' on ' . $this->join($def->locations, ' | ');
                 }
-            )
-        ));
+            ]
+        ]);
     }
 
     /**

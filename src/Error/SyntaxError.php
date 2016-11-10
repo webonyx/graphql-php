@@ -4,10 +4,6 @@ namespace GraphQL\Error;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 
-/**
- * Class SyntaxError
- * @package GraphQL\Error
- */
 class SyntaxError extends Error
 {
     /**
@@ -33,9 +29,9 @@ class SyntaxError extends Error
     public static function highlightSourceAtLocation(Source $source, SourceLocation $location)
     {
         $line = $location->line;
-        $prevLineNum = (string)($line - 1);
-        $lineNum = (string)$line;
-        $nextLineNum = (string)($line + 1);
+        $prevLineNum = (string) ($line - 1);
+        $lineNum = (string) $line;
+        $nextLineNum = (string) ($line + 1);
         $padLen = mb_strlen($nextLineNum, 'UTF-8');
 
         $unicodeChars = json_decode('"\u2028\u2029"'); // Quick hack to get js-compatible representation of these chars

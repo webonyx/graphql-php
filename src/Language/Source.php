@@ -36,7 +36,7 @@ class Source
 
         $utfChars = json_decode('"\u2028\u2029"');
         $lineRegexp = '/\r\n|[\n\r'.$utfChars.']/su';
-        $matches = array();
+        $matches = [];
         preg_match_all($lineRegexp, mb_substr($this->body, 0, $position, 'UTF-8'), $matches, PREG_OFFSET_CAPTURE);
 
         foreach ($matches[0] as $index => $match) {
