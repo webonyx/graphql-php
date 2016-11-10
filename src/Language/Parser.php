@@ -1118,12 +1118,12 @@ class Parser
             Token::BRACE_R
         );
 
-        return new InputObjectTypeDefinition([
-            'name' => $name,
-            'directives' => $directives,
-            'fields' => $fields,
-            'loc' => $this->loc($start)
-        ]);
+        return new InputObjectTypeDefinition(
+            $name,
+            $directives,
+            $fields,
+            $this->loc($start)
+        );
     }
 
     /**

@@ -198,9 +198,9 @@ class Printer
                 NodeType::INPUT_OBJECT_TYPE_DEFINITION => function(InputObjectTypeDefinition $def) {
                     return $this->join([
                         'input',
-                        $def->name,
-                        $this->join($def->directives, ' '),
-                        $this->block($def->fields)
+                        $def->getName(),
+                        $this->join($def->getDirectives(), ' '),
+                        $this->block($def->getFields())
                     ], ' ');
                 },
                 NodeType::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinition $def) {
