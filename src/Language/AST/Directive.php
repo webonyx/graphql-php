@@ -9,12 +9,12 @@ class Directive extends Node
     /**
      * @var Name
      */
-    public $name;
+    protected $name;
 
     /**
      * @var Argument[]
      */
-    public $arguments;
+    protected $arguments;
 
     /**
      * @param array $value
