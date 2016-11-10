@@ -146,8 +146,8 @@ class Printer
                 NodeType::SCHEMA_DEFINITION => function(SchemaDefinition $def) {
                     return $this->join([
                         'schema',
-                        $this->join($def->directives, ' '),
-                        $this->block($def->operationTypes)
+                        $this->join($def->getDirectives(), ' '),
+                        $this->block($def->getOperationTypes())
                     ], ' ');
                 },
                 NodeType::OPERATION_TYPE_DEFINITION => function(OperationTypeDefinition $def) {

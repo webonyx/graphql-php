@@ -860,11 +860,11 @@ class Parser
             Token::BRACE_R
         );
 
-        return new SchemaDefinition([
-            'directives' => $directives,
-            'operationTypes' => $operationTypes,
-            'loc' => $this->loc($start)
-        ]);
+        return new SchemaDefinition(
+            $directives,
+            $operationTypes,
+            $this->loc($start)
+        );
     }
 
     /**
