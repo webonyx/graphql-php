@@ -781,10 +781,10 @@ class Parser
         if ($this->skip(Token::BRACKET_L)) {
             $type = $this->parseTypeReference();
             $this->expect(Token::BRACKET_R);
-            $type = new ListType([
-                'type' => $type,
-                'loc' => $this->loc($start)
-            ]);
+            $type = new ListType(
+                $type,
+                $this->loc($start)
+            );
         } else {
             $type = $this->parseNamedType();
         }
