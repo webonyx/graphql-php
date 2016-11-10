@@ -192,9 +192,9 @@ class Printer
                 NodeType::UNION_TYPE_DEFINITION => function(UnionTypeDefinition $def) {
                     return $this->join([
                         'union',
-                        $def->name,
-                        $this->join($def->directives, ' '),
-                        '= ' . $this->join($def->types, ' | ')
+                        $def->getName(),
+                        $this->join($def->getDirectives(), ' '),
+                        '= ' . $this->join($def->getTypes(), ' | ')
                     ], ' ');
                 },
                 NodeType::ENUM_TYPE_DEFINITION => function(EnumTypeDefinition $def) {

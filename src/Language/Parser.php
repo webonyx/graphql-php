@@ -1038,12 +1038,12 @@ class Parser
         $this->expect(Token::EQUALS);
         $types = $this->parseUnionMembers();
 
-        return new UnionTypeDefinition([
-            'name' => $name,
-            'directives' => $directives,
-            'types' => $types,
-            'loc' => $this->loc($start)
-        ]);
+        return new UnionTypeDefinition(
+            $name,
+            $directives,
+            $types,
+            $this->loc($start)
+        );
     }
 
     /**
