@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
@@ -40,9 +41,10 @@ abstract class AbstractQuerySecurityTest extends \PHPUnit_Framework_TestCase
 
     protected function assertDocumentValidator($queryString, $max, array $expectedErrors = [])
     {
+        $parser = new Parser(new Lexer());
         $errors = DocumentValidator::validate(
             QuerySecuritySchema::buildSchema(),
-            Parser::parse($queryString),
+            $parser->parse($queryString),
             [$this->getRule($max)]
         );
 

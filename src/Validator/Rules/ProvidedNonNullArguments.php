@@ -34,17 +34,17 @@ class ProvidedNonNullArguments
                     if (!$fieldDef) {
                         return Visitor::skipNode();
                     }
-                    $argASTs = $fieldAST->arguments ?: [];
+                    $argASTs = $fieldAST->getArguments() ?: [];
 
                     $argASTMap = [];
                     foreach ($argASTs as $argAST) {
-                        $argASTMap[$argAST->name->value] = $argASTs;
+                        $argASTMap[$argAST->getName()->getValue()] = $argASTs;
                     }
                     foreach ($fieldDef->args as $argDef) {
-                        $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
+                        $argAST = method_exists($argDef, 'getName') and isset($argASTMap[$argDef->getName()]) ? $argASTMap[$argDef->getName()] : null;
                         if (!$argAST && $argDef->getType() instanceof NonNull) {
                             $context->reportError(new Error(
-                                self::missingFieldArgMessage($fieldAST->name->value, $argDef->name, $argDef->getType()),
+                                self::missingFieldArgMessage($fieldAST->getName()->getValue(), $argDef->getName(), $argDef->getType()),
                                 [$fieldAST]
                             ));
                         }
@@ -57,17 +57,17 @@ class ProvidedNonNullArguments
                     if (!$directiveDef) {
                         return Visitor::skipNode();
                     }
-                    $argASTs = $directiveAST->arguments ?: [];
+                    $argASTs = $directiveAST->getArguments() ?: [];
                     $argASTMap = [];
                     foreach ($argASTs as $argAST) {
-                        $argASTMap[$argAST->name->value] = $argASTs;
+                        $argASTMap[$argAST->getName()->getValue()] = $argASTs;
                     }
 
                     foreach ($directiveDef->args as $argDef) {
-                        $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
+                        $argAST = isset($argASTMap[$argDef->getName()]) ? $argASTMap[$argDef->getName()] : null;
                         if (!$argAST && $argDef->getType() instanceof NonNull) {
                             $context->reportError(new Error(
-                                self::missingDirectiveArgMessage($directiveAST->name->value, $argDef->name, $argDef->getType()),
+                                self::missingDirectiveArgMessage($directiveAST->getName()->getValue(), $argDef->getName(), $argDef->getType()),
                                 [$directiveAST]
                             ));
                         }

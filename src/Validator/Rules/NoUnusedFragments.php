@@ -42,12 +42,12 @@ class NoUnusedFragments
 
                     foreach ($this->operationDefs as $operation) {
                         foreach ($context->getRecursivelyReferencedFragments($operation) as $fragment) {
-                            $fragmentNameUsed[$fragment->name->value] = true;
+                            $fragmentNameUsed[$fragment->getName()->getValue()] = true;
                         }
                     }
 
                     foreach ($this->fragmentDefs as $fragmentDef) {
-                        $fragName = $fragmentDef->name->value;
+                        $fragName = $fragmentDef->getName()->getValue();
                         if (empty($fragmentNameUsed[$fragName])) {
                             $context->reportError(new Error(
                                 self::unusedFragMessage($fragName),

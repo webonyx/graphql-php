@@ -29,15 +29,15 @@ class ScalarLeafs
                 $type = $context->getType();
                 if ($type) {
                     if (Type::isLeafType($type)) {
-                        if ($node->selectionSet) {
+                        if ($node->getSelectionSet()) {
                             $context->reportError(new Error(
-                                self::noSubselectionAllowedMessage($node->name->value, $type),
-                                [$node->selectionSet]
+                                self::noSubselectionAllowedMessage($node->getName()->getValue(), $type),
+                                [$node->getSelectionSet()]
                             ));
                         }
-                    } else if (!$node->selectionSet) {
+                    } else if (!$node->getSelectionSet()) {
                         $context->reportError(new Error(
-                            self::requiredSubselectionMessage($node->name->value, $type),
+                            self::requiredSubselectionMessage($node->getName()->getValue(), $type),
                             [$node]
                         ));
                     }

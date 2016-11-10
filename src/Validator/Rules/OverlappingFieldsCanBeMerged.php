@@ -164,8 +164,8 @@ class OverlappingFieldsCanBeMerged
             $parentType2 instanceof ObjectType;
 
         if (!$fieldsAreMutuallyExclusive) {
-            $name1 = $ast1->name->value;
-            $name2 = $ast2->name->value;
+            $name1 = $ast1->getName()->getValue();
+            $name2 = $ast2->getName()->getValue();
 
             if ($name1 !== $name2) {
                 return [
@@ -175,8 +175,8 @@ class OverlappingFieldsCanBeMerged
                 ];
             }
 
-            $args1 = isset($ast1->arguments) ? $ast1->arguments : [];
-            $args2 = isset($ast2->arguments) ? $ast2->arguments : [];
+            $args1 = method_exists($ast1, 'getArguments') ? $ast1->getArguments() : [];
+            $args2 = method_exists($ast2, 'getArguments') ? $ast2->getArguments() : [];
 
             if (!$this->sameArguments($args1, $args2)) {
                 return [
@@ -212,8 +212,8 @@ class OverlappingFieldsCanBeMerged
         $type2,
         ValidationContext $context
     ) {
-        $selectionSet1 = $ast1->selectionSet;
-        $selectionSet2 = $ast2->selectionSet;
+        $selectionSet1 = $ast1->getSelectionSet();
+        $selectionSet2 = $ast2->getSelectionSet();
         if ($selectionSet1 && $selectionSet2) {
             $visitedFragmentNames = new \ArrayObject();
             $subfieldMap = $this->collectFieldASTsAndDefs(
@@ -313,12 +313,12 @@ class OverlappingFieldsCanBeMerged
         $_visitedFragmentNames = $visitedFragmentNames ?: new \ArrayObject();
         $_astAndDefs = $astAndDefs ?: new \ArrayObject();
 
-        for ($i = 0; $i < count($selectionSet->selections); $i++) {
-            $selection = $selectionSet->selections[$i];
+        for ($i = 0; $i < count($selectionSet->getSelections()); $i++) {
+            $selection = $selectionSet->getSelections()[$i];
 
-            switch ($selection->kind) {
+            switch ($selection->getKind()) {
                 case NodeType::FIELD:
-                    $fieldName = $selection->name->value;
+                    $fieldName = $selection->getName()->getValue();
                     $fieldDef = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
                         $tmp = $parentType->getFields();
@@ -326,7 +326,7 @@ class OverlappingFieldsCanBeMerged
                             $fieldDef = $tmp[$fieldName];
                         }
                     }
-                    $responseName = $selection->alias ? $selection->alias->value : $fieldName;
+                    $responseName = $selection->getAlias() ? $selection->getAlias()->getValue() : $fieldName;
 
                     if (!isset($_astAndDefs[$responseName])) {
                         $_astAndDefs[$responseName] = new \ArrayObject();
@@ -334,7 +334,7 @@ class OverlappingFieldsCanBeMerged
                     $_astAndDefs[$responseName][] = [$parentType, $selection, $fieldDef];
                     break;
                 case NodeType::INLINE_FRAGMENT:
-                    $typeCondition = $selection->typeCondition;
+                    $typeCondition = $selection->getTypeCondition();
                     $inlineFragmentType = $typeCondition
                         ? TypeInfo::typeFromAST($context->getSchema(), $typeCondition)
                         : $parentType;
@@ -342,14 +342,14 @@ class OverlappingFieldsCanBeMerged
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $inlineFragmentType,
-                        $selection->selectionSet,
+                        $selection->getSelectionSet(),
                         $_visitedFragmentNames,
                         $_astAndDefs
                     );
                     break;
                 case NodeType::FRAGMENT_SPREAD:
                     /** @var FragmentSpread $selection */
-                    $fragName = $selection->name->value;
+                    $fragName = $selection->getName()->getValue();
                     if (!empty($_visitedFragmentNames[$fragName])) {
                         continue;
                     }
@@ -358,11 +358,11 @@ class OverlappingFieldsCanBeMerged
                     if (!$fragment) {
                         continue;
                     }
-                    $fragmentType = TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition);
+                    $fragmentType = TypeInfo::typeFromAST($context->getSchema(), $fragment->getTypeCondition());
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $fragmentType,
-                        $fragment->selectionSet,
+                        $fragment->getSelectionSet(),
                         $_visitedFragmentNames,
                         $_astAndDefs
                     );
@@ -385,7 +385,7 @@ class OverlappingFieldsCanBeMerged
         foreach ($arguments1 as $arg1) {
             $arg2 = null;
             foreach ($arguments2 as $arg) {
-                if ($arg->name->value === $arg1->name->value) {
+                if ($arg->getName()->getValue() === $arg1->getName()->getValue()) {
                     $arg2 = $arg;
                     break;
                 }
@@ -393,7 +393,7 @@ class OverlappingFieldsCanBeMerged
             if (!$arg2) {
                 return false;
             }
-            if (!$this->sameValue($arg1->value, $arg2->value)) {
+            if (!$this->sameValue($arg1->getValue(), $arg2->getValue())) {
                 return false;
             }
         }

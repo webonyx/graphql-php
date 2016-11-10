@@ -31,8 +31,8 @@ class DefaultValuesOfCorrectType
     {
         return [
             NodeType::VARIABLE_DEFINITION => function(VariableDefinition $varDefAST) use ($context) {
-                $name = $varDefAST->variable->name->value;
-                $defaultValue = $varDefAST->defaultValue;
+                $name = $varDefAST->getVariable()->getName()->getValue();
+                $defaultValue = $varDefAST->getDefaultValue();
                 $type = $context->getInputType();
 
                 if ($type instanceof NonNull && $defaultValue) {

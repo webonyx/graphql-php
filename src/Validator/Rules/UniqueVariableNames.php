@@ -25,14 +25,14 @@ class UniqueVariableNames
                 $this->knownVariableNames = [];
             },
             NodeType::VARIABLE_DEFINITION => function(VariableDefinition $node) use ($context) {
-                $variableName = $node->variable->name->value;
+                $variableName = $node->getVariable()->getName()->getValue();
                 if (!empty($this->knownVariableNames[$variableName])) {
                     $context->reportError(new Error(
                         self::duplicateVariableMessage($variableName),
-                        [ $this->knownVariableNames[$variableName], $node->variable->name ]
+                        [ $this->knownVariableNames[$variableName], $node->getVariable()->getName() ]
                     ));
                 } else {
-                    $this->knownVariableNames[$variableName] = $node->variable->name;
+                    $this->knownVariableNames[$variableName] = $node->getVariable()->getName();
                 }
             }
         ];

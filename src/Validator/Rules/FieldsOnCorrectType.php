@@ -49,14 +49,14 @@ class FieldsOnCorrectType
                             $suggestedTypes = self::getSiblingInterfacesIncludingField(
                                 $schema,
                                 $type,
-                                $node->name->value
+                                $node->getName()->getValue()
                             );
                             $suggestedTypes = array_merge($suggestedTypes,
-                                self::getImplementationsIncludingField($schema, $type, $node->name->value)
+                                self::getImplementationsIncludingField($schema, $type, $node->getName()->getValue())
                             );
                         }
                         $context->reportError(new Error(
-                            static::undefinedFieldMessage($node->name->value, $type->name, $suggestedTypes),
+                            static::undefinedFieldMessage($node->getName()->getValue(), $type->name, $suggestedTypes),
                             [$node]
                         ));
                     }
@@ -77,7 +77,7 @@ class FieldsOnCorrectType
     {
         $types = $schema->getPossibleTypes($type);
         $types = Utils::filter($types, function($t) use ($fieldName) {return isset($t->getFields()[$fieldName]);});
-        $types = Utils::map($types, function($t) {return $t->name;});
+        $types = Utils::map($types, function($t) {return $t->getName();});
         sort($types);
         return $types;
     }
@@ -96,10 +96,10 @@ class FieldsOnCorrectType
                 if (empty($i->getFields()[$fieldName])) {
                     continue;
                 }
-                if (!isset($acc[$i->name])) {
-                    $acc[$i->name] = 0;
+                if (!isset($acc[$i->getName()])) {
+                    $acc[$i->getName()] = 0;
                 }
-                $acc[$i->name] += 1;
+                $acc[$i->getName()] += 1;
             }
             return $acc;
         }, []);

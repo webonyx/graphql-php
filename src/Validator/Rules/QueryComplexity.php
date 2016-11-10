@@ -71,7 +71,7 @@ class QueryComplexity extends AbstractQuerySecurity
     {
         $this->context = $context;
 
-        $this->variableDefs = new \ArrayObject();
+        $this->getVariable()Defs = new \ArrayObject();
         $this->fieldAstAndDefs = new \ArrayObject();
         $complexity = 0;
 
@@ -88,7 +88,7 @@ class QueryComplexity extends AbstractQuerySecurity
                     );
                 },
                 NodeType::VARIABLE_DEFINITION => function ($def) {
-                    $this->variableDefs[] = $def;
+                    $this->getVariable()Defs[] = $def;
                     return Visitor::skipNode();
                 },
                 NodeType::OPERATION_DEFINITION => [
@@ -108,8 +108,8 @@ class QueryComplexity extends AbstractQuerySecurity
 
     private function fieldComplexity($node, $complexity = 0)
     {
-        if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSet) {
-            foreach ($node->selectionSet->selections as $childNode) {
+        if (method_exists($node, 'getSelectionSet') && $node->getSelectionSet() instanceof SelectionSet) {
+            foreach ($node->getSelectionSet()->getSelections() as $childNode) {
                 $complexity = $this->nodeComplexity($childNode, $complexity);
             }
         }
@@ -119,7 +119,7 @@ class QueryComplexity extends AbstractQuerySecurity
 
     private function nodeComplexity(Node $node, $complexity = 0)
     {
-        switch ($node->kind) {
+        switch ($node->getKind()) {
             case NodeType::FIELD:
                 /* @var Field $node */
                 // default values
@@ -130,7 +130,7 @@ class QueryComplexity extends AbstractQuerySecurity
                 $childrenComplexity = 0;
 
                 // node has children?
-                if (isset($node->selectionSet)) {
+                if (method_exists($node, 'getSelectionSet')) {
                     $childrenComplexity = $this->fieldComplexity($node);
                 }
 
@@ -151,7 +151,7 @@ class QueryComplexity extends AbstractQuerySecurity
             case NodeType::INLINE_FRAGMENT:
                 /* @var InlineFragment $node */
                 // node has children?
-                if (isset($node->selectionSet)) {
+                if (method_exists($node, 'getSelectionSet')) {
                     $complexity = $this->fieldComplexity($node, $complexity);
                 }
                 break;
@@ -196,10 +196,10 @@ class QueryComplexity extends AbstractQuerySecurity
         if ($fieldDef instanceof FieldDefinition) {
             $variableValues = Values::getVariableValues(
                 $this->context->getSchema(),
-                $this->variableDefs,
+                $this->getVariable()Defs,
                 $rawVariableValues
             );
-            $args = Values::getArgumentValues($fieldDef->args, $node->arguments, $variableValues);
+            $args = Values::getArgumentValues($fieldDef->args, $node->getArguments(), $variableValues);
         }
 
         return $args;

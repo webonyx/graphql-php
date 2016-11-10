@@ -38,7 +38,7 @@ class PossibleFragmentSpreads
                 }
             },
             NodeType::FRAGMENT_SPREAD => function(FragmentSpread $node) use ($context) {
-                $fragName = $node->name->value;
+                $fragName = $node->getName()->getValue();
                 $fragType = $this->getFragmentType($context, $fragName);
                 $parentType = $context->getParentType();
 
@@ -55,6 +55,6 @@ class PossibleFragmentSpreads
     private function getFragmentType(ValidationContext $context, $name)
     {
         $frag = $context->getFragment($name);
-        return $frag ? TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition) : null;
+        return $frag ? TypeInfo::typeFromAST($context->getSchema(), $frag->getTypeCondition()) : null;
     }
 }

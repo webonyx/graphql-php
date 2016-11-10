@@ -150,11 +150,11 @@ class TypeInfo
     public static function typeFromAST(Schema $schema, $inputTypeAst)
     {
         if ($inputTypeAst instanceof ListType) {
-            $innerType = self::typeFromAST($schema, $inputTypeAst->type);
+            $innerType = self::typeFromAST($schema, $inputTypeAst->getType());
             return $innerType ? new ListOfType($innerType) : null;
         }
         if ($inputTypeAst instanceof NonNullType) {
-            $innerType = self::typeFromAST($schema, $inputTypeAst->type);
+            $innerType = self::typeFromAST($schema, $inputTypeAst->getType());
             return $innerType ? new NonNull($innerType) : null;
         }
 

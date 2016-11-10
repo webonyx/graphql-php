@@ -28,7 +28,7 @@ class KnownTypeNames
             NodeType::INPUT_OBJECT_TYPE_DEFINITION => $skip,
 
             NodeType::NAMED_TYPE => function(NamedType $node, $key) use ($context) {
-                $typeName = $node->name->value;
+                $typeName = $node->getName()->getValue();
                 $type = $context->getSchema()->getType($typeName);
                 if (!$type) {
                     $context->reportError(new Error(self::unknownTypeMessage($typeName), [$node]));

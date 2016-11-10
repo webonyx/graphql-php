@@ -29,12 +29,12 @@ class ArgumentsOfCorrectType
             NodeType::ARGUMENT => function(Argument $argAST) use ($context) {
                 $argDef = $context->getArgument();
                 if ($argDef) {
-                    $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argAST->value);
+                    $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argAST->getValue());
 
                     if (!empty($errors)) {
                         $context->reportError(new Error(
-                            self::badValueMessage($argAST->name->value, $argDef->getType(), Printer::doPrint($argAST->value), $errors),
-                            [$argAST->value]
+                            self::badValueMessage($argAST->getName()->getValue(), $argDef->getType(), Printer::doPrint($argAST->getValue()), $errors),
+                            [$argAST->getValue()]
                         ));
                     }
                 }

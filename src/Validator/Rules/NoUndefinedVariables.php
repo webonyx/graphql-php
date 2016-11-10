@@ -45,13 +45,13 @@ class NoUndefinedVariables
 
                     foreach ($usages as $usage) {
                         $node = $usage['node'];
-                        $varName = $node->name->value;
+                        $varName = $node->getName()->getValue();
 
                         if (empty($variableNameDefined[$varName])) {
                             $context->reportError(new Error(
                                 self::undefinedVarMessage(
                                     $varName,
-                                    $operation->name ? $operation->name->value : null
+                                    $operation->getName() ? $operation->getName()->getValue() : null
                                 ),
                                 [ $node, $operation ]
                             ));
@@ -60,7 +60,7 @@ class NoUndefinedVariables
                 }
             ],
             NodeType::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$variableNameDefined) {
-                $variableNameDefined[$def->variable->name->value] = true;
+                $variableNameDefined[$def->getVariable()->getName()->getValue()] = true;
             }
         ];
     }

@@ -27,13 +27,13 @@ class KnownArgumentNames
         return [
             NodeType::ARGUMENT => function(Argument $node, $key, $parent, $path, $ancestors) use ($context) {
                 $argumentOf = $ancestors[count($ancestors) - 1];
-                if ($argumentOf->kind === NodeType::FIELD) {
+                if ($argumentOf->getKind() === NodeType::FIELD) {
                     $fieldDef = $context->getFieldDef();
 
                     if ($fieldDef) {
                         $fieldArgDef = null;
                         foreach ($fieldDef->args as $arg) {
-                            if ($arg->name === $node->name->value) {
+                            if ($arg->getName() === $node->getName()->getValue()) {
                                 $fieldArgDef = $arg;
                                 break;
                             }
@@ -42,24 +42,24 @@ class KnownArgumentNames
                             $parentType = $context->getParentType();
                             Utils::invariant($parentType);
                             $context->reportError(new Error(
-                                self::unknownArgMessage($node->name->value, $fieldDef->name, $parentType->name),
+                                self::unknownArgMessage($node->getName()->getValue(), $fieldDef->getName(), $parentType->getName()),
                                 [$node]
                             ));
                         }
                     }
-                } else if ($argumentOf->kind === NodeType::DIRECTIVE) {
+                } else if ($argumentOf->getKind() === NodeType::DIRECTIVE) {
                     $directive = $context->getDirective();
                     if ($directive) {
                         $directiveArgDef = null;
                         foreach ($directive->args as $arg) {
-                            if ($arg->name === $node->name->value) {
+                            if ($arg->getName() === $node->getName()->getValue()) {
                                 $directiveArgDef = $arg;
                                 break;
                             }
                         }
                         if (!$directiveArgDef) {
                             $context->reportError(new Error(
-                                self::unknownDirectiveArgMessage($node->name->value, $directive->name),
+                                self::unknownDirectiveArgMessage($node->getName()->getValue(), $directive->getName()),
                                 [$node]
                             ));
                         }

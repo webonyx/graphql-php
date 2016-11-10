@@ -23,25 +23,25 @@ class NoUnusedVariables
 
     public function __invoke(ValidationContext $context)
     {
-        $this->variableDefs = [];
+        $this->getVariable()Defs = [];
 
         return [
             NodeType::OPERATION_DEFINITION => [
                 'enter' => function() {
-                    $this->variableDefs = [];
+                    $this->getVariable()Defs = [];
                 },
                 'leave' => function(OperationDefinition $operation) use ($context) {
                     $variableNameUsed = [];
                     $usages = $context->getRecursiveVariableUsages($operation);
-                    $opName = $operation->name ? $operation->name->value : null;
+                    $opName = $operation->getName() ? $operation->getName()->getValue() : null;
 
                     foreach ($usages as $usage) {
                         $node = $usage['node'];
-                        $variableNameUsed[$node->name->value] = true;
+                        $variableNameUsed[$node->getName()->getValue()] = true;
                     }
 
-                    foreach ($this->variableDefs as $variableDef) {
-                        $variableName = $variableDef->variable->name->value;
+                    foreach ($this->getVariable()Defs as $variableDef) {
+                        $variableName = $variableDef->getVariable()->getName()->getValue();
 
                         if (empty($variableNameUsed[$variableName])) {
                             $context->reportError(new Error(
@@ -53,7 +53,7 @@ class NoUnusedVariables
                 }
             ],
             NodeType::VARIABLE_DEFINITION => function($def) {
-                $this->variableDefs[] = $def;
+                $this->getVariable()Defs[] = $def;
             }
         ];
     }

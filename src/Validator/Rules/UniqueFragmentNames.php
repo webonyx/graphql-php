@@ -27,14 +27,14 @@ class UniqueFragmentNames
                 return Visitor::skipNode();
             },
             NodeType::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
-                $fragmentName = $node->name->value;
+                $fragmentName = $node->getName()->getValue();
                 if (!empty($this->knownFragmentNames[$fragmentName])) {
                     $context->reportError(new Error(
                         self::duplicateFragmentNameMessage($fragmentName),
-                        [ $this->knownFragmentNames[$fragmentName], $node->name ]
+                        [ $this->knownFragmentNames[$fragmentName], $node->getName() ]
                     ));
                 } else {
-                    $this->knownFragmentNames[$fragmentName] = $node->name;
+                    $this->knownFragmentNames[$fragmentName] = $node->getName();
                 }
                 return Visitor::skipNode();
             }

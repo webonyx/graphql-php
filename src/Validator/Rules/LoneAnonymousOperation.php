@@ -28,15 +28,15 @@ class LoneAnonymousOperation
         return [
             NodeType::DOCUMENT => function(Document $node) use (&$operationCount) {
                 $tmp = Utils::filter(
-                    $node->definitions,
+                    $node->getDefinitions(),
                     function ($definition) {
-                        return $definition->kind === NodeType::OPERATION_DEFINITION;
+                        return $definition->getKind() === NodeType::OPERATION_DEFINITION;
                     }
                 );
                 $operationCount = count($tmp);
             },
             NodeType::OPERATION_DEFINITION => function(OperationDefinition $node) use (&$operationCount, $context) {
-                if (!$node->name && $operationCount > 1) {
+                if (!$node->getName() && $operationCount > 1) {
                     $context->reportError(
                         new Error(self::anonOperationNotAloneMessage(), [$node])
                     );

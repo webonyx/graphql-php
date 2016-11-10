@@ -29,14 +29,14 @@ class UniqueArgumentNames
                 $this->knownArgNames = [];
             },
             NodeType::ARGUMENT => function (Argument $node) use ($context) {
-                $argName = $node->name->value;
+                $argName = $node->getName()->getValue();
                 if (!empty($this->knownArgNames[$argName])) {
                     $context->reportError(new Error(
                         self::duplicateArgMessage($argName),
-                        [$this->knownArgNames[$argName], $node->name]
+                        [$this->knownArgNames[$argName], $node->getName()]
                     ));
                 } else {
-                    $this->knownArgNames[$argName] = $node->name;
+                    $this->knownArgNames[$argName] = $node->getName();
                 }
                 return Visitor::skipNode();
             }

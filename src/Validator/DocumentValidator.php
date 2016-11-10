@@ -156,8 +156,8 @@ class DocumentValidator
         if ($type instanceof NonNull) {
             $wrappedType = $type->getWrappedType();
             if (!$valueAST) {
-                if ($wrappedType->name) {
-                    return [ "Expected \"{$wrappedType->name}!\", found null." ];
+                if ($wrappedType->getName()) {
+                    return [ "Expected \"{$wrappedType->getName()}!\", found null." ];
                 }
                 return ['Expected non-null value, found null.'];
             }
@@ -179,7 +179,7 @@ class DocumentValidator
             $itemType = $type->getWrappedType();
             if ($valueAST instanceof ListValue) {
                 $errors = [];
-                foreach($valueAST->values as $index => $itemAST) {
+                foreach($valueAST->getValues as $index => $itemAST) {
                     $tmp = static::isValidLiteralValue($itemType, $itemAST);
 
                     if ($tmp) {
@@ -196,28 +196,28 @@ class DocumentValidator
 
         // Input objects check each defined field and look for undefined fields.
         if ($type instanceof InputObjectType) {
-            if ($valueAST->kind !== NodeType::OBJECT) {
-                return [ "Expected \"{$type->name}\", found not an object." ];
+            if ($valueAST->getKind() !== NodeType::OBJECT) {
+                return [ "Expected \"{$type->getName()}\", found not an object." ];
             }
 
             $fields = $type->getFields();
             $errors = [];
 
             // Ensure every provided field is defined.
-            $fieldASTs = $valueAST->fields;
+            $fieldASTs = $valueAST->getFields();
 
             foreach ($fieldASTs as $providedFieldAST) {
-                if (empty($fields[$providedFieldAST->name->value])) {
-                    $errors[] = "In field \"{$providedFieldAST->name->value}\": Unknown field.";
+                if (empty($fields[$providedFieldAST->getName()->getValue()])) {
+                    $errors[] = "In field \"{$providedFieldAST->getName()->getValue()}\": Unknown field.";
                 }
             }
 
             // Ensure every defined field is valid.
-            $fieldASTMap = Utils::keyMap($fieldASTs, function($fieldAST) {return $fieldAST->name->value;});
+            $fieldASTMap = Utils::keyMap($fieldASTs, function($fieldAST) {return $fieldAST->getName()->getValue();});
             foreach ($fields as $fieldName => $field) {
                 $result = static::isValidLiteralValue(
                     $field->getType(),
-                    isset($fieldASTMap[$fieldName]) ? $fieldASTMap[$fieldName]->value : null
+                    isset($fieldASTMap[$fieldName]) ? $fieldASTMap[$fieldName]->getValue() : null
                 );
                 if ($result) {
                     $errors = array_merge($errors, Utils::map($result, function($error) use ($fieldName) {
@@ -236,7 +236,7 @@ class DocumentValidator
 
             if (null === $parseResult) {
                 $printed = Printer::doPrint($valueAST);
-                return [ "Expected type \"{$type->name}\", found $printed." ];
+                return [ "Expected type \"{$type->getName()}\", found $printed." ];
             }
 
             return [];

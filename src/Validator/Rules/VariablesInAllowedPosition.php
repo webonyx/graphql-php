@@ -39,7 +39,7 @@ class VariablesInAllowedPosition
                     foreach ($usages as $usage) {
                         $node = $usage['node'];
                         $type = $usage['type'];
-                        $varName = $node->name->value;
+                        $varName = $node->getName()->getValue();
                         $varDef = isset($this->varDefMap[$varName]) ? $this->varDefMap[$varName] : null;
 
                         if ($varDef && $type) {
@@ -49,7 +49,7 @@ class VariablesInAllowedPosition
                             // If both are list types, the variable item type can be more strict
                             // than the expected item type (contravariant).
                             $schema = $context->getSchema();
-                            $varType = TypeInfo::typeFromAST($schema, $varDef->type);
+                            $varType = TypeInfo::typeFromAST($schema, $varDef->getType());
 
                             if ($varType && !TypeInfo::isTypeSubTypeOf($schema, $this->effectiveType($varType, $varDef), $type)) {
                                 $context->reportError(new Error(
@@ -62,7 +62,7 @@ class VariablesInAllowedPosition
                 }
             ],
             NodeType::VARIABLE_DEFINITION => function (VariableDefinition $varDefAST) {
-                $this->varDefMap[$varDefAST->variable->name->value] = $varDefAST;
+                $this->varDefMap[$varDefAST->getVariable()->getName()->getValue()] = $varDefAST;
             }
         ];
     }
@@ -91,7 +91,7 @@ class VariablesInAllowedPosition
     // If a variable definition has a default value, it's effectively non-null.
     private function effectiveType($varType, $varDef)
     {
-        return (!$varDef->defaultValue || $varType instanceof NonNull) ? $varType : new NonNull($varType);
+        return (!$varDef->getDefaultValue() || $varType instanceof NonNull) ? $varType : new NonNull($varType);
     }
 
 }

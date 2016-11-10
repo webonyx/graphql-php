@@ -23,16 +23,16 @@ class UniqueOperationNames
 
         return [
             NodeType::OPERATION_DEFINITION => function(OperationDefinition $node) use ($context) {
-                $operationName = $node->name;
+                $operationName = $node->getName();
 
                 if ($operationName) {
-                    if (!empty($this->knownOperationNames[$operationName->value])) {
+                    if (!empty($this->knownOperationNames[$operationName->getValue()])) {
                         $context->reportError(new Error(
-                            self::duplicateOperationNameMessage($operationName->value),
-                            [ $this->knownOperationNames[$operationName->value], $operationName ]
+                            self::duplicateOperationNameMessage($operationName->getValue()),
+                            [ $this->knownOperationNames[$operationName->getValue()], $operationName ]
                         ));
                     } else {
-                        $this->knownOperationNames[$operationName->value] = $operationName;
+                        $this->knownOperationNames[$operationName->getValue()] = $operationName;
                     }
                 }
                 return Visitor::skipNode();

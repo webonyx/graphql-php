@@ -33,7 +33,7 @@ class KnownDirectives
             NodeType::DIRECTIVE => function (Directive $node, $key, $parent, $path, $ancestors) use ($context) {
                 $directiveDef = null;
                 foreach ($context->getSchema()->getDirectives() as $def) {
-                    if ($def->name === $node->name->value) {
+                    if ($def->getName() === $node->getName()->getValue()) {
                         $directiveDef = $def;
                         break;
                     }
@@ -41,7 +41,7 @@ class KnownDirectives
 
                 if (!$directiveDef) {
                     $context->reportError(new Error(
-                        self::unknownDirectiveMessage($node->name->value),
+                        self::unknownDirectiveMessage($node->getName()->getValue()),
                         [$node]
                     ));
                     return ;
@@ -51,12 +51,12 @@ class KnownDirectives
 
                 if (!$candidateLocation) {
                     $context->reportError(new Error(
-                        self::misplacedDirectiveMessage($node->name->value, $node->type),
+                        self::misplacedDirectiveMessage($node->getName()->getValue(), $node->type),
                         [$node]
                     ));
                 } else if (!in_array($candidateLocation, $directiveDef->locations)) {
                     $context->reportError(new Error(
-                        self::misplacedDirectiveMessage($node->name->value, $candidateLocation),
+                        self::misplacedDirectiveMessage($node->getName()->getValue(), $candidateLocation),
                         [ $node ]
                     ));
                 }
@@ -66,7 +66,7 @@ class KnownDirectives
 
     private function getLocationForAppliedNode(Node $appliedTo)
     {
-        switch ($appliedTo->kind) {
+        switch ($appliedTo->getKind()) {
             case NodeType::OPERATION_DEFINITION:
                 switch ($appliedTo->operation) {
                     case 'query': return DirectiveDef::LOCATION_QUERY;

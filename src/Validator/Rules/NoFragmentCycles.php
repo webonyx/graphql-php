@@ -49,7 +49,7 @@ class NoFragmentCycles
                 return Visitor::skipNode();
             },
             NodeType::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
-                if (!isset($this->visitedFrags[$node->name->value])) {
+                if (!isset($this->visitedFrags[$node->getName()->getValue()])) {
                     $this->detectCycleRecursive($node, $context);
                 }
                 return Visitor::skipNode();
@@ -59,7 +59,7 @@ class NoFragmentCycles
 
     private function detectCycleRecursive(FragmentDefinition $fragment, ValidationContext $context)
     {
-        $fragmentName = $fragment->name->value;
+        $fragmentName = $fragment->getName()->getValue();
         $this->visitedFrags[$fragmentName] = true;
 
         $spreadNodes = $context->getFragmentSpreads($fragment);
@@ -72,7 +72,7 @@ class NoFragmentCycles
 
         for ($i = 0; $i < count($spreadNodes); $i++) {
             $spreadNode = $spreadNodes[$i];
-            $spreadName = $spreadNode->name->value;
+            $spreadName = $spreadNode->getName()->getValue();
             $cycleIndex = isset($this->spreadPathIndexByName[$spreadName]) ? $this->spreadPathIndexByName[$spreadName] : null;
 
             if ($cycleIndex === null) {
@@ -98,7 +98,7 @@ class NoFragmentCycles
                     self::cycleErrorMessage(
                         $spreadName,
                         Utils::map($cyclePath, function ($s) {
-                            return $s->name->value;
+                            return $s->getName()->getValue();
                         })
                     ),
                     $nodes

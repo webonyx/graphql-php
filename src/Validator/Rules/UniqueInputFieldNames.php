@@ -34,15 +34,15 @@ class UniqueInputFieldNames
                 }
             ],
             NodeType::OBJECT_FIELD => function(ObjectField $node) use ($context) {
-                $fieldName = $node->name->value;
+                $fieldName = $node->getName()->getValue();
 
                 if (!empty($this->knownNames[$fieldName])) {
                     $context->reportError(new Error(
                         self::duplicateInputFieldMessage($fieldName),
-                        [ $this->knownNames[$fieldName], $node->name ]
+                        [ $this->knownNames[$fieldName], $node->getName() ]
                     ));
                 } else {
-                    $this->knownNames[$fieldName] = $node->name;
+                    $this->knownNames[$fieldName] = $node->getName();
                 }
                 return Visitor::skipNode();
             }

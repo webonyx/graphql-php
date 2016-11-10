@@ -132,9 +132,9 @@ class ValidationContext
         $fragments = $this->fragments;
         if (!$fragments) {
             $this->fragments = $fragments =
-                array_reduce($this->getDocument()->definitions, function($frags, $statement) {
-                    if ($statement->kind === NodeType::FRAGMENT_DEFINITION) {
-                        $frags[$statement->name->value] = $statement;
+                array_reduce($this->getDocument()->getDefinitions(), function($frags, $statement) {
+                    if ($statement->getKind() === NodeType::FRAGMENT_DEFINITION) {
+                        $frags[$statement->getName()->getValue()] = $statement;
                     }
                     return $frags;
                 }, []);
@@ -151,16 +151,16 @@ class ValidationContext
         $spreads = isset($this->fragmentSpreads[$node]) ? $this->fragmentSpreads[$node] : null;
         if (!$spreads) {
             $spreads = [];
-            $setsToVisit = [$node->selectionSet];
+            $setsToVisit = [$node->getSelectionSet()];
             while (!empty($setsToVisit)) {
                 $set = array_pop($setsToVisit);
 
-                for ($i = 0; $i < count($set->selections); $i++) {
-                    $selection = $set->selections[$i];
-                    if ($selection->kind === NodeType::FRAGMENT_SPREAD) {
+                for ($i = 0; $i < count($set->getSelections()); $i++) {
+                    $selection = $set->getSelections()[$i];
+                    if ($selection->getKind() === NodeType::FRAGMENT_SPREAD) {
                         $spreads[] = $selection;
-                    } else if ($selection->selectionSet) {
-                        $setsToVisit[] = $selection->selectionSet;
+                    } else if ($selection->getSelectionSet()) {
+                        $setsToVisit[] = $selection->getSelectionSet();
                     }
                 }
             }
@@ -185,7 +185,7 @@ class ValidationContext
                 $node = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 for ($i = 0; $i < count($spreads); $i++) {
-                    $fragName = $spreads[$i]->name->value;
+                    $fragName = $spreads[$i]->getName()->getValue();
 
                     if (empty($collectedNames[$fragName])) {
                         $collectedNames[$fragName] = true;
