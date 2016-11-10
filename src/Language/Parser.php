@@ -546,11 +546,11 @@ class Parser
         $this->expect(Token::SPREAD);
 
         if ($this->peek(Token::NAME) && $this->lexer->token->value !== 'on') {
-            return new FragmentSpread([
-                'name' => $this->parseFragmentName(),
-                'directives' => $this->parseDirectives(),
-                'loc' => $this->loc($start)
-            ]);
+            return new FragmentSpread(
+                $this->parseFragmentName(),
+                $this->parseDirectives(),
+                $this->loc($start)
+            );
         }
 
         $typeCondition = null;

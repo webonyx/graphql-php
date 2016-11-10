@@ -86,7 +86,7 @@ class Printer
 
                 // Fragments
                 NodeType::FRAGMENT_SPREAD => function(FragmentSpread $node) {
-                    return '...' . $node->name . $this->wrap(' ', $this->join($node->directives, ' '));
+                    return '...' . $node->getName() . $this->wrap(' ', $this->join($node->getDirectives(), ' '));
                 },
                 NodeType::INLINE_FRAGMENT => function(InlineFragment $node) {
                     return $this->join([
