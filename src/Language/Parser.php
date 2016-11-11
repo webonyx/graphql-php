@@ -146,7 +146,7 @@ class Parser
     function loc(Token $startToken)
     {
         if (empty($this->lexer->getOptions()['noLocation'])) {
-            return new Location($startToken, $this->lexer->lastToken, $this->lexer->getSource());
+            return new Location($startToken, $this->lexer->getLastToken(), $this->lexer->getSource());
         }
 
         return null;

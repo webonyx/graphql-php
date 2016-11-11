@@ -29,7 +29,7 @@ class Lexer
      *
      * @var Token
      */
-    public $lastToken;
+    protected $lastToken;
 
     /**
      * The currently focused non-ignored token.
@@ -490,5 +490,25 @@ class Lexer
             $prev,
             mb_substr($body, $start + 1, $position - $start + 1, 'UTF-8')
         );
+    }
+
+    /**
+     * @return Token
+     */
+    public function getLastToken()
+    {
+        return $this->lastToken;
+    }
+
+    /**
+     * @param Token $lastToken
+     *
+     * @return Lexer
+     */
+    public function setLastToken($lastToken)
+    {
+        $this->lastToken = $lastToken;
+
+        return $this;
     }
 }
