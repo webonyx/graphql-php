@@ -118,8 +118,8 @@ class Executor
         $fragments = [];
         $operation = null;
 
-        foreach ($documentAst->definitions as $definition) {
-            switch ($definition->kind) {
+        foreach ($documentAst->getDefinitions() as $definition) {
+            switch ($definition->getKind()) {
                 case NodeType::OPERATION_DEFINITION:
                     if (!$operationName && $operation) {
                         throw new Error(
@@ -132,7 +132,7 @@ class Executor
                     }
                     break;
                 case NodeType::FRAGMENT_DEFINITION:
-                    $fragments[$definition->name->value] = $definition;
+                    $fragments[$definition->getName()->getValue()] = $definition;
                     break;
                 default:
                     throw new Error(
@@ -152,7 +152,7 @@ class Executor
 
         $variableValues = Values::getVariableValues(
             $schema,
-            $operation->variableDefinitions ?: [],
+            $operation->getVariableDefinitions() ?: [],
             $rawVariableValues ?: []
         );
 
@@ -166,10 +166,10 @@ class Executor
     private static function executeOperation(ExecutionContext $exeContext, OperationDefinition $operation, $rootValue)
     {
         $type = self::getOperationRootType($exeContext->schema, $operation);
-        $fields = self::collectFields($exeContext, $type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
+        $fields = self::collectFields($exeContext, $type, $operation->getSelectionSet(), new \ArrayObject(), new \ArrayObject());
 
         $path = [];
-        if ($operation->operation === 'mutation') {
+        if ($operation->getOperation() === 'mutation') {
             return self::executeFieldsSerially($exeContext, $type, $rootValue, $path, $fields);
         }
 
@@ -187,7 +187,7 @@ class Executor
      */
     private static function getOperationRootType(Schema $schema, OperationDefinition $operation)
     {
-        switch ($operation->operation) {
+        switch ($operation->getOperation()) {
             case 'query':
                 return $schema->getQueryType();
             case 'mutation':
@@ -233,10 +233,12 @@ class Executor
                 $results[$responseName] = $result;
             }
         }
+
         // see #59
         if ([] === $results) {
             $results = new \stdClass();
         }
+
         return  $results;
     }
 
@@ -270,10 +272,10 @@ class Executor
         $visitedFragmentNames
     )
     {
-        foreach ($selectionSet->selections as $selection) {
-            switch ($selection->kind) {
+        foreach ($selectionSet->getSelections() as $selection) {
+            switch ($selection->getKind()) {
                 case NodeType::FIELD:
-                    if (!self::shouldIncludeNode($exeContext, $selection->directives)) {
+                    if (!self::shouldIncludeNode($exeContext, $selection->getDirectives())) {
                         continue;
                     }
                     $name = self::getFieldEntryKey($selection);
@@ -283,7 +285,7 @@ class Executor
                     $fields[$name][] = $selection;
                     break;
                 case NodeType::INLINE_FRAGMENT:
-                    if (!self::shouldIncludeNode($exeContext, $selection->directives) ||
+                    if (!self::shouldIncludeNode($exeContext, $selection->getDirectives()) ||
                         !self::doesFragmentConditionMatch($exeContext, $selection, $runtimeType)
                     ) {
                         continue;
@@ -291,14 +293,14 @@ class Executor
                     self::collectFields(
                         $exeContext,
                         $runtimeType,
-                        $selection->selectionSet,
+                        $selection->getSelectionSet(),
                         $fields,
                         $visitedFragmentNames
                     );
                     break;
                 case NodeType::FRAGMENT_SPREAD:
-                    $fragName = $selection->name->value;
-                    if (!empty($visitedFragmentNames[$fragName]) || !self::shouldIncludeNode($exeContext, $selection->directives)) {
+                    $fragName = $selection->getName()->getValue();
+                    if (!empty($visitedFragmentNames[$fragName]) || !self::shouldIncludeNode($exeContext, $selection->getDirectives())) {
                         continue;
                     }
                     $visitedFragmentNames[$fragName] = true;
@@ -311,7 +313,7 @@ class Executor
                     self::collectFields(
                         $exeContext,
                         $runtimeType,
-                        $fragment->selectionSet,
+                        $fragment->getSelectionSet(),
                         $fields,
                         $visitedFragmentNames
                     );
@@ -366,7 +368,7 @@ class Executor
      */
     private static function doesFragmentConditionMatch(ExecutionContext $exeContext,/* FragmentDefinition | InlineFragment*/ $fragment, ObjectType $type)
     {
-        $typeConditionAST = $fragment->typeCondition;
+        $typeConditionAST = $fragment->getTypeCondition();
 
         if (!$typeConditionAST) {
             return true;
@@ -387,7 +389,7 @@ class Executor
      */
     private static function getFieldEntryKey(Field $node)
     {
-        return $node->alias ? $node->alias->value : $node->name->value;
+        return $node->getAlias() ? $node->getAlias()->getValue() : $node->getName()->getValue();
     }
 
     /**
@@ -400,7 +402,7 @@ class Executor
     {
         $fieldAST = $fieldASTs[0];
 
-        $fieldName = $fieldAST->name->value;
+        $fieldName = $fieldAST->getName()->getValue();
 
         $fieldDef = self::getFieldDef($exeContext->schema, $parentType, $fieldName);
 
@@ -414,7 +416,7 @@ class Executor
         // variables scope to fulfill any variable references.
         $args = Values::getArgumentValues(
             $fieldDef->args,
-            $fieldAST->arguments,
+            $fieldAST->getArguments(),
             $exeContext->variableValues
         );
 
@@ -839,11 +841,11 @@ class Executor
         $visitedFragmentNames = new \ArrayObject();
 
         foreach ($fieldASTs as $fieldAST) {
-            if (isset($fieldAST->selectionSet)) {
+            if (method_exists($fieldAST, 'getSelectionSet')) {
                 $subFieldASTs = self::collectFields(
                     $exeContext,
                     $returnType,
-                    $fieldAST->selectionSet,
+                    $fieldAST->getSelectionSet(),
                     $subFieldASTs,
                     $visitedFragmentNames
                 );

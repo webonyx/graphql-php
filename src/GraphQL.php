@@ -5,6 +5,7 @@ use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\AST\Document;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
@@ -41,7 +42,8 @@ class GraphQL
                 $documentAST = $requestString;
             } else {
                 $source = new Source($requestString ?: '', 'GraphQL request');
-                $documentAST = Parser::parse($source);
+                $parser = new Parser(new Lexer());
+                $documentAST = $parser->parse($source);
             }
 
             /** @var QueryComplexity $queryComplexity */

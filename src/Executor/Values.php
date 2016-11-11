@@ -90,7 +90,8 @@ class Values
         $variable = $definitionAST->getVariable();
 
         if (!$type || !Type::isInputType($type)) {
-            $printed = Printer::doPrint($definitionAST->getType());
+            $printer = new Printer();
+            $printed = $printer->doPrint($definitionAST->getType());
             throw new Error(
                 "Variable \"\${$variable->name->value}\" expected value of type " .
                 "\"$printed\" which cannot be used as an input type.",
@@ -103,7 +104,7 @@ class Values
 
         if (empty($errors)) {
             if (null === $input) {
-                $defaultValue = $definitionAST->defaultValue;
+                $defaultValue = $definitionAST->getDefaultValue();
                 if ($defaultValue) {
                     return Utils\AST::valueFromAST($defaultValue, $inputType);
                 }
@@ -112,7 +113,8 @@ class Values
         }
 
         if (null === $input) {
-            $printed = Printer::doPrint($definitionAST->getType());
+            $printer = new Printer();
+            $printed = $printer->doPrint($definitionAST->getType());
 
             throw new Error(
                 "Variable \"\${$variable->getName()->getValue()}\" of required type " .
@@ -249,7 +251,7 @@ class Values
             foreach ($fields as $fieldName => $field) {
                 $fieldValue = self::coerceValue($field->getType(), isset($value[$fieldName]) ? $value[$fieldName] : null);
                 if (null === $fieldValue) {
-                    $fieldValue = $field->defaultValue;
+                    $fieldValue = $field->getDefaultValue();
                 }
                 if (null !== $fieldValue) {
                     $obj[$fieldName] = $fieldValue;
