@@ -116,10 +116,10 @@ class Lexer
     {
         $token = $this->lastToken = $this->token;
 
-        if ($token->kind !== Token::EOF) {
+        if ($token->getKind() !== Token::EOF) {
             do {
                 $token = $token->next = $this->readToken($token);
-            } while ($token->kind === Token::COMMENT);
+            } while ($token->getKind() === Token::COMMENT);
             $this->token = $token;
         }
         return $token;

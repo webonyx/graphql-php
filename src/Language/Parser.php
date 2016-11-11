@@ -160,7 +160,7 @@ class Parser
      */
     function peek($kind)
     {
-        return $this->lexer->token->kind === $kind;
+        return $this->lexer->token->getKind() === $kind;
     }
 
     /**
@@ -172,7 +172,7 @@ class Parser
      */
     function skip($kind)
     {
-        $match = $this->lexer->token->kind === $kind;
+        $match = $this->lexer->token->getKind() === $kind;
 
         if ($match) {
             $this->lexer->advance();
@@ -191,7 +191,7 @@ class Parser
     {
         $token = $this->lexer->token;
 
-        if ($token->kind === $kind) {
+        if ($token->getKind() === $kind) {
             $this->lexer->advance();
             return $token;
         }
@@ -216,7 +216,7 @@ class Parser
     {
         $token = $this->lexer->token;
 
-        if ($token->kind === Token::NAME && $token->value === $value) {
+        if ($token->getKind() === Token::NAME && $token->value === $value) {
             $this->lexer->advance();
             return $token;
         }
@@ -624,7 +624,7 @@ class Parser
     function parseValueLiteral($isConst)
     {
         $token = $this->lexer->token;
-        switch ($token->kind) {
+        switch ($token->getKind()) {
             case Token::BRACKET_L:
                 return $this->parseArray($isConst);
             case Token::BRACE_L:

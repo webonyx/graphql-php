@@ -41,7 +41,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             'value' => 'foo'
         ];
 
-        $this->assertArraySubset($expected, (array) $this->lexOne($bom . ' foo'));
+        $this->assertArraySubset($expected, $this->lexOne($bom . ' foo')->toArray());
     }
 
     /**
@@ -57,7 +57,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             'column' => 3,
             'value' => 'foo'
         ];
-        $this->assertArraySubset($expected, (array) $this->lexOne("\n \r\n \r  foo\n"));
+        $this->assertArraySubset($expected, $this->lexOne("\n \r\n \r  foo\n")->toArray());
     }
 
     /**
@@ -77,7 +77,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             'end' => 9,
             'value' => 'foo'
         ];
-        $this->assertArraySubset($expected, (array) $this->lexOne($example1));
+        $this->assertArraySubset($expected, $this->lexOne($example1)->toArray());
 
         $example2 = '
     #comment
@@ -90,7 +90,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             'end' => 21,
             'value' => 'foo'
         ];
-        $this->assertArraySubset($expected, (array) $this->lexOne($example2));
+        $this->assertArraySubset($expected, $this->lexOne($example2)->toArray());
 
         $expected = [
             'kind' => Token::NAME,
@@ -100,7 +100,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         ];
 
         $example3 = ',,,foo,,,';
-        $this->assertArraySubset($expected, (array) $this->lexOne($example3));
+        $this->assertArraySubset($expected, $this->lexOne($example3)->toArray());
     }
 
     /**
@@ -140,7 +140,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             'start' => 0,
             'end' => 8,
             'value' => 'simple'
-        ], (array) $this->lexOne('"simple"'));
+        ], $this->lexOne('"simple"')->toArray());
 
 
         $this->assertArraySubset([
@@ -148,35 +148,35 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             'start' => 0,
             'end' => 15,
             'value' => ' white space '
-        ], (array) $this->lexOne('" white space "'));
+        ], $this->lexOne('" white space "')->toArray());
 
         $this->assertArraySubset([
             'kind' => Token::STRING,
             'start' => 0,
             'end' => 10,
             'value' => 'quote "'
-        ], (array) $this->lexOne('"quote \\""'));
+        ], $this->lexOne('"quote \\""')->toArray());
 
         $this->assertArraySubset([
             'kind' => Token::STRING,
             'start' => 0,
             'end' => 25,
             'value' => 'escaped \n\r\b\t\f'
-        ], (array) $this->lexOne('"escaped \\\\n\\\\r\\\\b\\\\t\\\\f"'));
+        ], $this->lexOne('"escaped \\\\n\\\\r\\\\b\\\\t\\\\f"')->toArray());
 
         $this->assertArraySubset([
             'kind' => Token::STRING,
             'start' => 0,
             'end' => 16,
             'value' => 'slashes \\ \/'
-        ], (array) $this->lexOne('"slashes \\\\ \\\\/"'));
+        ], $this->lexOne('"slashes \\\\ \\\\/"')->toArray());
 
         $this->assertArraySubset([
             'kind' => Token::STRING,
             'start' => 0,
             'end' => 13,
             'value' => 'unicode яуц'
-        ], (array) $this->lexOne('"unicode яуц"'));
+        ], $this->lexOne('"unicode яуц"')->toArray());
 
         $unicode = json_decode('"\u1234\u5678\u90AB\uCDEF"');
         $this->assertArraySubset([
@@ -184,14 +184,14 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             'start' => 0,
             'end' => 34,
             'value' => 'unicode ' . $unicode
-        ], (array) $this->lexOne('"unicode \u1234\u5678\u90AB\uCDEF"'));
+        ], $this->lexOne('"unicode \u1234\u5678\u90AB\uCDEF"')->toArray());
 
         $this->assertArraySubset([
             'kind' => Token::STRING,
             'start' => 0,
             'end' => 26,
             'value' => $unicode
-        ], (array) $this->lexOne('"\u1234\u5678\u90AB\uCDEF"'));
+        ], $this->lexOne('"\u1234\u5678\u90AB\uCDEF"')->toArray());
     }
 
     /**
@@ -230,67 +230,67 @@ class LexerTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertArraySubset(
             ['kind' => Token::INT, 'start' => 0, 'end' => 1, 'value' => '4'],
-            (array) $this->lexOne('4')
+            $this->lexOne('4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 5, 'value' => '4.123'],
-            (array) $this->lexOne('4.123')
+            $this->lexOne('4.123')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::INT, 'start' => 0, 'end' => 2, 'value' => '-4'],
-            (array) $this->lexOne('-4')
+            $this->lexOne('-4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::INT, 'start' => 0, 'end' => 1, 'value' => '9'],
-            (array) $this->lexOne('9')
+            $this->lexOne('9')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::INT, 'start' => 0, 'end' => 1, 'value' => '0'],
-            (array) $this->lexOne('0')
+            $this->lexOne('0')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 6, 'value' => '-4.123'],
-            (array) $this->lexOne('-4.123')
+            $this->lexOne('-4.123')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 5, 'value' => '0.123'],
-            (array) $this->lexOne('0.123')
+            $this->lexOne('0.123')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 5, 'value' => '123e4'],
-            (array) $this->lexOne('123e4')
+            $this->lexOne('123e4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 5, 'value' => '123E4'],
-            (array) $this->lexOne('123E4')
+            $this->lexOne('123E4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 6, 'value' => '123e-4'],
-            (array) $this->lexOne('123e-4')
+            $this->lexOne('123e-4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 6, 'value' => '123e+4'],
-            (array) $this->lexOne('123e+4')
+            $this->lexOne('123e+4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 8, 'value' => '-1.123e4'],
-            (array) $this->lexOne('-1.123e4')
+            $this->lexOne('-1.123e4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 8, 'value' => '-1.123E4'],
-            (array) $this->lexOne('-1.123E4')
+            $this->lexOne('-1.123E4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 9, 'value' => '-1.123e-4'],
-            (array) $this->lexOne('-1.123e-4')
+            $this->lexOne('-1.123e-4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 9, 'value' => '-1.123e+4'],
-            (array) $this->lexOne('-1.123e+4')
+            $this->lexOne('-1.123e+4')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::FLOAT, 'start' => 0, 'end' => 11, 'value' => '-1.123e4567'],
-            (array) $this->lexOne('-1.123e4567')
+            $this->lexOne('-1.123e4567')->toArray()
         );
     }
 
@@ -325,55 +325,55 @@ class LexerTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertArraySubset(
             ['kind' => Token::BANG, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('!')
+            $this->lexOne('!')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::DOLLAR, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('$')
+            $this->lexOne('$')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::PAREN_L, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('(')
+            $this->lexOne('(')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::PAREN_R, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne(')')
+            $this->lexOne(')')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::SPREAD, 'start' => 0, 'end' => 3, 'value' => null],
-            (array) $this->lexOne('...')
+            $this->lexOne('...')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::COLON, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne(':')
+            $this->lexOne(':')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::EQUALS, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('=')
+            $this->lexOne('=')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::AT, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('@')
+            $this->lexOne('@')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::BRACKET_L, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('[')
+            $this->lexOne('[')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::BRACKET_R, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne(']')
+            $this->lexOne(']')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::BRACE_L, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('{')
+            $this->lexOne('{')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::PIPE, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('|')
+            $this->lexOne('|')->toArray()
         );
         $this->assertArraySubset(
             ['kind' => Token::BRACE_R, 'start' => 0, 'end' => 1, 'value' => null],
-            (array) $this->lexOne('}')
+            $this->lexOne('}')->toArray()
         );
     }
 
@@ -408,7 +408,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $q = 'a-b';
         $lexer = new Lexer();
         $lexer->setSource(new Source($q));
-        $this->assertArraySubset(['kind' => Token::NAME, 'start' => 0, 'end' => 1, 'value' => 'a'], (array) $lexer->advance());
+        $this->assertArraySubset(['kind' => Token::NAME, 'start' => 0, 'end' => 1, 'value' => 'a'], $lexer->advance()->toArray());
 
         try {
             $lexer->advance();
@@ -434,8 +434,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             $endToken = $lexer->advance();
             // Lexer advances over ignored comment tokens to make writing parsers
             // easier, but will include them in the linked list result.
-            $this->assertNotEquals('Comment', $endToken->kind);
-        } while ($endToken->kind !== '<EOF>');
+            $this->assertNotEquals('Comment', $endToken->getKind());
+        } while ($endToken->getKind() !== '<EOF>');
 
         $this->assertEquals(null, $startToken->prev);
         $this->assertEquals(null, $endToken->next);
@@ -456,8 +456,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             'Name',
             '}',
             '<EOF>'
-        ], Utils::map($tokens, function ($tok) {
-            return $tok->kind;
+        ], Utils::map($tokens, function (Token $tok) {
+            return $tok->getKind();
         }));
     }
 

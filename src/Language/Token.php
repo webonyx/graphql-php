@@ -35,7 +35,7 @@ class Token
      *
      * @var string
      */
-    public $kind;
+    protected $kind;
 
     /**
      * The character offset at which this Node begins.
@@ -120,10 +120,32 @@ class Token
     public function toArray()
     {
         return [
-            'kind' => $this->kind,
+            'kind' => $this->getKind(),
             'value' => $this->value,
             'line' => $this->line,
-            'column' => $this->column
+            'column' => $this->column,
+            'start' => $this->start,
+            'end' => $this->end
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getKind()
+    {
+        return $this->kind;
+    }
+
+    /**
+     * @param string $kind
+     *
+     * @return Token
+     */
+    public function setKind($kind)
+    {
+        $this->kind = $kind;
+
+        return $this;
     }
 }

@@ -411,8 +411,8 @@ fragment $fragmentName on Type {
         $source = new Source('{ id }');
         $parser = new Parser(new Lexer());
         $result = $parser->parse($source);
-        $this->assertEquals('<SOF>', $result->getLoc()->startToken->kind);
-        $this->assertEquals('<EOF>', $result->getLoc()->endToken->kind);
+        $this->assertEquals('<SOF>', $result->getLoc()->startToken->getKind());
+        $this->assertEquals('<EOF>', $result->getLoc()->endToken->getKind());
     }
 
     // Describe: parseValue
