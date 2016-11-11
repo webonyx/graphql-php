@@ -189,9 +189,9 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     private function objectField($name, $value)
     {
-        return new ObjectField([
-            'name' => new Name(['value' => $name]),
-            'value' => $value
-        ]);
+        return new ObjectField(
+            new Name($name),
+            $value
+        );
     }
 }

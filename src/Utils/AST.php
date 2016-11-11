@@ -95,10 +95,10 @@ class AST
                 $fieldValue = self::astFromValue($fieldValue, $field->getType());
 
                 if ($fieldValue) {
-                    $fieldASTs[] = new ObjectField([
-                        'name' => new Name(['value' => $fieldName]),
-                        'value' => $fieldValue
-                    ]);
+                    $fieldASTs[] = new ObjectField(
+                        new Name($fieldName),
+                        $fieldValue
+                    );
                 }
             }
             return new ObjectValue(['fields' => $fieldASTs]);
