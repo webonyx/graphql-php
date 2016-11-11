@@ -429,7 +429,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
       field
     }'));
 
-        $startToken = $lexer->token;
+        $startToken = $lexer->getToken();
         do {
             $endToken = $lexer->advance();
             // Lexer advances over ignored comment tokens to make writing parsers

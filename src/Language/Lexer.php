@@ -36,7 +36,7 @@ class Lexer
      *
      * @var Token
      */
-    public $token;
+    protected $token;
 
     /**
      * The (1-indexed) line containing the current token.
@@ -508,6 +508,26 @@ class Lexer
     public function setLastToken($lastToken)
     {
         $this->lastToken = $lastToken;
+
+        return $this;
+    }
+
+    /**
+     * @return Token
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
+
+    /**
+     * @param Token $token
+     *
+     * @return Lexer
+     */
+    public function setToken($token)
+    {
+        $this->token = $token;
 
         return $this;
     }
