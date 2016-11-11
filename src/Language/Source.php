@@ -9,7 +9,7 @@ class Source
     /**
      * @var string
      */
-    public $body;
+    protected $body;
 
     /**
      * @var int
@@ -49,5 +49,25 @@ class Source
         }
 
         return new SourceLocation($line, $column);
+    }
+
+    /**
+     * @return string
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * @param string $body
+     *
+     * @return Source
+     */
+    public function setBody($body)
+    {
+        $this->body = $body;
+
+        return $this;
     }
 }

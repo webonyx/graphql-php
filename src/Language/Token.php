@@ -11,6 +11,7 @@ class Token
     // Each kind of token.
     const SOF = '<SOF>';
     const EOF = '<EOF>';
+
     const BANG = '!';
     const DOLLAR = '$';
     const PAREN_L = '(';
@@ -24,6 +25,7 @@ class Token
     const BRACE_L = '{';
     const PIPE = '|';
     const BRACE_R = '}';
+    
     const NAME = 'Name';
     const INT = 'Int';
     const FLOAT = 'Float';

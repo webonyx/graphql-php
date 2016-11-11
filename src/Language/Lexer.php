@@ -134,7 +134,7 @@ class Lexer
      */
     private function readToken(Token $prev)
     {
-        $body = $this->source->body;
+        $body = $this->source->getBody();
         $bodyLength = $this->source->length;
 
         $position = $this->positionAfterWhitespace($prev->getEnd());
@@ -225,7 +225,7 @@ class Lexer
      */
     private function readName($position, $line, $col, Token $prev)
     {
-        $body = $this->source->body;
+        $body = $this->source->getBody();
         $bodyLength = $this->source->length;
         $end = $position + 1;
 
@@ -270,7 +270,7 @@ class Lexer
     private function readNumber($start, $firstCode, $line, $col, Token $prev)
     {
         $code = $firstCode;
-        $body = $this->source->body;
+        $body = $this->source->getBody();
         $position = $start;
         $isFloat = false;
 
@@ -322,7 +322,7 @@ class Lexer
      */
     private function readDigits($start, $firstCode)
     {
-        $body = $this->source->body;
+        $body = $this->source->getBody();
         $position = $start;
         $code = $firstCode;
         if ($code >= 48 && $code <= 57) { // 0 - 9
@@ -348,7 +348,7 @@ class Lexer
      */
     private function readString($start, $line, $col, Token $prev)
     {
-        $body = $this->source->body;
+        $body = $this->source->getBody();
         $bodyLength = $this->source->length;
 
         $position = $start + 1;
@@ -427,7 +427,7 @@ class Lexer
      */
     private function positionAfterWhitespace($startPosition)
     {
-        $body = $this->source->body;
+        $body = $this->source->getBody();
         $bodyLength = $this->source->length;
         $position = $startPosition;
 
@@ -470,7 +470,7 @@ class Lexer
      */
     private function readComment($start, $line, $col, Token $prev)
     {
-        $body = $this->source->body;
+        $body = $this->source->getBody();
         $position = $start;
 
         do {
