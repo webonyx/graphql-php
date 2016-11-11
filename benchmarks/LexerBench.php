@@ -30,7 +30,7 @@ class LexerBench
         $lexer = new Lexer($this->introQuery);
 
         do {
-            $token = $lexer->nextToken();
+            $token = $lexer->advance();
         } while ($token->kind !== Token::EOF);
     }
 }

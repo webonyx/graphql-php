@@ -52,6 +52,11 @@ class Lexer
      */
     public $lineStart;
 
+    /**
+     * Lexer constructor.
+     *
+     * @param array $options
+     */
     public function __construct(array $options = [])
     {
         $this->setOptions($options);
@@ -118,15 +123,6 @@ class Lexer
             $this->token = $token;
         }
         return $token;
-    }
-
-    /**
-     * @return Token
-     */
-    public function nextToken()
-    {
-        trigger_error(__METHOD__ . ' is deprecated in favor of advance()', E_USER_DEPRECATED);
-        return $this->advance();
     }
 
     /**
