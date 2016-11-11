@@ -63,7 +63,7 @@ class Token
      *
      * @var int
      */
-    public $column;
+    protected $column;
 
     /**
      * @var string|null
@@ -205,6 +205,26 @@ class Token
     public function setLine($line)
     {
         $this->line = $line;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getColumn()
+    {
+        return $this->column;
+    }
+
+    /**
+     * @param int $column
+     *
+     * @return Token
+     */
+    public function setColumn($column)
+    {
+        $this->column = $column;
 
         return $this;
     }
