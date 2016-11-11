@@ -68,7 +68,7 @@ class Token
     /**
      * @var string|null
      */
-    public $value;
+    protected $value;
 
     /**
      * Tokens exist as nodes in a double-linked-list amongst all tokens
@@ -225,6 +225,26 @@ class Token
     public function setColumn($column)
     {
         $this->column = $column;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @param null|string $value
+     *
+     * @return Token
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
 
         return $this;
     }

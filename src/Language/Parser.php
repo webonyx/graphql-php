@@ -216,7 +216,7 @@ class Parser
     {
         $token = $this->lexer->token;
 
-        if ($token->getKind() === Token::NAME && $token->value === $value) {
+        if ($token->getKind() === Token::NAME && $token->getValue() === $value) {
             $this->lexer->advance();
             return $token;
         }
@@ -293,7 +293,7 @@ class Parser
     {
         $token = $this->expect(Token::NAME);
 
-        return new Name($token->value, $this->loc($token));
+        return new Name($token->getValue(), $this->loc($token));
     }
 
     /**
@@ -326,7 +326,7 @@ class Parser
         }
 
         if ($this->peek(Token::NAME)) {
-            switch ($this->lexer->token->value) {
+            switch ($this->lexer->token->getValue()) {
                 case 'query':
                 case 'mutation':
                 case 'subscription':
@@ -396,7 +396,7 @@ class Parser
     function parseOperationType()
     {
         $operationToken = $this->expect(Token::NAME);
-        switch ($operationToken->value) {
+        switch ($operationToken->getValue()) {
             case 'query': return 'query';
             case 'mutation': return 'mutation';
             // Note: subscription is an experimental non-spec addition.
@@ -544,7 +544,7 @@ class Parser
         $start = $this->lexer->token;
         $this->expect(Token::SPREAD);
 
-        if ($this->peek(Token::NAME) && $this->lexer->token->value !== 'on') {
+        if ($this->peek(Token::NAME) && $this->lexer->token->getValue() !== 'on') {
             return new FragmentSpread(
                 $this->parseFragmentName(),
                 $this->parseDirectives(),
@@ -553,7 +553,7 @@ class Parser
         }
 
         $typeCondition = null;
-        if ($this->lexer->token->value === 'on') {
+        if ($this->lexer->token->getValue() === 'on') {
             $this->lexer->advance();
             $typeCondition = $this->parseNamedType();
         }
@@ -594,7 +594,7 @@ class Parser
      */
     function parseFragmentName()
     {
-        if ($this->lexer->token->value === 'on') {
+        if ($this->lexer->token->getValue() === 'on') {
             throw $this->unexpected();
         }
         return $this->parseName();
@@ -632,29 +632,29 @@ class Parser
             case Token::INT:
                 $this->lexer->advance();
                 return new IntValue(
-                    $token->value,
+                    $token->getValue(),
                     $this->loc($token)
                 );
             case Token::FLOAT:
                 $this->lexer->advance();
                 return new FloatValue(
-                    $token->value,
+                    $token->getValue(),
                     $this->loc($token)
                 );
             case Token::STRING:
                 $this->lexer->advance();
                 return new StringValue(
-                    $token->value,
+                    $token->getValue(),
                     $this->loc($token)
                 );
             case Token::NAME:
-                if ($token->value === 'true' || $token->value === 'false') {
+                if ($token->getValue() === 'true' || $token->getValue() === 'false') {
                     $this->lexer->advance();
-                    return new BooleanValue($token->value === 'true', $this->loc($token));
-                } else if ($token->value !== 'null') {
+                    return new BooleanValue($token->getValue() === 'true', $this->loc($token));
+                } else if ($token->getValue() !== 'null') {
                     $this->lexer->advance();
                     return new EnumValue(
-                        $token->value,
+                        $token->getValue(),
                         $this->loc($token)
                     );
                 }
@@ -827,7 +827,7 @@ class Parser
     function parseTypeSystemDefinition()
     {
         if ($this->peek(Token::NAME)) {
-            switch ($this->lexer->token->value) {
+            switch ($this->lexer->token->getValue()) {
                 case 'schema': return $this->parseSchemaDefinition();
                 case 'scalar': return $this->parseScalarTypeDefinition();
                 case 'type': return $this->parseObjectTypeDefinition();
@@ -934,7 +934,7 @@ class Parser
     function parseImplementsInterfaces()
     {
         $types = [];
-        if ($this->lexer->token->value === 'implements') {
+        if ($this->lexer->token->getValue() === 'implements') {
             $this->lexer->advance();
             do {
                 $types[] = $this->parseNamedType();
