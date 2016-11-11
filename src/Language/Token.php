@@ -77,7 +77,7 @@ class Token
      *
      * @var Token
      */
-    public $prev;
+    protected $prev;
 
     /**
      * @var Token
@@ -245,6 +245,26 @@ class Token
     public function setValue($value)
     {
         $this->value = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return Token
+     */
+    public function getPrev()
+    {
+        return $this->prev;
+    }
+
+    /**
+     * @param Token $prev
+     *
+     * @return Token
+     */
+    public function setPrev($prev)
+    {
+        $this->prev = $prev;
 
         return $this;
     }
