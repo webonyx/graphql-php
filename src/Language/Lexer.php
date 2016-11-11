@@ -50,7 +50,7 @@ class Lexer
      *
      * @var int
      */
-    public $lineStart;
+    protected $lineStart;
 
     /**
      * Lexer constructor.
@@ -548,6 +548,26 @@ class Lexer
     public function setLine($line)
     {
         $this->line = $line;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLineStart()
+    {
+        return $this->lineStart;
+    }
+
+    /**
+     * @param int $lineStart
+     *
+     * @return Lexer
+     */
+    public function setLineStart($lineStart)
+    {
+        $this->lineStart = $lineStart;
 
         return $this;
     }
