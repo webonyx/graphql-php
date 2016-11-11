@@ -16,7 +16,7 @@ class SyntaxError extends Error
     {
         $location = $source->getLocation($position);
         $syntaxError =
-            "Syntax Error {$source->name} ({$location->line}:{$location->column}) $description\n\n" .
+            "Syntax Error {$source->getName()} ({$location->line}:{$location->column}) $description\n\n" .
             self::highlightSourceAtLocation($source, $location);
 
         parent::__construct($syntaxError, null, $source, [$position]);

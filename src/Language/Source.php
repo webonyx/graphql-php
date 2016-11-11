@@ -19,7 +19,7 @@ class Source
     /**
      * @var string
      */
-    public $name;
+    protected $name;
 
     public function __construct($body, $name = null)
     {
@@ -87,6 +87,26 @@ class Source
     public function setLength($length)
     {
         $this->length = $length;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Source
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
 
         return $this;
     }
