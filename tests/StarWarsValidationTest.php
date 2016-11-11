@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests;
 
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
 
@@ -147,7 +148,8 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
      */
     private function validationErrors($query)
     {
-        $ast = Parser::parse($query);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($query);
         return DocumentValidator::validate(StarWarsSchema::build(), $ast);
     }
 }
