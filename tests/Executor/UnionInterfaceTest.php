@@ -5,6 +5,7 @@ require_once __DIR__ . '/TestClasses.php';
 
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Config;
@@ -21,6 +22,11 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
     public $odie;
     public $liz;
     public $john;
+
+    /**
+     * @var Parser
+     */
+    public $parser;
 
     public function setUp()
     {
@@ -90,6 +96,8 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         $this->odie = new Dog('Odie', true);
         $this->liz = new Person('Liz');
         $this->john = new Person('John', [$this->garfield, $this->odie], [$this->liz, $this->odie]);
+        
+        $this->parser = new Parser(new Lexer());
 
     }
 
@@ -101,7 +109,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
     public function testCanIntrospectOnUnionAndIntersectionTypes()
     {
 
-        $ast = Parser::parse('
+        $ast = $this->parser->parse('
       {
         Named: __type(name: "Named") {
           kind
@@ -164,7 +172,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
     public function testExecutesUsingUnionTypes()
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
-        $ast = Parser::parse('
+        $ast = $this->parser->parse('
       {
         __typename
         name
@@ -196,7 +204,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
     public function testExecutesUnionTypesWithInlineFragments()
     {
         // This is the valid version of the query in the above test.
-        $ast = Parser::parse('
+        $ast = $this->parser->parse('
       {
         __typename
         name
@@ -233,7 +241,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
     public function testExecutesUsingInterfaceTypes()
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
-        $ast = Parser::parse('
+        $ast = $this->parser->parse('
       {
         __typename
         name
@@ -265,7 +273,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
     public function testExecutesInterfaceTypesWithInlineFragments()
     {
         // This is the valid version of the query in the above test.
-        $ast = Parser::parse('
+        $ast = $this->parser->parse('
       {
         __typename
         name
@@ -300,7 +308,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
      */
     public function testAllowsFragmentConditionsToBeAbstractTypes()
     {
-        $ast = Parser::parse('
+        $ast = $this->parser->parse('
       {
         __typename
         name
@@ -390,7 +398,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
 
         $context = ['authToken' => '123abc'];
 
-        $ast = Parser::parse('{ name, friends { name } }');
+        $ast = $this->parser->parse('{ name, friends { name } }');
 
         $this->assertEquals(
             ['data' => ['name' => 'John', 'friends' => [['name' => 'Liz']]]],

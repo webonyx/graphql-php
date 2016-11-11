@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -38,7 +39,8 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             'query' => $dataType
         ]);
 
-        $ast = Parser::parse('{ nest { test } }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('{ nest { test } }');
 
         $result = Executor::execute($schema, $ast, $data);
         $this->assertArraySubset($expected, $result->toArray());

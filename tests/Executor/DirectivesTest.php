@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
@@ -249,6 +250,7 @@ class DirectivesTest extends \PHPUnit_Framework_TestCase
 
     private function executeTestQuery($doc)
     {
-        return Executor::execute(self::getSchema(), Parser::parse($doc), self::getData())->toArray();
+        $parser = new Parser(new Lexer());
+        return Executor::execute(self::getSchema(), $parser->parse($doc), self::getData())->toArray();
     }
 }

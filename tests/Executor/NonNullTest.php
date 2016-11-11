@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -20,6 +21,10 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
     public $throwingData;
     public $nullingData;
     public $schema;
+    /*
+     * @var Parser
+     */
+    public $parser;
 
     public function setUp()
     {
@@ -69,6 +74,8 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->schema = new Schema(['query' => $dataType]);
+        
+        $this->parser = new Parser(new Lexer());;
     }
 
     // Execute: handles non-nullable types
@@ -84,7 +91,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
       }
         ';
 
-        $ast = Parser::parse($doc);
+        $ast = $this->parser->parse($doc);
 
         $expected = [
             'data' => [
@@ -111,7 +118,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
       }
     ';
 
-        $ast = Parser::parse($doc);
+        $ast = $this->parser->parse($doc);
 
         $expected = [
             'data' => [
@@ -137,7 +144,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
       }
         ';
 
-        $ast = Parser::parse($doc);
+        $ast = $this->parser->parse($doc);
 
         $expected = [
             'data' => [
@@ -164,7 +171,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
       }
         ';
 
-        $ast = Parser::parse($doc);
+        $ast = $this->parser->parse($doc);
 
         $expected = [
             'data' => [
@@ -185,7 +192,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
       }
         ';
 
-        $ast = Parser::parse($doc);
+        $ast = $this->parser->parse($doc);
 
         $expected = [
             'data' => [
@@ -216,7 +223,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
       }
     ';
 
-        $ast = Parser::parse($doc);
+        $ast = $this->parser->parse($doc);
 
         $expected = [
             'data' => [
@@ -245,7 +252,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 FormattedError::create($this->nonNullSyncError->getMessage(), [new SourceLocation(2, 17)])
             ]
         ];
-        $this->assertArraySubset($expected, Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray());
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $this->parser->parse($doc), $this->throwingData)->toArray());
     }
 
     public function testNullsTheTopLevelIfSyncNonNullableFieldReturnsNull()
@@ -260,6 +267,6 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(2, 17)]),
             ]
         ];
-        $this->assertArraySubset($expected, Executor::execute($this->schema, Parser::parse($doc), $this->nullingData)->toArray());
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $this->parser->parse($doc), $this->nullingData)->toArray());
     }
 }
