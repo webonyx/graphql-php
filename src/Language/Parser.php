@@ -198,7 +198,7 @@ class Parser
 
         throw new SyntaxError(
             $this->lexer->getSource(),
-            $token->start,
+            $token->getStart(),
             "Expected $kind, found " . $token->getDescription()
         );
     }
@@ -222,7 +222,7 @@ class Parser
         }
         throw new SyntaxError(
             $this->lexer->getSource(),
-            $token->start,
+            $token->getStart(),
             'Expected "' . $value . '", found ' . $token->getDescription()
         );
     }
@@ -234,7 +234,7 @@ class Parser
     function unexpected(Token $atToken = null)
     {
         $token = $atToken ?: $this->lexer->token;
-        return new SyntaxError($this->lexer->getSource(), $token->start, "Unexpected " . $token->getDescription());
+        return new SyntaxError($this->lexer->getSource(), $token->getStart(), "Unexpected " . $token->getDescription());
     }
 
     /**

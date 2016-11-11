@@ -42,7 +42,7 @@ class Token
      *
      * @var int
      */
-    public $start;
+    protected $start;
 
     /**
      * The character offset at which this Node ends.
@@ -145,6 +145,26 @@ class Token
     public function setKind($kind)
     {
         $this->kind = $kind;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStart()
+    {
+        return $this->start;
+    }
+
+    /**
+     * @param int $start
+     *
+     * @return Token
+     */
+    public function setStart($start)
+    {
+        $this->start = $start;
 
         return $this;
     }
