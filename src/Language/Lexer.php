@@ -43,7 +43,7 @@ class Lexer
      *
      * @var int
      */
-    public $line;
+    protected $line;
 
     /**
      * The character offset at which the current line begins.
@@ -528,6 +528,26 @@ class Lexer
     public function setToken($token)
     {
         $this->token = $token;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLine()
+    {
+        return $this->line;
+    }
+
+    /**
+     * @param int $line
+     *
+     * @return Lexer
+     */
+    public function setLine($line)
+    {
+        $this->line = $line;
 
         return $this;
     }
