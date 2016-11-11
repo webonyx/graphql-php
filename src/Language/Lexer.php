@@ -135,7 +135,7 @@ class Lexer
         $body = $this->source->body;
         $bodyLength = $this->source->length;
 
-        $position = $this->positionAfterWhitespace($prev->end);
+        $position = $this->positionAfterWhitespace($prev->getEnd());
         $line = $this->line;
         $col = 1 + $position - $this->lineStart;
 

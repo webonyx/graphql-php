@@ -51,7 +51,7 @@ class Location
         $this->startToken = $startToken;
         $this->endToken = $endToken;
         $this->start = $startToken->getStart();
-        $this->end = $endToken->end;
+        $this->end = $endToken->getEnd();
         $this->source = $source;
     }
 }

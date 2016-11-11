@@ -49,7 +49,7 @@ class Token
      *
      * @var int
      */
-    public $end;
+    protected $end;
 
     /**
      * The 1-indexed line number on which this Token appears.
@@ -165,6 +165,26 @@ class Token
     public function setStart($start)
     {
         $this->start = $start;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getEnd()
+    {
+        return $this->end;
+    }
+
+    /**
+     * @param int $end
+     *
+     * @return Token
+     */
+    public function setEnd($end)
+    {
+        $this->end = $end;
 
         return $this;
     }
