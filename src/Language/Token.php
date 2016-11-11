@@ -56,7 +56,7 @@ class Token
      *
      * @var int
      */
-    public $line;
+    protected $line;
 
     /**
      * The 1-indexed column number at which this Token begins.
@@ -185,6 +185,26 @@ class Token
     public function setEnd($end)
     {
         $this->end = $end;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLine()
+    {
+        return $this->line;
+    }
+
+    /**
+     * @param int $line
+     *
+     * @return Token
+     */
+    public function setLine($line)
+    {
+        $this->line = $line;
 
         return $this;
     }
