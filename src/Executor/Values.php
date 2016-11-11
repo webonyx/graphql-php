@@ -93,7 +93,7 @@ class Values
             $printer = new Printer();
             $printed = $printer->doPrint($definitionAST->getType());
             throw new Error(
-                "Variable \"\${$variable->name->value}\" expected value of type " .
+                "Variable \"\${$variable->getName()->getValue()}\" expected value of type " .
                 "\"$printed\" which cannot be used as an input type.",
                 [ $definitionAST ]
             );
@@ -251,7 +251,7 @@ class Values
             foreach ($fields as $fieldName => $field) {
                 $fieldValue = self::coerceValue($field->getType(), isset($value[$fieldName]) ? $value[$fieldName] : null);
                 if (null === $fieldValue) {
-                    $fieldValue = $field->getDefaultValue();
+                    $fieldValue = $field->defaultValue;
                 }
                 if (null !== $fieldValue) {
                     $obj[$fieldName] = $fieldValue;

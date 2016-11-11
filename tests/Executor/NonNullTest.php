@@ -238,6 +238,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 ],
             ]
         ];
+
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
@@ -252,6 +253,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 FormattedError::create($this->nonNullSyncError->getMessage(), [new SourceLocation(2, 17)])
             ]
         ];
+        
         $this->assertArraySubset($expected, Executor::execute($this->schema, $this->parser->parse($doc), $this->throwingData)->toArray());
     }
 

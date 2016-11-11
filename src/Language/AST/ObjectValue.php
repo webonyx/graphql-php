@@ -7,14 +7,14 @@ class ObjectValue extends Node implements Value
     protected $kind = NodeType::OBJECT;
 
     /**
-     * @var array<ObjectField>
+     * @var ObjectField[]
      */
     protected $fields;
 
     /**
      * ObjectValue constructor.
      *
-     * @param array $fields
+     * @param ObjectField[] $fields
      * @param null  $loc
      */
     public function __construct(array $fields, $loc = null)

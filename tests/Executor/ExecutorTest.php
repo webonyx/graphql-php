@@ -258,13 +258,13 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('test', $info->fieldName);
         $this->assertEquals(1, count($info->fieldASTs));
-        $this->assertSame($ast->definitions[0]->selectionSet->selections[0], $info->fieldASTs[0]);
+        $this->assertSame($ast->getDefinitions()[0]->getSelectionSet()->getSelections()[0], $info->fieldASTs[0]);
         $this->assertSame(Type::string(), $info->returnType);
         $this->assertSame($schema->getQueryType(), $info->parentType);
         $this->assertEquals(['result'], $info->path);
         $this->assertSame($schema, $info->schema);
         $this->assertSame($rootValue, $info->rootValue);
-        $this->assertEquals($ast->definitions[0], $info->operation);
+        $this->assertEquals($ast->getDefinitions()[0], $info->operation);
         $this->assertEquals(['var' => '123'], $info->variableValues);
     }
 

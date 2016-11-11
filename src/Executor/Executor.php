@@ -127,7 +127,7 @@ class Executor
                         );
                     }
                     if (!$operationName ||
-                        (isset($definition->name) && $definition->name->value === $operationName)) {
+                        (method_exists($definition, 'getName') && $definition->getName()->getValue() === $operationName)) {
                         $operation = $definition;
                     }
                     break;
@@ -136,7 +136,7 @@ class Executor
                     break;
                 default:
                     throw new Error(
-                        "GraphQL cannot execute a request containing a {$definition->kind}.",
+                        "GraphQL cannot execute a request containing a {$definition->getKind()}.",
                         [$definition]
                     );
             }
@@ -335,12 +335,12 @@ class Executor
         /** @var \GraphQL\Language\AST\Directive $skipAST */
         $skipAST = $directives
             ? Utils::find($directives, function(\GraphQL\Language\AST\Directive $directive) use ($skipDirective) {
-                return $directive->name->value === $skipDirective->name;
+                return $directive->getName()->getValue() === $skipDirective->name;
             })
             : null;
 
         if ($skipAST) {
-            $argValues = Values::getArgumentValues($skipDirective->args, $skipAST->arguments, $exeContext->variableValues);
+            $argValues = Values::getArgumentValues($skipDirective->args, $skipAST->getArguments(), $exeContext->variableValues);
             if (isset($argValues['if']) && $argValues['if'] === true) {
                 return false;
             }
@@ -349,12 +349,12 @@ class Executor
         /** @var \GraphQL\Language\AST\Directive $includeAST */
         $includeAST = $directives
             ? Utils::find($directives, function(\GraphQL\Language\AST\Directive $directive) use ($includeDirective) {
-                return $directive->name->value === $includeDirective->name;
+                return $directive->getName()->getValue() === $includeDirective->name;
             })
             : null;
 
         if ($includeAST) {
-            $argValues = Values::getArgumentValues($includeDirective->args, $includeAST->arguments, $exeContext->variableValues);
+            $argValues = Values::getArgumentValues($includeDirective->args, $includeAST->getArguments(), $exeContext->variableValues);
             if (isset($argValues['if']) && $argValues['if'] === false) {
                 return false;
             }

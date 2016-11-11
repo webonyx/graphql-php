@@ -213,7 +213,9 @@ class AST
             if (!$valueAST instanceof ObjectValue) {
                 return null;
             }
-            $fieldASTs = Utils::keyMap($valueAST->getFields(), function($field) {return $field->name->value;});
+            $fieldASTs = Utils::keyMap($valueAST->getFields(), function(ObjectField $field) {
+                return $field->getName()->getValue();
+            });
             $values = [];
             foreach ($fields as $field) {
                 $fieldAST = isset($fieldASTs[$field->name]) ? $fieldASTs[$field->name] : null;
