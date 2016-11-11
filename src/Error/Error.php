@@ -144,7 +144,7 @@ class Error extends \Exception implements \JsonSerializable
         if (null === $this->positions) {
             if (!empty($this->nodes)) {
                 $positions = array_map(function(Node $node) {
-                    return $node->getLoc();
+                    return $node->getLoc()->start;
                 }, $this->nodes);
                 $this->positions = array_filter($positions, function($p) {
                     return $p !== null;
@@ -164,7 +164,7 @@ class Error extends \Exception implements \JsonSerializable
             $source = $this->getSource();
 
             if ($positions && $source) {
-                $this->locations = array_map(function (Location $pos) use ($source) {
+                $this->locations = array_map(function ($pos) use ($source) {
                     return $source->getLocation($pos);
                 }, $positions);
             } else {
