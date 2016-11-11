@@ -82,7 +82,7 @@ class Token
     /**
      * @var Token
      */
-    public $next;
+    protected $next;
 
     /**
      * Token constructor.
@@ -265,6 +265,26 @@ class Token
     public function setPrev($prev)
     {
         $this->prev = $prev;
+
+        return $this;
+    }
+
+    /**
+     * @return Token
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
+     * @param Token $next
+     *
+     * @return Token
+     */
+    public function setNext($next)
+    {
+        $this->next = $next;
 
         return $this;
     }

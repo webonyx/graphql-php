@@ -438,10 +438,10 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         } while ($endToken->getKind() !== '<EOF>');
 
         $this->assertEquals(null, $startToken->getPrev());
-        $this->assertEquals(null, $endToken->next);
+        $this->assertEquals(null, $endToken->getNext());
 
         $tokens = [];
-        for ($tok = $startToken; $tok; $tok = $tok->next) {
+        for ($tok = $startToken; $tok; $tok = $tok->getNext()) {
             if (!empty($tokens)) {
                 // Tokens are double-linked, prev should point to last seen token.
                 $this->assertSame($tokens[count($tokens) - 1], $tok->getPrev());
