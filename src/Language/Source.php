@@ -14,7 +14,7 @@ class Source
     /**
      * @var int
      */
-    public $length;
+    protected $length;
 
     /**
      * @var string
@@ -67,6 +67,26 @@ class Source
     public function setBody($body)
     {
         $this->body = $body;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLength()
+    {
+        return $this->length;
+    }
+
+    /**
+     * @param int $length
+     *
+     * @return Source
+     */
+    public function setLength($length)
+    {
+        $this->length = $length;
 
         return $this;
     }

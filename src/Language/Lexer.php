@@ -135,7 +135,7 @@ class Lexer
     private function readToken(Token $prev)
     {
         $body = $this->source->getBody();
-        $bodyLength = $this->source->length;
+        $bodyLength = $this->source->getLength();
 
         $position = $this->positionAfterWhitespace($prev->getEnd());
         $line = $this->line;
@@ -226,7 +226,7 @@ class Lexer
     private function readName($position, $line, $col, Token $prev)
     {
         $body = $this->source->getBody();
-        $bodyLength = $this->source->length;
+        $bodyLength = $this->source->getLength();
         $end = $position + 1;
 
         while (
@@ -332,7 +332,7 @@ class Lexer
 
             return $position;
         }
-        if ($position > $this->source->length - 1) {
+        if ($position > $this->source->getLength() - 1) {
             $code = null;
         }
         throw new SyntaxError($this->source, $position, "Invalid number, expected digit but got: " . Utils::printCharCode($code));
@@ -349,7 +349,7 @@ class Lexer
     private function readString($start, $line, $col, Token $prev)
     {
         $body = $this->source->getBody();
-        $bodyLength = $this->source->length;
+        $bodyLength = $this->source->getLength();
 
         $position = $start + 1;
         $chunkStart = $position;
@@ -428,7 +428,7 @@ class Lexer
     private function positionAfterWhitespace($startPosition)
     {
         $body = $this->source->getBody();
-        $bodyLength = $this->source->length;
+        $bodyLength = $this->source->getLength();
         $position = $startPosition;
 
         while ($position < $bodyLength) {
