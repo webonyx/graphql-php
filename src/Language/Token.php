@@ -96,14 +96,14 @@ class Token
      */
     public function __construct($kind, $start, $end, $line, $column, Token $previous = null, $value = null)
     {
-        $this->kind = $kind;
-        $this->start = (int) $start;
-        $this->end = (int) $end;
-        $this->line = (int) $line;
-        $this->column = (int) $column;
-        $this->prev = $previous;
-        $this->next = null;
-        $this->value = $value;
+        $this->setKind($kind);
+        $this->setStart((int) $start);
+        $this->setEnd((int) $end);
+        $this->setLine((int) $line);
+        $this->setColumn((int) $column);
+        $this->setPrev($previous);
+        $this->setNext(null);
+        $this->setValue($value);
     }
 
     /**
@@ -111,7 +111,7 @@ class Token
      */
     public function getDescription()
     {
-        return $this->kind . ($this->value ? ' "' . $this->value  . '"' : '');
+        return $this->getKind() . ($this->getValue() ? ' "' . $this->getValue()  . '"' : '');
     }
 
     /**
@@ -121,11 +121,11 @@ class Token
     {
         return [
             'kind' => $this->getKind(),
-            'value' => $this->value,
-            'line' => $this->line,
-            'column' => $this->column,
-            'start' => $this->start,
-            'end' => $this->end
+            'value' => $this->getValue(),
+            'line' => $this->getLine(),
+            'column' => $this->getColumn(),
+            'start' => $this->getStart(),
+            'end' => $this->getEnd()
         ];
     }
 
