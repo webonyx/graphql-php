@@ -27,6 +27,7 @@ use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\NonNullType;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectTypeDefinition;
 use GraphQL\Language\AST\ObjectValue;
@@ -655,14 +656,18 @@ class Parser
                         'value' => $token->value === 'true',
                         'loc' => $this->loc($token)
                     ]);
-                } else if ($token->value !== 'null') {
+                } else if ($token->value === 'null') {
+                    $this->lexer->advance();
+                    return new NullValue(
+                        $this->loc($token)
+                    );
+                } else {
                     $this->lexer->advance();
                     return new EnumValue([
                         'value' => $token->value,
                         'loc' => $this->loc($token)
                     ]);
                 }
-                break;
 
             case Token::DOLLAR:
                 if (!$isConst) {
