@@ -4,8 +4,9 @@ namespace GraphQL\Type\Builder;
 
 abstract class Config
 {
+
     /**
-     * @var \ArrayObject
+     * @var array
      */
     private $config;
 

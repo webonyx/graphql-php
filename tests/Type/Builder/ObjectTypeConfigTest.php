@@ -14,20 +14,34 @@ class ObjectTypeConfigTest extends \PHPUnit_Framework_TestCase
             ->addArg('arg1', Type::boolean(), true, 'description arg1')
             ->addArg('arg2', Type::string(), 'defaultVal', 'description arg2');
 
+        $field1Resolver = function () {
+            return 'resolve it!';
+        };
+        $isTypeOf = function () {
+            return true;
+        };
+        $isTypeOf = function () {
+            return [];
+        };
+
         $config = ObjectTypeConfig::create()
             ->name('TypeName')
-            ->addField('field1', Type::string(), null, 'description field1', $args)
+            ->addField('field1', Type::string(), $field1Resolver, 'description field1', $args)
             ->addField('field2', Type::nonNull(Type::string()))
-        ;
+            ->description('My new Object')
+            ->isTypeOf($isTypeOf)
+            ->resolveField();
 
         $this->assertEquals(
             [
                 'name' => 'TypeName',
-                'fields' =>  [
+                'description' => 'My new Object',
+                'fields' => [
                     [
                         'name' => 'field1',
                         'type' => Type::string(),
                         'description' => 'description field1',
+                        'resolve' => $field1Resolver,
                         'args' => [
                             [
                                 'name' => 'arg1',
@@ -42,12 +56,21 @@ class ObjectTypeConfigTest extends \PHPUnit_Framework_TestCase
                                 'defaultValue' => 'defaultVal',
                             ],
                         ],
+                        'complexity' => null,
+                        'deprecationReason' => null,
                     ],
                     [
                         'name' => 'field2',
                         'type' => Type::nonNull(Type::string()),
+                        'description' => null,
+                        'resolve' => null,
+                        'complexity' => null,
+                        'deprecationReason' => null,
+                        'args' => [],
                     ],
                 ],
+                'isTypeOf' => $isTypeOf,
+                'resolveField' => null,
             ],
             $config->build()
         );

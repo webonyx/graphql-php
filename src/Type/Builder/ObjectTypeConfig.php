@@ -16,24 +16,17 @@ class ObjectTypeConfig extends Config
         return $this;
     }
 
-    public function addField($name, $type, callable $resolve = null, $description = null, ArgsConfig $args = null)
+    public function addField($name, $type, callable $resolve = null, $description = null, ArgsConfig $args = null, callable $complexity = null, $deprecationReason = null)
     {
         $field = [
             'name' => $name,
             'type' => $type,
+            'description' => $description,
+            'resolve' => $resolve,
+            'complexity' => $complexity,
+            'deprecationReason' => $deprecationReason,
+            'args' => null === $args ? [] : $args->build(),
         ];
-
-        if (null !== $description) {
-            $field['description'] = $description;
-        }
-
-        if (null !== $resolve) {
-            $field['resolve'] = $resolve;
-        }
-
-        if (null !== $args) {
-            $field['args'] = $args->build();
-        }
 
         $this->addConfig('fields', $field);
 
