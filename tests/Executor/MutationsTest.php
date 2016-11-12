@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -35,7 +36,8 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
         theNumber
       }
     }';
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
         $expected = [
             'data' => [
@@ -84,7 +86,8 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
         theNumber
       }
     }';
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
         $expected = [
             'data' => [

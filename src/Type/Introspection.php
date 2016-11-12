@@ -614,9 +614,10 @@ EOD;
                         'defaultValue' => [
                             'type' => Type::string(),
                             'resolve' => function ($inputValue) {
-                                return $inputValue->defaultValue === null
-                                    ? null
-                                    : Printer::doPrint(AST::astFromValue($inputValue->defaultValue, $inputValue->getType()));
+                                $printer = new Printer();
+                                return method_exists($inputValue, 'getDefaultValue')
+                                    ? $printer->doPrint(AST::astFromValue($inputValue->getDefaultValue(), $inputValue->getType()))
+                                    : null;
                             }
                         ]
                     ];

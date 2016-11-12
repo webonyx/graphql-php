@@ -6,6 +6,7 @@ require_once __DIR__ . '/TestClasses.php';
 use GraphQL\Error\Error;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -87,7 +88,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
       }
     ';
 
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $expected = [
             'data' => [
                 'a' => 'Apple',
@@ -156,7 +158,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
      */
     public function testMergesParallelFragments()
     {
-        $ast = Parser::parse('
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('
       { a, ...FragOne, ...FragTwo }
 
       fragment FragOne on Type {
@@ -217,7 +220,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
      */
     public function testProvidesInfoAboutCurrentExecutionState()
     {
-        $ast = Parser::parse('query ($var: String) { result: test }');
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse('query ($var: String) { result: test }');
 
         /** @var ResolveInfo $info */
         $info = null;
@@ -254,13 +258,13 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals('test', $info->fieldName);
         $this->assertEquals(1, count($info->fieldASTs));
-        $this->assertSame($ast->definitions[0]->selectionSet->selections[0], $info->fieldASTs[0]);
+        $this->assertSame($ast->getDefinitions()[0]->getSelectionSet()->getSelections()[0], $info->fieldASTs[0]);
         $this->assertSame(Type::string(), $info->returnType);
         $this->assertSame($schema->getQueryType(), $info->parentType);
         $this->assertEquals(['result'], $info->path);
         $this->assertSame($schema, $info->schema);
         $this->assertSame($rootValue, $info->rootValue);
-        $this->assertEquals($ast->definitions[0], $info->operation);
+        $this->assertEquals($ast->getDefinitions()[0], $info->operation);
         $this->assertEquals(['var' => '123'], $info->variableValues);
     }
 
@@ -278,7 +282,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             'contextThing' => 'thing',
         ];
 
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -311,7 +316,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $gotHere = false;
 
-        $docAst = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $docAst = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -372,7 +378,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             }
         ];
 
-        $docAst = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $docAst = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -416,7 +423,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = '{ a }';
         $data = ['a' => 'b'];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -438,7 +446,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = 'query Example { a }';
         $data = [ 'a' => 'b' ];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -459,7 +468,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = 'query Example { first: a } query OtherExample { second: a }';
         $data = [ 'a' => 'b' ];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -480,7 +490,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = 'fragment Example on Type { a }';
         $data = [ 'a' => 'b' ];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -505,7 +516,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = 'query Example { a } query OtherExample { a }';
         $data = [ 'a' => 'b' ];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -530,7 +542,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = 'query Example { a } query OtherExample { a }';
         $data = [ 'a' => 'b' ];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -555,7 +568,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = 'query Q { a } mutation M { c }';
         $data = ['a' => 'b', 'c' => 'd'];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Q',
@@ -582,7 +596,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = 'query Q { a } mutation M { c }';
         $data = [ 'a' => 'b', 'c' => 'd' ];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Q',
@@ -608,7 +623,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     {
         $doc = 'query Q { a } subscription S { a }';
         $data = [ 'a' => 'b', 'c' => 'd' ];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Q',
@@ -646,7 +662,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
       }
         ';
         $data = ['a' => 'b'];
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
@@ -668,7 +685,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $doc = 'mutation M {
       thisIsIllegalDontIncludeMe
     }';
-        $ast = Parser::parse($doc);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Q',
@@ -711,7 +729,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ])
         ]);
 
-        $query = Parser::parse('{ field(a: true, c: false, e: 0) }');
+        $parser = new Parser(new Lexer());
+        $query = $parser->parse('{ field(a: true, c: false, e: 0) }');
         $result = Executor::execute($schema, $query);
         $expected = [
             'data' => [
@@ -751,7 +770,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ])
         ]);
 
-        $query = Parser::parse('{ specials { value } }');
+        $parser = new Parser(new Lexer());
+        $query = $parser->parse('{ specials { value } }');
         $value = [
             'specials' => [ new Special('foo'), new NotSpecial('bar') ]
         ];
@@ -776,7 +796,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
      */
     public function testFailsToExecuteQueryContainingTypeDefinition()
     {
-        $query = Parser::parse('
+        $parser = new Parser(new Lexer());
+        $query = $parser->parse('
       { foo }
 
       type Query { foo: String }
@@ -832,7 +853,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ])
         ]);
 
-        $query = Parser::parse('{ field }');
+        $parser = new Parser(new Lexer());
+        $query = $parser->parse('{ field }');
         $result = Executor::execute($schema, $query);
         $expected = [
             'data' => [
@@ -899,7 +921,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $query = Parser::parse('
+        $parser = new Parser(new Lexer());
+        $query = $parser->parse('
             {
                 ab {
                     ... on A{

@@ -1,7 +1,9 @@
 <?php
+
 namespace GraphQL\Tests;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -27,8 +29,9 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
         $source = new Source('{
       field
     }');
-        $ast = Parser::parse($source);
-        $fieldAST = $ast->definitions[0]->selectionSet->selections[0];
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($source);
+        $fieldAST = $ast->getDefinitions()[0]->getSelectionSet()->getSelections()[0];
         $e = new Error('msg', [ $fieldAST ]);
 
         $this->assertEquals([$fieldAST], $e->nodes);
@@ -45,8 +48,9 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
         $source = new Source('{
       field
     }');
-        $ast = Parser::parse($source);
-        $operationAST = $ast->definitions[0];
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($source);
+        $operationAST = $ast->getDefinitions()[0];
         $e = new Error('msg', [ $operationAST ]);
 
         $this->assertEquals([$operationAST], $e->nodes);
@@ -85,7 +89,8 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
      */
     public function testSerializesToIncludeMessageAndLocations()
     {
-        $node = Parser::parse('{ field }')->definitions[0]->selectionSet->selections[0];
+        $parser = new Parser(new Lexer());
+        $node = $parser->parse('{ field }')->getDefinitions()[0]->getSelectionSet()->getSelections()[0];
         $e = new Error('msg', [ $node ]);
 
         $this->assertEquals(

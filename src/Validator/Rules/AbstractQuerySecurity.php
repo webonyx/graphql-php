@@ -7,6 +7,7 @@ use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
@@ -46,17 +47,17 @@ abstract class AbstractQuerySecurity
     {
         // Gather all the fragment definition.
         // Importantly this does not include inline fragments.
-        $definitions = $context->getDocument()->definitions;
+        $definitions = $context->getDocument()->getDefinitions();
         foreach ($definitions as $node) {
             if ($node instanceof FragmentDefinition) {
-                $this->fragments[$node->name->value] = $node;
+                $this->fragments[$node->getName()->getValue()] = $node;
             }
         }
     }
 
     protected function getFragment(FragmentSpread $fragmentSpread)
     {
-        $spreadName = $fragmentSpread->name->value;
+        $spreadName = $fragmentSpread->getName()->getValue();
         $fragments = $this->getFragments();
 
         return isset($fragments[$spreadName]) ? $fragments[$spreadName] : null;
@@ -97,11 +98,11 @@ abstract class AbstractQuerySecurity
         $_visitedFragmentNames = $visitedFragmentNames ?: new \ArrayObject();
         $_astAndDefs = $astAndDefs ?: new \ArrayObject();
 
-        foreach ($selectionSet->selections as $selection) {
-            switch ($selection->kind) {
-                case Node::FIELD:
+        foreach ($selectionSet->getSelections() as $selection) {
+            switch ($selection->getKind()) {
+                case NodeType::FIELD:
                     /* @var Field $selection */
-                    $fieldName = $selection->name->value;
+                    $fieldName = $selection->getName()->getValue();
                     $fieldDef = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
                         $tmp = $parentType->getFields();
@@ -126,19 +127,19 @@ abstract class AbstractQuerySecurity
                     // create field context
                     $_astAndDefs[$responseName][] = [$selection, $fieldDef];
                     break;
-                case Node::INLINE_FRAGMENT:
+                case NodeType::INLINE_FRAGMENT:
                     /* @var InlineFragment $selection */
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
-                        TypeInfo::typeFromAST($context->getSchema(), $selection->typeCondition),
-                        $selection->selectionSet,
+                        TypeInfo::typeFromAST($context->getSchema(), $selection->getTypeCondition()),
+                        $selection->getSelectionSet(),
                         $_visitedFragmentNames,
                         $_astAndDefs
                     );
                     break;
-                case Node::FRAGMENT_SPREAD:
+                case NodeType::FRAGMENT_SPREAD:
                     /* @var FragmentSpread $selection */
-                    $fragName = $selection->name->value;
+                    $fragName = $selection->getName()->getValue();
 
                     if (empty($_visitedFragmentNames[$fragName])) {
                         $_visitedFragmentNames[$fragName] = true;
@@ -147,8 +148,8 @@ abstract class AbstractQuerySecurity
                         if ($fragment) {
                             $_astAndDefs = $this->collectFieldASTsAndDefs(
                                 $context,
-                                TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition),
-                                $fragment->selectionSet,
+                                TypeInfo::typeFromAST($context->getSchema(), $fragment->getTypeCondition()),
+                                $fragment->getSelectionSet(),
                                 $_visitedFragmentNames,
                                 $_astAndDefs
                             );
@@ -163,8 +164,8 @@ abstract class AbstractQuerySecurity
 
     protected function getFieldName(Field $node)
     {
-        $fieldName = $node->name->value;
-        $responseName = $node->alias ? $node->alias->value : $fieldName;
+        $fieldName = $node->getName()->getValue();
+        $responseName = $node->getAlias() ? $node->getAlias()->getValue() : $fieldName;
 
         return $responseName;
     }

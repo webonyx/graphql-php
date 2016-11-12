@@ -5,8 +5,11 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -36,7 +39,7 @@ class FieldsOnCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            Node::FIELD => function(Field $node) use ($context) {
+            NodeType::FIELD => function(Field $node) use ($context) {
                 $type = $context->getParentType();
                 if ($type) {
                     $fieldDef = $context->getFieldDef();
@@ -48,14 +51,14 @@ class FieldsOnCorrectType
                             $suggestedTypes = self::getSiblingInterfacesIncludingField(
                                 $schema,
                                 $type,
-                                $node->name->value
+                                $node->getName()->getValue()
                             );
                             $suggestedTypes = array_merge($suggestedTypes,
-                                self::getImplementationsIncludingField($schema, $type, $node->name->value)
+                                self::getImplementationsIncludingField($schema, $type, $node->getName()->getValue())
                             );
                         }
                         $context->reportError(new Error(
-                            static::undefinedFieldMessage($node->name->value, $type->name, $suggestedTypes),
+                            static::undefinedFieldMessage($node->getName()->getValue(), $type->name, $suggestedTypes),
                             [$node]
                         ));
                     }
@@ -75,8 +78,12 @@ class FieldsOnCorrectType
     static function getImplementationsIncludingField(Schema $schema, AbstractType $type, $fieldName)
     {
         $types = $schema->getPossibleTypes($type);
-        $types = Utils::filter($types, function($t) use ($fieldName) {return isset($t->getFields()[$fieldName]);});
-        $types = Utils::map($types, function($t) {return $t->name;});
+        $types = Utils::filter($types, function(Type $t) use ($fieldName) {
+            return isset($t->getFields()[$fieldName]);
+        });
+        $types = Utils::map($types, function(Type $t) {
+            return $t->name;
+        });
         sort($types);
         return $types;
     }
@@ -90,7 +97,7 @@ class FieldsOnCorrectType
     static function getSiblingInterfacesIncludingField(Schema $schema, AbstractType $type, $fieldName)
     {
         $types = $schema->getPossibleTypes($type);
-        $suggestedInterfaces = array_reduce($types, function ($acc, $t) use ($fieldName) {
+        $suggestedInterfaces = array_reduce($types, function ($acc, ObjectType $t) use ($fieldName) {
             foreach ($t->getInterfaces() as $i) {
                 if (empty($i->getFields()[$fieldName])) {
                     continue;

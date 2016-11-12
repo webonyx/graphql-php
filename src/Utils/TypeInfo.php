@@ -5,6 +5,7 @@ use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
@@ -149,16 +150,16 @@ class TypeInfo
     public static function typeFromAST(Schema $schema, $inputTypeAst)
     {
         if ($inputTypeAst instanceof ListType) {
-            $innerType = self::typeFromAST($schema, $inputTypeAst->type);
+            $innerType = self::typeFromAST($schema, $inputTypeAst->getType());
             return $innerType ? new ListOfType($innerType) : null;
         }
         if ($inputTypeAst instanceof NonNullType) {
-            $innerType = self::typeFromAST($schema, $inputTypeAst->type);
+            $innerType = self::typeFromAST($schema, $inputTypeAst->getType());
             return $innerType ? new NonNull($innerType) : null;
         }
 
         Utils::invariant($inputTypeAst && $inputTypeAst instanceof NamedType, 'Must be a named type');
-        return $schema->getType($inputTypeAst->name->value);
+        return $schema->getType($inputTypeAst->getName()->getValue());
     }
 
     /**
@@ -170,7 +171,7 @@ class TypeInfo
      */
     static private function getFieldDefinition(Schema $schema, Type $parentType, Field $fieldAST)
     {
-        $name = $fieldAST->name->value;
+        $name = $fieldAST->getName()->getValue();
         $schemaMeta = Introspection::schemaMetaFieldDef();
         if ($name === $schemaMeta->name && $schema->getQueryType() === $parentType) {
             return $schemaMeta;
@@ -308,8 +309,8 @@ class TypeInfo
     {
         $schema = $this->schema;
 
-        switch ($node->kind) {
-            case Node::SELECTION_SET:
+        switch ($node->getKind()) {
+            case NodeType::SELECTION_SET:
                 $namedType = Type::getNamedType($this->getType());
                 $compositeType = null;
                 if (Type::isCompositeType($namedType)) {
@@ -319,7 +320,7 @@ class TypeInfo
                 $this->parentTypeStack[] = $compositeType; // push
                 break;
 
-            case Node::FIELD:
+            case NodeType::FIELD:
                 $parentType = $this->getParentType();
                 $fieldDef = null;
                 if ($parentType) {
@@ -329,39 +330,39 @@ class TypeInfo
                 $this->typeStack[] = $fieldDef ? $fieldDef->getType() : null; // push
                 break;
 
-            case Node::DIRECTIVE:
-                $this->directive = $schema->getDirective($node->name->value);
+            case NodeType::DIRECTIVE:
+                $this->directive = $schema->getDirective($node->getName()->getValue());
                 break;
 
-            case Node::OPERATION_DEFINITION:
+            case NodeType::OPERATION_DEFINITION:
                 $type = null;
-                if ($node->operation === 'query') {
+                if ($node->getOperation() === 'query') {
                     $type = $schema->getQueryType();
-                } else if ($node->operation === 'mutation') {
+                } else if ($node->getOperation() === 'mutation') {
                     $type = $schema->getMutationType();
-                } else if ($node->operation === 'subscription') {
+                } else if ($node->getOperation() === 'subscription') {
                     $type = $schema->getSubscriptionType();
                 }
                 $this->typeStack[] = $type; // push
                 break;
 
-            case Node::INLINE_FRAGMENT:
-            case Node::FRAGMENT_DEFINITION:
-                $typeConditionAST = $node->typeCondition;
+            case NodeType::INLINE_FRAGMENT:
+            case NodeType::FRAGMENT_DEFINITION:
+                $typeConditionAST = $node->getTypeCondition();
                 $outputType = $typeConditionAST ? self::typeFromAST($schema, $typeConditionAST) : $this->getType();
                 $this->typeStack[] = $outputType; // push
                 break;
 
-            case Node::VARIABLE_DEFINITION:
-                $inputType = self::typeFromAST($schema, $node->type);
+            case NodeType::VARIABLE_DEFINITION:
+                $inputType = self::typeFromAST($schema, $node->getType());
                 $this->inputTypeStack[] = $inputType; // push
                 break;
 
-            case Node::ARGUMENT:
+            case NodeType::ARGUMENT:
                 $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
                 $argDef = $argType = null;
                 if ($fieldOrDirective) {
-                    $argDef = Utils::find($fieldOrDirective->args, function($arg) use ($node) {return $arg->name === $node->name->value;});
+                    $argDef = Utils::find($fieldOrDirective->args, function($arg) use ($node) {return $arg->name === $node->getName()->getValue();});
                     if ($argDef) {
                         $argType = $argDef->getType();
                     }
@@ -370,17 +371,17 @@ class TypeInfo
                 $this->inputTypeStack[] = $argType; // push
                 break;
 
-            case Node::LST:
+            case NodeType::LST:
                 $listType = Type::getNullableType($this->getInputType());
                 $this->inputTypeStack[] = ($listType instanceof ListOfType ? $listType->getWrappedType() : null); // push
                 break;
 
-            case Node::OBJECT_FIELD:
+            case NodeType::OBJECT_FIELD:
                 $objectType = Type::getNamedType($this->getInputType());
                 $fieldType = null;
                 if ($objectType instanceof InputObjectType) {
                     $tmp = $objectType->getFields();
-                    $inputField = isset($tmp[$node->name->value]) ? $tmp[$node->name->value] : null;
+                    $inputField = isset($tmp[$node->getName()->getValue()]) ? $tmp[$node->getName()->getValue()] : null;
                     $fieldType = $inputField ? $inputField->getType() : null;
                 }
                 $this->inputTypeStack[] = $fieldType;
@@ -393,34 +394,34 @@ class TypeInfo
      */
     function leave(Node $node)
     {
-        switch ($node->kind) {
-            case Node::SELECTION_SET:
+        switch ($node->getKind()) {
+            case NodeType::SELECTION_SET:
                 array_pop($this->parentTypeStack);
                 break;
 
-            case Node::FIELD:
+            case NodeType::FIELD:
                 array_pop($this->fieldDefStack);
                 array_pop($this->typeStack);
                 break;
 
-            case Node::DIRECTIVE:
+            case NodeType::DIRECTIVE:
                 $this->directive = null;
                 break;
 
-            case Node::OPERATION_DEFINITION:
-            case Node::INLINE_FRAGMENT:
-            case Node::FRAGMENT_DEFINITION:
+            case NodeType::OPERATION_DEFINITION:
+            case NodeType::INLINE_FRAGMENT:
+            case NodeType::FRAGMENT_DEFINITION:
                 array_pop($this->typeStack);
                 break;
-            case Node::VARIABLE_DEFINITION:
+            case NodeType::VARIABLE_DEFINITION:
                 array_pop($this->inputTypeStack);
                 break;
-            case Node::ARGUMENT:
+            case NodeType::ARGUMENT:
                 $this->argument = null;
                 array_pop($this->inputTypeStack);
                 break;
-            case Node::LST:
-            case Node::OBJECT_FIELD:
+            case NodeType::LST:
+            case NodeType::OBJECT_FIELD:
                 array_pop($this->inputTypeStack);
                 break;
         }

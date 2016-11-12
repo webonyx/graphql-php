@@ -9,6 +9,7 @@ use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -29,10 +30,10 @@ class KnownDirectives
     public function __invoke(ValidationContext $context)
     {
         return [
-            Node::DIRECTIVE => function (Directive $node, $key, $parent, $path, $ancestors) use ($context) {
+            NodeType::DIRECTIVE => function (Directive $node, $key, $parent, $path, $ancestors) use ($context) {
                 $directiveDef = null;
                 foreach ($context->getSchema()->getDirectives() as $def) {
-                    if ($def->name === $node->name->value) {
+                    if ($def->name === $node->getName()->getValue()) {
                         $directiveDef = $def;
                         break;
                     }
@@ -40,7 +41,7 @@ class KnownDirectives
 
                 if (!$directiveDef) {
                     $context->reportError(new Error(
-                        self::unknownDirectiveMessage($node->name->value),
+                        self::unknownDirectiveMessage($node->getName()->getValue()),
                         [$node]
                     ));
                     return ;
@@ -50,12 +51,12 @@ class KnownDirectives
 
                 if (!$candidateLocation) {
                     $context->reportError(new Error(
-                        self::misplacedDirectiveMessage($node->name->value, $node->type),
+                        self::misplacedDirectiveMessage($node->getName()->getValue(), $node->type),
                         [$node]
                     ));
                 } else if (!in_array($candidateLocation, $directiveDef->locations)) {
                     $context->reportError(new Error(
-                        self::misplacedDirectiveMessage($node->name->value, $candidateLocation),
+                        self::misplacedDirectiveMessage($node->getName()->getValue(), $candidateLocation),
                         [ $node ]
                     ));
                 }
@@ -65,18 +66,18 @@ class KnownDirectives
 
     private function getLocationForAppliedNode(Node $appliedTo)
     {
-        switch ($appliedTo->kind) {
-            case Node::OPERATION_DEFINITION:
-                switch ($appliedTo->operation) {
+        switch ($appliedTo->getKind()) {
+            case NodeType::OPERATION_DEFINITION:
+                switch ($appliedTo->getOperation()) {
                     case 'query': return DirectiveDef::LOCATION_QUERY;
                     case 'mutation': return DirectiveDef::LOCATION_MUTATION;
                     case 'subscription': return DirectiveDef::LOCATION_SUBSCRIPTION;
                 }
                 break;
-            case Node::FIELD: return DirectiveDef::LOCATION_FIELD;
-            case Node::FRAGMENT_SPREAD: return DirectiveDef::LOCATION_FRAGMENT_SPREAD;
-            case Node::INLINE_FRAGMENT: return DirectiveDef::LOCATION_INLINE_FRAGMENT;
-            case Node::FRAGMENT_DEFINITION: return DirectiveDef::LOCATION_FRAGMENT_DEFINITION;
+            case NodeType::FIELD: return DirectiveDef::LOCATION_FIELD;
+            case NodeType::FRAGMENT_SPREAD: return DirectiveDef::LOCATION_FRAGMENT_SPREAD;
+            case NodeType::INLINE_FRAGMENT: return DirectiveDef::LOCATION_INLINE_FRAGMENT;
+            case NodeType::FRAGMENT_DEFINITION: return DirectiveDef::LOCATION_FRAGMENT_DEFINITION;
         }
     }
 }

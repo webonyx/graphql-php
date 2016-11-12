@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 use GraphQL\Language\Source;
@@ -49,8 +50,8 @@ class Location
     {
         $this->startToken = $startToken;
         $this->endToken = $endToken;
-        $this->start = $startToken->start;
-        $this->end = $endToken->end;
+        $this->start = $startToken->getStart();
+        $this->end = $endToken->getEnd();
         $this->source = $source;
     }
 }

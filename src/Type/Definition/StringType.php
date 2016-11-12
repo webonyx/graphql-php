@@ -53,7 +53,7 @@ represent free-form human-readable text.';
     public function parseLiteral($ast)
     {
         if ($ast instanceof StringValue) {
-            return $ast->value;
+            return $ast->getValue();
         }
         return null;
     }

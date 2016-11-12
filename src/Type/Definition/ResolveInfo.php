@@ -108,7 +108,7 @@ class ResolveInfo
 
         /** @var Field $fieldAST */
         foreach ($this->fieldASTs as $fieldAST) {
-            $fields = array_merge_recursive($fields, $this->foldSelectionSet($fieldAST->selectionSet, $depth));
+            $fields = array_merge_recursive($fields, $this->foldSelectionSet($fieldAST->getSelectionSet(), $depth));
         }
 
         return $fields;
@@ -118,17 +118,17 @@ class ResolveInfo
     {
         $fields = [];
 
-        foreach ($selectionSet->selections as $selectionAST) {
+        foreach ($selectionSet->getSelections() as $selectionAST) {
             if ($selectionAST instanceof Field) {
-                $fields[$selectionAST->name->value] = $descend > 0 && !empty($selectionAST->selectionSet)
-                    ? $this->foldSelectionSet($selectionAST->selectionSet, $descend - 1)
+                $fields[$selectionAST->getName()->getValue()] = $descend > 0 && !empty($selectionAST->getSelectionSet())
+                    ? $this->foldSelectionSet($selectionAST->getSelectionSet(), $descend - 1)
                     : true;
             } else if ($selectionAST instanceof FragmentSpread) {
-                $spreadName = $selectionAST->name->value;
+                $spreadName = $selectionAST->getName()->getValue();
                 if (isset($this->fragments[$spreadName])) {
                     /** @var FragmentDefinition $fragment */
                     $fragment = $this->fragments[$spreadName];
-                    $fields += $this->foldSelectionSet($fragment->selectionSet, $descend);
+                    $fields += $this->foldSelectionSet($fragment->getSelectionSet(), $descend);
                 }
             }
         }

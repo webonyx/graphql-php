@@ -7,6 +7,7 @@ use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\Value;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\Printer;
@@ -178,7 +179,7 @@ class DocumentValidator
             $itemType = $type->getWrappedType();
             if ($valueAST instanceof ListValue) {
                 $errors = [];
-                foreach($valueAST->values as $index => $itemAST) {
+                foreach($valueAST->getValues() as $index => $itemAST) {
                     $tmp = static::isValidLiteralValue($itemType, $itemAST);
 
                     if ($tmp) {
@@ -195,7 +196,7 @@ class DocumentValidator
 
         // Input objects check each defined field and look for undefined fields.
         if ($type instanceof InputObjectType) {
-            if ($valueAST->kind !== Node::OBJECT) {
+            if ($valueAST->getKind() !== NodeType::OBJECT) {
                 return [ "Expected \"{$type->name}\", found not an object." ];
             }
 
@@ -203,20 +204,20 @@ class DocumentValidator
             $errors = [];
 
             // Ensure every provided field is defined.
-            $fieldASTs = $valueAST->fields;
+            $fieldASTs = $valueAST->getFields();
 
             foreach ($fieldASTs as $providedFieldAST) {
-                if (empty($fields[$providedFieldAST->name->value])) {
-                    $errors[] = "In field \"{$providedFieldAST->name->value}\": Unknown field.";
+                if (empty($fields[$providedFieldAST->getName()->getValue()])) {
+                    $errors[] = "In field \"{$providedFieldAST->getName()->getValue()}\": Unknown field.";
                 }
             }
 
             // Ensure every defined field is valid.
-            $fieldASTMap = Utils::keyMap($fieldASTs, function($fieldAST) {return $fieldAST->name->value;});
+            $fieldASTMap = Utils::keyMap($fieldASTs, function($fieldAST) {return $fieldAST->getName()->getValue();});
             foreach ($fields as $fieldName => $field) {
                 $result = static::isValidLiteralValue(
                     $field->getType(),
-                    isset($fieldASTMap[$fieldName]) ? $fieldASTMap[$fieldName]->value : null
+                    isset($fieldASTMap[$fieldName]) ? $fieldASTMap[$fieldName]->getValue() : null
                 );
                 if ($result) {
                     $errors = array_merge($errors, Utils::map($result, function($error) use ($fieldName) {
@@ -234,7 +235,8 @@ class DocumentValidator
             $parseResult = $type->parseLiteral($valueAST);
 
             if (null === $parseResult) {
-                $printed = Printer::doPrint($valueAST);
+                $printer = new Printer();
+                $printed = $printer->doPrint($valueAST);
                 return [ "Expected type \"{$type->name}\", found $printed." ];
             }
 

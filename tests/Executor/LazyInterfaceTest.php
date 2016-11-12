@@ -7,6 +7,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\InterfaceType;
@@ -121,6 +122,7 @@ class LazyInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, Parser::parse($request))->toArray());
+        $parser = new Parser(new Lexer());
+        $this->assertEquals($expected, Executor::execute($this->schema, $parser->parse($request))->toArray());
     }
 }

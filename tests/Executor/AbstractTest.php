@@ -7,6 +7,7 @@ use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
 use GraphQL\GraphQL;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -89,7 +90,8 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $this->assertEquals($expected, Executor::execute($schema, Parser::parse($query)));
+        $parser = new Parser(new Lexer());
+        $this->assertEquals($expected, Executor::execute($schema, $parser->parse($query)));
     }
 
     /**
@@ -155,7 +157,8 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $this->assertEquals($expected, Executor::execute($schema, Parser::parse($query)));
+        $parser = new Parser(new Lexer());
+        $this->assertEquals($expected, Executor::execute($schema, $parser->parse($query)));
     }
 
     /**

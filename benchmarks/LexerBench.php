@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Benchmarks;
 
 use GraphQL\Language\Lexer;
@@ -29,7 +30,7 @@ class LexerBench
         $lexer = new Lexer($this->introQuery);
 
         do {
-            $token = $lexer->nextToken();
-        } while ($token->kind !== Token::EOF);
+            $token = $lexer->advance();
+        } while ($token->getKind() !== Token::EOF);
     }
 }

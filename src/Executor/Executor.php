@@ -7,6 +7,7 @@ use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Schema;
@@ -117,25 +118,25 @@ class Executor
         $fragments = [];
         $operation = null;
 
-        foreach ($documentAst->definitions as $definition) {
-            switch ($definition->kind) {
-                case Node::OPERATION_DEFINITION:
+        foreach ($documentAst->getDefinitions() as $definition) {
+            switch ($definition->getKind()) {
+                case NodeType::OPERATION_DEFINITION:
                     if (!$operationName && $operation) {
                         throw new Error(
                             'Must provide operation name if query contains multiple operations.'
                         );
                     }
                     if (!$operationName ||
-                        (isset($definition->name) && $definition->name->value === $operationName)) {
+                        (method_exists($definition, 'getName') && $definition->getName()->getValue() === $operationName)) {
                         $operation = $definition;
                     }
                     break;
-                case Node::FRAGMENT_DEFINITION:
-                    $fragments[$definition->name->value] = $definition;
+                case NodeType::FRAGMENT_DEFINITION:
+                    $fragments[$definition->getName()->getValue()] = $definition;
                     break;
                 default:
                     throw new Error(
-                        "GraphQL cannot execute a request containing a {$definition->kind}.",
+                        "GraphQL cannot execute a request containing a {$definition->getKind()}.",
                         [$definition]
                     );
             }
@@ -151,7 +152,7 @@ class Executor
 
         $variableValues = Values::getVariableValues(
             $schema,
-            $operation->variableDefinitions ?: [],
+            $operation->getVariableDefinitions() ?: [],
             $rawVariableValues ?: []
         );
 
@@ -165,10 +166,10 @@ class Executor
     private static function executeOperation(ExecutionContext $exeContext, OperationDefinition $operation, $rootValue)
     {
         $type = self::getOperationRootType($exeContext->schema, $operation);
-        $fields = self::collectFields($exeContext, $type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
+        $fields = self::collectFields($exeContext, $type, $operation->getSelectionSet(), new \ArrayObject(), new \ArrayObject());
 
         $path = [];
-        if ($operation->operation === 'mutation') {
+        if ($operation->getOperation() === 'mutation') {
             return self::executeFieldsSerially($exeContext, $type, $rootValue, $path, $fields);
         }
 
@@ -186,7 +187,7 @@ class Executor
      */
     private static function getOperationRootType(Schema $schema, OperationDefinition $operation)
     {
-        switch ($operation->operation) {
+        switch ($operation->getOperation()) {
             case 'query':
                 return $schema->getQueryType();
             case 'mutation':
@@ -232,10 +233,12 @@ class Executor
                 $results[$responseName] = $result;
             }
         }
+
         // see #59
         if ([] === $results) {
             $results = new \stdClass();
         }
+
         return  $results;
     }
 
@@ -269,10 +272,10 @@ class Executor
         $visitedFragmentNames
     )
     {
-        foreach ($selectionSet->selections as $selection) {
-            switch ($selection->kind) {
-                case Node::FIELD:
-                    if (!self::shouldIncludeNode($exeContext, $selection->directives)) {
+        foreach ($selectionSet->getSelections() as $selection) {
+            switch ($selection->getKind()) {
+                case NodeType::FIELD:
+                    if (!self::shouldIncludeNode($exeContext, $selection->getDirectives())) {
                         continue;
                     }
                     $name = self::getFieldEntryKey($selection);
@@ -281,8 +284,8 @@ class Executor
                     }
                     $fields[$name][] = $selection;
                     break;
-                case Node::INLINE_FRAGMENT:
-                    if (!self::shouldIncludeNode($exeContext, $selection->directives) ||
+                case NodeType::INLINE_FRAGMENT:
+                    if (!self::shouldIncludeNode($exeContext, $selection->getDirectives()) ||
                         !self::doesFragmentConditionMatch($exeContext, $selection, $runtimeType)
                     ) {
                         continue;
@@ -290,14 +293,14 @@ class Executor
                     self::collectFields(
                         $exeContext,
                         $runtimeType,
-                        $selection->selectionSet,
+                        $selection->getSelectionSet(),
                         $fields,
                         $visitedFragmentNames
                     );
                     break;
-                case Node::FRAGMENT_SPREAD:
-                    $fragName = $selection->name->value;
-                    if (!empty($visitedFragmentNames[$fragName]) || !self::shouldIncludeNode($exeContext, $selection->directives)) {
+                case NodeType::FRAGMENT_SPREAD:
+                    $fragName = $selection->getName()->getValue();
+                    if (!empty($visitedFragmentNames[$fragName]) || !self::shouldIncludeNode($exeContext, $selection->getDirectives())) {
                         continue;
                     }
                     $visitedFragmentNames[$fragName] = true;
@@ -310,7 +313,7 @@ class Executor
                     self::collectFields(
                         $exeContext,
                         $runtimeType,
-                        $fragment->selectionSet,
+                        $fragment->getSelectionSet(),
                         $fields,
                         $visitedFragmentNames
                     );
@@ -332,12 +335,12 @@ class Executor
         /** @var \GraphQL\Language\AST\Directive $skipAST */
         $skipAST = $directives
             ? Utils::find($directives, function(\GraphQL\Language\AST\Directive $directive) use ($skipDirective) {
-                return $directive->name->value === $skipDirective->name;
+                return $directive->getName()->getValue() === $skipDirective->name;
             })
             : null;
 
         if ($skipAST) {
-            $argValues = Values::getArgumentValues($skipDirective->args, $skipAST->arguments, $exeContext->variableValues);
+            $argValues = Values::getArgumentValues($skipDirective->args, $skipAST->getArguments(), $exeContext->variableValues);
             if (isset($argValues['if']) && $argValues['if'] === true) {
                 return false;
             }
@@ -346,12 +349,12 @@ class Executor
         /** @var \GraphQL\Language\AST\Directive $includeAST */
         $includeAST = $directives
             ? Utils::find($directives, function(\GraphQL\Language\AST\Directive $directive) use ($includeDirective) {
-                return $directive->name->value === $includeDirective->name;
+                return $directive->getName()->getValue() === $includeDirective->name;
             })
             : null;
 
         if ($includeAST) {
-            $argValues = Values::getArgumentValues($includeDirective->args, $includeAST->arguments, $exeContext->variableValues);
+            $argValues = Values::getArgumentValues($includeDirective->args, $includeAST->getArguments(), $exeContext->variableValues);
             if (isset($argValues['if']) && $argValues['if'] === false) {
                 return false;
             }
@@ -365,7 +368,7 @@ class Executor
      */
     private static function doesFragmentConditionMatch(ExecutionContext $exeContext,/* FragmentDefinition | InlineFragment*/ $fragment, ObjectType $type)
     {
-        $typeConditionAST = $fragment->typeCondition;
+        $typeConditionAST = $fragment->getTypeCondition();
 
         if (!$typeConditionAST) {
             return true;
@@ -386,7 +389,7 @@ class Executor
      */
     private static function getFieldEntryKey(Field $node)
     {
-        return $node->alias ? $node->alias->value : $node->name->value;
+        return $node->getAlias() ? $node->getAlias()->getValue() : $node->getName()->getValue();
     }
 
     /**
@@ -399,7 +402,7 @@ class Executor
     {
         $fieldAST = $fieldASTs[0];
 
-        $fieldName = $fieldAST->name->value;
+        $fieldName = $fieldAST->getName()->getValue();
 
         $fieldDef = self::getFieldDef($exeContext->schema, $parentType, $fieldName);
 
@@ -413,7 +416,7 @@ class Executor
         // variables scope to fulfill any variable references.
         $args = Values::getArgumentValues(
             $fieldDef->args,
-            $fieldAST->arguments,
+            $fieldAST->getArguments(),
             $exeContext->variableValues
         );
 
@@ -838,11 +841,11 @@ class Executor
         $visitedFragmentNames = new \ArrayObject();
 
         foreach ($fieldASTs as $fieldAST) {
-            if (isset($fieldAST->selectionSet)) {
+            if (method_exists($fieldAST, 'getSelectionSet')) {
                 $subFieldASTs = self::collectFields(
                     $exeContext,
                     $returnType,
-                    $fieldAST->selectionSet,
+                    $fieldAST->getSelectionSet(),
                     $subFieldASTs,
                     $visitedFragmentNames
                 );

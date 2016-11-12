@@ -6,6 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\Directive;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Utils;
@@ -26,47 +27,47 @@ class ProvidedNonNullArguments
     public function __invoke(ValidationContext $context)
     {
         return [
-            Node::FIELD => [
+            NodeType::FIELD => [
                 'leave' => function(Field $fieldAST) use ($context) {
                     $fieldDef = $context->getFieldDef();
 
                     if (!$fieldDef) {
                         return Visitor::skipNode();
                     }
-                    $argASTs = $fieldAST->arguments ?: [];
+                    $argASTs = $fieldAST->getArguments() ?: [];
 
                     $argASTMap = [];
                     foreach ($argASTs as $argAST) {
-                        $argASTMap[$argAST->name->value] = $argASTs;
+                        $argASTMap[$argAST->getName()->getValue()] = $argASTs;
                     }
                     foreach ($fieldDef->args as $argDef) {
                         $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
                         if (!$argAST && $argDef->getType() instanceof NonNull) {
                             $context->reportError(new Error(
-                                self::missingFieldArgMessage($fieldAST->name->value, $argDef->name, $argDef->getType()),
+                                self::missingFieldArgMessage($fieldAST->getName()->getValue(), $argDef->name, $argDef->getType()),
                                 [$fieldAST]
                             ));
                         }
                     }
                 }
             ],
-            Node::DIRECTIVE => [
+            NodeType::DIRECTIVE => [
                 'leave' => function(Directive $directiveAST) use ($context) {
                     $directiveDef = $context->getDirective();
                     if (!$directiveDef) {
                         return Visitor::skipNode();
                     }
-                    $argASTs = $directiveAST->arguments ?: [];
+                    $argASTs = $directiveAST->getArguments() ?: [];
                     $argASTMap = [];
                     foreach ($argASTs as $argAST) {
-                        $argASTMap[$argAST->name->value] = $argASTs;
+                        $argASTMap[$argAST->getName()->getValue()] = $argASTs;
                     }
 
                     foreach ($directiveDef->args as $argDef) {
                         $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
                         if (!$argAST && $argDef->getType() instanceof NonNull) {
                             $context->reportError(new Error(
-                                self::missingDirectiveArgMessage($directiveAST->name->value, $argDef->name, $argDef->getType()),
+                                self::missingDirectiveArgMessage($directiveAST->getName()->getValue(), $argDef->name, $argDef->getType()),
                                 [$directiveAST]
                             ));
                         }

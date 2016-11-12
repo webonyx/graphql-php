@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL;
 
 use GraphQL\Error\InvariantViolation;
@@ -11,10 +12,12 @@ class Utils
 {
     /**
      * @param object $obj
-     * @param array $vars
+     * @param array  $vars
+     * @param array  $requiredKeys
+     *
      * @return array
      */
-    public static function assign($obj, array $vars, array $requiredKeys = array())
+    public static function assign($obj, array $vars, array $requiredKeys = [])
     {
         foreach ($requiredKeys as $key) {
             if (!isset($key, $vars)) {
@@ -23,6 +26,11 @@ class Utils
         }
 
         foreach ($vars as $key => $value) {
+            if ($key == 'loc') {
+                $obj->setLoc($vars['loc']);
+                continue;
+            }
+
             if (!property_exists($obj, $key)) {
                 $cls = get_class($obj);
                 trigger_error("Trying to set non-existing property '$key' on class '$cls'");

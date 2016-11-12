@@ -4,6 +4,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Argument;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
@@ -21,21 +22,21 @@ class UniqueArgumentNames
         $this->knownArgNames = [];
 
         return [
-            Node::FIELD => function () {
+            NodeType::FIELD => function () {
                 $this->knownArgNames = [];;
             },
-            Node::DIRECTIVE => function () {
+            NodeType::DIRECTIVE => function () {
                 $this->knownArgNames = [];
             },
-            Node::ARGUMENT => function (Argument $node) use ($context) {
-                $argName = $node->name->value;
+            NodeType::ARGUMENT => function (Argument $node) use ($context) {
+                $argName = $node->getName()->getValue();
                 if (!empty($this->knownArgNames[$argName])) {
                     $context->reportError(new Error(
                         self::duplicateArgMessage($argName),
-                        [$this->knownArgNames[$argName], $node->name]
+                        [$this->knownArgNames[$argName], $node->getName()]
                     ));
                 } else {
-                    $this->knownArgNames[$argName] = $node->name;
+                    $this->knownArgNames[$argName] = $node->getName();
                 }
                 return Visitor::skipNode();
             }

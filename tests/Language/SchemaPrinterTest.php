@@ -1,8 +1,10 @@
 <?php
+
 namespace GraphQL\Tests;
 
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\ScalarTypeDefinition;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 
@@ -13,10 +15,12 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testPrintsMinimalAst()
     {
-        $ast = new ScalarTypeDefinition([
-            'name' => new Name(['value' => 'foo'])
-        ]);
-        $this->assertEquals('scalar foo', Printer::doPrint($ast));
+        $printer = new Printer();
+
+        $ast = new ScalarTypeDefinition(
+            new Name('foo')
+        );
+        $this->assertEquals('scalar foo', $printer->doPrint($ast));
     }
 
     /**
@@ -27,7 +31,9 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
         // $badAst1 = { random: 'Data' };
         $badAst = (object) ['random' => 'Data'];
         $this->setExpectedException('Exception', 'Invalid AST Node: {"random":"Data"}');
-        Printer::doPrint($badAst);
+
+        $printer = new Printer();
+        $printer->doPrint($badAst);
     }
 
     /**
@@ -37,9 +43,12 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
-        $ast = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
         $astCopy = $ast->cloneDeep();
-        Printer::doPrint($ast);
+
+        $printer = new Printer();
+        $printer->doPrint($ast);
 
         $this->assertEquals($astCopy, $ast);
     }
@@ -48,8 +57,11 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
-        $ast = Parser::parse($kitchenSink);
-        $printed = Printer::doPrint($ast);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
+
+        $printer = new Printer();
+        $printed = $printer->doPrint($ast);
 
         $expected = 'schema {
   query: QueryType

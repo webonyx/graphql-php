@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\Document;
@@ -10,6 +11,7 @@ use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 
@@ -21,12 +23,14 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     public function testDoesntAlterAST()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
 
         $astCopy = $ast->cloneDeep();
         $this->assertEquals($astCopy, $ast);
 
-        Printer::doPrint($ast);
+        $printer = new Printer();
+        $printer->doPrint($ast);
         $this->assertEquals($astCopy, $ast);
     }
 
@@ -35,8 +39,10 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testPrintsMinimalAst()
     {
-        $ast = new Field(['name' => new Name(['value' => 'foo'])]);
-        $this->assertEquals('foo', Printer::doPrint($ast));
+        $printer = new Printer();
+
+        $ast = new Field(new Name('foo'));
+        $this->assertEquals('foo', $printer->doPrint($ast));
     }
 
     /**
@@ -46,7 +52,8 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     {
         $badAst1 = new \ArrayObject(array('random' => 'Data'));
         try {
-            Printer::doPrint($badAst1);
+            $printer = new Printer();
+            $printer->doPrint($badAst1);
             $this->fail('Expected exception not thrown');
         } catch (\Exception $e) {
             $this->assertEquals('Invalid AST Node: {"random":"Data"}', $e->getMessage());
@@ -58,24 +65,27 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testCorrectlyPrintsOpsWithoutName()
     {
-        $queryAstShorthanded = Parser::parse('query { id, name }');
+        $parser = new Parser(new Lexer());
+        $queryAstShorthanded = $parser->parse('query { id, name }');
+
+        $printer = new Printer();
 
         $expected = '{
   id
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($queryAstShorthanded));
+        $this->assertEquals($expected, $printer->doPrint($queryAstShorthanded));
 
-        $mutationAst = Parser::parse('mutation { id, name }');
+        $mutationAst = $parser->parse('mutation { id, name }');
         $expected = 'mutation {
   id
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAst));
+        $this->assertEquals($expected, $printer->doPrint($mutationAst));
 
-        $queryAstWithArtifacts = Parser::parse(
+        $queryAstWithArtifacts = $parser->parse(
             'query ($foo: TestType) @testDirective { id, name }'
         );
         $expected = 'query ($foo: TestType) @testDirective {
@@ -83,9 +93,9 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($queryAstWithArtifacts));
+        $this->assertEquals($expected, $printer->doPrint($queryAstWithArtifacts));
 
-        $mutationAstWithArtifacts = Parser::parse(
+        $mutationAstWithArtifacts = $parser->parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
         );
         $expected = 'mutation ($foo: TestType) @testDirective {
@@ -93,7 +103,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        $this->assertEquals($expected, $printer->doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -102,9 +112,11 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     public function testPrintsKitchenSink()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $ast = $parser->parse($kitchenSink);
 
-        $printed = Printer::doPrint($ast);
+        $printer = new Printer();
+        $printed = $printer->doPrint($ast);
 
         $expected = <<<'EOT'
 query queryName($foo: ComplexType, $site: Site = MOBILE) {

@@ -6,6 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
@@ -35,7 +36,7 @@ class NoUndefinedVariables
         $variableNameDefined = [];
 
         return [
-            Node::OPERATION_DEFINITION => [
+            NodeType::OPERATION_DEFINITION => [
                 'enter' => function() use (&$variableNameDefined) {
                     $variableNameDefined = [];
                 },
@@ -44,13 +45,13 @@ class NoUndefinedVariables
 
                     foreach ($usages as $usage) {
                         $node = $usage['node'];
-                        $varName = $node->name->value;
+                        $varName = $node->getName()->getValue();
 
                         if (empty($variableNameDefined[$varName])) {
                             $context->reportError(new Error(
                                 self::undefinedVarMessage(
                                     $varName,
-                                    $operation->name ? $operation->name->value : null
+                                    $operation->getName() ? $operation->getName()->getValue() : null
                                 ),
                                 [ $node, $operation ]
                             ));
@@ -58,8 +59,8 @@ class NoUndefinedVariables
                     }
                 }
             ],
-            Node::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$variableNameDefined) {
-                $variableNameDefined[$def->variable->name->value] = true;
+            NodeType::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$variableNameDefined) {
+                $variableNameDefined[$def->getVariable()->getName()->getValue()] = true;
             }
         ];
     }

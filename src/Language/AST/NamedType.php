@@ -1,12 +1,39 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class NamedType extends Node implements Type
 {
-    public $kind = Node::NAMED_TYPE;
+    protected $kind = NodeType::NAMED_TYPE;
 
     /**
      * @var Name
      */
-    public $name;
+    protected $name;
+
+    public function __construct($name, $loc = null)
+    {
+        $this->name = $name;
+        $this->loc = $loc;
+    }
+
+    /**
+     * @return Name
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param Name $name
+     *
+     * @return NamedType
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
+    }
 }

@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Config;
@@ -173,7 +174,8 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, Executor::execute($BlogSchema, Parser::parse($request))->toArray());
+        $parser = new Parser(new Lexer());
+        $this->assertEquals($expected, Executor::execute($BlogSchema, $parser->parse($request))->toArray());
     }
 
     private function article($id)

@@ -1,13 +1,10 @@
 <?php
+
 namespace GraphQL\Error;
 
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 
-/**
- * Class SyntaxError
- * @package GraphQL\Error
- */
 class SyntaxError extends Error
 {
     /**
@@ -19,7 +16,7 @@ class SyntaxError extends Error
     {
         $location = $source->getLocation($position);
         $syntaxError =
-            "Syntax Error {$source->name} ({$location->line}:{$location->column}) $description\n\n" .
+            "Syntax Error {$source->getName()} ({$location->line}:{$location->column}) $description\n\n" .
             self::highlightSourceAtLocation($source, $location);
 
         parent::__construct($syntaxError, null, $source, [$position]);
@@ -33,13 +30,13 @@ class SyntaxError extends Error
     public static function highlightSourceAtLocation(Source $source, SourceLocation $location)
     {
         $line = $location->line;
-        $prevLineNum = (string)($line - 1);
-        $lineNum = (string)$line;
-        $nextLineNum = (string)($line + 1);
+        $prevLineNum = (string) ($line - 1);
+        $lineNum = (string) $line;
+        $nextLineNum = (string) ($line + 1);
         $padLen = mb_strlen($nextLineNum, 'UTF-8');
 
         $unicodeChars = json_decode('"\u2028\u2029"'); // Quick hack to get js-compatible representation of these chars
-        $lines = preg_split('/\r\n|[\n\r' . $unicodeChars . ']/su', $source->body);
+        $lines = preg_split('/\r\n|[\n\r' . $unicodeChars . ']/su', $source->getBody());
 
         $lpad = function($len, $str) {
             return str_pad($str, $len - mb_strlen($str, 'UTF-8') + 1, ' ', STR_PAD_LEFT);

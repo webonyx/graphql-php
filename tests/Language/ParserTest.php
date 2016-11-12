@@ -1,16 +1,15 @@
 <?php
+
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\IntValue;
-use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\OperationDefinition;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -26,7 +25,9 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     {
         $run = function($num, $str, $expectedMessage, $expectedPositions = null, $expectedLocations = null) {
             try {
-                Parser::parse($str);
+                $parser = new Parser(new Lexer());
+
+                $parser->parse($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);
             } catch (SyntaxError $e) {
                 $this->assertEquals($expectedMessage, $e->getMessage(), "Test case $num failed");
@@ -59,7 +60,9 @@ fragment MissingOn Type
     public function testParseProvidesUsefulErrorWhenUsingSource()
     {
         try {
-            Parser::parse(new Source('query', 'MyQuery.graphql'));
+            $parser = new Parser(new Lexer());
+
+            $parser->parse(new Source('query', 'MyQuery.graphql'));
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
             $this->assertEquals("Syntax Error MyQuery.graphql (1:6) Expected {, found <EOF>\n\n1: query\n        ^\n", $e->getMessage());
@@ -72,7 +75,9 @@ fragment MissingOn Type
     public function testParsesVariableInlineValues()
     {
         // Following line should not throw:
-        Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
+        $parser = new Parser(new Lexer());
+
+        $parser->parse('{ field(complex: { a: { b: [ $var ] } }) }');
     }
 
     /**
@@ -81,7 +86,8 @@ fragment MissingOn Type
     public function testParsesConstantDefaultValues()
     {
         try {
-            Parser::parse('query Foo($x: Complex = { a: { b: [ $var ] } }) { field }');
+            $parser = new Parser(new Lexer());
+            $parser->parse('query Foo($x: Complex = { a: { b: [ $var ] } }) { field }');
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
             $this->assertEquals(
@@ -97,7 +103,8 @@ fragment MissingOn Type
     public function testDoesNotAcceptFragmentsNamedOn()
     {
         $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:10) Unexpected Name "on"');
-        Parser::parse('fragment on on on { on }');
+        $parser = new Parser(new Lexer());
+        $parser->parse('fragment on on on { on }');
     }
 
     /**
@@ -106,7 +113,8 @@ fragment MissingOn Type
     public function testDoesNotAcceptFragmentSpreadOfOn()
     {
         $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:9) Expected Name, found }');
-        Parser::parse('{ ...on }');
+        $parser = new Parser(new Lexer());
+        $parser->parse('{ ...on }');
     }
 
     /**
@@ -115,7 +123,8 @@ fragment MissingOn Type
     public function testDoesNotAllowNullAsValue()
     {
         $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:39) Unexpected Name "null"');
-        Parser::parse('{ fieldWithNullableStringInput(input: null) }');
+        $parser = new Parser(new Lexer());
+        $parser->parse('{ fieldWithNullableStringInput(input: null) }');
     }
 
     /**
@@ -131,26 +140,27 @@ fragment MissingOn Type
         { field(arg: "Has a $char multi-byte character.") }
 HEREDOC;
 
-        $result = Parser::parse($query, ['noLocation' => true]);
+        $parser = new Parser(new Lexer(), ['noLocation' => true]);
+        $result = $parser->parse($query);
 
-        $expected = new SelectionSet([
-            'selections' => [
-                new Field([
-                    'name' => new Name(['value' => 'field']),
-                    'arguments' => [
-                        new Argument([
-                            'name' => new Name(['value' => 'arg']),
-                            'value' => new StringValue([
-                                'value' => "Has a $char multi-byte character."
-                            ])
-                        ])
-                    ],
-                    'directives' => []
-                ])
+        $expected = new SelectionSet(
+            [
+                new Field(
+                    new Name('field'),
+                    null,
+                    [
+                        new Argument(
+                            new Name('arg'),
+                            new StringValue(
+                                "Has a $char multi-byte character."
+                            )
+                        )
+                    ]
+                )
             ]
-        ]);
+        );
 
-        $this->assertEquals($expected, $result->definitions[0]->selectionSet);
+        $this->assertEquals($expected, $result->getDefinitions()[0]->getSelectionSet());
     }
 
     /**
@@ -160,7 +170,8 @@ HEREDOC;
     {
         // Following should not throw:
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $result = Parser::parse($kitchenSink);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($kitchenSink);
         $this->assertNotEmpty($result);
     }
 
@@ -185,7 +196,8 @@ HEREDOC;
             }
 
             // Expected not to throw:
-            $result = Parser::parse("query $keyword {
+            $parser = new Parser(new Lexer());
+            $result = $parser->parse("query $keyword {
   ... $fragmentName
   ... on $keyword { field }
 }
@@ -203,7 +215,8 @@ fragment $fragmentName on Type {
     public function testParsessAnonymousMutationOperations()
     {
         // Should not throw:
-        Parser::parse('
+        $parser = new Parser(new Lexer());
+        $parser->parse('
           mutation {
             mutationField
           }
@@ -216,7 +229,8 @@ fragment $fragmentName on Type {
     public function testParsesAnonymousSubscriptionOperations()
     {
         // Should not throw:
-        Parser::parse('
+        $parser = new Parser(new Lexer());
+        $parser->parse('
           subscription {
             subscriptionField
           }
@@ -229,7 +243,8 @@ fragment $fragmentName on Type {
     public function testParsesNamedMutationOperations()
     {
         // Should not throw:
-        Parser::parse('
+        $parser = new Parser(new Lexer());
+        $parser->parse('
           mutation Foo {
             mutationField
           }
@@ -241,7 +256,8 @@ fragment $fragmentName on Type {
      */
     public function testParsesNamedSubscriptionOperations()
     {
-        Parser::parse('
+        $parser = new Parser(new Lexer());
+        $parser->parse('
           subscription Foo {
             subscriptionField
           }
@@ -260,7 +276,8 @@ fragment $fragmentName on Type {
   }
 }
 ');
-        $result = Parser::parse($source);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($source);
 
         $loc = function($start, $end) use ($source) {
             return [
@@ -270,39 +287,39 @@ fragment $fragmentName on Type {
         };
 
         $expected = [
-            'kind' => Node::DOCUMENT,
+            'kind' => NodeType::DOCUMENT,
             'loc' => $loc(0, 41),
             'definitions' => [
                 [
-                    'kind' => Node::OPERATION_DEFINITION,
+                    'kind' => NodeType::OPERATION_DEFINITION,
                     'loc' => $loc(0, 40),
                     'operation' => 'query',
                     'name' => null,
                     'variableDefinitions' => null,
                     'directives' => [],
                     'selectionSet' => [
-                        'kind' => Node::SELECTION_SET,
+                        'kind' => NodeType::SELECTION_SET,
                         'loc' => $loc(0, 40),
                         'selections' => [
                             [
-                                'kind' => Node::FIELD,
+                                'kind' => NodeType::FIELD,
                                 'loc' => $loc(4, 38),
                                 'alias' => null,
                                 'name' => [
-                                    'kind' => Node::NAME,
+                                    'kind' => NodeType::NAME,
                                     'loc' => $loc(4, 8),
                                     'value' => 'node'
                                 ],
                                 'arguments' => [
                                     [
-                                        'kind' => Node::ARGUMENT,
+                                        'kind' => NodeType::ARGUMENT,
                                         'name' => [
-                                            'kind' => Node::NAME,
+                                            'kind' => NodeType::NAME,
                                             'loc' => $loc(9, 11),
                                             'value' => 'id'
                                         ],
                                         'value' => [
-                                            'kind' => Node::INT,
+                                            'kind' => NodeType::INT,
                                             'loc' => $loc(13, 14),
                                             'value' => '4'
                                         ],
@@ -311,15 +328,15 @@ fragment $fragmentName on Type {
                                 ],
                                 'directives' => [],
                                 'selectionSet' => [
-                                    'kind' => Node::SELECTION_SET,
+                                    'kind' => NodeType::SELECTION_SET,
                                     'loc' => $loc(16, 38),
                                     'selections' => [
                                         [
-                                            'kind' => Node::FIELD,
+                                            'kind' => NodeType::FIELD,
                                             'loc' => $loc(22, 24),
                                             'alias' => null,
                                             'name' => [
-                                                'kind' => Node::NAME,
+                                                'kind' => NodeType::NAME,
                                                 'loc' => $loc(22, 24),
                                                 'value' => 'id'
                                             ],
@@ -328,11 +345,11 @@ fragment $fragmentName on Type {
                                             'selectionSet' => null
                                         ],
                                         [
-                                            'kind' => Node::FIELD,
+                                            'kind' => NodeType::FIELD,
                                             'loc' => $loc(30, 34),
                                             'alias' => null,
                                             'name' => [
-                                                'kind' => Node::NAME,
+                                                'kind' => NodeType::NAME,
                                                 'loc' => $loc(30, 34),
                                                 'value' => 'name'
                                             ],
@@ -358,9 +375,10 @@ fragment $fragmentName on Type {
     public function testAllowsParsingWithoutSourceLocationInformation()
     {
         $source = new Source('{ id }');
-        $result = Parser::parse($source, ['noLocation' => true]);
+        $parser = new Parser(new Lexer(), ['noLocation' => true]);
+        $result = $parser->parse($source);
 
-        $this->assertEquals(null, $result->loc);
+        $this->assertEquals(null, $result->getLoc());
     }
 
     /**
@@ -369,8 +387,9 @@ fragment $fragmentName on Type {
     public function testConvertToArray()
     {
         $source = new Source('{ id }');
-        $result = Parser::parse($source);
-        $this->assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->loc));
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($source);
+        $this->assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->getLoc()));
     }
 
     /**
@@ -379,8 +398,9 @@ fragment $fragmentName on Type {
     public function testContainsReferencesToSource()
     {
         $source = new Source('{ id }');
-        $result = Parser::parse($source);
-        $this->assertEquals($source, $result->loc->source);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($source);
+        $this->assertEquals($source, $result->getLoc()->source);
     }
 
     /**
@@ -389,9 +409,10 @@ fragment $fragmentName on Type {
     public function testContainsReferencesToStartAndEndTokens()
     {
         $source = new Source('{ id }');
-        $result = Parser::parse($source);
-        $this->assertEquals('<SOF>', $result->loc->startToken->kind);
-        $this->assertEquals('<EOF>', $result->loc->endToken->kind);
+        $parser = new Parser(new Lexer());
+        $result = $parser->parse($source);
+        $this->assertEquals('<SOF>', $result->getLoc()->startToken->getKind());
+        $this->assertEquals('<EOF>', $result->getLoc()->endToken->getKind());
     }
 
     // Describe: parseValue
@@ -401,22 +422,24 @@ fragment $fragmentName on Type {
      */
     public function testParsesListValues()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
-            'kind' => Node::LST,
+            'kind' => NodeType::LST,
             'loc' => ['start' => 0, 'end' => 11],
             'values' => [
                 [
-                    'kind' => Node::INT,
+                    'kind' => NodeType::INT,
                     'loc' => ['start' => 1, 'end' => 4],
                     'value' => '123'
                 ],
                 [
-                    'kind' => Node::STRING,
+                    'kind' => NodeType::STRING,
                     'loc' => ['start' => 5, 'end' => 10],
                     'value' => 'abc'
                 ]
             ]
-        ], $this->nodeToArray(Parser::parseValue('[123 "abc"]')));
+        ], $this->nodeToArray($parser->parseValue('[123 "abc"]')));
     }
 
     // Describe: parseType
@@ -426,15 +449,17 @@ fragment $fragmentName on Type {
      */
     public function testParsesWellKnownTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
-            'kind' => Node::NAMED_TYPE,
+            'kind' => NodeType::NAMED_TYPE,
             'loc' => ['start' => 0, 'end' => 6],
             'name' => [
-                'kind' => Node::NAME,
+                'kind' => NodeType::NAME,
                 'loc' => ['start' => 0, 'end' => 6],
                 'value' => 'String'
             ]
-        ], $this->nodeToArray(Parser::parseType('String')));
+        ], $this->nodeToArray($parser->parseType('String')));
     }
 
     /**
@@ -442,15 +467,17 @@ fragment $fragmentName on Type {
      */
     public function testParsesCustomTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
-            'kind' => Node::NAMED_TYPE,
+            'kind' => NodeType::NAMED_TYPE,
             'loc' => ['start' => 0, 'end' => 6],
             'name' => [
-                'kind' => Node::NAME,
+                'kind' => NodeType::NAME,
                 'loc' => ['start' => 0, 'end' => 6],
                 'value' => 'MyType'
             ]
-        ], $this->nodeToArray(Parser::parseType('MyType')));
+        ], $this->nodeToArray($parser->parseType('MyType')));
     }
 
     /**
@@ -458,19 +485,21 @@ fragment $fragmentName on Type {
      */
     public function testParsesListTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
-            'kind' => Node::LIST_TYPE,
+            'kind' => NodeType::LIST_TYPE,
             'loc' => ['start' => 0, 'end' => 8],
             'type' => [
-                'kind' => Node::NAMED_TYPE,
+                'kind' => NodeType::NAMED_TYPE,
                 'loc' => ['start' => 1, 'end' => 7],
                 'name' => [
-                    'kind' => Node::NAME,
+                    'kind' => NodeType::NAME,
                     'loc' => ['start' => 1, 'end' => 7],
                     'value' => 'MyType'
                 ]
             ]
-        ], $this->nodeToArray(Parser::parseType('[MyType]')));
+        ], $this->nodeToArray($parser->parseType('[MyType]')));
     }
 
     /**
@@ -478,19 +507,21 @@ fragment $fragmentName on Type {
      */
     public function testParsesNonNullTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
-            'kind' => Node::NON_NULL_TYPE,
+            'kind' => NodeType::NON_NULL_TYPE,
             'loc' => ['start' => 0, 'end' => 7],
             'type' => [
-                'kind' => Node::NAMED_TYPE,
+                'kind' => NodeType::NAMED_TYPE,
                 'loc' => ['start' => 0, 'end' => 6],
                 'name' => [
-                    'kind' => Node::NAME,
+                    'kind' => NodeType::NAME,
                     'loc' => ['start' => 0, 'end' => 6],
                     'value' => 'MyType'
                 ]
             ]
-        ], $this->nodeToArray(Parser::parseType('MyType!')));
+        ], $this->nodeToArray($parser->parseType('MyType!')));
     }
 
     /**
@@ -498,23 +529,25 @@ fragment $fragmentName on Type {
      */
     public function testParsesNestedTypes()
     {
+        $parser = new Parser(new Lexer());
+
         $this->assertEquals([
-            'kind' => Node::LIST_TYPE,
+            'kind' => NodeType::LIST_TYPE,
             'loc' => ['start' => 0, 'end' => 9],
             'type' => [
-                'kind' => Node::NON_NULL_TYPE,
+                'kind' => NodeType::NON_NULL_TYPE,
                 'loc' => ['start' => 1, 'end' => 8],
                 'type' => [
-                    'kind' => Node::NAMED_TYPE,
+                    'kind' => NodeType::NAMED_TYPE,
                     'loc' => ['start' => 1, 'end' => 7],
                     'name' => [
-                        'kind' => Node::NAME,
+                        'kind' => NodeType::NAME,
                         'loc' => ['start' => 1, 'end' => 7],
                         'value' => 'MyType'
                     ]
                 ]
             ]
-        ], $this->nodeToArray(Parser::parseType('[MyType!]')));
+        ], $this->nodeToArray($parser->parseType('[MyType!]')));
     }
 
     /**

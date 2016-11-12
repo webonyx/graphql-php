@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Tests\Language;
 
 
@@ -14,13 +15,14 @@ class TestUtils
     public static function nodeToArray(Node $node)
     {
         $result = [
-            'kind' => $node->kind,
-            'loc' => self::locationToArray($node->loc)
+            'kind' => $node->getKind(),
+            'loc' => self::locationToArray($node->getLoc())
         ];
 
-        foreach (get_object_vars($node) as $prop => $propValue) {
-            if (isset($result[$prop]))
+        foreach ($node->toArray() as $prop => $propValue) {
+            if (isset($result[$prop])) {
                 continue;
+            }
 
             if (is_array($propValue)) {
                 $tmp = [];

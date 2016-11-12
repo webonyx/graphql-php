@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language;
 
 /**
@@ -10,6 +11,7 @@ class Token
     // Each kind of token.
     const SOF = '<SOF>';
     const EOF = '<EOF>';
+
     const BANG = '!';
     const DOLLAR = '$';
     const PAREN_L = '(';
@@ -23,6 +25,7 @@ class Token
     const BRACE_L = '{';
     const PIPE = '|';
     const BRACE_R = '}';
+    
     const NAME = 'Name';
     const INT = 'Int';
     const FLOAT = 'Float';
@@ -30,77 +33,44 @@ class Token
     const COMMENT = 'Comment';
 
     /**
-     * @param $kind
-     * @return mixed
-     */
-    public static function getKindDescription($kind)
-    {
-        trigger_error('Deprecated as of 16.10.2016 ($kind itself contains description string now)', E_USER_DEPRECATED);
-
-        $description = [];
-        $description[self::SOF] = '<SOF>';
-        $description[self::EOF] = '<EOF>';
-        $description[self::BANG] = '!';
-        $description[self::DOLLAR] = '$';
-        $description[self::PAREN_L] = '(';
-        $description[self::PAREN_R] = ')';
-        $description[self::SPREAD] = '...';
-        $description[self::COLON] = ':';
-        $description[self::EQUALS] = '=';
-        $description[self::AT] = '@';
-        $description[self::BRACKET_L] = '[';
-        $description[self::BRACKET_R] = ']';
-        $description[self::BRACE_L] = '{';
-        $description[self::PIPE] = '|';
-        $description[self::BRACE_R] = '}';
-        $description[self::NAME] = 'Name';
-        $description[self::INT] = 'Int';
-        $description[self::FLOAT] = 'Float';
-        $description[self::STRING] = 'String';
-        $description[self::COMMENT] = 'Comment';
-
-        return $description[$kind];
-    }
-
-    /**
      * The kind of Token (see one of constants above).
      *
      * @var string
      */
-    public $kind;
+    protected $kind;
 
     /**
      * The character offset at which this Node begins.
      *
      * @var int
      */
-    public $start;
+    protected $start;
 
     /**
      * The character offset at which this Node ends.
      *
      * @var int
      */
-    public $end;
+    protected $end;
 
     /**
      * The 1-indexed line number on which this Token appears.
      *
      * @var int
      */
-    public $line;
+    protected $line;
 
     /**
      * The 1-indexed column number at which this Token begins.
      *
      * @var int
      */
-    public $column;
+    protected $column;
 
     /**
      * @var string|null
      */
-    public $value;
+    protected $value;
 
     /**
      * Tokens exist as nodes in a double-linked-list amongst all tokens
@@ -109,12 +79,12 @@ class Token
      *
      * @var Token
      */
-    public $prev;
+    protected $prev;
 
     /**
      * @var Token
      */
-    public $next;
+    protected $next;
 
     /**
      * Token constructor.
@@ -128,14 +98,14 @@ class Token
      */
     public function __construct($kind, $start, $end, $line, $column, Token $previous = null, $value = null)
     {
-        $this->kind = $kind;
-        $this->start = (int) $start;
-        $this->end = (int) $end;
-        $this->line = (int) $line;
-        $this->column = (int) $column;
-        $this->prev = $previous;
-        $this->next = null;
-        $this->value = $value;
+        $this->setKind($kind);
+        $this->setStart((int) $start);
+        $this->setEnd((int) $end);
+        $this->setLine((int) $line);
+        $this->setColumn((int) $column);
+        $this->setPrev($previous);
+        $this->setNext(null);
+        $this->setValue($value);
     }
 
     /**
@@ -143,7 +113,7 @@ class Token
      */
     public function getDescription()
     {
-        return $this->kind . ($this->value ? ' "' . $this->value  . '"' : '');
+        return $this->getKind() . ($this->getValue() ? ' "' . $this->getValue()  . '"' : '');
     }
 
     /**
@@ -152,10 +122,172 @@ class Token
     public function toArray()
     {
         return [
-            'kind' => $this->kind,
-            'value' => $this->value,
-            'line' => $this->line,
-            'column' => $this->column
+            'kind' => $this->getKind(),
+            'value' => $this->getValue(),
+            'line' => $this->getLine(),
+            'column' => $this->getColumn(),
+            'start' => $this->getStart(),
+            'end' => $this->getEnd()
         ];
+    }
+
+    /**
+     * @return string
+     */
+    public function getKind()
+    {
+        return $this->kind;
+    }
+
+    /**
+     * @param string $kind
+     *
+     * @return Token
+     */
+    public function setKind($kind)
+    {
+        $this->kind = $kind;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getStart()
+    {
+        return $this->start;
+    }
+
+    /**
+     * @param int $start
+     *
+     * @return Token
+     */
+    public function setStart($start)
+    {
+        $this->start = $start;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getEnd()
+    {
+        return $this->end;
+    }
+
+    /**
+     * @param int $end
+     *
+     * @return Token
+     */
+    public function setEnd($end)
+    {
+        $this->end = $end;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLine()
+    {
+        return $this->line;
+    }
+
+    /**
+     * @param int $line
+     *
+     * @return Token
+     */
+    public function setLine($line)
+    {
+        $this->line = $line;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getColumn()
+    {
+        return $this->column;
+    }
+
+    /**
+     * @param int $column
+     *
+     * @return Token
+     */
+    public function setColumn($column)
+    {
+        $this->column = $column;
+
+        return $this;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getValue()
+    {
+        return $this->value;
+    }
+
+    /**
+     * @param null|string $value
+     *
+     * @return Token
+     */
+    public function setValue($value)
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
+    /**
+     * @return Token
+     */
+    public function getPrev()
+    {
+        return $this->prev;
+    }
+
+    /**
+     * @param Token $prev
+     *
+     * @return Token
+     */
+    public function setPrev($prev)
+    {
+        $this->prev = $prev;
+
+        return $this;
+    }
+
+    /**
+     * @return Token
+     */
+    public function getNext()
+    {
+        return $this->next;
+    }
+
+    /**
+     * @param Token $next
+     *
+     * @return Token
+     */
+    public function setNext($next)
+    {
+        $this->next = $next;
+
+        return $this;
     }
 }

@@ -44,7 +44,7 @@ class BooleanType extends ScalarType
     public function parseLiteral($ast)
     {
         if ($ast instanceof BooleanValue) {
-            return (bool) $ast->value;
+            return (bool) $ast->getValue();
         }
         return null;
     }

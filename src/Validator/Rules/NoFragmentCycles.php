@@ -13,6 +13,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
 use GraphQL\Utils;
 use GraphQL\Validator\ValidationContext;
@@ -44,11 +45,11 @@ class NoFragmentCycles
         $this->spreadPathIndexByName = [];
 
         return [
-            Node::OPERATION_DEFINITION => function () {
+            NodeType::OPERATION_DEFINITION => function () {
                 return Visitor::skipNode();
             },
-            Node::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
-                if (!isset($this->visitedFrags[$node->name->value])) {
+            NodeType::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
+                if (!isset($this->visitedFrags[$node->getName()->getValue()])) {
                     $this->detectCycleRecursive($node, $context);
                 }
                 return Visitor::skipNode();
@@ -58,7 +59,7 @@ class NoFragmentCycles
 
     private function detectCycleRecursive(FragmentDefinition $fragment, ValidationContext $context)
     {
-        $fragmentName = $fragment->name->value;
+        $fragmentName = $fragment->getName()->getValue();
         $this->visitedFrags[$fragmentName] = true;
 
         $spreadNodes = $context->getFragmentSpreads($fragment);
@@ -71,7 +72,7 @@ class NoFragmentCycles
 
         for ($i = 0; $i < count($spreadNodes); $i++) {
             $spreadNode = $spreadNodes[$i];
-            $spreadName = $spreadNode->name->value;
+            $spreadName = $spreadNode->getName()->getValue();
             $cycleIndex = isset($this->spreadPathIndexByName[$spreadName]) ? $this->spreadPathIndexByName[$spreadName] : null;
 
             if ($cycleIndex === null) {
@@ -97,7 +98,7 @@ class NoFragmentCycles
                     self::cycleErrorMessage(
                         $spreadName,
                         Utils::map($cyclePath, function ($s) {
-                            return $s->name->value;
+                            return $s->getName()->getValue();
                         })
                     ),
                     $nodes

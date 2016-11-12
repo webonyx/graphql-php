@@ -6,6 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinition;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -27,26 +28,26 @@ class NoUnusedFragments
         $this->fragmentDefs = [];
 
         return [
-            Node::OPERATION_DEFINITION => function($node) {
+            NodeType::OPERATION_DEFINITION => function($node) {
                 $this->operationDefs[] = $node;
                 return Visitor::skipNode();
             },
-            Node::FRAGMENT_DEFINITION => function(FragmentDefinition $def) {
+            NodeType::FRAGMENT_DEFINITION => function(FragmentDefinition $def) {
                 $this->fragmentDefs[] = $def;
                 return Visitor::skipNode();
             },
-            Node::DOCUMENT => [
+            NodeType::DOCUMENT => [
                 'leave' => function() use ($context) {
                     $fragmentNameUsed = [];
 
                     foreach ($this->operationDefs as $operation) {
                         foreach ($context->getRecursivelyReferencedFragments($operation) as $fragment) {
-                            $fragmentNameUsed[$fragment->name->value] = true;
+                            $fragmentNameUsed[$fragment->getName()->getValue()] = true;
                         }
                     }
 
                     foreach ($this->fragmentDefs as $fragmentDef) {
-                        $fragName = $fragmentDef->name->value;
+                        $fragName = $fragmentDef->getName()->getValue();
                         if (empty($fragmentNameUsed[$fragName])) {
                             $context->reportError(new Error(
                                 self::unusedFragMessage($fragName),

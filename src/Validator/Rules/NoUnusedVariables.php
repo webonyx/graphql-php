@@ -4,6 +4,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\Messages;
@@ -25,22 +26,22 @@ class NoUnusedVariables
         $this->variableDefs = [];
 
         return [
-            Node::OPERATION_DEFINITION => [
+            NodeType::OPERATION_DEFINITION => [
                 'enter' => function() {
                     $this->variableDefs = [];
                 },
                 'leave' => function(OperationDefinition $operation) use ($context) {
                     $variableNameUsed = [];
                     $usages = $context->getRecursiveVariableUsages($operation);
-                    $opName = $operation->name ? $operation->name->value : null;
+                    $opName = $operation->getName() ? $operation->getName()->getValue() : null;
 
                     foreach ($usages as $usage) {
                         $node = $usage['node'];
-                        $variableNameUsed[$node->name->value] = true;
+                        $variableNameUsed[$node->getName()->getValue()] = true;
                     }
 
                     foreach ($this->variableDefs as $variableDef) {
-                        $variableName = $variableDef->variable->name->value;
+                        $variableName = $variableDef->getVariable()->getName()->getValue();
 
                         if (empty($variableNameUsed[$variableName])) {
                             $context->reportError(new Error(
@@ -51,7 +52,7 @@ class NoUnusedVariables
                     }
                 }
             ],
-            Node::VARIABLE_DEFINITION => function($def) {
+            NodeType::VARIABLE_DEFINITION => function($def) {
                 $this->variableDefs[] = $def;
             }
         ];

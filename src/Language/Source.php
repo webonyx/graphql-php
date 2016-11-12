@@ -1,22 +1,25 @@
 <?php
+
 namespace GraphQL\Language;
+
+use GraphQL\Language\AST\Location;
 
 class Source
 {
     /**
      * @var string
      */
-    public $body;
+    protected $body;
 
     /**
      * @var int
      */
-    public $length;
+    protected $length;
 
     /**
      * @var string
      */
-    public $name;
+    protected $name;
 
     public function __construct($body, $name = null)
     {
@@ -26,7 +29,8 @@ class Source
     }
 
     /**
-     * @param $position
+     * @param Location $position
+     *
      * @return SourceLocation
      */
     public function getLocation($position)
@@ -36,7 +40,7 @@ class Source
 
         $utfChars = json_decode('"\u2028\u2029"');
         $lineRegexp = '/\r\n|[\n\r'.$utfChars.']/su';
-        $matches = array();
+        $matches = [];
         preg_match_all($lineRegexp, mb_substr($this->body, 0, $position, 'UTF-8'), $matches, PREG_OFFSET_CAPTURE);
 
         foreach ($matches[0] as $index => $match) {
@@ -45,5 +49,65 @@ class Source
         }
 
         return new SourceLocation($line, $column);
+    }
+
+    /**
+     * @return string
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    /**
+     * @param string $body
+     *
+     * @return Source
+     */
+    public function setBody($body)
+    {
+        $this->body = $body;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getLength()
+    {
+        return $this->length;
+    }
+
+    /**
+     * @param int $length
+     *
+     * @return Source
+     */
+    public function setLength($length)
+    {
+        $this->length = $length;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return Source
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+
+        return $this;
     }
 }

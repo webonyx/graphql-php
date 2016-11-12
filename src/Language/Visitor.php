@@ -1,8 +1,19 @@
 <?php
+
 namespace GraphQL\Language;
 
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Utils\TypeInfo;
+
+class VisitorOperation
+{
+    public $doBreak;
+
+    public $doContinue;
+
+    public $removeNode;
+}
 
 class Visitor
 {
@@ -38,46 +49,46 @@ class Visitor
         return $r;
     }
 
-    public static $visitorKeys = array(
-        Node::NAME => [],
-        Node::DOCUMENT => ['definitions'],
-        Node::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
-        Node::VARIABLE_DEFINITION => ['variable', 'type', 'defaultValue'],
-        Node::VARIABLE => ['name'],
-        Node::SELECTION_SET => ['selections'],
-        Node::FIELD => ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
-        Node::ARGUMENT => ['name', 'value'],
-        Node::FRAGMENT_SPREAD => ['name', 'directives'],
-        Node::INLINE_FRAGMENT => ['typeCondition', 'directives', 'selectionSet'],
-        Node::FRAGMENT_DEFINITION => ['name', 'typeCondition', 'directives', 'selectionSet'],
+    public static $visitorKeys = [
+        NodeType::NAME => [],
+        NodeType::DOCUMENT => ['definitions'],
+        NodeType::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
+        NodeType::VARIABLE_DEFINITION => ['variable', 'type', 'defaultValue'],
+        NodeType::VARIABLE => ['name'],
+        NodeType::SELECTION_SET => ['selections'],
+        NodeType::FIELD => ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
+        NodeType::ARGUMENT => ['name', 'value'],
+        NodeType::FRAGMENT_SPREAD => ['name', 'directives'],
+        NodeType::INLINE_FRAGMENT => ['typeCondition', 'directives', 'selectionSet'],
+        NodeType::FRAGMENT_DEFINITION => ['name', 'typeCondition', 'directives', 'selectionSet'],
 
-        Node::INT => [],
-        Node::FLOAT => [],
-        Node::STRING => [],
-        Node::BOOLEAN => [],
-        Node::ENUM => [],
-        Node::LST => ['values'],
-        Node::OBJECT => ['fields'],
-        Node::OBJECT_FIELD => ['name', 'value'],
-        Node::DIRECTIVE => ['name', 'arguments'],
-        Node::NAMED_TYPE => ['name'],
-        Node::LIST_TYPE => ['type'],
-        Node::NON_NULL_TYPE => ['type'],
+        NodeType::INT => [],
+        NodeType::FLOAT => [],
+        NodeType::STRING => [],
+        NodeType::BOOLEAN => [],
+        NodeType::ENUM => [],
+        NodeType::LST => ['values'],
+        NodeType::OBJECT => ['fields'],
+        NodeType::OBJECT_FIELD => ['name', 'value'],
+        NodeType::DIRECTIVE => ['name', 'arguments'],
+        NodeType::NAMED_TYPE => ['name'],
+        NodeType::LIST_TYPE => ['type'],
+        NodeType::NON_NULL_TYPE => ['type'],
 
-        Node::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
-        Node::OPERATION_TYPE_DEFINITION => ['type'],
-        Node::SCALAR_TYPE_DEFINITION => ['name', 'directives'],
-        Node::OBJECT_TYPE_DEFINITION => ['name', 'interfaces', 'directives', 'fields'],
-        Node::FIELD_DEFINITION => ['name', 'arguments', 'type', 'directives'],
-        Node::INPUT_VALUE_DEFINITION => ['name', 'type', 'defaultValue', 'directives'],
-        Node::INTERFACE_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
-        Node::UNION_TYPE_DEFINITION => [ 'name', 'directives', 'types' ],
-        Node::ENUM_TYPE_DEFINITION => [ 'name', 'directives', 'values' ],
-        Node::ENUM_VALUE_DEFINITION => [ 'name', 'directives' ],
-        Node::INPUT_OBJECT_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
-        Node::TYPE_EXTENSION_DEFINITION => [ 'definition' ],
-        Node::DIRECTIVE_DEFINITION => [ 'name', 'arguments', 'locations' ]
-    );
+        NodeType::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
+        NodeType::OPERATION_TYPE_DEFINITION => ['type'],
+        NodeType::SCALAR_TYPE_DEFINITION => ['name', 'directives'],
+        NodeType::OBJECT_TYPE_DEFINITION => ['name', 'interfaces', 'directives', 'fields'],
+        NodeType::FIELD_DEFINITION => ['name', 'arguments', 'type', 'directives'],
+        NodeType::INPUT_VALUE_DEFINITION => ['name', 'type', 'defaultValue', 'directives'],
+        NodeType::INTERFACE_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
+        NodeType::UNION_TYPE_DEFINITION => [ 'name', 'directives', 'types' ],
+        NodeType::ENUM_TYPE_DEFINITION => [ 'name', 'directives', 'values' ],
+        NodeType::ENUM_VALUE_DEFINITION => [ 'name', 'directives' ],
+        NodeType::INPUT_OBJECT_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
+        NodeType::TYPE_EXTENSION_DEFINITION => [ 'definition' ],
+        NodeType::DIRECTIVE_DEFINITION => [ 'name', 'arguments', 'locations' ]
+    ];
 
     /**
      * visit() will walk through an AST using a depth first traversal, calling
@@ -213,7 +224,12 @@ class Visitor
                             if (is_array($node)) {
                                 $node[$editKey] = $editValue;
                             } else {
-                                $node->{$editKey} = $editValue;
+                                $keyFunc = 'set'.ucfirst($editKey);
+                                if (method_exists($node, $keyFunc)) {
+                                    $node->{$keyFunc}($editValue);
+                                } else {
+                                    $node->{$editKey} = $editValue;
+                                }
                             }
                         }
                     }
@@ -225,7 +241,20 @@ class Visitor
                 $stack = $stack['prev'];
             } else {
                 $key = $parent ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
-                $node = $parent ? (is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
+
+                if (! $parent) {
+                    $node = $newRoot;
+                } elseif (is_array($parent)) {
+                    $node = $parent[$key];
+                } else {
+                    $keyFunc = 'get'.ucfirst($key);
+                    if (method_exists($parent, $keyFunc)) {
+                        $node = $parent->{$keyFunc}();
+                    } else {
+                        $node = $parent->{$key};
+                    }
+                }
+
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
@@ -240,7 +269,7 @@ class Visitor
                     throw new \Exception('Invalid AST Node: ' . json_encode($node));
                 }
 
-                $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
+                $visitFn = self::getVisitFn($visitor, $node->getKind(), $isLeaving);
 
                 if ($visitFn) {
                     $result = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
@@ -279,16 +308,16 @@ class Visitor
             }
 
             if (!$isLeaving) {
-                $stack = array(
+                $stack = [
                     'inArray' => $inArray,
                     'index' => $index,
                     'keys' => $keys,
                     'edits' => $edits,
                     'prev' => $stack
-                );
+                ];
                 $inArray = is_array($node);
 
-                $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?: array();
+                $keys = ($inArray ? $node : $visitorKeys[$node->getKind()]) ?: [];
                 $index = -1;
                 $edits = [];
                 if ($parent) {
@@ -319,7 +348,7 @@ class Visitor
             'enter' => function ($node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if (empty($skipping[$i])) {
-                        $fn = self::getVisitFn($visitors[$i], $node->kind, /* isLeaving */ false);
+                        $fn = self::getVisitFn($visitors[$i], $node->getKind(), /* isLeaving */ false);
 
                         if ($fn) {
                             $result = call_user_func_array($fn, func_get_args());
@@ -342,7 +371,7 @@ class Visitor
             'leave' => function ($node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if (empty($skipping[$i])) {
-                        $fn = self::getVisitFn($visitors[$i], $node->kind, /* isLeaving */ true);
+                        $fn = self::getVisitFn($visitors[$i], $node->getKind(), /* isLeaving */ true);
 
                         if ($fn) {
                             $result = call_user_func_array($fn, func_get_args());
@@ -373,7 +402,7 @@ class Visitor
         return [
             'enter' => function ($node) use ($typeInfo, $visitor) {
                 $typeInfo->enter($node);
-                $fn = self::getVisitFn($visitor, $node->kind, false);
+                $fn = self::getVisitFn($visitor, $node->getKind(), false);
 
                 if ($fn) {
                     $result = call_user_func_array($fn, func_get_args());
@@ -388,7 +417,7 @@ class Visitor
                 return null;
             },
             'leave' => function ($node) use ($typeInfo, $visitor) {
-                $fn = self::getVisitFn($visitor, $node->kind, true);
+                $fn = self::getVisitFn($visitor, $node->getKind(), true);
                 $result = $fn ? call_user_func_array($fn, func_get_args()) : null;
                 $typeInfo->leave($node);
                 return $result;
@@ -445,14 +474,4 @@ class Visitor
         }
         return null;
     }
-}
-
-
-class VisitorOperation
-{
-    public $doBreak;
-
-    public $doContinue;
-
-    public $removeNode;
 }

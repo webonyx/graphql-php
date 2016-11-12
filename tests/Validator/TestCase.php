@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\GraphQL;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
@@ -308,16 +309,18 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
     function expectValid($schema, $rules, $queryString)
     {
+        $parser = new Parser(new Lexer());
         $this->assertEquals(
             [],
-            DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
+            DocumentValidator::validate($schema, $parser->parse($queryString), $rules),
             'Should validate'
         );
     }
 
     function expectInvalid($schema, $rules, $queryString, $expectedErrors)
     {
-        $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
+        $parser = new Parser(new Lexer());
+        $errors = DocumentValidator::validate($schema, $parser->parse($queryString), $rules);
 
         $this->assertNotEmpty($errors, 'GraphQL should not validate');
         $this->assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));

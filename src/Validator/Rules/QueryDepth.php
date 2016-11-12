@@ -6,6 +6,7 @@ use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Validator\ValidationContext;
@@ -49,7 +50,7 @@ class QueryDepth extends AbstractQuerySecurity
         return $this->invokeIfNeeded(
             $context,
             [
-                Node::OPERATION_DEFINITION => [
+                NodeType::OPERATION_DEFINITION => [
                     'leave' => function (OperationDefinition $operationDefinition) use ($context) {
                         $maxDepth = $this->fieldDepth($operationDefinition);
 
@@ -71,8 +72,8 @@ class QueryDepth extends AbstractQuerySecurity
 
     private function fieldDepth($node, $depth = 0, $maxDepth = 0)
     {
-        if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSet) {
-            foreach ($node->selectionSet->selections as $childNode) {
+        if (method_exists($node, 'getSelectionSet') && $node->getSelectionSet() instanceof SelectionSet) {
+            foreach ($node->getSelectionSet()->getSelections() as $childNode) {
                 $maxDepth = $this->nodeDepth($childNode, $depth, $maxDepth);
             }
         }
@@ -82,11 +83,11 @@ class QueryDepth extends AbstractQuerySecurity
 
     private function nodeDepth(Node $node, $depth = 0, $maxDepth = 0)
     {
-        switch ($node->kind) {
-            case Node::FIELD:
+        switch ($node->getKind()) {
+            case NodeType::FIELD:
                 /* @var Field $node */
                 // node has children?
-                if (null !== $node->selectionSet) {
+                if (null !== $node->getSelectionSet()) {
                     // update maxDepth if needed
                     if ($depth > $maxDepth) {
                         $maxDepth = $depth;
@@ -95,15 +96,15 @@ class QueryDepth extends AbstractQuerySecurity
                 }
                 break;
 
-            case Node::INLINE_FRAGMENT:
+            case NodeType::INLINE_FRAGMENT:
                 /* @var InlineFragment $node */
                 // node has children?
-                if (null !== $node->selectionSet) {
+                if (null !== $node->getSelectionSet()) {
                     $maxDepth = $this->fieldDepth($node, $depth, $maxDepth);
                 }
                 break;
 
-            case Node::FRAGMENT_SPREAD:
+            case NodeType::FRAGMENT_SPREAD:
                 /* @var FragmentSpread $node */
                 $fragment = $this->getFragment($node);
 

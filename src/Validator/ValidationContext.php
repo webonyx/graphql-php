@@ -3,6 +3,7 @@ namespace GraphQL\Validator;
 
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\HasSelectionSet;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\Visitor;
@@ -131,9 +132,9 @@ class ValidationContext
         $fragments = $this->fragments;
         if (!$fragments) {
             $this->fragments = $fragments =
-                array_reduce($this->getDocument()->definitions, function($frags, $statement) {
-                    if ($statement->kind === Node::FRAGMENT_DEFINITION) {
-                        $frags[$statement->name->value] = $statement;
+                array_reduce($this->getDocument()->getDefinitions(), function($frags, $statement) {
+                    if ($statement->getKind() === NodeType::FRAGMENT_DEFINITION) {
+                        $frags[$statement->getName()->getValue()] = $statement;
                     }
                     return $frags;
                 }, []);
@@ -150,16 +151,16 @@ class ValidationContext
         $spreads = isset($this->fragmentSpreads[$node]) ? $this->fragmentSpreads[$node] : null;
         if (!$spreads) {
             $spreads = [];
-            $setsToVisit = [$node->selectionSet];
+            $setsToVisit = [$node->getSelectionSet()];
             while (!empty($setsToVisit)) {
                 $set = array_pop($setsToVisit);
 
-                for ($i = 0; $i < count($set->selections); $i++) {
-                    $selection = $set->selections[$i];
-                    if ($selection->kind === Node::FRAGMENT_SPREAD) {
+                for ($i = 0; $i < count($set->getSelections()); $i++) {
+                    $selection = $set->getSelections()[$i];
+                    if ($selection->getKind() === NodeType::FRAGMENT_SPREAD) {
                         $spreads[] = $selection;
-                    } else if ($selection->selectionSet) {
-                        $setsToVisit[] = $selection->selectionSet;
+                    } else if ($selection->getSelectionSet()) {
+                        $setsToVisit[] = $selection->getSelectionSet();
                     }
                 }
             }
@@ -184,7 +185,7 @@ class ValidationContext
                 $node = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 for ($i = 0; $i < count($spreads); $i++) {
-                    $fragName = $spreads[$i]->name->value;
+                    $fragName = $spreads[$i]->getName()->getValue();
 
                     if (empty($collectedNames[$fragName])) {
                         $collectedNames[$fragName] = true;
@@ -213,10 +214,10 @@ class ValidationContext
             $newUsages = [];
             $typeInfo = new TypeInfo($this->schema);
             Visitor::visit($node, Visitor::visitWithTypeInfo($typeInfo, [
-                Node::VARIABLE_DEFINITION => function () {
+                NodeType::VARIABLE_DEFINITION => function () {
                     return false;
                 },
-                Node::VARIABLE => function (Variable $variable) use (&$newUsages, $typeInfo) {
+                NodeType::VARIABLE => function (Variable $variable) use (&$newUsages, $typeInfo) {
                     $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
                 }
             ]));

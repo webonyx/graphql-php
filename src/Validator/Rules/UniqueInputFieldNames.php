@@ -3,6 +3,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
@@ -23,7 +24,7 @@ class UniqueInputFieldNames
         $this->knownNameStack = [];
 
         return [
-            Node::OBJECT => [
+            NodeType::OBJECT => [
                 'enter' => function() {
                     $this->knownNameStack[] = $this->knownNames;
                     $this->knownNames = [];
@@ -32,16 +33,16 @@ class UniqueInputFieldNames
                     $this->knownNames = array_pop($this->knownNameStack);
                 }
             ],
-            Node::OBJECT_FIELD => function(ObjectField $node) use ($context) {
-                $fieldName = $node->name->value;
+            NodeType::OBJECT_FIELD => function(ObjectField $node) use ($context) {
+                $fieldName = $node->getName()->getValue();
 
                 if (!empty($this->knownNames[$fieldName])) {
                     $context->reportError(new Error(
                         self::duplicateInputFieldMessage($fieldName),
-                        [ $this->knownNames[$fieldName], $node->name ]
+                        [ $this->knownNames[$fieldName], $node->getName() ]
                     ));
                 } else {
-                    $this->knownNames[$fieldName] = $node->name;
+                    $this->knownNames[$fieldName] = $node->getName();
                 }
                 return Visitor::skipNode();
             }
