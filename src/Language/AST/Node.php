@@ -31,6 +31,7 @@ abstract class Node
 
     // Values
 
+    const NULL = 'NullValue';
     const INT = 'IntValue';
     const FLOAT = 'FloatValue';
     const STRING = 'StringValue';

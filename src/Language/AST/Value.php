@@ -10,6 +10,7 @@ export type Value = Variable
 | EnumValue
 | ListValue
 | ObjectValue
+| NullValue
  */
 interface Value
 {

@@ -9,6 +9,7 @@ use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\OperationDefinition;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\Parser;
@@ -112,10 +113,26 @@ fragment MissingOn Type
     /**
      * @it does not allow null as value
      */
-    public function testDoesNotAllowNullAsValue()
+    public function testAllowsNullAsValue()
     {
-        $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:39) Unexpected Name "null"');
-        Parser::parse('{ fieldWithNullableStringInput(input: null) }');
+        $expected = new SelectionSet([
+            'selections' => [
+                new Field([
+                    'name' => new Name(['value' => 'fieldWithNullableStringInput']),
+                    'arguments' => [
+                        new Argument([
+                            'name' => new Name(['value' => 'input']),
+                            'value' => new NullValue()
+                        ])
+                    ],
+                    'directives' => []
+                ])
+            ]
+        ]);
+
+        $result = Parser::parse('{ fieldWithNullableStringInput(input: null) }', ['noLocation' => true]);
+
+        $this->assertEquals($expected, $result->definitions[0]->selectionSet);
     }
 
     /**
