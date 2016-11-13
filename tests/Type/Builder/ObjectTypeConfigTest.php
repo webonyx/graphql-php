@@ -20,14 +20,12 @@ class ObjectTypeConfigTest extends \PHPUnit_Framework_TestCase
         $isTypeOf = function () {
             return true;
         };
-        $isTypeOf = function () {
-            return [];
-        };
 
         $config = ObjectTypeConfig::create()
             ->name('TypeName')
-            ->addField('field1', Type::string(), $field1Resolver, 'description field1', $args)
+            ->addField('field1', Type::string(), 'description field1', $args, $field1Resolver)
             ->addField('field2', Type::nonNull(Type::string()))
+            ->addDeprecatedField('deprecatedField', Type::string(), 'This field is deprecated.')
             ->description('My new Object')
             ->isTypeOf($isTypeOf)
             ->resolveField();
@@ -57,7 +55,6 @@ class ObjectTypeConfigTest extends \PHPUnit_Framework_TestCase
                             ],
                         ],
                         'complexity' => null,
-                        'deprecationReason' => null,
                     ],
                     [
                         'name' => 'field2',
@@ -65,8 +62,14 @@ class ObjectTypeConfigTest extends \PHPUnit_Framework_TestCase
                         'description' => null,
                         'resolve' => null,
                         'complexity' => null,
-                        'deprecationReason' => null,
-                        'args' => [],
+                    ],
+                    [
+                        'name' => 'deprecatedField',
+                        'type' => Type::string(),
+                        'description' => null,
+                        'resolve' => null,
+                        'complexity' => null,
+                        'deprecationReason' => 'This field is deprecated.',
                     ],
                 ],
                 'isTypeOf' => $isTypeOf,
