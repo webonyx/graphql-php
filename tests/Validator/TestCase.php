@@ -309,18 +309,16 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
     function expectValid($schema, $rules, $queryString)
     {
-        $parser = new Parser(new Lexer());
         $this->assertEquals(
             [],
-            DocumentValidator::validate($schema, $parser->parse($queryString), $rules),
+            DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
             'Should validate'
         );
     }
 
     function expectInvalid($schema, $rules, $queryString, $expectedErrors)
     {
-        $parser = new Parser(new Lexer());
-        $errors = DocumentValidator::validate($schema, $parser->parse($queryString), $rules);
+        $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
 
         $this->assertNotEmpty($errors, 'GraphQL should not validate');
         $this->assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));

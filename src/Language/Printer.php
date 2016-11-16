@@ -41,7 +41,17 @@ use GraphQL\Language\AST\VariableDefinition;
 
 class Printer
 {
-    public function doPrint($ast)
+    public static function doPrint($ast)
+    {
+        static $instance;
+        $instance = $instance ?: new static();
+        return $instance->printAST($ast);
+    }
+
+    protected function __construct()
+    {}
+
+    public function printAST($ast)
     {
         return Visitor::visit($ast, [
             'leave' => [

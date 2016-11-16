@@ -5,6 +5,7 @@ use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\NonNullType;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
@@ -309,7 +310,7 @@ class TypeInfo
         $schema = $this->schema;
 
         switch ($node->kind) {
-            case Node::SELECTION_SET:
+            case NodeType::SELECTION_SET:
                 $namedType = Type::getNamedType($this->getType());
                 $compositeType = null;
                 if (Type::isCompositeType($namedType)) {
@@ -319,7 +320,7 @@ class TypeInfo
                 $this->parentTypeStack[] = $compositeType; // push
                 break;
 
-            case Node::FIELD:
+            case NodeType::FIELD:
                 $parentType = $this->getParentType();
                 $fieldDef = null;
                 if ($parentType) {
@@ -329,11 +330,11 @@ class TypeInfo
                 $this->typeStack[] = $fieldDef ? $fieldDef->getType() : null; // push
                 break;
 
-            case Node::DIRECTIVE:
+            case NodeType::DIRECTIVE:
                 $this->directive = $schema->getDirective($node->name->value);
                 break;
 
-            case Node::OPERATION_DEFINITION:
+            case NodeType::OPERATION_DEFINITION:
                 $type = null;
                 if ($node->operation === 'query') {
                     $type = $schema->getQueryType();
@@ -345,19 +346,19 @@ class TypeInfo
                 $this->typeStack[] = $type; // push
                 break;
 
-            case Node::INLINE_FRAGMENT:
-            case Node::FRAGMENT_DEFINITION:
+            case NodeType::INLINE_FRAGMENT:
+            case NodeType::FRAGMENT_DEFINITION:
                 $typeConditionAST = $node->typeCondition;
                 $outputType = $typeConditionAST ? self::typeFromAST($schema, $typeConditionAST) : $this->getType();
                 $this->typeStack[] = $outputType; // push
                 break;
 
-            case Node::VARIABLE_DEFINITION:
+            case NodeType::VARIABLE_DEFINITION:
                 $inputType = self::typeFromAST($schema, $node->type);
                 $this->inputTypeStack[] = $inputType; // push
                 break;
 
-            case Node::ARGUMENT:
+            case NodeType::ARGUMENT:
                 $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
                 $argDef = $argType = null;
                 if ($fieldOrDirective) {
@@ -370,12 +371,12 @@ class TypeInfo
                 $this->inputTypeStack[] = $argType; // push
                 break;
 
-            case Node::LST:
+            case NodeType::LST:
                 $listType = Type::getNullableType($this->getInputType());
                 $this->inputTypeStack[] = ($listType instanceof ListOfType ? $listType->getWrappedType() : null); // push
                 break;
 
-            case Node::OBJECT_FIELD:
+            case NodeType::OBJECT_FIELD:
                 $objectType = Type::getNamedType($this->getInputType());
                 $fieldType = null;
                 if ($objectType instanceof InputObjectType) {
@@ -394,33 +395,33 @@ class TypeInfo
     function leave(Node $node)
     {
         switch ($node->kind) {
-            case Node::SELECTION_SET:
+            case NodeType::SELECTION_SET:
                 array_pop($this->parentTypeStack);
                 break;
 
-            case Node::FIELD:
+            case NodeType::FIELD:
                 array_pop($this->fieldDefStack);
                 array_pop($this->typeStack);
                 break;
 
-            case Node::DIRECTIVE:
+            case NodeType::DIRECTIVE:
                 $this->directive = null;
                 break;
 
-            case Node::OPERATION_DEFINITION:
-            case Node::INLINE_FRAGMENT:
-            case Node::FRAGMENT_DEFINITION:
+            case NodeType::OPERATION_DEFINITION:
+            case NodeType::INLINE_FRAGMENT:
+            case NodeType::FRAGMENT_DEFINITION:
                 array_pop($this->typeStack);
                 break;
-            case Node::VARIABLE_DEFINITION:
+            case NodeType::VARIABLE_DEFINITION:
                 array_pop($this->inputTypeStack);
                 break;
-            case Node::ARGUMENT:
+            case NodeType::ARGUMENT:
                 $this->argument = null;
                 array_pop($this->inputTypeStack);
                 break;
-            case Node::LST:
-            case Node::OBJECT_FIELD:
+            case NodeType::LST:
+            case NodeType::OBJECT_FIELD:
                 array_pop($this->inputTypeStack);
                 break;
         }

@@ -5,6 +5,7 @@ use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\OperationDefinition;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\Parser;
@@ -25,7 +26,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $selectionSet = null;
         $editedAst = Visitor::visit($ast, [
-            Node::OPERATION_DEFINITION => [
+            NodeType::OPERATION_DEFINITION => [
                 'enter' => function(OperationDefinition $node) use (&$selectionSet) {
                     $selectionSet = $node->selectionSet;
 
@@ -63,7 +64,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $definitions = $ast->definitions;
 
         $editedAst = Visitor::visit($ast, [
-            Node::DOCUMENT => [
+            NodeType::DOCUMENT => [
                 'enter' => function (Document $node) {
                     $tmp = clone $node;
                     $tmp->definitions = [];
@@ -264,7 +265,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             'leave' => function($node) use (&$visited) {
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
 
-                if ($node->kind === Node::NAME && $node->value === 'x') {
+                if ($node->kind === NodeType::NAME && $node->value === 'x') {
                     return Visitor::stop();
                 }
             }
@@ -297,10 +298,10 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
-            Node::NAME => function(Name $node) use (&$visited) {
+            NodeType::NAME => function(Name $node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, $node->value];
             },
-            Node::SELECTION_SET => [
+            NodeType::SELECTION_SET => [
                 'enter' => function(SelectionSet $node) use (&$visited) {
                     $visited[] = ['enter', $node->kind, null];
                 },
