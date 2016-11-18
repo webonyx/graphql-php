@@ -43,6 +43,7 @@ use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\Rules\ScalarLeafs;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
+use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 use GraphQL\Validator\Rules\UniqueOperationNames;
@@ -88,6 +89,7 @@ class DocumentValidator
                 'NoUndefinedVariables' => new NoUndefinedVariables(),
                 'NoUnusedVariables' => new NoUnusedVariables(),
                 'KnownDirectives' => new KnownDirectives(),
+                'UniqueDirectivesPerLocation' => new UniqueDirectivesPerLocation(),
                 'KnownArgumentNames' => new KnownArgumentNames(),
                 'UniqueArgumentNames' => new UniqueArgumentNames(),
                 'ArgumentsOfCorrectType' => new ArgumentsOfCorrectType(),
