@@ -27,8 +27,8 @@ interface LeafType
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input
      *
-     * @param \GraphQL\Language\AST\Node $valueAST
+     * @param \GraphQL\Language\AST\Node $valueNode
      * @return mixed
      */
-    public function parseLiteral($valueAST);
+    public function parseLiteral($valueNode);
 }

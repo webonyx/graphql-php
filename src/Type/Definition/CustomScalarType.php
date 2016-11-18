@@ -42,11 +42,11 @@ class CustomScalarType extends ScalarType
     }
 
     /**
-     * @param $valueAST
+     * @param $valueNode
      * @return mixed
      */
-    public function parseLiteral(/* GraphQL\Language\AST\ValueNode */ $valueAST)
+    public function parseLiteral(/* GraphQL\Language\AST\ValueNode */ $valueNode)
     {
-        return call_user_func($this->config['parseLiteral'], $valueAST);
+        return call_user_func($this->config['parseLiteral'], $valueNode);
     }
 }

@@ -58,7 +58,7 @@ class OverlappingFieldsCanBeMerged
                 // Note: we validate on the reverse traversal so deeper conflicts will be
                 // caught first, for clearer error messages.
                 'leave' => function(SelectionSetNode $selectionSet) use ($context) {
-                    $fieldMap = $this->collectFieldASTsAndDefs(
+                    $fieldMap = $this->collectFieldNodesAndDefs(
                         $context,
                         $context->getParentType(),
                         $selectionSet
@@ -217,13 +217,13 @@ class OverlappingFieldsCanBeMerged
         $selectionSet2 = $ast2->selectionSet;
         if ($selectionSet1 && $selectionSet2) {
             $visitedFragmentNames = new \ArrayObject();
-            $subfieldMap = $this->collectFieldASTsAndDefs(
+            $subfieldMap = $this->collectFieldNodesAndDefs(
                 $context,
                 Type::getNamedType($type1),
                 $selectionSet1,
                 $visitedFragmentNames
             );
-            $subfieldMap = $this->collectFieldASTsAndDefs(
+            $subfieldMap = $this->collectFieldNodesAndDefs(
               $context,
               Type::getNamedType($type2),
               $selectionSet2,
@@ -309,7 +309,7 @@ class OverlappingFieldsCanBeMerged
      * @param \ArrayObject $astAndDefs
      * @return mixed
      */
-    private function collectFieldASTsAndDefs(ValidationContext $context, $parentType, SelectionSetNode $selectionSet, \ArrayObject $visitedFragmentNames = null, \ArrayObject $astAndDefs = null)
+    private function collectFieldNodesAndDefs(ValidationContext $context, $parentType, SelectionSetNode $selectionSet, \ArrayObject $visitedFragmentNames = null, \ArrayObject $astAndDefs = null)
     {
         $_visitedFragmentNames = $visitedFragmentNames ?: new \ArrayObject();
         $_astAndDefs = $astAndDefs ?: new \ArrayObject();
@@ -340,7 +340,7 @@ class OverlappingFieldsCanBeMerged
                         ? TypeInfo::typeFromAST($context->getSchema(), $typeCondition)
                         : $parentType;
 
-                    $_astAndDefs = $this->collectFieldASTsAndDefs(
+                    $_astAndDefs = $this->collectFieldNodesAndDefs(
                         $context,
                         $inlineFragmentType,
                         $selection->selectionSet,
@@ -360,7 +360,7 @@ class OverlappingFieldsCanBeMerged
                         continue;
                     }
                     $fragmentType = TypeInfo::typeFromAST($context->getSchema(), $fragment->typeCondition);
-                    $_astAndDefs = $this->collectFieldASTsAndDefs(
+                    $_astAndDefs = $this->collectFieldNodesAndDefs(
                         $context,
                         $fragmentType,
                         $fragment->selectionSet,

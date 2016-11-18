@@ -53,20 +53,20 @@ class EmailType extends BaseType
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input
      *
-     * @param \GraphQL\Language\AST\Node $valueAST
+     * @param \GraphQL\Language\AST\Node $valueNode
      * @return string
      * @throws Error
      */
-    public function parseLiteral($valueAST)
+    public function parseLiteral($valueNode)
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:
-        if (!$valueAST instanceof StringValueNode) {
-            throw new Error('Query error: Can only parse strings got: ' . $valueAST->kind, [$valueAST]);
+        if (!$valueNode instanceof StringValueNode) {
+            throw new Error('Query error: Can only parse strings got: ' . $valueNode->kind, [$valueNode]);
         }
-        if (!filter_var($valueAST->value, FILTER_VALIDATE_EMAIL)) {
-            throw new Error("Not a valid email", [$valueAST]);
+        if (!filter_var($valueNode->value, FILTER_VALIDATE_EMAIL)) {
+            throw new Error("Not a valid email", [$valueNode]);
         }
-        return $valueAST->value;
+        return $valueNode->value;
     }
 }

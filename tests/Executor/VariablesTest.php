@@ -124,13 +124,13 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
         );
 
         // uses default value when not provided:
-        $withDefaultsAST = Parser::parse('
+        $withDefaultsNode = Parser::parse('
           query q($input: TestInputObject = {a: "foo", b: ["bar"], c: "baz"}) {
             fieldWithObjectInput(input: $input)
           }
         ');
 
-        $result = Executor::execute($this->schema(), $withDefaultsAST)->toArray();
+        $result = Executor::execute($this->schema(), $withDefaultsNode)->toArray();
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']
         ];

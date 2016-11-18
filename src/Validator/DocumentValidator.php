@@ -153,33 +153,33 @@ class DocumentValidator
      *
      * @return array
      */
-    public static function isValidLiteralValue(Type $type, $valueAST)
+    public static function isValidLiteralValue(Type $type, $valueNode)
     {
         // A value must be provided if the type is non-null.
         if ($type instanceof NonNull) {
-            if (!$valueAST || $valueAST instanceof NullValueNode) {
+            if (!$valueNode || $valueNode instanceof NullValueNode) {
                 return [ 'Expected "' . Utils::printSafe($type) . '", found null.' ];
             }
-            return static::isValidLiteralValue($type->getWrappedType(), $valueAST);
+            return static::isValidLiteralValue($type->getWrappedType(), $valueNode);
         }
 
-        if (!$valueAST || $valueAST instanceof NullValueNode) {
+        if (!$valueNode || $valueNode instanceof NullValueNode) {
             return [];
         }
 
         // This function only tests literals, and assumes variables will provide
         // values of the correct type.
-        if ($valueAST instanceof VariableNode) {
+        if ($valueNode instanceof VariableNode) {
             return [];
         }
 
         // Lists accept a non-list value as a list of one.
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            if ($valueAST instanceof ListValueNode) {
+            if ($valueNode instanceof ListValueNode) {
                 $errors = [];
-                foreach($valueAST->values as $index => $itemAST) {
-                    $tmp = static::isValidLiteralValue($itemType, $itemAST);
+                foreach($valueNode->values as $index => $itemNode) {
+                    $tmp = static::isValidLiteralValue($itemType, $itemNode);
 
                     if ($tmp) {
                         $errors = array_merge($errors, Utils::map($tmp, function($error) use ($index) {
@@ -189,13 +189,13 @@ class DocumentValidator
                 }
                 return $errors;
             } else {
-                return static::isValidLiteralValue($itemType, $valueAST);
+                return static::isValidLiteralValue($itemType, $valueNode);
             }
         }
 
         // Input objects check each defined field and look for undefined fields.
         if ($type instanceof InputObjectType) {
-            if ($valueAST->kind !== NodeType::OBJECT) {
+            if ($valueNode->kind !== NodeType::OBJECT) {
                 return [ "Expected \"{$type->name}\", found not an object." ];
             }
 
@@ -203,20 +203,20 @@ class DocumentValidator
             $errors = [];
 
             // Ensure every provided field is defined.
-            $fieldASTs = $valueAST->fields;
+            $fieldNodes = $valueNode->fields;
 
-            foreach ($fieldASTs as $providedFieldAST) {
-                if (empty($fields[$providedFieldAST->name->value])) {
-                    $errors[] = "In field \"{$providedFieldAST->name->value}\": Unknown field.";
+            foreach ($fieldNodes as $providedFieldNode) {
+                if (empty($fields[$providedFieldNode->name->value])) {
+                    $errors[] = "In field \"{$providedFieldNode->name->value}\": Unknown field.";
                 }
             }
 
             // Ensure every defined field is valid.
-            $fieldASTMap = Utils::keyMap($fieldASTs, function($fieldAST) {return $fieldAST->name->value;});
+            $fieldNodeMap = Utils::keyMap($fieldNodes, function($fieldNode) {return $fieldNode->name->value;});
             foreach ($fields as $fieldName => $field) {
                 $result = static::isValidLiteralValue(
                     $field->getType(),
-                    isset($fieldASTMap[$fieldName]) ? $fieldASTMap[$fieldName]->value : null
+                    isset($fieldNodeMap[$fieldName]) ? $fieldNodeMap[$fieldName]->value : null
                 );
                 if ($result) {
                     $errors = array_merge($errors, Utils::map($result, function($error) use ($fieldName) {
@@ -231,10 +231,10 @@ class DocumentValidator
         if ($type instanceof LeafType) {
             // Scalar/Enum input checks to ensure the type can parse the value to
             // a non-null value.
-            $parseResult = $type->parseLiteral($valueAST);
+            $parseResult = $type->parseLiteral($valueNode);
 
             if (null === $parseResult) {
-                $printed = Printer::doPrint($valueAST);
+                $printed = Printer::doPrint($valueNode);
                 return [ "Expected type \"{$type->name}\", found $printed." ];
             }
 
@@ -250,18 +250,18 @@ class DocumentValidator
      *
      * @param Schema $schema
      * @param TypeInfo $typeInfo
-     * @param DocumentNode $documentAST
+     * @param DocumentNode $documentNode
      * @param array $rules
      * @return array
      */
-    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentAST, array $rules)
+    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules)
     {
-        $context = new ValidationContext($schema, $documentAST, $typeInfo);
+        $context = new ValidationContext($schema, $documentNode, $typeInfo);
         $visitors = [];
         foreach ($rules as $rule) {
             $visitors[] = $rule($context);
         }
-        Visitor::visit($documentAST, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
+        Visitor::visit($documentNode, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
         return $context->getErrors();
     }
 }

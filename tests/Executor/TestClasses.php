@@ -68,9 +68,9 @@ class ComplexScalar extends ScalarType
         return null;
     }
 
-    public function parseLiteral($valueAST)
+    public function parseLiteral($valueNode)
     {
-        if ($valueAST->value === 'SerializedValue') {
+        if ($valueNode->value === 'SerializedValue') {
             return 'DeserializedValue';
         }
         return null;

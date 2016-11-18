@@ -26,15 +26,15 @@ class ArgumentsOfCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::ARGUMENT => function(ArgumentNode $argAST) use ($context) {
+            NodeType::ARGUMENT => function(ArgumentNode $argNode) use ($context) {
                 $argDef = $context->getArgument();
                 if ($argDef) {
-                    $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argAST->value);
+                    $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argNode->value);
 
                     if (!empty($errors)) {
                         $context->reportError(new Error(
-                            self::badValueMessage($argAST->name->value, $argDef->getType(), Printer::doPrint($argAST->value), $errors),
-                            [$argAST->value]
+                            self::badValueMessage($argNode->name->value, $argDef->getType(), Printer::doPrint($argNode->value), $errors),
+                            [$argNode->value]
                         ));
                     }
                 }

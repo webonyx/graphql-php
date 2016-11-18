@@ -30,9 +30,9 @@ class DefaultValuesOfCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::VARIABLE_DEFINITION => function(VariableDefinitionNode $varDefAST) use ($context) {
-                $name = $varDefAST->variable->name->value;
-                $defaultValue = $varDefAST->defaultValue;
+            NodeType::VARIABLE_DEFINITION => function(VariableDefinitionNode $varDefNode) use ($context) {
+                $name = $varDefNode->variable->name->value;
+                $defaultValue = $varDefNode->defaultValue;
                 $type = $context->getInputType();
 
                 if ($type instanceof NonNull && $defaultValue) {

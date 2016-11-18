@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -23,8 +24,14 @@ class ResolveInfo
 
     /**
      * @var FieldNode[]
+     * @deprecated Renamed to $fieldNodes as of 19.11.2016, will be removed after several releases
      */
-    public $fieldASTs;
+    // public $fieldASTs;
+
+    /**
+     * @var FieldNode[]
+     */
+    public $fieldNodes;
 
     /**
      * @var OutputType
@@ -106,9 +113,9 @@ class ResolveInfo
     {
         $fields = [];
 
-        /** @var FieldNode $fieldAST */
-        foreach ($this->fieldASTs as $fieldAST) {
-            $fields = array_merge_recursive($fields, $this->foldSelectionSet($fieldAST->selectionSet, $depth));
+        /** @var FieldNode $fieldNode */
+        foreach ($this->fieldNodes as $fieldNode) {
+            $fields = array_merge_recursive($fields, $this->foldSelectionSet($fieldNode->selectionSet, $depth));
         }
 
         return $fields;
@@ -118,13 +125,13 @@ class ResolveInfo
     {
         $fields = [];
 
-        foreach ($selectionSet->selections as $selectionAST) {
-            if ($selectionAST instanceof FieldNode) {
-                $fields[$selectionAST->name->value] = $descend > 0 && !empty($selectionAST->selectionSet)
-                    ? $this->foldSelectionSet($selectionAST->selectionSet, $descend - 1)
+        foreach ($selectionSet->selections as $selectionNode) {
+            if ($selectionNode instanceof FieldNode) {
+                $fields[$selectionNode->name->value] = $descend > 0 && !empty($selectionNode->selectionSet)
+                    ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     : true;
-            } else if ($selectionAST instanceof FragmentSpreadNode) {
-                $spreadName = $selectionAST->name->value;
+            } else if ($selectionNode instanceof FragmentSpreadNode) {
+                $spreadName = $selectionNode->name->value;
                 if (isset($this->fragments[$spreadName])) {
                     /** @var FragmentDefinitionNode $fragment */
                     $fragment = $this->fragments[$spreadName];
@@ -134,5 +141,14 @@ class ResolveInfo
         }
 
         return $fields;
+    }
+
+    public function __get($name)
+    {
+        if ('fieldASTs' === $name) {
+            trigger_error('Property ' . __CLASS__ . '->fieldASTs was renamed to ' . __CLASS__ . '->fieldNodes', E_USER_DEPRECATED);
+            return $this->fieldNodes;
+        }
+        throw new InvariantViolation("Undefined property '$name' in class " . __CLASS__);
     }
 }

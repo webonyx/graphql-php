@@ -32,28 +32,28 @@ class Values
      * to match the variable definitions, a Error will be thrown.
      *
      * @param Schema $schema
-     * @param VariableDefinitionNode[] $definitionASTs
+     * @param VariableDefinitionNode[] $definitionNodes
      * @param array $inputs
      * @return array
      * @throws Error
      */
-    public static function getVariableValues(Schema $schema, $definitionASTs, array $inputs)
+    public static function getVariableValues(Schema $schema, $definitionNodes, array $inputs)
     {
         $coercedValues = [];
-        foreach ($definitionASTs as $definitionAST) {
-            $varName = $definitionAST->variable->name->value;
-            $varType = Utils\TypeInfo::typeFromAST($schema, $definitionAST->type);
+        foreach ($definitionNodes as $definitionNode) {
+            $varName = $definitionNode->variable->name->value;
+            $varType = Utils\TypeInfo::typeFromAST($schema, $definitionNode->type);
 
             if (!Type::isInputType($varType)) {
                 throw new Error(
                     'Variable "$'.$varName.'" expected value of type ' .
-                    '"' . Printer::doPrint($definitionAST->type) . '" which cannot be used as an input type.',
-                    [$definitionAST->type]
+                    '"' . Printer::doPrint($definitionNode->type) . '" which cannot be used as an input type.',
+                    [$definitionNode->type]
                 );
             }
 
             if (!array_key_exists($varName, $inputs)) {
-                $defaultValue = $definitionAST->defaultValue;
+                $defaultValue = $definitionNode->defaultValue;
                 if ($defaultValue) {
                     $coercedValues[$varName] = Utils\AST::valueFromAST($defaultValue, $varType);
                 }
@@ -61,7 +61,7 @@ class Values
                     throw new Error(
                         'Variable "$'.$varName .'" of required type ' .
                         '"'. Utils::printSafe($varType) . '" was not provided.',
-                        [$definitionAST]
+                        [$definitionNode]
                     );
                 }
             } else {
@@ -72,7 +72,7 @@ class Values
                     throw new Error(
                         'Variable "$' . $varName . '" got invalid value ' .
                         json_encode($value) . '.' . $message,
-                        [$definitionAST]
+                        [$definitionNode]
                     );
                 }
 
@@ -97,26 +97,26 @@ class Values
     public static function getArgumentValues($def, $node, $variableValues)
     {
         $argDefs = $def->args;
-        $argASTs = $node->arguments;
+        $argNodes = $node->arguments;
 
-        if (!$argDefs || null === $argASTs) {
+        if (!$argDefs || null === $argNodes) {
             return [];
         }
 
         $coercedValues = [];
         $undefined = Utils::undefined();
 
-        /** @var ArgumentNode[] $argASTMap */
-        $argASTMap = $argASTs ? Utils::keyMap($argASTs, function (ArgumentNode $arg) {
+        /** @var ArgumentNode[] $argNodeMap */
+        $argNodeMap = $argNodes ? Utils::keyMap($argNodes, function (ArgumentNode $arg) {
             return $arg->name->value;
         }) : [];
 
         foreach ($argDefs as $argDef) {
             $name = $argDef->name;
             $argType = $argDef->getType();
-            $argumentAST = isset($argASTMap[$name]) ? $argASTMap[$name] : null;
+            $argumentNode = isset($argNodeMap[$name]) ? $argNodeMap[$name] : null;
 
-            if (!$argumentAST) {
+            if (!$argumentNode) {
                 if ($argDef->defaultValueExists()) {
                     $coercedValues[$name] = $argDef->defaultValue;
                 } else if ($argType instanceof NonNull) {
@@ -126,8 +126,8 @@ class Values
                         [$node]
                     );
                 }
-            } else if ($argumentAST->value instanceof VariableNode) {
-                $variableName = $argumentAST->value->name->value;
+            } else if ($argumentNode->value instanceof VariableNode) {
+                $variableName = $argumentNode->value->name->value;
 
                 if ($variableValues && array_key_exists($variableName, $variableValues)) {
                     // Note: this does not check that this variable value is correct.
@@ -141,18 +141,18 @@ class Values
                         'Argument "' . $name . '" of required type "' . Utils::printSafe($argType) . '" was ' .
                         'provided the variable "$' . $variableName . '" which was not provided ' .
                         'a runtime value.',
-                        [ $argumentAST->value ]
+                        [ $argumentNode->value ]
                     );
                 }
             } else {
-                $valueAST = $argumentAST->value;
-                $coercedValue = Utils\AST::valueFromAST($valueAST, $argType, $variableValues);
+                $valueNode = $argumentNode->value;
+                $coercedValue = Utils\AST::valueFromAST($valueNode, $argType, $variableValues);
                 if ($coercedValue === $undefined) {
-                    $errors = DocumentValidator::isValidLiteralValue($argType, $valueAST);
+                    $errors = DocumentValidator::isValidLiteralValue($argType, $valueNode);
                     $message = !empty($errors) ? ("\n" . implode("\n", $errors)) : '';
                     throw new Error(
-                        'Argument "' . $name . '" got invalid value ' . Printer::doPrint($valueAST) . '.' . $message,
-                        [ $argumentAST->value ]
+                        'Argument "' . $name . '" got invalid value ' . Printer::doPrint($valueNode) . '.' . $message,
+                        [ $argumentNode->value ]
                     );
                 }
                 $coercedValues[$name] = $coercedValue;
@@ -164,14 +164,14 @@ class Values
     /**
      * @deprecated Moved to Utils\AST::valueFromAST
      *
-     * @param $valueAST
+     * @param $valueNode
      * @param InputType $type
      * @param null $variables
      * @return array|null|\stdClass
      */
-    public static function valueFromAST($valueAST, InputType $type, $variables = null)
+    public static function valueFromAST($valueNode, InputType $type, $variables = null)
     {
-        return Utils\AST::valueFromAST($valueAST, $type, $variables);
+        return Utils\AST::valueFromAST($valueNode, $type, $variables);
     }
 
     /**

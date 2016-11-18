@@ -38,22 +38,22 @@ class GraphQL
     {
         try {
             if ($requestString instanceof DocumentNode) {
-                $documentAST = $requestString;
+                $documentNode = $requestString;
             } else {
                 $source = new Source($requestString ?: '', 'GraphQL request');
-                $documentAST = Parser::parse($source);
+                $documentNode = Parser::parse($source);
             }
 
             /** @var QueryComplexity $queryComplexity */
             $queryComplexity = DocumentValidator::getRule('QueryComplexity');
             $queryComplexity->setRawVariableValues($variableValues);
 
-            $validationErrors = DocumentValidator::validate($schema, $documentAST);
+            $validationErrors = DocumentValidator::validate($schema, $documentNode);
 
             if (!empty($validationErrors)) {
                 return new ExecutionResult(null, $validationErrors);
             } else {
-                return Executor::execute($schema, $documentAST, $rootValue, $contextValue, $variableValues, $operationName);
+                return Executor::execute($schema, $documentNode, $rootValue, $contextValue, $variableValues, $operationName);
             }
         } catch (Error $e) {
             return new ExecutionResult(null, [$e]);

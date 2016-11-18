@@ -241,7 +241,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals([
             'fieldName',
-            'fieldASTs',
+            'fieldNodes',
             'returnType',
             'parentType',
             'path',
@@ -253,8 +253,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         ], array_keys((array) $info));
 
         $this->assertEquals('test', $info->fieldName);
-        $this->assertEquals(1, count($info->fieldASTs));
-        $this->assertSame($ast->definitions[0]->selectionSet->selections[0], $info->fieldASTs[0]);
+        $this->assertEquals(1, count($info->fieldNodes));
+        $this->assertSame($ast->definitions[0]->selectionSet->selections[0], $info->fieldNodes[0]);
         $this->assertSame(Type::string(), $info->returnType);
         $this->assertSame($schema->getQueryType(), $info->parentType);
         $this->assertEquals(['result'], $info->path);

@@ -28,47 +28,47 @@ class ProvidedNonNullArguments
     {
         return [
             NodeType::FIELD => [
-                'leave' => function(FieldNode $fieldAST) use ($context) {
+                'leave' => function(FieldNode $fieldNode) use ($context) {
                     $fieldDef = $context->getFieldDef();
 
                     if (!$fieldDef) {
                         return Visitor::skipNode();
                     }
-                    $argASTs = $fieldAST->arguments ?: [];
+                    $argNodes = $fieldNode->arguments ?: [];
 
-                    $argASTMap = [];
-                    foreach ($argASTs as $argAST) {
-                        $argASTMap[$argAST->name->value] = $argASTs;
+                    $argNodeMap = [];
+                    foreach ($argNodes as $argNode) {
+                        $argNodeMap[$argNode->name->value] = $argNodes;
                     }
                     foreach ($fieldDef->args as $argDef) {
-                        $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
-                        if (!$argAST && $argDef->getType() instanceof NonNull) {
+                        $argNode = isset($argNodeMap[$argDef->name]) ? $argNodeMap[$argDef->name] : null;
+                        if (!$argNode && $argDef->getType() instanceof NonNull) {
                             $context->reportError(new Error(
-                                self::missingFieldArgMessage($fieldAST->name->value, $argDef->name, $argDef->getType()),
-                                [$fieldAST]
+                                self::missingFieldArgMessage($fieldNode->name->value, $argDef->name, $argDef->getType()),
+                                [$fieldNode]
                             ));
                         }
                     }
                 }
             ],
             NodeType::DIRECTIVE => [
-                'leave' => function(DirectiveNode $directiveAST) use ($context) {
+                'leave' => function(DirectiveNode $directiveNode) use ($context) {
                     $directiveDef = $context->getDirective();
                     if (!$directiveDef) {
                         return Visitor::skipNode();
                     }
-                    $argASTs = $directiveAST->arguments ?: [];
-                    $argASTMap = [];
-                    foreach ($argASTs as $argAST) {
-                        $argASTMap[$argAST->name->value] = $argASTs;
+                    $argNodes = $directiveNode->arguments ?: [];
+                    $argNodeMap = [];
+                    foreach ($argNodes as $argNode) {
+                        $argNodeMap[$argNode->name->value] = $argNodes;
                     }
 
                     foreach ($directiveDef->args as $argDef) {
-                        $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
-                        if (!$argAST && $argDef->getType() instanceof NonNull) {
+                        $argNode = isset($argNodeMap[$argDef->name]) ? $argNodeMap[$argDef->name] : null;
+                        if (!$argNode && $argDef->getType() instanceof NonNull) {
                             $context->reportError(new Error(
-                                self::missingDirectiveArgMessage($directiveAST->name->value, $argDef->name, $argDef->getType()),
-                                [$directiveAST]
+                                self::missingDirectiveArgMessage($directiveNode->name->value, $argDef->name, $argDef->getType()),
+                                [$directiveNode]
                             ));
                         }
                     }

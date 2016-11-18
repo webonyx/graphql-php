@@ -28,10 +28,10 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
       field
     }');
         $ast = Parser::parse($source);
-        $fieldAST = $ast->definitions[0]->selectionSet->selections[0];
-        $e = new Error('msg', [ $fieldAST ]);
+        $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
+        $e = new Error('msg', [ $fieldNode ]);
 
-        $this->assertEquals([$fieldAST], $e->nodes);
+        $this->assertEquals([$fieldNode], $e->nodes);
         $this->assertEquals($source, $e->getSource());
         $this->assertEquals([8], $e->getPositions());
         $this->assertEquals([new SourceLocation(2, 7)], $e->getLocations());
@@ -46,10 +46,10 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
       field
     }');
         $ast = Parser::parse($source);
-        $operationAST = $ast->definitions[0];
-        $e = new Error('msg', [ $operationAST ]);
+        $operationNode = $ast->definitions[0];
+        $e = new Error('msg', [ $operationNode ]);
 
-        $this->assertEquals([$operationAST], $e->nodes);
+        $this->assertEquals([$operationNode], $e->nodes);
         $this->assertEquals($source, $e->getSource());
         $this->assertEquals([0], $e->getPositions());
         $this->assertEquals([new SourceLocation(1, 1)], $e->getLocations());

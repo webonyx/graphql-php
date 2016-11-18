@@ -61,8 +61,8 @@ class VariablesInAllowedPosition
                     }
                 }
             ],
-            NodeType::VARIABLE_DEFINITION => function (VariableDefinitionNode $varDefAST) {
-                $this->varDefMap[$varDefAST->variable->name->value] = $varDefAST;
+            NodeType::VARIABLE_DEFINITION => function (VariableDefinitionNode $varDefNode) {
+                $this->varDefMap[$varDefNode->variable->name->value] = $varDefNode;
             }
         ];
     }

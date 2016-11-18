@@ -71,14 +71,14 @@ class AST
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             if (is_array($value) || ($value instanceof \Traversable)) {
-                $valuesASTs = [];
+                $valuesNodes = [];
                 foreach ($value as $item) {
-                    $itemAST = self::astFromValue($item, $itemType);
-                    if ($itemAST) {
-                        $valuesASTs[] = $itemAST;
+                    $itemNode = self::astFromValue($item, $itemType);
+                    if ($itemNode) {
+                        $valuesNodes[] = $itemNode;
                     }
                 }
-                return new ListValueNode(['values' => $valuesASTs]);
+                return new ListValueNode(['values' => $valuesNodes]);
             }
             return self::astFromValue($value, $itemType);
         }
@@ -92,7 +92,7 @@ class AST
                 return null;
             }
             $fields = $type->getFields();
-            $fieldASTs = [];
+            $fieldNodes = [];
             foreach ($fields as $fieldName => $field) {
                 if ($isArrayLike) {
                     $fieldValue = isset($value[$fieldName]) ? $value[$fieldName] : null;
@@ -117,14 +117,14 @@ class AST
                     $fieldNode = self::astFromValue($fieldValue, $field->getType());
 
                     if ($fieldNode) {
-                        $fieldASTs[] = new ObjectFieldNode([
+                        $fieldNodes[] = new ObjectFieldNode([
                             'name' => new NameNode(['value' => $fieldName]),
                             'value' => $fieldNode
                         ]);
                     }
                 }
             }
-            return new ObjectValueNode(['fields' => $fieldASTs]);
+            return new ObjectValueNode(['fields' => $fieldNodes]);
         }
 
         // Since value is an internally represented value, it must be serialized
@@ -193,37 +193,37 @@ class AST
      * | Enum Value           | Mixed         |
      * | Null Value           | stdClass      | instance of NullValue::getNullValue()
      *
-     * @param $valueAST
+     * @param $valueNode
      * @param InputType $type
      * @param null $variables
      * @return array|null|\stdClass
      * @throws \Exception
      */
-    public static function valueFromAST($valueAST, InputType $type, $variables = null)
+    public static function valueFromAST($valueNode, InputType $type, $variables = null)
     {
         $undefined = Utils::undefined();
 
-        if (!$valueAST) {
+        if (!$valueNode) {
             // When there is no AST, then there is also no value.
             // Importantly, this is different from returning the GraphQL null value.
             return $undefined;
         }
 
         if ($type instanceof NonNull) {
-            if ($valueAST instanceof NullValueNode) {
+            if ($valueNode instanceof NullValueNode) {
                 // Invalid: intentionally return no value.
                 return $undefined;
             }
-            return self::valueFromAST($valueAST, $type->getWrappedType(), $variables);
+            return self::valueFromAST($valueNode, $type->getWrappedType(), $variables);
         }
 
-        if ($valueAST instanceof NullValueNode) {
+        if ($valueNode instanceof NullValueNode) {
             // This is explicitly returning the value null.
             return null;
         }
 
-        if ($valueAST instanceof VariableNode) {
-            $variableName = $valueAST->name->value;
+        if ($valueNode instanceof VariableNode) {
+            $variableName = $valueNode->name->value;
 
             if (!$variables || !array_key_exists($variableName, $variables)) {
                 // No valid return value.
@@ -238,11 +238,11 @@ class AST
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
 
-            if ($valueAST instanceof ListValueNode) {
+            if ($valueNode instanceof ListValueNode) {
                 $coercedValues = [];
-                $itemASTs = $valueAST->values;
-                foreach ($itemASTs as $itemAST) {
-                    if (self::isMissingVariable($itemAST, $variables)) {
+                $itemNodes = $valueNode->values;
+                foreach ($itemNodes as $itemNode) {
+                    if (self::isMissingVariable($itemNode, $variables)) {
                         // If an array contains a missing variable, it is either coerced to
                         // null or if the item type is non-null, it considered invalid.
                         if ($itemType instanceof NonNull) {
@@ -251,7 +251,7 @@ class AST
                         }
                         $coercedValues[] = null;
                     } else {
-                        $itemValue = self::valueFromAST($itemAST, $itemType, $variables);
+                        $itemValue = self::valueFromAST($itemNode, $itemType, $variables);
                         if ($undefined === $itemValue) {
                             // Invalid: intentionally return no value.
                             return $undefined;
@@ -261,7 +261,7 @@ class AST
                 }
                 return $coercedValues;
             }
-            $coercedValue = self::valueFromAST($valueAST, $itemType, $variables);
+            $coercedValue = self::valueFromAST($valueNode, $itemType, $variables);
             if ($undefined === $coercedValue) {
                 // Invalid: intentionally return no value.
                 return $undefined;
@@ -270,20 +270,20 @@ class AST
         }
 
         if ($type instanceof InputObjectType) {
-            if (!$valueAST instanceof ObjectValueNode) {
+            if (!$valueNode instanceof ObjectValueNode) {
                 // Invalid: intentionally return no value.
                 return $undefined;
             }
 
             $coercedObj = [];
             $fields = $type->getFields();
-            $fieldASTs = Utils::keyMap($valueAST->fields, function($field) {return $field->name->value;});
+            $fieldNodes = Utils::keyMap($valueNode->fields, function($field) {return $field->name->value;});
             foreach ($fields as $field) {
-                /** @var ValueNode $fieldAST */
+                /** @var ValueNode $fieldNode */
                 $fieldName = $field->name;
-                $fieldAST = isset($fieldASTs[$fieldName]) ? $fieldASTs[$fieldName] : null;
+                $fieldNode = isset($fieldNodes[$fieldName]) ? $fieldNodes[$fieldName] : null;
 
-                if (!$fieldAST || self::isMissingVariable($fieldAST->value, $variables)) {
+                if (!$fieldNode || self::isMissingVariable($fieldNode->value, $variables)) {
                     if ($field->defaultValueExists()) {
                         $coercedObj[$fieldName] = $field->defaultValue;
                     } else if ($field->getType() instanceof NonNull) {
@@ -293,7 +293,7 @@ class AST
                     continue ;
                 }
 
-                $fieldValue = self::valueFromAST($fieldAST ? $fieldAST->value : null, $field->getType(), $variables);
+                $fieldValue = self::valueFromAST($fieldNode ? $fieldNode->value : null, $field->getType(), $variables);
 
                 if ($undefined === $fieldValue) {
                     // Invalid: intentionally return no value.
@@ -305,7 +305,7 @@ class AST
         }
 
         if ($type instanceof LeafType) {
-            $parsed = $type->parseLiteral($valueAST);
+            $parsed = $type->parseLiteral($valueNode);
 
             if (null === $parsed) {
                 // null represent a failure to parse correctly,
@@ -321,15 +321,15 @@ class AST
 
 
     /**
-     * Returns true if the provided valueAST is a variable which is not defined
+     * Returns true if the provided valueNode is a variable which is not defined
      * in the set of variables.
-     * @param $valueAST
+     * @param $valueNode
      * @param $variables
      * @return bool
      */
-    private static function isMissingVariable($valueAST, $variables)
+    private static function isMissingVariable($valueNode, $variables)
     {
-        return $valueAST instanceof VariableNode &&
-        (!$variables || !array_key_exists($valueAST->name->value, $variables));
+        return $valueNode instanceof VariableNode &&
+        (!$variables || !array_key_exists($valueNode->name->value, $variables));
     }
 }

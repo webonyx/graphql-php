@@ -23,7 +23,7 @@ class QueryComplexity extends AbstractQuerySecurity
 
     private $variableDefs;
 
-    private $fieldAstAndDefs;
+    private $fieldNodeAndDefs;
 
     /**
      * @var ValidationContext
@@ -72,19 +72,19 @@ class QueryComplexity extends AbstractQuerySecurity
         $this->context = $context;
 
         $this->variableDefs = new \ArrayObject();
-        $this->fieldAstAndDefs = new \ArrayObject();
+        $this->fieldNodeAndDefs = new \ArrayObject();
         $complexity = 0;
 
         return $this->invokeIfNeeded(
             $context,
             [
                 NodeType::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context) {
-                    $this->fieldAstAndDefs = $this->collectFieldASTsAndDefs(
+                    $this->fieldNodeAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $context->getParentType(),
                         $selectionSet,
                         null,
-                        $this->fieldAstAndDefs
+                        $this->fieldNodeAndDefs
                     );
                 },
                 NodeType::VARIABLE_DEFINITION => function ($def) {
@@ -173,8 +173,8 @@ class QueryComplexity extends AbstractQuerySecurity
     {
         $fieldName = $this->getFieldName($field);
         $astFieldInfo = [null, null];
-        if (isset($this->fieldAstAndDefs[$fieldName])) {
-            foreach ($this->fieldAstAndDefs[$fieldName] as $astAndDef) {
+        if (isset($this->fieldNodeAndDefs[$fieldName])) {
+            foreach ($this->fieldNodeAndDefs[$fieldName] as $astAndDef) {
                 if ($astAndDef[0] == $field) {
                     $astFieldInfo = $astAndDef;
                     break;

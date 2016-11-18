@@ -143,23 +143,23 @@ class TypeInfo
 
     /**
      * @param Schema $schema
-     * @param $inputTypeAst
+     * @param $inputTypeAST
      * @return Type
      * @throws \Exception
      */
-    public static function typeFromAST(Schema $schema, $inputTypeAst)
+    public static function typeFromAST(Schema $schema, $inputTypeNode)
     {
-        if ($inputTypeAst instanceof ListTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeAst->type);
+        if ($inputTypeNode instanceof ListTypeNode) {
+            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
             return $innerType ? new ListOfType($innerType) : null;
         }
-        if ($inputTypeAst instanceof NonNullTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeAst->type);
+        if ($inputTypeNode instanceof NonNullTypeNode) {
+            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
             return $innerType ? new NonNull($innerType) : null;
         }
 
-        Utils::invariant($inputTypeAst && $inputTypeAst instanceof NamedTypeNode, 'Must be a named type');
-        return $schema->getType($inputTypeAst->name->value);
+        Utils::invariant($inputTypeNode && $inputTypeNode instanceof NamedTypeNode, 'Must be a named type');
+        return $schema->getType($inputTypeNode->name->value);
     }
 
     /**
@@ -169,9 +169,9 @@ class TypeInfo
      *
      * @return FieldDefinition
      */
-    static private function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldAST)
+    static private function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode)
     {
-        $name = $fieldAST->name->value;
+        $name = $fieldNode->name->value;
         $schemaMeta = Introspection::schemaMetaFieldDef();
         if ($name === $schemaMeta->name && $schema->getQueryType() === $parentType) {
             return $schemaMeta;
@@ -348,8 +348,8 @@ class TypeInfo
 
             case NodeType::INLINE_FRAGMENT:
             case NodeType::FRAGMENT_DEFINITION:
-                $typeConditionAST = $node->typeCondition;
-                $outputType = $typeConditionAST ? self::typeFromAST($schema, $typeConditionAST) : $this->getType();
+                $typeConditionNode = $node->typeCondition;
+                $outputType = $typeConditionNode ? self::typeFromAST($schema, $typeConditionNode) : $this->getType();
                 $this->typeStack[] = $outputType; // push
                 break;
 
