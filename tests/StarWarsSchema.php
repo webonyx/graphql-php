@@ -32,7 +32,7 @@ use GraphQL\Type\Definition\Type;
  *   appearsIn: [Episode]
  * }
  *
- * type Human : Character {
+ * type Human implements Character {
  *   id: String!
  *   name: String
  *   friends: [Character]
@@ -40,7 +40,7 @@ use GraphQL\Type\Definition\Type;
  *   homePlanet: String
  * }
  *
- * type Droid : Character {
+ * type Droid implements Character {
  *   id: String!
  *   name: String
  *   friends: [Character]
@@ -136,7 +136,7 @@ class StarWarsSchema
          * We define our human type, which implements the character interface.
          *
          * This implements the following type system shorthand:
-         *   type Human : Character {
+         *   type Human implements Character {
          *     id: String!
          *     name: String
          *     friends: [Character]
@@ -197,7 +197,7 @@ class StarWarsSchema
          * The other type of character in Star Wars is a droid.
          *
          * This implements the following type system shorthand:
-         *   type Droid : Character {
+         *   type Droid implements Character {
          *     id: String!
          *     name: String
          *     friends: [Character]
