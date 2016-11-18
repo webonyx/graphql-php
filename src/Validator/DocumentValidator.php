@@ -157,14 +157,10 @@ class DocumentValidator
     {
         // A value must be provided if the type is non-null.
         if ($type instanceof NonNull) {
-            $wrappedType = $type->getWrappedType();
             if (!$valueAST || $valueAST instanceof NullValue) {
-                if ($wrappedType->name) {
-                    return [ "Expected \"{$wrappedType->name}!\", found null." ];
-                }
-                return ['Expected non-null value, found null.'];
+                return [ 'Expected "' . Utils::printSafe($type) . '", found null.' ];
             }
-            return static::isValidLiteralValue($wrappedType, $valueAST);
+            return static::isValidLiteralValue($type->getWrappedType(), $valueAST);
         }
 
         if (!$valueAST || $valueAST instanceof NullValue) {

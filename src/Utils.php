@@ -9,6 +9,12 @@ use \Traversable, \InvalidArgumentException;
 
 class Utils
 {
+    public static function undefined()
+    {
+        static $undefined;
+        return $undefined ?: $undefined = new \stdClass();
+    }
+
     /**
      * @param object $obj
      * @param array  $vars
@@ -231,11 +237,7 @@ class Utils
     public static function printSafe($var)
     {
         if ($var instanceof Type) {
-            // FIXME: Replace with schema printer call
-            if ($var instanceof WrappingType) {
-                $var = $var->getWrappedType(true);
-            }
-            return $var->name;
+            return $var->toString();
         }
         if (is_object($var)) {
             return 'instance of ' . get_class($var);

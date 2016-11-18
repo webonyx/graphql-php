@@ -5,11 +5,16 @@ namespace GraphQL\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\Argument;
+use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\NullValue;
+use GraphQL\Language\AST\Value;
+use GraphQL\Language\AST\Variable;
 use GraphQL\Language\AST\VariableDefinition;
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\LeafType;
@@ -17,6 +22,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
+use GraphQL\Validator\DocumentValidator;
 
 class Values
 {
@@ -33,50 +39,126 @@ class Values
      */
     public static function getVariableValues(Schema $schema, $definitionASTs, array $inputs)
     {
-        $values = [];
-        foreach ($definitionASTs as $defAST) {
-            $varName = $defAST->variable->name->value;
-            $values[$varName] = self::getvariableValue($schema, $defAST, isset($inputs[$varName]) ? $inputs[$varName] : null);
+        $coercedValues = [];
+        foreach ($definitionASTs as $definitionAST) {
+            $varName = $definitionAST->variable->name->value;
+            $varType = Utils\TypeInfo::typeFromAST($schema, $definitionAST->type);
+
+            if (!Type::isInputType($varType)) {
+                throw new Error(
+                    'Variable "$'.$varName.'" expected value of type ' .
+                    '"' . Printer::doPrint($definitionAST->type) . '" which cannot be used as an input type.',
+                    [$definitionAST->type]
+                );
+            }
+
+            if (!array_key_exists($varName, $inputs)) {
+                $defaultValue = $definitionAST->defaultValue;
+                if ($defaultValue) {
+                    $coercedValues[$varName] = Utils\AST::valueFromAST($defaultValue, $varType);
+                }
+                if ($varType instanceof NonNull) {
+                    throw new Error(
+                        'Variable "$'.$varName .'" of required type ' .
+                        '"'. Utils::printSafe($varType) . '" was not provided.',
+                        [$definitionAST]
+                    );
+                }
+            } else {
+                $value = $inputs[$varName];
+                $errors = self::isValidPHPValue($value, $varType);
+                if (!empty($errors)) {
+                    $message = "\n" . implode("\n", $errors);
+                    throw new Error(
+                        'Variable "$' . $varName . '" got invalid value ' .
+                        json_encode($value) . '.' . $message,
+                        [$definitionAST]
+                    );
+                }
+
+                $coercedValue = self::coerceValue($varType, $value);
+                Utils::invariant($coercedValue !== Utils::undefined(), 'Should have reported error.');
+                $coercedValues[$varName] = $coercedValue;
+            }
         }
-        return $values;
+        return $coercedValues;
     }
 
     /**
      * Prepares an object map of argument values given a list of argument
      * definitions and list of argument AST nodes.
      *
-     * @param FieldArgument[] $argDefs
-     * @param Argument[] $argASTs
+     * @param FieldDefinition|Directive $def
+     * @param Field|\GraphQL\Language\AST\Directive $node
      * @param $variableValues
      * @return array
+     * @throws Error
      */
-    public static function getArgumentValues($argDefs, $argASTs, $variableValues)
+    public static function getArgumentValues($def, $node, $variableValues)
     {
-        if (!$argDefs) {
+        $argDefs = $def->args;
+        $argASTs = $node->arguments;
+
+        if (!$argDefs || null === $argASTs) {
             return [];
         }
-        $argASTMap = $argASTs ? Utils::keyMap($argASTs, function ($arg) {
+
+        $coercedValues = [];
+        $undefined = Utils::undefined();
+
+        /** @var Argument[] $argASTMap */
+        $argASTMap = $argASTs ? Utils::keyMap($argASTs, function (Argument $arg) {
             return $arg->name->value;
         }) : [];
-        $result = [];
+
         foreach ($argDefs as $argDef) {
             $name = $argDef->name;
-            $valueAST = isset($argASTMap[$name]) ? $argASTMap[$name]->value : null;
-            $value = Utils\AST::valueFromAST($valueAST, $argDef->getType(), $variableValues);
+            $argType = $argDef->getType();
+            $argumentAST = isset($argASTMap[$name]) ? $argASTMap[$name] : null;
 
-            if (null === $value && null === $argDef->defaultValue && !$argDef->defaultValueExists()) {
-                continue;
-            }
+            if (!$argumentAST) {
+                if ($argDef->defaultValueExists()) {
+                    $coercedValues[$name] = $argDef->defaultValue;
+                } else if ($argType instanceof NonNull) {
+                    throw new Error(
+                        'Argument "' . $name . '" of required type ' .
+                        '"' . Utils::printSafe($argType) . '" was not provided.',
+                        [$node]
+                    );
+                }
+            } else if ($argumentAST->value instanceof Variable) {
+                $variableName = $argumentAST->value->name->value;
 
-            if (null === $value) {
-                $value = $argDef->defaultValue;
+                if ($variableValues && array_key_exists($variableName, $variableValues)) {
+                    // Note: this does not check that this variable value is correct.
+                    // This assumes that this query has been validated and the variable
+                    // usage here is of the correct type.
+                    $coercedValues[$name] = $variableValues[$variableName];
+                } else if ($argDef->defaultValueExists()) {
+                    $coercedValues[$name] = $argDef->defaultValue;
+                } else if ($argType instanceof NonNull) {
+                    throw new Error(
+                        'Argument "' . $name . '" of required type "' . Utils::printSafe($argType) . '" was ' .
+                        'provided the variable "$' . $variableName . '" which was not provided ' .
+                        'a runtime value.',
+                        [ $argumentAST->value ]
+                    );
+                }
+            } else {
+                $valueAST = $argumentAST->value;
+                $coercedValue = Utils\AST::valueFromAST($valueAST, $argType, $variableValues);
+                if ($coercedValue === $undefined) {
+                    $errors = DocumentValidator::isValidLiteralValue($argType, $valueAST);
+                    $message = !empty($errors) ? ("\n" . implode("\n", $errors)) : '';
+                    throw new Error(
+                        'Argument "' . $name . '" got invalid value ' . Printer::doPrint($valueAST) . '.' . $message,
+                        [ $argumentAST->value ]
+                    );
+                }
+                $coercedValues[$name] = $coercedValue;
             }
-            if (NullValue::getNullValue() === $value) {
-                $value = null;
-            }
-            $result[$name] = $value;
         }
-        return $result;
+        return $coercedValues;
     }
 
     /**
@@ -93,56 +175,6 @@ class Values
     }
 
     /**
-     * Given a variable definition, and any value of input, return a value which
-     * adheres to the variable definition, or throw an error.
-     */
-    private static function getVariableValue(Schema $schema, VariableDefinition $definitionAST, $input)
-    {
-        $type = Utils\TypeInfo::typeFromAST($schema, $definitionAST->type);
-        $variable = $definitionAST->variable;
-
-        if (!$type || !Type::isInputType($type)) {
-            $printed = Printer::doPrint($definitionAST->type);
-            throw new Error(
-                "Variable \"\${$variable->name->value}\" expected value of type " .
-                "\"$printed\" which cannot be used as an input type.",
-                [ $definitionAST ]
-            );
-        }
-
-        $inputType = $type;
-        $errors = self::isValidPHPValue($input, $inputType);
-
-        if (empty($errors)) {
-            if (null === $input) {
-                $defaultValue = $definitionAST->defaultValue;
-                if ($defaultValue) {
-                    $value = Utils\AST::valueFromAST($defaultValue, $inputType);
-                    return $value === NullValue::getNullValue() ? null : $value;
-                }
-            }
-            return self::coerceValue($inputType, $input);
-        }
-
-        if (null === $input) {
-            $printed = Printer::doPrint($definitionAST->type);
-
-            throw new Error(
-                "Variable \"\${$variable->name->value}\" of required type " .
-                "\"$printed\" was not provided.",
-                [ $definitionAST ]
-            );
-        }
-        $message = $errors ? "\n" . implode("\n", $errors) : '';
-        $val = json_encode($input);
-        throw new Error(
-            "Variable \"\${$variable->name->value}\" got invalid value ".
-            "{$val}.{$message}",
-            [ $definitionAST ]
-        );
-    }
-
-    /**
      * Given a PHP value and a GraphQL type, determine if the value will be
      * accepted for that type. This is primarily useful for validating the
      * runtime values of query variables.
@@ -155,14 +187,10 @@ class Values
     {
         // A value must be provided if the type is non-null.
         if ($type instanceof NonNull) {
-            $ofType = $type->getWrappedType();
             if (null === $value) {
-                if ($ofType->name) {
-                    return [ "Expected \"{$ofType->name}!\", found null." ];
-                }
-                return [ 'Expected non-null value, found null.' ];
+                return ['Expected "' . Utils::printSafe($type) . '", found null.'];
             }
-            return self::isValidPHPValue($value, $ofType);
+            return self::isValidPHPValue($value, $type->getWrappedType());
         }
 
         if (null === $value) {
@@ -235,9 +263,16 @@ class Values
      */
     private static function coerceValue(Type $type, $value)
     {
+        $undefined = Utils::undefined();
+        if ($value === $undefined) {
+            return $undefined;
+        }
+
         if ($type instanceof NonNull) {
-            // Note: we're not checking that the result of coerceValue is non-null.
-            // We only call this function after calling isValidPHPValue.
+            if ($value === null) {
+                // Intentionally return no value.
+                return $undefined;
+            }
             return self::coerceValue($type->getWrappedType(), $value);
         }
 
@@ -248,32 +283,57 @@ class Values
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             if (is_array($value) || $value instanceof \Traversable) {
-                return Utils::map($value, function($item) use ($itemType) {
-                    return Values::coerceValue($itemType, $item);
-                });
+                $coercedValues = [];
+                foreach ($value as $item) {
+                    $itemValue = self::coerceValue($itemType, $item);
+                    if ($undefined === $itemValue) {
+                        // Intentionally return no value.
+                        return $undefined;
+                    }
+                    $coercedValues[] = $itemValue;
+                }
+                return $coercedValues;
             } else {
-                return [self::coerceValue($itemType, $value)];
+                $coercedValue = self::coerceValue($itemType, $value);
+                if ($coercedValue === $undefined) {
+                    // Intentionally return no value.
+                    return $undefined;
+                }
+                return [$coercedValue];
             }
         }
 
         if ($type instanceof InputObjectType) {
+            $coercedObj = [];
             $fields = $type->getFields();
-            $obj = [];
             foreach ($fields as $fieldName => $field) {
-                $fieldValue = self::coerceValue($field->getType(), isset($value[$fieldName]) ? $value[$fieldName] : null);
-                if (null === $fieldValue) {
-                    $fieldValue = $field->defaultValue;
+                if (!array_key_exists($fieldName, $value)) {
+                    if ($field->defaultValueExists()) {
+                        $coercedObj[$fieldName] = $field->defaultValue;
+                    } else if ($field->getType() instanceof NonNull) {
+                        // Intentionally return no value.
+                        return $undefined;
+                    }
+                    continue;
                 }
-                if (null !== $fieldValue) {
-                    $obj[$fieldName] = $fieldValue;
+                $fieldValue = self::coerceValue($field->getType(), $value[$fieldName]);
+                if ($fieldValue === $undefined) {
+                    // Intentionally return no value.
+                    return $undefined;
                 }
+                $coercedObj[$fieldName] = $fieldValue;
             }
-            return $obj;
-
+            return $coercedObj;
         }
 
         if ($type instanceof LeafType) {
-            return $type->parseValue($value);
+            $parsed = $type->parseValue($value);
+            if (null === $parsed) {
+                // null or invalid values represent a failure to parse correctly,
+                // in which case no value is returned.
+                return $undefined;
+            }
+            return $parsed;
         }
 
         throw new InvariantViolation('Must be input type');

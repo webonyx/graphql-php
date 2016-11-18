@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValue;
 use GraphQL\Language\AST\EnumValue;
+use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\FloatValue;
 use GraphQL\Language\AST\IntValue;
 use GraphQL\Language\AST\ListValue;
@@ -12,6 +13,7 @@ use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectValue;
 use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\Value;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\IDType;
@@ -178,6 +180,9 @@ class AST
      * A GraphQL type must be provided, which will be used to interpret different
      * GraphQL Value literals.
      *
+     * Returns `null` when the value could not be validly coerced according to
+     * the provided type.
+     *
      * | GraphQL Value        | PHP Value     |
      * | -------------------- | ------------- |
      * | Input Object         | Assoc Array   |
@@ -186,7 +191,7 @@ class AST
      * | String               | String        |
      * | Int / Float          | Int / Float   |
      * | Enum Value           | Mixed         |
-     * | Null Value           | null          |
+     * | Null Value           | stdClass      | instance of NullValue::getNullValue()
      *
      * @param $valueAST
      * @param InputType $type
@@ -196,30 +201,33 @@ class AST
      */
     public static function valueFromAST($valueAST, InputType $type, $variables = null)
     {
-        if ($type instanceof NonNull) {
-            // Note: we're not checking that the result of valueFromAST is non-null.
-            // We're assuming that this query has been validated and the value used
-            // here is of the correct type.
-            return self::valueFromAST($valueAST, $type->getWrappedType(), $variables);
-        }
+        $undefined = Utils::undefined();
 
         if (!$valueAST) {
             // When there is no AST, then there is also no value.
             // Importantly, this is different from returning the GraphQL null value.
-            return ;
+            return $undefined;
+        }
+
+        if ($type instanceof NonNull) {
+            if ($valueAST instanceof NullValue) {
+                // Invalid: intentionally return no value.
+                return $undefined;
+            }
+            return self::valueFromAST($valueAST, $type->getWrappedType(), $variables);
         }
 
         if ($valueAST instanceof NullValue) {
             // This is explicitly returning the value null.
-            return NullValue::getNullValue();
+            return null;
         }
 
         if ($valueAST instanceof Variable) {
             $variableName = $valueAST->name->value;
 
-            if (!$variables || !isset($variables[$variableName])) {
+            if (!$variables || !array_key_exists($variableName, $variables)) {
                 // No valid return value.
-                return ;
+                return $undefined;
             }
             // Note: we're not doing any checking that this variable is correct. We're
             // assuming that this query has been validated and the variable usage here
@@ -229,51 +237,99 @@ class AST
 
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            $items = $valueAST instanceof ListValue ? $valueAST->values : [$valueAST];
-            $result = [];
-            foreach ($items as $itemAST) {
-                $value = self::valueFromAST($itemAST, $itemType, $variables);
-                if ($value === NullValue::getNullValue()) {
-                    $value = null;
+
+            if ($valueAST instanceof ListValue) {
+                $coercedValues = [];
+                $itemASTs = $valueAST->values;
+                foreach ($itemASTs as $itemAST) {
+                    if (self::isMissingVariable($itemAST, $variables)) {
+                        // If an array contains a missing variable, it is either coerced to
+                        // null or if the item type is non-null, it considered invalid.
+                        if ($itemType instanceof NonNull) {
+                            // Invalid: intentionally return no value.
+                            return $undefined;
+                        }
+                        $coercedValues[] = null;
+                    } else {
+                        $itemValue = self::valueFromAST($itemAST, $itemType, $variables);
+                        if ($undefined === $itemValue) {
+                            // Invalid: intentionally return no value.
+                            return $undefined;
+                        }
+                        $coercedValues[] = $itemValue;
+                    }
                 }
-                $result[] = $value;
+                return $coercedValues;
             }
-            return $result;
+            $coercedValue = self::valueFromAST($valueAST, $itemType, $variables);
+            if ($undefined === $coercedValue) {
+                // Invalid: intentionally return no value.
+                return $undefined;
+            }
+            return [$coercedValue];
         }
 
         if ($type instanceof InputObjectType) {
-            $fields = $type->getFields();
             if (!$valueAST instanceof ObjectValue) {
-                // No valid return value.
-                return ;
+                // Invalid: intentionally return no value.
+                return $undefined;
             }
+
+            $coercedObj = [];
+            $fields = $type->getFields();
             $fieldASTs = Utils::keyMap($valueAST->fields, function($field) {return $field->name->value;});
-            $values = [];
             foreach ($fields as $field) {
-                $fieldAST = isset($fieldASTs[$field->name]) ? $fieldASTs[$field->name] : null;
+                /** @var Value $fieldAST */
+                $fieldName = $field->name;
+                $fieldAST = isset($fieldASTs[$fieldName]) ? $fieldASTs[$fieldName] : null;
+
+                if (!$fieldAST || self::isMissingVariable($fieldAST->value, $variables)) {
+                    if ($field->defaultValueExists()) {
+                        $coercedObj[$fieldName] = $field->defaultValue;
+                    } else if ($field->getType() instanceof NonNull) {
+                        // Invalid: intentionally return no value.
+                        return $undefined;
+                    }
+                    continue ;
+                }
+
                 $fieldValue = self::valueFromAST($fieldAST ? $fieldAST->value : null, $field->getType(), $variables);
 
-                // If field is not in AST and defaultValue was never set for this field - do not include it in result
-                if (null === $fieldValue && null === $field->defaultValue && !$field->defaultValueExists()) {
-                    continue;
+                if ($undefined === $fieldValue) {
+                    // Invalid: intentionally return no value.
+                    return $undefined;
                 }
-
-                // Set Explicit null value or default value:
-                if (NullValue::getNullValue() === $fieldValue) {
-                    $fieldValue = null;
-                } else if (null === $fieldValue) {
-                    $fieldValue = $field->defaultValue;
-                }
-
-                $values[$field->name] =  $fieldValue;
+                $coercedObj[$fieldName] = $fieldValue;
             }
-            return $values;
+            return $coercedObj;
         }
 
         if ($type instanceof LeafType) {
-            return $type->parseLiteral($valueAST);
+            $parsed = $type->parseLiteral($valueAST);
+
+            if (null === $parsed) {
+                // null represent a failure to parse correctly,
+                // in which case no value is returned.
+                return $undefined;
+            }
+
+            return $parsed;
         }
 
         throw new InvariantViolation('Must be input type');
+    }
+
+
+    /**
+     * Returns true if the provided valueAST is a variable which is not defined
+     * in the set of variables.
+     * @param $valueAST
+     * @param $variables
+     * @return bool
+     */
+    private static function isMissingVariable($valueAST, $variables)
+    {
+        return $valueAST instanceof Variable &&
+        (!$variables || !array_key_exists($valueAST->name->value, $variables));
     }
 }

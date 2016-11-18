@@ -74,20 +74,35 @@ class Error extends \Exception implements \JsonSerializable
      */
     public static function createLocatedError($error, $nodes = null, $path = null)
     {
-        if ($error instanceof self) {
+        if ($error instanceof self && $error->path) {
             return $error;
         }
 
-        if ($error instanceof \Exception) {
+        $source = $positions = $originalError = null;
+
+        if ($error instanceof self) {
             $message = $error->getMessage();
-            $previous = $error;
+            $originalError = $error;
+            $nodes = $error->nodes ?: $nodes;
+            $source = $error->source;
+            $positions = $error->positions;
+        } else if ($error instanceof \Exception) {
+            $message = $error->getMessage();
+            $originalError = $error;
         } else {
             $message = (string) $error;
-            $previous = null;
         }
 
-        return new static($message, $nodes, null, null, $path, $previous);
+        return new static(
+            $message ?: 'An unknown error occurred.',
+            $nodes,
+            $source,
+            $positions,
+            $path,
+            $originalError
+        );
     }
+
 
     /**
      * @param Error $error

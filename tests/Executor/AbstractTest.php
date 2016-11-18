@@ -251,12 +251,11 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
                     null
                 ]
             ],
-            'errors' => [
-                FormattedError::create(
-                    'Runtime Object type "Human" is not a possible type for "Pet".',
-                    [new SourceLocation(2, 11)]
-                )
-            ]
+            'errors' => [[
+                'message' => 'Runtime Object type "Human" is not a possible type for "Pet".',
+                'locations' => [['line' => 2, 'column' => 11]],
+                'path' => ['pets', 2]
+            ]]
         ];
         $actual = GraphQL::execute($schema, $query);
 
@@ -349,12 +348,11 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
                     null
                 ]
             ],
-            'errors' => [
-                FormattedError::create(
-                    'Runtime Object type "Human" is not a possible type for "Pet".',
-                    [new SourceLocation(2, 11)]
-                )
-            ]
+            'errors' => [[
+                'message' => 'Runtime Object type "Human" is not a possible type for "Pet".',
+                'locations' => [['line' => 2, 'column' => 11]],
+                'path' => ['pets', 2]
+            ]]
         ];
         $this->assertEquals($expected, $result);
     }

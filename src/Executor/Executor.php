@@ -338,7 +338,7 @@ class Executor
             : null;
 
         if ($skipAST) {
-            $argValues = Values::getArgumentValues($skipDirective->args, $skipAST->arguments, $exeContext->variableValues);
+            $argValues = Values::getArgumentValues($skipDirective, $skipAST, $exeContext->variableValues);
             if (isset($argValues['if']) && $argValues['if'] === true) {
                 return false;
             }
@@ -352,7 +352,7 @@ class Executor
             : null;
 
         if ($includeAST) {
-            $argValues = Values::getArgumentValues($includeDirective->args, $includeAST->arguments, $exeContext->variableValues);
+            $argValues = Values::getArgumentValues($includeDirective, $includeAST, $exeContext->variableValues);
             if (isset($argValues['if']) && $argValues['if'] === false) {
                 return false;
             }
@@ -410,14 +410,6 @@ class Executor
 
         $returnType = $fieldDef->getType();
 
-        // Build hash of arguments from the field.arguments AST, using the
-        // variables scope to fulfill any variable references.
-        $args = Values::getArgumentValues(
-            $fieldDef->args,
-            $fieldAST->arguments,
-            $exeContext->variableValues
-        );
-
         // The resolve function's optional third argument is a collection of
         // information about the current execution state.
         $info = new ResolveInfo([
@@ -449,7 +441,15 @@ class Executor
 
         // Get the resolve function, regardless of if its result is normal
         // or abrupt (error).
-        $result = self::resolveOrError($resolveFn, $source, $args, $context, $info);
+        $result = self::resolveOrError(
+            $exeContext,
+            $fieldDef,
+            $fieldAST,
+            $resolveFn,
+            $source,
+            $context,
+            $info
+        );
 
         $result = self::completeValueCatchingError(
             $exeContext,
@@ -463,11 +463,30 @@ class Executor
         return $result;
     }
 
-    // Isolates the "ReturnOrAbrupt" behavior to not de-opt the `resolveField`
-    // function. Returns the result of resolveFn or the abrupt-return Error object.
-    private static function resolveOrError($resolveFn, $source, $args, $context, $info)
+    /**
+     * Isolates the "ReturnOrAbrupt" behavior to not de-opt the `resolveField`
+     * function. Returns the result of resolveFn or the abrupt-return Error object.
+     *
+     * @param ExecutionContext $exeContext
+     * @param FieldDefinition $fieldDef
+     * @param Field $fieldAST
+     * @param callable $resolveFn
+     * @param mixed $source
+     * @param mixed $context
+     * @param ResolveInfo $info
+     * @return \Exception|mixed
+     */
+    private static function resolveOrError($exeContext, $fieldDef, $fieldAST, $resolveFn, $source, $context, $info)
     {
         try {
+            // Build hash of arguments from the field.arguments AST, using the
+            // variables scope to fulfill any variable references.
+            $args = Values::getArgumentValues(
+                $fieldDef,
+                $fieldAST,
+                $exeContext->variableValues
+            );
+
             return call_user_func($resolveFn, $source, $args, $context, $info);
         } catch (\Exception $error) {
             return $error;
@@ -783,8 +802,9 @@ class Executor
         $i = 0;
         $tmp = [];
         foreach ($result as $item) {
-            $path[] = $i++;
-            $tmp[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $path, $item);
+            $fieldPath = $path;
+            $fieldPath[] = $i++;
+            $tmp[] = self::completeValueCatchingError($exeContext, $itemType, $fieldASTs, $info, $fieldPath, $item);
         }
         return $tmp;
     }

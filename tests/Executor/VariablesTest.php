@@ -81,19 +81,24 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
         $result = Executor::execute($this->schema(), $ast)->toArray();
 
         $expected = [
-            'data' => ['fieldWithObjectInput' => null]
+            'data' => ['fieldWithObjectInput' => null],
+            'errors' => [[
+                'message' => 'Argument "input" got invalid value ["foo", "bar", "baz"].' . "\n" .
+                    'Expected "TestInputObject", found not an object.',
+                'path' => ['fieldWithObjectInput']
+            ]]
         ];
-        $this->assertEquals($expected, $result);
+        $this->assertArraySubset($expected, $result);
 
         // properly runs parseLiteral on complex scalar types
         $doc = '
         {
-          fieldWithObjectInput(input: {a: "foo", d: "SerializedValue"})
+          fieldWithObjectInput(input: {c: "foo", d: "SerializedValue"})
         }
         ';
         $ast = Parser::parse($doc);
         $this->assertEquals(
-            ['data' => ['fieldWithObjectInput' => '{"a":"foo","d":"DeserializedValue"}']],
+            ['data' => ['fieldWithObjectInput' => '{"c":"foo","d":"DeserializedValue"}']],
             Executor::execute($this->schema(), $ast)->toArray()
         );
     }
@@ -333,6 +338,24 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
     // Describe: Handles non-nullable scalars
 
     /**
+     * @it allows non-nullable inputs to be omitted given a default
+     */
+    public function testAllowsNonNullableInputsToBeOmittedGivenADefault()
+    {
+        $doc = '
+        query SetsNonNullable($value: String = "default") {
+          fieldWithNonNullableStringInput(input: $value)
+        }
+        ';
+        $ast = Parser::parse($doc);
+        $expected = [
+            'data' => ['fieldWithNonNullableStringInput' => '"default"']
+        ];
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
+
+    }
+
+    /**
      * @it does not allow non-nullable inputs to be omitted in a variable
      */
     public function testDoesntAllowNonNullableInputsToBeOmittedInAVariable()
@@ -368,13 +391,15 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse($doc);
 
         try {
-            Executor::execute($this->schema(), $ast, null, ['value' => null]);
+            Executor::execute($this->schema(), $ast, null, null, ['value' => null]);
             $this->fail('Expected exception not thrown');
         } catch (Error $e) {
-            $expected = FormattedError::create(
-                'Variable "$value" of required type "String!" was not provided.',
-                [new SourceLocation(2, 31)]
-            );
+            $expected = [
+                'message' =>
+                    'Variable "$value" got invalid value null.' . "\n".
+                    'Expected "String!", found null.',
+                'locations' => [['line' => 2, 'column' => 31]]
+            ];
             $this->assertEquals($expected, Error::formatError($e));
         }
     }
@@ -411,9 +436,9 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it passes along null for non-nullable inputs if explcitly set in the query
+     * @it reports error for missing non-nullable inputs
      */
-    public function testPassesAlongNullForNonNullableInputsIfExplcitlySetInTheQuery()
+    public function testReportsErrorForMissingNonNullableInputs()
     {
         $doc = '
       {
@@ -421,7 +446,44 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
       }
         ';
         $ast = Parser::parse($doc);
-        $expected = ['data' => ['fieldWithNonNullableStringInput' => null]];
+        $expected = [
+            'data' => ['fieldWithNonNullableStringInput' => null],
+            'errors' => [[
+                'message' => 'Argument "input" of required type "String!" was not provided.',
+                'locations' => [ [ 'line' => 3, 'column' => 9 ] ],
+                'path' => [ 'fieldWithNonNullableStringInput' ]
+            ]]
+        ];
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
+    }
+
+    /**
+     * @it reports error for non-provided variables for non-nullable inputs
+     */
+    public function testReportsErrorForNonProvidedVariablesForNonNullableInputs()
+    {
+        // Note: this test would typically fail validation before encountering
+        // this execution error, however for queries which previously validated
+        // and are being run against a new schema which have introduced a breaking
+        // change to make a formerly non-required argument required, this asserts
+        // failure before allowing the underlying code to receive a non-null value.
+        $doc = '
+      {
+        fieldWithNonNullableStringInput(input: $foo)
+      }
+        ';
+        $ast = Parser::parse($doc);
+
+        $expected = [
+            'data' => ['fieldWithNonNullableStringInput' => null],
+            'errors' => [[
+                'message' =>
+                    'Argument "input" of required type "String!" was provided the ' .
+                    'variable "$foo" which was not provided a runtime value.',
+                'locations' => [['line' => 3, 'column' => 48]],
+                'path' => ['fieldWithNonNullableStringInput']
+            ]]
+        ];
         $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
     }
 
@@ -485,7 +547,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = FormattedError::create(
-            'Variable "$input" of required type "[String]!" was not provided.',
+            'Variable "$input" got invalid value null.' . "\n" .
+            'Expected "[String]!", found null.',
             [new SourceLocation(2, 17)]
         );
 
@@ -596,7 +659,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
         ';
         $ast = Parser::parse($doc);
         $expected = FormattedError::create(
-            'Variable "$input" of required type "[String!]!" was not provided.',
+            'Variable "$input" got invalid value null.' . "\n" .
+            'Expected "[String!]!", found null.',
             [new SourceLocation(2, 17)]
         );
         try {
@@ -663,11 +727,12 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
             Executor::execute($this->schema(), $ast, null, null, $vars);
             $this->fail('Expected exception not thrown');
         } catch (Error $error) {
-            $expected = FormattedError::create(
-                'Variable "$input" expected value of type "TestType!" which cannot ' .
-                'be used as an input type.',
-                [new SourceLocation(2, 17)]
-            );
+            $expected = [
+                'message' =>
+                    'Variable "$input" expected value of type "TestType!" which cannot ' .
+                    'be used as an input type.',
+                'locations' => [['line' => 2, 'column' => 25]]
+            ];
             $this->assertEquals($expected, Error::formatError($error));
         }
     }
@@ -692,7 +757,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
             $expected = FormattedError::create(
                 'Variable "$input" expected value of type "UnknownType!" which ' .
                 'cannot be used as an input type.',
-                [new SourceLocation(2, 17)]
+                [new SourceLocation(2, 25)]
             );
             $this->assertEquals($expected, Error::formatError($error));
         }
@@ -715,9 +780,9 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it when nullable variable provided
+     * @it when omitted variable provided
      */
-    public function testWhenNullableVariableProvided()
+    public function testWhenOmittedVariableProvided()
     {
         $ast = Parser::parse('query optionalVariable($optional: String) {
             fieldWithDefaultArgumentValue(input: $optional)
@@ -730,16 +795,27 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it when argument provided cannot be parsed
+     * @it not when argument cannot be coerced
      */
-    public function testWhenArgumentProvidedCannotBeParsed()
+    public function testNotWhenArgumentCannotBeCoerced()
     {
         $ast = Parser::parse('{
             fieldWithDefaultArgumentValue(input: WRONG_TYPE)
         }');
 
+        $expected = [
+            'data' => ['fieldWithDefaultArgumentValue' => null],
+            'errors' => [[
+                'message' =>
+                    'Argument "input" got invalid value WRONG_TYPE.' . "\n" .
+                    'Expected type "String", found WRONG_TYPE.',
+                'locations' => [ [ 'line' => 2, 'column' => 50 ] ],
+                'path' => [ 'fieldWithDefaultArgumentValue' ]
+            ]]
+        ];
+
         $this->assertEquals(
-            ['data' => ['fieldWithDefaultArgumentValue' => '"Hello World"']],
+            $expected,
             Executor::execute($this->schema(), $ast)->toArray()
         );
     }

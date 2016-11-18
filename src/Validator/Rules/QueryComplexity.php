@@ -199,7 +199,7 @@ class QueryComplexity extends AbstractQuerySecurity
                 $this->variableDefs,
                 $rawVariableValues
             );
-            $args = Values::getArgumentValues($fieldDef->args, $node->arguments, $variableValues);
+            $args = Values::getArgumentValues($fieldDef, $node, $variableValues);
         }
 
         return $args;
