@@ -3,6 +3,7 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -373,8 +374,9 @@ class OverlappingFieldsCanBeMerged
     }
 
     /**
-     * @param Array<ArgumentNode | DirectiveNode> $pairs1
-     * @param Array<ArgumentNode | DirectiveNode> $pairs2
+     * @param ArgumentNode[]|DirectiveNode[] $arguments1
+     * @param ArgumentNode[]|DirectiveNode[] $arguments2
+     *
      * @return bool|string
      */
     private function sameArguments(array $arguments1, array $arguments2)

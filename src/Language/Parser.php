@@ -404,7 +404,7 @@ class Parser
     }
 
     /**
-     * @return array<VariableDefinitionNode>
+     * @return VariableDefinitionNode[]
      */
     function parseVariableDefinitions()
     {
@@ -507,7 +507,7 @@ class Parser
     }
 
     /**
-     * @return array<ArgumentNode>
+     * @return ArgumentNode[]
      */
     function parseArguments()
     {
@@ -752,7 +752,7 @@ class Parser
     // Implements the parsing rules in the Directives section.
 
     /**
-     * @return array<DirectiveNode>
+     * @return DirectiveNode[]
      */
     function parseDirectives()
     {

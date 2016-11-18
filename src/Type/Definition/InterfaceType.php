@@ -10,7 +10,7 @@ use GraphQL\Utils;
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType
 {
     /**
-     * @var array<string,FieldDefinition>
+     * @var FieldDefinition[]
      */
     private $fields;
 

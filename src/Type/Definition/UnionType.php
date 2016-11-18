@@ -16,7 +16,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
     private $types;
 
     /**
-     * @var array<string, ObjectType>
+     * @var ObjectType[]
      */
     private $possibleTypeNames;
 

@@ -19,12 +19,12 @@ class OperationDefinitionNode extends Node implements DefinitionNode, HasSelecti
     public $operation;
 
     /**
-     * @var array<VariableDefinitionNode>
+     * @var VariableDefinitionNode[]
      */
     public $variableDefinitions;
 
     /**
-     * @var array<DirectiveNode>
+     * @var DirectiveNode[]
      */
     public $directives;
 

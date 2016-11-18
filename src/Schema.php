@@ -62,7 +62,7 @@ class Schema
     protected $directives;
 
     /**
-     * @var array<string, Type>
+     * @var Type[]
      */
     protected $typeMap;
 

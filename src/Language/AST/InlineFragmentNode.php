@@ -11,7 +11,7 @@ class InlineFragmentNode extends Node implements SelectionNode
     public $typeCondition;
 
     /**
-     * @var array<DirectiveNode>|null
+     * @var DirectiveNode[]|null
      */
     public $directives;
 

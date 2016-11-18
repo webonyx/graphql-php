@@ -16,7 +16,7 @@ class FragmentDefinitionNode extends Node implements DefinitionNode, HasSelectio
     public $typeCondition;
 
     /**
-     * @var array<DirectiveNode>
+     * @var DirectiveNode[]
      */
     public $directives;
 

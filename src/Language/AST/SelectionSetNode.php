@@ -6,7 +6,7 @@ class SelectionSetNode extends Node
     public $kind = NodeType::SELECTION_SET;
 
     /**
-     * @var array<SelectionNode>
+     * @var SelectionNode[]
      */
     public $selections;
 }

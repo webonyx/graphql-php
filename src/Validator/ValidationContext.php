@@ -48,7 +48,7 @@ class ValidationContext
     private $errors;
 
     /**
-     * @var array<string, FragmentDefinitionNode>
+     * @var FragmentDefinitionNode[]
      */
     private $fragments;
 

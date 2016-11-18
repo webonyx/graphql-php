@@ -2,6 +2,7 @@
 namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Schema;
 
@@ -19,7 +20,7 @@ class ExecutionContext
     public $schema;
 
     /**
-     * @var array<string, FragmentDefinitionNode>
+     * @var FragmentDefinitionNode[]
      */
     public $fragments;
 

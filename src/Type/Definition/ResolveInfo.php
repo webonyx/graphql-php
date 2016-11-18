@@ -47,7 +47,7 @@ class ResolveInfo
     public $schema;
 
     /**
-     * @var array<fragmentName, FragmentDefinition>
+     * @var FragmentDefinitionNode[]
      */
     public $fragments;
 
