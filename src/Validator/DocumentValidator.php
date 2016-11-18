@@ -3,14 +3,14 @@ namespace GraphQL\Validator;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\ListValue;
-use GraphQL\Language\AST\Document;
-use GraphQL\Language\AST\FragmentSpread;
+use GraphQL\Language\AST\ListValueNode;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\NullValue;
-use GraphQL\Language\AST\Value;
-use GraphQL\Language\AST\Variable;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\ValueNode;
+use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
@@ -120,7 +120,7 @@ class DocumentValidator
         self::$rules[$name] = $rule;
     }
 
-    public static function validate(Schema $schema, Document $ast, array $rules = null)
+    public static function validate(Schema $schema, DocumentNode $ast, array $rules = null)
     {
         $typeInfo = new TypeInfo($schema);
         $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules ?: static::allRules());
@@ -157,26 +157,26 @@ class DocumentValidator
     {
         // A value must be provided if the type is non-null.
         if ($type instanceof NonNull) {
-            if (!$valueAST || $valueAST instanceof NullValue) {
+            if (!$valueAST || $valueAST instanceof NullValueNode) {
                 return [ 'Expected "' . Utils::printSafe($type) . '", found null.' ];
             }
             return static::isValidLiteralValue($type->getWrappedType(), $valueAST);
         }
 
-        if (!$valueAST || $valueAST instanceof NullValue) {
+        if (!$valueAST || $valueAST instanceof NullValueNode) {
             return [];
         }
 
         // This function only tests literals, and assumes variables will provide
         // values of the correct type.
-        if ($valueAST instanceof Variable) {
+        if ($valueAST instanceof VariableNode) {
             return [];
         }
 
         // Lists accept a non-list value as a list of one.
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            if ($valueAST instanceof ListValue) {
+            if ($valueAST instanceof ListValueNode) {
                 $errors = [];
                 foreach($valueAST->values as $index => $itemAST) {
                     $tmp = static::isValidLiteralValue($itemType, $itemAST);
@@ -250,11 +250,11 @@ class DocumentValidator
      *
      * @param Schema $schema
      * @param TypeInfo $typeInfo
-     * @param Document $documentAST
+     * @param DocumentNode $documentAST
      * @param array $rules
      * @return array
      */
-    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, Document $documentAST, array $rules)
+    public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentAST, array $rules)
     {
         $context = new ValidationContext($schema, $documentAST, $typeInfo);
         $visitors = [];

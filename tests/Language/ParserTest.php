@@ -1,14 +1,14 @@
 <?php
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\Name;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\NullValue;
-use GraphQL\Language\AST\SelectionSet;
-use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -122,14 +122,14 @@ HEREDOC;
 
         $result = Parser::parse($query, ['noLocation' => true]);
 
-        $expected = new SelectionSet([
+        $expected = new SelectionSetNode([
             'selections' => [
-                new Field([
-                    'name' => new Name(['value' => 'field']),
+                new FieldNode([
+                    'name' => new NameNode(['value' => 'field']),
                     'arguments' => [
-                        new Argument([
-                            'name' => new Name(['value' => 'arg']),
-                            'value' => new StringValue([
+                        new ArgumentNode([
+                            'name' => new NameNode(['value' => 'arg']),
+                            'value' => new StringValueNode([
                                 'value' => "Has a $char multi-byte character."
                             ])
                         ])

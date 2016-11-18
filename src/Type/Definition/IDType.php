@@ -1,8 +1,8 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Language\AST\IntValue;
-use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\StringValueNode;
 
 /**
  * Class IDType
@@ -55,7 +55,7 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function parseLiteral($ast)
     {
-        if ($ast instanceof StringValue || $ast instanceof IntValue) {
+        if ($ast instanceof StringValueNode || $ast instanceof IntValueNode) {
             return $ast->value;
         }
         return null;

@@ -42,7 +42,7 @@ Here is an example of simple `Email` type (using inheritance):
 namespace MyApp;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils;
 
@@ -98,7 +98,7 @@ class EmailType extends ScalarType
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:
-        if (!$valueAST instanceof StringValue) {
+        if (!$valueAST instanceof StringValueNode) {
             throw new Error('Query error: Can only parse strings got: ' . $valueAST->kind, [$valueAST]);
         }
         if (!filter_var($valueAST->value, FILTER_VALIDATE_EMAIL)) {

@@ -2,8 +2,8 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\IntValue;
-use GraphQL\Language\AST\Value;
+use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\ValueNode;
 use GraphQL\Utils;
 
 /**
@@ -78,7 +78,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     public function parseLiteral($ast)
     {
-        if ($ast instanceof IntValue) {
+        if ($ast instanceof IntValueNode) {
             $val = (int) $ast->value;
             if ($ast->value === (string) $val && self::MIN_INT <= $val && $val <= self::MAX_INT) {
                 return $val;

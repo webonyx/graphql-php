@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Language\AST\EnumValue;
+use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Utils;
 
 /**
@@ -95,7 +95,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
      */
     public function parseLiteral($value)
     {
-        if ($value instanceof EnumValue) {
+        if ($value instanceof EnumValueNode) {
             $lookup = $this->getNameLookup();
             if (isset($lookup[$value->value])) {
                 $enumValue = $lookup[$value->value];
@@ -124,7 +124,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     }
 
     /**
-     * @return \ArrayObject<string, GraphQLEnumValueDefinition>
+     * @return \ArrayObject<string, EnumValueDefinition>
      */
     private function getNameLookup()
     {

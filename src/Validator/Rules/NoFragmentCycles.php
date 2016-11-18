@@ -10,8 +10,8 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
@@ -48,7 +48,7 @@ class NoFragmentCycles
             NodeType::OPERATION_DEFINITION => function () {
                 return Visitor::skipNode();
             },
-            NodeType::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
+            NodeType::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) use ($context) {
                 if (!isset($this->visitedFrags[$node->name->value])) {
                     $this->detectCycleRecursive($node, $context);
                 }
@@ -57,7 +57,7 @@ class NoFragmentCycles
         ];
     }
 
-    private function detectCycleRecursive(FragmentDefinition $fragment, ValidationContext $context)
+    private function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
     {
         $fragmentName = $fragment->name->value;
         $this->visitedFrags[$fragmentName] = true;

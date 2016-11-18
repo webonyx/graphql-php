@@ -1,12 +1,12 @@
 <?php
 namespace GraphQL\Utils;
 
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\ListType;
-use GraphQL\Language\AST\NamedType;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\ListTypeNode;
+use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\NonNullType;
+use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
@@ -149,16 +149,16 @@ class TypeInfo
      */
     public static function typeFromAST(Schema $schema, $inputTypeAst)
     {
-        if ($inputTypeAst instanceof ListType) {
+        if ($inputTypeAst instanceof ListTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeAst->type);
             return $innerType ? new ListOfType($innerType) : null;
         }
-        if ($inputTypeAst instanceof NonNullType) {
+        if ($inputTypeAst instanceof NonNullTypeNode) {
             $innerType = self::typeFromAST($schema, $inputTypeAst->type);
             return $innerType ? new NonNull($innerType) : null;
         }
 
-        Utils::invariant($inputTypeAst && $inputTypeAst instanceof NamedType, 'Must be a named type');
+        Utils::invariant($inputTypeAst && $inputTypeAst instanceof NamedTypeNode, 'Must be a named type');
         return $schema->getType($inputTypeAst->name->value);
     }
 
@@ -169,7 +169,7 @@ class TypeInfo
      *
      * @return FieldDefinition
      */
-    static private function getFieldDefinition(Schema $schema, Type $parentType, Field $fieldAST)
+    static private function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldAST)
     {
         $name = $fieldAST->name->value;
         $schemaMeta = Introspection::schemaMetaFieldDef();

@@ -1,0 +1,25 @@
+<?php
+namespace GraphQL\Language\AST;
+
+class UnionTypeDefinitionNode extends Node implements TypeDefinitionNode
+{
+    /**
+     * @var string
+     */
+    public $kind = NodeType::UNION_TYPE_DEFINITION;
+
+    /**
+     * @var NameNode
+     */
+    public $name;
+
+    /**
+     * @var DirectiveNode[]
+     */
+    public $directives;
+
+    /**
+     * @var NamedTypeNode[]
+     */
+    public $types = [];
+}

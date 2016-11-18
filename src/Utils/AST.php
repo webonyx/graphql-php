@@ -2,19 +2,19 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\BooleanValue;
-use GraphQL\Language\AST\EnumValue;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FloatValue;
-use GraphQL\Language\AST\IntValue;
-use GraphQL\Language\AST\ListValue;
-use GraphQL\Language\AST\Name;
-use GraphQL\Language\AST\NullValue;
-use GraphQL\Language\AST\ObjectField;
-use GraphQL\Language\AST\ObjectValue;
-use GraphQL\Language\AST\StringValue;
-use GraphQL\Language\AST\Value;
-use GraphQL\Language\AST\Variable;
+use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\EnumValueNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FloatValueNode;
+use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\ListValueNode;
+use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\ObjectFieldNode;
+use GraphQL\Language\AST\ObjectValueNode;
+use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Language\AST\ValueNode;
+use GraphQL\Language\AST\VariableNode;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -50,20 +50,20 @@ class AST
      *
      * @param $value
      * @param InputType $type
-     * @return ObjectValue|ListValue|BooleanValue|IntValue|FloatValue|EnumValue|StringValue|NullValue
+     * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
      */
     static function astFromValue($value, InputType $type)
     {
         if ($type instanceof NonNull) {
             $astValue = self::astFromValue($value, $type->getWrappedType());
-            if ($astValue instanceof NullValue) {
+            if ($astValue instanceof NullValueNode) {
                 return null;
             }
             return $astValue;
         }
 
         if ($value === null) {
-            return new NullValue([]);
+            return new NullValueNode([]);
         }
 
         // Convert PHP array to GraphQL list. If the GraphQLType is a list, but
@@ -78,7 +78,7 @@ class AST
                         $valuesASTs[] = $itemAST;
                     }
                 }
-                return new ListValue(['values' => $valuesASTs]);
+                return new ListValueNode(['values' => $valuesASTs]);
             }
             return self::astFromValue($value, $itemType);
         }
@@ -117,14 +117,14 @@ class AST
                     $fieldNode = self::astFromValue($fieldValue, $field->getType());
 
                     if ($fieldNode) {
-                        $fieldASTs[] = new ObjectField([
-                            'name' => new Name(['value' => $fieldName]),
+                        $fieldASTs[] = new ObjectFieldNode([
+                            'name' => new NameNode(['value' => $fieldName]),
                             'value' => $fieldNode
                         ]);
                     }
                 }
             }
-            return new ObjectValue(['fields' => $fieldASTs]);
+            return new ObjectValueNode(['fields' => $fieldASTs]);
         }
 
         // Since value is an internally represented value, it must be serialized
@@ -141,32 +141,32 @@ class AST
 
         // Others serialize based on their corresponding PHP scalar types.
         if (is_bool($serialized)) {
-            return new BooleanValue(['value' => $serialized]);
+            return new BooleanValueNode(['value' => $serialized]);
         }
         if (is_int($serialized)) {
-            return new IntValue(['value' => $serialized]);
+            return new IntValueNode(['value' => $serialized]);
         }
         if (is_float($serialized)) {
             if ((int) $serialized == $serialized) {
-                return new IntValue(['value' => $serialized]);
+                return new IntValueNode(['value' => $serialized]);
             }
-            return new FloatValue(['value' => $serialized]);
+            return new FloatValueNode(['value' => $serialized]);
         }
         if (is_string($serialized)) {
             // Enum types use Enum literals.
             if ($type instanceof EnumType) {
-                return new EnumValue(['value' => $serialized]);
+                return new EnumValueNode(['value' => $serialized]);
             }
 
             // ID types can use Int literals.
             $asInt = (int) $serialized;
             if ($type instanceof IDType && (string) $asInt === $serialized) {
-                return new IntValue(['value' => $serialized]);
+                return new IntValueNode(['value' => $serialized]);
             }
 
             // Use json_encode, which uses the same string encoding as GraphQL,
             // then remove the quotes.
-            return new StringValue([
+            return new StringValueNode([
                 'value' => substr(json_encode($serialized), 1, -1)
             ]);
         }
@@ -210,19 +210,19 @@ class AST
         }
 
         if ($type instanceof NonNull) {
-            if ($valueAST instanceof NullValue) {
+            if ($valueAST instanceof NullValueNode) {
                 // Invalid: intentionally return no value.
                 return $undefined;
             }
             return self::valueFromAST($valueAST, $type->getWrappedType(), $variables);
         }
 
-        if ($valueAST instanceof NullValue) {
+        if ($valueAST instanceof NullValueNode) {
             // This is explicitly returning the value null.
             return null;
         }
 
-        if ($valueAST instanceof Variable) {
+        if ($valueAST instanceof VariableNode) {
             $variableName = $valueAST->name->value;
 
             if (!$variables || !array_key_exists($variableName, $variables)) {
@@ -238,7 +238,7 @@ class AST
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
 
-            if ($valueAST instanceof ListValue) {
+            if ($valueAST instanceof ListValueNode) {
                 $coercedValues = [];
                 $itemASTs = $valueAST->values;
                 foreach ($itemASTs as $itemAST) {
@@ -270,7 +270,7 @@ class AST
         }
 
         if ($type instanceof InputObjectType) {
-            if (!$valueAST instanceof ObjectValue) {
+            if (!$valueAST instanceof ObjectValueNode) {
                 // Invalid: intentionally return no value.
                 return $undefined;
             }
@@ -279,7 +279,7 @@ class AST
             $fields = $type->getFields();
             $fieldASTs = Utils::keyMap($valueAST->fields, function($field) {return $field->name->value;});
             foreach ($fields as $field) {
-                /** @var Value $fieldAST */
+                /** @var ValueNode $fieldAST */
                 $fieldName = $field->name;
                 $fieldAST = isset($fieldASTs[$fieldName]) ? $fieldASTs[$fieldName] : null;
 
@@ -329,7 +329,7 @@ class AST
      */
     private static function isMissingVariable($valueAST, $variables)
     {
-        return $valueAST instanceof Variable &&
+        return $valueAST instanceof VariableNode &&
         (!$variables || !array_key_exists($valueAST->name->value, $variables));
     }
 }

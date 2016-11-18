@@ -3,8 +3,8 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
@@ -32,7 +32,7 @@ class NoUnusedFragments
                 $this->operationDefs[] = $node;
                 return Visitor::skipNode();
             },
-            NodeType::FRAGMENT_DEFINITION => function(FragmentDefinition $def) {
+            NodeType::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $def) {
                 $this->fragmentDefs[] = $def;
                 return Visitor::skipNode();
             },

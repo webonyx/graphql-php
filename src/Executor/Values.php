@@ -4,12 +4,12 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\NullValue;
-use GraphQL\Language\AST\Value;
-use GraphQL\Language\AST\Variable;
-use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\ValueNode;
+use GraphQL\Language\AST\VariableNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
@@ -32,7 +32,7 @@ class Values
      * to match the variable definitions, a Error will be thrown.
      *
      * @param Schema $schema
-     * @param VariableDefinition[] $definitionASTs
+     * @param VariableDefinitionNode[] $definitionASTs
      * @param array $inputs
      * @return array
      * @throws Error
@@ -89,7 +89,7 @@ class Values
      * definitions and list of argument AST nodes.
      *
      * @param FieldDefinition|Directive $def
-     * @param Field|\GraphQL\Language\AST\Directive $node
+     * @param FieldNode|\GraphQL\Language\AST\DirectiveNode $node
      * @param $variableValues
      * @return array
      * @throws Error
@@ -106,8 +106,8 @@ class Values
         $coercedValues = [];
         $undefined = Utils::undefined();
 
-        /** @var Argument[] $argASTMap */
-        $argASTMap = $argASTs ? Utils::keyMap($argASTs, function (Argument $arg) {
+        /** @var ArgumentNode[] $argASTMap */
+        $argASTMap = $argASTs ? Utils::keyMap($argASTs, function (ArgumentNode $arg) {
             return $arg->name->value;
         }) : [];
 
@@ -126,7 +126,7 @@ class Values
                         [$node]
                     );
                 }
-            } else if ($argumentAST->value instanceof Variable) {
+            } else if ($argumentAST->value instanceof VariableNode) {
                 $variableName = $argumentAST->value->name->value;
 
                 if ($variableValues && array_key_exists($variableName, $variableValues)) {

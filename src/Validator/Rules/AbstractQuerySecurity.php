@@ -2,13 +2,13 @@
 
 namespace GraphQL\Validator\Rules;
 
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
-use GraphQL\Language\AST\InlineFragment;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\TypeInfo;
@@ -19,12 +19,12 @@ abstract class AbstractQuerySecurity
     const DISABLED = 0;
 
     /**
-     * @var FragmentDefinition[]
+     * @var FragmentDefinitionNode[]
      */
     private $fragments = [];
 
     /**
-     * @return \GraphQL\Language\AST\FragmentDefinition[]
+     * @return \GraphQL\Language\AST\FragmentDefinitionNode[]
      */
     protected function getFragments()
     {
@@ -49,13 +49,13 @@ abstract class AbstractQuerySecurity
         // Importantly this does not include inline fragments.
         $definitions = $context->getDocument()->definitions;
         foreach ($definitions as $node) {
-            if ($node instanceof FragmentDefinition) {
+            if ($node instanceof FragmentDefinitionNode) {
                 $this->fragments[$node->name->value] = $node;
             }
         }
     }
 
-    protected function getFragment(FragmentSpread $fragmentSpread)
+    protected function getFragment(FragmentSpreadNode $fragmentSpread)
     {
         $spreadName = $fragmentSpread->name->value;
         $fragments = $this->getFragments();
@@ -87,13 +87,13 @@ abstract class AbstractQuerySecurity
      *
      * @param ValidationContext $context
      * @param Type|null         $parentType
-     * @param SelectionSet      $selectionSet
+     * @param SelectionSetNode      $selectionSet
      * @param \ArrayObject      $visitedFragmentNames
      * @param \ArrayObject      $astAndDefs
      *
      * @return \ArrayObject
      */
-    protected function collectFieldASTsAndDefs(ValidationContext $context, $parentType, SelectionSet $selectionSet, \ArrayObject $visitedFragmentNames = null, \ArrayObject $astAndDefs = null)
+    protected function collectFieldASTsAndDefs(ValidationContext $context, $parentType, SelectionSetNode $selectionSet, \ArrayObject $visitedFragmentNames = null, \ArrayObject $astAndDefs = null)
     {
         $_visitedFragmentNames = $visitedFragmentNames ?: new \ArrayObject();
         $_astAndDefs = $astAndDefs ?: new \ArrayObject();
@@ -101,7 +101,7 @@ abstract class AbstractQuerySecurity
         foreach ($selectionSet->selections as $selection) {
             switch ($selection->kind) {
                 case NodeType::FIELD:
-                    /* @var Field $selection */
+                    /* @var FieldNode $selection */
                     $fieldName = $selection->name->value;
                     $fieldDef = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
@@ -128,7 +128,7 @@ abstract class AbstractQuerySecurity
                     $_astAndDefs[$responseName][] = [$selection, $fieldDef];
                     break;
                 case NodeType::INLINE_FRAGMENT:
-                    /* @var InlineFragment $selection */
+                    /* @var InlineFragmentNode $selection */
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         TypeInfo::typeFromAST($context->getSchema(), $selection->typeCondition),
@@ -138,7 +138,7 @@ abstract class AbstractQuerySecurity
                     );
                     break;
                 case NodeType::FRAGMENT_SPREAD:
-                    /* @var FragmentSpread $selection */
+                    /* @var FragmentSpreadNode $selection */
                     $fragName = $selection->name->value;
 
                     if (empty($_visitedFragmentNames[$fragName])) {
@@ -162,7 +162,7 @@ abstract class AbstractQuerySecurity
         return $_astAndDefs;
     }
 
-    protected function getFieldName(Field $node)
+    protected function getFieldName(FieldNode $node)
     {
         $fieldName = $node->name->value;
         $responseName = $node->alias ? $node->alias->value : $fieldName;

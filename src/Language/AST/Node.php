@@ -6,28 +6,28 @@ use GraphQL\Utils;
 abstract class Node
 {
     /**
-      type Node = Name
-    | Document
-    | OperationDefinition
-    | VariableDefinition
-    | Variable
-    | SelectionSet
-    | Field
-    | Argument
-    | FragmentSpread
-    | InlineFragment
-    | FragmentDefinition
-    | IntValue
-    | FloatValue
-    | StringValue
-    | BooleanValue
-    | EnumValue
-    | ListValue
-    | ObjectValue
-    | ObjectField
-    | Directive
-    | ListType
-    | NonNullType
+      type Node = NameNode
+    | DocumentNode
+    | OperationDefinitionNode
+    | VariableDefinitionNode
+    | VariableNode
+    | SelectionSetNode
+    | FieldNode
+    | ArgumentNode
+    | FragmentSpreadNode
+    | InlineFragmentNode
+    | FragmentDefinitionNode
+    | IntValueNode
+    | FloatValueNode
+    | StringValueNode
+    | BooleanValueNode
+    | EnumValueNode
+    | ListValueNode
+    | ObjectValueNode
+    | ObjectFieldNode
+    | DirectiveNode
+    | ListTypeNode
+    | NonNullTypeNode
      */
 
     public $kind;

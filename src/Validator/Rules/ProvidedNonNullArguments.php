@@ -3,8 +3,8 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Directive;
-use GraphQL\Language\AST\Field;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
@@ -28,7 +28,7 @@ class ProvidedNonNullArguments
     {
         return [
             NodeType::FIELD => [
-                'leave' => function(Field $fieldAST) use ($context) {
+                'leave' => function(FieldNode $fieldAST) use ($context) {
                     $fieldDef = $context->getFieldDef();
 
                     if (!$fieldDef) {
@@ -52,7 +52,7 @@ class ProvidedNonNullArguments
                 }
             ],
             NodeType::DIRECTIVE => [
-                'leave' => function(Directive $directiveAST) use ($context) {
+                'leave' => function(DirectiveNode $directiveAST) use ($context) {
                     $directiveDef = $context->getDirective();
                     if (!$directiveDef) {
                         return Visitor::skipNode();

@@ -4,7 +4,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
@@ -22,7 +22,7 @@ class UniqueOperationNames
         $this->knownOperationNames = [];
 
         return [
-            NodeType::OPERATION_DEFINITION => function(OperationDefinition $node) use ($context) {
+            NodeType::OPERATION_DEFINITION => function(OperationDefinitionNode $node) use ($context) {
                 $operationName = $node->name;
 
                 if ($operationName) {

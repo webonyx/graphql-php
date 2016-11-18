@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\StringValueNode;
 
 /**
  * Class StringType
@@ -52,7 +52,7 @@ represent free-form human-readable text.';
      */
     public function parseLiteral($ast)
     {
-        if ($ast instanceof StringValue) {
+        if ($ast instanceof StringValueNode) {
             return $ast->value;
         }
         return null;

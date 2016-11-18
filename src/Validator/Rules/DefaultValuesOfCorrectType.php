@@ -5,7 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\NonNull;
@@ -30,7 +30,7 @@ class DefaultValuesOfCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::VARIABLE_DEFINITION => function(VariableDefinition $varDefAST) use ($context) {
+            NodeType::VARIABLE_DEFINITION => function(VariableDefinitionNode $varDefAST) use ($context) {
                 $name = $varDefAST->variable->name->value;
                 $defaultValue = $varDefAST->defaultValue;
                 $type = $context->getInputType();

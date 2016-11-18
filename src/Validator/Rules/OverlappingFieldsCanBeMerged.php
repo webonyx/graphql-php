@@ -3,14 +3,14 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Directive;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FragmentSpread;
-use GraphQL\Language\AST\InlineFragment;
-use GraphQL\Language\AST\NamedType;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -56,7 +56,7 @@ class OverlappingFieldsCanBeMerged
             NodeType::SELECTION_SET => [
                 // Note: we validate on the reverse traversal so deeper conflicts will be
                 // caught first, for clearer error messages.
-                'leave' => function(SelectionSet $selectionSet) use ($context) {
+                'leave' => function(SelectionSetNode $selectionSet) use ($context) {
                     $fieldMap = $this->collectFieldASTsAndDefs(
                         $context,
                         $context->getParentType(),
@@ -110,8 +110,8 @@ class OverlappingFieldsCanBeMerged
     /**
      * @param $parentFieldsAreMutuallyExclusive
      * @param $responseName
-     * @param [Field, GraphQLFieldDefinition] $pair1
-     * @param [Field, GraphQLFieldDefinition] $pair2
+     * @param [FieldNode, GraphQLFieldDefinition] $pair1
+     * @param [FieldNode, GraphQLFieldDefinition] $pair2
      * @param ValidationContext $context
      * @return array|null
      */
@@ -206,9 +206,9 @@ class OverlappingFieldsCanBeMerged
     }
 
     private function getSubfieldMap(
-        Field $ast1,
+        FieldNode $ast1,
         $type1,
-        Field $ast2,
+        FieldNode $ast2,
         $type2,
         ValidationContext $context
     ) {
@@ -236,8 +236,8 @@ class OverlappingFieldsCanBeMerged
     private function subfieldConflicts(
         array $conflicts,
         $responseName,
-        Field $ast1,
-        Field $ast2
+        FieldNode $ast1,
+        FieldNode $ast2
     )
     {
         if (!empty($conflicts)) {
@@ -303,12 +303,12 @@ class OverlappingFieldsCanBeMerged
      *
      * @param ValidationContext $context
      * @param mixed $parentType
-     * @param SelectionSet $selectionSet
+     * @param SelectionSetNode $selectionSet
      * @param \ArrayObject $visitedFragmentNames
      * @param \ArrayObject $astAndDefs
      * @return mixed
      */
-    private function collectFieldASTsAndDefs(ValidationContext $context, $parentType, SelectionSet $selectionSet, \ArrayObject $visitedFragmentNames = null, \ArrayObject $astAndDefs = null)
+    private function collectFieldASTsAndDefs(ValidationContext $context, $parentType, SelectionSetNode $selectionSet, \ArrayObject $visitedFragmentNames = null, \ArrayObject $astAndDefs = null)
     {
         $_visitedFragmentNames = $visitedFragmentNames ?: new \ArrayObject();
         $_astAndDefs = $astAndDefs ?: new \ArrayObject();
@@ -348,7 +348,7 @@ class OverlappingFieldsCanBeMerged
                     );
                     break;
                 case NodeType::FRAGMENT_SPREAD:
-                    /** @var FragmentSpread $selection */
+                    /** @var FragmentSpreadNode $selection */
                     $fragName = $selection->name->value;
                     if (!empty($_visitedFragmentNames[$fragName])) {
                         continue;
@@ -373,8 +373,8 @@ class OverlappingFieldsCanBeMerged
     }
 
     /**
-     * @param Array<Argument | Directive> $pairs1
-     * @param Array<Argument | Directive> $pairs2
+     * @param Array<ArgumentNode | DirectiveNode> $pairs1
+     * @param Array<ArgumentNode | DirectiveNode> $pairs2
      * @return bool|string
      */
     private function sameArguments(array $arguments1, array $arguments2)

@@ -1,13 +1,13 @@
 <?php
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Language\AST\Document;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\Name;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
@@ -27,17 +27,17 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $selectionSet = null;
         $editedAst = Visitor::visit($ast, [
             NodeType::OPERATION_DEFINITION => [
-                'enter' => function(OperationDefinition $node) use (&$selectionSet) {
+                'enter' => function(OperationDefinitionNode $node) use (&$selectionSet) {
                     $selectionSet = $node->selectionSet;
 
                     $newNode = clone $node;
-                    $newNode->selectionSet = new SelectionSet([
+                    $newNode->selectionSet = new SelectionSetNode([
                         'selections' => []
                     ]);
                     $newNode->didEnter = true;
                     return $newNode;
                 },
-                'leave' => function(OperationDefinition $node) use (&$selectionSet) {
+                'leave' => function(OperationDefinitionNode $node) use (&$selectionSet) {
                     $newNode = clone $node;
                     $newNode->selectionSet = $selectionSet;
                     $newNode->didLeave = true;
@@ -65,13 +65,13 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $editedAst = Visitor::visit($ast, [
             NodeType::DOCUMENT => [
-                'enter' => function (Document $node) {
+                'enter' => function (DocumentNode $node) {
                     $tmp = clone $node;
                     $tmp->definitions = [];
                     $tmp->didEnter = true;
                     return $tmp;
                 },
-                'leave' => function(Document $node) use ($definitions) {
+                'leave' => function(DocumentNode $node) use ($definitions) {
                     $tmp = clone $node;
                     $node->definitions = $definitions;
                     $node->didLeave = true;
@@ -96,7 +96,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
             'enter' => function($node) {
-                if ($node instanceof Field && $node->name->value === 'b') {
+                if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::removeNode();
                 }
             }
@@ -120,7 +120,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
             'leave' => function($node) {
-                if ($node instanceof Field && $node->name->value === 'b') {
+                if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::removeNode();
                 }
             }
@@ -142,8 +142,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testVisitsEditedNode()
     {
-        $addedField = new Field(array(
-            'name' => new Name(array(
+        $addedField = new FieldNode(array(
+            'name' => new NameNode(array(
                 'value' => '__typename'
             ))
         ));
@@ -154,9 +154,9 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         Visitor::visit($ast, [
             'enter' => function($node) use ($addedField, &$didVisitAddedField) {
-                if ($node instanceof Field && $node->name->value === 'a') {
-                    return new Field([
-                        'selectionSet' => new SelectionSet(array(
+                if ($node instanceof FieldNode && $node->name->value === 'a') {
+                    return new FieldNode([
+                        'selectionSet' => new SelectionSetNode(array(
                             'selections' => array_merge([$addedField], $node->selectionSet->selections)
                         ))
                     ]);
@@ -181,7 +181,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         Visitor::visit($ast, [
             'enter' => function(Node $node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
-                if ($node instanceof Field && $node->name->value === 'b') {
+                if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::skipNode();
                 }
             },
@@ -222,7 +222,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         Visitor::visit($ast, [
             'enter' => function(Node $node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
-                if ($node instanceof Name && $node->value === 'x') {
+                if ($node instanceof NameNode && $node->value === 'x') {
                     return Visitor::stop();
                 }
             },
@@ -298,14 +298,14 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
-            NodeType::NAME => function(Name $node) use (&$visited) {
+            NodeType::NAME => function(NameNode $node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, $node->value];
             },
             NodeType::SELECTION_SET => [
-                'enter' => function(SelectionSet $node) use (&$visited) {
+                'enter' => function(SelectionSetNode $node) use (&$visited) {
                     $visited[] = ['enter', $node->kind, null];
                 },
-                'leave' => function(SelectionSet $node) use (&$visited) {
+                'leave' => function(SelectionSetNode $node) use (&$visited) {
                     $visited[] = ['leave', $node->kind, null];
                 }
             ]
@@ -1227,16 +1227,16 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                     !$node->selectionSet &&
                     Type::isCompositeType(Type::getNamedType($type))
                 ) {
-                    return new Field([
+                    return new FieldNode([
                         'alias' => $node->alias,
                         'name' => $node->name,
                         'arguments' => $node->arguments,
                         'directives' => $node->directives,
-                        'selectionSet' => new SelectionSet([
+                        'selectionSet' => new SelectionSetNode([
                             'kind' => 'SelectionSet',
                             'selections' => [
-                                new Field([
-                                    'name' => new Name(['value' => '__typename'])
+                                new FieldNode([
+                                    'name' => new NameNode(['value' => '__typename'])
                                 ])
                             ]
                         ])

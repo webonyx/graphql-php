@@ -2,8 +2,8 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\FloatValue;
-use GraphQL\Language\AST\IntValue;
+use GraphQL\Language\AST\FloatValueNode;
+use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Utils;
 
 /**
@@ -66,7 +66,7 @@ values as specified by
      */
     public function parseLiteral($ast)
     {
-        if ($ast instanceof FloatValue || $ast instanceof IntValue) {
+        if ($ast instanceof FloatValueNode || $ast instanceof IntValueNode) {
             return (float) $ast->value;
         }
         return null;

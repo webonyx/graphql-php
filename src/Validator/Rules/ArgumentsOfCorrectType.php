@@ -3,8 +3,8 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\Field;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Printer;
@@ -26,7 +26,7 @@ class ArgumentsOfCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::ARGUMENT => function(Argument $argAST) use ($context) {
+            NodeType::ARGUMENT => function(ArgumentNode $argAST) use ($context) {
                 $argDef = $context->getArgument();
                 if ($argDef) {
                     $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argAST->value);

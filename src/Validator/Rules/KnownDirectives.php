@@ -3,14 +3,14 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Directive;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
-use GraphQL\Language\AST\InlineFragment;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
 use GraphQL\Type\Definition\Directive as DirectiveDef;
@@ -30,7 +30,7 @@ class KnownDirectives
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::DIRECTIVE => function (Directive $node, $key, $parent, $path, $ancestors) use ($context) {
+            NodeType::DIRECTIVE => function (DirectiveNode $node, $key, $parent, $path, $ancestors) use ($context) {
                 $directiveDef = null;
                 foreach ($context->getSchema()->getDirectives() as $def) {
                     if ($def->name === $node->name->value) {

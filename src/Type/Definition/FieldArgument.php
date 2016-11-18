@@ -6,7 +6,7 @@ namespace GraphQL\Type\Definition;
  * Class FieldArgument
  *
  * @package GraphQL\Type\Definition
- * @todo Rename to Argument as it is also applicable to directives, not only fields
+ * @todo Rename to ArgumentNode as it is also applicable to directives, not only fields
  */
 class FieldArgument
 {

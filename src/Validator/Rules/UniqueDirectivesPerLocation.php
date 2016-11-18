@@ -2,7 +2,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Directive;
+use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Validator\ValidationContext;
 
@@ -20,7 +20,7 @@ class UniqueDirectivesPerLocation
                 if (isset($node->directives)) {
                     $knownDirectives = [];
                     foreach ($node->directives as $directive) {
-                        /** @var Directive $directive */
+                        /** @var DirectiveNode $directive */
                         $directiveName = $directive->name->value;
                         if (isset($knownDirectives[$directiveName])) {
                             $context->reportError(new Error(

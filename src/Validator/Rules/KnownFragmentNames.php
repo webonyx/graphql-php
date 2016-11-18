@@ -3,7 +3,7 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\FragmentSpread;
+use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Validator\ValidationContext;
@@ -18,7 +18,7 @@ class KnownFragmentNames
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::FRAGMENT_SPREAD => function(FragmentSpread $node) use ($context) {
+            NodeType::FRAGMENT_SPREAD => function(FragmentSpreadNode $node) use ($context) {
                 $fragmentName = $node->name->value;
                 $fragment = $context->getFragment($fragmentName);
                 if (!$fragment) {

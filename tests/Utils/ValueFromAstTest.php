@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Language\AST\NullValue;
+use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;

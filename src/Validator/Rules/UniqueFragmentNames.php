@@ -2,8 +2,8 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\FragmentDefinition;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\Visitor;
@@ -26,7 +26,7 @@ class UniqueFragmentNames
             NodeType::OPERATION_DEFINITION => function () {
                 return Visitor::skipNode();
             },
-            NodeType::FRAGMENT_DEFINITION => function (FragmentDefinition $node) use ($context) {
+            NodeType::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) use ($context) {
                 $fragmentName = $node->name->value;
                 if (!empty($this->knownFragmentNames[$fragmentName])) {
                     $context->reportError(new Error(

@@ -1,12 +1,12 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\Selection;
-use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionNode;
+use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Schema;
 use GraphQL\Utils;
 
@@ -22,7 +22,7 @@ class ResolveInfo
     public $fieldName;
 
     /**
-     * @var Field[]
+     * @var FieldNode[]
      */
     public $fieldASTs;
 
@@ -57,7 +57,7 @@ class ResolveInfo
     public $rootValue;
 
     /**
-     * @var OperationDefinition
+     * @var OperationDefinitionNode
      */
     public $operation;
 
@@ -106,7 +106,7 @@ class ResolveInfo
     {
         $fields = [];
 
-        /** @var Field $fieldAST */
+        /** @var FieldNode $fieldAST */
         foreach ($this->fieldASTs as $fieldAST) {
             $fields = array_merge_recursive($fields, $this->foldSelectionSet($fieldAST->selectionSet, $depth));
         }
@@ -114,19 +114,19 @@ class ResolveInfo
         return $fields;
     }
 
-    private function foldSelectionSet(SelectionSet $selectionSet, $descend)
+    private function foldSelectionSet(SelectionSetNode $selectionSet, $descend)
     {
         $fields = [];
 
         foreach ($selectionSet->selections as $selectionAST) {
-            if ($selectionAST instanceof Field) {
+            if ($selectionAST instanceof FieldNode) {
                 $fields[$selectionAST->name->value] = $descend > 0 && !empty($selectionAST->selectionSet)
                     ? $this->foldSelectionSet($selectionAST->selectionSet, $descend - 1)
                     : true;
-            } else if ($selectionAST instanceof FragmentSpread) {
+            } else if ($selectionAST instanceof FragmentSpreadNode) {
                 $spreadName = $selectionAST->name->value;
                 if (isset($this->fragments[$spreadName])) {
-                    /** @var FragmentDefinition $fragment */
+                    /** @var FragmentDefinitionNode $fragment */
                     $fragment = $this->fragments[$spreadName];
                     $fields += $this->foldSelectionSet($fragment->selectionSet, $descend);
                 }

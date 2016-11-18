@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Language\AST\BooleanValue;
+use GraphQL\Language\AST\BooleanValueNode;
 
 /**
  * Class BooleanType
@@ -43,7 +43,7 @@ class BooleanType extends ScalarType
      */
     public function parseLiteral($ast)
     {
-        if ($ast instanceof BooleanValue) {
+        if ($ast instanceof BooleanValueNode) {
             return (bool) $ast->value;
         }
         return null;

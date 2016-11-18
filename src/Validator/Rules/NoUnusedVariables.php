@@ -5,7 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -30,7 +30,7 @@ class NoUnusedVariables
                 'enter' => function() {
                     $this->variableDefs = [];
                 },
-                'leave' => function(OperationDefinition $operation) use ($context) {
+                'leave' => function(OperationDefinitionNode $operation) use ($context) {
                     $variableNameUsed = [];
                     $usages = $context->getRecursiveVariableUsages($operation);
                     $opName = $operation->name ? $operation->name->value : null;

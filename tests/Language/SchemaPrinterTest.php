@@ -1,8 +1,8 @@
 <?php
 namespace GraphQL\Tests;
 
-use GraphQL\Language\AST\Name;
-use GraphQL\Language\AST\ScalarTypeDefinition;
+use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 
@@ -13,8 +13,8 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testPrintsMinimalAst()
     {
-        $ast = new ScalarTypeDefinition([
-            'name' => new Name(['value' => 'foo'])
+        $ast = new ScalarTypeDefinitionNode([
+            'name' => new NameNode(['value' => 'foo'])
         ]);
         $this->assertEquals('scalar foo', Printer::doPrint($ast));
     }

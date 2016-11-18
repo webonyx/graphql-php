@@ -4,13 +4,13 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FragmentSpread;
-use GraphQL\Language\AST\InlineFragment;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\ValidationContext;
@@ -78,7 +78,7 @@ class QueryComplexity extends AbstractQuerySecurity
         return $this->invokeIfNeeded(
             $context,
             [
-                NodeType::SELECTION_SET => function (SelectionSet $selectionSet) use ($context) {
+                NodeType::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context) {
                     $this->fieldAstAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $context->getParentType(),
@@ -92,7 +92,7 @@ class QueryComplexity extends AbstractQuerySecurity
                     return Visitor::skipNode();
                 },
                 NodeType::OPERATION_DEFINITION => [
-                    'leave' => function (OperationDefinition $operationDefinition) use ($context, &$complexity) {
+                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) {
                         $complexity = $this->fieldComplexity($operationDefinition, $complexity);
 
                         if ($complexity > $this->getMaxQueryComplexity()) {
@@ -108,7 +108,7 @@ class QueryComplexity extends AbstractQuerySecurity
 
     private function fieldComplexity($node, $complexity = 0)
     {
-        if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSet) {
+        if (isset($node->selectionSet) && $node->selectionSet instanceof SelectionSetNode) {
             foreach ($node->selectionSet->selections as $childNode) {
                 $complexity = $this->nodeComplexity($childNode, $complexity);
             }
@@ -121,7 +121,7 @@ class QueryComplexity extends AbstractQuerySecurity
     {
         switch ($node->kind) {
             case NodeType::FIELD:
-                /* @var Field $node */
+                /* @var FieldNode $node */
                 // default values
                 $args = [];
                 $complexityFn = FieldDefinition::DEFAULT_COMPLEXITY_FN;
@@ -149,7 +149,7 @@ class QueryComplexity extends AbstractQuerySecurity
                 break;
 
             case NodeType::INLINE_FRAGMENT:
-                /* @var InlineFragment $node */
+                /* @var InlineFragmentNode $node */
                 // node has children?
                 if (isset($node->selectionSet)) {
                     $complexity = $this->fieldComplexity($node, $complexity);
@@ -157,7 +157,7 @@ class QueryComplexity extends AbstractQuerySecurity
                 break;
 
             case NodeType::FRAGMENT_SPREAD:
-                /* @var FragmentSpread $node */
+                /* @var FragmentSpreadNode $node */
                 $fragment = $this->getFragment($node);
 
                 if (null !== $fragment) {
@@ -169,7 +169,7 @@ class QueryComplexity extends AbstractQuerySecurity
         return $complexity;
     }
 
-    private function astFieldInfo(Field $field)
+    private function astFieldInfo(FieldNode $field)
     {
         $fieldName = $this->getFieldName($field);
         $astFieldInfo = [null, null];
@@ -185,7 +185,7 @@ class QueryComplexity extends AbstractQuerySecurity
         return $astFieldInfo;
     }
 
-    private function buildFieldArguments(Field $node)
+    private function buildFieldArguments(FieldNode $node)
     {
         $rawVariableValues = $this->getRawVariableValues();
         $astFieldInfo = $this->astFieldInfo($node);

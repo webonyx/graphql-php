@@ -3,7 +3,7 @@ namespace GraphQL\Examples\Blog\Type\Scalar;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils;
 
@@ -52,7 +52,7 @@ class UrlType extends ScalarType
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:
-        if (!($ast instanceof StringValue)) {
+        if (!($ast instanceof StringValueNode)) {
             throw new Error('Query error: Can only parse strings got: ' . $ast->kind, [$ast]);
         }
         if (!is_string($ast->value) || !filter_var($ast->value, FILTER_VALIDATE_URL)) {

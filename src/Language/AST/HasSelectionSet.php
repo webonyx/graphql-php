@@ -4,7 +4,7 @@ namespace GraphQL\Language\AST;
 interface HasSelectionSet
 {
     /**
-     * export type Definition = OperationDefinition
-     *                        | FragmentDefinition
+     * export type DefinitionNode = OperationDefinitionNode
+     *                        | FragmentDefinitionNode
      */
 }

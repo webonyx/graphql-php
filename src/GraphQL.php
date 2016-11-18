@@ -4,7 +4,7 @@ namespace GraphQL;
 use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
-use GraphQL\Language\AST\Document;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
@@ -37,7 +37,7 @@ class GraphQL
     public static function executeAndReturnResult(Schema $schema, $requestString, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
     {
         try {
-            if ($requestString instanceof Document) {
+            if ($requestString instanceof DocumentNode) {
                 $documentAST = $requestString;
             } else {
                 $source = new Source($requestString ?: '', 'GraphQL request');

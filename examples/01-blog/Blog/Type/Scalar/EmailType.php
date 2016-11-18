@@ -3,7 +3,7 @@ namespace GraphQL\Examples\Blog\Type\Scalar;
 
 use GraphQL\Error\Error;
 use GraphQL\Examples\Blog\Type\BaseType;
-use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Utils;
 
@@ -61,7 +61,7 @@ class EmailType extends BaseType
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:
-        if (!$valueAST instanceof StringValue) {
+        if (!$valueAST instanceof StringValueNode) {
             throw new Error('Query error: Can only parse strings got: ' . $valueAST->kind, [$valueAST]);
         }
         if (!filter_var($valueAST->value, FILTER_VALIDATE_EMAIL)) {

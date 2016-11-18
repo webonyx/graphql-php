@@ -1,25 +1,25 @@
 <?php
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Language\AST\BooleanValue;
-use GraphQL\Language\AST\Document;
-use GraphQL\Language\AST\EnumTypeDefinition;
-use GraphQL\Language\AST\EnumValueDefinition;
-use GraphQL\Language\AST\FieldDefinition;
-use GraphQL\Language\AST\InputObjectTypeDefinition;
-use GraphQL\Language\AST\InputValueDefinition;
-use GraphQL\Language\AST\InterfaceTypeDefinition;
-use GraphQL\Language\AST\ListType;
+use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\Location;
-use GraphQL\Language\AST\Name;
-use GraphQL\Language\AST\NamedType;
+use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\NonNullType;
-use GraphQL\Language\AST\ObjectTypeDefinition;
-use GraphQL\Language\AST\ScalarTypeDefinition;
-use GraphQL\Language\AST\TypeExtensionDefinition;
-use GraphQL\Language\AST\UnionTypeDefinition;
+use GraphQL\Language\AST\NonNullTypeNode;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\TypeExtensionDefinitionNode;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 

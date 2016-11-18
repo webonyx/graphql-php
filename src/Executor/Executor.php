@@ -3,13 +3,13 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\Document;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FragmentDefinition;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
@@ -62,14 +62,14 @@ class Executor
 
     /**
      * @param Schema $schema
-     * @param Document $ast
+     * @param DocumentNode $ast
      * @param $rootValue
      * @param $contextValue
      * @param array|\ArrayAccess $variableValues
      * @param null $operationName
      * @return ExecutionResult
      */
-    public static function execute(Schema $schema, Document $ast, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
+    public static function execute(Schema $schema, DocumentNode $ast, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
     {
         if (!self::$UNDEFINED) {
             self::$UNDEFINED = new \stdClass();
@@ -106,7 +106,7 @@ class Executor
      */
     private static function buildExecutionContext(
         Schema $schema,
-        Document $documentAst,
+        DocumentNode $documentAst,
         $rootValue,
         $contextValue,
         $rawVariableValues,
@@ -162,7 +162,7 @@ class Executor
     /**
      * Implements the "Evaluating operations" section of the spec.
      */
-    private static function executeOperation(ExecutionContext $exeContext, OperationDefinition $operation, $rootValue)
+    private static function executeOperation(ExecutionContext $exeContext, OperationDefinitionNode $operation, $rootValue)
     {
         $type = self::getOperationRootType($exeContext->schema, $operation);
         $fields = self::collectFields($exeContext, $type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
@@ -180,11 +180,11 @@ class Executor
      * Extracts the root type of the operation from the schema.
      *
      * @param Schema $schema
-     * @param OperationDefinition $operation
+     * @param OperationDefinitionNode $operation
      * @return ObjectType
      * @throws Error
      */
-    private static function getOperationRootType(Schema $schema, OperationDefinition $operation)
+    private static function getOperationRootType(Schema $schema, OperationDefinitionNode $operation)
     {
         switch ($operation->operation) {
             case 'query':
@@ -264,7 +264,7 @@ class Executor
     private static function collectFields(
         ExecutionContext $exeContext,
         ObjectType $runtimeType,
-        SelectionSet $selectionSet,
+        SelectionSetNode $selectionSet,
         $fields,
         $visitedFragmentNames
     )
@@ -302,7 +302,7 @@ class Executor
                     }
                     $visitedFragmentNames[$fragName] = true;
 
-                    /** @var FragmentDefinition|null $fragment */
+                    /** @var FragmentDefinitionNode|null $fragment */
                     $fragment = isset($exeContext->fragments[$fragName]) ? $exeContext->fragments[$fragName] : null;
                     if (!$fragment || !self::doesFragmentConditionMatch($exeContext, $fragment, $runtimeType)) {
                         continue;
@@ -329,9 +329,9 @@ class Executor
         $skipDirective = Directive::skipDirective();
         $includeDirective = Directive::includeDirective();
 
-        /** @var \GraphQL\Language\AST\Directive $skipAST */
+        /** @var \GraphQL\Language\AST\DirectiveNode $skipAST */
         $skipAST = $directives
-            ? Utils::find($directives, function(\GraphQL\Language\AST\Directive $directive) use ($skipDirective) {
+            ? Utils::find($directives, function(\GraphQL\Language\AST\DirectiveNode $directive) use ($skipDirective) {
                 return $directive->name->value === $skipDirective->name;
             })
             : null;
@@ -343,9 +343,9 @@ class Executor
             }
         }
 
-        /** @var \GraphQL\Language\AST\Directive $includeAST */
+        /** @var \GraphQL\Language\AST\DirectiveNode $includeAST */
         $includeAST = $directives
-            ? Utils::find($directives, function(\GraphQL\Language\AST\Directive $directive) use ($includeDirective) {
+            ? Utils::find($directives, function(\GraphQL\Language\AST\DirectiveNode $directive) use ($includeDirective) {
                 return $directive->name->value === $includeDirective->name;
             })
             : null;
@@ -363,7 +363,7 @@ class Executor
     /**
      * Determines if a fragment is applicable to the given type.
      */
-    private static function doesFragmentConditionMatch(ExecutionContext $exeContext,/* FragmentDefinition | InlineFragment*/ $fragment, ObjectType $type)
+    private static function doesFragmentConditionMatch(ExecutionContext $exeContext,/* FragmentDefinitionNode | InlineFragmentNode*/ $fragment, ObjectType $type)
     {
         $typeConditionAST = $fragment->typeCondition;
 
@@ -384,7 +384,7 @@ class Executor
     /**
      * Implements the logic to compute the key of a given fields entry
      */
-    private static function getFieldEntryKey(Field $node)
+    private static function getFieldEntryKey(FieldNode $node)
     {
         return $node->alias ? $node->alias->value : $node->name->value;
     }
@@ -468,7 +468,7 @@ class Executor
      *
      * @param ExecutionContext $exeContext
      * @param FieldDefinition $fieldDef
-     * @param Field $fieldAST
+     * @param FieldNode $fieldAST
      * @param callable $resolveFn
      * @param mixed $source
      * @param mixed $context
@@ -605,7 +605,7 @@ class Executor
      *
      * @param ExecutionContext $exeContext
      * @param Type $returnType
-     * @param Field[] $fieldASTs
+     * @param FieldNode[] $fieldASTs
      * @param ResolveInfo $info
      * @param array $path
      * @param $result

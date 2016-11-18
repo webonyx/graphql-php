@@ -3,7 +3,7 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\Argument;
+use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Utils;
@@ -25,7 +25,7 @@ class KnownArgumentNames
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::ARGUMENT => function(Argument $node, $key, $parent, $path, $ancestors) use ($context) {
+            NodeType::ARGUMENT => function(ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
                 $argumentOf = $ancestors[count($ancestors) - 1];
                 if ($argumentOf->kind === NodeType::FIELD) {
                     $fieldDef = $context->getFieldDef();

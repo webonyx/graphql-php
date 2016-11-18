@@ -3,12 +3,12 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\FragmentSpread;
+use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\Variable;
-use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\VariableNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -33,7 +33,7 @@ class VariablesInAllowedPosition
                 'enter' => function () {
                     $this->varDefMap = [];
                 },
-                'leave' => function(OperationDefinition $operation) use ($context) {
+                'leave' => function(OperationDefinitionNode $operation) use ($context) {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
@@ -61,7 +61,7 @@ class VariablesInAllowedPosition
                     }
                 }
             ],
-            NodeType::VARIABLE_DEFINITION => function (VariableDefinition $varDefAST) {
+            NodeType::VARIABLE_DEFINITION => function (VariableDefinitionNode $varDefAST) {
                 $this->varDefMap[$varDefAST->variable->name->value] = $varDefAST;
             }
         ];

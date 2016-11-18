@@ -1,17 +1,17 @@
 <?php
 namespace GraphQL\Validator;
 
-use GraphQL\Language\AST\FragmentSpread;
+use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\HasSelectionSet;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\Variable;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
 use \SplObjectStorage;
 use GraphQL\Error\Error;
 use GraphQL\Schema;
-use GraphQL\Language\AST\Document;
-use GraphQL\Language\AST\FragmentDefinition;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -33,7 +33,7 @@ class ValidationContext
     private $schema;
 
     /**
-     * @var Document
+     * @var DocumentNode
      */
     private $ast;
 
@@ -48,7 +48,7 @@ class ValidationContext
     private $errors;
 
     /**
-     * @var array<string, FragmentDefinition>
+     * @var array<string, FragmentDefinitionNode>
      */
     private $fragments;
 
@@ -76,10 +76,10 @@ class ValidationContext
      * ValidationContext constructor.
      *
      * @param Schema $schema
-     * @param Document $ast
+     * @param DocumentNode $ast
      * @param TypeInfo $typeInfo
      */
-    function __construct(Schema $schema, Document $ast, TypeInfo $typeInfo)
+    function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
         $this->schema = $schema;
         $this->ast = $ast;
@@ -116,7 +116,7 @@ class ValidationContext
     }
 
     /**
-     * @return Document
+     * @return DocumentNode
      */
     function getDocument()
     {
@@ -125,7 +125,7 @@ class ValidationContext
 
     /**
      * @param $name
-     * @return FragmentDefinition|null
+     * @return FragmentDefinitionNode|null
      */
     function getFragment($name)
     {
@@ -144,7 +144,7 @@ class ValidationContext
 
     /**
      * @param HasSelectionSet $node
-     * @return FragmentSpread[]
+     * @return FragmentSpreadNode[]
      */
     function getFragmentSpreads(HasSelectionSet $node)
     {
@@ -170,10 +170,10 @@ class ValidationContext
     }
 
     /**
-     * @param OperationDefinition $operation
-     * @return FragmentDefinition[]
+     * @param OperationDefinitionNode $operation
+     * @return FragmentDefinitionNode[]
      */
-    function getRecursivelyReferencedFragments(OperationDefinition $operation)
+    function getRecursivelyReferencedFragments(OperationDefinitionNode $operation)
     {
         $fragments = isset($this->recursivelyReferencedFragments[$operation]) ? $this->recursivelyReferencedFragments[$operation] : null;
 
@@ -204,7 +204,7 @@ class ValidationContext
 
     /**
      * @param HasSelectionSet $node
-     * @return array List of ['node' => Variable, 'type' => ?InputObjectType]
+     * @return array List of ['node' => VariableNode, 'type' => ?InputObjectType]
      */
     function getVariableUsages(HasSelectionSet $node)
     {
@@ -217,7 +217,7 @@ class ValidationContext
                 NodeType::VARIABLE_DEFINITION => function () {
                     return false;
                 },
-                NodeType::VARIABLE => function (Variable $variable) use (&$newUsages, $typeInfo) {
+                NodeType::VARIABLE => function (VariableNode $variable) use (&$newUsages, $typeInfo) {
                     $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
                 }
             ]));
@@ -228,10 +228,10 @@ class ValidationContext
     }
 
     /**
-     * @param OperationDefinition $operation
-     * @return array List of ['node' => Variable, 'type' => ?InputObjectType]
+     * @param OperationDefinitionNode $operation
+     * @return array List of ['node' => VariableNode, 'type' => ?InputObjectType]
      */
-    function getRecursiveVariableUsages(OperationDefinition $operation)
+    function getRecursiveVariableUsages(OperationDefinitionNode $operation)
     {
         $usages = isset($this->recursiveVariableUsages[$operation]) ? $this->recursiveVariableUsages[$operation] : null;
 

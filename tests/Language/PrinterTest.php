@@ -1,15 +1,15 @@
 <?php
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Language\AST\Document;
-use GraphQL\Language\AST\EnumValue;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\Name;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\SelectionSet;
-use GraphQL\Language\AST\StringValue;
-use GraphQL\Language\AST\Variable;
-use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\EnumValueNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Language\AST\VariableNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 
@@ -35,7 +35,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testPrintsMinimalAst()
     {
-        $ast = new Field(['name' => new Name(['value' => 'foo'])]);
+        $ast = new FieldNode(['name' => new NameNode(['value' => 'foo'])]);
         $this->assertEquals('foo', Printer::doPrint($ast));
     }
 

@@ -3,13 +3,13 @@ namespace GraphQL\Validator\Rules;
 
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\Variable;
-use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\VariableNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -40,7 +40,7 @@ class NoUndefinedVariables
                 'enter' => function() use (&$variableNameDefined) {
                     $variableNameDefined = [];
                 },
-                'leave' => function(OperationDefinition $operation) use (&$variableNameDefined, $context) {
+                'leave' => function(OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
@@ -59,7 +59,7 @@ class NoUndefinedVariables
                     }
                 }
             ],
-            NodeType::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$variableNameDefined) {
+            NodeType::VARIABLE_DEFINITION => function(VariableDefinitionNode $def) use (&$variableNameDefined) {
                 $variableNameDefined[$def->variable->name->value] = true;
             }
         ];

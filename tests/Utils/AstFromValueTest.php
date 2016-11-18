@@ -1,16 +1,16 @@
 <?php
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Language\AST\BooleanValue;
-use GraphQL\Language\AST\EnumValue;
-use GraphQL\Language\AST\FloatValue;
-use GraphQL\Language\AST\IntValue;
-use GraphQL\Language\AST\ListValue;
-use GraphQL\Language\AST\Name;
-use GraphQL\Language\AST\NullValue;
-use GraphQL\Language\AST\ObjectField;
-use GraphQL\Language\AST\ObjectValue;
-use GraphQL\Language\AST\StringValue;
+use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\EnumValueNode;
+use GraphQL\Language\AST\FloatValueNode;
+use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\ListValueNode;
+use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\ObjectFieldNode;
+use GraphQL\Language\AST\ObjectValueNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
@@ -25,12 +25,12 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsBooleanValueToASTs()
     {
-        $this->assertEquals(new BooleanValue(['value' => true]), AST::astFromValue(true, Type::boolean()));
-        $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(false, Type::boolean()));
-        $this->assertEquals(new NullValue([]), AST::astFromValue(null, Type::boolean()));
-        $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(0, Type::boolean()));
-        $this->assertEquals(new BooleanValue(['value' => true]), AST::astFromValue(1, Type::boolean()));
-        $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(0, Type::nonNull(Type::boolean())));
+        $this->assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(true, Type::boolean()));
+        $this->assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(false, Type::boolean()));
+        $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::boolean()));
+        $this->assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(0, Type::boolean()));
+        $this->assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(1, Type::boolean()));
+        $this->assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(0, Type::nonNull(Type::boolean())));
         $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::boolean()))); // Note: null means that AST cannot
     }
 
@@ -39,9 +39,9 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsIntValuesToASTs()
     {
-        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123.0, Type::int()));
-        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123.5, Type::int()));
-        $this->assertEquals(new IntValue(['value' => '10000']), AST::astFromValue(1e4, Type::int()));
+        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::int()));
+        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.5, Type::int()));
+        $this->assertEquals(new IntValueNode(['value' => '10000']), AST::astFromValue(1e4, Type::int()));
 
         try {
             AST::astFromValue(1e40, Type::int()); // Note: js version will produce 1e+40, both values are valid GraphQL floats
@@ -56,11 +56,11 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsFloatValuesToIntOrFloatASTs()
     {
-        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123, Type::float()));
-        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123.0, Type::float()));
-        $this->assertEquals(new FloatValue(['value' => '123.5']), AST::astFromValue(123.5, Type::float()));
-        $this->assertEquals(new IntValue(['value' => '10000']), AST::astFromValue(1e4, Type::float()));
-        $this->assertEquals(new FloatValue(['value' => '1e+40']), AST::astFromValue(1e40, Type::float()));
+        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::float()));
+        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::float()));
+        $this->assertEquals(new FloatValueNode(['value' => '123.5']), AST::astFromValue(123.5, Type::float()));
+        $this->assertEquals(new IntValueNode(['value' => '10000']), AST::astFromValue(1e4, Type::float()));
+        $this->assertEquals(new FloatValueNode(['value' => '1e+40']), AST::astFromValue(1e40, Type::float()));
     }
 
     /**
@@ -68,12 +68,12 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsStringValuesToASTs()
     {
-        $this->assertEquals(new StringValue(['value' => 'hello']), AST::astFromValue('hello', Type::string()));
-        $this->assertEquals(new StringValue(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::string()));
-        $this->assertEquals(new StringValue(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::string()));
-        $this->assertEquals(new StringValue(['value' => '123']), AST::astFromValue(123, Type::string()));
-        $this->assertEquals(new StringValue(['value' => 'false']), AST::astFromValue(false, Type::string()));
-        $this->assertEquals(new NullValue([]), AST::astFromValue(null, Type::string()));
+        $this->assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::string()));
+        $this->assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::string()));
+        $this->assertEquals(new StringValueNode(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::string()));
+        $this->assertEquals(new StringValueNode(['value' => '123']), AST::astFromValue(123, Type::string()));
+        $this->assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::string()));
+        $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::string()));
         $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::string())));
     }
 
@@ -82,12 +82,12 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertIdValuesToIntOrStringASTs()
     {
-        $this->assertEquals(new StringValue(['value' => 'hello']), AST::astFromValue('hello', Type::id()));
-        $this->assertEquals(new StringValue(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::id()));
-        $this->assertEquals(new StringValue(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::id()));
-        $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123, Type::id()));
-        $this->assertEquals(new StringValue(['value' => 'false']), AST::astFromValue(false, Type::id()));
-        $this->assertEquals(new NullValue([]), AST::astFromValue(null, Type::id()));
+        $this->assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::id()));
+        $this->assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::id()));
+        $this->assertEquals(new StringValueNode(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::id()));
+        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::id()));
+        $this->assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::id()));
+        $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::id()));
         $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::id())));
     }
 
@@ -104,8 +104,8 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsStringValuesToEnumASTsIfPossible()
     {
-        $this->assertEquals(new EnumValue(['value' => 'HELLO']), AST::astFromValue('HELLO', $this->myEnum()));
-        $this->assertEquals(new EnumValue(['value' => 'COMPLEX']), AST::astFromValue($this->complexValue(), $this->myEnum()));
+        $this->assertEquals(new EnumValueNode(['value' => 'HELLO']), AST::astFromValue('HELLO', $this->myEnum()));
+        $this->assertEquals(new EnumValueNode(['value' => 'COMPLEX']), AST::astFromValue($this->complexValue(), $this->myEnum()));
 
         // Note: case sensitive
         $this->assertEquals(null, AST::astFromValue('hello', $this->myEnum()));
@@ -119,18 +119,18 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsArrayValuesToListASTs()
     {
-        $value1 = new ListValue([
+        $value1 = new ListValueNode([
             'values' => [
-                new StringValue(['value' => 'FOO']),
-                new StringValue(['value' => 'BAR'])
+                new StringValueNode(['value' => 'FOO']),
+                new StringValueNode(['value' => 'BAR'])
             ]
         ]);
         $this->assertEquals($value1, AST::astFromValue(['FOO', 'BAR'], Type::listOf(Type::string())));
 
-        $value2 = new ListValue([
+        $value2 = new ListValueNode([
             'values' => [
-                new EnumValue(['value' => 'HELLO']),
-                new EnumValue(['value' => 'GOODBYE']),
+                new EnumValueNode(['value' => 'HELLO']),
+                new EnumValueNode(['value' => 'GOODBYE']),
             ]
         ]);
         $this->assertEquals($value2, AST::astFromValue(['HELLO', 'GOODBYE'], Type::listOf($this->myEnum())));
@@ -141,7 +141,7 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
      */
     public function testConvertsListSingletons()
     {
-        $this->assertEquals(new StringValue(['value' => 'FOO']), AST::astFromValue('FOO', Type::listOf(Type::string())));
+        $this->assertEquals(new StringValueNode(['value' => 'FOO']), AST::astFromValue('FOO', Type::listOf(Type::string())));
     }
 
     /**
@@ -157,10 +157,10 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $expected = new ObjectValue([
+        $expected = new ObjectValueNode([
             'fields' => [
-                $this->objectField('foo', new IntValue(['value' => '3'])),
-                $this->objectField('bar', new EnumValue(['value' => 'HELLO']))
+                $this->objectField('foo', new IntValueNode(['value' => '3'])),
+                $this->objectField('bar', new EnumValueNode(['value' => 'HELLO']))
             ]
         ]);
 
@@ -169,6 +169,9 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, AST::astFromValue((object) $data, $inputObj));
     }
 
+    /**
+     * @it converts input objects with explicit nulls
+     */
     public function testConvertsInputObjectsWithExplicitNulls()
     {
         $inputObj = new InputObjectType([
@@ -179,32 +182,11 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $this->assertEquals(new ObjectValue([
+        $this->assertEquals(new ObjectValueNode([
             'fields' => [
-                $this->objectField('foo', new NullValue([]))
+                $this->objectField('foo', new NullValueNode([]))
             ]
         ]), AST::astFromValue(['foo' => null], $inputObj));
-/*
-    const inputObj = new GraphQLInputObjectType({
-      name: 'MyInputObj',
-      fields: {
-        foo: { type: GraphQLFloat },
-        bar: { type: myEnum },
-      }
-    });
-
-    expect(astFromValue(
-      { foo: null },
-      inputObj
-    )).to.deep.equal(
-      { kind: 'ObjectValue',
-        fields: [
-          { kind: 'ObjectField',
-            name: { kind: 'Name', value: 'foo' },
-            value: { kind: 'NullValue' } } ] }
-    );
-  });
- */
     }
 
     private $complexValue;
@@ -236,12 +218,12 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
     /**
      * @param $name
      * @param $value
-     * @return ObjectField
+     * @return ObjectFieldNode
      */
     private function objectField($name, $value)
     {
-        return new ObjectField([
-            'name' => new Name(['value' => $name]),
+        return new ObjectFieldNode([
+            'name' => new NameNode(['value' => $name]),
             'value' => $value
         ]);
     }
