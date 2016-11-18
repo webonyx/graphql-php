@@ -65,6 +65,7 @@ class Visitor
         NodeType::FLOAT => [],
         NodeType::STRING => [],
         NodeType::BOOLEAN => [],
+        NodeType::NULL => [],
         NodeType::ENUM => [],
         NodeType::LST => ['values'],
         NodeType::OBJECT => ['fields'],

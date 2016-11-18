@@ -132,6 +132,28 @@ class ArgumentsOfCorrectTypeTest extends TestCase
         ');
     }
 
+    /**
+     * @it null into nullable type
+     */
+    public function testNullIntoNullableType()
+    {
+        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        {
+          complicatedArgs {
+            intArgField(intArg: null)
+          }
+        }
+        ');
+
+        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        {
+          dog(a: null, b: null, c:{ requiredField: true, intField: null }) {
+            name
+          }
+        }
+        ');
+    }
+
     // Invalid String values
 
     /**
@@ -575,6 +597,20 @@ class ArgumentsOfCorrectTypeTest extends TestCase
     }
 
     /**
+     * @it Null value
+     */
+    public function testNullValue()
+    {
+        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        {
+          complicatedArgs {
+            stringListArgField(stringListArg: null)
+          }
+        }
+        ');
+    }
+
+    /**
      * @it Single value into List
      */
     public function testSingleValueIntoList()
@@ -798,6 +834,24 @@ class ArgumentsOfCorrectTypeTest extends TestCase
         }
         ', [
             $this->badValue('req1', 'Int', '"one"', 4, 32),
+        ]);
+    }
+
+    /**
+     * @it Null value
+     */
+    public function testNullValue2()
+    {
+        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        {
+          complicatedArgs {
+            multipleReqs(req1: null)
+          }
+        }
+        ', [
+            $this->badValue('req1', 'Int!', 'null', 4, 32, [
+                'Expected "Int!", found null.'
+            ]),
         ]);
     }
 

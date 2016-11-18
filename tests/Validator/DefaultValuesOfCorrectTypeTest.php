@@ -51,6 +51,52 @@ class DefaultValuesOfCorrectTypeTest extends TestCase
     }
 
     /**
+     * @it variables with valid default null values
+     */
+    public function testVariablesWithValidDefaultNullValues()
+    {
+        $this->expectPassesRule(new DefaultValuesOfCorrectType(), '
+      query WithDefaultValues(
+        $a: Int = null,
+        $b: String = null,
+        $c: ComplexInput = { requiredField: true, intField: null }
+      ) {
+        dog { name }
+      }
+        ');
+    }
+
+    /**
+     * @it variables with invalid default null values
+     */
+    public function testVariablesWithInvalidDefaultNullValues()
+    {
+        $this->expectFailsRule(new DefaultValuesOfCorrectType(), '
+      query WithDefaultValues(
+        $a: Int! = null,
+        $b: String! = null,
+        $c: ComplexInput = { requiredField: null, intField: null }
+      ) {
+        dog { name }
+      }
+        ', [
+            $this->defaultForNonNullArg('a', 'Int!', 'Int', 3, 20),
+            $this->badValue('a', 'Int!', 'null', 3, 20, [
+                'Expected "Int!", found null.'
+            ]),
+            $this->defaultForNonNullArg('b', 'String!', 'String', 4, 23),
+            $this->badValue('b', 'String!', 'null', 4, 23, [
+                'Expected "String!", found null.'
+            ]),
+            $this->badValue('c', 'ComplexInput', '{requiredField: null, intField: null}',
+                5, 28, [
+                    'In field "requiredField": Expected "Boolean!", found null.'
+                ]
+            ),
+        ]);
+    }
+
+    /**
      * @it no required variables with default values
      */
     public function testNoRequiredVariablesWithDefaultValues()

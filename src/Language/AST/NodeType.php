@@ -31,6 +31,7 @@ class NodeType
     const STRING = 'StringValue';
     const BOOLEAN = 'BooleanValue';
     const ENUM = 'EnumValue';
+    const NULL = 'NullValue';
     const LST = 'ListValue';
     const OBJECT = 'ObjectValue';
     const OBJECT_FIELD = 'ObjectField';

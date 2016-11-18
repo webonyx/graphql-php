@@ -49,6 +49,28 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
 
+        // properly parses null value to null
+        $doc = '
+        {
+          fieldWithObjectInput(input: {a: null, b: null, c: "C", d: null})
+        }
+        ';
+        $ast = Parser::parse($doc);
+        $expected = ['data' => ['fieldWithObjectInput' => '{"a":null,"b":null,"c":"C","d":null}']];
+
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
+
+        // properly parses null value in list
+        $doc = '
+        {
+          fieldWithObjectInput(input: {b: ["A",null,"C"], c: "C"})
+        }
+        ';
+        $ast = Parser::parse($doc);
+        $expected = ['data' => ['fieldWithObjectInput' => '{"b":["A",null,"C"],"c":"C"}']];
+
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
+
         // does not use incorrect value
         $doc = '
         {

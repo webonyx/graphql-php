@@ -27,6 +27,7 @@ use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\NonNullType;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectTypeDefinition;
 use GraphQL\Language\AST\ObjectValue;
@@ -610,16 +611,19 @@ class Parser
      *   - FloatValue
      *   - StringValue
      *   - BooleanValue
+     *   - NullValue
      *   - EnumValue
      *   - ListValue[?Const]
      *   - ObjectValue[?Const]
      *
      * BooleanValue : one of `true` `false`
      *
+     * NullValue : `null`
+     *
      * EnumValue : Name but not `true`, `false` or `null`
      *
      * @param $isConst
-     * @return BooleanValue|EnumValue|FloatValue|IntValue|StringValue|Variable|ListValue|ObjectValue
+     * @return BooleanValue|EnumValue|FloatValue|IntValue|StringValue|Variable|ListValue|ObjectValue|NullValue
      * @throws SyntaxError
      */
     function parseValueLiteral($isConst)
@@ -655,7 +659,12 @@ class Parser
                         'value' => $token->value === 'true',
                         'loc' => $this->loc($token)
                     ]);
-                } else if ($token->value !== 'null') {
+                } else if ($token->value === 'null') {
+                    $this->lexer->advance();
+                    return new NullValue([
+                        'loc' => $this->loc($token)
+                    ]);
+                } else {
                     $this->lexer->advance();
                     return new EnumValue([
                         'value' => $token->value,

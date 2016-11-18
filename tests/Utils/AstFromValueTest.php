@@ -7,6 +7,7 @@ use GraphQL\Language\AST\FloatValue;
 use GraphQL\Language\AST\IntValue;
 use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\Name;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectValue;
 use GraphQL\Language\AST\StringValue;
@@ -26,9 +27,11 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(new BooleanValue(['value' => true]), AST::astFromValue(true, Type::boolean()));
         $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(false, Type::boolean()));
-        $this->assertEquals(null, AST::astFromValue(null, Type::boolean()));
+        $this->assertEquals(new NullValue([]), AST::astFromValue(null, Type::boolean()));
         $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(0, Type::boolean()));
         $this->assertEquals(new BooleanValue(['value' => true]), AST::astFromValue(1, Type::boolean()));
+        $this->assertEquals(new BooleanValue(['value' => false]), AST::astFromValue(0, Type::nonNull(Type::boolean())));
+        $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::boolean()))); // Note: null means that AST cannot
     }
 
     /**
@@ -70,7 +73,8 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new StringValue(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::string()));
         $this->assertEquals(new StringValue(['value' => '123']), AST::astFromValue(123, Type::string()));
         $this->assertEquals(new StringValue(['value' => 'false']), AST::astFromValue(false, Type::string()));
-        $this->assertEquals(null, AST::astFromValue(null, Type::string()));
+        $this->assertEquals(new NullValue([]), AST::astFromValue(null, Type::string()));
+        $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::string())));
     }
 
     /**
@@ -83,7 +87,16 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(new StringValue(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::id()));
         $this->assertEquals(new IntValue(['value' => '123']), AST::astFromValue(123, Type::id()));
         $this->assertEquals(new StringValue(['value' => 'false']), AST::astFromValue(false, Type::id()));
-        $this->assertEquals(null, AST::astFromValue(null, Type::id()));
+        $this->assertEquals(new NullValue([]), AST::astFromValue(null, Type::id()));
+        $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::id())));
+    }
+
+    /**
+     * @it does not converts NonNull values to NullValue
+     */
+    public function testDoesNotConvertsNonNullValuestoNullValue()
+    {
+        $this->assertSame(null, AST::astFromValue(null, Type::nonNull(Type::boolean())));
     }
 
     /**
@@ -154,6 +167,44 @@ class ASTFromValueTest extends \PHPUnit_Framework_TestCase
         $data = ['foo' => 3, 'bar' => 'HELLO'];
         $this->assertEquals($expected, AST::astFromValue($data, $inputObj));
         $this->assertEquals($expected, AST::astFromValue((object) $data, $inputObj));
+    }
+
+    public function testConvertsInputObjectsWithExplicitNulls()
+    {
+        $inputObj = new InputObjectType([
+            'name' => 'MyInputObj',
+            'fields' => [
+                'foo' => Type::float(),
+                'bar' => $this->myEnum()
+            ]
+        ]);
+
+        $this->assertEquals(new ObjectValue([
+            'fields' => [
+                $this->objectField('foo', new NullValue([]))
+            ]
+        ]), AST::astFromValue(['foo' => null], $inputObj));
+/*
+    const inputObj = new GraphQLInputObjectType({
+      name: 'MyInputObj',
+      fields: {
+        foo: { type: GraphQLFloat },
+        bar: { type: myEnum },
+      }
+    });
+
+    expect(astFromValue(
+      { foo: null },
+      inputObj
+    )).to.deep.equal(
+      { kind: 'ObjectValue',
+        fields: [
+          { kind: 'ObjectField',
+            name: { kind: 'Name', value: 'foo' },
+            value: { kind: 'NullValue' } } ] }
+    );
+  });
+ */
     }
 
     private $complexValue;

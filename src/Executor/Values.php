@@ -5,17 +5,16 @@ namespace GraphQL\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\Argument;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\VariableDefinition;
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
 
@@ -65,16 +64,29 @@ class Values
             $valueAST = isset($argASTMap[$name]) ? $argASTMap[$name]->value : null;
             $value = Utils\AST::valueFromAST($valueAST, $argDef->getType(), $variableValues);
 
+            if (null === $value && null === $argDef->defaultValue && !$argDef->defaultValueExists()) {
+                continue;
+            }
+
             if (null === $value) {
                 $value = $argDef->defaultValue;
             }
-            if (null !== $value) {
-                $result[$name] = $value;
+            if (NullValue::getNullValue() === $value) {
+                $value = null;
             }
+            $result[$name] = $value;
         }
         return $result;
     }
 
+    /**
+     * @deprecated Moved to Utils\AST::valueFromAST
+     *
+     * @param $valueAST
+     * @param InputType $type
+     * @param null $variables
+     * @return array|null|\stdClass
+     */
     public static function valueFromAST($valueAST, InputType $type, $variables = null)
     {
         return Utils\AST::valueFromAST($valueAST, $type, $variables);
@@ -105,7 +117,8 @@ class Values
             if (null === $input) {
                 $defaultValue = $definitionAST->defaultValue;
                 if ($defaultValue) {
-                    return Utils\AST::valueFromAST($defaultValue, $inputType);
+                    $value = Utils\AST::valueFromAST($defaultValue, $inputType);
+                    return $value === NullValue::getNullValue() ? null : $value;
                 }
             }
             return self::coerceValue($inputType, $input);

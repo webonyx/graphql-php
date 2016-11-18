@@ -21,11 +21,11 @@ use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\InlineFragment;
 use GraphQL\Language\AST\IntValue;
 use GraphQL\Language\AST\ListType;
-use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
 use GraphQL\Language\AST\NonNullType;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectTypeDefinition;
 use GraphQL\Language\AST\ObjectValue;
@@ -112,14 +112,33 @@ class Printer
                 },
 
                 // Value
-                NodeType::INT => function(IntValue  $node) {return $node->value;},
-                NodeType::FLOAT => function(FloatValue $node) {return $node->value;},
-                NodeType::STRING => function(StringValue $node) {return json_encode($node->value);},
-                NodeType::BOOLEAN => function(BooleanValue $node) {return $node->value ? 'true' : 'false';},
-                NodeType::ENUM => function(EnumValue $node) {return $node->value;},
-                NodeType::LST => function(ListValue $node) {return '[' . $this->join($node->values, ', ') . ']';},
-                NodeType::OBJECT => function(ObjectValue $node) {return '{' . $this->join($node->fields, ', ') . '}';},
-                NodeType::OBJECT_FIELD => function(ObjectField $node) {return $node->name . ': ' . $node->value;},
+                NodeType::INT => function(IntValue  $node) {
+                    return $node->value;
+                },
+                NodeType::FLOAT => function(FloatValue $node) {
+                    return $node->value;
+                },
+                NodeType::STRING => function(StringValue $node) {
+                    return json_encode($node->value);
+                },
+                NodeType::BOOLEAN => function(BooleanValue $node) {
+                    return $node->value ? 'true' : 'false';
+                },
+                NodeType::NULL => function(NullValue $node) {
+                    return 'null';
+                },
+                NodeType::ENUM => function(EnumValue $node) {
+                    return $node->value;
+                },
+                NodeType::LST => function(ListValue $node) {
+                    return '[' . $this->join($node->values, ', ') . ']';
+                },
+                NodeType::OBJECT => function(ObjectValue $node) {
+                    return '{' . $this->join($node->fields, ', ') . '}';
+                },
+                NodeType::OBJECT_FIELD => function(ObjectField $node) {
+                    return $node->name . ': ' . $node->value;
+                },
 
                 // Directive
                 NodeType::DIRECTIVE => function(Directive $node) {
@@ -127,9 +146,15 @@ class Printer
                 },
 
                 // Type
-                NodeType::NAMED_TYPE => function(NamedType $node) {return $node->name;},
-                NodeType::LIST_TYPE => function(ListType $node) {return '[' . $node->type . ']';},
-                NodeType::NON_NULL_TYPE => function(NonNullType $node) {return $node->type . '!';},
+                NodeType::NAMED_TYPE => function(NamedType $node) {
+                    return $node->name;
+                },
+                NodeType::LIST_TYPE => function(ListType $node) {
+                    return '[' . $node->type . ']';
+                },
+                NodeType::NON_NULL_TYPE => function(NonNullType $node) {
+                    return $node->type . '!';
+                },
 
                 // Type System Definitions
                 NodeType::SCHEMA_DEFINITION => function(SchemaDefinition $def) {
@@ -139,7 +164,9 @@ class Printer
                         $this->block($def->operationTypes)
                     ], ' ');
                 },
-                NodeType::OPERATION_TYPE_DEFINITION => function(OperationTypeDefinition $def) {return $def->operation . ': ' . $def->type;},
+                NodeType::OPERATION_TYPE_DEFINITION => function(OperationTypeDefinition $def) {
+                    return $def->operation . ': ' . $def->type;
+                },
 
                 NodeType::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinition $def) {
                     return $this->join(['scalar', $def->name, $this->join($def->directives, ' ')], ' ');

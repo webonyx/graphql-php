@@ -836,7 +836,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $result = Executor::execute($schema, $query);
         $expected = [
             'data' => [
-                'field' => '{"a":1,"c":0,"d":false,"e":"0","f":"some-string","h":{"a":1,"b":"test"}}'
+                'field' => '{"a":1,"b":null,"c":0,"d":false,"e":"0","f":"some-string","h":{"a":1,"b":"test"}}'
             ]
         ];
 

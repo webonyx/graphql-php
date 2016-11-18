@@ -6,6 +6,7 @@ use GraphQL\Language\AST\Field;
 use GraphQL\Language\AST\Name;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\SelectionSet;
 use GraphQL\Language\AST\StringValue;
 use GraphQL\Language\Parser;
@@ -104,15 +105,6 @@ fragment MissingOn Type
     {
         $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:9) Expected Name, found }');
         Parser::parse('{ ...on }');
-    }
-
-    /**
-     * @it does not allow null as value
-     */
-    public function testDoesNotAllowNullAsValue()
-    {
-        $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:39) Unexpected Name "null"');
-        Parser::parse('{ fieldWithNullableStringInput(input: null) }');
     }
 
     /**
@@ -392,6 +384,17 @@ fragment $fragmentName on Type {
     }
 
     // Describe: parseValue
+
+    /**
+     * @it parses null value
+     */
+    public function testParsesNullValues()
+    {
+        $this->assertEquals([
+            'kind' => NodeType::NULL,
+            'loc' => ['start' => 0, 'end' => 4]
+        ], $this->nodeToArray(Parser::parseValue('null')));
+    }
 
     /**
      * @it parses list values

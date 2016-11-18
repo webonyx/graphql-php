@@ -8,6 +8,7 @@ use GraphQL\Language\AST\FloatValue;
 use GraphQL\Language\AST\IntValue;
 use GraphQL\Language\AST\ListValue;
 use GraphQL\Language\AST\Name;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\ObjectField;
 use GraphQL\Language\AST\ObjectValue;
 use GraphQL\Language\AST\StringValue;
@@ -43,21 +44,24 @@ class AST
      * | Int           | Int                  |
      * | Float         | Int / Float          |
      * | Mixed         | Enum Value           |
+     * | null          | NullValue            |
      *
      * @param $value
      * @param InputType $type
-     * @return ObjectValue|ListValue|BooleanValue|IntValue|FloatValue|EnumValue|StringValue
+     * @return ObjectValue|ListValue|BooleanValue|IntValue|FloatValue|EnumValue|StringValue|NullValue
      */
     static function astFromValue($value, InputType $type)
     {
         if ($type instanceof NonNull) {
-            // Note: we're not checking that the result is non-null.
-            // This function is not responsible for validating the input value.
-            return self::astFromValue($value, $type->getWrappedType());
+            $astValue = self::astFromValue($value, $type->getWrappedType());
+            if ($astValue instanceof NullValue) {
+                return null;
+            }
+            return $astValue;
         }
 
         if ($value === null) {
-            return null;
+            return new NullValue([]);
         }
 
         // Convert PHP array to GraphQL list. If the GraphQLType is a list, but
@@ -80,7 +84,8 @@ class AST
         // Populate the fields of the input object by creating ASTs from each value
         // in the PHP object according to the fields in the input type.
         if ($type instanceof InputObjectType) {
-            $isArrayLike = is_array($value) || $value instanceof \ArrayAccess;
+            $isArray = is_array($value);
+            $isArrayLike = $isArray || $value instanceof \ArrayAccess;
             if ($value === null || (!$isArrayLike && !is_object($value))) {
                 return null;
             }
@@ -92,13 +97,29 @@ class AST
                 } else {
                     $fieldValue = isset($value->{$fieldName}) ? $value->{$fieldName} : null;
                 }
-                $fieldValue = self::astFromValue($fieldValue, $field->getType());
 
-                if ($fieldValue) {
-                    $fieldASTs[] = new ObjectField([
-                        'name' => new Name(['value' => $fieldName]),
-                        'value' => $fieldValue
-                    ]);
+                // Have to check additionally if key exists, since we differentiate between
+                // "no key" and "value is null":
+                if (null !== $fieldValue) {
+                    $fieldExists = true;
+                } else if ($isArray) {
+                    $fieldExists = array_key_exists($fieldName, $value);
+                } else if ($isArrayLike) {
+                    /** @var \ArrayAccess $value */
+                    $fieldExists = $value->offsetExists($fieldName);
+                } else {
+                    $fieldExists = property_exists($value, $fieldName);
+                }
+
+                if ($fieldExists) {
+                    $fieldNode = self::astFromValue($fieldValue, $field->getType());
+
+                    if ($fieldNode) {
+                        $fieldASTs[] = new ObjectField([
+                            'name' => new Name(['value' => $fieldName]),
+                            'value' => $fieldNode
+                        ]);
+                    }
                 }
             }
             return new ObjectValue(['fields' => $fieldASTs]);
@@ -165,11 +186,12 @@ class AST
      * | String               | String        |
      * | Int / Float          | Int / Float   |
      * | Enum Value           | Mixed         |
+     * | Null Value           | null          |
      *
      * @param $valueAST
      * @param InputType $type
      * @param null $variables
-     * @return array|null
+     * @return array|null|\stdClass
      * @throws \Exception
      */
     public static function valueFromAST($valueAST, InputType $type, $variables = null)
@@ -182,14 +204,22 @@ class AST
         }
 
         if (!$valueAST) {
-            return null;
+            // When there is no AST, then there is also no value.
+            // Importantly, this is different from returning the GraphQL null value.
+            return ;
+        }
+
+        if ($valueAST instanceof NullValue) {
+            // This is explicitly returning the value null.
+            return NullValue::getNullValue();
         }
 
         if ($valueAST instanceof Variable) {
             $variableName = $valueAST->name->value;
 
             if (!$variables || !isset($variables[$variableName])) {
-                return null;
+                // No valid return value.
+                return ;
             }
             // Note: we're not doing any checking that this variable is correct. We're
             // assuming that this query has been validated and the variable usage here
@@ -199,19 +229,23 @@ class AST
 
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            if ($valueAST instanceof ListValue) {
-                return array_map(function($itemAST) use ($itemType, $variables) {
-                    return self::valueFromAST($itemAST, $itemType, $variables);
-                }, $valueAST->values);
-            } else {
-                return [self::valueFromAST($valueAST, $itemType, $variables)];
+            $items = $valueAST instanceof ListValue ? $valueAST->values : [$valueAST];
+            $result = [];
+            foreach ($items as $itemAST) {
+                $value = self::valueFromAST($itemAST, $itemType, $variables);
+                if ($value === NullValue::getNullValue()) {
+                    $value = null;
+                }
+                $result[] = $value;
             }
+            return $result;
         }
 
         if ($type instanceof InputObjectType) {
             $fields = $type->getFields();
             if (!$valueAST instanceof ObjectValue) {
-                return null;
+                // No valid return value.
+                return ;
             }
             $fieldASTs = Utils::keyMap($valueAST->fields, function($field) {return $field->name->value;});
             $values = [];
@@ -219,12 +253,19 @@ class AST
                 $fieldAST = isset($fieldASTs[$field->name]) ? $fieldASTs[$field->name] : null;
                 $fieldValue = self::valueFromAST($fieldAST ? $fieldAST->value : null, $field->getType(), $variables);
 
-                if (null === $fieldValue) {
+                // If field is not in AST and defaultValue was never set for this field - do not include it in result
+                if (null === $fieldValue && null === $field->defaultValue && !$field->defaultValueExists()) {
+                    continue;
+                }
+
+                // Set Explicit null value or default value:
+                if (NullValue::getNullValue() === $fieldValue) {
+                    $fieldValue = null;
+                } else if (null === $fieldValue) {
                     $fieldValue = $field->defaultValue;
                 }
-                if (null !== $fieldValue) {
-                    $values[$field->name] = $fieldValue;
-                }
+
+                $values[$field->name] =  $fieldValue;
             }
             return $values;
         }

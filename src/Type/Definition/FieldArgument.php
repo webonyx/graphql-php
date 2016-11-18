@@ -41,6 +41,11 @@ class FieldArgument
     private $resolvedType;
 
     /**
+     * @var bool
+     */
+    private $defaultValueExists = false;
+
+    /**
      * @param array $config
      * @return array
      */
@@ -62,17 +67,23 @@ class FieldArgument
      */
     public function __construct(array $def)
     {
-        $def += [
-            'type' => null,
-            'name' => null,
-            'defaultValue' => null,
-            'description' => null
-        ];
-
-        $this->type = $def['type'];
-        $this->name = $def['name'];
-        $this->description = $def['description'];
-        $this->defaultValue = $def['defaultValue'];
+        foreach ($def as $key => $value) {
+            switch ($key) {
+                case 'type':
+                    $this->type = $value;
+                    break;
+                case 'name':
+                    $this->name = $value;
+                    break;
+                case 'defaultValue':
+                    $this->defaultValue = $value;
+                    $this->defaultValueExists = true;
+                    break;
+                case 'description':
+                    $this->description = $value;
+                    break;
+            }
+        }
         $this->config = $def;
     }
 
@@ -86,5 +97,13 @@ class FieldArgument
             $this->resolvedType = Type::resolve($this->type);
         }
         return $this->resolvedType;
+    }
+
+    /**
+     * @return bool
+     */
+    public function defaultValueExists()
+    {
+        return $this->defaultValueExists;
     }
 }

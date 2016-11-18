@@ -8,6 +8,7 @@ use GraphQL\Language\AST\Document;
 use GraphQL\Language\AST\FragmentSpread;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NullValue;
 use GraphQL\Language\AST\Value;
 use GraphQL\Language\AST\Variable;
 use GraphQL\Language\Printer;
@@ -155,7 +156,7 @@ class DocumentValidator
         // A value must be provided if the type is non-null.
         if ($type instanceof NonNull) {
             $wrappedType = $type->getWrappedType();
-            if (!$valueAST) {
+            if (!$valueAST || $valueAST instanceof NullValue) {
                 if ($wrappedType->name) {
                     return [ "Expected \"{$wrappedType->name}!\", found null." ];
                 }
@@ -164,7 +165,7 @@ class DocumentValidator
             return static::isValidLiteralValue($wrappedType, $valueAST);
         }
 
-        if (!$valueAST) {
+        if (!$valueAST || $valueAST instanceof NullValue) {
             return [];
         }
 
