@@ -47,7 +47,7 @@ class Executor
 {
     private static $UNDEFINED;
 
-    private static $defaultResolveFn = [__CLASS__, 'defaultResolveFn'];
+    private static $defaultFieldResolver = [__CLASS__, 'defaultFieldResolver'];
 
     /**
      * Custom default resolve function
@@ -55,10 +55,9 @@ class Executor
      * @param $fn
      * @throws \Exception
      */
-    public static function setDefaultResolveFn($fn)
+    public static function setDefaultFieldResolver(callable $fn)
     {
-        Utils::invariant(is_callable($fn), 'Expecting callable, but got ' . Utils::getVariableType($fn));
-        self::$defaultResolveFn = $fn;
+        self::$defaultFieldResolver = $fn;
     }
 
     /**
@@ -431,7 +430,7 @@ class Executor
         } else if (isset($parentType->resolveFieldFn)) {
             $resolveFn = $parentType->resolveFieldFn;
         } else {
-            $resolveFn = self::$defaultResolveFn;
+            $resolveFn = self::$defaultFieldResolver;
         }
 
         // The resolve function's optional third argument is a context value that
@@ -680,7 +679,7 @@ class Executor
      * and returns it as the result, or if it's a function, returns the result
      * of calling that function while passing along args and context.
      */
-    public static function defaultResolveFn($source, $args, $context, ResolveInfo $info)
+    public static function defaultFieldResolver($source, $args, $context, ResolveInfo $info)
     {
         $fieldName = $info->fieldName;
         $property = null;
@@ -892,5 +891,23 @@ class Executor
             }
         }
         return null;
+    }
+
+    /**
+     * @deprecated as of 19.11.2016
+     */
+    public static function defaultResolveFn($source, $args, $context, ResolveInfo $info)
+    {
+        trigger_error(__METHOD__ . ' is renamed to ' . __CLASS__ . '::defaultFieldResolver', E_USER_DEPRECATED);
+        return self::defaultFieldResolver($source, $args, $context, $info);
+    }
+
+    /**
+     * @deprecated as of 19.11.2016
+     */
+    public static function setDefaultResolveFn($fn)
+    {
+        trigger_error(__METHOD__ . ' is renamed to ' . __CLASS__ . '::setDefaultFieldResolver', E_USER_DEPRECATED);
+        self::setDefaultFieldResolver($fn);
     }
 }
