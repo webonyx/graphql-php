@@ -19,9 +19,9 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             $this->lexOne($char);
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            $msg = mb_substr($error->getMessage(),0, 53);
+            $msg = mb_substr($error->getMessage(), 0, 72, 'UTF-8');
             $this->assertEquals(
-                'Syntax Error GraphQL (1:1) Invalid character "\u0007"',
+                'Syntax Error GraphQL (1:1) Cannot contain the invalid character "\u0007"',
                 $msg
             );
         }
@@ -118,7 +118,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
             $this->assertEquals(
-                'Syntax Error GraphQL (3:5) Unexpected character "?"' . "\n" .
+                'Syntax Error GraphQL (3:5) Cannot parse the unexpected character "?".' . "\n" .
                 "\n" .
                 "2: \n" .
                 "3:     ?\n" .
@@ -207,19 +207,20 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             }
         };
 
-        $run(1, '"', "Syntax Error GraphQL (1:2) Unterminated string\n\n1: \"\n    ^\n");
-        $run(2, '"no end quote', "Syntax Error GraphQL (1:14) Unterminated string\n\n1: \"no end quote\n                ^\n");
-        $run(3, '"contains unescaped \u0007 control char"', "Syntax Error GraphQL (1:21) Invalid character within String: \"\\u0007\"\n\n1: \"contains unescaped \\u0007 control char\"\n                       ^\n");
-        $run(4, '"null-byte is not \u0000 end of file"', 'Syntax Error GraphQL (1:19) Invalid character within String: "\\u0000"'."\n\n1: \"null-byte is not \\u0000 end of file\"\n                     ^\n");
-        $run(5, '"multi'."\n".'line"', "Syntax Error GraphQL (1:7) Unterminated string\n\n1: \"multi\n         ^\n2: line\"\n");
-        $run(6, '"multi'."\r".'line"', "Syntax Error GraphQL (1:7) Unterminated string\n\n1: \"multi\n         ^\n2: line\"\n");
-        $run(7, '"bad \\z esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\z\n\n1: \"bad \\z esc\"\n         ^\n");
-        $run(8, '"bad \\x esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\x\n\n1: \"bad \\x esc\"\n         ^\n");
-        $run(9, '"bad \\u1 esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\u1 es\n\n1: \"bad \\u1 esc\"\n         ^\n");
-        $run(10, '"bad \\u0XX1 esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\u0XX1\n\n1: \"bad \\u0XX1 esc\"\n         ^\n");
-        $run(11, '"bad \\uXXXX esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uXXXX\n\n1: \"bad \\uXXXX esc\"\n         ^\n");
-        $run(12, '"bad \\uFXXX esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uFXXX\n\n1: \"bad \\uFXXX esc\"\n         ^\n");
-        $run(13, '"bad \\uXXXF esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uXXXF\n\n1: \"bad \\uXXXF esc\"\n         ^\n");
+        $run(1, '"', "Syntax Error GraphQL (1:2) Unterminated string.\n\n1: \"\n    ^\n");
+        $run(2, '"no end quote', "Syntax Error GraphQL (1:14) Unterminated string.\n\n1: \"no end quote\n                ^\n");
+        $run(3, "'single quotes'", "Syntax Error GraphQL (1:1) Unexpected single quote character ('), did you mean to use a double quote (\")?\n\n1: 'single quotes'\n   ^\n");
+        $run(4, '"contains unescaped \u0007 control char"', "Syntax Error GraphQL (1:21) Invalid character within String: \"\\u0007\"\n\n1: \"contains unescaped \\u0007 control char\"\n                       ^\n");
+        $run(5, '"null-byte is not \u0000 end of file"', 'Syntax Error GraphQL (1:19) Invalid character within String: "\\u0000"'."\n\n1: \"null-byte is not \\u0000 end of file\"\n                     ^\n");
+        $run(6, '"multi'."\n".'line"', "Syntax Error GraphQL (1:7) Unterminated string.\n\n1: \"multi\n         ^\n2: line\"\n");
+        $run(7, '"multi'."\r".'line"', "Syntax Error GraphQL (1:7) Unterminated string.\n\n1: \"multi\n         ^\n2: line\"\n");
+        $run(8, '"bad \\z esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\z\n\n1: \"bad \\z esc\"\n         ^\n");
+        $run(9, '"bad \\x esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\x\n\n1: \"bad \\x esc\"\n         ^\n");
+        $run(10, '"bad \\u1 esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\u1 es\n\n1: \"bad \\u1 esc\"\n         ^\n");
+        $run(11, '"bad \\u0XX1 esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\u0XX1\n\n1: \"bad \\u0XX1 esc\"\n         ^\n");
+        $run(12, '"bad \\uXXXX esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uXXXX\n\n1: \"bad \\uXXXX esc\"\n         ^\n");
+        $run(13, '"bad \\uFXXX esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uFXXX\n\n1: \"bad \\uFXXX esc\"\n         ^\n");
+        $run(14, '"bad \\uXXXF esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uXXXF\n\n1: \"bad \\uXXXF esc\"\n         ^\n");
     }
 
     /**
@@ -308,9 +309,9 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         };
 
         $run(0, '00', "Syntax Error GraphQL (1:2) Invalid number, unexpected digit after 0: \"0\"\n\n1: 00\n    ^\n");
-        $run(1, '+1', "Syntax Error GraphQL (1:1) Unexpected character \"+\"\n\n1: +1\n   ^\n");
+        $run(1, '+1', "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \"+\".\n\n1: +1\n   ^\n");
         $run(2, '1.', "Syntax Error GraphQL (1:3) Invalid number, expected digit but got: <EOF>\n\n1: 1.\n     ^\n");
-        $run(3, '.123', "Syntax Error GraphQL (1:1) Unexpected character \".\"\n\n1: .123\n   ^\n");
+        $run(3, '.123', "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \".\".\n\n1: .123\n   ^\n");
         $run(4, '1.A', "Syntax Error GraphQL (1:3) Invalid number, expected digit but got: \"A\"\n\n1: 1.A\n     ^\n");
         $run(5, '-A', "Syntax Error GraphQL (1:2) Invalid number, expected digit but got: \"A\"\n\n1: -A\n    ^\n");
         $run(6, '1.0e', "Syntax Error GraphQL (1:5) Invalid number, expected digit but got: <EOF>\n\n1: 1.0e\n       ^\n");
@@ -389,14 +390,14 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                 $this->assertEquals($expectedMessage, $e->getMessage(), "Test case $num failed");
             }
         };
-        $run(1, '..', "Syntax Error GraphQL (1:1) Unexpected character \".\"\n\n1: ..\n   ^\n");
-        $run(2, '?', "Syntax Error GraphQL (1:1) Unexpected character \"?\"\n\n1: ?\n   ^\n");
+        $run(1, '..', "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \".\".\n\n1: ..\n   ^\n");
+        $run(2, '?', "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \"?\".\n\n1: ?\n   ^\n");
 
         $unicode = json_decode('"\u203B"');
-        $run(3, $unicode, "Syntax Error GraphQL (1:1) Unexpected character \"\\u203b\"\n\n1: $unicode\n   ^\n");
+        $run(3, $unicode, "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \"\\u203b\".\n\n1: $unicode\n   ^\n");
 
         $unicode = json_decode('"\u200b"');
-        $run(4, $unicode, "Syntax Error GraphQL (1:1) Unexpected character \"\\u200b\"\n\n1: $unicode\n   ^\n");
+        $run(4, $unicode, "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \"\\u200b\".\n\n1: $unicode\n   ^\n");
     }
 
     /**

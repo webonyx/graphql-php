@@ -113,7 +113,7 @@ class Lexer
             throw new SyntaxError(
                 $this->source,
                 $position,
-                'Invalid character ' . Utils::printCharCode($code)
+                'Cannot contain the invalid character ' . Utils::printCharCode($code)
             );
         }
 
@@ -174,10 +174,14 @@ class Lexer
                 return $this->readString($position, $line, $col, $prev);
         }
 
+        $errMessage = $code === 39
+                    ? "Unexpected single quote character ('), did you mean to use ". 'a double quote (")?'
+                    : 'Cannot parse the unexpected character ' . Utils::printCharCode($code) . '.';
+
         throw new SyntaxError(
             $this->source,
             $position,
-            'Unexpected character ' . Utils::printCharCode($code)
+            $errMessage
         );
     }
 
@@ -387,7 +391,7 @@ class Lexer
             throw new SyntaxError(
                 $this->source,
                 $position,
-                'Unterminated string'
+                'Unterminated string.'
             );
         }
 
