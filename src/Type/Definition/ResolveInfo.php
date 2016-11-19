@@ -26,7 +26,7 @@ class ResolveInfo
      * @var FieldNode[]
      * @deprecated Renamed to $fieldNodes as of 19.11.2016, will be removed after several releases
      */
-    // public $fieldASTs;
+    public $fieldASTs;
 
     /**
      * @var FieldNode[]
@@ -76,6 +76,7 @@ class ResolveInfo
     public function __construct(array $values)
     {
         Utils::assign($this, $values);
+        $this->fieldASTs = $this->fieldNodes;
     }
 
     /**

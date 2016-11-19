@@ -241,6 +241,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals([
             'fieldName',
+            'fieldASTs',
             'fieldNodes',
             'returnType',
             'parentType',
