@@ -16,7 +16,7 @@ GraphQLInputObjectType |
 GraphQLList |
 GraphQLNonNull;
 */
-abstract class Type
+abstract class Type implements \JsonSerializable
 {
     const STRING = 'String';
     const INT = 'Int';
@@ -248,6 +248,14 @@ abstract class Type
     public function toString()
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function jsonSerialize()
+    {
+        return $this->toString();
     }
 
     /**
