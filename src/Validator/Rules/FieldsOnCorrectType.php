@@ -5,7 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Utils;
@@ -37,7 +37,7 @@ class FieldsOnCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::FIELD => function(FieldNode $node) use ($context) {
+            NodeKind::FIELD => function(FieldNode $node) use ($context) {
                 $type = $context->getParentType();
                 if ($type) {
                     $fieldDef = $context->getFieldDef();

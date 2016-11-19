@@ -4,7 +4,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\Messages;
@@ -26,7 +26,7 @@ class NoUnusedVariables
         $this->variableDefs = [];
 
         return [
-            NodeType::OPERATION_DEFINITION => [
+            NodeKind::OPERATION_DEFINITION => [
                 'enter' => function() {
                     $this->variableDefs = [];
                 },
@@ -52,7 +52,7 @@ class NoUnusedVariables
                     }
                 }
             ],
-            NodeType::VARIABLE_DEFINITION => function($def) {
+            NodeKind::VARIABLE_DEFINITION => function($def) {
                 $this->variableDefs[] = $def;
             }
         ];

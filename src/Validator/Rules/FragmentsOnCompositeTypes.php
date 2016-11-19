@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Type;
@@ -28,7 +28,7 @@ class FragmentsOnCompositeTypes
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::INLINE_FRAGMENT => function(InlineFragmentNode $node) use ($context) {
+            NodeKind::INLINE_FRAGMENT => function(InlineFragmentNode $node) use ($context) {
                 $type = $context->getType();
 
                 if ($node->typeCondition && $type && !Type::isCompositeType($type)) {
@@ -38,7 +38,7 @@ class FragmentsOnCompositeTypes
                     ));
                 }
             },
-            NodeType::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) use ($context) {
+            NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) use ($context) {
                 $type = $context->getType();
 
                 if ($type && !Type::isCompositeType($type)) {

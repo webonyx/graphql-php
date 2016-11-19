@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class SelectionSetNode extends Node
 {
-    public $kind = NodeType::SELECTION_SET;
+    public $kind = NodeKind::SELECTION_SET;
 
     /**
      * @var SelectionNode[]

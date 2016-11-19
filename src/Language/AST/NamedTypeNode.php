@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class NamedTypeNode extends Node implements TypeNode
 {
-    public $kind = NodeType::NAMED_TYPE;
+    public $kind = NodeKind::NAMED_TYPE;
 
     /**
      * @var NameNode

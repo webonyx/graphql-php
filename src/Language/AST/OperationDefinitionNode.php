@@ -6,7 +6,7 @@ class OperationDefinitionNode extends Node implements DefinitionNode, HasSelecti
     /**
      * @var string
      */
-    public $kind = NodeType::OPERATION_DEFINITION;
+    public $kind = NodeKind::OPERATION_DEFINITION;
 
     /**
      * @var NameNode

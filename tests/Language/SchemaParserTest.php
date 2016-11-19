@@ -14,7 +14,7 @@ use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
@@ -40,10 +40,10 @@ type Hello {
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
                     'directives' => [],
@@ -77,12 +77,12 @@ extend type Hello {
             return TestUtils::locArray($start, $end);
         };
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::TYPE_EXTENSION_DEFINITION,
+                    'kind' => NodeKind::TYPE_EXTENSION_DEFINITION,
                     'definition' => [
-                        'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                        'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                         'name' => $this->nameNode('Hello', $loc(13, 18)),
                         'interfaces' => [],
                         'directives' => [],
@@ -118,10 +118,10 @@ type Hello {
         $doc = Parser::parse($body);
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6,11)),
                     'interfaces' => [],
                     'directives' => [],
@@ -129,7 +129,7 @@ type Hello {
                         $this->fieldNode(
                             $this->nameNode('world', $loc(16, 21)),
                             [
-                                'kind' => NodeType::NON_NULL_TYPE,
+                                'kind' => NodeKind::NON_NULL_TYPE,
                                 'type' => $this->typeNode('String', $loc(23, 29)),
                                 'loc' => $loc(23, 30)
                             ],
@@ -155,10 +155,10 @@ type Hello {
         $doc = Parser::parse($body);
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'interfaces' => [
                         $this->typeNode('World', $loc(22, 27))
@@ -184,10 +184,10 @@ type Hello {
         $doc = Parser::parse($body);
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'interfaces' => [
                         $this->typeNode('Wo', $loc(22,24)),
@@ -214,10 +214,10 @@ type Hello {
         $doc = Parser::parse($body);
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::ENUM_TYPE_DEFINITION,
+                    'kind' => NodeKind::ENUM_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'directives' => [],
                     'values' => [$this->enumValueNode('WORLD', $loc(13, 18))],
@@ -240,10 +240,10 @@ type Hello {
         $doc = Parser::parse($body);
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::ENUM_TYPE_DEFINITION,
+                    'kind' => NodeKind::ENUM_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'directives' => [],
                     'values' => [
@@ -272,10 +272,10 @@ interface Hello {
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::INTERFACE_TYPE_DEFINITION,
+                    'kind' => NodeKind::INTERFACE_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(11, 16)),
                     'directives' => [],
                     'fields' => [
@@ -306,10 +306,10 @@ type Hello {
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
                     'directives' => [],
@@ -350,10 +350,10 @@ type Hello {
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
                     'directives' => [],
@@ -365,7 +365,7 @@ type Hello {
                                 $this->inputValueNode(
                                     $this->nameNode('flag', $loc(22, 26)),
                                     $this->typeNode('Boolean', $loc(28, 35)),
-                                    ['kind' => NodeType::BOOLEAN, 'value' => true, 'loc' => $loc(38, 42)],
+                                    ['kind' => NodeKind::BOOLEAN, 'value' => true, 'loc' => $loc(38, 42)],
                                     $loc(22, 42)
                                 )
                             ],
@@ -393,10 +393,10 @@ type Hello {
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
                     'directives' => [],
@@ -407,7 +407,7 @@ type Hello {
                             [
                                 $this->inputValueNode(
                                     $this->nameNode('things', $loc(22,28)),
-                                    ['kind' => NodeType::LIST_TYPE, 'type' => $this->typeNode('String', $loc(31, 37)), 'loc' => $loc(30, 38)],
+                                    ['kind' => NodeKind::LIST_TYPE, 'type' => $this->typeNode('String', $loc(31, 37)), 'loc' => $loc(30, 38)],
                                     null,
                                     $loc(22, 38)
                                 )
@@ -437,10 +437,10 @@ type Hello {
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
                     'directives' => [],
@@ -483,10 +483,10 @@ type Hello {
         $doc = Parser::parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::UNION_TYPE_DEFINITION,
+                    'kind' => NodeKind::UNION_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'directives' => [],
                     'types' => [$this->typeNode('World', $loc(14, 19))],
@@ -509,10 +509,10 @@ type Hello {
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::UNION_TYPE_DEFINITION,
+                    'kind' => NodeKind::UNION_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'directives' => [],
                     'types' => [
@@ -536,10 +536,10 @@ type Hello {
         $doc = Parser::parse($body);
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::SCALAR_TYPE_DEFINITION,
+                    'kind' => NodeKind::SCALAR_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(7, 12)),
                     'directives' => [],
                     'loc' => $loc(0, 12)
@@ -563,10 +563,10 @@ input Hello {
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
 
         $expected = [
-            'kind' => NodeType::DOCUMENT,
+            'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeType::INPUT_OBJECT_TYPE_DEFINITION,
+                    'kind' => NodeKind::INPUT_OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(7, 12)),
                     'directives' => [],
                     'fields' => [
@@ -601,8 +601,8 @@ input Hello {
     private function typeNode($name, $loc)
     {
         return [
-            'kind' => NodeType::NAMED_TYPE,
-            'name' => ['kind' => NodeType::NAME, 'value' => $name, 'loc' => $loc],
+            'kind' => NodeKind::NAMED_TYPE,
+            'name' => ['kind' => NodeKind::NAME, 'value' => $name, 'loc' => $loc],
             'loc' => $loc
         ];
     }
@@ -610,7 +610,7 @@ input Hello {
     private function nameNode($name, $loc)
     {
         return [
-            'kind' => NodeType::NAME,
+            'kind' => NodeKind::NAME,
             'value' => $name,
             'loc' => $loc
         ];
@@ -624,7 +624,7 @@ input Hello {
     private function fieldNodeWithArgs($name, $type, $args, $loc)
     {
         return [
-            'kind' => NodeType::FIELD_DEFINITION,
+            'kind' => NodeKind::FIELD_DEFINITION,
             'name' => $name,
             'arguments' => $args,
             'type' => $type,
@@ -636,7 +636,7 @@ input Hello {
     private function enumValueNode($name, $loc)
     {
         return [
-            'kind' => NodeType::ENUM_VALUE_DEFINITION,
+            'kind' => NodeKind::ENUM_VALUE_DEFINITION,
             'name' => $this->nameNode($name, $loc),
             'directives' => [],
             'loc' => $loc
@@ -646,7 +646,7 @@ input Hello {
     private function inputValueNode($name, $type, $defaultValue, $loc)
     {
         return [
-            'kind' => NodeType::INPUT_VALUE_DEFINITION,
+            'kind' => NodeKind::INPUT_VALUE_DEFINITION,
             'name' => $name,
             'type' => $type,
             'defaultValue' => $defaultValue,

@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class IntValueNode extends Node implements ValueNode
 {
-    public $kind = NodeType::INT;
+    public $kind = NodeKind::INT;
 
     /**
      * @var string

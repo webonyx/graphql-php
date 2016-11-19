@@ -3,7 +3,7 @@ namespace GraphQL\Validator;
 
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\HasSelectionSet;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
@@ -133,7 +133,7 @@ class ValidationContext
         if (!$fragments) {
             $this->fragments = $fragments =
                 array_reduce($this->getDocument()->definitions, function($frags, $statement) {
-                    if ($statement->kind === NodeType::FRAGMENT_DEFINITION) {
+                    if ($statement->kind === NodeKind::FRAGMENT_DEFINITION) {
                         $frags[$statement->name->value] = $statement;
                     }
                     return $frags;
@@ -157,7 +157,7 @@ class ValidationContext
 
                 for ($i = 0; $i < count($set->selections); $i++) {
                     $selection = $set->selections[$i];
-                    if ($selection->kind === NodeType::FRAGMENT_SPREAD) {
+                    if ($selection->kind === NodeKind::FRAGMENT_SPREAD) {
                         $spreads[] = $selection;
                     } else if ($selection->selectionSet) {
                         $setsToVisit[] = $selection->selectionSet;
@@ -214,10 +214,10 @@ class ValidationContext
             $newUsages = [];
             $typeInfo = new TypeInfo($this->schema);
             Visitor::visit($node, Visitor::visitWithTypeInfo($typeInfo, [
-                NodeType::VARIABLE_DEFINITION => function () {
+                NodeKind::VARIABLE_DEFINITION => function () {
                     return false;
                 },
-                NodeType::VARIABLE => function (VariableNode $variable) use (&$newUsages, $typeInfo) {
+                NodeKind::VARIABLE => function (VariableNode $variable) use (&$newUsages, $typeInfo) {
                     $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
                 }
             ]));

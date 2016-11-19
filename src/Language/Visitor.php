@@ -2,7 +2,7 @@
 namespace GraphQL\Language;
 
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Utils\TypeInfo;
 
 class VisitorOperation
@@ -49,45 +49,45 @@ class Visitor
     }
 
     public static $visitorKeys = [
-        NodeType::NAME => [],
-        NodeType::DOCUMENT => ['definitions'],
-        NodeType::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
-        NodeType::VARIABLE_DEFINITION => ['variable', 'type', 'defaultValue'],
-        NodeType::VARIABLE => ['name'],
-        NodeType::SELECTION_SET => ['selections'],
-        NodeType::FIELD => ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
-        NodeType::ARGUMENT => ['name', 'value'],
-        NodeType::FRAGMENT_SPREAD => ['name', 'directives'],
-        NodeType::INLINE_FRAGMENT => ['typeCondition', 'directives', 'selectionSet'],
-        NodeType::FRAGMENT_DEFINITION => ['name', 'typeCondition', 'directives', 'selectionSet'],
+        NodeKind::NAME => [],
+        NodeKind::DOCUMENT => ['definitions'],
+        NodeKind::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
+        NodeKind::VARIABLE_DEFINITION => ['variable', 'type', 'defaultValue'],
+        NodeKind::VARIABLE => ['name'],
+        NodeKind::SELECTION_SET => ['selections'],
+        NodeKind::FIELD => ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
+        NodeKind::ARGUMENT => ['name', 'value'],
+        NodeKind::FRAGMENT_SPREAD => ['name', 'directives'],
+        NodeKind::INLINE_FRAGMENT => ['typeCondition', 'directives', 'selectionSet'],
+        NodeKind::FRAGMENT_DEFINITION => ['name', 'typeCondition', 'directives', 'selectionSet'],
 
-        NodeType::INT => [],
-        NodeType::FLOAT => [],
-        NodeType::STRING => [],
-        NodeType::BOOLEAN => [],
-        NodeType::NULL => [],
-        NodeType::ENUM => [],
-        NodeType::LST => ['values'],
-        NodeType::OBJECT => ['fields'],
-        NodeType::OBJECT_FIELD => ['name', 'value'],
-        NodeType::DIRECTIVE => ['name', 'arguments'],
-        NodeType::NAMED_TYPE => ['name'],
-        NodeType::LIST_TYPE => ['type'],
-        NodeType::NON_NULL_TYPE => ['type'],
+        NodeKind::INT => [],
+        NodeKind::FLOAT => [],
+        NodeKind::STRING => [],
+        NodeKind::BOOLEAN => [],
+        NodeKind::NULL => [],
+        NodeKind::ENUM => [],
+        NodeKind::LST => ['values'],
+        NodeKind::OBJECT => ['fields'],
+        NodeKind::OBJECT_FIELD => ['name', 'value'],
+        NodeKind::DIRECTIVE => ['name', 'arguments'],
+        NodeKind::NAMED_TYPE => ['name'],
+        NodeKind::LIST_TYPE => ['type'],
+        NodeKind::NON_NULL_TYPE => ['type'],
 
-        NodeType::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
-        NodeType::OPERATION_TYPE_DEFINITION => ['type'],
-        NodeType::SCALAR_TYPE_DEFINITION => ['name', 'directives'],
-        NodeType::OBJECT_TYPE_DEFINITION => ['name', 'interfaces', 'directives', 'fields'],
-        NodeType::FIELD_DEFINITION => ['name', 'arguments', 'type', 'directives'],
-        NodeType::INPUT_VALUE_DEFINITION => ['name', 'type', 'defaultValue', 'directives'],
-        NodeType::INTERFACE_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
-        NodeType::UNION_TYPE_DEFINITION => [ 'name', 'directives', 'types' ],
-        NodeType::ENUM_TYPE_DEFINITION => [ 'name', 'directives', 'values' ],
-        NodeType::ENUM_VALUE_DEFINITION => [ 'name', 'directives' ],
-        NodeType::INPUT_OBJECT_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
-        NodeType::TYPE_EXTENSION_DEFINITION => [ 'definition' ],
-        NodeType::DIRECTIVE_DEFINITION => [ 'name', 'arguments', 'locations' ]
+        NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
+        NodeKind::OPERATION_TYPE_DEFINITION => ['type'],
+        NodeKind::SCALAR_TYPE_DEFINITION => ['name', 'directives'],
+        NodeKind::OBJECT_TYPE_DEFINITION => ['name', 'interfaces', 'directives', 'fields'],
+        NodeKind::FIELD_DEFINITION => ['name', 'arguments', 'type', 'directives'],
+        NodeKind::INPUT_VALUE_DEFINITION => ['name', 'type', 'defaultValue', 'directives'],
+        NodeKind::INTERFACE_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
+        NodeKind::UNION_TYPE_DEFINITION => [ 'name', 'directives', 'types' ],
+        NodeKind::ENUM_TYPE_DEFINITION => [ 'name', 'directives', 'values' ],
+        NodeKind::ENUM_VALUE_DEFINITION => [ 'name', 'directives' ],
+        NodeKind::INPUT_OBJECT_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
+        NodeKind::TYPE_EXTENSION_DEFINITION => [ 'definition' ],
+        NodeKind::DIRECTIVE_DEFINITION => [ 'name', 'arguments', 'locations' ]
     ];
 
     /**

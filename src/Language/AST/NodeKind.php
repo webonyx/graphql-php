@@ -2,7 +2,7 @@
 
 namespace GraphQL\Language\AST;
 
-class NodeType
+class NodeKind
 {
     // constants from language/kinds.js:
 

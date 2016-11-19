@@ -10,7 +10,7 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\ListOfType;
@@ -54,7 +54,7 @@ class OverlappingFieldsCanBeMerged
         $this->comparedSet = new PairSet();
 
         return [
-            NodeType::SELECTION_SET => [
+            NodeKind::SELECTION_SET => [
                 // Note: we validate on the reverse traversal so deeper conflicts will be
                 // caught first, for clearer error messages.
                 'leave' => function(SelectionSetNode $selectionSet) use ($context) {
@@ -318,7 +318,7 @@ class OverlappingFieldsCanBeMerged
             $selection = $selectionSet->selections[$i];
 
             switch ($selection->kind) {
-                case NodeType::FIELD:
+                case NodeKind::FIELD:
                     $fieldName = $selection->name->value;
                     $fieldDef = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
@@ -334,7 +334,7 @@ class OverlappingFieldsCanBeMerged
                     }
                     $_astAndDefs[$responseName][] = [$parentType, $selection, $fieldDef];
                     break;
-                case NodeType::INLINE_FRAGMENT:
+                case NodeKind::INLINE_FRAGMENT:
                     $typeCondition = $selection->typeCondition;
                     $inlineFragmentType = $typeCondition
                         ? TypeInfo::typeFromAST($context->getSchema(), $typeCondition)
@@ -348,7 +348,7 @@ class OverlappingFieldsCanBeMerged
                         $_astAndDefs
                     );
                     break;
-                case NodeType::FRAGMENT_SPREAD:
+                case NodeKind::FRAGMENT_SPREAD:
                     /** @var FragmentSpreadNode $selection */
                     $fragName = $selection->name->value;
                     if (!empty($_visitedFragmentNames[$fragName])) {

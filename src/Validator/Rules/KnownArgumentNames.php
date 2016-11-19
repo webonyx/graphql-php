@@ -5,7 +5,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Utils;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -25,9 +25,9 @@ class KnownArgumentNames
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::ARGUMENT => function(ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
+            NodeKind::ARGUMENT => function(ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
                 $argumentOf = $ancestors[count($ancestors) - 1];
-                if ($argumentOf->kind === NodeType::FIELD) {
+                if ($argumentOf->kind === NodeKind::FIELD) {
                     $fieldDef = $context->getFieldDef();
 
                     if ($fieldDef) {
@@ -47,7 +47,7 @@ class KnownArgumentNames
                             ));
                         }
                     }
-                } else if ($argumentOf->kind === NodeType::DIRECTIVE) {
+                } else if ($argumentOf->kind === NodeKind::DIRECTIVE) {
                     $directive = $context->getDirective();
                     if ($directive) {
                         $directiveArgDef = null;

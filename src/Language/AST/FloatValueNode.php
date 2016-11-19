@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class FloatValueNode extends Node implements ValueNode
 {
-    public $kind = NodeType::FLOAT;
+    public $kind = NodeKind::FLOAT;
 
     /**
      * @var string

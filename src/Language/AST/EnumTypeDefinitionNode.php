@@ -6,7 +6,7 @@ class EnumTypeDefinitionNode extends Node implements TypeDefinitionNode
     /**
      * @var string
      */
-    public $kind = NodeType::ENUM_TYPE_DEFINITION;
+    public $kind = NodeKind::ENUM_TYPE_DEFINITION;
 
     /**
      * @var NameNode

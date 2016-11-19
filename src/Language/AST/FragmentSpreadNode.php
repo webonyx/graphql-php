@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class FragmentSpreadNode extends Node implements SelectionNode
 {
-    public $kind = NodeType::FRAGMENT_SPREAD;
+    public $kind = NodeKind::FRAGMENT_SPREAD;
 
     /**
      * @var NameNode

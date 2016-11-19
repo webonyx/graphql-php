@@ -5,7 +5,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Parser;
@@ -26,7 +26,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $selectionSet = null;
         $editedAst = Visitor::visit($ast, [
-            NodeType::OPERATION_DEFINITION => [
+            NodeKind::OPERATION_DEFINITION => [
                 'enter' => function(OperationDefinitionNode $node) use (&$selectionSet) {
                     $selectionSet = $node->selectionSet;
 
@@ -64,7 +64,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $definitions = $ast->definitions;
 
         $editedAst = Visitor::visit($ast, [
-            NodeType::DOCUMENT => [
+            NodeKind::DOCUMENT => [
                 'enter' => function (DocumentNode $node) {
                     $tmp = clone $node;
                     $tmp->definitions = [];
@@ -265,7 +265,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             'leave' => function($node) use (&$visited) {
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
 
-                if ($node->kind === NodeType::NAME && $node->value === 'x') {
+                if ($node->kind === NodeKind::NAME && $node->value === 'x') {
                     return Visitor::stop();
                 }
             }
@@ -298,10 +298,10 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
-            NodeType::NAME => function(NameNode $node) use (&$visited) {
+            NodeKind::NAME => function(NameNode $node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, $node->value];
             },
-            NodeType::SELECTION_SET => [
+            NodeKind::SELECTION_SET => [
                 'enter' => function(SelectionSetNode $node) use (&$visited) {
                     $visited[] = ['enter', $node->kind, null];
                 },

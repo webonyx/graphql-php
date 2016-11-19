@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class ArgumentNode extends Node
 {
-    public $kind = NodeType::ARGUMENT;
+    public $kind = NodeKind::ARGUMENT;
 
     /**
      * @var ValueNode

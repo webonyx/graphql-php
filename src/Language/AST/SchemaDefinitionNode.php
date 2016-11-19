@@ -6,7 +6,7 @@ class SchemaDefinitionNode extends Node implements TypeSystemDefinitionNode
     /**
      * @var string
      */
-    public $kind = NodeType::SCHEMA_DEFINITION;
+    public $kind = NodeKind::SCHEMA_DEFINITION;
 
     /**
      * @var DirectiveNode[]

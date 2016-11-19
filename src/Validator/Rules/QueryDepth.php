@@ -6,7 +6,7 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Validator\ValidationContext;
@@ -50,7 +50,7 @@ class QueryDepth extends AbstractQuerySecurity
         return $this->invokeIfNeeded(
             $context,
             [
-                NodeType::OPERATION_DEFINITION => [
+                NodeKind::OPERATION_DEFINITION => [
                     'leave' => function (OperationDefinitionNode $operationDefinition) use ($context) {
                         $maxDepth = $this->fieldDepth($operationDefinition);
 
@@ -84,7 +84,7 @@ class QueryDepth extends AbstractQuerySecurity
     private function nodeDepth(Node $node, $depth = 0, $maxDepth = 0)
     {
         switch ($node->kind) {
-            case NodeType::FIELD:
+            case NodeKind::FIELD:
                 /* @var FieldNode $node */
                 // node has children?
                 if (null !== $node->selectionSet) {
@@ -96,7 +96,7 @@ class QueryDepth extends AbstractQuerySecurity
                 }
                 break;
 
-            case NodeType::INLINE_FRAGMENT:
+            case NodeKind::INLINE_FRAGMENT:
                 /* @var InlineFragmentNode $node */
                 // node has children?
                 if (null !== $node->selectionSet) {
@@ -104,7 +104,7 @@ class QueryDepth extends AbstractQuerySecurity
                 }
                 break;
 
-            case NodeType::FRAGMENT_SPREAD:
+            case NodeKind::FRAGMENT_SPREAD:
                 /* @var FragmentSpreadNode $node */
                 $fragment = $this->getFragment($node);
 

@@ -7,7 +7,7 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
@@ -100,7 +100,7 @@ abstract class AbstractQuerySecurity
 
         foreach ($selectionSet->selections as $selection) {
             switch ($selection->kind) {
-                case NodeType::FIELD:
+                case NodeKind::FIELD:
                     /* @var FieldNode $selection */
                     $fieldName = $selection->name->value;
                     $fieldDef = null;
@@ -127,7 +127,7 @@ abstract class AbstractQuerySecurity
                     // create field context
                     $_astAndDefs[$responseName][] = [$selection, $fieldDef];
                     break;
-                case NodeType::INLINE_FRAGMENT:
+                case NodeKind::INLINE_FRAGMENT:
                     /* @var InlineFragmentNode $selection */
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
@@ -137,7 +137,7 @@ abstract class AbstractQuerySecurity
                         $_astAndDefs
                     );
                     break;
-                case NodeType::FRAGMENT_SPREAD:
+                case NodeKind::FRAGMENT_SPREAD:
                     /* @var FragmentSpreadNode $selection */
                     $fragName = $selection->name->value;
 

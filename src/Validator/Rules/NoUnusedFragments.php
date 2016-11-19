@@ -6,7 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -28,15 +28,15 @@ class NoUnusedFragments
         $this->fragmentDefs = [];
 
         return [
-            NodeType::OPERATION_DEFINITION => function($node) {
+            NodeKind::OPERATION_DEFINITION => function($node) {
                 $this->operationDefs[] = $node;
                 return Visitor::skipNode();
             },
-            NodeType::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $def) {
+            NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $def) {
                 $this->fragmentDefs[] = $def;
                 return Visitor::skipNode();
             },
-            NodeType::DOCUMENT => [
+            NodeKind::DOCUMENT => [
                 'leave' => function() use ($context) {
                     $fragmentNameUsed = [];
 

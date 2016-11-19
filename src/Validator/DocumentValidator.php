@@ -7,7 +7,7 @@ use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableNode;
@@ -195,7 +195,7 @@ class DocumentValidator
 
         // Input objects check each defined field and look for undefined fields.
         if ($type instanceof InputObjectType) {
-            if ($valueNode->kind !== NodeType::OBJECT) {
+            if ($valueNode->kind !== NodeKind::OBJECT) {
                 return [ "Expected \"{$type->name}\", found not an object." ];
             }
 

@@ -6,7 +6,7 @@ class InterfaceTypeDefinitionNode extends Node implements TypeDefinitionNode
     /**
      * @var string
      */
-    public $kind = NodeType::INTERFACE_TYPE_DEFINITION;
+    public $kind = NodeKind::INTERFACE_TYPE_DEFINITION;
 
     /**
      * @var NameNode

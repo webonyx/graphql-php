@@ -9,7 +9,7 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
@@ -30,7 +30,7 @@ class KnownDirectives
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::DIRECTIVE => function (DirectiveNode $node, $key, $parent, $path, $ancestors) use ($context) {
+            NodeKind::DIRECTIVE => function (DirectiveNode $node, $key, $parent, $path, $ancestors) use ($context) {
                 $directiveDef = null;
                 foreach ($context->getSchema()->getDirectives() as $def) {
                     if ($def->name === $node->name->value) {
@@ -67,17 +67,17 @@ class KnownDirectives
     private function getLocationForAppliedNode(Node $appliedTo)
     {
         switch ($appliedTo->kind) {
-            case NodeType::OPERATION_DEFINITION:
+            case NodeKind::OPERATION_DEFINITION:
                 switch ($appliedTo->operation) {
                     case 'query': return DirectiveDef::LOCATION_QUERY;
                     case 'mutation': return DirectiveDef::LOCATION_MUTATION;
                     case 'subscription': return DirectiveDef::LOCATION_SUBSCRIPTION;
                 }
                 break;
-            case NodeType::FIELD: return DirectiveDef::LOCATION_FIELD;
-            case NodeType::FRAGMENT_SPREAD: return DirectiveDef::LOCATION_FRAGMENT_SPREAD;
-            case NodeType::INLINE_FRAGMENT: return DirectiveDef::LOCATION_INLINE_FRAGMENT;
-            case NodeType::FRAGMENT_DEFINITION: return DirectiveDef::LOCATION_FRAGMENT_DEFINITION;
+            case NodeKind::FIELD: return DirectiveDef::LOCATION_FIELD;
+            case NodeKind::FRAGMENT_SPREAD: return DirectiveDef::LOCATION_FRAGMENT_SPREAD;
+            case NodeKind::INLINE_FRAGMENT: return DirectiveDef::LOCATION_INLINE_FRAGMENT;
+            case NodeKind::FRAGMENT_DEFINITION: return DirectiveDef::LOCATION_FRAGMENT_DEFINITION;
         }
     }
 }

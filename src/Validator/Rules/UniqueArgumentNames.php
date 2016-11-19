@@ -4,7 +4,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
@@ -22,13 +22,13 @@ class UniqueArgumentNames
         $this->knownArgNames = [];
 
         return [
-            NodeType::FIELD => function () {
+            NodeKind::FIELD => function () {
                 $this->knownArgNames = [];;
             },
-            NodeType::DIRECTIVE => function () {
+            NodeKind::DIRECTIVE => function () {
                 $this->knownArgNames = [];
             },
-            NodeType::ARGUMENT => function (ArgumentNode $node) use ($context) {
+            NodeKind::ARGUMENT => function (ArgumentNode $node) use ($context) {
                 $argName = $node->name->value;
                 if (!empty($this->knownArgNames[$argName])) {
                     $context->reportError(new Error(

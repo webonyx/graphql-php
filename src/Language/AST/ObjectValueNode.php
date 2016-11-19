@@ -3,7 +3,7 @@ namespace GraphQL\Language\AST;
 
 class ObjectValueNode extends Node implements ValueNode
 {
-    public $kind = NodeType::OBJECT;
+    public $kind = NodeKind::OBJECT;
 
     /**
      * @var ObjectFieldNode[]

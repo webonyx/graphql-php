@@ -3,7 +3,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
@@ -22,7 +22,7 @@ class UniqueOperationNames
         $this->knownOperationNames = [];
 
         return [
-            NodeType::OPERATION_DEFINITION => function(OperationDefinitionNode $node) use ($context) {
+            NodeKind::OPERATION_DEFINITION => function(OperationDefinitionNode $node) use ($context) {
                 $operationName = $node->name;
 
                 if ($operationName) {
@@ -37,7 +37,7 @@ class UniqueOperationNames
                 }
                 return Visitor::skipNode();
             },
-            NodeType::FRAGMENT_DEFINITION => function() {
+            NodeKind::FRAGMENT_DEFINITION => function() {
                 return Visitor::skipNode();
             }
         ];

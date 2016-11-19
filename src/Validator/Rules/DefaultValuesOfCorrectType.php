@@ -4,7 +4,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
@@ -30,7 +30,7 @@ class DefaultValuesOfCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeType::VARIABLE_DEFINITION => function(VariableDefinitionNode $varDefNode) use ($context) {
+            NodeKind::VARIABLE_DEFINITION => function(VariableDefinitionNode $varDefNode) use ($context) {
                 $name = $varDefNode->variable->name->value;
                 $defaultValue = $varDefNode->defaultValue;
                 $type = $context->getInputType();
@@ -52,8 +52,8 @@ class DefaultValuesOfCorrectType
                 }
                 return Visitor::skipNode();
             },
-            NodeType::SELECTION_SET => function() {return Visitor::skipNode();},
-            NodeType::FRAGMENT_DEFINITION => function() {return Visitor::skipNode();}
+            NodeKind::SELECTION_SET => function() {return Visitor::skipNode();},
+            NodeKind::FRAGMENT_DEFINITION => function() {return Visitor::skipNode();}
         ];
     }
 }

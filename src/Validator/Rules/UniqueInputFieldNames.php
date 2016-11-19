@@ -3,7 +3,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeType;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
@@ -24,7 +24,7 @@ class UniqueInputFieldNames
         $this->knownNameStack = [];
 
         return [
-            NodeType::OBJECT => [
+            NodeKind::OBJECT => [
                 'enter' => function() {
                     $this->knownNameStack[] = $this->knownNames;
                     $this->knownNames = [];
@@ -33,7 +33,7 @@ class UniqueInputFieldNames
                     $this->knownNames = array_pop($this->knownNameStack);
                 }
             ],
-            NodeType::OBJECT_FIELD => function(ObjectFieldNode $node) use ($context) {
+            NodeKind::OBJECT_FIELD => function(ObjectFieldNode $node) use ($context) {
                 $fieldName = $node->name->value;
 
                 if (!empty($this->knownNames[$fieldName])) {
