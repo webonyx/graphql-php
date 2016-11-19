@@ -1,8 +1,20 @@
 # Upgrade
 
-## Upgrade v0.7.x > v1.0.x
+## Upgrade v0.7.x > v0.8.x
 
-### 1. Custom directives handling
+### AST node classes
+AST node classes were renamed to disambiguate with types. e.g.:
+
+```
+GraphQL\Language\AST\Field -> GraphQL\Language\AST\FieldNode
+GraphQL\Language\AST\OjbectValue -> GraphQL\Language\AST\OjbectValueNode
+```
+etc.
+
+Node kind constants were extracted from `GraphQL\Language\AST\Node` to `GraphQL\Language\AST\NodeKind`
+
+
+### Custom directives handling
 When passing custom directives to schema, default directives (like `@skip` and `@include`) 
 are not added to schema automatically anymore. If you need them - add them explicitly with your other directives
 
@@ -22,7 +34,7 @@ $schema = new Schema([
 ]);
 ```
 
-### 2. Protected property and method naming
+### Protected property and method naming
 In order to unify coding style, leading underscores were removed from all private and protected properties 
 and methods. 
 
@@ -38,6 +50,10 @@ GraphQL\Schema::$queryType;
 
 So if you rely on any protected properties or methods of any GraphQL class, make sure to 
 delete leading underscores.
+
+### Deprecations
+There are also several deprecations which still work, but trigger `E_USER_DEPRECATED` 
+when used.
 
 ## Upgrade v0.6.x > v0.7.x
 
