@@ -6,7 +6,9 @@ use GraphQL\Language\Printer;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
@@ -613,8 +615,11 @@ EOD;
                         ],
                         'defaultValue' => [
                             'type' => Type::string(),
+                            'description' =>
+                                'A GraphQL-formatted string representing the default value for this input value.',
                             'resolve' => function ($inputValue) {
-                                return $inputValue->defaultValue === null
+                                /** @var FieldArgument|InputObjectField $inputValue */
+                                return !$inputValue->defaultValueExists()
                                     ? null
                                     : Printer::doPrint(AST::astFromValue($inputValue->defaultValue, $inputValue->getType()));
                             }

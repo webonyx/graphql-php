@@ -1079,7 +1079,8 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             'name' => 'TestInputObject',
             'fields' => [
                 'a' => ['type' => Type::string(), 'defaultValue' => 'foo'],
-                'b' => ['type' => Type::listOf(Type::string())]
+                'b' => ['type' => Type::listOf(Type::string())],
+                'c' => ['type' => Type::string(), 'defaultValue' => null ]
             ]
         ]);
 
@@ -1135,17 +1136,32 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             'kind' => 'INPUT_OBJECT',
             'name' => 'TestInputObject',
             'inputFields' => [
-                ['name' => 'a', 'type' => [
-                    'kind' => 'SCALAR',
-                    'name' => 'String',
-                    'ofType' => null],
+                [
+                    'name' => 'a',
+                    'type' => [
+                        'kind' => 'SCALAR',
+                        'name' => 'String',
+                        'ofType' => null
+                    ],
                     'defaultValue' => '"foo"'
                 ],
-                ['name' => 'b', 'type' => [
-                    'kind' => 'LIST',
-                    'name' => null,
-                    'ofType' => ['kind' => 'SCALAR', 'name' => 'String', 'ofType' => null]],
+                [
+                    'name' => 'b',
+                    'type' => [
+                        'kind' => 'LIST',
+                        'name' => null,
+                        'ofType' => ['kind' => 'SCALAR', 'name' => 'String', 'ofType' => null]
+                    ],
                     'defaultValue' => null
+                ],
+                [
+                    'name' => 'c',
+                    'type' => [
+                        'kind' => 'SCALAR',
+                        'name' => 'String',
+                        'ofType' => null
+                    ],
+                    'defaultValue' => 'null' // defaultValue was set (even if it was set to null)
                 ]
             ]
         ];
