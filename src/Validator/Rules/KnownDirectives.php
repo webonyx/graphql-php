@@ -4,16 +4,10 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveNode;
-use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\FragmentDefinitionNode;
-use GraphQL\Language\AST\FragmentSpreadNode;
-use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
-use GraphQL\Type\Definition\Directive as DirectiveDef;
+use GraphQL\Type\Definition\DirectiveLocation;
 
 class KnownDirectives
 {
@@ -69,15 +63,15 @@ class KnownDirectives
         switch ($appliedTo->kind) {
             case NodeKind::OPERATION_DEFINITION:
                 switch ($appliedTo->operation) {
-                    case 'query': return DirectiveDef::LOCATION_QUERY;
-                    case 'mutation': return DirectiveDef::LOCATION_MUTATION;
-                    case 'subscription': return DirectiveDef::LOCATION_SUBSCRIPTION;
+                    case 'query': return DirectiveLocation::QUERY;
+                    case 'mutation': return DirectiveLocation::MUTATION;
+                    case 'subscription': return DirectiveLocation::SUBSCRIPTION;
                 }
                 break;
-            case NodeKind::FIELD: return DirectiveDef::LOCATION_FIELD;
-            case NodeKind::FRAGMENT_SPREAD: return DirectiveDef::LOCATION_FRAGMENT_SPREAD;
-            case NodeKind::INLINE_FRAGMENT: return DirectiveDef::LOCATION_INLINE_FRAGMENT;
-            case NodeKind::FRAGMENT_DEFINITION: return DirectiveDef::LOCATION_FRAGMENT_DEFINITION;
+            case NodeKind::FIELD: return DirectiveLocation::FIELD;
+            case NodeKind::FRAGMENT_SPREAD: return DirectiveLocation::FRAGMENT_SPREAD;
+            case NodeKind::INLINE_FRAGMENT: return DirectiveLocation::INLINE_FRAGMENT;
+            case NodeKind::FRAGMENT_DEFINITION: return DirectiveLocation::FRAGMENT_DEFINITION;
         }
     }
 }

@@ -14,54 +14,35 @@ class Directive
      */
     public static $internalDirectives;
 
-    const LOCATION_QUERY = 'QUERY';
-    const LOCATION_MUTATION = 'MUTATION';
-    const LOCATION_SUBSCRIPTION = 'SUBSCRIPTION';
-    const LOCATION_FIELD = 'FIELD';
-    const LOCATION_FRAGMENT_DEFINITION = 'FRAGMENT_DEFINITION';
-    const LOCATION_FRAGMENT_SPREAD = 'FRAGMENT_SPREAD';
-    const LOCATION_INLINE_FRAGMENT = 'INLINE_FRAGMENT';
-
     // Schema Definitions
-    const LOCATION_SCHEMA = 'SCHEMA';
-    const LOCATION_SCALAR = 'SCALAR';
-    const LOCATION_OBJECT = 'OBJECT';
-    const LOCATION_FIELD_DEFINITION = 'FIELD_DEFINITION';
-    const LOCATION_ARGUMENT_DEFINITION = 'ARGUMENT_DEFINITION';
-    const LOCATION_INTERFACE = 'INTERFACE';
-    const LOCATION_UNION = 'UNION';
-    const LOCATION_ENUM = 'ENUM';
-    const LOCATION_ENUM_VALUE = 'ENUM_VALUE';
-    const LOCATION_INPUT_OBJECT = 'INPUT_OBJECT';
-    const LOCATION_INPUT_FIELD_DEFINITION = 'INPUT_FIELD_DEFINITION';
 
 
     /**
      * @var array
-     * @deprecated Just use constants directly
+     * @deprecated as of 8.0 (use constants directly)
      */
     public static $directiveLocations = [
         // Operations:
-        self::LOCATION_QUERY => self::LOCATION_QUERY,
-        self::LOCATION_MUTATION => self::LOCATION_MUTATION,
-        self::LOCATION_SUBSCRIPTION => self::LOCATION_SUBSCRIPTION,
-        self::LOCATION_FIELD => self::LOCATION_FIELD,
-        self::LOCATION_FRAGMENT_DEFINITION => self::LOCATION_FRAGMENT_DEFINITION,
-        self::LOCATION_FRAGMENT_SPREAD => self::LOCATION_FRAGMENT_SPREAD,
-        self::LOCATION_INLINE_FRAGMENT => self::LOCATION_INLINE_FRAGMENT,
+        DirectiveLocation::QUERY => DirectiveLocation::QUERY,
+        DirectiveLocation::MUTATION => DirectiveLocation::MUTATION,
+        DirectiveLocation::SUBSCRIPTION => DirectiveLocation::SUBSCRIPTION,
+        DirectiveLocation::FIELD => DirectiveLocation::FIELD,
+        DirectiveLocation::FRAGMENT_DEFINITION => DirectiveLocation::FRAGMENT_DEFINITION,
+        DirectiveLocation::FRAGMENT_SPREAD => DirectiveLocation::FRAGMENT_SPREAD,
+        DirectiveLocation::INLINE_FRAGMENT => DirectiveLocation::INLINE_FRAGMENT,
 
         // Schema Definitions
-        self::LOCATION_SCHEMA => self::LOCATION_SCHEMA,
-        self::LOCATION_SCALAR => self::LOCATION_SCALAR,
-        self::LOCATION_OBJECT => self::LOCATION_OBJECT,
-        self::LOCATION_FIELD_DEFINITION => self::LOCATION_FIELD_DEFINITION,
-        self::LOCATION_ARGUMENT_DEFINITION => self::LOCATION_ARGUMENT_DEFINITION,
-        self::LOCATION_INTERFACE => self::LOCATION_INTERFACE,
-        self::LOCATION_UNION => self::LOCATION_UNION,
-        self::LOCATION_ENUM => self::LOCATION_ENUM,
-        self::LOCATION_ENUM_VALUE => self::LOCATION_ENUM_VALUE,
-        self::LOCATION_INPUT_OBJECT => self::LOCATION_INPUT_OBJECT,
-        self::LOCATION_INPUT_FIELD_DEFINITION => self::LOCATION_INPUT_FIELD_DEFINITION
+        DirectiveLocation::SCHEMA => DirectiveLocation::SCHEMA,
+        DirectiveLocation::SCALAR => DirectiveLocation::SCALAR,
+        DirectiveLocation::OBJECT => DirectiveLocation::OBJECT,
+        DirectiveLocation::FIELD_DEFINITION => DirectiveLocation::FIELD_DEFINITION,
+        DirectiveLocation::ARGUMENT_DEFINITION => DirectiveLocation::ARGUMENT_DEFINITION,
+        DirectiveLocation::IFACE => DirectiveLocation::IFACE,
+        DirectiveLocation::UNION => DirectiveLocation::UNION,
+        DirectiveLocation::ENUM => DirectiveLocation::ENUM,
+        DirectiveLocation::ENUM_VALUE => DirectiveLocation::ENUM_VALUE,
+        DirectiveLocation::INPUT_OBJECT => DirectiveLocation::INPUT_OBJECT,
+        DirectiveLocation::INPUT_FIELD_DEFINITION => DirectiveLocation::INPUT_FIELD_DEFINITION
     ];
 
     /**
@@ -102,9 +83,9 @@ class Directive
                     'name' => 'include',
                     'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
                     'locations' => [
-                        self::LOCATION_FIELD,
-                        self::LOCATION_FRAGMENT_SPREAD,
-                        self::LOCATION_INLINE_FRAGMENT,
+                        DirectiveLocation::FIELD,
+                        DirectiveLocation::FRAGMENT_SPREAD,
+                        DirectiveLocation::INLINE_FRAGMENT,
                     ],
                     'args' => [
                         new FieldArgument([
@@ -118,9 +99,9 @@ class Directive
                     'name' => 'skip',
                     'description' => 'Directs the executor to skip this field or fragment when the `if` argument is true.',
                     'locations' => [
-                        self::LOCATION_FIELD,
-                        self::LOCATION_FRAGMENT_SPREAD,
-                        self::LOCATION_INLINE_FRAGMENT
+                        DirectiveLocation::FIELD,
+                        DirectiveLocation::FRAGMENT_SPREAD,
+                        DirectiveLocation::INLINE_FRAGMENT
                     ],
                     'args' => [
                         new FieldArgument([
@@ -134,8 +115,8 @@ class Directive
                     'name' => 'deprecated',
                     'description' => 'Marks an element of a GraphQL schema as no longer supported.',
                     'locations' => [
-                        self::LOCATION_FIELD_DEFINITION,
-                        self::LOCATION_ENUM_VALUE
+                        DirectiveLocation::FIELD_DEFINITION,
+                        DirectiveLocation::ENUM_VALUE
                     ],
                     'args' => [
                         new FieldArgument([

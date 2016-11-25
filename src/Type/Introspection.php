@@ -5,6 +5,7 @@ namespace GraphQL\Type;
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\DirectiveLocation;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -312,25 +313,25 @@ EOD;
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
                         'resolve' => function($d) {
-                            return in_array(Directive::LOCATION_QUERY, $d->locations) ||
-                                in_array(Directive::LOCATION_MUTATION, $d->locations) ||
-                                in_array(Directive::LOCATION_SUBSCRIPTION, $d->locations);
+                            return in_array(DirectiveLocation::QUERY, $d->locations) ||
+                                in_array(DirectiveLocation::MUTATION, $d->locations) ||
+                                in_array(DirectiveLocation::SUBSCRIPTION, $d->locations);
                         }
                     ],
                     'onFragment' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
                         'resolve' => function($d) {
-                            return in_array(Directive::LOCATION_FRAGMENT_SPREAD, $d->locations) ||
-                            in_array(Directive::LOCATION_INLINE_FRAGMENT, $d->locations) ||
-                            in_array(Directive::LOCATION_FRAGMENT_DEFINITION, $d->locations);
+                            return in_array(DirectiveLocation::FRAGMENT_SPREAD, $d->locations) ||
+                            in_array(DirectiveLocation::INLINE_FRAGMENT, $d->locations) ||
+                            in_array(DirectiveLocation::FRAGMENT_DEFINITION, $d->locations);
                         }
                     ],
                     'onField' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
                         'resolve' => function($d) {
-                            return in_array(Directive::LOCATION_FIELD, $d->locations);
+                            return in_array(DirectiveLocation::FIELD, $d->locations);
                         }
                     ]
                 ]
@@ -349,75 +350,75 @@ EOD;
                     '__DirectiveLocation describes one such possible adjacencies.',
                 'values' => [
                     'QUERY' => [
-                        'value' => Directive::LOCATION_QUERY,
+                        'value' => DirectiveLocation::QUERY,
                         'description' => 'Location adjacent to a query operation.'
                     ],
                     'MUTATION' => [
-                        'value' => Directive::LOCATION_MUTATION,
+                        'value' => DirectiveLocation::MUTATION,
                         'description' => 'Location adjacent to a mutation operation.'
                     ],
                     'SUBSCRIPTION' => [
-                        'value' => Directive::LOCATION_SUBSCRIPTION,
+                        'value' => DirectiveLocation::SUBSCRIPTION,
                         'description' => 'Location adjacent to a subscription operation.'
                     ],
                     'FIELD' => [
-                        'value' => Directive::LOCATION_FIELD,
+                        'value' => DirectiveLocation::FIELD,
                         'description' => 'Location adjacent to a field.'
                     ],
                     'FRAGMENT_DEFINITION' => [
-                        'value' => Directive::LOCATION_FRAGMENT_DEFINITION,
+                        'value' => DirectiveLocation::FRAGMENT_DEFINITION,
                         'description' => 'Location adjacent to a fragment definition.'
                     ],
                     'FRAGMENT_SPREAD' => [
-                        'value' => Directive::LOCATION_FRAGMENT_SPREAD,
+                        'value' => DirectiveLocation::FRAGMENT_SPREAD,
                         'description' => 'Location adjacent to a fragment spread.'
                     ],
                     'INLINE_FRAGMENT' => [
-                        'value' => Directive::LOCATION_INLINE_FRAGMENT,
+                        'value' => DirectiveLocation::INLINE_FRAGMENT,
                         'description' => 'Location adjacent to an inline fragment.'
                     ],
                     'SCHEMA' => [
-                      'value' =>  Directive::LOCATION_SCHEMA,
+                      'value' => DirectiveLocation::SCHEMA,
                       'description' =>  'Location adjacent to a schema definition.'
                     ],
                     'SCALAR' => [
-                      'value' =>  Directive::LOCATION_SCALAR,
+                      'value' => DirectiveLocation::SCALAR,
                       'description' =>  'Location adjacent to a scalar definition.'
                     ],
                     'OBJECT' => [
-                      'value' =>  Directive::LOCATION_OBJECT,
+                      'value' => DirectiveLocation::OBJECT,
                       'description' =>  'Location adjacent to an object type definition.'
                     ],
                     'FIELD_DEFINITION' => [
-                      'value' =>  Directive::LOCATION_FIELD_DEFINITION,
+                      'value' => DirectiveLocation::FIELD_DEFINITION,
                       'description' =>  'Location adjacent to a field definition.'
                     ],
                     'ARGUMENT_DEFINITION' => [
-                      'value' =>  Directive::LOCATION_ARGUMENT_DEFINITION,
+                      'value' => DirectiveLocation::ARGUMENT_DEFINITION,
                       'description' =>  'Location adjacent to an argument definition.'
                     ],
                     'INTERFACE' => [
-                      'value' =>  Directive::LOCATION_INTERFACE,
+                      'value' => DirectiveLocation::IFACE,
                       'description' =>  'Location adjacent to an interface definition.'
                     ],
                     'UNION' => [
-                      'value' =>  Directive::LOCATION_UNION,
+                      'value' => DirectiveLocation::UNION,
                       'description' =>  'Location adjacent to a union definition.'
                     ],
                     'ENUM' => [
-                      'value' =>  Directive::LOCATION_ENUM,
+                      'value' => DirectiveLocation::ENUM,
                       'description' =>  'Location adjacent to an enum definition.'
                     ],
                     'ENUM_VALUE' => [
-                      'value' =>  Directive::LOCATION_ENUM_VALUE,
+                      'value' => DirectiveLocation::ENUM_VALUE,
                       'description' =>  'Location adjacent to an enum value definition.'
                     ],
                     'INPUT_OBJECT' => [
-                      'value' =>  Directive::LOCATION_INPUT_OBJECT,
+                      'value' => DirectiveLocation::INPUT_OBJECT,
                       'description' =>  'Location adjacent to an input object type definition.'
                     ],
                     'INPUT_FIELD_DEFINITION' => [
-                      'value' =>  Directive::LOCATION_INPUT_FIELD_DEFINITION,
+                      'value' => DirectiveLocation::INPUT_FIELD_DEFINITION,
                       'description' =>  'Location adjacent to an input object field definition.'
                     ]
 
