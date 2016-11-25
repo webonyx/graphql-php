@@ -15,7 +15,7 @@ pages:
   - Schema: type-system/schema.md
 - Executing Queries: executing-queries.md
 - Handling Errors: error-handling.md
-- Fetching Data: data-fetching.md
-- Best Practices: best-practices.md
+# - Fetching Data: data-fetching.md
+# - Best Practices: best-practices.md
 - Complementary Tools: complementary-tools.md
 theme: readthedocs

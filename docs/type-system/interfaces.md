@@ -31,8 +31,8 @@ $character = new InterfaceType([
     }
 ]);
 ```
-This example uses **inline** style for Interface definition, but there are also 
-[other styles](/type-system/#type-definition-styles) (using inheritance or composition).
+This example uses **inline** style for Interface definition, but you can also use  
+[inheritance](/type-system/#type-definition-styles).
 
 # Configuration options
 Constructor of InterfaceType accepts an array. Below is a full list of allowed options:

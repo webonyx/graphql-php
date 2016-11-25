@@ -22,8 +22,8 @@ $searchResultType = new UnionType([
 ]);
 ```
 
-This example uses **inline** style for Union definition, but there are also 
-[other styles](/type-system/#type-definition-styles) (using inheritance or composition).
+This example uses **inline** style for Union definition, but you can also use  
+[inheritance](/type-system/#type-definition-styles).
 
 # Configuration options
 Constructor of UnionType accepts an array. Below is a full list of allowed options:

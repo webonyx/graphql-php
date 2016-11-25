@@ -28,8 +28,8 @@ $episodeEnum = new EnumType([
 ]);
 ```
 
-This example uses **inline** style for Enum Type definition, but there are also 
-[other styles](/type-system/#type-definition-styles) (using inheritance or composition).
+This example uses **inline** style for Enum Type definition, but you can also use
+[inheritance](/type-system/#type-definition-styles).
 
 # Configuration options
 Enum Type constructor accepts array with following options:

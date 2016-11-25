@@ -15,9 +15,11 @@ add `composer.json` file to your project root folder with following contents:
 ```
 and run `composer install`. 
 
-If you already have composer.json file - simply run: `composer require webonyx/graphql-php`
+If you already have composer.json file - simply run: `composer require webonyx/graphql-php="^0.7"`
 
-If you are upgrading, see [upgrade instructions](https://github.com/webonyx/graphql-php/blob/master/UPGRADE.md)
+# Upgrading
+We try to keep library releases backwards compatible. But when breaking changes are inevitable 
+they are explained in [upgrade instructions](https://github.com/webonyx/graphql-php/blob/master/UPGRADE.md).
 
 # Install Tools (optional)
 While it is possible to communicate with GraphQL API using regular HTTP tools it is way 
@@ -39,7 +41,7 @@ page and install it locally.
 # Hello World
 Let's create type system that will be capable to process following simple query:
 ```
-query { 
+query {
   echo(message: "Hello World")
 }
 ```
@@ -68,7 +70,7 @@ $queryType = new ObjectType([
 ```
 
 (Note: type definition can be expressed in [different styles](type-system/#type-definition-styles), 
-including **inheritance**, **composition** and **inline**. This example uses **inline** style for simplicity)
+but this example uses **inline** style for simplicity)
 
 The interesting piece here is `resolve` option of field definition. It is responsible for retuning 
 value of our field. Values of **scalar** fields will be directly included in response while values of 

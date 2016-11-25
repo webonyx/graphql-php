@@ -126,12 +126,15 @@ try {
         // ...
     ]);
     
-    $result = GraphQL::execute($schema, $query);
+    $body = GraphQL::execute($schema, $query);
+    $status = 200;
 } catch(\Exception $e) {
-    header('Content-Type: application/json', true, 500);
-    echo json_encode([
+    $body = json_encode([
         'message' => 'Unexpected error'
     ]);
-    exit;
+    $status = 500;
 }
+
+header('Content-Type: application/json', true, $status);
+echo json_encode($body);
 ```

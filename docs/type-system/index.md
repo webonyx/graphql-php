@@ -79,7 +79,7 @@ class BlogPostType extends ObjectType
 ```
 
 # Type Registry
-Every type must be presented in Schema with single instance (**graphql-php** 
+Every type must be presented in Schema by single instance (**graphql-php** 
 throws when it discovers several instances with the same `name` in schema).
 
 Therefore if you define your type as separate PHP class you must ensure that only one 

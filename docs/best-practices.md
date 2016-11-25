@@ -9,7 +9,7 @@ To enable validation - call: `GraphQL\Type\Definition\Config::enableValidation()
 but make sure to restrict it to debug/development mode only.
 
 # Type Registry
-**graphql-php** expects that each type in Schema is presented with single instance. Therefore
+**graphql-php** expects that each type in Schema is presented by single instance. Therefore
 if you define your types as separate PHP classes you need to ensure that each type is referenced only once.
  
 Technically you can create several instances of your type (for example for tests), but `GraphQL\Schema` 

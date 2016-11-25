@@ -56,8 +56,8 @@ $blogStory = new ObjectType([
     ]
 ]);
 ```
-This example uses **inline** style for Object Type definitions, but there are also 
-[other styles](/type-system/#type-definition-styles) (using inheritance or composition).
+This example uses **inline** style for Object Type definitions, but you can also use  
+[inheritance](/type-system/#type-definition-styles).
 
 
 # Configuration options
