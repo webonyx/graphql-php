@@ -7,21 +7,21 @@ use GraphQL\Examples\Blog\Data\Image;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\InterfaceType;
 
-class NodeType extends BaseType
+class NodeType extends InterfaceType
 {
     public function __construct()
     {
-        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
-        $this->definition = new InterfaceType([
+        $config = [
             'name' => 'Node',
             'fields' => [
                 'id' => Types::id()
             ],
-            'resolveType' => [$this, 'resolveType']
-        ]);
+            'resolveType' => [$this, 'resolveNodeType']
+        ];
+        parent::__construct($config);
     }
 
-    public function resolveType($object, Types $types)
+    public function resolveNodeType($object)
     {
         if ($object instanceof User) {
             return Types::user();

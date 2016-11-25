@@ -16,7 +16,6 @@ use GraphQL\Examples\Blog\Type\ImageType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\DefinitionContainer;
 
 /**
  * Class Types
@@ -128,7 +127,7 @@ class Types
 
     public static function email()
     {
-        return self::$emailType ?: (self::$emailType = new EmailType());
+        return self::$emailType ?: (self::$emailType = EmailType::create());
     }
 
     /**
@@ -191,7 +190,7 @@ class Types
     }
 
     /**
-     * @param Type|DefinitionContainer $type
+     * @param Type $type
      * @return ListOfType
      */
     public static function listOf($type)
@@ -200,7 +199,7 @@ class Types
     }
 
     /**
-     * @param Type|DefinitionContainer $type
+     * @param Type $type
      * @return NonNull
      */
     public static function nonNull($type)

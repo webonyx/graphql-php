@@ -35,7 +35,7 @@ or hardcoded in source code) to **serialized** representation included in respon
 Those cases are covered by methods `serialize`, `parseValue` and `parseLiteral` of abstract `ScalarType` 
 class respectively.
 
-Here is an example of simple `Email` type (using inheritance):
+Here is an example of simple `Email` type:
 
 ```php
 <?php
@@ -105,30 +105,6 @@ class EmailType extends ScalarType
             throw new Error("Not a valid email", [$valueNode]);
         }
         return $valueNode->value;
-    }
-}
-```
-
-Same example, using composition over inheritance:
-```php
-<?php
-namespace MyApp;
-
-use GraphQL\Type\DefinitionContainer;
-use GraphQL\Type\Definition\CustomScalarType;
-
-class EmailType implements DefinitionContainer
-{
-    private $definition;
-
-    public function getDefinition()
-    {
-        return $this->definition ?: ($this->definition = new CustomScalarType([
-            'name' => 'Email',
-            'serialize' => function($value) {/* See function body above */},
-            'parseValue' => function($value) {/* See function body above */},
-            'parseLiteral' => function($valueNode) {/* See function body above */},
-        ]));
     }
 }
 ```

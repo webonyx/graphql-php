@@ -2,21 +2,19 @@
 namespace GraphQL\Examples\Blog\Type\Scalar;
 
 use GraphQL\Error\Error;
-use GraphQL\Examples\Blog\Type\BaseType;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Utils;
 
-class EmailType extends BaseType
+class EmailType
 {
-    public function __construct()
+    public static function create()
     {
-        // Option #1: define scalar types using composition (see UrlType fo option #2 using inheritance)
-        $this->definition = new CustomScalarType([
+        return new CustomScalarType([
             'name' => 'Email',
-            'serialize' => [$this, 'serialize'],
-            'parseValue' => [$this, 'parseValue'],
-            'parseLiteral' => [$this, 'parseLiteral'],
+            'serialize' => [__CLASS__, 'serialize'],
+            'parseValue' => [__CLASS__, 'parseValue'],
+            'parseLiteral' => [__CLASS__, 'parseLiteral'],
         ]);
     }
 
@@ -26,7 +24,7 @@ class EmailType extends BaseType
      * @param string $value
      * @return string
      */
-    public function serialize($value)
+    public static function serialize($value)
     {
         // Assuming internal representation of email is always correct:
         return $value;
@@ -42,7 +40,7 @@ class EmailType extends BaseType
      * @param mixed $value
      * @return mixed
      */
-    public function parseValue($value)
+    public static function parseValue($value)
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
             throw new \UnexpectedValueException("Cannot represent value as email: " . Utils::printSafe($value));
@@ -57,7 +55,7 @@ class EmailType extends BaseType
      * @return string
      * @throws Error
      */
-    public function parseLiteral($valueNode)
+    public static function parseLiteral($valueNode)
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:

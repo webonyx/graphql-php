@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Type\DefinitionContainer;
 use GraphQL\Utils;
 
 
@@ -155,7 +154,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     }
 
     /**
-     * @param InterfaceType|DefinitionContainer $iface
+     * @param InterfaceType $iface
      * @return bool
      */
     public function implementsInterface($iface)

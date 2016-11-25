@@ -8,12 +8,11 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 
-class QueryType extends BaseType
+class QueryType extends ObjectType
 {
     public function __construct()
     {
-        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
-        $this->definition = new ObjectType([
+        $config = [
             'name' => 'Query',
             'fields' => [
                 'user' => [
@@ -61,7 +60,8 @@ class QueryType extends BaseType
             'resolveField' => function($val, $args, $context, ResolveInfo $info) {
                 return $this->{$info->fieldName}($val, $args, $context, $info);
             }
-        ]);
+        ];
+        parent::__construct($config);
     }
 
     public function user($rootValue, $args)

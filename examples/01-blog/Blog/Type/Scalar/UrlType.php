@@ -9,8 +9,6 @@ use GraphQL\Utils;
 
 class UrlType extends ScalarType
 {
-    // Option #2: Displays scalar type defined using inheritance. See EmailType for definition via composition
-
     /**
      * Serializes an internal value to include in a response.
      *

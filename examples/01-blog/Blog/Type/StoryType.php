@@ -13,7 +13,7 @@ use GraphQL\Type\Definition\ResolveInfo;
  * Class StoryType
  * @package GraphQL\Examples\Social\Type
  */
-class StoryType extends BaseType
+class StoryType extends ObjectType
 {
     const EDIT = 'EDIT';
     const DELETE = 'DELETE';
@@ -23,8 +23,7 @@ class StoryType extends BaseType
 
     public function __construct()
     {
-        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
-        $this->definition = new ObjectType([
+        $config = [
             'name' => 'Story',
             'fields' => function() {
                 return [
@@ -83,7 +82,8 @@ class StoryType extends BaseType
                     return $value->{$info->fieldName};
                 }
             }
-        ]);
+        ];
+        parent::__construct($config);
     }
 
     public function author(Story $story)

@@ -8,7 +8,6 @@ class ImageSizeEnumType extends EnumType
 {
     public function __construct()
     {
-        // Option #2: Define enum type using inheritance
         $config = [
             // Note: 'name' option is not needed in this form - it will be inferred from className
             'values' => [

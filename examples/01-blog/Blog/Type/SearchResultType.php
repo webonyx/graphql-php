@@ -6,12 +6,11 @@ use GraphQL\Examples\Blog\Data\User;
 use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\UnionType;
 
-class SearchResultType extends BaseType
+class SearchResultType extends UnionType
 {
     public function __construct()
     {
-        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
-        $this->definition = new UnionType([
+        $config = [
             'name' => 'SearchResultType',
             'types' => function() {
                 return [
@@ -26,6 +25,7 @@ class SearchResultType extends BaseType
                     return Types::user();
                 }
             }
-        ]);
+        ];
+        parent::__construct($config);
     }
 }

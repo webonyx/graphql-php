@@ -11,7 +11,6 @@ class ImageType extends ObjectType
 {
     public function __construct()
     {
-        // Option #2: define type using inheritance, see any other object type for compositional example
         $config = [
             'name' => 'ImageType',
             'fields' => [

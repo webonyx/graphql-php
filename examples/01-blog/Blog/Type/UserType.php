@@ -8,12 +8,11 @@ use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class UserType extends BaseType
+class UserType extends ObjectType
 {
     public function __construct()
     {
-        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
-        $this->definition = new ObjectType([
+        $config = [
             'name' => 'User',
             'description' => 'Our blog authors',
             'fields' => function() {
@@ -52,7 +51,8 @@ class UserType extends BaseType
                     return $value->{$info->fieldName};
                 }
             }
-        ]);
+        ];
+        parent::__construct($config);
     }
 
     public function photo(User $user, $args)

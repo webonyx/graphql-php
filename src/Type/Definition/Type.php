@@ -2,7 +2,6 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Type\DefinitionContainer;
 use GraphQL\Utils;
 
 /*
@@ -197,9 +196,6 @@ abstract class Type implements \JsonSerializable
                 E_USER_DEPRECATED
             );
             $type = $type();
-        }
-        if ($type instanceof DefinitionContainer) {
-            $type = $type->getDefinition();
         }
 
         if (!$type instanceof Type) {

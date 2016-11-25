@@ -26,7 +26,7 @@ $myType = new ObjectType([
 ]);
 ```
 
-Class per type, using inheritance:
+Class per type:
 ```php
 <?php
 namespace MyApp;
@@ -46,31 +46,6 @@ class MyType extends ObjectType
             ]
         ];
         parent::__construct($config);
-    }
-}
-```
-
-Class per type, using composition:
-```php
-<?php
-namespace MyApp;
-
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\DefinitionContainer;
-
-class MyType implements DefinitionContainer
-{
-    private $definition;
-
-    public function getDefinition()
-    {
-        return $this->definition ?: ($this->definition = new ObjectType([
-            'name' => 'MyType',
-            'fields' => [
-                'id' => Type::id()
-            ]
-        ]));
     }
 }
 ```

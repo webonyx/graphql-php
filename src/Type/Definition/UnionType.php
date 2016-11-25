@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Type\DefinitionContainer;
 use GraphQL\Utils;
 
 /**

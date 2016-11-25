@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Type\DefinitionContainer;
 use GraphQL\Utils;
 
 /**
@@ -16,12 +15,12 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
     public $ofType;
 
     /**
-     * @param callable|Type|DefinitionContainer $type
+     * @param callable|Type $type
      */
     public function __construct($type)
     {
         Utils::invariant(
-            $type instanceof Type || $type instanceof DefinitionContainer || is_callable($type),
+            $type instanceof Type || is_callable($type),
             'Expecting instance of GraphQL\Type\Definition\Type or callable returning instance of that class'
         );
 

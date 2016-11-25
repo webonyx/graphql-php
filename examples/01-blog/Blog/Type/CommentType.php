@@ -8,12 +8,11 @@ use GraphQL\Examples\Blog\Types;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-class CommentType extends BaseType
+class CommentType extends ObjectType
 {
     public function __construct()
     {
-        // Option #1: using composition over inheritance to define type, see ImageType for inheritance example
-        $this->definition = new ObjectType([
+        $config = [
             'name' => 'Comment',
             'fields' => function() {
                 return [
@@ -43,7 +42,8 @@ class CommentType extends BaseType
                     return $value->{$info->fieldName};
                 }
             }
-        ]);
+        ];
+        parent::__construct($config);
     }
 
     public function author(Comment $comment)
