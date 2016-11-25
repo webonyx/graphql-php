@@ -193,7 +193,7 @@ class SchemaValidator
      * @param InterfaceType $iface
      * @throws \Exception
      */
-    protected static function assertObjectImplementsInterface(Schema $schema, ObjectType $object, InterfaceType $iface)
+    private static function assertObjectImplementsInterface(Schema $schema, ObjectType $object, InterfaceType $iface)
     {
         $objectFieldMap = $object->getFields();
         $ifaceFieldMap = $iface->getFields();

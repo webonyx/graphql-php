@@ -14,7 +14,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     /**
      * @var callable|Type
      */
-    protected $ofType;
+    private $ofType;
 
     /**
      * @param callable|Type|DefinitionContainer $type

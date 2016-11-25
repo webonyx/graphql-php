@@ -44,37 +44,37 @@ class Schema
     /**
      * @var ObjectType
      */
-    protected $queryType;
+    private $queryType;
 
     /**
      * @var ObjectType
      */
-    protected $mutationType;
+    private $mutationType;
 
     /**
      * @var ObjectType
      */
-    protected $subscriptionType;
+    private $subscriptionType;
 
     /**
      * @var Directive[]
      */
-    protected $directives;
+    private $directives;
 
     /**
      * @var Type[]
      */
-    protected $typeMap;
+    private $typeMap;
 
     /**
      * @var array<string, ObjectType[]>
      */
-    protected $implementations;
+    private $implementations;
 
     /**
      * @var array<string, array<string, boolean>>
      */
-    protected $possibleTypeMap;
+    private $possibleTypeMap;
 
     /**
      * Schema constructor.
@@ -103,7 +103,7 @@ class Schema
     /**
      * @param array $config
      */
-    protected function init(array $config)
+    private function init(array $config)
     {
         $config += [
             'query' => null,
@@ -294,20 +294,9 @@ class Schema
 
     /**
      * @param $type
-     * @deprecated since 17.10.2016 in favor of $this->extractTypes
      * @return array
      */
-    protected function _extractTypes($type)
-    {
-        trigger_error(__METHOD__ . ' is deprecated in favor of ' . __CLASS__ . '::extractTypes', E_USER_DEPRECATED);
-        return $this->extractTypes($type);
-    }
-
-    /**
-     * @param $type
-     * @return array
-     */
-    protected function extractTypes($type)
+    private function extractTypes($type)
     {
         if (!$type) {
             return $this->typeMap;
