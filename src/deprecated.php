@@ -4,7 +4,6 @@ if (defined('GRAPHQL_WITH_DEPRECATED') && !GRAPHQL_WITH_DEPRECATED) {
 }
 
 // Renamed as of 8.0:
-class_alias('GraphQL\Error\Error', 'GraphQL\Error');
 class_alias('GraphQL\Error\FormattedError', 'GraphQL\FormattedError');
 class_alias('GraphQL\Error\SyntaxError', 'GraphQL\SyntaxError');
 
