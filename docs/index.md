@@ -1,3 +1,9 @@
+[![GitHub stars](https://img.shields.io/github/stars/webonyx/graphql-php.svg?style=social&label=Star)](https://github.com/webonyx/graphql-php)
+[![Build Status](https://travis-ci.org/webonyx/graphql-php.svg?branch=master)](https://travis-ci.org/webonyx/graphql-php)
+[![Coverage Status](https://coveralls.io/repos/github/webonyx/graphql-php/badge.svg)](https://coveralls.io/github/webonyx/graphql-php)
+[![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
+[![License](https://poser.pugx.org/webonyx/graphql-php/license)](https://packagist.org/packages/webonyx/graphql-php)
+
 # About GraphQL
 
 GraphQL is a modern way to build HTTP APIs consumed by web and mobile clients.
@@ -24,7 +30,7 @@ are used. Instead it provides tools for creating rich API for your existing app.
 These tools include:
 
  - Primitives to express your app as a Type System
- - Tools for validation and introspection of this Type System (for compatibility with tools like [GraphiQL](complementary-tools/#graphiql))
+ - Tools for validation and introspection of this Type System (for compatibility with tools like [GraphiQL](complementary-tools/#tools))
  - Tools for parsing, validating and executing GraphQL queries against this Type System
  - Rich error reporting, including query validation and execution errors
  - Optional tools for parsing GraphQL Schema Definition language
@@ -33,8 +39,13 @@ Also several [complementary tools](complementary-tools/) are available which pro
 existing PHP frameworks, add support for Relay, etc.
 
 ## Current Status
-Current version supports all features described by GraphQL specification 
+First version of this library (v0.1) was released on August 10th 2015.
+
+Current version (v0.7) supports all features described by GraphQL specification 
 (including April 2016 add-ons) as well as some experimental features like 
 Schema Language parser.
 
 Ready for real-world usage.
+
+## Github
+Project source code is [hosted on GitHub](https://github.com/webonyx/graphql-php).
