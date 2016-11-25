@@ -19,7 +19,6 @@ class_alias('GraphQL\Language\AST\FloatValueNode', 'GraphQL\Language\AST\FloatVa
 class_alias('GraphQL\Language\AST\FragmentDefinitionNode', 'GraphQL\Language\AST\FragmentDefinition');
 class_alias('GraphQL\Language\AST\FragmentSpreadNode', 'GraphQL\Language\AST\FragmentSpread');
 class_alias('GraphQL\Language\AST\InlineFragmentNode', 'GraphQL\Language\AST\InlineFragment');
-class_alias('GraphQL\Language\AST\InlineFragmentNode', 'GraphQL\Language\AST\InlineFragment');
 class_alias('GraphQL\Language\AST\IntValueNode', 'GraphQL\Language\AST\IntValue');
 class_alias('GraphQL\Language\AST\ListTypeNode', 'GraphQL\Language\AST\ListType');
 class_alias('GraphQL\Language\AST\ListValueNode', 'GraphQL\Language\AST\ListValue');
