@@ -9,13 +9,13 @@ add `composer.json` file to your project root folder with following contents:
 ```
 {
     "require": {
-        "webonyx/graphql-php": "^0.7"
+        "webonyx/graphql-php": "^0.8"
     }
 }
 ```
 and run `composer install`. 
 
-If you already have composer.json file - simply run: `composer require webonyx/graphql-php="^0.7"`
+If you already have composer.json file - simply run: `composer require webonyx/graphql-php="^0.8"`
 
 # Upgrading
 We try to keep library releases backwards compatible. But when breaking changes are inevitable 

@@ -80,7 +80,7 @@ Check out single-file [hello world](https://gist.github.com/leocavalcante/9e61ca
 ## Installing graphql-php
 ```
 $> curl -sS https://getcomposer.org/installer | php
-$> php composer.phar require webonyx/graphql-php="^0.7"
+$> php composer.phar require webonyx/graphql-php="^0.8"
 ```
 
 If you are upgrading, see [upgrade instructions](UPGRADE.md)
