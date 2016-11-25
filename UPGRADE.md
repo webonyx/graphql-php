@@ -1,22 +1,14 @@
 # Upgrade
 
 ## Upgrade v0.7.x > v0.8.x
-
-### AST node classes
-AST node classes were renamed to disambiguate with types. e.g.:
-
-```
-GraphQL\Language\AST\Field -> GraphQL\Language\AST\FieldNode
-GraphQL\Language\AST\OjbectValue -> GraphQL\Language\AST\OjbectValueNode
-```
-etc.
-
-Node kind constants were extracted from `GraphQL\Language\AST\Node` to `GraphQL\Language\AST\NodeKind`
+All of those changes apply to those who extends various parts of this library.
+If you only use the library and don't try to extend it - everything should work without breaks.
 
 
-### Custom directives handling
+### Breaking: Custom directives handling
 When passing custom directives to schema, default directives (like `@skip` and `@include`) 
-are not added to schema automatically anymore. If you need them - add them explicitly with your other directives
+are not added to schema automatically anymore. If you need them - add them explicitly with 
+your other directives.
 
 Before the change:
 ```php
@@ -34,26 +26,31 @@ $schema = new Schema([
 ]);
 ```
 
-### Protected property and method naming
-In order to unify coding style, leading underscores were removed from all private and protected properties 
-and methods. 
+### Breaking: Schema protected property and methods visibility 
+Most of the `protected` properties and methods of `GraphQL\Schema` were changed to `private`.
+Please use public interface instead.
 
-Example before the change:
-```php
-GraphQL\Schema::$_queryType;
+### Breaking: Node kind constants
+Node kind constants were extracted from `GraphQL\Language\AST\Node` to 
+separate class `GraphQL\Language\AST\NodeKind`
+
+### Non-breaking: AST node classes renamed
+AST node classes were renamed to disambiguate with types. e.g.:
+
 ```
-
-Correct usage after the change:
-```php
-GraphQL\Schema::$queryType;
+GraphQL\Language\AST\Field -> GraphQL\Language\AST\FieldNode
+GraphQL\Language\AST\OjbectValue -> GraphQL\Language\AST\OjbectValueNode
 ```
+etc. 
 
-So if you rely on any protected properties or methods of any GraphQL class, make sure to 
-delete leading underscores.
+Old names are still available via `class_alias` defined in `src/deprecated.php`. 
+This file is included automatically when using composer autoloading.
 
 ### Deprecations
-There are also several deprecations which still work, but trigger `E_USER_DEPRECATED` 
-when used.
+There are several deprecations which still work, but trigger `E_USER_DEPRECATED` when used.
+
+For example `GraphQL\Executor\Executor::setDefaultResolveFn()` is renamed to `setDefaultResolver()`
+but still works with old name.
 
 ## Upgrade v0.6.x > v0.7.x
 

@@ -24,7 +24,7 @@ class ResolveInfo
 
     /**
      * @var FieldNode[]
-     * @deprecated Renamed to $fieldNodes as of 19.11.2016, will be removed after several releases
+     * @deprecated as of 8.0 (Renamed to $fieldNodes)
      */
     public $fieldASTs;
 

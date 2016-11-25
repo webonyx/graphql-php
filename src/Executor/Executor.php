@@ -894,7 +894,7 @@ class Executor
     }
 
     /**
-     * @deprecated as of 19.11.2016
+     * @deprecated as of 8.0
      */
     public static function defaultResolveFn($source, $args, $context, ResolveInfo $info)
     {
@@ -903,7 +903,7 @@ class Executor
     }
 
     /**
-     * @deprecated as of 19.11.2016
+     * @deprecated as of 8.0
      */
     public static function setDefaultResolveFn($fn)
     {

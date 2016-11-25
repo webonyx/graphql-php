@@ -89,7 +89,6 @@ class FieldArgument
 
     /**
      * @return InputType
-     * @deprecated in favor of setting 'fields' as closure per objectType vs on individual field/argument level
      */
     public function getType()
     {

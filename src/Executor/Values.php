@@ -162,7 +162,7 @@ class Values
     }
 
     /**
-     * @deprecated Moved to Utils\AST::valueFromAST
+     * @deprecated as of 8.0 (Moved to Utils\AST::valueFromAST)
      *
      * @param $valueNode
      * @param InputType $type

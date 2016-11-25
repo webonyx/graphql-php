@@ -14,7 +14,7 @@ use GraphQL\Utils;
 class FormattedError
 {
     /**
-     * @deprecated since 2016-10-21
+     * @deprecated as of 8.0
      * @param $error
      * @param SourceLocation[] $locations
      * @return array

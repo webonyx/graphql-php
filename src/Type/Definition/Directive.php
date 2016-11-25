@@ -19,7 +19,7 @@ class Directive
 
     /**
      * @var array
-     * @deprecated as of 8.0 (use constants directly)
+     * @deprecated as of 8.0 (use DirectiveLocation constants directly)
      */
     public static $directiveLocations = [
         // Operations:
