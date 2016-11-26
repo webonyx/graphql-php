@@ -13,7 +13,8 @@
     "ext-mbstring": "*"
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.8"
+    "phpunit/phpunit": "^4.8",
+    "react/promise": "^2.4"
   },
   "config": {
     "bin-dir": "bin"
@@ -30,5 +31,8 @@
       "GraphQL\\Benchmarks\\": "benchmarks/",
       "GraphQL\\Examples\\Blog\\": "examples/01-blog/Blog/"
     }
+  },
+  "suggest": {
+    "react/promise": "To use ReactPhp promise adapter"
   }
 }

@@ -3,13 +3,15 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\Promise\Promise;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Executor\Promise\Adapter\GenericPromiseAdapter;
+use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
@@ -49,6 +51,19 @@ class Executor
     private static $defaultFieldResolver = [__CLASS__, 'defaultFieldResolver'];
 
     /**
+     * @var PromiseAdapter
+     */
+    private static $promiseAdapter;
+
+    /**
+     * @param PromiseAdapter|null $promiseAdapter
+     */
+    public static function setPromiseAdapter(PromiseAdapter $promiseAdapter = null)
+    {
+        self::$promiseAdapter = $promiseAdapter;
+    }
+
+    /**
      * Custom default resolve function
      *
      * @param $fn
@@ -66,7 +81,7 @@ class Executor
      * @param $contextValue
      * @param array|\ArrayAccess $variableValues
      * @param null $operationName
-     * @return ExecutionResult
+     * @return ExecutionResult|Promise
      */
     public static function execute(Schema $schema, DocumentNode $ast, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
     {
@@ -88,9 +103,34 @@ class Executor
         }
 
         $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $contextValue, $variableValues, $operationName);
+        if (null === self::$promiseAdapter) {
+            static::setPromiseAdapter(new GenericPromiseAdapter());
+        }
 
         try {
-            $data = self::executeOperation($exeContext, $exeContext->operation, $rootValue);
+            $data = self::$promiseAdapter
+                ->createPromise(function (callable $resolve) use ($exeContext, $rootValue) {
+                    return $resolve(self::executeOperation($exeContext, $exeContext->operation, $rootValue));
+                });
+
+            if (self::$promiseAdapter->isPromise($data)) {
+                // Return a Promise that will eventually resolve to the data described by
+                // The "Response" section of the GraphQL specification.
+                //
+                // If errors are encountered while executing a GraphQL field, only that
+                // field and its descendants will be omitted, and sibling fields will still
+                // be executed. An execution which encounters errors will still result in a
+                // resolved Promise.
+                return $data->then(null, function ($error) use ($exeContext) {
+                    // Errors from sub-fields of a NonNull type may propagate to the top level,
+                    // at which point we still log the error and null the parent field, which
+                    // in this case is the entire response.
+                    $exeContext->addError($error);
+                    return null;
+                })->then(function ($data) use ($exeContext) {
+                    return new ExecutionResult((array) $data, $exeContext->errors);
+                });
+            }
         } catch (Error $e) {
             $exeContext->addError($e);
             $data = null;
@@ -102,6 +142,15 @@ class Executor
     /**
      * Constructs a ExecutionContext object from the arguments passed to
      * execute, which we will pass throughout the other execution methods.
+     *
+     * @param Schema $schema
+     * @param DocumentNode $documentNode
+     * @param $rootValue
+     * @param $contextValue
+     * @param $rawVariableValues
+     * @param string $operationName
+     * @return ExecutionContext
+     * @throws Error
      */
     private static function buildExecutionContext(
         Schema $schema,
@@ -160,6 +209,11 @@ class Executor
 
     /**
      * Implements the "Evaluating operations" section of the spec.
+     *
+     * @param ExecutionContext $exeContext
+     * @param OperationDefinitionNode $operation
+     * @param $rootValue
+     * @return Promise|\stdClass|array
      */
     private static function executeOperation(ExecutionContext $exeContext, OperationDefinitionNode $operation, $rootValue)
     {
@@ -217,38 +271,111 @@ class Executor
     /**
      * Implements the "Evaluating selection sets" section of the spec
      * for "write" mode.
+     *
+     * @param ExecutionContext $exeContext
+     * @param ObjectType $parentType
+     * @param $sourceValue
+     * @param $path
+     * @param $fields
+     * @return Promise|\stdClass|array
      */
     private static function executeFieldsSerially(ExecutionContext $exeContext, ObjectType $parentType, $sourceValue, $path, $fields)
     {
-        $results = [];
-        foreach ($fields as $responseName => $fieldNodes) {
+        $results = self::$promiseAdapter->createResolvedPromise([]);
+
+        $process = function ($results, $responseName, $path, $exeContext, $parentType, $sourceValue, $fieldNodes) {
             $fieldPath = $path;
             $fieldPath[] = $responseName;
             $result = self::resolveField($exeContext, $parentType, $sourceValue, $fieldNodes, $fieldPath);
+            if ($result === self::$UNDEFINED) {
+                return $results;
+            }
+            if (self::$promiseAdapter->isPromise($result)) {
+                return $result->then(function ($resolvedResult) use ($responseName, $results) {
+                    $results[$responseName] = $resolvedResult;
+                    return $results;
+                });
+            }
+            $results[$responseName] = $result;
+            return $results;
+        };
 
-            if ($result !== self::$UNDEFINED) {
-                // Undefined means that field is not defined in schema
-                $results[$responseName] = $result;
+        foreach ($fields as $responseName => $fieldNodes) {
+            if (self::$promiseAdapter->isPromise($results)) {
+                $results = $results->then(function ($resolvedResults) use ($process, $responseName, $path, $exeContext, $parentType, $sourceValue, $fieldNodes) {
+                    return $process($resolvedResults, $responseName, $path, $exeContext, $parentType, $sourceValue, $fieldNodes);
+                });
+            } else {
+                $results = $process($results, $responseName, $path, $exeContext, $parentType, $sourceValue, $fieldNodes);
             }
         }
-        // see #59
-        if ([] === $results) {
-            $results = new \stdClass();
+
+        if (self::$promiseAdapter->isPromise($results)) {
+            return $results->then(function ($resolvedResults) {
+                return self::fixResultsIfEmptyArray($resolvedResults);
+            });
         }
-        return  $results;
+
+        return self::fixResultsIfEmptyArray($results);
     }
 
     /**
      * Implements the "Evaluating selection sets" section of the spec
      * for "read" mode.
+     *
+     * @param ExecutionContext $exeContext
+     * @param ObjectType $parentType
+     * @param $source
+     * @param $path
+     * @param $fields
+     * @return Promise|\stdClass|array
      */
     private static function executeFields(ExecutionContext $exeContext, ObjectType $parentType, $source, $path, $fields)
     {
-        // Native PHP doesn't support promises.
-        // Custom executor should be built for platforms like ReactPHP
-        return self::executeFieldsSerially($exeContext, $parentType, $source, $path, $fields);
+        $containsPromise = false;
+        $finalResults = [];
+
+        foreach ($fields as $responseName => $fieldNodes) {
+            $fieldPath = $path;
+            $fieldPath[] = $responseName;
+            $result = self::resolveField($exeContext, $parentType, $source, $fieldNodes, $fieldPath);
+            if ($result === self::$UNDEFINED) {
+                continue;
+            }
+            if (!$containsPromise && self::$promiseAdapter->isPromise($result)) {
+                $containsPromise = true;
+            }
+            $finalResults[$responseName] = $result;
+        }
+
+        // If there are no promises, we can just return the object
+        if (!$containsPromise) {
+            return self::fixResultsIfEmptyArray($finalResults);
+        }
+
+        // Otherwise, results is a map from field name to the result
+        // of resolving that field, which is possibly a promise. Return
+        // a promise that will return this same map, but with any
+        // promises replaced with the values they resolved to.
+        return self::$promiseAdapter->createPromiseAll($finalResults)->then(function ($resolvedResults) {
+            return self::fixResultsIfEmptyArray($resolvedResults);
+        });
     }
 
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/59
+     *
+     * @param $results
+     * @return \stdClass|array
+     */
+    private static function fixResultsIfEmptyArray($results)
+    {
+        if ([] === $results) {
+            $results = new \stdClass();
+        }
+
+        return $results;
+    }
 
     /**
      * Given a selectionSet, adds all of the fields in that selection to
@@ -257,6 +384,12 @@ class Executor
      * CollectFields requires the "runtime type" of an object. For a field which
      * returns and Interface or Union type, the "runtime type" will be the actual
      * Object type returned by that field.
+     *
+     * @param ExecutionContext $exeContext
+     * @param ObjectType $runtimeType
+     * @param SelectionSetNode $selectionSet
+     * @param $fields
+     * @param $visitedFragmentNames
      *
      * @return \ArrayObject
      */
@@ -322,6 +455,10 @@ class Executor
     /**
      * Determines if a field should be included based on the @include and @skip
      * directives, where @skip has higher precedence than @include.
+     *
+     * @param ExecutionContext $exeContext
+     * @param $directives
+     * @return bool
      */
     private static function shouldIncludeNode(ExecutionContext $exeContext, $directives)
     {
@@ -361,6 +498,11 @@ class Executor
 
     /**
      * Determines if a fragment is applicable to the given type.
+     *
+     * @param ExecutionContext $exeContext
+     * @param $fragment
+     * @param ObjectType $type
+     * @return bool
      */
     private static function doesFragmentConditionMatch(ExecutionContext $exeContext,/* FragmentDefinitionNode | InlineFragmentNode*/ $fragment, ObjectType $type)
     {
@@ -382,6 +524,9 @@ class Executor
 
     /**
      * Implements the logic to compute the key of a given fields entry
+     *
+     * @param FieldNode $node
+     * @return string
      */
     private static function getFieldEntryKey(FieldNode $node)
     {
@@ -393,6 +538,14 @@ class Executor
      * figures out the value that the field returns by calling its resolve function,
      * then calls completeValue to complete promises, serialize scalars, or execute
      * the sub-selection-set for objects.
+     *
+     * @param ExecutionContext $exeContext
+     * @param ObjectType $parentType
+     * @param $source
+     * @param $fieldNodes
+     * @param $path
+     *
+     * @return array|\Exception|mixed|null
      */
     private static function resolveField(ExecutionContext $exeContext, ObjectType $parentType, $source, $fieldNodes, $path)
     {
@@ -501,7 +654,7 @@ class Executor
      * @param ResolveInfo $info
      * @param $path
      * @param $result
-     * @return array|null
+     * @return array|null|Promise
      */
     private static function completeValueCatchingError(
         ExecutionContext $exeContext,
@@ -528,7 +681,7 @@ class Executor
         // Otherwise, error protection is applied, logging the error and resolving
         // a null value for this field if one is encountered.
         try {
-            return self::completeValueWithLocatedError(
+            $completed = self::completeValueWithLocatedError(
                 $exeContext,
                 $returnType,
                 $fieldNodes,
@@ -536,6 +689,13 @@ class Executor
                 $path,
                 $result
             );
+            if (self::$promiseAdapter->isPromise($completed)) {
+                return $completed->then(null, function ($error) use ($exeContext) {
+                    $exeContext->addError($error);
+                    return self::$promiseAdapter->createResolvedPromise(null);
+                });
+            }
+            return $completed;
         } catch (Error $err) {
             // If `completeValueWithLocatedError` returned abruptly (threw an error), log the error
             // and return null.
@@ -555,10 +715,10 @@ class Executor
      * @param ResolveInfo $info
      * @param $path
      * @param $result
-     * @return array|null
+     * @return array|null|Promise
      * @throws Error
      */
-    static function completeValueWithLocatedError(
+    public static function completeValueWithLocatedError(
         ExecutionContext $exeContext,
         Type $returnType,
         $fieldNodes,
@@ -568,7 +728,7 @@ class Executor
     )
     {
         try {
-            return self::completeValue(
+            $completed = self::completeValue(
                 $exeContext,
                 $returnType,
                 $fieldNodes,
@@ -576,6 +736,12 @@ class Executor
                 $path,
                 $result
             );
+            if (self::$promiseAdapter->isPromise($completed)) {
+                return $completed->then(null, function ($error) use ($fieldNodes, $path) {
+                    return self::$promiseAdapter->createRejectedPromise(Error::createLocatedError($error, $fieldNodes, $path));
+                });
+            }
+            return $completed;
         } catch (\Exception $error) {
             throw Error::createLocatedError($error, $fieldNodes, $path);
         }
@@ -608,7 +774,7 @@ class Executor
      * @param ResolveInfo $info
      * @param array $path
      * @param $result
-     * @return array|null
+     * @return array|null|Promise
      * @throws Error
      * @throws \Exception
      */
@@ -621,6 +787,13 @@ class Executor
         &$result
     )
     {
+        // If result is a Promise, apply-lift over completeValue.
+        if (self::$promiseAdapter->isPromise($result)) {
+            return $result->then(function (&$resolved) use ($exeContext, $returnType, $fieldNodes, $info, $path) {
+                return self::completeValue($exeContext, $returnType, $fieldNodes, $info, $path, $resolved);
+            });
+        }
+
         if ($result instanceof \Exception) {
             throw $result;
         }
@@ -677,6 +850,13 @@ class Executor
      * which takes the property of the source object of the same name as the field
      * and returns it as the result, or if it's a function, returns the result
      * of calling that function while passing along args and context.
+     *
+     * @param $source
+     * @param $args
+     * @param $context
+     * @param ResolveInfo $info
+     *
+     * @return mixed|null
      */
     public static function defaultFieldResolver($source, $args, $context, ResolveInfo $info)
     {
@@ -704,6 +884,10 @@ class Executor
      * are allowed, like on a Union. __schema could get automatically
      * added to the query type, but that would require mutating type
      * definitions, which would cause issues.
+     *
+     * @param Schema $schema
+     * @param ObjectType $parentType
+     * @param $fieldName
      *
      * @return FieldDefinition
      */
@@ -781,7 +965,7 @@ class Executor
      * @param ResolveInfo $info
      * @param array $path
      * @param $result
-     * @return array
+     * @return array|Promise
      * @throws \Exception
      */
     private static function completeListValue(ExecutionContext $exeContext, ListOfType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
@@ -791,15 +975,20 @@ class Executor
             is_array($result) || $result instanceof \Traversable,
             'User Error: expected iterable, but did not find one for field ' . $info->parentType . '.' . $info->fieldName . '.'
         );
+        $containsPromise = false;
 
         $i = 0;
-        $tmp = [];
+        $completedItems = [];
         foreach ($result as $item) {
             $fieldPath = $path;
             $fieldPath[] = $i++;
-            $tmp[] = self::completeValueCatchingError($exeContext, $itemType, $fieldNodes, $info, $fieldPath, $item);
+            $completedItem = self::completeValueCatchingError($exeContext, $itemType, $fieldNodes, $info, $fieldPath, $item);
+            if (!$containsPromise && self::$promiseAdapter->isPromise($completedItem)) {
+                $containsPromise = true;
+            }
+            $completedItems[] = $completedItem;
         }
-        return $tmp;
+        return $containsPromise ? self::$promiseAdapter->createPromiseAll($completedItems) : $completedItems;
     }
 
     /**
@@ -832,7 +1021,7 @@ class Executor
      * @param ResolveInfo $info
      * @param array $path
      * @param $result
-     * @return array
+     * @return array|Promise|\stdClass
      * @throws Error
      */
     private static function completeObjectValue(ExecutionContext $exeContext, ObjectType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
@@ -888,7 +1077,13 @@ class Executor
     }
 
     /**
-     * @deprecated as of 8.0
+     * @deprecated as of v0.8.0 should use self::defaultFieldResolver method
+     *
+     * @param $source
+     * @param $args
+     * @param $context
+     * @param ResolveInfo $info
+     * @return mixed|null
      */
     public static function defaultResolveFn($source, $args, $context, ResolveInfo $info)
     {
@@ -897,7 +1092,9 @@ class Executor
     }
 
     /**
-     * @deprecated as of 8.0
+     * @deprecated as of v0.8.0 should use self::setDefaultFieldResolver method
+     *
+     * @param callable $fn
      */
     public static function setDefaultResolveFn($fn)
     {
