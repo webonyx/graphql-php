@@ -4,8 +4,10 @@ namespace GraphQL\Tests\Executor;
 require_once __DIR__ . '/TestClasses.php';
 
 use GraphQL\Error\Error;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
+use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -16,9 +18,15 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils;
+use React\Promise\Promise;
 
 class ExecutorTest extends \PHPUnit_Framework_TestCase
 {
+    public function tearDown()
+    {
+        Executor::setPromiseAdapter(null);
+    }
+
     // Execute: Handles basic execution tasks
 
     /**
@@ -26,7 +34,16 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExecutesArbitraryCode()
     {
+        Executor::setPromiseAdapter(new ReactPromiseAdapter());
         $deepData = null;
+        $data = null;
+
+        $promiseData = function () use (&$data) {
+            return new Promise(function (callable $resolve) use (&$data) {
+                return $resolve($data);
+            });
+        };
+
         $data = [
             'a' => function () { return 'Apple';},
             'b' => function () {return 'Banana';},
@@ -37,8 +54,8 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             'pic' => function ($size = 50) {
                 return 'Pic of size: ' . $size;
             },
-            'promise' => function() use (&$data) {
-                return $data;
+            'promise' => function() use ($promiseData) {
+                return $promiseData();
             },
             'deep' => function () use (&$deepData) {
                 return $deepData;
@@ -51,7 +68,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             'c' => function () {
                 return ['Contrived', null, 'Confusing'];
             },
-            'deeper' => function () use ($data) {
+            'deeper' => function () use (&$data) {
                 return [$data, null, $data];
             }
         ];
@@ -148,7 +165,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         ]);
         $schema = new Schema(['query' => $dataType]);
 
-        $this->assertEquals($expected, Executor::execute($schema, $ast, $data, null, ['size' => 100], 'Example')->toArray());
+        $this->assertEquals($expected, self::awaitPromise(Executor::execute($schema, $ast, $data, null, ['size' => 100], 'Example')));
     }
 
     /**
@@ -342,12 +359,18 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     public function testNullsOutErrorSubtrees()
     {
         $doc = '{
-      sync,
-      syncError,
-      syncRawError,
-      async,
-      asyncReject,
+      sync
+      syncError
+      syncRawError
+      syncReturnError
+      syncReturnErrorList
+      async
+      asyncReject
+      asyncRawReject
+      asyncEmptyReject
       asyncError
+      asyncRawError
+      asyncReturnError
         }';
 
         $data = [
@@ -360,17 +383,42 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             'syncRawError' => function() {
                 throw new \Exception('Error getting syncRawError');
             },
-            // Following are inherited from JS reference implementation, but make no sense in this PHP impl
-            // leaving them just to simplify migrations from newer js versions
+            // inherited from JS reference implementation, but make no sense in this PHP impl
+            // leaving it just to simplify migrations from newer js versions
+            'syncReturnError' => function() {
+                return new \Exception('Error getting syncReturnError');
+            },
+            'syncReturnErrorList' => function () {
+                return [
+                    'sync0',
+                    new \Exception('Error getting syncReturnErrorList1'),
+                    'sync2',
+                    new \Exception('Error getting syncReturnErrorList3')
+                ];
+            },
             'async' => function() {
-                return 'async';
+                return new Promise(function(callable $resolve) { return $resolve('async'); });
             },
             'asyncReject' => function() {
-                throw new \Exception('Error getting asyncReject');
+                return new Promise(function($_, callable $reject) { return $reject('Error getting asyncReject'); });
+            },
+            'asyncRawReject' => function () {
+                return \React\Promise\reject('Error getting asyncRawReject');
+            },
+            'asyncEmptyReject' => function () {
+                return \React\Promise\reject();
             },
             'asyncError' => function() {
-                throw new \Exception('Error getting asyncError');
-            }
+                return new Promise(function() { throw new \Exception('Error getting asyncError'); });
+            },
+            // inherited from JS reference implementation, but make no sense in this PHP impl
+            // leaving it just to simplify migrations from newer js versions
+            'asyncRawError' => function() {
+                return new Promise(function() { throw new \Exception('Error getting asyncRawError'); });
+            },
+            'asyncReturnError' => function() {
+                return \React\Promise\resolve(new \Exception('Error getting asyncReturnError'));
+            },
         ];
 
         $docAst = Parser::parse($doc);
@@ -380,10 +428,16 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 'fields' => [
                     'sync' => ['type' => Type::string()],
                     'syncError' => ['type' => Type::string()],
-                    'syncRawError' => [ 'type' => Type::string() ],
+                    'syncRawError' => ['type' => Type::string()],
+                    'syncReturnError' => ['type' => Type::string()],
+                    'syncReturnErrorList' => ['type' => Type::listOf(Type::string())],
                     'async' => ['type' => Type::string()],
                     'asyncReject' => ['type' => Type::string() ],
+                    'asyncRawReject' => ['type' => Type::string() ],
+                    'asyncEmptyReject' => ['type' => Type::string() ],
                     'asyncError' => ['type' => Type::string()],
+                    'asyncRawError' => ['type' => Type::string()],
+                    'asyncReturnError' => ['type' => Type::string()],
                 ]
             ])
         ]);
@@ -393,21 +447,79 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 'sync' => 'sync',
                 'syncError' => null,
                 'syncRawError' => null,
+                'syncReturnError' => null,
+                'syncReturnErrorList' => ['sync0', null, 'sync2', null],
                 'async' => 'async',
                 'asyncReject' => null,
+                'asyncRawReject' => null,
+                'asyncEmptyReject' => null,
                 'asyncError' => null,
+                'asyncRawError' => null,
+                'asyncReturnError' => null,
             ],
             'errors' => [
-                FormattedError::create('Error getting syncError', [new SourceLocation(3, 7)]),
-                FormattedError::create('Error getting syncRawError', [new SourceLocation(4, 7)]),
-                FormattedError::create('Error getting asyncReject', [new SourceLocation(6, 7)]),
-                FormattedError::create('Error getting asyncError', [new SourceLocation(7, 7)])
+                [
+                    'message' => 'Error getting syncError',
+                    'locations' => [['line' => 3, 'column' => 7]],
+                    'path' => ['syncError']
+                ],
+                [
+                    'message' => 'Error getting syncRawError',
+                    'locations' => [ [ 'line' => 4, 'column' => 7 ] ],
+                    'path'=> [ 'syncRawError' ]
+                ],
+                [
+                    'message' => 'Error getting syncReturnError',
+                    'locations' => [['line' => 5, 'column' => 7]],
+                    'path' => ['syncReturnError']
+                ],
+                [
+                    'message' => 'Error getting syncReturnErrorList1',
+                    'locations' => [['line' => 6, 'column' => 7]],
+                    'path' => ['syncReturnErrorList', 1]
+                ],
+                [
+                    'message' => 'Error getting syncReturnErrorList3',
+                    'locations' => [['line' => 6, 'column' => 7]],
+                    'path' => ['syncReturnErrorList', 3]
+                ],
+                [
+                    'message' => 'Error getting asyncReject',
+                    'locations' => [['line' => 8, 'column' => 7]],
+                    'path' => ['asyncReject']
+                ],
+                [
+                    'message' => 'Error getting asyncRawReject',
+                    'locations' => [['line' => 9, 'column' => 7]],
+                    'path' => ['asyncRawReject']
+                ],
+                [
+                    'message' => 'An unknown error occurred.',
+                    'locations' => [['line' => 10, 'column' => 7]],
+                    'path' => ['asyncEmptyReject']
+                ],
+                [
+                    'message' => 'Error getting asyncError',
+                    'locations' => [['line' => 11, 'column' => 7]],
+                    'path' => ['asyncError']
+                ],
+                [
+                    'message' => 'Error getting asyncRawError',
+                    'locations' => [ [ 'line' => 12, 'column' => 7 ] ],
+                    'path' => [ 'asyncRawError' ]
+                ],
+                [
+                    'message' => 'Error getting asyncReturnError',
+                    'locations' => [['line' => 13, 'column' => 7]],
+                    'path' => ['asyncReturnError']
+                ],
             ]
         ];
 
+        Executor::setPromiseAdapter(new ReactPromiseAdapter());
         $result = Executor::execute($schema, $docAst, $data);
 
-        $this->assertArraySubset($expected, $result->toArray());
+        $this->assertEquals($expected, self::awaitPromise($result));
     }
 
     /**
@@ -627,6 +739,62 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $subscriptionResult = Executor::execute($schema, $ast, $data, null, [], 'S');
         $this->assertEquals(['data' => ['a' => 'b']], $subscriptionResult->toArray());
+    }
+
+    public function testCorrectFieldOrderingDespiteExecutionOrder()
+    {
+        Executor::setPromiseAdapter(new ReactPromiseAdapter());
+
+        $doc = '{
+      a,
+      b,
+      c,
+      d,
+      e
+    }';
+        $data = [
+            'a' => function () {
+                return 'a';
+            },
+            'b' => function () {
+                return new Promise(function (callable $resolve) { return $resolve('b'); });
+            },
+            'c' => function () {
+                return 'c';
+            },
+            'd' => function () {
+                return new Promise(function (callable $resolve) { return $resolve('d'); });
+            },
+            'e' => function () {
+                return 'e';
+            },
+        ];
+
+        $ast = Parser::parse($doc);
+
+        $queryType = new ObjectType([
+            'name' => 'DeepDataType',
+            'fields' => [
+                'a' => [ 'type' => Type::string() ],
+                'b' => [ 'type' => Type::string() ],
+                'c' => [ 'type' => Type::string() ],
+                'd' => [ 'type' => Type::string() ],
+                'e' => [ 'type' => Type::string() ],
+            ]
+        ]);
+        $schema = new Schema(['query' => $queryType]);
+
+        $expected = [
+            'data' => [
+                'a' => 'a',
+                'b' => 'b',
+                'c' => 'c',
+                'd' => 'd',
+                'e' => 'e',
+            ]
+        ];
+
+        $this->assertEquals($expected, self::awaitPromise(Executor::execute($schema, $ast, $data)));
     }
 
     /**
@@ -922,5 +1090,18 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ], $result->toArray());
+    }
+
+    /**
+     * @param \GraphQL\Executor\Promise\Promise $promise
+     * @return array
+     */
+    private static function awaitPromise($promise)
+    {
+        $results = null;
+        $promise->then(function (ExecutionResult $executionResult) use (&$results) {
+            $results = $executionResult->toArray();
+        });
+        return $results;
     }
 }
