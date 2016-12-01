@@ -1,16 +1,29 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
+use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use React\Promise\Promise;
 
 class MutationsTest extends \PHPUnit_Framework_TestCase
 {
+    public static function setUpBeforeClass()
+    {
+        Executor::setPromiseAdapter(new ReactPromiseAdapter());
+    }
+
+    public static function tearDownAfterClass()
+    {
+        Executor::setPromiseAdapter(null);
+    }
+
     // Execute: Handles mutation execution ordering
 
     /**
@@ -56,7 +69,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($expected, $mutationResult->toArray());
+        $this->assertEquals($expected, self::awaitPromise($mutationResult));
     }
 
     /**
@@ -114,7 +127,20 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 )
             ]
         ];
-        $this->assertArraySubset($expected, $mutationResult->toArray());
+        $this->assertArraySubset($expected, self::awaitPromise($mutationResult));
+    }
+
+    /**
+     * @param \GraphQL\Executor\Promise\Promise $promise
+     * @return array
+     */
+    private static function awaitPromise($promise)
+    {
+        $results = null;
+        $promise->then(function (ExecutionResult $executionResult) use (&$results) {
+            $results = $executionResult->toArray();
+        });
+        return $results;
     }
 
     private function schema()
@@ -200,12 +226,14 @@ class Root {
 
     /**
      * @param $newNumber
-     * @return NumberHolder
+     *
+     * @return Promise
      */
     public function promiseToChangeTheNumber($newNumber)
     {
-        // No promises
-        return $this->immediatelyChangeTheNumber($newNumber);
+        return new Promise(function (callable $resolve) use ($newNumber) {
+            return $resolve($this->immediatelyChangeTheNumber($newNumber));
+        });
     }
 
     /**
@@ -217,11 +245,12 @@ class Root {
     }
 
     /**
-     * @throws \Exception
+     * @return Promise
      */
     public function promiseAndFailToChangeTheNumber()
     {
-        // No promises
-        throw new \Exception("Cannot change the number");
+        return new Promise(function (callable $resolve, callable $reject) {
+            return $reject(new \Exception("Cannot change the number"));
+        });
     }
 }
