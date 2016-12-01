@@ -385,9 +385,31 @@ class Executor
         // of resolving that field, which is possibly a promise. Return
         // a promise that will return this same map, but with any
         // promises replaced with the values they resolved to.
-        $promise = $this->promises->createPromiseAll($finalResults);
+        return $this->promiseForAssocArray($finalResults);
+    }
 
-        return $this->promises->then($promise, function ($resolvedResults) {
+    /**
+     * This function transforms a PHP `array<string, Promise|scalar|array>` into
+     * a `Promise<array<key,scalar|array>>`
+     *
+     * In other words it returns a promise which resolves to normal PHP associative array which doesn't contain
+     * any promises.
+     *
+     * @param array $assoc
+     * @return mixed
+     */
+    private function promiseForAssocArray(array $assoc)
+    {
+        $keys = array_keys($assoc);
+        $valuesAndPromises = array_values($assoc);
+
+        $promise = $this->promises->createPromiseAll($valuesAndPromises);
+
+        return $this->promises->then($promise, function($values) use ($keys) {
+            $resolvedResults = [];
+            foreach ($values as $i => $value) {
+                $resolvedResults[$keys[$i]] = $value;
+            }
             return self::fixResultsIfEmptyArray($resolvedResults);
         });
     }
