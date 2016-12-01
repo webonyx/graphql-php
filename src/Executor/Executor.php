@@ -103,40 +103,10 @@ class Executor
         }
 
         $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $contextValue, $variableValues, $operationName);
-        if (null === self::$promiseAdapter) {
-            static::setPromiseAdapter(new GenericPromiseAdapter());
-        }
+        $promiseAdapter = self::$promiseAdapter ?: new GenericPromiseAdapter();
 
-        try {
-            $data = self::$promiseAdapter
-                ->createPromise(function (callable $resolve) use ($exeContext, $rootValue) {
-                    return $resolve(self::executeOperation($exeContext, $exeContext->operation, $rootValue));
-                });
-
-            if (self::$promiseAdapter->isPromise($data)) {
-                // Return a Promise that will eventually resolve to the data described by
-                // The "Response" section of the GraphQL specification.
-                //
-                // If errors are encountered while executing a GraphQL field, only that
-                // field and its descendants will be omitted, and sibling fields will still
-                // be executed. An execution which encounters errors will still result in a
-                // resolved Promise.
-                return $data->then(null, function ($error) use ($exeContext) {
-                    // Errors from sub-fields of a NonNull type may propagate to the top level,
-                    // at which point we still log the error and null the parent field, which
-                    // in this case is the entire response.
-                    $exeContext->addError($error);
-                    return null;
-                })->then(function ($data) use ($exeContext) {
-                    return new ExecutionResult((array) $data, $exeContext->errors);
-                });
-            }
-        } catch (Error $e) {
-            $exeContext->addError($e);
-            $data = null;
-        }
-
-        return new ExecutionResult((array) $data, $exeContext->errors);
+        $executor = new self($exeContext, $promiseAdapter);
+        return $executor->executeQuery();
     }
 
     /**
@@ -208,24 +178,79 @@ class Executor
     }
 
     /**
+     * @var ExecutionContext
+     */
+    private $exeContext;
+
+    /**
+     * @var PromiseAdapter
+     */
+    private $promises;
+
+    /**
+     * Executor constructor.
+     *
+     * @param ExecutionContext $context
+     * @param PromiseAdapter $promiseAdapter
+     */
+    private function __construct(ExecutionContext $context, PromiseAdapter $promiseAdapter)
+    {
+        $this->exeContext = $context;
+        $this->promises = $promiseAdapter;
+    }
+
+    private function executeQuery()
+    {
+        try {
+            $data = $this->promises->createPromise(function (callable $resolve) {
+                return $resolve($this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue));
+            });
+
+            if ($this->promises->isPromise($data)) {
+                // Return a Promise that will eventually resolve to the data described by
+                // The "Response" section of the GraphQL specification.
+                //
+                // If errors are encountered while executing a GraphQL field, only that
+                // field and its descendants will be omitted, and sibling fields will still
+                // be executed. An execution which encounters errors will still result in a
+                // resolved Promise.
+                return $data
+                    ->then(null, function ($error) {
+                        // Errors from sub-fields of a NonNull type may propagate to the top level,
+                        // at which point we still log the error and null the parent field, which
+                        // in this case is the entire response.
+                        $this->exeContext->addError($error);
+                        return null;
+                    })->then(function ($data) {
+                        return new ExecutionResult((array) $data, $this->exeContext->errors);
+                    });
+            }
+        } catch (Error $e) {
+            $this->exeContext->addError($e);
+            $data = null;
+        }
+
+        return new ExecutionResult((array) $data, $this->exeContext->errors);
+    }
+
+    /**
      * Implements the "Evaluating operations" section of the spec.
      *
-     * @param ExecutionContext $exeContext
      * @param OperationDefinitionNode $operation
      * @param $rootValue
      * @return Promise|\stdClass|array
      */
-    private static function executeOperation(ExecutionContext $exeContext, OperationDefinitionNode $operation, $rootValue)
+    private function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
-        $type = self::getOperationRootType($exeContext->schema, $operation);
-        $fields = self::collectFields($exeContext, $type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
+        $type = $this->getOperationRootType($this->exeContext->schema, $operation);
+        $fields = $this->collectFields($type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
 
         $path = [];
         if ($operation->operation === 'mutation') {
-            return self::executeFieldsSerially($exeContext, $type, $rootValue, $path, $fields);
+            return $this->executeFieldsSerially($type, $rootValue, $path, $fields);
         }
 
-        return self::executeFields($exeContext, $type, $rootValue, $path, $fields);
+        return $this->executeFields($type, $rootValue, $path, $fields);
     }
 
 
@@ -237,7 +262,7 @@ class Executor
      * @return ObjectType
      * @throws Error
      */
-    private static function getOperationRootType(Schema $schema, OperationDefinitionNode $operation)
+    private function getOperationRootType(Schema $schema, OperationDefinitionNode $operation)
     {
         switch ($operation->operation) {
             case 'query':
@@ -272,25 +297,24 @@ class Executor
      * Implements the "Evaluating selection sets" section of the spec
      * for "write" mode.
      *
-     * @param ExecutionContext $exeContext
      * @param ObjectType $parentType
      * @param $sourceValue
      * @param $path
      * @param $fields
      * @return Promise|\stdClass|array
      */
-    private static function executeFieldsSerially(ExecutionContext $exeContext, ObjectType $parentType, $sourceValue, $path, $fields)
+    private function executeFieldsSerially(ObjectType $parentType, $sourceValue, $path, $fields)
     {
-        $results = self::$promiseAdapter->createResolvedPromise([]);
+        $results = $this->promises->createResolvedPromise([]);
 
-        $process = function ($results, $responseName, $path, $exeContext, $parentType, $sourceValue, $fieldNodes) {
+        $process = function ($results, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
             $fieldPath = $path;
             $fieldPath[] = $responseName;
-            $result = self::resolveField($exeContext, $parentType, $sourceValue, $fieldNodes, $fieldPath);
+            $result = $this->resolveField($parentType, $sourceValue, $fieldNodes, $fieldPath);
             if ($result === self::$UNDEFINED) {
                 return $results;
             }
-            if (self::$promiseAdapter->isPromise($result)) {
+            if ($this->promises->isPromise($result)) {
                 return $result->then(function ($resolvedResult) use ($responseName, $results) {
                     $results[$responseName] = $resolvedResult;
                     return $results;
@@ -301,16 +325,16 @@ class Executor
         };
 
         foreach ($fields as $responseName => $fieldNodes) {
-            if (self::$promiseAdapter->isPromise($results)) {
-                $results = $results->then(function ($resolvedResults) use ($process, $responseName, $path, $exeContext, $parentType, $sourceValue, $fieldNodes) {
-                    return $process($resolvedResults, $responseName, $path, $exeContext, $parentType, $sourceValue, $fieldNodes);
+            if ($this->promises->isPromise($results)) {
+                $results = $results->then(function ($resolvedResults) use ($process, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
+                    return $process($resolvedResults, $responseName, $path, $parentType, $sourceValue, $fieldNodes);
                 });
             } else {
-                $results = $process($results, $responseName, $path, $exeContext, $parentType, $sourceValue, $fieldNodes);
+                $results = $process($results, $responseName, $path, $parentType, $sourceValue, $fieldNodes);
             }
         }
 
-        if (self::$promiseAdapter->isPromise($results)) {
+        if ($this->promises->isPromise($results)) {
             return $results->then(function ($resolvedResults) {
                 return self::fixResultsIfEmptyArray($resolvedResults);
             });
@@ -323,14 +347,13 @@ class Executor
      * Implements the "Evaluating selection sets" section of the spec
      * for "read" mode.
      *
-     * @param ExecutionContext $exeContext
      * @param ObjectType $parentType
      * @param $source
      * @param $path
      * @param $fields
      * @return Promise|\stdClass|array
      */
-    private static function executeFields(ExecutionContext $exeContext, ObjectType $parentType, $source, $path, $fields)
+    private function executeFields(ObjectType $parentType, $source, $path, $fields)
     {
         $containsPromise = false;
         $finalResults = [];
@@ -338,11 +361,11 @@ class Executor
         foreach ($fields as $responseName => $fieldNodes) {
             $fieldPath = $path;
             $fieldPath[] = $responseName;
-            $result = self::resolveField($exeContext, $parentType, $source, $fieldNodes, $fieldPath);
+            $result = $this->resolveField($parentType, $source, $fieldNodes, $fieldPath);
             if ($result === self::$UNDEFINED) {
                 continue;
             }
-            if (!$containsPromise && self::$promiseAdapter->isPromise($result)) {
+            if (!$containsPromise && $this->promises->isPromise($result)) {
                 $containsPromise = true;
             }
             $finalResults[$responseName] = $result;
@@ -357,7 +380,7 @@ class Executor
         // of resolving that field, which is possibly a promise. Return
         // a promise that will return this same map, but with any
         // promises replaced with the values they resolved to.
-        return self::$promiseAdapter->createPromiseAll($finalResults)->then(function ($resolvedResults) {
+        return $this->promises->createPromiseAll($finalResults)->then(function ($resolvedResults) {
             return self::fixResultsIfEmptyArray($resolvedResults);
         });
     }
@@ -385,7 +408,6 @@ class Executor
      * returns and Interface or Union type, the "runtime type" will be the actual
      * Object type returned by that field.
      *
-     * @param ExecutionContext $exeContext
      * @param ObjectType $runtimeType
      * @param SelectionSetNode $selectionSet
      * @param $fields
@@ -393,18 +415,18 @@ class Executor
      *
      * @return \ArrayObject
      */
-    private static function collectFields(
-        ExecutionContext $exeContext,
+    private function collectFields(
         ObjectType $runtimeType,
         SelectionSetNode $selectionSet,
         $fields,
         $visitedFragmentNames
     )
     {
+        $exeContext = $this->exeContext;
         foreach ($selectionSet->selections as $selection) {
             switch ($selection->kind) {
                 case NodeKind::FIELD:
-                    if (!self::shouldIncludeNode($exeContext, $selection->directives)) {
+                    if (!$this->shouldIncludeNode($selection->directives)) {
                         continue;
                     }
                     $name = self::getFieldEntryKey($selection);
@@ -414,13 +436,12 @@ class Executor
                     $fields[$name][] = $selection;
                     break;
                 case NodeKind::INLINE_FRAGMENT:
-                    if (!self::shouldIncludeNode($exeContext, $selection->directives) ||
-                        !self::doesFragmentConditionMatch($exeContext, $selection, $runtimeType)
+                    if (!$this->shouldIncludeNode($selection->directives) ||
+                        !$this->doesFragmentConditionMatch($selection, $runtimeType)
                     ) {
                         continue;
                     }
-                    self::collectFields(
-                        $exeContext,
+                    $this->collectFields(
                         $runtimeType,
                         $selection->selectionSet,
                         $fields,
@@ -429,18 +450,17 @@ class Executor
                     break;
                 case NodeKind::FRAGMENT_SPREAD:
                     $fragName = $selection->name->value;
-                    if (!empty($visitedFragmentNames[$fragName]) || !self::shouldIncludeNode($exeContext, $selection->directives)) {
+                    if (!empty($visitedFragmentNames[$fragName]) || !$this->shouldIncludeNode($selection->directives)) {
                         continue;
                     }
                     $visitedFragmentNames[$fragName] = true;
 
                     /** @var FragmentDefinitionNode|null $fragment */
                     $fragment = isset($exeContext->fragments[$fragName]) ? $exeContext->fragments[$fragName] : null;
-                    if (!$fragment || !self::doesFragmentConditionMatch($exeContext, $fragment, $runtimeType)) {
+                    if (!$fragment || !$this->doesFragmentConditionMatch($fragment, $runtimeType)) {
                         continue;
                     }
-                    self::collectFields(
-                        $exeContext,
+                    $this->collectFields(
                         $runtimeType,
                         $fragment->selectionSet,
                         $fields,
@@ -456,12 +476,12 @@ class Executor
      * Determines if a field should be included based on the @include and @skip
      * directives, where @skip has higher precedence than @include.
      *
-     * @param ExecutionContext $exeContext
      * @param $directives
      * @return bool
      */
-    private static function shouldIncludeNode(ExecutionContext $exeContext, $directives)
+    private function shouldIncludeNode($directives)
     {
+        $exeContext = $this->exeContext;
         $skipDirective = Directive::skipDirective();
         $includeDirective = Directive::includeDirective();
 
@@ -499,12 +519,11 @@ class Executor
     /**
      * Determines if a fragment is applicable to the given type.
      *
-     * @param ExecutionContext $exeContext
      * @param $fragment
      * @param ObjectType $type
      * @return bool
      */
-    private static function doesFragmentConditionMatch(ExecutionContext $exeContext,/* FragmentDefinitionNode | InlineFragmentNode*/ $fragment, ObjectType $type)
+    private function doesFragmentConditionMatch(/* FragmentDefinitionNode | InlineFragmentNode*/ $fragment, ObjectType $type)
     {
         $typeConditionNode = $fragment->typeCondition;
 
@@ -512,12 +531,12 @@ class Executor
             return true;
         }
 
-        $conditionalType = Utils\TypeInfo::typeFromAST($exeContext->schema, $typeConditionNode);
+        $conditionalType = Utils\TypeInfo::typeFromAST($this->exeContext->schema, $typeConditionNode);
         if ($conditionalType === $type) {
             return true;
         }
         if ($conditionalType instanceof AbstractType) {
-            return $exeContext->schema->isPossibleType($conditionalType, $type);
+            return $this->exeContext->schema->isPossibleType($conditionalType, $type);
         }
         return false;
     }
@@ -539,7 +558,6 @@ class Executor
      * then calls completeValue to complete promises, serialize scalars, or execute
      * the sub-selection-set for objects.
      *
-     * @param ExecutionContext $exeContext
      * @param ObjectType $parentType
      * @param $source
      * @param $fieldNodes
@@ -547,13 +565,13 @@ class Executor
      *
      * @return array|\Exception|mixed|null
      */
-    private static function resolveField(ExecutionContext $exeContext, ObjectType $parentType, $source, $fieldNodes, $path)
+    private function resolveField(ObjectType $parentType, $source, $fieldNodes, $path)
     {
+        $exeContext = $this->exeContext;
         $fieldNode = $fieldNodes[0];
 
         $fieldName = $fieldNode->name->value;
-
-        $fieldDef = self::getFieldDef($exeContext->schema, $parentType, $fieldName);
+        $fieldDef = $this->getFieldDef($exeContext->schema, $parentType, $fieldName);
 
         if (!$fieldDef) {
             return self::$UNDEFINED;
@@ -592,8 +610,7 @@ class Executor
 
         // Get the resolve function, regardless of if its result is normal
         // or abrupt (error).
-        $result = self::resolveOrError(
-            $exeContext,
+        $result = $this->resolveOrError(
             $fieldDef,
             $fieldNode,
             $resolveFn,
@@ -602,8 +619,7 @@ class Executor
             $info
         );
 
-        $result = self::completeValueCatchingError(
-            $exeContext,
+        $result = $this->completeValueCatchingError(
             $returnType,
             $fieldNodes,
             $info,
@@ -618,7 +634,6 @@ class Executor
      * Isolates the "ReturnOrAbrupt" behavior to not de-opt the `resolveField`
      * function. Returns the result of resolveFn or the abrupt-return Error object.
      *
-     * @param ExecutionContext $exeContext
      * @param FieldDefinition $fieldDef
      * @param FieldNode $fieldNode
      * @param callable $resolveFn
@@ -627,7 +642,7 @@ class Executor
      * @param ResolveInfo $info
      * @return \Exception|mixed
      */
-    private static function resolveOrError($exeContext, $fieldDef, $fieldNode, $resolveFn, $source, $context, $info)
+    private function resolveOrError($fieldDef, $fieldNode, $resolveFn, $source, $context, $info)
     {
         try {
             // Build hash of arguments from the field.arguments AST, using the
@@ -635,7 +650,7 @@ class Executor
             $args = Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
-                $exeContext->variableValues
+                $this->exeContext->variableValues
             );
 
             return call_user_func($resolveFn, $source, $args, $context, $info);
@@ -648,7 +663,6 @@ class Executor
      * This is a small wrapper around completeValue which detects and logs errors
      * in the execution context.
      *
-     * @param ExecutionContext $exeContext
      * @param Type $returnType
      * @param $fieldNodes
      * @param ResolveInfo $info
@@ -656,8 +670,7 @@ class Executor
      * @param $result
      * @return array|null|Promise
      */
-    private static function completeValueCatchingError(
-        ExecutionContext $exeContext,
+    private function completeValueCatchingError(
         Type $returnType,
         $fieldNodes,
         ResolveInfo $info,
@@ -665,11 +678,12 @@ class Executor
         $result
     )
     {
+        $exeContext = $this->exeContext;
+
         // If the field type is non-nullable, then it is resolved without any
         // protection from errors.
         if ($returnType instanceof NonNull) {
-            return self::completeValueWithLocatedError(
-                $exeContext,
+            return $this->completeValueWithLocatedError(
                 $returnType,
                 $fieldNodes,
                 $info,
@@ -681,18 +695,17 @@ class Executor
         // Otherwise, error protection is applied, logging the error and resolving
         // a null value for this field if one is encountered.
         try {
-            $completed = self::completeValueWithLocatedError(
-                $exeContext,
+            $completed = $this->completeValueWithLocatedError(
                 $returnType,
                 $fieldNodes,
                 $info,
                 $path,
                 $result
             );
-            if (self::$promiseAdapter->isPromise($completed)) {
+            if ($this->promises->isPromise($completed)) {
                 return $completed->then(null, function ($error) use ($exeContext) {
                     $exeContext->addError($error);
-                    return self::$promiseAdapter->createResolvedPromise(null);
+                    return $this->promises->createResolvedPromise(null);
                 });
             }
             return $completed;
@@ -709,7 +722,6 @@ class Executor
      * This is a small wrapper around completeValue which annotates errors with
      * location information.
      *
-     * @param ExecutionContext $exeContext
      * @param Type $returnType
      * @param $fieldNodes
      * @param ResolveInfo $info
@@ -718,8 +730,7 @@ class Executor
      * @return array|null|Promise
      * @throws Error
      */
-    public static function completeValueWithLocatedError(
-        ExecutionContext $exeContext,
+    public function completeValueWithLocatedError(
         Type $returnType,
         $fieldNodes,
         ResolveInfo $info,
@@ -728,17 +739,16 @@ class Executor
     )
     {
         try {
-            $completed = self::completeValue(
-                $exeContext,
+            $completed = $this->completeValue(
                 $returnType,
                 $fieldNodes,
                 $info,
                 $path,
                 $result
             );
-            if (self::$promiseAdapter->isPromise($completed)) {
+            if ($this->promises->isPromise($completed)) {
                 return $completed->then(null, function ($error) use ($fieldNodes, $path) {
-                    return self::$promiseAdapter->createRejectedPromise(Error::createLocatedError($error, $fieldNodes, $path));
+                    return $this->promises->createRejectedPromise(Error::createLocatedError($error, $fieldNodes, $path));
                 });
             }
             return $completed;
@@ -768,7 +778,6 @@ class Executor
      * Otherwise, the field type expects a sub-selection set, and will complete the
      * value by evaluating all sub-selections.
      *
-     * @param ExecutionContext $exeContext
      * @param Type $returnType
      * @param FieldNode[] $fieldNodes
      * @param ResolveInfo $info
@@ -778,8 +787,7 @@ class Executor
      * @throws Error
      * @throws \Exception
      */
-    private static function completeValue(
-        ExecutionContext $exeContext,
+    private function completeValue(
         Type $returnType,
         $fieldNodes,
         ResolveInfo $info,
@@ -787,10 +795,12 @@ class Executor
         &$result
     )
     {
+        $exeContext = $this->exeContext;
+
         // If result is a Promise, apply-lift over completeValue.
-        if (self::$promiseAdapter->isPromise($result)) {
-            return $result->then(function (&$resolved) use ($exeContext, $returnType, $fieldNodes, $info, $path) {
-                return self::completeValue($exeContext, $returnType, $fieldNodes, $info, $path, $resolved);
+        if ($this->promises->isPromise($result)) {
+            return $result->then(function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
+                return $this->completeValue($returnType, $fieldNodes, $info, $path, $resolved);
             });
         }
 
@@ -801,8 +811,7 @@ class Executor
         // If field type is NonNull, complete for inner type, and throw field error
         // if result is null.
         if ($returnType instanceof NonNull) {
-            $completed = self::completeValue(
-                $exeContext,
+            $completed = $this->completeValue(
                 $returnType->getWrappedType(),
                 $fieldNodes,
                 $info,
@@ -824,22 +833,22 @@ class Executor
 
         // If field type is List, complete each item in the list with the inner type
         if ($returnType instanceof ListOfType) {
-            return self::completeListValue($exeContext, $returnType, $fieldNodes, $info, $path, $result);
+            return $this->completeListValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
         // If field type is Scalar or Enum, serialize to a valid value, returning
         // null if serialization is not possible.
         if ($returnType instanceof LeafType) {
-            return self::completeLeafValue($returnType, $result);
+            return $this->completeLeafValue($returnType, $result);
         }
 
         if ($returnType instanceof AbstractType) {
-            return self::completeAbstractValue($exeContext, $returnType, $fieldNodes, $info, $path, $result);
+            return $this->completeAbstractValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
         // Field type must be Object, Interface or Union and expect sub-selections.
         if ($returnType instanceof ObjectType) {
-            return self::completeObjectValue($exeContext, $returnType, $fieldNodes, $info, $path, $result);
+            return $this->completeObjectValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
         throw new \RuntimeException("Cannot complete value of unexpected type \"{$returnType}\".");
@@ -891,7 +900,7 @@ class Executor
      *
      * @return FieldDefinition
      */
-    private static function getFieldDef(Schema $schema, ObjectType $parentType, $fieldName)
+    private function getFieldDef(Schema $schema, ObjectType $parentType, $fieldName)
     {
         static $schemaMetaFieldDef, $typeMetaFieldDef, $typeNameMetaFieldDef;
 
@@ -915,7 +924,6 @@ class Executor
      * Complete a value of an abstract type by determining the runtime object type
      * of that value, then complete the value for that type.
      *
-     * @param ExecutionContext $exeContext
      * @param AbstractType $returnType
      * @param $fieldNodes
      * @param ResolveInfo $info
@@ -924,8 +932,9 @@ class Executor
      * @return mixed
      * @throws Error
      */
-    private static function completeAbstractValue(ExecutionContext $exeContext, AbstractType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
+    private function completeAbstractValue(AbstractType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
+        $exeContext = $this->exeContext;
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
 
         if (null === $runtimeType) {
@@ -952,14 +961,13 @@ class Executor
                 $fieldNodes
             );
         }
-        return self::completeObjectValue($exeContext, $runtimeType, $fieldNodes, $info, $path, $result);
+        return $this->completeObjectValue($runtimeType, $fieldNodes, $info, $path, $result);
     }
 
     /**
      * Complete a list value by completing each item in the list with the
      * inner type
      *
-     * @param ExecutionContext $exeContext
      * @param ListOfType $returnType
      * @param $fieldNodes
      * @param ResolveInfo $info
@@ -968,7 +976,7 @@ class Executor
      * @return array|Promise
      * @throws \Exception
      */
-    private static function completeListValue(ExecutionContext $exeContext, ListOfType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
+    private function completeListValue(ListOfType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
         $itemType = $returnType->getWrappedType();
         Utils::invariant(
@@ -982,13 +990,13 @@ class Executor
         foreach ($result as $item) {
             $fieldPath = $path;
             $fieldPath[] = $i++;
-            $completedItem = self::completeValueCatchingError($exeContext, $itemType, $fieldNodes, $info, $fieldPath, $item);
-            if (!$containsPromise && self::$promiseAdapter->isPromise($completedItem)) {
+            $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $item);
+            if (!$containsPromise && $this->promises->isPromise($completedItem)) {
                 $containsPromise = true;
             }
             $completedItems[] = $completedItem;
         }
-        return $containsPromise ? self::$promiseAdapter->createPromiseAll($completedItems) : $completedItems;
+        return $containsPromise ? $this->promises->createPromiseAll($completedItems) : $completedItems;
     }
 
     /**
@@ -1000,7 +1008,7 @@ class Executor
      * @return mixed
      * @throws \Exception
      */
-    private static function completeLeafValue(LeafType $returnType, &$result)
+    private function completeLeafValue(LeafType $returnType, &$result)
     {
         $serializedResult = $returnType->serialize($result);
 
@@ -1015,7 +1023,6 @@ class Executor
     /**
      * Complete an Object value by executing all sub-selections.
      *
-     * @param ExecutionContext $exeContext
      * @param ObjectType $returnType
      * @param $fieldNodes
      * @param ResolveInfo $info
@@ -1024,8 +1031,10 @@ class Executor
      * @return array|Promise|\stdClass
      * @throws Error
      */
-    private static function completeObjectValue(ExecutionContext $exeContext, ObjectType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
+    private function completeObjectValue(ObjectType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
+        $exeContext = $this->exeContext;
+
         // If there is an isTypeOf predicate function, call it with the
         // current result. If isTypeOf returns false, then raise an error rather
         // than continuing execution.
@@ -1042,8 +1051,7 @@ class Executor
 
         foreach ($fieldNodes as $fieldNode) {
             if (isset($fieldNode->selectionSet)) {
-                $subFieldNodes = self::collectFields(
-                    $exeContext,
+                $subFieldNodes = $this->collectFields(
                     $returnType,
                     $fieldNode->selectionSet,
                     $subFieldNodes,
@@ -1052,7 +1060,7 @@ class Executor
             }
         }
 
-        return self::executeFields($exeContext, $returnType, $result, $path, $subFieldNodes);
+        return $this->executeFields($returnType, $result, $path, $subFieldNodes);
     }
 
     /**
