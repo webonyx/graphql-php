@@ -19,7 +19,7 @@ class GraphQL
      * @param Schema $schema
      * @param $requestString
      * @param mixed $rootValue
-     * @param array <string, string>|null $variableValues
+     * @param array|null $variableValues
      * @param string|null $operationName
      * @return Promise|array
      */
@@ -27,7 +27,16 @@ class GraphQL
     {
         $result = self::executeAndReturnResult($schema, $requestString, $rootValue, $contextValue, $variableValues, $operationName);
 
-        return $result instanceof ExecutionResult ? $result->toArray() : $result->then(function(ExecutionResult $executionResult) { return $executionResult->toArray(); });
+        if ($result instanceof ExecutionResult) {
+            return $result->toArray();
+        }
+
+        return Executor::getPromiseAdapter()->then(
+            $result,
+            function(ExecutionResult $executionResult) {
+                return $executionResult->toArray();
+            }
+        );
     }
 
     /**

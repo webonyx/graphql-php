@@ -64,6 +64,14 @@ class Executor
     }
 
     /**
+     * @return PromiseAdapter
+     */
+    public static function getPromiseAdapter()
+    {
+        return self::$promiseAdapter ?: (self::$promiseAdapter = new GenericPromiseAdapter());
+    }
+
+    /**
      * Custom default resolve function
      *
      * @param $fn
@@ -85,10 +93,6 @@ class Executor
      */
     public static function execute(Schema $schema, DocumentNode $ast, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
     {
-        if (!self::$UNDEFINED) {
-            self::$UNDEFINED = new \stdClass();
-        }
-
         if (null !== $variableValues) {
             Utils::invariant(
                 is_array($variableValues) || $variableValues instanceof \ArrayAccess,
@@ -103,9 +107,7 @@ class Executor
         }
 
         $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $contextValue, $variableValues, $operationName);
-        $promiseAdapter = self::$promiseAdapter ?: new GenericPromiseAdapter();
-
-        $executor = new self($exeContext, $promiseAdapter);
+        $executor = new self($exeContext, self::getPromiseAdapter());
         return $executor->executeQuery();
     }
 
@@ -195,6 +197,10 @@ class Executor
      */
     private function __construct(ExecutionContext $context, PromiseAdapter $promiseAdapter)
     {
+        if (!self::$UNDEFINED) {
+            self::$UNDEFINED = Utils::undefined();
+        }
+
         $this->exeContext = $context;
         $this->promises = $promiseAdapter;
     }
@@ -202,29 +208,28 @@ class Executor
     private function executeQuery()
     {
         try {
-            $data = $this->promises->createPromise(function (callable $resolve) {
+            // Return a Promise that will eventually resolve to the data described by
+            // The "Response" section of the GraphQL specification.
+            //
+            // If errors are encountered while executing a GraphQL field, only that
+            // field and its descendants will be omitted, and sibling fields will still
+            // be executed. An execution which encounters errors will still result in a
+            // resolved Promise.
+            $result = $this->promises->createPromise(function (callable $resolve) {
                 return $resolve($this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue));
             });
+            $result = $this->promises->then($result, null, function ($error) {
+                // Errors from sub-fields of a NonNull type may propagate to the top level,
+                // at which point we still log the error and null the parent field, which
+                // in this case is the entire response.
+                $this->exeContext->addError($error);
+                return null;
+            });
+            $result = $this->promises->then($result, function ($data) {
+                return new ExecutionResult((array) $data, $this->exeContext->errors);
+            });
 
-            if ($this->promises->isPromise($data)) {
-                // Return a Promise that will eventually resolve to the data described by
-                // The "Response" section of the GraphQL specification.
-                //
-                // If errors are encountered while executing a GraphQL field, only that
-                // field and its descendants will be omitted, and sibling fields will still
-                // be executed. An execution which encounters errors will still result in a
-                // resolved Promise.
-                return $data
-                    ->then(null, function ($error) {
-                        // Errors from sub-fields of a NonNull type may propagate to the top level,
-                        // at which point we still log the error and null the parent field, which
-                        // in this case is the entire response.
-                        $this->exeContext->addError($error);
-                        return null;
-                    })->then(function ($data) {
-                        return new ExecutionResult((array) $data, $this->exeContext->errors);
-                    });
-            }
+            return $result;
         } catch (Error $e) {
             $this->exeContext->addError($e);
             $data = null;
@@ -315,7 +320,7 @@ class Executor
                 return $results;
             }
             if ($this->promises->isPromise($result)) {
-                return $result->then(function ($resolvedResult) use ($responseName, $results) {
+                return $this->promises->then($result, function ($resolvedResult) use ($responseName, $results) {
                     $results[$responseName] = $resolvedResult;
                     return $results;
                 });
@@ -326,7 +331,7 @@ class Executor
 
         foreach ($fields as $responseName => $fieldNodes) {
             if ($this->promises->isPromise($results)) {
-                $results = $results->then(function ($resolvedResults) use ($process, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
+                $results = $this->promises->then($results, function ($resolvedResults) use ($process, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
                     return $process($resolvedResults, $responseName, $path, $parentType, $sourceValue, $fieldNodes);
                 });
             } else {
@@ -335,7 +340,7 @@ class Executor
         }
 
         if ($this->promises->isPromise($results)) {
-            return $results->then(function ($resolvedResults) {
+            return $this->promises->then($results, function ($resolvedResults) {
                 return self::fixResultsIfEmptyArray($resolvedResults);
             });
         }
@@ -380,7 +385,9 @@ class Executor
         // of resolving that field, which is possibly a promise. Return
         // a promise that will return this same map, but with any
         // promises replaced with the values they resolved to.
-        return $this->promises->createPromiseAll($finalResults)->then(function ($resolvedResults) {
+        $promise = $this->promises->createPromiseAll($finalResults);
+
+        return $this->promises->then($promise, function ($resolvedResults) {
             return self::fixResultsIfEmptyArray($resolvedResults);
         });
     }
@@ -703,7 +710,7 @@ class Executor
                 $result
             );
             if ($this->promises->isPromise($completed)) {
-                return $completed->then(null, function ($error) use ($exeContext) {
+                return $this->promises->then($completed, null, function ($error) use ($exeContext) {
                     $exeContext->addError($error);
                     return $this->promises->createResolvedPromise(null);
                 });
@@ -747,7 +754,7 @@ class Executor
                 $result
             );
             if ($this->promises->isPromise($completed)) {
-                return $completed->then(null, function ($error) use ($fieldNodes, $path) {
+                return $this->promises->then($completed, null, function ($error) use ($fieldNodes, $path) {
                     return $this->promises->createRejectedPromise(Error::createLocatedError($error, $fieldNodes, $path));
                 });
             }
@@ -795,11 +802,9 @@ class Executor
         &$result
     )
     {
-        $exeContext = $this->exeContext;
-
         // If result is a Promise, apply-lift over completeValue.
         if ($this->promises->isPromise($result)) {
-            return $result->then(function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
+            return $this->promises->then($result, function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
                 return $this->completeValue($returnType, $fieldNodes, $info, $path, $resolved);
             });
         }

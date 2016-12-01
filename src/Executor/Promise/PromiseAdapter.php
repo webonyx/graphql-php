@@ -14,6 +14,17 @@ interface PromiseAdapter
     public function isPromise($value);
 
     /**
+     * Accepts value qualified by `isPromise` and returns other promise.
+     * Underlying mechanics of this process must match Promises/A+ specs
+     *
+     * @param $promise
+     * @param callable|null $onFullFilled
+     * @param callable|null $onRejected
+     * @return mixed
+     */
+    public function then($promise, callable $onFullFilled = null, callable $onRejected = null);
+
+    /**
      * Creates a Promise
      *
      * @param callable $resolver

@@ -22,6 +22,19 @@ class ReactPromiseAdapter implements PromiseAdapter
     }
 
     /**
+     * Accepts value qualified by `isPromise` and returns other promise.
+     *
+     * @param Promise $promise
+     * @param callable|null $onFullFilled
+     * @param callable|null $onRejected
+     * @return mixed
+     */
+    public function then($promise, callable $onFullFilled = null, callable $onRejected = null)
+    {
+        return $promise->then($onFullFilled, $onRejected);
+    }
+
+    /**
      * @inheritdoc
      *
      * @return PromiseInterface
