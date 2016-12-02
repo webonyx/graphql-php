@@ -3,11 +3,11 @@ namespace GraphQL\Tests\Executor;
 
 require_once __DIR__ . '/TestClasses.php';
 
+use GraphQL\Deferred;
 use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
-use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -18,7 +18,6 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils;
-use React\Promise\Promise;
 
 class ExecutorTest extends \PHPUnit_Framework_TestCase
 {
@@ -34,13 +33,12 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
      */
     public function testExecutesArbitraryCode()
     {
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
         $deepData = null;
         $data = null;
 
         $promiseData = function () use (&$data) {
-            return new Promise(function (callable $resolve) use (&$data) {
-                return $resolve($data);
+            return new Deferred(function () use (&$data) {
+                return $data;
             });
         };
 
@@ -165,7 +163,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         ]);
         $schema = new Schema(['query' => $dataType]);
 
-        $this->assertEquals($expected, self::awaitPromise(Executor::execute($schema, $ast, $data, null, ['size' => 100], 'Example')));
+        $this->assertEquals($expected, Executor::execute($schema, $ast, $data, null, ['size' => 100], 'Example')->toArray());
     }
 
     /**
@@ -397,27 +395,37 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 ];
             },
             'async' => function() {
-                return new Promise(function(callable $resolve) { return $resolve('async'); });
+                return new Deferred(function() { return 'async'; });
             },
             'asyncReject' => function() {
-                return new Promise(function($_, callable $reject) { return $reject('Error getting asyncReject'); });
+                return new Deferred(function() { throw new \Exception('Error getting asyncReject'); });
             },
             'asyncRawReject' => function () {
-                return \React\Promise\reject('Error getting asyncRawReject');
+                return new Deferred(function() {
+                    throw new \Exception('Error getting asyncRawReject');
+                });
             },
             'asyncEmptyReject' => function () {
-                return \React\Promise\reject();
+                return new Deferred(function() {
+                    throw new \Exception();
+                });
             },
             'asyncError' => function() {
-                return new Promise(function() { throw new \Exception('Error getting asyncError'); });
+                return new Deferred(function() {
+                    throw new \Exception('Error getting asyncError');
+                });
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
             'asyncRawError' => function() {
-                return new Promise(function() { throw new \Exception('Error getting asyncRawError'); });
+                return new Deferred(function() {
+                    throw new \Exception('Error getting asyncRawError');
+                });
             },
             'asyncReturnError' => function() {
-                return \React\Promise\resolve(new \Exception('Error getting asyncReturnError'));
+                return new Deferred(function() {
+                    throw new \Exception('Error getting asyncReturnError');
+                });
             },
         ];
 
@@ -516,10 +524,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $result = Executor::execute($schema, $docAst, $data);
+        $result = Executor::execute($schema, $docAst, $data)->toArray();
 
-        $this->assertEquals($expected, self::awaitPromise($result));
+        $this->assertEquals($expected, $result);
     }
 
     /**
@@ -743,8 +750,6 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
     public function testCorrectFieldOrderingDespiteExecutionOrder()
     {
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-
         $doc = '{
       a,
       b,
@@ -757,13 +762,13 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 return 'a';
             },
             'b' => function () {
-                return new Promise(function (callable $resolve) { return $resolve('b'); });
+                return new Deferred(function () { return 'b'; });
             },
             'c' => function () {
                 return 'c';
             },
             'd' => function () {
-                return new Promise(function (callable $resolve) { return $resolve('d'); });
+                return new Deferred(function () { return 'd'; });
             },
             'e' => function () {
                 return 'e';
@@ -794,7 +799,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, self::awaitPromise(Executor::execute($schema, $ast, $data)));
+        $this->assertEquals($expected, Executor::execute($schema, $ast, $data)->toArray());
     }
 
     /**
@@ -1090,18 +1095,5 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ], $result->toArray());
-    }
-
-    /**
-     * @param \GraphQL\Executor\Promise\Promise $promise
-     * @return array
-     */
-    private static function awaitPromise($promise)
-    {
-        $results = null;
-        $promise->then(function (ExecutionResult $executionResult) use (&$results) {
-            $results = $executionResult->toArray();
-        });
-        return $results;
     }
 }

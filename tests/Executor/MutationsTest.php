@@ -1,29 +1,18 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Deferred;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
-use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use React\Promise\Promise;
 
 class MutationsTest extends \PHPUnit_Framework_TestCase
 {
-    public static function setUpBeforeClass()
-    {
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-    }
-
-    public static function tearDownAfterClass()
-    {
-        Executor::setPromiseAdapter(null);
-    }
-
     // Execute: Handles mutation execution ordering
 
     /**
@@ -69,7 +58,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ];
-        $this->assertEquals($expected, self::awaitPromise($mutationResult));
+        $this->assertEquals($expected, $mutationResult->toArray());
     }
 
     /**
@@ -127,20 +116,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 )
             ]
         ];
-        $this->assertArraySubset($expected, self::awaitPromise($mutationResult));
-    }
-
-    /**
-     * @param \GraphQL\Executor\Promise\Promise $promise
-     * @return array
-     */
-    private static function awaitPromise($promise)
-    {
-        $results = null;
-        $promise->then(function (ExecutionResult $executionResult) use (&$results) {
-            $results = $executionResult->toArray();
-        });
-        return $results;
+        $this->assertArraySubset($expected, $mutationResult->toArray());
     }
 
     private function schema()
@@ -227,12 +203,12 @@ class Root {
     /**
      * @param $newNumber
      *
-     * @return Promise
+     * @return Deferred
      */
     public function promiseToChangeTheNumber($newNumber)
     {
-        return new Promise(function (callable $resolve) use ($newNumber) {
-            return $resolve($this->immediatelyChangeTheNumber($newNumber));
+        return new Deferred(function () use ($newNumber) {
+            return $this->immediatelyChangeTheNumber($newNumber);
         });
     }
 
@@ -245,12 +221,12 @@ class Root {
     }
 
     /**
-     * @return Promise
+     * @return Deferred
      */
     public function promiseAndFailToChangeTheNumber()
     {
-        return new Promise(function (callable $resolve, callable $reject) {
-            return $reject(new \Exception("Cannot change the number"));
+        return new Deferred(function () {
+            throw new \Exception("Cannot change the number");
         });
     }
 }

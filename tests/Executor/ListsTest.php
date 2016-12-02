@@ -117,7 +117,9 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Returns null
         $this->checkHandlesNullableLists(
-            \React\Promise\resolve(null),
+            new Deferred(function() {
+                return null;
+            }),
             [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
         );
 
@@ -361,7 +363,9 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Returns null
         $this->checkHandlesListOfNonNulls(
-            \React\Promise\resolve(null),
+            new Deferred(function() {
+                return null;
+            }),
             [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
         );
 
@@ -405,7 +409,11 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Contains null
         $this->checkHandlesListOfNonNulls(
-            [ \React\Promise\resolve(1), \React\Promise\resolve(null), \React\Promise\resolve(2) ],
+            [
+                new Deferred(function() {return 1;}),
+                new Deferred(function() {return null;}),
+                new Deferred(function() {return 2;})
+            ],
             [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
         );
 
