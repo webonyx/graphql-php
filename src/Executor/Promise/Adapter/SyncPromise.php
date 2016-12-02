@@ -22,10 +22,16 @@ class SyncPromise
      */
     public static $queue;
 
+    public static function getQueue()
+    {
+        return self::$queue ?: self::$queue = new \SplQueue();
+    }
+
     public static function runQueue()
     {
-        while (self::$queue && !self::$queue->isEmpty()) {
-            $task = self::$queue->dequeue();
+        $q = self::getQueue();
+        while (!$q->isEmpty()) {
+            $task = $q->dequeue();
             $task();
         }
     }
@@ -39,13 +45,6 @@ class SyncPromise
      * @var array
      */
     private $waiting = [];
-
-    public function __construct()
-    {
-        if (!self::$queue) {
-            self::$queue = new \SplQueue();
-        }
-    }
 
     public function reject(\Exception $reason)
     {
@@ -73,7 +72,7 @@ class SyncPromise
                 if ($value === $this) {
                     throw new \Exception("Cannot resolve promise with self");
                 }
-                if ($value instanceof self) {
+                if (is_object($value) && method_exists($value, 'then')) {
                     $value->then(
                         function($resolvedValue) {
                             $this->resolve($resolvedValue);
@@ -123,7 +122,7 @@ class SyncPromise
         Utils::invariant($this->state !== self::PENDING, 'Cannot enqueue derived promises when parent is still pending');
 
         foreach ($this->waiting as $descriptor) {
-            self::$queue->enqueue(function () use ($descriptor) {
+            self::getQueue()->enqueue(function () use ($descriptor) {
                 /** @var $promise self */
                 list($promise, $onFulfilled, $onRejected) = $descriptor;
 

@@ -3,6 +3,7 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
@@ -10,7 +11,6 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
-use GraphQL\Executor\Promise\Adapter\GenericPromiseAdapter;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
@@ -68,7 +68,7 @@ class Executor
      */
     public static function getPromiseAdapter()
     {
-        return self::$promiseAdapter ?: (self::$promiseAdapter = new GenericPromiseAdapter());
+        return self::$promiseAdapter ?: (self::$promiseAdapter = new SyncPromiseAdapter());
     }
 
     /**
@@ -111,6 +111,10 @@ class Executor
 
         $executor = new self($exeContext, $promiseAdapter);
         $result = $executor->executeQuery();
+
+        if ($result instanceof Promise && $promiseAdapter instanceof SyncPromiseAdapter) {
+            $result = $promiseAdapter->wait($result);
+        }
 
         return $result;
     }

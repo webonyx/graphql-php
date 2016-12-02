@@ -242,6 +242,9 @@ class Utils
         if (is_object($var)) {
             return 'instance of ' . get_class($var);
         }
+        if ('' === $var) {
+            return '(empty string)';
+        }
         if (is_scalar($var)) {
             return (string) $var;
         }

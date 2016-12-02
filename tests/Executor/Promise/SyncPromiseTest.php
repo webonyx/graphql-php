@@ -252,12 +252,12 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $nextPromise3 = $promise->then($onFulfilled, $onRejected);
         $nextPromise4 = $promise->then($onFulfilled, $onRejected);
 
-        $this->assertEquals(SyncPromise::$queue->count(), 0);
+        $this->assertEquals(SyncPromise::getQueue()->count(), 0);
         $this->assertEquals($onFulfilledCount, 0);
         $this->assertEquals($onRejectedCount, 0);
         $promise->resolve(1);
 
-        $this->assertEquals(SyncPromise::$queue->count(), 4);
+        $this->assertEquals(SyncPromise::getQueue()->count(), 4);
         $this->assertEquals($onFulfilledCount, 0);
         $this->assertEquals($onRejectedCount, 0);
         $this->assertEquals(SyncPromise::PENDING, $nextPromise->state);
@@ -266,7 +266,7 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(SyncPromise::PENDING, $nextPromise4->state);
 
         SyncPromise::runQueue();
-        $this->assertEquals(SyncPromise::$queue->count(), 0);
+        $this->assertEquals(SyncPromise::getQueue()->count(), 0);
         $this->assertEquals($onFulfilledCount, 3);
         $this->assertEquals($onRejectedCount, 0);
         $this->assertValidPromise($nextPromise, null, 1, SyncPromise::FULFILLED);
