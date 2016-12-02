@@ -224,6 +224,18 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
 
         $promise->reject(new \Exception("Rejected Reason"));
         $this->assertValidPromise($promise, "Rejected Reason", null, SyncPromise::REJECTED);
+
+        $promise = new SyncPromise();
+        $promise2 = $promise->then(null, function() {
+            return 'value';
+        });
+        $promise->reject(new \Exception("Rejected Again"));
+        $this->assertValidPromise($promise2, null, 'value', SyncPromise::FULFILLED);
+
+        $promise = new SyncPromise();
+        $promise2 = $promise->then();
+        $promise->reject(new \Exception("Rejected Once Again"));
+        $this->assertValidPromise($promise2, "Rejected Once Again", null, SyncPromise::REJECTED);
     }
 
     public function testPendingPromiseThen()

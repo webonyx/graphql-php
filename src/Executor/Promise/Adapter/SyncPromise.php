@@ -134,7 +134,11 @@ class SyncPromise
                     }
                 } else if ($this->state === self::REJECTED) {
                     try {
-                        $promise->resolve($onRejected ? $onRejected($this->result) : $this->result);
+                        if ($onRejected) {
+                            $promise->resolve($onRejected($this->result));
+                        } else {
+                            $promise->reject($this->result);
+                        }
                     } catch (\Exception $e) {
                         $promise->reject($e);
                     }
