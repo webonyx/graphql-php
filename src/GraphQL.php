@@ -2,6 +2,7 @@
 namespace GraphQL;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Promise;
@@ -30,13 +31,12 @@ class GraphQL
         if ($result instanceof ExecutionResult) {
             return $result->toArray();
         }
-
-        return Executor::getPromiseAdapter()->then(
-            $result,
-            function(ExecutionResult $executionResult) {
+        if ($result instanceof Promise) {
+            return $result->then(function(ExecutionResult $executionResult) {
                 return $executionResult->toArray();
-            }
-        );
+            });
+        }
+        throw new InvariantViolation("Unexpected execution result");
     }
 
     /**

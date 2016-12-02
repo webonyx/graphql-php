@@ -2,10 +2,9 @@
 
 namespace GraphQL\Tests\Executor;
 
-use GraphQL\Executor\ExecutionResult;
+use GraphQL\Deferred;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
-use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -14,16 +13,6 @@ use GraphQL\Type\Definition\Type;
 
 class ListsTest extends \PHPUnit_Framework_TestCase
 {
-    public static function setUpBeforeClass()
-    {
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-    }
-
-    public static function tearDownAfterClass()
-    {
-        Executor::setPromiseAdapter(null);
-    }
-
     // Describe: Execute: Handles list nullability
 
     /**
@@ -57,26 +46,34 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNullableLists(
-            \React\Promise\resolve([ 1, 2 ]),
+            new Deferred(function() {
+                return [1,2];
+            }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
         );
 
         // Contains null
         $this->checkHandlesNullableLists(
-            \React\Promise\resolve([ 1, null, 2 ]),
+            new Deferred(function() {
+                return [1, null, 2];
+            }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
         );
 
         // Returns null
         $this->checkHandlesNullableLists(
-            \React\Promise\resolve(null),
+            new Deferred(function() {
+                return null;
+            }),
             [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
         );
 
         // Rejected
         $this->checkHandlesNullableLists(
             function () {
-                return \React\Promise\reject(new \Exception('bad'));
+                return new Deferred(function () {
+                    throw new \Exception('bad');
+                });
             },
             [
                 'data' => ['nest' => ['test' => null]],
@@ -98,13 +95,23 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNullableLists(
-            [ \React\Promise\resolve(1), \React\Promise\resolve(2) ],
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })],
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
         );
 
         // Contains null
         $this->checkHandlesNullableLists(
-            [ \React\Promise\resolve(1), \React\Promise\resolve(null), \React\Promise\resolve(2) ],
+            [
+                new Deferred(function() {return 1;}),
+                new Deferred(function() {return null;}),
+                new Deferred(function() {return 2;})
+            ],
             [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
         );
 
@@ -117,7 +124,17 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains reject
         $this->checkHandlesNullableLists(
             function () {
-                return [ \React\Promise\resolve(1), \React\Promise\reject(new \Exception('bad')), \React\Promise\resolve(2) ];
+                return [
+                    new Deferred(function() {
+                        return 1;
+                    }),
+                    new Deferred(function() {
+                        throw new \Exception('bad');
+                    }),
+                    new Deferred(function() {
+                        return 2;
+                    })
+                ];
             },
             [
                 'data' => ['nest' => ['test' => [1, null, 2]]],
@@ -171,13 +188,17 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
-            \React\Promise\resolve([ 1, 2 ]),
+            new Deferred(function() {
+                return [1,2];
+            }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
         );
 
         // Contains null
         $this->checkHandlesNonNullableLists(
-            \React\Promise\resolve([ 1, null, 2 ]),
+            new Deferred(function() {
+                return [1, null, 2];
+            }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
         );
 
@@ -198,7 +219,9 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Rejected
         $this->checkHandlesNonNullableLists(
             function () {
-                return \React\Promise\reject(new \Exception('bad'));
+                return new Deferred(function() {
+                    throw new \Exception('bad');
+                });
             },
             [
                 'data' => ['nest' => null],
@@ -220,20 +243,47 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
-            [ \React\Promise\resolve(1), \React\Promise\resolve(2) ],
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+            ],
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
         );
 
         // Contains null
         $this->checkHandlesNonNullableLists(
-            [ \React\Promise\resolve(1), \React\Promise\resolve(null), \React\Promise\resolve(2) ],
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return null;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+            ],
             [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
         );
 
         // Contains reject
         $this->checkHandlesNonNullableLists(
             function () {
-                return [ \React\Promise\resolve(1), \React\Promise\reject(new \Exception('bad')), \React\Promise\resolve(2) ];
+                return [
+                    new Deferred(function() {
+                        return 1;
+                    }),
+                    new Deferred(function() {
+                        throw new \Exception('bad');
+                    }),
+                    new Deferred(function() {
+                        return 2;
+                    })
+                ];
             },
             [
                 'data' => ['nest' => ['test' => [1, null, 2]]],
@@ -287,13 +337,17 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
-            \React\Promise\resolve([ 1, 2 ]),
+            new Deferred(function() {
+                return [1, 2];
+            }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
         );
 
         // Contains null
         $this->checkHandlesListOfNonNulls(
-            \React\Promise\resolve([ 1, null, 2 ]),
+            new Deferred(function() {
+                return [1, null, 2];
+            }),
             [
                 'data' => [ 'nest' => [ 'test' => null ] ],
                 'errors' => [
@@ -314,7 +368,9 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Rejected
         $this->checkHandlesListOfNonNulls(
             function () {
-                return \React\Promise\reject(new \Exception('bad'));
+                return new Deferred(function() {
+                    throw new \Exception('bad');
+                });
             },
             [
                 'data' => ['nest' => ['test' => null]],
@@ -336,7 +392,14 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
-            [ \React\Promise\resolve(1), \React\Promise\resolve(2) ],
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+            ],
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
         );
 
@@ -349,7 +412,17 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains reject
         $this->checkHandlesListOfNonNulls(
             function () {
-                return [ \React\Promise\resolve(1), \React\Promise\reject(new \Exception('bad')), \React\Promise\resolve(2) ];
+                return [
+                    new Deferred(function() {
+                        return 1;
+                    }),
+                    new Deferred(function() {
+                        throw new \Exception('bad');
+                    }),
+                    new Deferred(function() {
+                        return 2;
+                    })
+                ];
             },
             [
                 'data' => ['nest' => ['test' => null]],
@@ -412,13 +485,17 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
-            \React\Promise\resolve([ 1, 2 ]),
+            new Deferred(function() {
+                return [1, 2];
+            }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
         );
 
         // Contains null
         $this->checkHandlesNonNullListOfNonNulls(
-            \React\Promise\resolve([ 1, null, 2 ]),
+            new Deferred(function() {
+                return [1, null, 2];
+            }),
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
@@ -432,7 +509,9 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Returns null
         $this->checkHandlesNonNullListOfNonNulls(
-            \React\Promise\resolve(null),
+            new Deferred(function() {
+                return null;
+            }),
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
@@ -447,7 +526,9 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Rejected
         $this->checkHandlesNonNullListOfNonNulls(
             function () {
-                return \React\Promise\reject(new \Exception('bad'));
+                return new Deferred(function() {
+                    throw new \Exception('bad');
+                });
             },
             [
                 'data' => ['nest' => null ],
@@ -469,13 +550,31 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
-            [ \React\Promise\resolve(1), \React\Promise\resolve(2) ],
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+
+            ],
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
         );
 
         // Contains null
         $this->checkHandlesNonNullListOfNonNulls(
-            [ \React\Promise\resolve(1), \React\Promise\resolve(null), \React\Promise\resolve(2) ],
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return null;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+            ],
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
@@ -490,7 +589,17 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains reject
         $this->checkHandlesNonNullListOfNonNulls(
             function () {
-                return [ \React\Promise\resolve(1), \React\Promise\reject(new \Exception('bad')), \React\Promise\resolve(2) ];
+                return [
+                    new Deferred(function() {
+                        return 1;
+                    }),
+                    new Deferred(function() {
+                        throw new \Exception('bad');
+                    }),
+                    new Deferred(function() {
+                        return 2;
+                    })
+                ];
             },
             [
                 'data' => ['nest' => null ],
@@ -507,7 +616,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
     private function checkHandlesNullableLists($testData, $expected)
     {
-        $testType = Type::listOf(Type::int());;
+        $testType = Type::listOf(Type::int());
         $this->check($testType, $testData, $expected);
     }
 
@@ -558,19 +667,6 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ nest { test } }');
 
         $result = Executor::execute($schema, $ast, $data);
-        $this->assertArraySubset($expected, self::awaitPromise($result));
-    }
-
-    /**
-     * @param \GraphQL\Executor\Promise\Promise $promise
-     * @return array
-     */
-    private static function awaitPromise($promise)
-    {
-        $results = null;
-        $promise->then(function (ExecutionResult $executionResult) use (&$results) {
-            $results = $executionResult->toArray();
-        });
-        return $results;
+        $this->assertArraySubset($expected, $result->toArray());
     }
 }

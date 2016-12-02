@@ -53,10 +53,14 @@ class SyncPromiseAdapter implements PromiseAdapter
     {
         $promise = new SyncPromise();
 
-        $resolver(
-            [$promise, 'resolve'],
-            [$promise, 'reject']
-        );
+        try {
+            $resolver(
+                [$promise, 'resolve'],
+                [$promise, 'reject']
+            );
+        } catch (\Exception $e) {
+            $promise->reject($e);
+        }
 
         return new Promise($promise, $this);
     }
@@ -115,32 +119,26 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     public function wait(Promise $promise)
     {
-        $fulfilledValue = null;
-        $rejectedReason = null;
-
-        $promise->then(
-            function ($value) use (&$fulfilledValue) {
-                $fulfilledValue = $value;
-            },
-            function ($reason) use (&$rejectedReason) {
-                $rejectedReason = $reason;
-            }
-        );
+        $dfdQueue = Deferred::getQueue();
+        $promiseQueue = SyncPromise::getQueue();
 
         while (
             $promise->adoptedPromise->state === SyncPromise::PENDING &&
-            !(Deferred::getQueue()->isEmpty() && SyncPromise::getQueue()->isEmpty())
+            !($dfdQueue->isEmpty() && $promiseQueue->isEmpty())
         ) {
             Deferred::runQueue();
-            SyncPromise::runQueue();
+            SyncPromise::runNext();
         }
 
-        if ($promise->adoptedPromise->state === SyncPromise::PENDING) {
-            throw new InvariantViolation("Could not resolve promise");
+        /** @var SyncPromise $syncPromise */
+        $syncPromise = $promise->adoptedPromise;
+
+        if ($syncPromise->state === SyncPromise::FULFILLED) {
+            return $syncPromise->result;
+        } else if ($syncPromise->state === SyncPromise::REJECTED) {
+            throw $syncPromise->result;
         }
-        if ($rejectedReason instanceof \Exception) {
-            throw $rejectedReason;
-        }
-        return $fulfilledValue;
+
+        throw new InvariantViolation("Could not resolve promise");
     }
 }

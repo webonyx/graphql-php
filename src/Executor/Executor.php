@@ -677,15 +677,7 @@ class Executor
                 $this->exeContext->variableValues
             );
 
-            $value = call_user_func($resolveFn, $source, $args, $context, $info);
-
-            // Adopt promises from external system:
-            if ($this->promises->isThenable($value)) {
-                $value = $this->promises->convert($value);
-                Utils::invariant($value instanceof Promise);
-            }
-
-            return $value;
+            return call_user_func($resolveFn, $source, $args, $context, $info);
         } catch (\Exception $error) {
             return $error;
         }
@@ -827,6 +819,11 @@ class Executor
         &$result
     )
     {
+        if ($this->promises->isThenable($result)) {
+            $result = $this->promises->convert($result);
+            Utils::invariant($result instanceof Promise);
+        }
+
         // If result is a Promise, apply-lift over completeValue.
         if ($result instanceof Promise) {
             return $result->then(function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {

@@ -2,16 +2,14 @@
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Deferred;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use React\Promise\Promise;
-use React\Promise\PromiseInterface;
 
 class NonNullTest extends \PHPUnit_Framework_TestCase
 {
@@ -46,12 +44,12 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 throw $this->nonNullSyncError;
             },
             'promise' => function () {
-                return new Promise(function () {
+                return new Deferred(function () {
                     throw $this->promiseError;
                 });
             },
             'nonNullPromise' => function () {
-                return new Promise(function () {
+                return new Deferred(function () {
                     throw $this->nonNullPromiseError;
                 });
             },
@@ -62,13 +60,13 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 return $this->throwingData;
             },
             'promiseNest' => function () {
-                return new Promise(function (callable $resolve) {
-                    $resolve($this->throwingData);
+                return new Deferred(function () {
+                    return $this->throwingData;
                 });
             },
             'nonNullPromiseNest' => function () {
-                return new Promise(function (callable $resolve) {
-                    $resolve($this->throwingData);
+                return new Deferred(function () {
+                    return $this->throwingData;
                 });
             },
         ];
@@ -81,13 +79,13 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 return null;
             },
             'promise' => function () {
-                return new Promise(function (callable $resolve) {
-                    return $resolve(null);
+                return new Deferred(function () {
+                    return null;
                 });
             },
             'nonNullPromise' => function () {
-                return new Promise(function (callable $resolve) {
-                    return $resolve(null);
+                return new Deferred(function () {
+                    return null;
                 });
             },
             'nest' => function () {
@@ -97,13 +95,13 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 return $this->nullingData;
             },
             'promiseNest' => function () {
-                return new Promise(function (callable $resolve) {
-                    $resolve($this->nullingData);
+                return new Deferred(function () {
+                    return $this->nullingData;
                 });
             },
             'nonNullPromiseNest' => function () {
-                return new Promise(function (callable $resolve) {
-                    $resolve($this->nullingData);
+                return new Deferred(function () {
+                    return $this->nullingData;
                 });
             },
         ];
@@ -125,11 +123,6 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->schema = new Schema(['query' => $dataType]);
-    }
-
-    public function tearDown()
-    {
-        Executor::setPromiseAdapter(null);
     }
 
     // Execute: handles non-nullable types
@@ -183,8 +176,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsSynchronously()
@@ -232,8 +224,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsSynchronously()
@@ -257,8 +248,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsInAPromise()
@@ -282,10 +272,12 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
+    /**
+     * @it nulls a complex tree of nullable fields that throw
+     */
     public function testNullsAComplexTreeOfNullableFieldsThatThrow()
     {
         $doc = '
@@ -348,22 +340,21 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ],
             'errors' => [
                 FormattedError::create($this->syncError->getMessage(), [new SourceLocation(4, 11)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(5, 11)]),
                 FormattedError::create($this->syncError->getMessage(), [new SourceLocation(7, 13)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(8, 13)]),
                 FormattedError::create($this->syncError->getMessage(), [new SourceLocation(11, 13)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(12, 13)]),
                 FormattedError::create($this->syncError->getMessage(), [new SourceLocation(16, 11)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(17, 11)]),
                 FormattedError::create($this->syncError->getMessage(), [new SourceLocation(19, 13)]),
-                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(20, 13)]),
                 FormattedError::create($this->syncError->getMessage(), [new SourceLocation(23, 13)]),
+                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(5, 11)]),
+                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(8, 13)]),
+                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(12, 13)]),
+                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(17, 11)]),
+                FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(20, 13)]),
                 FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(24, 13)]),
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsTheFirstNullableObjectAfterAFieldThrowsInALongChainOfFieldsThatAreNonNull()
@@ -434,8 +425,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsANullableFieldThatSynchronouslyReturnsNull()
@@ -472,8 +462,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullSynchronously()
@@ -520,8 +509,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullSynchronously()
@@ -545,8 +533,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullInaAPromise()
@@ -570,8 +557,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsAComplexTreeOfNullableFieldsThatReturnNull()
@@ -636,10 +622,8 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->then(function ($actual) use ($expected) {
-            $this->assertEquals($expected, $actual);
-        });
+        $actual = Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray();
+        $this->assertEquals($expected, $actual);
     }
 
     public function testNullsTheFirstNullableObjectAfterAFieldReturnsNullInALongChainOfFieldsThatAreNonNull()
@@ -710,10 +694,12 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
+    /**
+     * @it nulls the top level if sync non-nullable field throws
+     */
     public function testNullsTheTopLevelIfSyncNonNullableFieldThrows()
     {
         $doc = '
@@ -745,8 +731,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q'));
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
     public function testNullsTheTopLevelIfSyncNonNullableFieldReturnsNull()
@@ -779,17 +764,6 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Executor::setPromiseAdapter(new ReactPromiseAdapter());
-        $this->assertArraySubsetPromise($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q'));
-    }
-
-    private function assertArraySubsetPromise($subset, PromiseInterface $promise)
-    {
-        $array = null;
-        $promise->then(function ($value) use (&$array) {
-            $array = $value->toArray();
-        });
-
-        $this->assertArraySubset($subset, $array);
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 }

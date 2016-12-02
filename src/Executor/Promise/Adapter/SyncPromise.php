@@ -36,9 +36,18 @@ class SyncPromise
         }
     }
 
+    public static function runNext()
+    {
+        $q = self::getQueue();
+        if (!$q->isEmpty()) {
+            $task = $q->dequeue();
+            $task();
+        }
+    }
+
     public $state = self::PENDING;
 
-    private $result;
+    public $result;
 
     /**
      * Promises created in `then` method of this promise and awaiting for resolution of this promise
