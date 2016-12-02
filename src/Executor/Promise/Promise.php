@@ -1,18 +1,39 @@
 <?php
-
 namespace GraphQL\Executor\Promise;
 
+use GraphQL\Utils;
+
 /**
- * A simple Promise representation
- * this interface helps to document the code
+ * Convenience wrapper for promises represented by Promise Adapter
  */
-interface Promise
+class Promise
 {
+    private $adapter;
+
+    public $adoptedPromise;
+
     /**
-     * @param callable|null $onFullFilled
+     * Promise constructor.
+     *
+     * @param mixed $adoptedPromise
+     * @param PromiseAdapter $adapter
+     */
+    public function __construct($adoptedPromise, PromiseAdapter $adapter)
+    {
+        Utils::invariant(!$adoptedPromise instanceof self, 'Expecting promise from adapted system, got ' . __CLASS__);
+
+        $this->adapter = $adapter;
+        $this->adoptedPromise = $adoptedPromise;
+    }
+
+    /**
+     * @param callable|null $onFulfilled
      * @param callable|null $onRejected
      *
      * @return Promise
      */
-    public function then(callable $onFullFilled = null, callable $onRejected = null);
+    public function then(callable $onFulfilled = null, callable $onRejected = null)
+    {
+        return $this->adapter->then($this, $onFulfilled, $onRejected);
+    }
 }

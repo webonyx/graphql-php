@@ -107,8 +107,12 @@ class Executor
         }
 
         $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $contextValue, $variableValues, $operationName);
-        $executor = new self($exeContext, self::getPromiseAdapter());
-        return $executor->executeQuery();
+        $promiseAdapter = self::getPromiseAdapter();
+
+        $executor = new self($exeContext, $promiseAdapter);
+        $result = $executor->executeQuery();
+
+        return $result;
     }
 
     /**
@@ -205,37 +209,32 @@ class Executor
         $this->promises = $promiseAdapter;
     }
 
+    /**
+     * @return Promise
+     */
     private function executeQuery()
     {
-        try {
-            // Return a Promise that will eventually resolve to the data described by
-            // The "Response" section of the GraphQL specification.
-            //
-            // If errors are encountered while executing a GraphQL field, only that
-            // field and its descendants will be omitted, and sibling fields will still
-            // be executed. An execution which encounters errors will still result in a
-            // resolved Promise.
-            $result = $this->promises->createPromise(function (callable $resolve) {
-                return $resolve($this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue));
-            });
-            $result = $this->promises->then($result, null, function ($error) {
+        // Return a Promise that will eventually resolve to the data described by
+        // The "Response" section of the GraphQL specification.
+        //
+        // If errors are encountered while executing a GraphQL field, only that
+        // field and its descendants will be omitted, and sibling fields will still
+        // be executed. An execution which encounters errors will still result in a
+        // resolved Promise.
+        $result = $this->promises->createPromise(function (callable $resolve) {
+            return $resolve($this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue));
+        });
+        return $result
+            ->then(null, function ($error) {
                 // Errors from sub-fields of a NonNull type may propagate to the top level,
                 // at which point we still log the error and null the parent field, which
                 // in this case is the entire response.
                 $this->exeContext->addError($error);
                 return null;
-            });
-            $result = $this->promises->then($result, function ($data) {
+            })
+            ->then(function ($data) {
                 return new ExecutionResult((array) $data, $this->exeContext->errors);
             });
-
-            return $result;
-        } catch (Error $e) {
-            $this->exeContext->addError($e);
-            $data = null;
-        }
-
-        return new ExecutionResult((array) $data, $this->exeContext->errors);
     }
 
     /**
@@ -310,7 +309,7 @@ class Executor
      */
     private function executeFieldsSerially(ObjectType $parentType, $sourceValue, $path, $fields)
     {
-        $results = $this->promises->createResolvedPromise([]);
+        $prevPromise = $this->promises->createResolvedPromise([]);
 
         $process = function ($results, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
             $fieldPath = $path;
@@ -319,8 +318,8 @@ class Executor
             if ($result === self::$UNDEFINED) {
                 return $results;
             }
-            if ($this->promises->isPromise($result)) {
-                return $this->promises->then($result, function ($resolvedResult) use ($responseName, $results) {
+            if ($result instanceof Promise) {
+                return $result->then(function ($resolvedResult) use ($responseName, $results) {
                     $results[$responseName] = $resolvedResult;
                     return $results;
                 });
@@ -330,22 +329,14 @@ class Executor
         };
 
         foreach ($fields as $responseName => $fieldNodes) {
-            if ($this->promises->isPromise($results)) {
-                $results = $this->promises->then($results, function ($resolvedResults) use ($process, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
-                    return $process($resolvedResults, $responseName, $path, $parentType, $sourceValue, $fieldNodes);
-                });
-            } else {
-                $results = $process($results, $responseName, $path, $parentType, $sourceValue, $fieldNodes);
-            }
-        }
-
-        if ($this->promises->isPromise($results)) {
-            return $this->promises->then($results, function ($resolvedResults) {
-                return self::fixResultsIfEmptyArray($resolvedResults);
+            $prevPromise = $prevPromise->then(function ($resolvedResults) use ($process, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
+                return $process($resolvedResults, $responseName, $path, $parentType, $sourceValue, $fieldNodes);
             });
         }
 
-        return self::fixResultsIfEmptyArray($results);
+        return $prevPromise->then(function ($resolvedResults) {
+            return self::fixResultsIfEmptyArray($resolvedResults);
+        });
     }
 
     /**
@@ -370,7 +361,7 @@ class Executor
             if ($result === self::$UNDEFINED) {
                 continue;
             }
-            if (!$containsPromise && $this->promises->isPromise($result)) {
+            if (!$containsPromise && $result instanceof Promise) {
                 $containsPromise = true;
             }
             $finalResults[$responseName] = $result;
@@ -405,7 +396,7 @@ class Executor
 
         $promise = $this->promises->createPromiseAll($valuesAndPromises);
 
-        return $this->promises->then($promise, function($values) use ($keys) {
+        return $promise->then(function($values) use ($keys) {
             $resolvedResults = [];
             foreach ($values as $i => $value) {
                 $resolvedResults[$keys[$i]] = $value;
@@ -669,7 +660,7 @@ class Executor
      * @param mixed $source
      * @param mixed $context
      * @param ResolveInfo $info
-     * @return \Exception|mixed
+     * @return \Exception|Promise|mixed
      */
     private function resolveOrError($fieldDef, $fieldNode, $resolveFn, $source, $context, $info)
     {
@@ -682,7 +673,15 @@ class Executor
                 $this->exeContext->variableValues
             );
 
-            return call_user_func($resolveFn, $source, $args, $context, $info);
+            $value = call_user_func($resolveFn, $source, $args, $context, $info);
+
+            // Adopt promises from external system:
+            if ($this->promises->isThenable($value)) {
+                $value = $this->promises->convert($value);
+                Utils::invariant($value instanceof Promise);
+            }
+
+            return $value;
         } catch (\Exception $error) {
             return $error;
         }
@@ -731,8 +730,8 @@ class Executor
                 $path,
                 $result
             );
-            if ($this->promises->isPromise($completed)) {
-                return $this->promises->then($completed, null, function ($error) use ($exeContext) {
+            if ($completed instanceof Promise) {
+                return $completed->then(null, function ($error) use ($exeContext) {
                     $exeContext->addError($error);
                     return $this->promises->createResolvedPromise(null);
                 });
@@ -775,8 +774,8 @@ class Executor
                 $path,
                 $result
             );
-            if ($this->promises->isPromise($completed)) {
-                return $this->promises->then($completed, null, function ($error) use ($fieldNodes, $path) {
+            if ($completed instanceof Promise) {
+                return $completed->then(null, function ($error) use ($fieldNodes, $path) {
                     return $this->promises->createRejectedPromise(Error::createLocatedError($error, $fieldNodes, $path));
                 });
             }
@@ -825,8 +824,8 @@ class Executor
     )
     {
         // If result is a Promise, apply-lift over completeValue.
-        if ($this->promises->isPromise($result)) {
-            return $this->promises->then($result, function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
+        if ($result instanceof Promise) {
+            return $result->then(function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
                 return $this->completeValue($returnType, $fieldNodes, $info, $path, $resolved);
             });
         }
@@ -1018,7 +1017,7 @@ class Executor
             $fieldPath = $path;
             $fieldPath[] = $i++;
             $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $item);
-            if (!$containsPromise && $this->promises->isPromise($completedItem)) {
+            if (!$containsPromise && $completedItem instanceof Promise) {
                 $containsPromise = true;
             }
             $completedItems[] = $completedItem;
