@@ -20,9 +20,9 @@ class ReactPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function convert($promise)
+    public function convertThenable($thenable)
     {
-        return new Promise($promise, $this);
+        return new Promise($thenable, $this);
     }
 
     /**
@@ -38,7 +38,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createPromise(callable $resolver)
+    public function create(callable $resolver)
     {
         $promise = new ReactPromise($resolver);
         return new Promise($promise, $this);
@@ -47,7 +47,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createResolvedPromise($value = null)
+    public function createFulfilled($value = null)
     {
         $promise = \React\Promise\resolve($value);
         return new Promise($promise, $this);
@@ -56,7 +56,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createRejectedPromise(\Exception $reason)
+    public function createRejected(\Exception $reason)
     {
         $promise = \React\Promise\reject($reason);
         return new Promise($promise, $this);
@@ -65,7 +65,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createPromiseAll(array $promisesOrValues)
+    public function all(array $promisesOrValues)
     {
         // TODO: rework with generators when PHP minimum required version is changed to 5.5+
         $promisesOrValues = Utils::map($promisesOrValues, function ($item) {

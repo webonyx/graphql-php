@@ -225,7 +225,7 @@ class Executor
         // field and its descendants will be omitted, and sibling fields will still
         // be executed. An execution which encounters errors will still result in a
         // resolved Promise.
-        $result = $this->promises->createPromise(function (callable $resolve) {
+        $result = $this->promises->create(function (callable $resolve) {
             return $resolve($this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue));
         });
         return $result
@@ -313,7 +313,7 @@ class Executor
      */
     private function executeFieldsSerially(ObjectType $parentType, $sourceValue, $path, $fields)
     {
-        $prevPromise = $this->promises->createResolvedPromise([]);
+        $prevPromise = $this->promises->createFulfilled([]);
 
         $process = function ($results, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
             $fieldPath = $path;
@@ -398,7 +398,7 @@ class Executor
         $keys = array_keys($assoc);
         $valuesAndPromises = array_values($assoc);
 
-        $promise = $this->promises->createPromiseAll($valuesAndPromises);
+        $promise = $this->promises->all($valuesAndPromises);
 
         return $promise->then(function($values) use ($keys) {
             $resolvedResults = [];
@@ -729,7 +729,7 @@ class Executor
             if ($completed instanceof Promise) {
                 return $completed->then(null, function ($error) use ($exeContext) {
                     $exeContext->addError($error);
-                    return $this->promises->createResolvedPromise(null);
+                    return $this->promises->createFulfilled(null);
                 });
             }
             return $completed;
@@ -772,7 +772,7 @@ class Executor
             );
             if ($completed instanceof Promise) {
                 return $completed->then(null, function ($error) use ($fieldNodes, $path) {
-                    return $this->promises->createRejectedPromise(Error::createLocatedError($error, $fieldNodes, $path));
+                    return $this->promises->createRejected(Error::createLocatedError($error, $fieldNodes, $path));
                 });
             }
             return $completed;
@@ -820,7 +820,7 @@ class Executor
     )
     {
         if ($this->promises->isThenable($result)) {
-            $result = $this->promises->convert($result);
+            $result = $this->promises->convertThenable($result);
             Utils::invariant($result instanceof Promise);
         }
 
@@ -1023,7 +1023,7 @@ class Executor
             }
             $completedItems[] = $completedItem;
         }
-        return $containsPromise ? $this->promises->createPromiseAll($completedItems) : $completedItems;
+        return $containsPromise ? $this->promises->all($completedItems) : $completedItems;
     }
 
     /**

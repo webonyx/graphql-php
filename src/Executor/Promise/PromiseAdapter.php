@@ -6,18 +6,18 @@ interface PromiseAdapter
     /**
      * Return true if value is promise of underlying system
      *
-     * @param  mixed $value
+     * @param mixed $value
      * @return bool
      */
     public function isThenable($value);
 
     /**
-     * Converts promise of underlying system into Promise instance
+     * Converts thenable of underlying system into Promise instance
      *
-     * @param $adaptedPromise
+     * @param object $thenable
      * @return Promise
      */
-    public function convert($adaptedPromise);
+    public function convertThenable($thenable);
 
     /**
      * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
@@ -38,7 +38,7 @@ interface PromiseAdapter
 
      * @return Promise
      */
-    public function createPromise(callable $resolver);
+    public function create(callable $resolver);
 
     /**
      * Creates a fulfilled Promise for a value if the value is not a promise.
@@ -47,7 +47,7 @@ interface PromiseAdapter
      *
      * @return Promise
      */
-    public function createResolvedPromise($value = null);
+    public function createFulfilled($value = null);
 
     /**
      * Creates a rejected promise for a reason if the reason is not a promise. If
@@ -57,7 +57,7 @@ interface PromiseAdapter
      *
      * @return Promise
      */
-    public function createRejectedPromise(\Exception $reason);
+    public function createRejected(\Exception $reason);
 
     /**
      * Given an array of promises (or values), returns a promise that is fulfilled when all the
@@ -67,5 +67,5 @@ interface PromiseAdapter
      *
      * @return Promise
      */
-    public function createPromiseAll(array $promisesOrValues);
+    public function all(array $promisesOrValues);
 }

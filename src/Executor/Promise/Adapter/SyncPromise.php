@@ -29,8 +29,8 @@ class SyncPromise
 
     public static function runQueue()
     {
-        $q = self::getQueue();
-        while (!$q->isEmpty()) {
+        $q = self::$queue;
+        while ($q && !$q->isEmpty()) {
             $task = $q->dequeue();
             $task();
         }
@@ -38,8 +38,8 @@ class SyncPromise
 
     public static function runNext()
     {
-        $q = self::getQueue();
-        if (!$q->isEmpty()) {
+        $q = self::$queue;
+        if ($q && !$q->isEmpty()) {
             $task = $q->dequeue();
             $task();
         }

@@ -5,8 +5,14 @@ use GraphQL\Executor\Promise\Adapter\SyncPromise;
 
 class Deferred
 {
+    /**
+     * @var \SplQueue
+     */
     private static $queue;
 
+    /**
+     * @var callable
+     */
     private $callback;
 
     /**
@@ -21,8 +27,8 @@ class Deferred
 
     public static function runQueue()
     {
-        $q = self::getQueue();
-        while (!$q->isEmpty()) {
+        $q = self::$queue;
+        while ($q && !$q->isEmpty()) {
             /** @var self $dfd */
             $dfd = $q->dequeue();
             $dfd->run();

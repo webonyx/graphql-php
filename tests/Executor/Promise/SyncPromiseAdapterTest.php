@@ -35,13 +35,13 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
     public function testConvert()
     {
         $dfd = new Deferred(function() {});
-        $result = $this->promises->convert($dfd);
+        $result = $this->promises->convertThenable($dfd);
 
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
         $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
 
         try {
-            $this->promises->convert('');
+            $this->promises->convertThenable('');
             $this->fail('Expected exception no thrown');
         } catch (InvariantViolation $e) {
             $this->assertEquals('Expected instance of GraphQL\Deferred, got (empty string)', $e->getMessage());
@@ -51,7 +51,7 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
     public function testThen()
     {
         $dfd = new Deferred(function() {});
-        $promise = $this->promises->convert($dfd);
+        $promise = $this->promises->convertThenable($dfd);
 
         $result = $this->promises->then($promise);
 
@@ -61,12 +61,12 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreatePromise()
     {
-        $promise = $this->promises->createPromise(function($resolve, $reject) {});
+        $promise = $this->promises->create(function($resolve, $reject) {});
 
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
         $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
 
-        $promise = $this->promises->createPromise(function($resolve, $reject) {
+        $promise = $this->promises->create(function($resolve, $reject) {
             $resolve('A');
         });
 
@@ -75,22 +75,22 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreateFulfilledPromise()
     {
-        $promise = $this->promises->createResolvedPromise('test');
+        $promise = $this->promises->createFulfilled('test');
         $this->assertValidPromise($promise, null, 'test', SyncPromise::FULFILLED);
     }
 
     public function testCreateRejectedPromise()
     {
-        $promise = $this->promises->createRejectedPromise(new \Exception('test reason'));
+        $promise = $this->promises->createRejected(new \Exception('test reason'));
         $this->assertValidPromise($promise, 'test reason', null, SyncPromise::REJECTED);
     }
 
     public function testCreatePromiseAll()
     {
-        $promise = $this->promises->createPromiseAll([]);
+        $promise = $this->promises->all([]);
         $this->assertValidPromise($promise, null, [], SyncPromise::FULFILLED);
 
-        $promise = $this->promises->createPromiseAll(['1']);
+        $promise = $this->promises->all(['1']);
         $this->assertValidPromise($promise, null, ['1'], SyncPromise::FULFILLED);
 
         $promise1 = new SyncPromise();
@@ -110,7 +110,7 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
             []
         ];
 
-        $promise = $this->promises->createPromiseAll($data);
+        $promise = $this->promises->all($data);
         $this->assertValidPromise($promise, null, null, SyncPromise::PENDING);
 
         $promise1->resolve('value1');
@@ -132,15 +132,15 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
             return 2;
         });
 
-        $p1 = $this->promises->convert($deferred1);
-        $p2 = $this->promises->convert($deferred2);
+        $p1 = $this->promises->convertThenable($deferred1);
+        $p2 = $this->promises->convertThenable($deferred2);
 
         $p3 = $p2->then(function() use (&$called) {
             $dfd = new Deferred(function() use (&$called) {
                 $called[] = 3;
                 return 3;
             });
-            return $this->promises->convert($dfd);
+            return $this->promises->convertThenable($dfd);
         });
 
         $p4 = $p3->then(function() use (&$called) {
@@ -150,7 +150,7 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
             });
         });
 
-        $all = $this->promises->createPromiseAll([0, $p1, $p2, $p3, $p4]);
+        $all = $this->promises->all([0, $p1, $p2, $p3, $p4]);
 
         $result = $this->promises->wait($p2);
         $this->assertEquals(2, $result);

@@ -28,12 +28,12 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function convert($value)
+    public function convertThenable($thenable)
     {
-        if (!$value instanceof Deferred) {
-            throw new InvariantViolation('Expected instance of GraphQL\Deferred, got ' . Utils::printSafe($value));
+        if (!$thenable instanceof Deferred) {
+            throw new InvariantViolation('Expected instance of GraphQL\Deferred, got ' . Utils::printSafe($thenable));
         }
-        return new Promise($value->promise, $this);
+        return new Promise($thenable->promise, $this);
     }
 
     /**
@@ -49,7 +49,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createPromise(callable $resolver)
+    public function create(callable $resolver)
     {
         $promise = new SyncPromise();
 
@@ -68,7 +68,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createResolvedPromise($value = null)
+    public function createFulfilled($value = null)
     {
         $promise = new SyncPromise();
         return new Promise($promise->resolve($value), $this);
@@ -77,7 +77,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createRejectedPromise(\Exception $reason)
+    public function createRejected(\Exception $reason)
     {
         $promise = new SyncPromise();
         return new Promise($promise->reject($reason), $this);
@@ -86,7 +86,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createPromiseAll(array $promisesOrValues)
+    public function all(array $promisesOrValues)
     {
         $all = new SyncPromise();
 
@@ -117,6 +117,12 @@ class SyncPromiseAdapter implements PromiseAdapter
         return new Promise($all, $this);
     }
 
+    /**
+     * Synchronously wait when promise completes
+     *
+     * @param Promise $promise
+     * @return mixed
+     */
     public function wait(Promise $promise)
     {
         $dfdQueue = Deferred::getQueue();
