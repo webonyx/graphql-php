@@ -1,16 +1,12 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
-use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
 
 class FragmentsOnCompositeTypes

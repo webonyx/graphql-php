@@ -1,13 +1,10 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
 
 class ScalarLeafs

@@ -1,18 +1,12 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
-use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\NonNull;
-use GraphQL\Utils;
 use GraphQL\Validator\DocumentValidator;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
 
 class ArgumentsOfCorrectType

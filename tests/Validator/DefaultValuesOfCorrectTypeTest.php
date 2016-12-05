@@ -3,7 +3,6 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\Rules\DefaultValuesOfCorrectType;
 
 class DefaultValuesOfCorrectTypeTest extends TestCase
