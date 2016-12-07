@@ -292,6 +292,7 @@ EOD;
                 'fields' => [
                     'name' => ['type' => Type::nonNull(Type::string())],
                     'description' => ['type' => Type::string()],
+                    'locations' => ['type' => Type::string()],
                     'locations' => [
                         'type' => Type::nonNull(Type::listOf(Type::nonNull(
                             self::_directiveLocation()
