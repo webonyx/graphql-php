@@ -8,6 +8,7 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils;
 
 class ConfigTest extends \PHPUnit_Framework_TestCase
 {
@@ -278,16 +279,14 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
         $this->expectValidationThrows(
             [
-                'testThunk' => function() {
-
-                }
+                'testThunk' => $closure = function() {}
             ],
             [
                 'testThunk' => Config::arrayOf(
                     ['nested' => Config::STRING | Config::REQUIRED]
                 )
             ],
-            $this->typeError('expecting "array" at "testThunk", but got "Closure"')
+            $this->typeError('expecting "array" at "testThunk", but got "' . Utils::getVariableType($closure) . '"')
         );
 
         $this->expectValidationThrows(
@@ -478,40 +477,40 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             [Config::STRING, 'string', 1, 'integer'],
             [Config::STRING, 'string', 0, 'integer'],
             [Config::STRING, 'string', false, 'boolean'],
-            [Config::STRING, 'string', function() {}, 'Closure'],
+            [Config::STRING, 'string', $tmp = function() {}, Utils::getVariableType($tmp)], // Note: can't use "Closure" as HHVM returns different string
             [Config::STRING, 'string', [], 'array'],
             [Config::STRING, 'string', new \stdClass(), 'stdClass'],
             [Config::BOOLEAN, 'boolean', '', 'string'],
             [Config::BOOLEAN, 'boolean', 1, 'integer'],
-            [Config::BOOLEAN, 'boolean', function() {}, 'Closure'],
+            [Config::BOOLEAN, 'boolean', $tmp = function() {}, Utils::getVariableType($tmp)],
             [Config::BOOLEAN, 'boolean', [], 'array'],
             [Config::BOOLEAN, 'boolean', new \stdClass(), 'stdClass'],
             [Config::INT, 'int', false, 'boolean'],
             [Config::INT, 'int', '', 'string'],
             [Config::INT, 'int', '0', 'string'],
             [Config::INT, 'int', '1', 'string'],
-            [Config::INT, 'int', function() {}, 'Closure'],
+            [Config::INT, 'int', $tmp = function() {}, Utils::getVariableType($tmp)],
             [Config::INT, 'int', [], 'array'],
             [Config::INT, 'int', new \stdClass(), 'stdClass'],
             [Config::FLOAT, 'float', '', 'string'],
             [Config::FLOAT, 'float', '0', 'string'],
-            [Config::FLOAT, 'float', function() {}, 'Closure'],
+            [Config::FLOAT, 'float', $tmp = function() {}, Utils::getVariableType($tmp)],
             [Config::FLOAT, 'float', [], 'array'],
             [Config::FLOAT, 'float', new \stdClass(), 'stdClass'],
             [Config::NUMERIC, 'numeric', '', 'string'],
             [Config::NUMERIC, 'numeric', 'tmp', 'string'],
             [Config::NUMERIC, 'numeric', [], 'array'],
             [Config::NUMERIC, 'numeric', new \stdClass(), 'stdClass'],
-            [Config::NUMERIC, 'numeric', function() {}, 'Closure'],
+            [Config::NUMERIC, 'numeric', $tmp = function() {}, Utils::getVariableType($tmp)],
             [Config::CALLBACK, 'callable', 1, 'integer'],
             [Config::CALLBACK, 'callable', '', 'string'],
             [Config::CALLBACK, 'callable', [], 'array'],
             [Config::CALLBACK, 'callable', new \stdClass(), 'stdClass'],
             [Config::SCALAR, 'scalar', [], 'array'],
             [Config::SCALAR, 'scalar', new \stdClass(), 'stdClass'],
-            [Config::SCALAR, 'scalar', function() {}, 'Closure'],
+            [Config::SCALAR, 'scalar', $tmp = function() {}, Utils::getVariableType($tmp)],
             [Config::NAME, 'name', 5, 'integer'],
-            [Config::NAME, 'name', function() {}, 'Closure'],
+            [Config::NAME, 'name', $tmp = function() {}, Utils::getVariableType($tmp)],
             [Config::NAME, 'name', [], 'array'],
             [Config::NAME, 'name', new \stdClass(), 'stdClass'],
             [Config::NAME, 'name', '', null, 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "" does not.'],
