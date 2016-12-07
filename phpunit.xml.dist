@@ -28,6 +28,7 @@
                 <directory>./vendor</directory>
                 <directory>./examples</directory>
                 <directory>./benchmarks</directory>
+                <file>./src/deprecated.php</file>
             </exclude>
         </whitelist>
     </filter>
