@@ -60,6 +60,14 @@ class Config
     }
 
     /**
+     * @return bool
+     */
+    public static function isValidationEnabled()
+    {
+        return self::$enableValidation;
+    }
+
+    /**
      * @param array $config
      * @param array $definition
      */
@@ -91,20 +99,6 @@ class Config
     }
 
     /**
-     * @param $definition
-     * @param int $flags
-     * @return \stdClass
-     */
-    public static function map(array $definition, $flags = 0)
-    {
-        $tmp = new \stdClass();
-        $tmp->isMap = true;
-        $tmp->definition = $definition;
-        $tmp->flags = $flags;
-        return $tmp;
-    }
-
-    /**
      * @param array|int $definition
      * @param int $flags
      * @return \stdClass
@@ -133,7 +127,7 @@ class Config
 
         if (!empty($unexpectedKeys)) {
             if (!self::$allowCustomOptions) {
-                trigger_error(sprintf('"%s" type definition: Non-standard keys "%s" ' . $suffix, $typeName, implode(', ', $unexpectedKeys)));
+                trigger_error(sprintf('Error in "%s" type definition: Non-standard keys "%s" ' . $suffix, $typeName, implode(', ', $unexpectedKeys)));
             }
             $map = array_intersect_key($map, $definitions);
         }
@@ -143,7 +137,7 @@ class Config
         $missingKeys = array_keys(array_diff_key($requiredKeys, $map));
         Utils::invariant(
             empty($missingKeys),
-            "Error in '$typeName' type definition: Required keys missing: '%s' $suffix", implode(', ', $missingKeys)
+            'Error in "' . $typeName . '" type definition: Required keys missing: "%s" %s', implode(', ', $missingKeys), $suffix
         );
 
         // Make sure that every map value is valid given the definition
@@ -163,30 +157,26 @@ class Config
     private static function validateEntry($typeName, $key, $value, $def, $pathStr)
     {
         $type = Utils::getVariableType($value);
-        $err = 'Error in "'.$typeName.'" type definition: expecting %s at "' . $pathStr . '", but got "' . $type . '"';
+        $err = 'Error in "'.$typeName.'" type definition: expecting "%s" at "' . $pathStr . '", but got "' . $type . '"';
 
         if ($def instanceof \stdClass) {
-            if ($def->flags & self::REQUIRED === 0 && $value === null) {
+            if (($def->flags & self::REQUIRED) === 0 && $value === null) {
                 return ;
             }
             if (($def->flags & self::MAYBE_THUNK) > 0) {
+                // TODO: consider wrapping thunk with other function to force validation of value returned by thunk
                 Utils::invariant(is_array($value) || is_callable($value), $err, 'array or callable');
             } else {
                 Utils::invariant(is_array($value), $err, 'array');
             }
 
-            if (!empty($def->isMap)) {
-                if ($def->flags & self::KEY_AS_NAME) {
-                    $value += ['name' => $key];
-                }
-                self::validateMap($typeName, $value, $def->definition, $pathStr);
-            } else if (!empty($def->isArray)) {
+            if (!empty($def->isArray)) {
 
                 if ($def->flags & self::REQUIRED) {
                     Utils::invariant(!empty($value), 'Error in "'.$typeName.'" type definition: ' . "Value at '$pathStr' cannot be empty array");
                 }
 
-                $err = 'Error in "'.$typeName.'" type definition: ' . "Each entry at '$pathStr' must be an array, but '%s' is '%s'";
+                $err = 'Error in "'.$typeName.'" type definition: ' . "Each entry at '$pathStr' must be an array, but entry at '%s' is '%s'";
 
                 foreach ($value as $arrKey => $arrValue) {
                     if (is_array($def->definition)) {
@@ -199,7 +189,7 @@ class Config
 
                         Utils::invariant(is_array($arrValue), $err, $arrKey, Utils::getVariableType($arrValue));
 
-                        if ($def->flags & self::KEY_AS_NAME) {
+                        if ($def->flags & self::KEY_AS_NAME && is_string($arrKey)) {
                             $arrValue += ['name' => $arrKey];
                         }
                         self::validateMap($typeName, $arrValue, $def->definition, "$pathStr:$arrKey");
@@ -214,7 +204,7 @@ class Config
             Utils::invariant(is_int($def), 'Error in "'.$typeName.'" type definition: ' . "Definition for '$pathStr' is expected to be single integer value");
 
             if ($def & self::REQUIRED) {
-                Utils::invariant($value !== null, 'Value at "%s" can not be null', $pathStr);
+                Utils::invariant($value !== null, 'Error in "'.$typeName.'" type definition: ' . 'Value at "%s" can not be null', $pathStr);
             }
 
             if (null === $value) {
@@ -234,7 +224,7 @@ class Config
                     Utils::invariant(is_numeric($value), $err, 'numeric');
                     break;
                 case $def & self::FLOAT:
-                    Utils::invariant(is_float($value), $err, 'float');
+                    Utils::invariant(is_float($value) || is_int($value), $err, 'float');
                     break;
                 case $def & self::INT:
                     Utils::invariant(is_int($value), $err, 'int');
@@ -246,6 +236,7 @@ class Config
                     Utils::invariant(is_scalar($value), $err, 'scalar');
                     break;
                 case $def & self::NAME:
+                    Utils::invariant(is_string($value), $err, 'name');
                     Utils::invariant(
                         preg_match('~^[_a-zA-Z][_a-zA-Z0-9]*$~', $value),
                         'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "%s" does not.',
@@ -256,28 +247,28 @@ class Config
                     Utils::invariant(
                         is_callable($value) || $value instanceof InputType,
                         $err,
-                        'callable or InputType definition'
+                        'InputType definition'
                     );
                     break;
                 case $def & self::OUTPUT_TYPE:
                     Utils::invariant(
                         is_callable($value) || $value instanceof OutputType,
                         $err,
-                        'callable or OutputType definition'
+                        'OutputType definition'
                     );
                     break;
                 case $def & self::INTERFACE_TYPE:
                     Utils::invariant(
                         is_callable($value) || $value instanceof InterfaceType,
                         $err,
-                        'callable or InterfaceType definition'
+                        'InterfaceType definition'
                     );
                     break;
                 case $def & self::OBJECT_TYPE:
                     Utils::invariant(
                         is_callable($value) || $value instanceof ObjectType,
                         $err,
-                        'callable or ObjectType definition'
+                        'ObjectType definition'
                     );
                     break;
                 default:
