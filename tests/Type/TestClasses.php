@@ -17,6 +17,7 @@ class MyCustomType extends ObjectType
     }
 }
 
+// Note: named OtherCustom vs OtherCustomType intentionally
 class OtherCustom extends ObjectType
 {
     public function __construct()

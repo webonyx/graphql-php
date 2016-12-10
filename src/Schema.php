@@ -3,13 +3,11 @@ namespace GraphQL;
 
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UnionType;
-use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Type\EagerResolution;
 use GraphQL\Type\Introspection;
+use GraphQL\Type\Resolution;
 
 /**
  * Schema Definition
@@ -41,39 +39,26 @@ use GraphQL\Type\Introspection;
 class Schema
 {
     /**
-     * @var ObjectType
+     * @var array
      */
-    private $queryType;
-
-    /**
-     * @var ObjectType
-     */
-    private $mutationType;
-
-    /**
-     * @var ObjectType
-     */
-    private $subscriptionType;
-
-    /**
-     * @var Directive[]
-     */
-    private $directives;
-
-    /**
-     * @var Type[]
-     */
-    private $typeMap;
-
-    /**
-     * @var array<string, ObjectType[]>
-     */
-    private $implementations;
+    private $config;
 
     /**
      * @var array<string, array<string, boolean>>
      */
-    private $possibleTypeMap;
+    private $possibleTypeMap = [];
+
+    /**
+     * @var Resolution
+     */
+    private $typeResolutionStrategy;
+
+    /**
+     * Required for `getTypeMap()` and `getDescriptor()` methods
+     *
+     * @var EagerResolution
+     */
+    private $eagerTypeResolutionStrategy;
 
     /**
      * Schema constructor.
@@ -96,6 +81,15 @@ class Schema
             ];
         }
 
+        $config += [
+            'query' => null,
+            'mutation' => null,
+            'subscription' => null,
+            'types' => [],
+            'directives' => null,
+            'typeResolution' => null
+        ];
+
         $this->init($config);
     }
 
@@ -104,33 +98,20 @@ class Schema
      */
     private function init(array $config)
     {
-        $config += [
-            'query' => null,
-            'mutation' => null,
-            'subscription' => null,
-            'types' => [],
-            'directives' => [],
-            'validate' => true
-        ];
-
         Utils::invariant(
             $config['query'] instanceof ObjectType,
             "Schema query must be Object Type but got: " . Utils::getVariableType($config['query'])
         );
 
-        $this->queryType = $config['query'];
-
         Utils::invariant(
             !$config['mutation'] || $config['mutation'] instanceof ObjectType,
             "Schema mutation must be Object Type if provided but got: " . Utils::getVariableType($config['mutation'])
         );
-        $this->mutationType = $config['mutation'];
 
         Utils::invariant(
             !$config['subscription'] || $config['subscription'] instanceof ObjectType,
             "Schema subscription must be Object Type if provided but got: " . Utils::getVariableType($config['subscription'])
         );
-        $this->subscriptionType = $config['subscription'];
 
         Utils::invariant(
             !$config['types'] || is_array($config['types']),
@@ -142,33 +123,14 @@ class Schema
             "Schema directives must be Directive[] if provided but got " . Utils::getVariableType($config['directives'])
         );
 
-        $this->directives = $config['directives'] ?: GraphQL::getInternalDirectives();
+        Utils::invariant(
+            !$config['typeResolution'] || $config['typeResolution'] instanceof Resolution,
+            "Type resolution strategy is expected to be instance of GraphQL\\Type\\Resolution, but got " .
+            Utils::getVariableType($config['typeResolution'])
+        );
 
-        // Build type map now to detect any errors within this schema.
-        $initialTypes = [
-            $config['query'],
-            $config['mutation'],
-            $config['subscription'],
-            Introspection::_schema()
-        ];
-        if (!empty($config['types'])) {
-            $initialTypes = array_merge($initialTypes, $config['types']);
-        }
-
-        foreach ($initialTypes as $type) {
-            $this->extractTypes($type);
-        }
-        $this->typeMap += Type::getInternalTypes();
-
-        // Keep track of all implementations by interface name.
-        $this->implementations = [];
-        foreach ($this->typeMap as $typeName => $type) {
-            if ($type instanceof ObjectType) {
-                foreach ($type->getInterfaces() as $iface) {
-                    $this->implementations[$iface->name][] = $type;
-                }
-            }
-        }
+        $this->config = $config;
+        $this->typeResolutionStrategy = $config['typeResolution'] ?: $this->getEagerTypeResolutionStrategy();
     }
 
     /**
@@ -176,7 +138,7 @@ class Schema
      */
     public function getQueryType()
     {
-        return $this->queryType;
+        return $this->config['query'];
     }
 
     /**
@@ -184,7 +146,7 @@ class Schema
      */
     public function getMutationType()
     {
-        return $this->mutationType;
+        return $this->config['mutation'];
     }
 
     /**
@@ -192,15 +154,18 @@ class Schema
      */
     public function getSubscriptionType()
     {
-        return $this->subscriptionType;
+        return $this->config['subscription'];
     }
 
     /**
-     * @return array
+     * Returns full map of types in this schema.
+     * Note: internally it will eager-load all types using GraphQL\Type\EagerResolution strategy
+     *
+     * @return Type[]
      */
     public function getTypeMap()
     {
-        return $this->typeMap;
+        return $this->getEagerTypeResolutionStrategy()->getTypeMap();
     }
 
     /**
@@ -209,8 +174,17 @@ class Schema
      */
     public function getType($name)
     {
-        $map = $this->getTypeMap();
-        return isset($map[$name]) ? $map[$name] : null;
+        return $this->typeResolutionStrategy->resolveType($name);
+    }
+
+    /**
+     * Returns serializable schema representation suitable for GraphQL\Type\LazyResolution
+     *
+     * @return array
+     */
+    public function getDescriptor()
+    {
+        return $this->getEagerTypeResolutionStrategy()->getDescriptor();
     }
 
     /**
@@ -219,11 +193,7 @@ class Schema
      */
     public function getPossibleTypes(AbstractType $abstractType)
     {
-        if ($abstractType instanceof UnionType) {
-            return $abstractType->getTypes();
-        }
-        Utils::invariant($abstractType instanceof InterfaceType);
-        return isset($this->implementations[$abstractType->name]) ? $this->implementations[$abstractType->name] : [];
+        return $this->typeResolutionStrategy->resolvePossibleTypes($abstractType);
     }
 
     /**
@@ -233,14 +203,10 @@ class Schema
      */
     public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType)
     {
-        if (null === $this->possibleTypeMap) {
-            $this->possibleTypeMap = [];
-        }
-
         if (!isset($this->possibleTypeMap[$abstractType->name])) {
             $tmp = [];
             foreach ($this->getPossibleTypes($abstractType) as $type) {
-                $tmp[$type->name] = true;
+                $tmp[$type->name] = 1;
             }
 
             Utils::invariant(
@@ -253,7 +219,6 @@ class Schema
 
             $this->possibleTypeMap[$abstractType->name] = $tmp;
         }
-
         return !empty($this->possibleTypeMap[$abstractType->name][$possibleType->name]);
     }
 
@@ -262,7 +227,7 @@ class Schema
      */
     public function getDirectives()
     {
-        return $this->directives;
+        return isset($this->config['directives']) ? $this->config['directives'] : GraphQL::getInternalDirectives();
     }
 
     /**
@@ -279,49 +244,25 @@ class Schema
         return null;
     }
 
-    /**
-     * @param $type
-     * @return array
-     */
-    private function extractTypes($type)
+    private function getEagerTypeResolutionStrategy()
     {
-        if (!$type) {
-            return $this->typeMap;
-        }
-
-        if ($type instanceof WrappingType) {
-            return $this->extractTypes($type->getWrappedType(true));
-        }
-
-        if (!empty($this->typeMap[$type->name])) {
-            Utils::invariant(
-                $this->typeMap[$type->name] === $type,
-                "Schema must contain unique named types but contains multiple types named \"$type\"."
-            );
-            return $this->typeMap;
-        }
-        $this->typeMap[$type->name] = $type;
-
-        $nestedTypes = [];
-
-        if ($type instanceof UnionType) {
-            $nestedTypes = $type->getTypes();
-        }
-        if ($type instanceof ObjectType) {
-            $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
-        }
-        if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {
-            foreach ((array) $type->getFields() as $fieldName => $field) {
-                if (isset($field->args)) {
-                    $fieldArgTypes = array_map(function($arg) { return $arg->getType(); }, $field->args);
-                    $nestedTypes = array_merge($nestedTypes, $fieldArgTypes);
+        if (!$this->eagerTypeResolutionStrategy) {
+            if ($this->typeResolutionStrategy instanceof EagerResolution) {
+                $this->eagerTypeResolutionStrategy = $this->typeResolutionStrategy;
+            } else {
+                // Build type map now to detect any errors within this schema.
+                $initialTypes = [
+                    $this->config['query'],
+                    $this->config['mutation'],
+                    $this->config['subscription'],
+                    Introspection::_schema()
+                ];
+                if (!empty($this->config['types'])) {
+                    $initialTypes = array_merge($initialTypes, $this->config['types']);
                 }
-                $nestedTypes[] = $field->getType();
+                $this->eagerTypeResolutionStrategy = new EagerResolution($initialTypes);
             }
         }
-        foreach ($nestedTypes as $type) {
-            $this->extractTypes($type);
-        }
-        return $this->typeMap;
+        return $this->eagerTypeResolutionStrategy;
     }
 }
