@@ -41,11 +41,11 @@ existing PHP frameworks, add support for Relay, etc.
 ## Current Status
 First version of this library (v0.1) was released on August 10th 2015.
 
-Current version (v0.7) supports all features described by GraphQL specification 
+Current version (v0.8) supports all features described by GraphQL specification 
 (including April 2016 add-ons) as well as some experimental features like 
 Schema Language parser.
 
-Ready for real-world usage.
+Ready for real-world usage. 
 
 ## Github
 Project source code is [hosted on GitHub](https://github.com/webonyx/graphql-php).
