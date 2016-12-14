@@ -82,6 +82,14 @@ class GraphQL
     }
 
     /**
+     * @param callable $fn
+     */
+    public static function setDefaultFieldResolver(callable $fn)
+    {
+        Executor::setDefaultFieldResolver($fn);
+    }
+
+    /**
      * @param PromiseAdapter|null $promiseAdapter
      */
     public static function setPromiseAdapter(PromiseAdapter $promiseAdapter = null)
