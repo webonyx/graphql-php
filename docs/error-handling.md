@@ -64,9 +64,9 @@ GraphQL is forgiving to **Execution** errors which occur in resolvers of nullabl
 If such field throws or returns unexpected value the value of the field in response will be simply 
 replaced with `null` and error entry will be added to response.
 
-If exception is thrown in non-null field - it will be bubbled up to first nullable field which will
-be replaced with `null` (and error entry added to response). If all fields up to the root are non-null - 
-**data** entry will be removed from n response and only **errors** key will be presented.
+If exception is thrown in non-null field - error bubbles up to first nullable field. This nullable field is  
+replaced with `null` and error entry is added to response. If all fields up to the root are non-null - 
+**data** entry will be removed from response and only **errors** key will be presented.
 
 # Debugging tools
 

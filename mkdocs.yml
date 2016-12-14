@@ -14,8 +14,8 @@ pages:
   - Directives: type-system/directives.md
   - Schema: type-system/schema.md
 - Executing Queries: executing-queries.md
+- Fetching Data: data-fetching.md
 - Handling Errors: error-handling.md
-# - Fetching Data: data-fetching.md
 # - Best Practices: best-practices.md
 - Complementary Tools: complementary-tools.md
 theme: readthedocs
