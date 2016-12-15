@@ -152,7 +152,7 @@ Keep in mind that **field resolver** has precedence over **default field resolve
 
 
 # Solving N+1 Problem
-Since: 9.0
+Since: 0.9.0
 
 One of the most annoying problems with data fetching is so-called [N+1 problem](https://secure.phabricator.com/book/phabcontrib/article/n_plus_one/).
 
@@ -219,7 +219,7 @@ In this example only one query will be executed for all story authors comparing 
 in naive implementation.
 
 # Async PHP
-Since: 9.0
+Since: 0.9.0
 
 If your project runs in environment that supports async operations 
 (like `HHVM`, `ReactPHP`, `Icicle.io`, `appserver.io` `PHP threads`, etc) you can leverage
