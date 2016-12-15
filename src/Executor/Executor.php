@@ -677,7 +677,7 @@ class Executor
                 $this->exeContext->variableValues
             );
 
-            return call_user_func($resolveFn, $source, $args, $context, $info);
+            return $resolveFn($source, $args, $context, $info);
         } catch (\Exception $error) {
             return $error;
         }
