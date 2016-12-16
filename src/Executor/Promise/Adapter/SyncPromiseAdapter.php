@@ -133,7 +133,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             !($dfdQueue->isEmpty() && $promiseQueue->isEmpty())
         ) {
             Deferred::runQueue();
-            SyncPromise::runNext();
+            SyncPromise::runQueue();
         }
 
         /** @var SyncPromise $syncPromise */

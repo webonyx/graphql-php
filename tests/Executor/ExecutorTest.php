@@ -5,19 +5,14 @@ require_once __DIR__ . '/TestClasses.php';
 
 use GraphQL\Deferred;
 use GraphQL\Error\Error;
-use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
-use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UnionType;
-use GraphQL\Utils;
 
 class ExecutorTest extends \PHPUnit_Framework_TestCase
 {

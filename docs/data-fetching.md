@@ -180,7 +180,7 @@ Here is an example of `BlogStory` resolver for field `author` that uses deferrin
     MyUserBuffer::add($blogStory['authorId']);
 
     return new GraphQL\Deferred(function () use ($blogStory) {
-        MyUserBuffer::loadOnce();
+        MyUserBuffer::loadBuffered();
         return MyUserBuffer::get($blogStory['authorId']);
     });
 }
@@ -242,6 +242,5 @@ Platforms supported out of the box:
 
 * [ReactPHP](https://github.com/reactphp/react) (requires **react/promise** as composer dependency):
   `GraphQL\GraphQL::setPromiseAdapter(new GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter());`
-* HHVM: TODO
 
 To integrate other platform - implement `GraphQL\Executor\Promise\PromiseAdapter` interface. 

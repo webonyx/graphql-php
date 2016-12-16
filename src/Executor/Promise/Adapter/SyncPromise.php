@@ -36,15 +36,6 @@ class SyncPromise
         }
     }
 
-    public static function runNext()
-    {
-        $q = self::$queue;
-        if ($q && !$q->isEmpty()) {
-            $task = $q->dequeue();
-            $task();
-        }
-    }
-
     public $state = self::PENDING;
 
     public $result;
