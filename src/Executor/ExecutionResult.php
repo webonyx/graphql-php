@@ -3,7 +3,7 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 
-class ExecutionResult
+class ExecutionResult implements \JsonSerializable
 {
     /**
      * @var array
@@ -21,6 +21,11 @@ class ExecutionResult
     public $extensions;
 
     /**
+     * @var callable
+     */
+    private $errorFormatter = ['GraphQL\Error\Error', 'formatError'];
+
+    /**
      * @param array $data
      * @param array $errors
      * @param array $extensions
@@ -30,6 +35,16 @@ class ExecutionResult
         $this->data = $data;
         $this->errors = $errors;
         $this->extensions = $extensions;
+    }
+
+    /**
+     * @param callable $errorFormatter
+     * @return $this
+     */
+    public function setErrorFormatter(callable $errorFormatter)
+    {
+        $this->errorFormatter = $errorFormatter;
+        return $this;
     }
 
     /**
@@ -44,7 +59,7 @@ class ExecutionResult
         }
 
         if (!empty($this->errors)) {
-            $result['errors'] = array_map(['GraphQL\Error\Error', 'formatError'], $this->errors);
+            $result['errors'] = array_map($this->errorFormatter, $this->errors);
         }
         
         if (!empty($this->extensions)) {
@@ -52,5 +67,10 @@ class ExecutionResult
         }
 
         return $result;
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->toArray();
     }
 }
