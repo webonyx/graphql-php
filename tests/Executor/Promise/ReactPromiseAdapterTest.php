@@ -19,8 +19,8 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        if(! class_exists(ReactPromise::class)) {
-            $this->markTestSkipped('react/promise package must be installed to run ' . self::class);
+        if(! class_exists('React\Promise\Promise')) {
+            $this->markTestSkipped('react/promise package must be installed to run GraphQL\Tests\Executor\Promise\ReactPromiseAdapterTest');
         }
     }
 
@@ -49,8 +49,8 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 
         $promise = $reactAdapter->convertThenable($reactPromise);
 
-        $this->assertInstanceOf(Promise::class, $promise);
-        $this->assertInstanceOf(FulfilledPromise::class, $promise->adoptedPromise);
+        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
+        $this->assertInstanceOf('React\Promise\FulfilledPromise', $promise->adoptedPromise);
     }
 
     public function testThen()
@@ -66,8 +66,8 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         });
 
         $this->assertSame(1, $result);
-        $this->assertInstanceOf(Promise::class, $resultPromise);
-        $this->assertInstanceOf(FulfilledPromise::class, $resultPromise->adoptedPromise);
+        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $resultPromise);
+        $this->assertInstanceOf('React\Promise\FulfilledPromise', $resultPromise->adoptedPromise);
     }
 
     public function testCreate()
@@ -77,8 +77,8 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
              $resolve(1);
         });
 
-        $this->assertInstanceOf(Promise::class, $resolvedPromise);
-        $this->assertInstanceOf(ReactPromise::class, $resolvedPromise->adoptedPromise);
+        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $resolvedPromise);
+        $this->assertInstanceOf('React\Promise\Promise', $resolvedPromise->adoptedPromise);
 
         $result = null;
 
@@ -94,8 +94,8 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $reactAdapter = new ReactPromiseAdapter();
         $fulfilledPromise = $reactAdapter->createFulfilled(1);
 
-        $this->assertInstanceOf(Promise::class, $fulfilledPromise);
-        $this->assertInstanceOf(FulfilledPromise::class, $fulfilledPromise->adoptedPromise);
+        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $fulfilledPromise);
+        $this->assertInstanceOf('React\Promise\FulfilledPromise', $fulfilledPromise->adoptedPromise);
 
         $result = null;
 
@@ -111,8 +111,8 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $reactAdapter = new ReactPromiseAdapter();
         $rejectedPromise = $reactAdapter->createRejected(new \Exception('I am a bad promise'));
 
-        $this->assertInstanceOf(Promise::class, $rejectedPromise);
-        $this->assertInstanceOf(RejectedPromise::class, $rejectedPromise->adoptedPromise);
+        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $rejectedPromise);
+        $this->assertInstanceOf('React\Promise\RejectedPromise', $rejectedPromise->adoptedPromise);
 
         $exception = null;
 
@@ -120,7 +120,7 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
             $exception = $error;
         });
 
-        $this->assertInstanceOf(\Exception::class, $exception);
+        $this->assertInstanceOf('\Exception', $exception);
         $this->assertEquals('I am a bad promise', $exception->getMessage());
     }
 
@@ -131,8 +131,8 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 
         $allPromise = $reactAdapter->all($promises);
 
-        $this->assertInstanceOf(Promise::class, $allPromise);
-        $this->assertInstanceOf(FulfilledPromise::class, $allPromise->adoptedPromise);
+        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $allPromise);
+        $this->assertInstanceOf('React\Promise\FulfilledPromise', $allPromise->adoptedPromise);
 
         $result = null;
 
