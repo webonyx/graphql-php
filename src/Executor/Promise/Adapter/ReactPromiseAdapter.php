@@ -71,7 +71,16 @@ class ReactPromiseAdapter implements PromiseAdapter
         $promisesOrValues = Utils::map($promisesOrValues, function ($item) {
             return $item instanceof Promise ? $item->adoptedPromise : $item;
         });
-        $promise = \React\Promise\all($promisesOrValues);
+
+        $promise = \React\Promise\all($promisesOrValues)->then(function($values) use ($promisesOrValues) {
+            $orderedResults = [];
+
+            foreach ($promisesOrValues as $key => $value) {
+                $orderedResults[$key] = $values[$key];
+            }
+
+            return $orderedResults;
+        });
         return new Promise($promise, $this);
     }
 }
