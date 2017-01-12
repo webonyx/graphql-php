@@ -680,6 +680,8 @@ class Executor
             return $resolveFn($source, $args, $context, $info);
         } catch (\Exception $error) {
             return $error;
+        } catch (\Error $error) {
+            return $error;
         }
     }
 
@@ -778,6 +780,8 @@ class Executor
             return $completed;
         } catch (\Exception $error) {
             throw Error::createLocatedError($error, $fieldNodes, $path);
+        } catch (\Error $error) {
+            throw Error::createLocatedError($error, $fieldNodes, $path);
         }
     }
 
@@ -810,6 +814,7 @@ class Executor
      * @return array|null|Promise
      * @throws Error
      * @throws \Exception
+     * @throws \Error
      */
     private function completeValue(
         Type $returnType,
@@ -832,6 +837,10 @@ class Executor
         }
 
         if ($result instanceof \Exception) {
+            throw $result;
+        }
+
+        if ($result instanceof \Error) {
             throw $result;
         }
 
