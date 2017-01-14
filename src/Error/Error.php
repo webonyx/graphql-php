@@ -89,6 +89,9 @@ class Error extends \Exception implements \JsonSerializable
         } else if ($error instanceof \Exception) {
             $message = $error->getMessage();
             $originalError = $error;
+        } else if ($error instanceof \Error) {
+            $message = $error->getMessage();
+            $originalError = $error;
         } else {
             $message = (string) $error;
         }
@@ -119,9 +122,9 @@ class Error extends \Exception implements \JsonSerializable
      * @param Source $source
      * @param array|null $positions
      * @param array|null $path
-     * @param \Exception $previous
+     * @param \Exception|\Error $previous
      */
-    public function __construct($message, $nodes = null, Source $source = null, $positions = null, $path = null, \Exception $previous = null)
+    public function __construct($message, $nodes = null, Source $source = null, $positions = null, $path = null, $previous = null)
     {
         parent::__construct($message, 0, $previous);
 
