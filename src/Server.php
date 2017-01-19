@@ -2,11 +2,11 @@
 namespace GraphQL;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
-use GraphQL\Type\Definition\Config;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -17,7 +17,6 @@ class Server
 {
     const DEBUG_PHP_ERRORS = 1;
     const DEBUG_EXCEPTIONS = 2;
-    const DEBUG_SCHEMA_CONFIGS = 4;
     const DEBUG_ALL = 7;
 
     private $queryType;
@@ -88,6 +87,7 @@ class Server
      */
     public function setQueryType(ObjectType $queryType)
     {
+        $this->assertSchemaNotSet('Query Type', __METHOD__);
         $this->queryType = $queryType;
         return $this;
     }
@@ -106,6 +106,7 @@ class Server
      */
     public function setMutationType(ObjectType $mutationType)
     {
+        $this->assertSchemaNotSet('Mutation Type', __METHOD__);
         $this->mutationType = $mutationType;
         return $this;
     }
@@ -124,6 +125,7 @@ class Server
      */
     public function setSubscriptionType($subscriptionType)
     {
+        $this->assertSchemaNotSet('Subscription Type', __METHOD__);
         $this->subscriptionType = $subscriptionType;
         return $this;
     }
@@ -134,10 +136,16 @@ class Server
      */
     public function addTypes(array $types)
     {
-        $this->types = array_merge($this->types, $types);
+        if (!empty($types)) {
+            $this->assertSchemaNotSet('Types', __METHOD__);
+            $this->types = array_merge($this->types, $types);
+        }
         return $this;
     }
 
+    /**
+     * @return array
+     */
     public function getTypes()
     {
         return $this->types;
@@ -161,6 +169,7 @@ class Server
      */
     public function setDirectives(array $directives)
     {
+        $this->assertSchemaNotSet('Directives', __METHOD__);
         $this->directives = $directives;
         return $this;
     }
@@ -220,6 +229,58 @@ class Server
     }
 
     /**
+     * Set schema instance manually. Mutually exclusive with `setQueryType`, `setMutationType`, `setSubscriptionType`, `setDirectives`, `addTypes`
+     *
+     * @param Schema $schema
+     * @return $this
+     */
+    public function setSchema(Schema $schema)
+    {
+        if ($this->queryType) {
+            $err = 'Query Type is already set';
+            $errMethod = __CLASS__ . '::setQueryType';
+        } else if ($this->mutationType) {
+            $err = 'Mutation Type is already set';
+            $errMethod = __CLASS__ . '::setMutationType';
+        } else if ($this->subscriptionType) {
+            $err = 'Subscription Type is already set';
+            $errMethod = __CLASS__ . '::setSubscriptionType';
+        } else if ($this->directives) {
+            $err = 'Directives are already set';
+            $errMethod = __CLASS__ . '::setDirectives';
+        } else if ($this->types) {
+            $err = 'Additional types are already set';
+            $errMethod = __CLASS__ . '::addTypes';
+        } else if ($this->typeResolutionStrategy) {
+            $err = 'Type Resolution Strategy is already set';
+            $errMethod = __CLASS__ . '::setTypeResolutionStrategy';
+        } else if ($this->schema && $this->schema !== $schema) {
+            $err = 'Different schema is already set';
+        }
+
+        if (isset($err)) {
+            if (isset($errMethod)) {
+                $err .= " ($errMethod is mutually exclusive with " . __METHOD__ . ")";
+            }
+            throw new InvariantViolation("Cannot set Schema on Server: $err");
+        }
+        $this->schema = $schema;
+        return $this;
+    }
+
+    /**
+     * @param $entry
+     * @param $mutuallyExclusiveMethod
+     */
+    private function assertSchemaNotSet($entry, $mutuallyExclusiveMethod)
+    {
+        if ($this->schema) {
+            $schemaMethod = __CLASS__ . '::setSchema';
+            throw new InvariantViolation("Cannot set $entry on Server: Schema is already set ($mutuallyExclusiveMethod is mutually exclusive with $schemaMethod)");
+        }
+    }
+
+    /**
      * @return Schema
      */
     public function getSchema()
@@ -246,6 +307,8 @@ class Server
     }
 
     /**
+     * Expects function(\ErrorException $e) : array
+     *
      * @param callable $phpErrorFormatter
      */
     public function setPhpErrorFormatter(callable $phpErrorFormatter)
@@ -262,6 +325,8 @@ class Server
     }
 
     /**
+     * Expects function(Exception $e) : array
+     *
      * @param callable $exceptionFormatter
      */
     public function setExceptionFormatter(callable $exceptionFormatter)
@@ -302,8 +367,11 @@ class Server
     }
 
     /**
+     * Parses GraphQL query string and returns Abstract Syntax Tree for this query
+     *
      * @param string $query
      * @return Language\AST\DocumentNode
+     * @throws \GraphQL\Error\SyntaxError
      */
     public function parse($query)
     {
@@ -323,10 +391,12 @@ class Server
 
     /**
      * @param array $validationRules
+     * @return $this
      */
     public function setValidationRules(array $validationRules)
     {
         $this->validationRules = $validationRules;
+        return $this;
     }
 
     /**
@@ -343,12 +413,13 @@ class Server
      */
     public function setTypeResolutionStrategy(Resolution $typeResolutionStrategy)
     {
+        $this->assertSchemaNotSet('Type Resolution Strategy', __METHOD__);
         $this->typeResolutionStrategy = $typeResolutionStrategy;
         return $this;
     }
 
     /**
-     * @return PromiseAdapter
+     * @return PromiseAdapter|null
      */
     public function getPromiseAdapter()
     {
@@ -363,22 +434,33 @@ class Server
      */
     public function setPromiseAdapter(PromiseAdapter $promiseAdapter)
     {
+        if ($this->promiseAdapter && $promiseAdapter !== $this->promiseAdapter) {
+            throw new InvariantViolation("Cannot set promise adapter: Different adapter is already set");
+        }
         $this->promiseAdapter = $promiseAdapter;
         return $this;
     }
 
     /**
-     * Returns array with validation errors
+     * Returns array with validation errors (empty when there are no validation errors)
      *
      * @param DocumentNode $query
      * @return array
      */
     public function validate(DocumentNode $query)
     {
-        return DocumentValidator::validate($this->getSchema(), $query, $this->validationRules);
+        try {
+            $schema = $this->getSchema();
+        } catch (InvariantViolation $e) {
+            throw new InvariantViolation("Cannot validate, schema contains errors: {$e->getMessage()}", null, $e);
+        }
+
+        return DocumentValidator::validate($schema, $query, $this->validationRules);
     }
 
     /**
+     * Executes GraphQL query against this server and returns execution result
+     *
      * @param string|DocumentNode $query
      * @param array|null $variables
      * @param string|null $operationName
@@ -389,16 +471,9 @@ class Server
         $this->phpErrors = [];
         if ($this->debug & static::DEBUG_PHP_ERRORS) {
             // Catch custom errors (to report them in query results)
-            $lastDisplayErrors = ini_get('display_errors');
-            ini_set('display_errors', 0);
-
             set_error_handler(function($severity, $message, $file, $line) {
                 $this->phpErrors[] = new \ErrorException($message, 0, $severity, $file, $line);
             });
-        }
-        if ($this->debug & static::DEBUG_SCHEMA_CONFIGS) {
-            $isConfigValidationEnabled = Config::isValidationEnabled();
-            Config::enableValidation();
         }
 
         $result = GraphQL::executeAndReturnResult(
@@ -420,38 +495,40 @@ class Server
             $result->extensions['phpErrors'] = array_map($this->phpErrorFormatter, $this->phpErrors);
         }
 
-        if (isset($lastDisplayErrors)) {
-            ini_set('display_errors', $lastDisplayErrors);
+        if ($this->debug & static::DEBUG_PHP_ERRORS) {
             restore_error_handler();
-        }
-        if (isset($isConfigValidationEnabled) && !$isConfigValidationEnabled) {
-            Config::disableValidation();
         }
         return $result;
     }
 
+    /**
+     * GraphQL HTTP endpoint compatible with express-graphql
+     */
     public function handleRequest()
     {
         try {
             $httpStatus = 200;
             if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
-                $raw = file_get_contents('php://input') ?: '';
+                $raw = $this->readInput();
                 $data = json_decode($raw, true);
             } else {
                 $data = $_REQUEST;
             }
             $data += ['query' => null, 'variables' => null];
             $result = $this->executeQuery($data['query'], (array) $data['variables'])->toArray();
-        } catch (\Exception $exception) {
+        } catch (\Exception $e) {
             // This is only possible for schema creation errors and some very unpredictable errors,
             // (all errors which occur during query execution are caught and included in final response)
             $httpStatus = $this->unexpectedErrorStatus;
-            $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $exception);
+            $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $e);
+            $result = ['errors' => [$this->formatError($error)]];
+        } catch (\Error $e) {
+            $httpStatus = $this->unexpectedErrorStatus;
+            $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $e);
             $result = ['errors' => [$this->formatError($error)]];
         }
 
-        header('Content-Type: application/json', true, $httpStatus);
-        echo json_encode($result);
+        $this->produceOutput($result, $httpStatus);
     }
 
     private function formatException(\Exception $e)
@@ -472,5 +549,16 @@ class Server
             $result['exception'] = $this->formatException($e->getPrevious());
         }
         return $result;
+    }
+
+    protected function readInput()
+    {
+        return  file_get_contents('php://input') ?: '';
+    }
+
+    protected function produceOutput(array $result, $httpStatus)
+    {
+        header('Content-Type: application/json', true, $httpStatus);
+        echo json_encode($result);
     }
 }
