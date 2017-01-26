@@ -88,7 +88,7 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @param $name
-     * @return Type|array
+     * @return array|IDType|StringType|FloatType|IntType|BooleanType
      */
     private static function getInternalType($name = null)
     {
