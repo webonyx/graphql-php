@@ -4,6 +4,7 @@ namespace GraphQL;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
+use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
@@ -482,6 +483,12 @@ class Server
             });
         }
 
+        if ($this->promiseAdapter) {
+            // TODO: inline GraphQL::executeAndReturnResult and pass promise adapter to executor constructor directly
+            $promiseAdapter = Executor::getPromiseAdapter();
+            Executor::setPromiseAdapter($this->promiseAdapter);
+        }
+
         $result = GraphQL::executeAndReturnResult(
             $this->getSchema(),
             $query,
@@ -490,6 +497,10 @@ class Server
             $variables,
             $operationName
         );
+
+        if (isset($promiseAdapter)) {
+            Executor::setPromiseAdapter($promiseAdapter);
+        }
 
         // Add details about original exception in error entry (if any)
         if ($this->debug & static::DEBUG_EXCEPTIONS) {
