@@ -509,7 +509,11 @@ class ServerTest extends \PHPUnit_Framework_TestCase
 
     public function testHandleRequest()
     {
-        $mock = $this->getMock('GraphQL\Server', ['readInput', 'produceOutput']);
+        $mock = $this->getMockBuilder('GraphQL\Server')
+            ->setMethods(['readInput', 'produceOutput'])
+            ->getMock()
+        ;
+
         $mock->method('readInput')
             ->will($this->returnValue(json_encode(['query' => '{err}'])));
 
