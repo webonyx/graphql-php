@@ -400,6 +400,9 @@ class Server
     }
 
     /**
+     * EXPERIMENTAL!
+     * This method can be removed or changed in future versions without a prior notice.
+     *
      * @return Resolution
      */
     public function getTypeResolutionStrategy()
@@ -408,6 +411,9 @@ class Server
     }
 
     /**
+     * EXPERIMENTAL!
+     * This method can be removed or changed in future versions without a prior notice.
+     *
      * @param Resolution $typeResolutionStrategy
      * @return Server
      */

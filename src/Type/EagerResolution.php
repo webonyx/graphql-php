@@ -11,6 +11,13 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils;
 
+/**
+ * EXPERIMENTAL!
+ * This class can be removed or changed in future versions without a prior notice.
+ *
+ * Class EagerResolution
+ * @package GraphQL\Type
+ */
 class EagerResolution implements Resolution
 {
     /**

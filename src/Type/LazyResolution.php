@@ -7,6 +7,13 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils;
 
+/**
+ * EXPERIMENTAL!
+ * This class can be removed or changed in future versions without a prior notice.
+ *
+ * Class LazyResolution
+ * @package GraphQL\Type
+ */
 class LazyResolution implements Resolution
 {
     /**

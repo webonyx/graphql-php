@@ -5,6 +5,13 @@ use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
+/**
+ * EXPERIMENTAL!
+ * This interface can be removed or changed in future versions without a prior notice.
+ *
+ * Interface Resolution
+ * @package GraphQL\Type
+ */
 interface Resolution
 {
     /**
