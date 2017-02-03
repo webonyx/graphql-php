@@ -22,4 +22,9 @@ class UnionTypeDefinitionNode extends Node implements TypeDefinitionNode
      * @var NamedTypeNode[]
      */
     public $types = [];
+
+    /**
+     * @var string
+     */
+    public $description;
 }

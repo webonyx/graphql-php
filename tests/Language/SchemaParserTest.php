@@ -54,7 +54,8 @@ type Hello {
                             $loc(16, 29)
                         )
                     ],
-                    'loc' => $loc(1, 31)
+                    'loc' => $loc(1, 31),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 31)
@@ -93,7 +94,8 @@ extend type Hello {
                                 $loc(23, 36)
                             )
                         ],
-                        'loc' => $loc(8, 38)
+                        'loc' => $loc(8, 38),
+                        'description' => null
                     ],
                     'loc' => $loc(1, 38)
                 ]
@@ -136,7 +138,8 @@ type Hello {
                             $loc(16,30)
                         )
                     ],
-                    'loc' => $loc(1,32)
+                    'loc' => $loc(1,32),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0,32)
@@ -165,7 +168,8 @@ type Hello {
                     ],
                     'directives' => [],
                     'fields' => [],
-                    'loc' => $loc(0,31)
+                    'loc' => $loc(0,31),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0,31)
@@ -195,7 +199,8 @@ type Hello {
                     ],
                     'directives' => [],
                     'fields' => [],
-                    'loc' => $loc(0, 33)
+                    'loc' => $loc(0, 33),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 33)
@@ -221,7 +226,8 @@ type Hello {
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'directives' => [],
                     'values' => [$this->enumValueNode('WORLD', $loc(13, 18))],
-                    'loc' => $loc(0, 20)
+                    'loc' => $loc(0, 20),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 20)
@@ -250,7 +256,8 @@ type Hello {
                         $this->enumValueNode('WO', $loc(13, 15)),
                         $this->enumValueNode('RLD', $loc(17, 20))
                     ],
-                    'loc' => $loc(0, 22)
+                    'loc' => $loc(0, 22),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 22)
@@ -285,7 +292,8 @@ interface Hello {
                             $loc(21, 34)
                         )
                     ],
-                    'loc' => $loc(1, 36)
+                    'loc' => $loc(1, 36),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0,36)
@@ -328,7 +336,8 @@ type Hello {
                             $loc(16, 44)
                         )
                     ],
-                    'loc' => $loc(1, 46)
+                    'loc' => $loc(1, 46),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 46)
@@ -372,7 +381,8 @@ type Hello {
                             $loc(16, 51)
                         )
                     ],
-                    'loc' => $loc(1, 53)
+                    'loc' => $loc(1, 53),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 53)
@@ -415,7 +425,8 @@ type Hello {
                             $loc(16, 47)
                         )
                     ],
-                    'loc' => $loc(1, 49)
+                    'loc' => $loc(1, 49),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 49)
@@ -465,7 +476,8 @@ type Hello {
                             $loc(16, 59)
                         )
                     ],
-                    'loc' => $loc(1, 61)
+                    'loc' => $loc(1, 61),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 61)
@@ -490,7 +502,8 @@ type Hello {
                     'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'directives' => [],
                     'types' => [$this->typeNode('World', $loc(14, 19))],
-                    'loc' => $loc(0, 19)
+                    'loc' => $loc(0, 19),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 19)
@@ -519,7 +532,8 @@ type Hello {
                         $this->typeNode('Wo', $loc(14, 16)),
                         $this->typeNode('Rld', $loc(19, 22))
                     ],
-                    'loc' => $loc(0, 22)
+                    'loc' => $loc(0, 22),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 22)
@@ -542,7 +556,8 @@ type Hello {
                     'kind' => NodeKind::SCALAR_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(7, 12)),
                     'directives' => [],
-                    'loc' => $loc(0, 12)
+                    'loc' => $loc(0, 12),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 12)
@@ -577,7 +592,8 @@ input Hello {
                             $loc(17, 30)
                         )
                     ],
-                    'loc' => $loc(1, 32)
+                    'loc' => $loc(1, 32),
+                    'description' => null
                 ]
             ],
             'loc' => $loc(0, 32)
@@ -629,7 +645,8 @@ input Hello {
             'arguments' => $args,
             'type' => $type,
             'directives' => [],
-            'loc' => $loc
+            'loc' => $loc,
+            'description' => null
         ];
     }
 
@@ -639,7 +656,8 @@ input Hello {
             'kind' => NodeKind::ENUM_VALUE_DEFINITION,
             'name' => $this->nameNode($name, $loc),
             'directives' => [],
-            'loc' => $loc
+            'loc' => $loc,
+            'description' => null
         ];
     }
 
@@ -651,7 +669,8 @@ input Hello {
             'type' => $type,
             'defaultValue' => $defaultValue,
             'directives' => [],
-            'loc' => $loc
+            'loc' => $loc,
+            'description' => null
         ];
     }
 }

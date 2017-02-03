@@ -22,4 +22,9 @@ class InputObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
      * @var InputValueDefinitionNode[]
      */
     public $fields;
+
+    /**
+     * @var string
+     */
+    public $description;
 }
