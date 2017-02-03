@@ -910,10 +910,13 @@ class Parser
         $name = $this->parseName();
         $directives = $this->parseDirectives();
 
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
+
         return new ScalarTypeDefinitionNode([
             'name' => $name,
             'directives' => $directives,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -935,12 +938,15 @@ class Parser
             Token::BRACE_R
         );
 
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
+
         return new ObjectTypeDefinitionNode([
             'name' => $name,
             'interfaces' => $interfaces,
             'directives' => $directives,
             'fields' => $fields,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -972,12 +978,15 @@ class Parser
         $type = $this->parseTypeReference();
         $directives = $this->parseDirectives();
 
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
+
         return new FieldDefinitionNode([
             'name' => $name,
             'arguments' => $args,
             'type' => $type,
             'directives' => $directives,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -1007,12 +1016,14 @@ class Parser
             $defaultValue = $this->parseConstValue();
         }
         $directives = $this->parseDirectives();
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
         return new InputValueDefinitionNode([
             'name' => $name,
             'type' => $type,
             'defaultValue' => $defaultValue,
             'directives' => $directives,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -1032,11 +1043,14 @@ class Parser
             Token::BRACE_R
         );
 
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
+
         return new InterfaceTypeDefinitionNode([
             'name' => $name,
             'directives' => $directives,
             'fields' => $fields,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -1053,11 +1067,14 @@ class Parser
         $this->expect(Token::EQUALS);
         $types = $this->parseUnionMembers();
 
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
+
         return new UnionTypeDefinitionNode([
             'name' => $name,
             'directives' => $directives,
             'types' => $types,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -1093,11 +1110,14 @@ class Parser
             Token::BRACE_R
         );
 
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
+
         return new EnumTypeDefinitionNode([
             'name' => $name,
             'directives' => $directives,
             'values' => $values,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -1110,10 +1130,13 @@ class Parser
         $name = $this->parseName();
         $directives = $this->parseDirectives();
 
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
+
         return new EnumValueDefinitionNode([
             'name' => $name,
             'directives' => $directives,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -1133,11 +1156,14 @@ class Parser
             Token::BRACE_R
         );
 
+        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
+
         return new InputObjectTypeDefinitionNode([
             'name' => $name,
             'directives' => $directives,
             'fields' => $fields,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -1192,5 +1218,29 @@ class Parser
             $locations[] = $this->parseName();
         } while ($this->skip(Token::PIPE));
         return $locations;
+    }
+
+    /**
+     * @param Token $nameToken
+     * @return null|string
+     */
+    private function getDescriptionFromAdjacentCommentTokens(Token $nameToken)
+    {
+        $description = null;
+
+        $currentToken = $nameToken;
+        $previousToken = $currentToken->prev;
+
+        while ($previousToken->kind == Token::COMMENT
+            && ($previousToken->line + 1) == $currentToken->line
+        ) {
+            $description = $previousToken->value . $description;
+
+            // walk the tokens backwards until no longer adjacent comments
+            $currentToken = $previousToken;
+            $previousToken = $currentToken->prev;
+        }
+
+        return $description;
     }
 }
