@@ -614,6 +614,47 @@ input Hello {
         Parser::parse($body);
     }
 
+    /**
+     * @it Simple type
+     */
+    public function testSimpleTypeDescriptionInComments()
+    {
+        $body = '
+# This is a simple type description.
+# It is multiline *and includes formatting*.
+type Hello {
+  # And this is a field description
+  world: String
+}';
+        $doc = Parser::parse($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+
+        $fieldNode = $this->fieldNode(
+            $this->nameNode('world', $loc(134, 139)),
+            $this->typeNode('String', $loc(141, 147)),
+            $loc(134, 147)
+        );
+        $fieldNode['description'] = " And this is a field description\n";
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
+                    'name' => $this->nameNode('Hello', $loc(88, 93)),
+                    'interfaces' => [],
+                    'directives' => [],
+                    'fields' => [
+                        $fieldNode
+                    ],
+                    'loc' => $loc(83, 149),
+                    'description' => " This is a simple type description.\n It is multiline *and includes formatting*.\n"
+                ]
+            ],
+            'loc' => $loc(0, 149)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
     private function typeNode($name, $loc)
     {
         return [
