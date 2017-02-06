@@ -492,7 +492,7 @@ class Lexer
             $line,
             $col,
             $prev,
-            mb_substr($body, $start + 1, $position - $start + 1, 'UTF-8')
+            mb_substr($body, $start + 1, $position - $start, 'UTF-8')
         );
     }
 }
