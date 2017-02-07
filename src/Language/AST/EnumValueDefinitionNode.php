@@ -17,4 +17,9 @@ class EnumValueDefinitionNode extends Node
      * @var DirectiveNode[]
      */
     public $directives;
+
+    /**
+     * @var string
+     */
+    public $description;
 }

@@ -17,4 +17,9 @@ class ScalarTypeDefinitionNode extends Node implements TypeDefinitionNode
      * @var DirectiveNode[]
      */
     public $directives;
+
+    /**
+     * @var string
+     */
+    public $description;
 }

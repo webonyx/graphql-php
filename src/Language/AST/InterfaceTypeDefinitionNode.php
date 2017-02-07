@@ -22,4 +22,9 @@ class InterfaceTypeDefinitionNode extends Node implements TypeDefinitionNode
      * @var FieldDefinitionNode[]
      */
     public $fields = [];
+
+    /**
+     * @var string
+     */
+    public $description;
 }

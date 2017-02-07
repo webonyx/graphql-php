@@ -27,4 +27,9 @@ class FieldDefinitionNode extends Node
      * @var DirectiveNode[]
      */
     public $directives;
+
+    /**
+     * @var string
+     */
+    public $description;
 }

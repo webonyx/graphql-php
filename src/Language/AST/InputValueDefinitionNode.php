@@ -27,4 +27,9 @@ class InputValueDefinitionNode extends Node
      * @var DirectiveNode[]
      */
     public $directives;
+
+    /**
+     * @var string
+     */
+    public $description;
 }

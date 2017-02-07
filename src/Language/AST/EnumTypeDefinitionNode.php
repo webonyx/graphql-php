@@ -22,4 +22,9 @@ class EnumTypeDefinitionNode extends Node implements TypeDefinitionNode
      * @var EnumValueDefinitionNode[]
      */
     public $values;
+
+    /**
+     * @var string
+     */
+    public $description;
 }
