@@ -25,7 +25,7 @@ class Utils
     public static function assign($obj, array $vars, array $requiredKeys = [])
     {
         foreach ($requiredKeys as $key) {
-            if (!isset($key, $vars)) {
+            if (!isset($vars[$key])) {
                 throw new InvalidArgumentException("Key {$key} is expected to be set and not to be null");
             }
         }
