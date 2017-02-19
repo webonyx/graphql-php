@@ -235,8 +235,8 @@ EOD;
                 'description' =>
                     'A GraphQL Schema defines the capabilities of a GraphQL ' .
                     'server. It exposes all available types and directives on ' .
-                    'the server, as well as the entry points for query and ' .
-                    'mutation operations.',
+                    'the server, as well as the entry points for query, mutation, and ' .
+                    'subscription operations.',
                 'fields' => [
                     'types' => [
                         'description' => 'A list of all types supported by this server.',
@@ -288,7 +288,7 @@ EOD;
                 'name' => '__Directive',
                 'description' =>     'A Directive provides a way to describe alternate runtime execution and ' .
                     'type validation behavior in a GraphQL document.' .
-                    '\n\nIn some cases, you need to provide options to alter GraphQL’s ' .
+                    "\n\nIn some cases, you need to provide options to alter GraphQL's " .
                     'execution behavior in ways field arguments will not suffice, such as ' .
                     'conditionally including or skipping a field. Directives provide this by ' .
                     'describing additional information to the executor.',
@@ -664,7 +664,7 @@ EOD;
         if (!isset(self::$map['__TypeKind'])) {
             self::$map['__TypeKind'] = new EnumType([
                 'name' => '__TypeKind',
-                'description' => 'An enum describing what kind of type a given __Type is.',
+                'description' => 'An enum describing what kind of type a given `__Type` is.',
                 'values' => [
                     'SCALAR' => [
                         'value' => TypeKind::SCALAR,

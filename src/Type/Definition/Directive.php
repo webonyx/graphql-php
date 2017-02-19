@@ -107,7 +107,7 @@ class Directive
                         new FieldArgument([
                             'name' => 'if',
                             'type' => Type::nonNull(Type::boolean()),
-                            'description' => 'Skipped when true'
+                            'description' => 'Skipped when true.'
                         ])
                     ]
                 ]),
