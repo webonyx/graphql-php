@@ -53,11 +53,11 @@ class SchemaPrinter
     private static function isBuiltInScalar($typename)
     {
         return (
-            $typename === 'String' ||
-            $typename === 'Boolean' ||
-            $typename === 'Int' ||
-            $typename === 'Float' ||
-            $typename === 'ID'
+            $typename === Type::STRING ||
+            $typename === Type::BOOLEAN ||
+            $typename === Type::INT ||
+            $typename === Type::FLOAT ||
+            $typename === Type::ID
         );
     }
 
