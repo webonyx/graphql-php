@@ -1514,7 +1514,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                     'description' => 'A GraphQL Schema defines the capabilities of a ' .
                         'GraphQL server. It exposes all available types and ' .
                         'directives on the server, as well as the entry ' .
-                        'points for query and mutation operations.',
+                        'points for query, mutation, and subscription operations.',
                     'fields' => [
                         [
                             'name' => 'types',
@@ -1571,7 +1571,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             'data' => [
                 'typeKindType' => [
                     'name' => '__TypeKind',
-                    'description' => 'An enum describing what kind of type a given __Type is.',
+                    'description' => 'An enum describing what kind of type a given `__Type` is.',
                     'enumValues' => [
                         [
                             'description' => 'Indicates this type is a scalar.',

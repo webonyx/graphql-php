@@ -180,6 +180,14 @@ class Utils
         return $grouped;
     }
 
+    public static function keyValMap($traversable, callable $keyFn, callable $valFn)
+    {
+        return array_reduce($traversable, function ($map, $item) use ($keyFn, $valFn) {
+            $map[$keyFn($item)] = $valFn($item);
+            return $map;
+        }, []);
+    }
+
     /**
      * @param $traversable
      * @param callable $predicate

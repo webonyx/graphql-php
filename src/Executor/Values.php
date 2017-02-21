@@ -94,7 +94,7 @@ class Values
      * @return array
      * @throws Error
      */
-    public static function getArgumentValues($def, $node, $variableValues)
+    public static function getArgumentValues($def, $node, $variableValues = null)
     {
         $argDefs = $def->args;
         $argNodes = $node->arguments;
