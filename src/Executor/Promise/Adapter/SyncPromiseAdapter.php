@@ -96,6 +96,7 @@ class SyncPromiseAdapter implements PromiseAdapter
 
         foreach ($promisesOrValues as $index => $promiseOrValue) {
             if ($promiseOrValue instanceof Promise) {
+                $result[$index] = null;
                 $promiseOrValue->then(
                     function($value) use ($index, &$count, $total, &$result, $all) {
                         $result[$index] = $value;
