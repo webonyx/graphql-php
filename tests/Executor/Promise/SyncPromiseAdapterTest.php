@@ -186,18 +186,18 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
             }
         );
 
-        $this->assertEquals($onFulfilledCalled, false);
-        $this->assertEquals($onRejectedCalled, false);
+        $this->assertSame($onFulfilledCalled, false);
+        $this->assertSame($onRejectedCalled, false);
 
         SyncPromise::runQueue();
 
         if ($expectedNextState !== SyncPromise::PENDING) {
-            $this->assertEquals(!$expectedNextReason, $onFulfilledCalled);
-            $this->assertEquals(!!$expectedNextReason, $onRejectedCalled);
+            $this->assertSame(!$expectedNextReason, $onFulfilledCalled);
+            $this->assertSame(!!$expectedNextReason, $onRejectedCalled);
         }
 
-        $this->assertEquals($expectedNextValue, $actualNextValue);
-        $this->assertEquals($expectedNextReason, $actualNextReason);
-        $this->assertEquals($expectedNextState, $promise->adoptedPromise->state);
+        $this->assertSame($expectedNextValue, $actualNextValue);
+        $this->assertSame($expectedNextReason, $actualNextReason);
+        $this->assertSame($expectedNextState, $promise->adoptedPromise->state);
     }
 }
