@@ -18,7 +18,7 @@ class GraphQL
 {
     /**
      * @param Schema $schema
-     * @param $requestString
+     * @param string|DocumentNode $requestString
      * @param mixed $rootValue
      * @param array|null $variableValues
      * @param string|null $operationName
@@ -41,7 +41,7 @@ class GraphQL
 
     /**
      * @param Schema $schema
-     * @param $requestString
+     * @param string|DocumentNode $requestString
      * @param null $rootValue
      * @param null $variableValues
      * @param null $operationName

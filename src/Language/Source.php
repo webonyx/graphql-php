@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Language;
 
+use GraphQL\Utils;
+
 class Source
 {
     /**
@@ -20,6 +22,11 @@ class Source
 
     public function __construct($body, $name = null)
     {
+        Utils::invariant(
+            is_string($body),
+            'GraphQL query body is expected to be string, but got ' . Utils::getVariableType($body)
+        );
+
         $this->body = $body;
         $this->length = mb_strlen($body, 'UTF-8');
         $this->name = $name ?: 'GraphQL';
