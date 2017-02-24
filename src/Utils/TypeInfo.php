@@ -20,6 +20,8 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils;
 
@@ -160,6 +162,66 @@ class TypeInfo
 
         Utils::invariant($inputTypeNode && $inputTypeNode instanceof NamedTypeNode, 'Must be a named type');
         return $schema->getType($inputTypeNode->name->value);
+    }
+
+    /**
+     * Given root type scans through all fields to find nested types. Returns array where keys are for type name
+     * and value contains corresponding type instance.
+     *
+     * Example output:
+     * [
+     *     'String' => $instanceOfStringType,
+     *     'MyType' => $instanceOfMyType,
+     *     ...
+     * ]
+     *
+     * @param Type $type
+     * @param array|null $typeMap
+     * @return array
+     */
+    public static function extractTypes($type, array $typeMap = null)
+    {
+        if (!$typeMap) {
+            $typeMap = [];
+        }
+        if (!$type) {
+            return $typeMap;
+        }
+
+        if ($type instanceof WrappingType) {
+            return self::extractTypes($type->getWrappedType(true), $typeMap);
+        }
+
+        if (!empty($typeMap[$type->name])) {
+            Utils::invariant(
+                $typeMap[$type->name] === $type,
+                "Schema must contain unique named types but contains multiple types named \"$type\"."
+            );
+            return $typeMap;
+        }
+        $typeMap[$type->name] = $type;
+
+        $nestedTypes = [];
+
+        if ($type instanceof UnionType) {
+            $nestedTypes = $type->getTypes();
+        }
+        if ($type instanceof ObjectType) {
+            $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
+        }
+        if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {
+            foreach ((array) $type->getFields() as $fieldName => $field) {
+                if (isset($field->args)) {
+                    $fieldArgTypes = array_map(function(FieldArgument $arg) { return $arg->getType(); }, $field->args);
+                    $nestedTypes = array_merge($nestedTypes, $fieldArgTypes);
+                }
+                $nestedTypes[] = $field->getType();
+            }
+        }
+        foreach ($nestedTypes as $type) {
+            $typeMap = self::extractTypes($type, $typeMap);
+        }
+        return $typeMap;
     }
 
     /**
