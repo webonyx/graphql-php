@@ -311,10 +311,12 @@ class Server
      * Expects function(\ErrorException $e) : array
      *
      * @param callable $phpErrorFormatter
+     * @return $this
      */
     public function setPhpErrorFormatter(callable $phpErrorFormatter)
     {
         $this->phpErrorFormatter = $phpErrorFormatter;
+        return $this;
     }
 
     /**
@@ -329,10 +331,12 @@ class Server
      * Expects function(Exception $e) : array
      *
      * @param callable $exceptionFormatter
+     * @return $this
      */
     public function setExceptionFormatter(callable $exceptionFormatter)
     {
         $this->exceptionFormatter = $exceptionFormatter;
+        return $this;
     }
 
     /**
@@ -345,10 +349,12 @@ class Server
 
     /**
      * @param string $unexpectedErrorMessage
+     * @return $this
      */
     public function setUnexpectedErrorMessage($unexpectedErrorMessage)
     {
         $this->unexpectedErrorMessage = $unexpectedErrorMessage;
+        return $this;
     }
 
     /**
@@ -361,10 +367,12 @@ class Server
 
     /**
      * @param int $unexpectedErrorStatus
+     * @return $this
      */
     public function setUnexpectedErrorStatus($unexpectedErrorStatus)
     {
         $this->unexpectedErrorStatus = $unexpectedErrorStatus;
+        return $this;
     }
 
     /**
@@ -528,8 +536,13 @@ class Server
             if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
                 $raw = $this->readInput();
                 $data = json_decode($raw, true);
+
+                Utils::invariant(
+                    is_array($data),
+                    "GraphQL Server expects JSON object with keys 'query' and 'variables', but got " . Utils::getVariableType($data)
+                );
             } else {
-                $data = $_REQUEST;
+                $data = $_REQUEST ?: [];
             }
             $data += ['query' => null, 'variables' => null];
             $result = $this->executeQuery($data['query'], (array) $data['variables'])->toArray();
