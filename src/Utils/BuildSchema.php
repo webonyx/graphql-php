@@ -15,6 +15,7 @@ use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
+use GraphQL\Language\Source;
 use GraphQL\Language\Token;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
@@ -221,7 +222,7 @@ class BuildSchema
             $directives[] = Directive::deprecatedDirective();
         }
 
-        return new Schema([
+        $schema = new Schema([
             'query' => $this->getObjectType($this->nodeMap[$queryTypeName]),
             'mutation' => $mutationTypeName ?
                 $this->getObjectType($this->nodeMap[$mutationTypeName]) :
@@ -232,6 +233,12 @@ class BuildSchema
             'types' => $types,
             'directives' => $directives,
         ]);
+
+        // Types in schema are loaded lazily, but we need full scan to ensure that schema is consistent
+        // Following statement will force Schema to scan all types and fields:
+        // TODO: replace this call with schema validator once it's ready
+        $schema->getTypeMap();
+        return $schema;
     }
 
     private function getDirective(DirectiveDefinitionNode $directiveNode)
@@ -508,7 +515,7 @@ class BuildSchema
      * document.
      * 
      * @param Source|string $source
-     * @return
+     * @return Schema
      */
     public static function build($source)
     {

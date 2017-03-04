@@ -5,6 +5,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
+use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
@@ -16,6 +17,7 @@ use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -974,6 +976,16 @@ class Executor
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
 
         if (null === $runtimeType) {
+            if ($returnType instanceof InterfaceType && !$exeContext->schema->getConfig()->descriptor &&
+                !GraphQL::isIgnoredError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION)) {
+                trigger_error(
+                    "GraphQL Interface Type `{$returnType->name}` returned `null` from it`s `resolveType` function ".
+                    'for value: ' . Utils::printSafe($result) . '. Switching to slow resolution method using `isTypeOf` ' .
+                    'of all possible implementations. It degrades query performance significantly. '.
+                    ' Make sure your `resolveType` always returns valid implementation or throws.',
+                    E_USER_WARNING
+                );
+            }
             $runtimeType = self::inferTypeOf($result, $exeContext->contextValue, $info, $returnType);
         }
 
