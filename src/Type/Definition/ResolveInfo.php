@@ -5,8 +5,8 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Language\AST\SelectionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Schema;
 use GraphQL\Utils;
@@ -138,6 +138,8 @@ class ResolveInfo
                     $fragment = $this->fragments[$spreadName];
                     $fields += $this->foldSelectionSet($fragment->selectionSet, $descend);
                 }
+            } else if ($selectionNode instanceof InlineFragmentNode) {
+                $fields += $this->foldSelectionSet($selectionNode->selectionSet, $descend);
             }
         }
 

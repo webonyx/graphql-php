@@ -71,6 +71,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
             image {
                 width
                 height
+                ...MyImage
             }
             replies {
                 body
@@ -80,6 +81,9 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
                     pic {
                         url
                         width
+                        ... on Image {
+                            height
+                        }
                     }
                     recentArticle {
                         id
@@ -89,6 +93,9 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
                 }
             }
         }
+      }
+      fragment MyImage on Image {
+        url
       }
 ';
         $expectedDefaultSelection = [
@@ -106,7 +113,8 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
             ],
             'image' => [
                 'width' => true,
-                'height' => true
+                'height' => true,
+                'url' => true
             ],
             'replies' => [
                 'body' => true,
@@ -115,7 +123,8 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
                     'name' => true,
                     'pic' => [
                         'url' => true,
-                        'width' => true
+                        'width' => true,
+                        'height' => true
                     ],
                     'recentArticle' => [
                         'id' => true,
