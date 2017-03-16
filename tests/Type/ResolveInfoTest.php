@@ -236,12 +236,12 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
       }
       
       fragment Replies01 on article {
-        _replies01: replies {
+        _replies012: replies {
             body
         }
       }
       fragment Replies02 on article {
-        _replies02: replies {            
+        _replies012: replies {            
             author {
                 id
                 name
@@ -279,7 +279,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
                 'height' => true,
                 'url' => true
             ],
-            'replies' => [
+            '_replies02' => [
                 'body' => true, //this would be missing if not for the fix https://github.com/webonyx/graphql-php/pull/98
                 'author' => [
                     'id' => true,
@@ -325,4 +325,6 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedDefaultSelection, $actualDefaultSelection);
         $this->assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
+
+
 }
