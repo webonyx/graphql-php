@@ -236,12 +236,12 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
       }
       
       fragment Replies01 on article {
-        replies {
+        _replies01: replies {
             body
         }
       }
       fragment Replies02 on article {
-        replies {            
+        _replies02: replies {            
             author {
                 id
                 name
