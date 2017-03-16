@@ -261,11 +261,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
         }
        }
 ';
-        $expectedDefaultSelection = [
-            'author' => true,
-            'image' => true,
-            'replies' => true
-        ];
+
         $expectedDeepSelection = [
             'author' => [
                 'name' => true,
@@ -279,7 +275,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
                 'height' => true,
                 'url' => true
             ],
-            '_replies02' => [
+            'replies' => [
                 'body' => true, //this would be missing if not for the fix https://github.com/webonyx/graphql-php/pull/98
                 'author' => [
                     'id' => true,
@@ -307,9 +303,8 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'article' => [
                     'type' => $article,
-                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDefaultSelection, &$actualDeepSelection) {
+                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDeepSelection) {
                         $hasCalled = true;
-                        $actualDefaultSelection = $info->getFieldSelection();
                         $actualDeepSelection = $info->getFieldSelection(5);
                         return null;
                     }
@@ -322,7 +317,6 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($hasCalled);
         $this->assertEquals(['data' => ['article' => null]], $result);
-        $this->assertEquals($expectedDefaultSelection, $actualDefaultSelection);
         $this->assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
 
