@@ -4,18 +4,11 @@ first learn about  GraphQL on [official website](http://graphql.org/learn/).
 
 # Installation
 
-Using [composer](https://getcomposer.org/doc/00-intro.md):
-add `composer.json` file to your project root folder with following contents:
-```
-{
-    "require": {
-        "webonyx/graphql-php": "^0.9"
-    }
-}
-```
-and run `composer install`. 
+Using [composer](https://getcomposer.org/doc/00-intro.md), simply run:
 
-If you already have composer.json file - simply run: `composer require webonyx/graphql-php="^0.9"`
+```sh
+composer require webonyx/graphql-php
+```
 
 # Upgrading
 We try to keep library releases backwards compatible. But when breaking changes are inevitable 
