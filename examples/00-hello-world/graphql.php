@@ -48,9 +48,12 @@ try {
     ]);
 
     $rawInput = file_get_contents('php://input');
+    $input = json_decode($rawInput, true);
+    $query = $input['query'];
+    $variableValues = isset($input['variables']) ? $input['variables'] : null;
 
     $rootValue = ['prefix' => 'You said: '];
-    $result = GraphQL::execute($schema, $rawInput, $rootValue);
+    $result = GraphQL::execute($schema, $query, $rootValue, null, $variableValues);
 } catch (\Exception $e) {
     $result = [
         'error' => [
