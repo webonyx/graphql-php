@@ -82,10 +82,13 @@ $schema = new Schema([
 ]);
 
 $rawInput = file_get_contents('php://input');
+$input = json_decode($rawInput, true);
+$query = $input['query'];
+$variableValues = isset($input['variables']) ? $input['variables'] : null;
 
 try {
     $rootValue = ['prefix' => 'You said: '];
-    $result = GraphQL::execute($schema, $rawInput, $rootValue);
+    $result = GraphQL::execute($schema, $query, $rootValue, null, $variableValues);
 } catch (\Exception $e) {
     $result = [
         'error' => [
@@ -100,7 +103,7 @@ echo json_encode($result);
 Our example is ready. Try it by running:
 ```sh
 php -S localhost:8000 graphql.php
-curl http://localhost:8000 -d "query { echo(message: \"Hello World\") }"
+curl http://localhost:8000 -d '{"query": "query { echo(message: \"Hello World\") }" }'
 ```
 
 Check out the full [source code](https://github.com/webonyx/graphql-php/blob/master/examples/00-hello-world) of this example.
