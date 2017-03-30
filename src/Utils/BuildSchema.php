@@ -29,6 +29,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils;
+use Opis\Closure\SerializableClosure;
 
 /**
  * Class BuildSchema
@@ -338,8 +339,8 @@ class BuildSchema
         return new ObjectType([
             'name' => $typeName,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeFieldDefMap($def); },
-            'interfaces' => function() use ($def) { return $this->makeImplementedInterfaces($def); }
+            'fields' => new SerializableClosure(function() use ($def) { return $this->makeFieldDefMap($def); }),
+            'interfaces' => new SerializableClosure(function() use ($def) { return $this->makeImplementedInterfaces($def); })
         ]);
     }
 
@@ -394,7 +395,7 @@ class BuildSchema
         return new InterfaceType([
             'name' => $typeName,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeFieldDefMap($def); },
+            'fields' => new SerializableClosure(function() use ($def) { return $this->makeFieldDefMap($def); }),
             'resolveType' => [$this, 'cannotExecuteSchema']
         ]);
     }
@@ -434,13 +435,13 @@ class BuildSchema
         return new CustomScalarType([
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'serialize' => function() { return false; },
+            'serialize' => new SerializableClosure(function() { return false; }),
             // Note: validation calls the parse functions to determine if a
             // literal value is correct. Returning null would cause use of custom
             // scalars to always fail validation. Returning false causes them to
             // always pass validation.
-            'parseValue' => function() { return false; },
-            'parseLiteral' => function() { return false; }
+            'parseValue' => new SerializableClosure(function() { return false; }),
+            'parseLiteral' => new SerializableClosure(function() { return false; })
         ]);
     }
 
@@ -449,7 +450,7 @@ class BuildSchema
         return new InputObjectType([
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeInputValues($def->fields); }
+            'fields' => new SerializableClosure(function() use ($def) { return $this->makeInputValues($def->fields); })
         ]);
     }
 
