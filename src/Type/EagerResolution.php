@@ -53,6 +53,15 @@ class EagerResolution implements Resolution
     }
 
     /**
+     * @param Type $type
+     */
+    public function addType($type)
+    {
+        $typeMap = Utils\TypeInfo::extractTypes($type);
+        $this->typeMap = array_merge($this->typeMap, $typeMap);
+    }
+
+    /**
      * @inheritdoc
      */
     public function resolveType($name)

@@ -133,6 +133,11 @@ class Schema
         $this->typeResolutionStrategy = $config['typeResolution'] ?: $this->getEagerTypeResolutionStrategy();
     }
 
+    public function __wakeup()
+    {
+        $this->eagerTypeResolutionStrategy->addType(Introspection::_schema());
+    }
+
     /**
      * @return ObjectType
      */
