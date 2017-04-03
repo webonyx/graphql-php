@@ -62,7 +62,7 @@ class TypeInfo
     static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
     {
         // Equivalent type is a valid subtype
-        if ($maybeSubType === $superType) {
+        if ($maybeSubType == $superType) {
             return true;
         }
 
