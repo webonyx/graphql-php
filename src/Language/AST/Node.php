@@ -81,22 +81,26 @@ abstract class Node
      */
     public function __toString()
     {
-        $tmp = $this->toArray();
+        $tmp = $this->toArray(true);
         return json_encode($tmp);
     }
 
     /**
+     * @param bool $recursive
      * @return array
      */
-    public function toArray()
+    public function toArray($recursive = false)
     {
         $tmp = (array) $this;
+
         $tmp['loc'] = [
             'start' => $this->loc->start,
             'end' => $this->loc->end
         ];
 
-        $this->recursiveToArray($tmp);
+        if ($recursive) {
+            $this->recursiveToArray($tmp);
+        }
 
         return $tmp;
     }
@@ -108,7 +112,7 @@ abstract class Node
     {
         if ($object instanceof Node) {
             /** @var Node $object */
-            $object = $object->toArray();
+            $object = $object->toArray(true);
         } elseif (is_object($object)) {
             $object = (array) $object;
         } elseif (is_array($object)) {
