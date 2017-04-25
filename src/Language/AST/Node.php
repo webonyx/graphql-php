@@ -82,11 +82,6 @@ abstract class Node
     public function __toString()
     {
         $tmp = $this->toArray();
-        $tmp['loc'] = [
-            'start' => $this->loc->start,
-            'end' => $this->loc->end
-        ];
-
         return json_encode($tmp);
     }
 
