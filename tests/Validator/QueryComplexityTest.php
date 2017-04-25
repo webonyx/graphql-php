@@ -86,6 +86,54 @@ class QueryComplexityTest extends AbstractQuerySecurityTest
         $this->assertDocumentValidators($query, 3, 4);
     }
 
+    public function testQueryWithEnabledIncludeDirectives()
+    {
+        $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withDogs' => true]);
+
+        $this->assertDocumentValidators($query, 3, 4);
+    }
+
+    public function testQueryWithDisabledIncludeDirectives()
+    {
+        $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withDogs' => false]);
+
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
+    public function testQueryWithEnabledSkipDirectives()
+    {
+        $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if:$withoutDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withoutDogs' => true]);
+
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
+    public function testQueryWithDisabledSkipDirectives()
+    {
+        $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if:$withoutDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withoutDogs' => false]);
+
+        $this->assertDocumentValidators($query, 3, 4);
+    }
+
+    public function testQueryWithMultipleDirectives()
+    {
+        $query = 'query MyQuery($withDogs: Boolean!, $withoutDogName: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name @skip(if:$withoutDogName) } } }';
+
+        $this->getRule()->setRawVariableValues([
+            'withDogs' => true,
+            'withoutDogName' => true
+        ]);
+
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
     public function testComplexityIntrospectionQuery()
     {
         $this->assertIntrospectionQuery(181);
