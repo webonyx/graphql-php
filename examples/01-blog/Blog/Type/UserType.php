@@ -45,10 +45,12 @@ class UserType extends ObjectType
                 Types::node()
             ],
             'resolveField' => function($value, $args, $context, ResolveInfo $info) {
-                if (method_exists($this, $info->fieldName)) {
-                    return $this->{$info->fieldName}($value, $args, $context, $info);
-                } else {
-                    return $value->{$info->fieldName};
+                $resolvers = array_diff(get_class_methods(static::class), get_class_methods(get_parent_class()));
+                if (in_array($resolvers, $info->fieldName)) {
+                  return $this->{$info->fieldName}($value, $args, $context, $info);
+                }
+                else {
+                  return $value->{$info->fieldName};
                 }
             }
         ];
