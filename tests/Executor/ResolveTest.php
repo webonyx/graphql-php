@@ -61,6 +61,30 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it default function calls callables
+     */
+    public function testDefaultFunctionCallsCallables()
+    {
+        $schema = $this->buildSchema(['type' => Type::string()]);
+        $_secret = 'secretValue' . uniqid();
+
+        $source = [
+            'test' => new class($_secret) {
+                public function __construct($_secret) {
+                    $this->_secret = $_secret;
+                }
+                public function __invoke() {
+                    return $this->_secret;
+                }
+            }
+        ];
+        $this->assertEquals(
+            ['data' => ['test' => $_secret]],
+            GraphQL::execute($schema, '{ test }', $source)
+        );
+    }
+
+    /**
      * @it default function passes args and context
      */
     public function testDefaultFunctionPassesArgsAndContext()
