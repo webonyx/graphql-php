@@ -69,14 +69,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
         $_secret = 'secretValue' . uniqid();
 
         $source = [
-            'test' => new class($_secret) {
-                public function __construct($_secret) {
-                    $this->_secret = $_secret;
-                }
-                public function __invoke() {
-                    return $this->_secret;
-                }
-            }
+            'test' => new ResolveTestCallableFixture($_secret)
         ];
         $this->assertEquals(
             ['data' => ['test' => $_secret]],
@@ -137,5 +130,20 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
             ['data' => ['test' => '["Source!",{"aStr":"String!","aInt":-123}]']],
             GraphQL::execute($schema, '{ test(aInt: -123, aStr: "String!") }', 'Source!')
         );
+    }
+}
+
+class ResolveTestCallableFixture
+{
+    private $value;
+
+    public function __construct($value)
+    {
+        $this->value = $value;
+    }
+
+    public function __invoke($root, $args, $context)
+    {
+        return $this->value;
     }
 }
