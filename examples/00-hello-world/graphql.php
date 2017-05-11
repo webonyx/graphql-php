@@ -1,8 +1,8 @@
 <?php
 // Test this using following command
 // php -S localhost:8080 ./graphql.php &
-// curl http://localhost:8080 -d "query { echo(message: \"Hello\") }"
-// curl http://localhost:8080 -d "mutation { sum(x: 2, y: 2) }"
+// curl http://localhost:8080 -d '{"query": "query { echo(message: \"Hello World\") }" }'
+// curl http://localhost:8080 -d '{"query": "mutation { sum(x: 2, y: 2) }" }'
 require_once __DIR__ . '/../../vendor/autoload.php';
 
 use GraphQL\Type\Definition\ObjectType;
