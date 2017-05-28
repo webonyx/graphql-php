@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\UserError;
 use GraphQL\Utils;
 
 
@@ -127,7 +128,7 @@ class ObjectType extends Type implements OutputType, CompositeType
             $this->getFields();
         }
         if (!isset($this->fields[$name])) {
-            throw new InvariantViolation(sprintf("Field '%s' is not defined for type '%s'", $name, $this->name));
+            throw new UserError(sprintf("Field '%s' is not defined for type '%s'", $name, $this->name));
         }
         return $this->fields[$name];
     }
@@ -145,7 +146,7 @@ class ObjectType extends Type implements OutputType, CompositeType
             foreach ($interfaces as $iface) {
                 $iface = Type::resolve($iface);
                 if (!$iface instanceof InterfaceType) {
-                    throw new InvariantViolation("Expecting interface type, got " . Utils::printSafe($iface));
+                    throw new InvariantViolation(sprintf('Expecting interface type, got %s', Utils::printSafe($iface)));
                 }
                 $this->interfaces[] = $iface;
             }
