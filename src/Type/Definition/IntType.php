@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\UserError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Utils;
@@ -57,7 +57,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     private function coerceInt($value)
     {
         if ($value === '') {
-            throw new InvariantViolation(
+            throw new UserError(
                 'Int cannot represent non 32-bit signed integer value: (empty string)'
             );
         }
@@ -67,8 +67,8 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         if (is_numeric($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
             return (int) $value;
         }
-        throw new InvariantViolation(
-            'Int cannot represent non 32-bit signed integer value: ' . Utils::printSafe($value)
+        throw new UserError(
+            sprintf('Int cannot represent non 32-bit signed integer value: %s', Utils::printSafe($value))
         );
     }
 
