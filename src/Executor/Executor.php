@@ -985,7 +985,7 @@ class Executor
         if (!($runtimeType instanceof ObjectType)) {
             throw new Error(
                 "Abstract type {$returnType} must resolve to an Object type at runtime " .
-                "for field {$info->parentType}.{$info->fieldName} with value \"" . print_r($result, true) . "\"," .
+                "for field {$info->parentType}.{$info->fieldName} with value: " . Utils::printSafe($result) . "," .
                 "received \"$runtimeType\".",
                 $fieldNodes
             );
