@@ -28,7 +28,7 @@ install:
     - composer install --dev --prefer-dist
     - composer require react/promise:2.*
 
-script: if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then phpunit --coverage-clover build/logs/clover.xml --group default,ReactPromise; else phpunit --group default,ReactPromise; fi
+script: if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then bin/phpunit --coverage-clover build/logs/clover.xml --group default,ReactPromise; else bin/phpunit --group default,ReactPromise; fi
 
 after_success:
     - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then composer require "satooshi/php-coveralls:^1.0" && travis_retry php bin/coveralls -v; fi
