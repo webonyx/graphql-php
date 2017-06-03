@@ -67,7 +67,7 @@ values as specified by
     public function parseLiteral($ast)
     {
         if ($ast instanceof FloatValueNode || $ast instanceof IntValueNode) {
-            return (float) $ast->value;
+            return is_numeric($ast->value) ? (float) $ast->value : null;
         }
         return null;
     }
