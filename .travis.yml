@@ -1,5 +1,8 @@
 language: php
 
+# Required for HHVM, see https://github.com/travis-ci/travis-ci/issues/7712
+dist: trusty
+
 php:
     - 5.4
     - 5.5
@@ -9,8 +12,9 @@ php:
     - hhvm
     - nightly
 
-allow_failures:
-    - php: nightly
+matrix:
+    allow_failures:
+        - php: nightly
 
 cache:
     directories:
