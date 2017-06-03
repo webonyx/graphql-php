@@ -1,7 +1,12 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\Parser;
+use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
+use GraphQL\Validator\ValidationContext;
 
 class QueryComplexityTest extends AbstractQuerySecurityTest
 {
@@ -147,6 +152,38 @@ class QueryComplexityTest extends AbstractQuerySecurityTest
     public function testTypeNameMetaFieldQuery()
     {
         $this->assertTypeNameMetaFieldQuery(3);
+    }
+
+    public function testSkippedWhenThereAreOtherValidationErrors()
+    {
+        $query = 'query MyQuery { human(name: INVALID_VALUE) { dogs {name} } }';
+
+        $reportedError = new Error("OtherValidatorError");
+        $otherRule = function(ValidationContext $context) use ($reportedError) {
+            return [
+                NodeKind::OPERATION_DEFINITION => [
+                    'leave' => function() use ($context, $reportedError) {
+                        $context->reportError($reportedError);
+                    }
+                ]
+            ];
+        };
+
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [$otherRule, $this->getRule(1)]
+        );
+
+        $this->assertEquals(1, count($errors));
+        $this->assertSame($reportedError, $errors[0]);
+
+        $this->setExpectedException('GraphQL\Error\Error');
+        DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [$this->getRule(1)]
+        );
     }
 
     private function assertDocumentValidators($query, $queryComplexity, $startComplexity)
