@@ -94,7 +94,9 @@ class QueryComplexity extends AbstractQuerySecurity
                 },
                 NodeKind::OPERATION_DEFINITION => [
                     'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) {
-                        if (empty($context->getErrors())) {
+                        $errors = $context->getErrors();
+
+                        if (empty($errors)) {
                             $complexity = $this->fieldComplexity($operationDefinition, $complexity);
 
                             if ($complexity > $this->getMaxQueryComplexity()) {
