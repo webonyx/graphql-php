@@ -54,6 +54,8 @@ class Deferred
             $this->promise->resolve($cb());
         } catch (\Exception $e) {
             $this->promise->reject($e);
+        } catch (\Throwable $e) {
+            $this->promise->reject($e);
         }
     }
 }

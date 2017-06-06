@@ -53,11 +53,11 @@ interface PromiseAdapter
      * Creates a rejected promise for a reason if the reason is not a promise. If
      * the provided reason is a promise, then it is returned as-is.
      *
-     * @param mixed $reason
+     * @param \Throwable $reason
      *
      * @return Promise
      */
-    public function createRejected(\Exception $reason);
+    public function createRejected($reason);
 
     /**
      * Given an array of promises (or values), returns a promise that is fulfilled when all the

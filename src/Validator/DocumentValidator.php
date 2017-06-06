@@ -130,8 +130,8 @@ class DocumentValidator
     public static function isError($value)
     {
         return is_array($value)
-            ? count(array_filter($value, function($item) { return $item instanceof \Exception;})) === count($value)
-            : $value instanceof \Exception;
+            ? count(array_filter($value, function($item) { return $item instanceof \Exception || $item instanceof \Throwable;})) === count($value)
+            : ($value instanceof \Exception || $value instanceof \Throwable);
     }
 
     public static function append(&$arr, $items)

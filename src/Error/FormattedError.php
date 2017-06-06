@@ -46,10 +46,10 @@ class FormattedError
     }
 
     /**
-     * @param \Exception $e
+     * @param \Throwable $e
      * @return array
      */
-    public static function createFromException(\Exception $e)
+    public static function createFromException($e)
     {
         return [
             'message' => $e->getMessage(),
