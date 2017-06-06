@@ -58,7 +58,7 @@ class SyncPromiseAdapter implements PromiseAdapter
                 [$promise, 'resolve'],
                 [$promise, 'reject']
             );
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             $promise->reject($e);
         }
 
@@ -77,7 +77,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createRejected(\Exception $reason)
+    public function createRejected(\Throwable $reason)
     {
         $promise = new SyncPromise();
         return new Promise($promise->reject($reason), $this);

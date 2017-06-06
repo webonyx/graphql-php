@@ -46,7 +46,7 @@ class SyncPromise
      */
     private $waiting = [];
 
-    public function reject(\Exception $reason)
+    public function reject(\Throwable $reason)
     {
         switch ($this->state) {
             case self::PENDING:
@@ -129,7 +129,7 @@ class SyncPromise
                 if ($this->state === self::FULFILLED) {
                     try {
                         $promise->resolve($onFulfilled ? $onFulfilled($this->result) : $this->result);
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         $promise->reject($e);
                     }
                 } else if ($this->state === self::REJECTED) {
@@ -139,7 +139,7 @@ class SyncPromise
                         } else {
                             $promise->reject($this->result);
                         }
-                    } catch (\Exception $e) {
+                    } catch (\Throwable $e) {
                         $promise->reject($e);
                     }
                 }

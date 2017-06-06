@@ -56,7 +56,7 @@ class ReactPromiseAdapter implements PromiseAdapter
     /**
      * @inheritdoc
      */
-    public function createRejected(\Exception $reason)
+    public function createRejected(\Throwable $reason)
     {
         $promise = \React\Promise\reject($reason);
         return new Promise($promise, $this);
