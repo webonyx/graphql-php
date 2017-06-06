@@ -546,13 +546,9 @@ class Server
             }
             $data += ['query' => null, 'variables' => null];
             $result = $this->executeQuery($data['query'], (array) $data['variables'])->toArray();
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             // This is only possible for schema creation errors and some very unpredictable errors,
             // (all errors which occur during query execution are caught and included in final response)
-            $httpStatus = $this->unexpectedErrorStatus;
-            $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $e);
-            $result = ['errors' => [$this->formatError($error)]];
-        } catch (\Error $e) {
             $httpStatus = $this->unexpectedErrorStatus;
             $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $e);
             $result = ['errors' => [$this->formatError($error)]];
@@ -561,7 +557,7 @@ class Server
         $this->produceOutput($result, $httpStatus);
     }
 
-    private function formatException(\Exception $e)
+    private function formatException(\Throwable $e)
     {
         $formatter = $this->exceptionFormatter;
         return $formatter($e);
