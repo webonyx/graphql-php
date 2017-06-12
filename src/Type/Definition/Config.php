@@ -187,12 +187,14 @@ class Config
                             $arrValue = ['name' => $arrValue];
                         }
 
-                        Utils::invariant(is_array($arrValue), $err, $arrKey, Utils::getVariableType($arrValue));
+                        if (!$arrValue instanceof FieldDefinition) {
+                            Utils::invariant(is_array($arrValue), $err, $arrKey, Utils::getVariableType($arrValue));
 
-                        if ($def->flags & self::KEY_AS_NAME && is_string($arrKey)) {
-                            $arrValue += ['name' => $arrKey];
+                            if ($def->flags & self::KEY_AS_NAME && is_string($arrKey)) {
+                                $arrValue += ['name' => $arrKey];
+                            }
+                            self::validateMap($typeName, $arrValue, $def->definition, "$pathStr:$arrKey");
                         }
-                        self::validateMap($typeName, $arrValue, $def->definition, "$pathStr:$arrKey");
                     } else {
                         self::validateEntry($typeName, $arrKey, $arrValue, $def->definition, "$pathStr:$arrKey");
                     }
