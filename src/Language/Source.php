@@ -11,6 +11,11 @@ class Source
     public $body;
 
     /**
+     * @var array
+     */
+    public $buf;
+
+    /**
      * @var int
      */
     public $length;
@@ -28,7 +33,8 @@ class Source
         );
 
         $this->body = $body;
-        $this->length = mb_strlen($body, 'UTF-8');
+        $this->buf =  array_map('GraphQL\Utils::ord', preg_split('//u', $body, -1, PREG_SPLIT_NO_EMPTY));
+        $this->length = count($this->buf);
         $this->name = $name ?: 'GraphQL';
     }
 

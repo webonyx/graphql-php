@@ -272,7 +272,7 @@ class Utils
     public static function chr($ord, $encoding = 'UTF-8')
     {
         if ($ord <= 255) {
-            return chr($ord);
+            return chr(is_int($ord) ? $ord : ord($ord));
         }
         if ($encoding === 'UCS-4BE') {
             return pack("N", $ord);
