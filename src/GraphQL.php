@@ -42,9 +42,9 @@ class GraphQL
     /**
      * @param Schema $schema
      * @param string|DocumentNode $requestString
-     * @param null $rootValue
-     * @param null $variableValues
-     * @param null $operationName
+     * @param mixed $rootValue
+     * @param array|null $variableValues
+     * @param string|null $operationName
      * @return ExecutionResult|Promise
      */
     public static function executeAndReturnResult(Schema $schema, $requestString, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
