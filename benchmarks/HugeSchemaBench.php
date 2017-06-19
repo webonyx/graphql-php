@@ -46,9 +46,13 @@ class HugeSchemaBench
 
         $this->schema = $this->schemaBuilder->buildSchema();
 
-        $queryBuilder = new QueryGenerator($this->schema, 0.05);
+        $smallQueryBuilder = new QueryGenerator($this->schema, 0.05);
         $this->descriptor = $this->schema->getDescriptor();
-        $this->smallQuery = $queryBuilder->buildQuery();
+        $this->smallQuery = $smallQueryBuilder->buildQuery();
+
+        $largeQueryBuilder = new QueryGenerator($this->schema,.5);
+        $this->largeQuery = $largeQueryBuilder->buildQuery();
+
     }
 
     public function benchSchema()
@@ -71,6 +75,17 @@ class HugeSchemaBench
     {
         $schema = $this->createLazySchema();
         $result = GraphQL::execute($schema, $this->smallQuery);
+    }
+
+    public function benchLargeQuery()
+    {
+        $result = GraphQL::execute($this->schema, $this->largeQuery);
+    }
+
+    public function benchLargeQueryLazy()
+    {
+        $schema = $this->createLazySchema();
+        $result = GraphQL::execute($schema, $this->largeQuery);
     }
 
     private function createLazySchema()

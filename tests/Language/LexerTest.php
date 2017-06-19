@@ -460,6 +460,60 @@ class LexerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it Records the correct stream location for tokens
+     */
+    public function testTokensHaveCorrectLocationInfo()
+    {
+        $lexer = new Lexer(new Source('{
+      #comment
+      field
+      object (name: "string") {
+        anotherField
+      }
+    }'));
+
+        $expectedTokens = [
+            ['kind' => Token::BRACE_L, 'start' => 0, 'end' => 1, 'line' => 1, 'value' => null],
+            // Comments are explicitly skipped as part of advance.
+            //['kind' => Token::COMMENT, 'start' => 8, 'end' => 17, line => 1, 'value' => 'field'],
+            ['kind' => Token::NAME, 'start' => 23, 'end' => 28, 'line' => 3, 'value' => 'field'],
+            ['kind' => Token::NAME, 'start' => 35, 'end' => 41, 'line' => 4, 'value' => 'object'],
+            ['kind' => Token::PAREN_L, 'start' => 42, 'end' => 43, 'line' => 4, 'value' => null],
+            ['kind' => Token::NAME, 'start' => 43, 'end' => 47, 'line' => 4, 'value' => 'name'],
+            ['kind' => Token::COLON, 'start' => 47, 'end' => 48, 'line' => 4, 'value' => null],
+            ['kind' => Token::STRING, 'start' => 49, 'end' => 57, 'line' => 4, 'value' => 'string'],
+            ['kind' => Token::PAREN_R, 'start' => 57, 'end' => 58, 'line' => 4, 'value' => null],
+            ['kind' => Token::BRACE_L, 'start' => 59, 'end' => 60, 'line' => 4, 'value' => null],
+            ['kind' => Token::NAME, 'start' => 69, 'end' => 81, 'line' => 5, 'value' => 'anotherField'],
+            ['kind' => Token::BRACE_R, 'start' => 88, 'end' => 89, 'line' => 6, 'value' => null],
+            ['kind' => Token::BRACE_R, 'start' => 94, 'end' => 95, 'line' => 7, 'value' => null],
+            ['kind' => Token::EOF, 'start' => 95, 'end' => 95, 'line' => 7, 'value' => null]
+        ];
+
+        foreach ($expectedTokens as $expectedToken) {
+            $token = $lexer->advance();
+            $this->assertArraySubset($expectedToken, (array) $token);
+        }
+    }
+
+    /**
+     * @it Correctly provides value of comment tokens.
+     */
+    public function testCommentsHaveCorrectValues() {
+        $eofToken = $this->lexOne('#comment');
+
+        $this->assertArraySubset(
+            ['kind' => Token::EOF, 'start' => 8, 'end' => 8, 'value' => null],
+            (array) $eofToken
+        );
+
+        $this->assertArraySubset(
+            ['kind' => Token::COMMENT, 'start' => 0, 'end' => 8, 'value' => 'comment'],
+            (array) $eofToken->prev
+        );
+    }
+
+    /**
      * @param string $body
      * @return Token
      */

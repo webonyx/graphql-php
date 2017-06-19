@@ -1234,7 +1234,7 @@ class Parser
         while ($previousToken->kind == Token::COMMENT
             && ($previousToken->line + 1) == $currentToken->line
         ) {
-            $description = $previousToken->value . $description;
+            $description = $previousToken->value . PHP_EOL . $description;
 
             // walk the tokens backwards until no longer adjacent comments
             $currentToken = $previousToken;
