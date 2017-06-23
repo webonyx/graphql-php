@@ -41,7 +41,7 @@ class LazyInterfaceTest extends \PHPUnit_Framework_TestCase
                 return [
                     'lazyInterface' => [
                         'type' => $this->getLazyInterfaceType(),
-                        'resolve' => function() {
+                        'resolve' => function () {
                             return [];
                         }
                     ]
@@ -62,10 +62,10 @@ class LazyInterfaceTest extends \PHPUnit_Framework_TestCase
         if (!$this->lazyInterface) {
             $this->lazyInterface = new InterfaceType([
                 'name' => 'LazyInterface',
-                'resolveType' => function() {
+                'resolveType' => function () {
                     return $this->getTestObjectType();
                 },
-                'resolve' => function() {
+                'resolve' => function () {
                     return [];
                 }
             ]);
@@ -86,7 +86,7 @@ class LazyInterfaceTest extends \PHPUnit_Framework_TestCase
                 'fields' => [
                     'name' => [
                         'type' => Type::string(),
-                        'resolve' => function() {
+                        'resolve' => function () {
                             return 'testname';
                         }
                     ]

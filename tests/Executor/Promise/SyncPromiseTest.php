@@ -7,16 +7,16 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
 {
     public function getFulfilledPromiseResolveData()
     {
-        $onFulfilledReturnsNull = function() {
+        $onFulfilledReturnsNull = function () {
             return null;
         };
-        $onFulfilledReturnsSameValue = function($value) {
+        $onFulfilledReturnsSameValue = function ($value) {
             return $value;
         };
-        $onFulfilledReturnsOtherValue = function($value) {
+        $onFulfilledReturnsOtherValue = function ($value) {
             return 'other-' . $value;
         };
-        $onFulfilledThrows = function($value) {
+        $onFulfilledThrows = function ($value) {
             throw new \Exception("onFulfilled throws this!");
         };
 
@@ -39,8 +39,7 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $expectedNextValue,
         $expectedNextReason,
         $expectedNextState
-    )
-    {
+    ) {
         $promise = new SyncPromise();
         $this->assertEquals(SyncPromise::PENDING, $promise->state);
 
@@ -61,7 +60,8 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals('Cannot reject fulfilled promise', $e->getMessage());
         }
 
-        $nextPromise = $promise->then(null, function() {});
+        $nextPromise = $promise->then(null, function () {
+        });
         $this->assertSame($promise, $nextPromise);
 
         $onRejectedCalled = false;
@@ -94,16 +94,16 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
 
     public function getRejectedPromiseData()
     {
-        $onRejectedReturnsNull = function() {
+        $onRejectedReturnsNull = function () {
             return null;
         };
-        $onRejectedReturnsSomeValue = function($reason) {
+        $onRejectedReturnsSomeValue = function ($reason) {
             return 'some-value';
         };
-        $onRejectedThrowsSameReason = function($reason) {
+        $onRejectedThrowsSameReason = function ($reason) {
             throw $reason;
         };
-        $onRejectedThrowsOtherReason = function($value) {
+        $onRejectedThrowsOtherReason = function ($value) {
             throw new \Exception("onRejected throws other!");
         };
 
@@ -126,8 +126,7 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $expectedNextValue,
         $expectedNextReason,
         $expectedNextState
-    )
-    {
+    ) {
         $promise = new SyncPromise();
         $this->assertEquals(SyncPromise::PENDING, $promise->state);
 
@@ -148,7 +147,8 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
             $this->assertEquals('Cannot resolve rejected promise', $e->getMessage());
         }
 
-        $nextPromise = $promise->then(function() {}, null);
+        $nextPromise = $promise->then(function () {
+        }, null);
         $this->assertSame($promise, $nextPromise);
 
         $onFulfilledCalled = false;
@@ -228,7 +228,7 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $this->assertValidPromise($promise, "Rejected Reason", null, SyncPromise::REJECTED);
 
         $promise = new SyncPromise();
-        $promise2 = $promise->then(null, function() {
+        $promise2 = $promise->then(null, function () {
             return 'value';
         });
         $promise->reject(new \Exception("Rejected Again"));
@@ -253,11 +253,11 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         // Make sure that it queues derivative promises until resolution:
         $onFulfilledCount = 0;
         $onRejectedCount = 0;
-        $onFulfilled = function($value) use (&$onFulfilledCount) {
+        $onFulfilled = function ($value) use (&$onFulfilledCount) {
             $onFulfilledCount++;
             return $onFulfilledCount;
         };
-        $onRejected = function($reason) use (&$onRejectedCount) {
+        $onRejected = function ($reason) use (&$onRejectedCount) {
             $onRejectedCount++;
             throw $reason;
         };
@@ -297,11 +297,11 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $onRejectedCalled = false;
 
         $promise->then(
-            function($nextValue) use (&$actualNextValue, &$onFulfilledCalled) {
+            function ($nextValue) use (&$actualNextValue, &$onFulfilledCalled) {
                 $onFulfilledCalled = true;
                 $actualNextValue = $nextValue;
             },
-            function(\Exception $reason) use (&$actualNextReason, &$onRejectedCalled) {
+            function (\Exception $reason) use (&$actualNextReason, &$onRejectedCalled) {
                 $onRejectedCalled = true;
                 $actualNextReason = $reason->getMessage();
             }

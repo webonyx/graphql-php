@@ -215,7 +215,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         ', [
             FormattedError::create(
                 OverlappingFieldsCanBeMerged::fieldsConflictMessage('doesKnowCommand', 'they have differing arguments'),
-                [new SourceLocation(3,9), new SourceLocation(4,9)]
+                [new SourceLocation(3, 9), new SourceLocation(4, 9)]
             )
         ]);
     }
@@ -326,7 +326,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
                 [
                     new SourceLocation(3, 9),
                     new SourceLocation(4, 11),
-                    new SourceLocation(6,9),
+                    new SourceLocation(6, 9),
                     new SourceLocation(7, 11)
                 ]
             )
@@ -356,12 +356,12 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
                     ['y', 'c and d are different fields']
                 ]),
                 [
-                    new SourceLocation(3,9),
-                    new SourceLocation(4,11),
-                    new SourceLocation(5,11),
-                    new SourceLocation(7,9),
-                    new SourceLocation(8,11),
-                    new SourceLocation(9,11)
+                    new SourceLocation(3, 9),
+                    new SourceLocation(4, 11),
+                    new SourceLocation(5, 11),
+                    new SourceLocation(7, 9),
+                    new SourceLocation(8, 11),
+                    new SourceLocation(9, 11)
                 ]
             )
         ]);
@@ -389,12 +389,12 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
             FormattedError::create(
                 OverlappingFieldsCanBeMerged::fieldsConflictMessage('field', [['deepField', [['x', 'a and b are different fields']]]]),
                 [
-                    new SourceLocation(3,9),
-                    new SourceLocation(4,11),
-                    new SourceLocation(5,13),
-                    new SourceLocation(8,9),
-                    new SourceLocation(9,11),
-                    new SourceLocation(10,13)
+                    new SourceLocation(3, 9),
+                    new SourceLocation(4, 11),
+                    new SourceLocation(5, 13),
+                    new SourceLocation(8, 9),
+                    new SourceLocation(9, 11),
+                    new SourceLocation(10, 13)
                 ]
             )
         ]);
@@ -425,10 +425,10 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
             FormattedError::create(
                 OverlappingFieldsCanBeMerged::fieldsConflictMessage('deepField', [['x', 'a and b are different fields']]),
                 [
-                    new SourceLocation(4,11),
-                    new SourceLocation(5,13),
-                    new SourceLocation(7,11),
-                    new SourceLocation(8,13)
+                    new SourceLocation(4, 11),
+                    new SourceLocation(5, 13),
+                    new SourceLocation(7, 11),
+                    new SourceLocation(8, 13)
                 ]
             )
         ]);
@@ -766,7 +766,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
                 ]
             )
         ]);
-     }
+    }
 
     /**
      * @it ignores unknown types
@@ -795,20 +795,21 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $SomeBox = new InterfaceType([
             'name' => 'SomeBox',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
-            'fields' => function() use (&$SomeBox) {
+            'resolveType' => function () use (&$StringBox) {
+                return $StringBox;
+            },
+            'fields' => function () use (&$SomeBox) {
                 return [
                     'deepBox' => ['type' => $SomeBox],
                     'unrelatedField' =>  ['type' => Type::string()]
                 ];
-
             }
         ]);
 
         $StringBox = new ObjectType([
             'name' => 'StringBox',
             'interfaces' => [$SomeBox],
-            'fields' => function() use (&$StringBox, &$IntBox) {
+            'fields' => function () use (&$StringBox, &$IntBox) {
                 return [
                     'scalar' => ['type' => Type::string()],
                     'deepBox' => ['type' => $StringBox],
@@ -823,7 +824,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         $IntBox = new ObjectType([
             'name' => 'IntBox',
             'interfaces' => [$SomeBox],
-            'fields' => function() use (&$StringBox, &$IntBox) {
+            'fields' => function () use (&$StringBox, &$IntBox) {
                 return [
                     'scalar' => ['type' => Type::int()],
                     'deepBox' => ['type' => $IntBox],
@@ -837,7 +838,9 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $NonNullStringBox1 = new InterfaceType([
             'name' => 'NonNullStringBox1',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
+            'resolveType' => function () use (&$StringBox) {
+                return $StringBox;
+            },
             'fields' => [
                 'scalar' => [ 'type' => Type::nonNull(Type::string()) ]
             ]
@@ -855,7 +858,9 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $NonNullStringBox2 = new InterfaceType([
             'name' => 'NonNullStringBox2',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
+            'resolveType' => function () use (&$StringBox) {
+                return $StringBox;
+            },
             'fields' => [
                 'scalar' => ['type' => Type::nonNull(Type::string())]
             ]

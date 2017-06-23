@@ -133,7 +133,9 @@ class Config
         }
 
         // Make sure that all required keys are present in map
-        $requiredKeys = array_filter($definitions, function($def) {return (self::getFlags($def) & self::REQUIRED) > 0;});
+        $requiredKeys = array_filter($definitions, function ($def) {
+            return (self::getFlags($def) & self::REQUIRED) > 0;
+        });
         $missingKeys = array_keys(array_diff_key($requiredKeys, $map));
         Utils::invariant(
             empty($missingKeys),
@@ -171,7 +173,6 @@ class Config
             }
 
             if (!empty($def->isArray)) {
-
                 if ($def->flags & self::REQUIRED) {
                     Utils::invariant(!empty($value), 'Error in "'.$typeName.'" type definition: ' . "Value at '$pathStr' cannot be empty array");
                 }

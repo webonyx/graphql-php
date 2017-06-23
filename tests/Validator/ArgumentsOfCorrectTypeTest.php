@@ -7,7 +7,7 @@ use GraphQL\Validator\Rules\ArgumentsOfCorrectType;
 
 class ArgumentsOfCorrectTypeTest extends TestCase
 {
-    function badValue($argName, $typeName, $value, $line, $column, $errors = null)
+    public function badValue($argName, $typeName, $value, $line, $column, $errors = null)
     {
         $realErrors = !$errors ? ["Expected type \"$typeName\", found $value."] : $errors;
 

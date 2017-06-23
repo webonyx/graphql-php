@@ -8,7 +8,7 @@ use GraphQL\Validator\ValidationContext;
 
 class UniqueDirectivesPerLocation
 {
-    static function duplicateDirectiveMessage($directiveName)
+    public static function duplicateDirectiveMessage($directiveName)
     {
         return 'The directive "'.$directiveName.'" can only be used once at this location.';
     }
@@ -16,7 +16,7 @@ class UniqueDirectivesPerLocation
     public function __invoke(ValidationContext $context)
     {
         return [
-            'enter' => function(Node $node) use ($context) {
+            'enter' => function (Node $node) use ($context) {
                 if (isset($node->directives)) {
                     $knownDirectives = [];
                     foreach ($node->directives as $directive) {

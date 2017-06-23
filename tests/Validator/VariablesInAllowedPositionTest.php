@@ -290,7 +290,7 @@ class VariablesInAllowedPositionTest extends TestCase
         ', [
             FormattedError::create(
                 VariablesInAllowedPosition::badVarPosMessage('intArg', 'Int', 'Int!'),
-                [new SourceLocation(10, 19), new SourceLocation(7,43)]
+                [new SourceLocation(10, 19), new SourceLocation(7, 43)]
             )
         ]);
     }
@@ -309,7 +309,7 @@ class VariablesInAllowedPositionTest extends TestCase
         ', [
             FormattedError::create(
                 VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', 'Boolean'),
-                [new SourceLocation(2,19), new SourceLocation(4,39)]
+                [new SourceLocation(2, 19), new SourceLocation(4, 39)]
             )
         ]);
     }
@@ -328,7 +328,7 @@ class VariablesInAllowedPositionTest extends TestCase
         ', [
             FormattedError::create(
                 VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', '[String]'),
-                [new SourceLocation(2, 19), new SourceLocation(4,45)]
+                [new SourceLocation(2, 19), new SourceLocation(4, 45)]
             )
         ]);
     }
@@ -345,7 +345,7 @@ class VariablesInAllowedPositionTest extends TestCase
         ', [
             FormattedError::create(
                 VariablesInAllowedPosition::badVarPosMessage('boolVar', 'Boolean', 'Boolean!'),
-                [new SourceLocation(2, 19), new SourceLocation(3,26)]
+                [new SourceLocation(2, 19), new SourceLocation(3, 26)]
             )
         ]);
     }
@@ -363,9 +363,8 @@ class VariablesInAllowedPositionTest extends TestCase
         ', [
             FormattedError::create(
                 VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', 'Boolean!'),
-                [new SourceLocation(2, 19), new SourceLocation(3,26)]
+                [new SourceLocation(2, 19), new SourceLocation(3, 26)]
             )
         ]);
     }
-
 }

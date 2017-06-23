@@ -10,9 +10,9 @@ use GraphQL\Validator\ValidationContext;
 
 class UniqueInputFieldNames
 {
-    static function duplicateInputFieldMessage($fieldName)
+    public static function duplicateInputFieldMessage($fieldName)
     {
-      return "There can be only one input field named \"$fieldName\".";
+        return "There can be only one input field named \"$fieldName\".";
     }
 
     public $knownNames;
@@ -25,15 +25,15 @@ class UniqueInputFieldNames
 
         return [
             NodeKind::OBJECT => [
-                'enter' => function() {
+                'enter' => function () {
                     $this->knownNameStack[] = $this->knownNames;
                     $this->knownNames = [];
                 },
-                'leave' => function() {
+                'leave' => function () {
                     $this->knownNames = array_pop($this->knownNameStack);
                 }
             ],
-            NodeKind::OBJECT_FIELD => function(ObjectFieldNode $node) use ($context) {
+            NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context) {
                 $fieldName = $node->name->value;
 
                 if (!empty($this->knownNames[$fieldName])) {

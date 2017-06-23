@@ -92,7 +92,7 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
 
         $this->content = new InterfaceType([
             'name' => 'Content',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'title' => Type::string(),
                     'body' => Type::string(),
@@ -109,7 +109,7 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
                 $this->node,
                 $this->content
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -127,7 +127,7 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
                 $this->node,
                 $this->content
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -146,7 +146,7 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
                 $this->node,
                 $this->content
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -172,7 +172,7 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
             'interfaces' => [
                 $this->node
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     'author' => $this->user,
@@ -189,7 +189,7 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
             'interfaces' => [
                 $this->node
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     'name' => Type::string(),
@@ -202,7 +202,7 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
             'interfaces' => [
                 $this->node
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     'name' => Type::string()

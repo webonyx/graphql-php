@@ -113,7 +113,7 @@ class DataSource
 
     public static function findLastStoryFor($authorId)
     {
-        $storiesFound = array_filter(self::$stories, function(Story $story) use ($authorId) {
+        $storiesFound = array_filter(self::$stories, function (Story $story) use ($authorId) {
             return $story->authorId == $authorId;
         });
         return !empty($storiesFound) ? $storiesFound[count($storiesFound) - 1] : null;
@@ -123,7 +123,7 @@ class DataSource
     {
         $likes = isset(self::$storyLikes[$storyId]) ? self::$storyLikes[$storyId] : [];
         $result = array_map(
-            function($userId) {
+            function ($userId) {
                 return self::$users[$userId];
             },
             $likes
@@ -167,7 +167,7 @@ class DataSource
         $storyComments = array_slice($storyComments, $start, $limit);
 
         return array_map(
-            function($commentId) {
+            function ($commentId) {
                 return self::$comments[$commentId];
             },
             $storyComments
@@ -182,7 +182,7 @@ class DataSource
         $commentReplies = array_slice($commentReplies, $start, $limit);
 
         return array_map(
-            function($replyId) {
+            function ($replyId) {
                 return self::$comments[$replyId];
             },
             $commentReplies

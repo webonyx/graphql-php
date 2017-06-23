@@ -441,11 +441,11 @@ class Lexer
             // tab | space | comma | BOM
             if ($code === 9 || $code === 32 || $code === 44 || $code === 0xFEFF) {
                 $position++;
-            } else if ($code === 10) { // new line
+            } elseif ($code === 10) { // new line
                 $position++;
                 $this->line++;
                 $this->lineStart = $position;
-            } else if ($code === 13) { // carriage return
+            } elseif ($code === 13) { // carriage return
                 if (Utils::charCodeAt($body, $position + 1) === 10) {
                     $position += 2;
                 } else {

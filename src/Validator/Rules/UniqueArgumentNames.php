@@ -10,7 +10,7 @@ use GraphQL\Validator\ValidationContext;
 
 class UniqueArgumentNames
 {
-    static function duplicateArgMessage($argName)
+    public static function duplicateArgMessage($argName)
     {
         return "There can be only one argument named \"$argName\".";
     }
@@ -23,7 +23,8 @@ class UniqueArgumentNames
 
         return [
             NodeKind::FIELD => function () {
-                $this->knownArgNames = [];;
+                $this->knownArgNames = [];
+                ;
             },
             NodeKind::DIRECTIVE => function () {
                 $this->knownArgNames = [];

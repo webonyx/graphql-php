@@ -46,7 +46,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNullableLists(
-            new Deferred(function() {
+            new Deferred(function () {
                 return [1,2];
             }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
@@ -54,7 +54,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Contains null
         $this->checkHandlesNullableLists(
-            new Deferred(function() {
+            new Deferred(function () {
                 return [1, null, 2];
             }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
@@ -62,7 +62,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Returns null
         $this->checkHandlesNullableLists(
-            new Deferred(function() {
+            new Deferred(function () {
                 return null;
             }),
             [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
@@ -96,10 +96,10 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains values
         $this->checkHandlesNullableLists(
             [
-                new Deferred(function() {
+                new Deferred(function () {
                     return 1;
                 }),
-                new Deferred(function() {
+                new Deferred(function () {
                     return 2;
                 })],
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
@@ -108,16 +108,22 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains null
         $this->checkHandlesNullableLists(
             [
-                new Deferred(function() {return 1;}),
-                new Deferred(function() {return null;}),
-                new Deferred(function() {return 2;})
+                new Deferred(function () {
+                    return 1;
+                }),
+                new Deferred(function () {
+                    return null;
+                }),
+                new Deferred(function () {
+                    return 2;
+                })
             ],
             [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
         );
 
         // Returns null
         $this->checkHandlesNullableLists(
-            new Deferred(function() {
+            new Deferred(function () {
                 return null;
             }),
             [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
@@ -127,13 +133,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $this->checkHandlesNullableLists(
             function () {
                 return [
-                    new Deferred(function() {
+                    new Deferred(function () {
                         return 1;
                     }),
-                    new Deferred(function() {
+                    new Deferred(function () {
                         throw new \Exception('bad');
                     }),
-                    new Deferred(function() {
+                    new Deferred(function () {
                         return 2;
                     })
                 ];
@@ -190,7 +196,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
-            new Deferred(function() {
+            new Deferred(function () {
                 return [1,2];
             }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
@@ -198,7 +204,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Contains null
         $this->checkHandlesNonNullableLists(
-            new Deferred(function() {
+            new Deferred(function () {
                 return [1, null, 2];
             }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
@@ -221,7 +227,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Rejected
         $this->checkHandlesNonNullableLists(
             function () {
-                return new Deferred(function() {
+                return new Deferred(function () {
                     throw new \Exception('bad');
                 });
             },
@@ -246,10 +252,10 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains values
         $this->checkHandlesNonNullableLists(
             [
-                new Deferred(function() {
+                new Deferred(function () {
                     return 1;
                 }),
-                new Deferred(function() {
+                new Deferred(function () {
                     return 2;
                 })
             ],
@@ -259,13 +265,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains null
         $this->checkHandlesNonNullableLists(
             [
-                new Deferred(function() {
+                new Deferred(function () {
                     return 1;
                 }),
-                new Deferred(function() {
+                new Deferred(function () {
                     return null;
                 }),
-                new Deferred(function() {
+                new Deferred(function () {
                     return 2;
                 })
             ],
@@ -276,13 +282,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $this->checkHandlesNonNullableLists(
             function () {
                 return [
-                    new Deferred(function() {
+                    new Deferred(function () {
                         return 1;
                     }),
-                    new Deferred(function() {
+                    new Deferred(function () {
                         throw new \Exception('bad');
                     }),
-                    new Deferred(function() {
+                    new Deferred(function () {
                         return 2;
                     })
                 ];
@@ -339,7 +345,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
-            new Deferred(function() {
+            new Deferred(function () {
                 return [1, 2];
             }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
@@ -347,7 +353,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Contains null
         $this->checkHandlesListOfNonNulls(
-            new Deferred(function() {
+            new Deferred(function () {
                 return [1, null, 2];
             }),
             [
@@ -363,7 +369,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Returns null
         $this->checkHandlesListOfNonNulls(
-            new Deferred(function() {
+            new Deferred(function () {
                 return null;
             }),
             [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
@@ -372,7 +378,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Rejected
         $this->checkHandlesListOfNonNulls(
             function () {
-                return new Deferred(function() {
+                return new Deferred(function () {
                     throw new \Exception('bad');
                 });
             },
@@ -397,10 +403,10 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains values
         $this->checkHandlesListOfNonNulls(
             [
-                new Deferred(function() {
+                new Deferred(function () {
                     return 1;
                 }),
-                new Deferred(function() {
+                new Deferred(function () {
                     return 2;
                 })
             ],
@@ -410,9 +416,15 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains null
         $this->checkHandlesListOfNonNulls(
             [
-                new Deferred(function() {return 1;}),
-                new Deferred(function() {return null;}),
-                new Deferred(function() {return 2;})
+                new Deferred(function () {
+                    return 1;
+                }),
+                new Deferred(function () {
+                    return null;
+                }),
+                new Deferred(function () {
+                    return 2;
+                })
             ],
             [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
         );
@@ -421,13 +433,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $this->checkHandlesListOfNonNulls(
             function () {
                 return [
-                    new Deferred(function() {
+                    new Deferred(function () {
                         return 1;
                     }),
-                    new Deferred(function() {
+                    new Deferred(function () {
                         throw new \Exception('bad');
                     }),
-                    new Deferred(function() {
+                    new Deferred(function () {
                         return 2;
                     })
                 ];
@@ -493,7 +505,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
-            new Deferred(function() {
+            new Deferred(function () {
                 return [1, 2];
             }),
             [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
@@ -501,7 +513,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Contains null
         $this->checkHandlesNonNullListOfNonNulls(
-            new Deferred(function() {
+            new Deferred(function () {
                 return [1, null, 2];
             }),
             [
@@ -517,7 +529,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
 
         // Returns null
         $this->checkHandlesNonNullListOfNonNulls(
-            new Deferred(function() {
+            new Deferred(function () {
                 return null;
             }),
             [
@@ -534,7 +546,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Rejected
         $this->checkHandlesNonNullListOfNonNulls(
             function () {
-                return new Deferred(function() {
+                return new Deferred(function () {
                     throw new \Exception('bad');
                 });
             },
@@ -559,10 +571,10 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
             [
-                new Deferred(function() {
+                new Deferred(function () {
                     return 1;
                 }),
-                new Deferred(function() {
+                new Deferred(function () {
                     return 2;
                 })
 
@@ -573,13 +585,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         // Contains null
         $this->checkHandlesNonNullListOfNonNulls(
             [
-                new Deferred(function() {
+                new Deferred(function () {
                     return 1;
                 }),
-                new Deferred(function() {
+                new Deferred(function () {
                     return null;
                 }),
-                new Deferred(function() {
+                new Deferred(function () {
                     return 2;
                 })
             ],
@@ -598,13 +610,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $this->checkHandlesNonNullListOfNonNulls(
             function () {
                 return [
-                    new Deferred(function() {
+                    new Deferred(function () {
                         return 1;
                     }),
-                    new Deferred(function() {
+                    new Deferred(function () {
                         throw new \Exception('bad');
                     }),
-                    new Deferred(function() {
+                    new Deferred(function () {
                         return 2;
                     })
                 ];

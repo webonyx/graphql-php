@@ -14,7 +14,7 @@ class CommentType extends ObjectType
     {
         $config = [
             'name' => 'Comment',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'id' => Types::id(),
                     'author' => Types::user(),
@@ -35,7 +35,7 @@ class CommentType extends ObjectType
                     Types::htmlField('body')
                 ];
             },
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+            'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
                 if (method_exists($this, $info->fieldName)) {
                     return $this->{$info->fieldName}($value, $args, $context, $info);
                 } else {

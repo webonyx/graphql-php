@@ -59,7 +59,7 @@ class TypeInfo
      * Provided a type and a super type, return true if the first type is either
      * equal or a subset of the second super type (covariant).
      */
-    static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
+    public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
     {
         // Equivalent type is a valid subtype
         if ($maybeSubType === $superType) {
@@ -72,7 +72,7 @@ class TypeInfo
                 return self::isTypeSubTypeOf($schema, $maybeSubType->getWrappedType(), $superType->getWrappedType());
             }
             return false;
-        } else if ($maybeSubType instanceof NonNull) {
+        } elseif ($maybeSubType instanceof NonNull) {
             // If superType is nullable, maybeSubType may be non-null.
             return self::isTypeSubTypeOf($schema, $maybeSubType->getWrappedType(), $superType);
         }
@@ -83,7 +83,7 @@ class TypeInfo
                 return self::isTypeSubTypeOf($schema, $maybeSubType->getWrappedType(), $superType->getWrappedType());
             }
             return false;
-        } else if ($maybeSubType instanceof ListOfType) {
+        } elseif ($maybeSubType instanceof ListOfType) {
             // If superType is not a list, maybeSubType must also be not a list.
             return false;
         }
@@ -108,7 +108,7 @@ class TypeInfo
      *
      * This function is commutative.
      */
-    static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB)
+    public static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB)
     {
         // Equivalent types overlap
         if ($typeA === $typeB) {
@@ -212,7 +212,9 @@ class TypeInfo
         if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {
             foreach ((array) $type->getFields() as $fieldName => $field) {
                 if (isset($field->args)) {
-                    $fieldArgTypes = array_map(function(FieldArgument $arg) { return $arg->getType(); }, $field->args);
+                    $fieldArgTypes = array_map(function (FieldArgument $arg) {
+                        return $arg->getType();
+                    }, $field->args);
                     $nestedTypes = array_merge($nestedTypes, $fieldArgTypes);
                 }
                 $nestedTypes[] = $field->getType();
@@ -231,7 +233,7 @@ class TypeInfo
      *
      * @return FieldDefinition
      */
-    static private function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode)
+    private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode)
     {
         $name = $fieldNode->name->value;
         $schemaMeta = Introspection::schemaMetaFieldDef();
@@ -307,7 +309,7 @@ class TypeInfo
     /**
      * @return Type
      */
-    function getType()
+    public function getType()
     {
         if (!empty($this->typeStack)) {
             return $this->typeStack[count($this->typeStack) - 1];
@@ -318,7 +320,7 @@ class TypeInfo
     /**
      * @return Type
      */
-    function getParentType()
+    public function getParentType()
     {
         if (!empty($this->parentTypeStack)) {
             return $this->parentTypeStack[count($this->parentTypeStack) - 1];
@@ -329,7 +331,7 @@ class TypeInfo
     /**
      * @return InputType
      */
-    function getInputType()
+    public function getInputType()
     {
         if (!empty($this->inputTypeStack)) {
             return $this->inputTypeStack[count($this->inputTypeStack) - 1];
@@ -340,7 +342,7 @@ class TypeInfo
     /**
      * @return FieldDefinition
      */
-    function getFieldDef()
+    public function getFieldDef()
     {
         if (!empty($this->fieldDefStack)) {
             return $this->fieldDefStack[count($this->fieldDefStack) - 1];
@@ -351,7 +353,7 @@ class TypeInfo
     /**
      * @return Directive|null
      */
-    function getDirective()
+    public function getDirective()
     {
         return $this->directive;
     }
@@ -359,7 +361,7 @@ class TypeInfo
     /**
      * @return FieldArgument|null
      */
-    function getArgument()
+    public function getArgument()
     {
         return $this->argument;
     }
@@ -367,7 +369,7 @@ class TypeInfo
     /**
      * @param Node $node
      */
-    function enter(Node $node)
+    public function enter(Node $node)
     {
         $schema = $this->schema;
 
@@ -400,9 +402,9 @@ class TypeInfo
                 $type = null;
                 if ($node->operation === 'query') {
                     $type = $schema->getQueryType();
-                } else if ($node->operation === 'mutation') {
+                } elseif ($node->operation === 'mutation') {
                     $type = $schema->getMutationType();
-                } else if ($node->operation === 'subscription') {
+                } elseif ($node->operation === 'subscription') {
                     $type = $schema->getSubscriptionType();
                 }
                 $this->typeStack[] = $type; // push
@@ -424,7 +426,9 @@ class TypeInfo
                 $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
                 $argDef = $argType = null;
                 if ($fieldOrDirective) {
-                    $argDef = Utils::find($fieldOrDirective->args, function($arg) use ($node) {return $arg->name === $node->name->value;});
+                    $argDef = Utils::find($fieldOrDirective->args, function ($arg) use ($node) {
+                        return $arg->name === $node->name->value;
+                    });
                     if ($argDef) {
                         $argType = $argDef->getType();
                     }
@@ -454,7 +458,7 @@ class TypeInfo
     /**
      * @param Node $node
      */
-    function leave(Node $node)
+    public function leave(Node $node)
     {
         switch ($node->kind) {
             case NodeKind::SELECTION_SET:

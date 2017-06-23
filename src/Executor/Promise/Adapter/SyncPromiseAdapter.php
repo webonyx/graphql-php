@@ -98,7 +98,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             if ($promiseOrValue instanceof Promise) {
                 $result[$index] = null;
                 $promiseOrValue->then(
-                    function($value) use ($index, &$count, $total, &$result, $all) {
+                    function ($value) use ($index, &$count, $total, &$result, $all) {
                         $result[$index] = $value;
                         $count++;
                         if ($count >= $total) {
@@ -142,7 +142,7 @@ class SyncPromiseAdapter implements PromiseAdapter
 
         if ($syncPromise->state === SyncPromise::FULFILLED) {
             return $syncPromise->result;
-        } else if ($syncPromise->state === SyncPromise::REJECTED) {
+        } elseif ($syncPromise->state === SyncPromise::REJECTED) {
             throw $syncPromise->result;
         }
 

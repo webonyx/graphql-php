@@ -214,7 +214,8 @@ class QueryComplexity extends AbstractQuerySecurity
         return $args;
     }
 
-    private function directiveExcludesField(FieldNode $node) {
+    private function directiveExcludesField(FieldNode $node)
+    {
         foreach ($node->directives as $directiveNode) {
             if ($directiveNode->name->value === 'deprecated') {
                 return false;

@@ -26,7 +26,9 @@ class FormattedError
         ];
 
         if (!empty($locations)) {
-            $formatted['locations'] = array_map(function($loc) { return $loc->toArray();}, $locations);
+            $formatted['locations'] = array_map(function ($loc) {
+                return $loc->toArray();
+            }, $locations);
         }
 
         return $formatted;
@@ -73,11 +75,11 @@ class FormattedError
         }
 
         // Remove root call as it's likely error handler trace:
-        else if (!isset($trace[0]['file'])) {
+        elseif (!isset($trace[0]['file'])) {
             array_shift($trace);
         }
 
-        return array_map(function($err) {
+        return array_map(function ($err) {
             $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
 
             if (isset($err['function'])) {

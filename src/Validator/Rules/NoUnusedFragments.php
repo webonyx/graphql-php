@@ -9,7 +9,7 @@ use GraphQL\Validator\ValidationContext;
 
 class NoUnusedFragments
 {
-    static function unusedFragMessage($fragName)
+    public static function unusedFragMessage($fragName)
     {
         return "Fragment \"$fragName\" is never used.";
     }
@@ -24,16 +24,16 @@ class NoUnusedFragments
         $this->fragmentDefs = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => function($node) {
+            NodeKind::OPERATION_DEFINITION => function ($node) {
                 $this->operationDefs[] = $node;
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $def) {
+            NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $def) {
                 $this->fragmentDefs[] = $def;
                 return Visitor::skipNode();
             },
             NodeKind::DOCUMENT => [
-                'leave' => function() use ($context) {
+                'leave' => function () use ($context) {
                     $fragmentNameUsed = [];
 
                     foreach ($this->operationDefs as $operation) {

@@ -119,7 +119,9 @@ class Schema
         );
 
         Utils::invariant(
-            !$config['directives'] || (is_array($config['directives']) && Utils::every($config['directives'], function($d) {return $d instanceof Directive;})),
+            !$config['directives'] || (is_array($config['directives']) && Utils::every($config['directives'], function ($d) {
+                return $d instanceof Directive;
+            })),
             "Schema directives must be Directive[] if provided but got " . Utils::getVariableType($config['directives'])
         );
 

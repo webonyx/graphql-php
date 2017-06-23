@@ -77,7 +77,7 @@ class HugeSchemaBench
     {
         $strategy = new LazyResolution(
             $this->descriptor,
-            function($name) {
+            function ($name) {
                 return $this->schemaBuilder->loadType($name);
             }
         );

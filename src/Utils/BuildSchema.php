@@ -39,7 +39,7 @@ class BuildSchema
     /**
      * @param Type $innerType
      * @param TypeNode $inputTypeNode
-     * @return Type 
+     * @return Type
      */
     private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
     {
@@ -137,7 +137,7 @@ class BuildSchema
                         );
                     }
                     $queryTypeName = $typeName;
-                } else if ($operationType->operation === 'mutation') {
+                } elseif ($operationType->operation === 'mutation') {
                     if ($mutationTypeName) {
                         throw new Error('Must provide only one mutation type in schema.');
                     }
@@ -147,7 +147,7 @@ class BuildSchema
                         );
                     }
                     $mutationTypeName = $typeName;
-                } else if ($operationType->operation === 'subscription') {
+                } elseif ($operationType->operation === 'subscription') {
                     if ($subscriptionTypeName) {
                         throw new Error('Must provide only one subscription type in schema.');
                     }
@@ -193,28 +193,28 @@ class BuildSchema
             '__TypeKind' => Introspection::_typeKind(),
         ];
 
-        $types = array_map(function($def) {
+        $types = array_map(function ($def) {
             return $this->typeDefNamed($def->name->value);
         }, $typeDefs);
 
         $directives = array_map([$this, 'getDirective'], $directiveDefs);
 
         // If specified directives were not explicitly declared, add them.
-        $skip = array_reduce($directives, function($hasSkip, $directive) {
+        $skip = array_reduce($directives, function ($hasSkip, $directive) {
             return $hasSkip || $directive->name == 'skip';
         });
         if (!$skip) {
             $directives[] = Directive::skipDirective();
         }
 
-        $include = array_reduce($directives, function($hasInclude, $directive) {
+        $include = array_reduce($directives, function ($hasInclude, $directive) {
             return $hasInclude || $directive->name == 'include';
         });
         if (!$include) {
             $directives[] = Directive::includeDirective();
         }
 
-        $deprecated = array_reduce($directives, function($hasDeprecated, $directive) {
+        $deprecated = array_reduce($directives, function ($hasDeprecated, $directive) {
             return $hasDeprecated || $directive->name == 'deprecated';
         });
         if (!$deprecated) {
@@ -239,7 +239,7 @@ class BuildSchema
         return new Directive([
             'name' => $directiveNode->name->value,
             'description' => $this->getDescription($directiveNode),
-            'locations' => array_map(function($node) {
+            'locations' => array_map(function ($node) {
                 return $node->value;
             }, $directiveNode->locations),
             'args' => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
@@ -338,8 +338,12 @@ class BuildSchema
         return new ObjectType([
             'name' => $typeName,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeFieldDefMap($def); },
-            'interfaces' => function() use ($def) { return $this->makeImplementedInterfaces($def); }
+            'fields' => function () use ($def) {
+                return $this->makeFieldDefMap($def);
+            },
+            'interfaces' => function () use ($def) {
+                return $this->makeImplementedInterfaces($def);
+            }
         ]);
     }
 
@@ -350,7 +354,7 @@ class BuildSchema
             function ($field) {
                 return $field->name->value;
             },
-            function($field) {
+            function ($field) {
                 return [
                     'type' => $this->produceOutputType($field->type),
                     'description' => $this->getDescription($field),
@@ -373,7 +377,7 @@ class BuildSchema
             function ($value) {
                 return $value->name->value;
             },
-            function($value) {
+            function ($value) {
                 $type = $this->produceInputType($value->type);
                 $config = [
                     'name' => $value->name->value,
@@ -394,7 +398,9 @@ class BuildSchema
         return new InterfaceType([
             'name' => $typeName,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeFieldDefMap($def); },
+            'fields' => function () use ($def) {
+                return $this->makeFieldDefMap($def);
+            },
             'resolveType' => [$this, 'cannotExecuteSchema']
         ]);
     }
@@ -406,10 +412,10 @@ class BuildSchema
             'description' => $this->getDescription($def),
             'values' => Utils::keyValMap(
                 $def->values,
-                function($enumValue) {
+                function ($enumValue) {
                     return $enumValue->name->value;
                 },
-                function($enumValue) {
+                function ($enumValue) {
                     return [
                         'description' => $this->getDescription($enumValue),
                         'deprecationReason' => $this->getDeprecationReason($enumValue->directives)
@@ -434,13 +440,19 @@ class BuildSchema
         return new CustomScalarType([
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'serialize' => function() { return false; },
+            'serialize' => function () {
+                return false;
+            },
             // Note: validation calls the parse functions to determine if a
             // literal value is correct. Returning null would cause use of custom
             // scalars to always fail validation. Returning false causes them to
             // always pass validation.
-            'parseValue' => function() { return false; },
-            'parseLiteral' => function() { return false; }
+            'parseValue' => function () {
+                return false;
+            },
+            'parseLiteral' => function () {
+                return false;
+            }
         ]);
     }
 
@@ -449,7 +461,9 @@ class BuildSchema
         return new InputObjectType([
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeInputValues($def->fields); }
+            'fields' => function () use ($def) {
+                return $this->makeInputValues($def->fields);
+            }
         ]);
     }
 
@@ -457,7 +471,7 @@ class BuildSchema
     {
         $deprecatedAST = $directives ? Utils::find(
             $directives,
-            function($directive) {
+            function ($directive) {
                 return $directive->name->value === Directive::deprecatedDirective()->name;
             }
         ) : null;
@@ -498,7 +512,7 @@ class BuildSchema
             $comments[] = $value;
             $token = $token->prev;
         }
-        return implode("\n", array_map(function($comment) use ($minSpaces) {
+        return implode("\n", array_map(function ($comment) use ($minSpaces) {
             return mb_substr(str_replace("\n", '', $comment), $minSpaces);
         }, array_reverse($comments)));
     }
@@ -506,7 +520,7 @@ class BuildSchema
     /**
      * A helper function to build a GraphQLSchema directly from a source
      * document.
-     * 
+     *
      * @param Source|string $source
      * @return
      */
@@ -521,10 +535,10 @@ class BuildSchema
         return strlen($str) - strlen(ltrim($str));
     }
 
-    public function cannotExecuteSchema() {
+    public function cannotExecuteSchema()
+    {
         throw new Error(
             'Generated Schema cannot use Interface or Union types for execution.'
         );
     }
-
 }

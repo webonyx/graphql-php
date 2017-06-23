@@ -68,7 +68,7 @@ class SchemaGenerator
 
         $type = new ObjectType([
             'name' => $typeName,
-            'fields' => function() use ($typeName, $nestingLevel) {
+            'fields' => function () use ($typeName, $nestingLevel) {
                 return $this->createTypeFields($typeName, $nestingLevel + 1);
             }
         ]);
@@ -82,7 +82,7 @@ class SchemaGenerator
         if ($nestingLevel >= $this->config['nestingLevel']) {
             $fieldType = Type::string();
             $fieldName = 'leafField' . $fieldIndex;
-        } else if ($this->typeIndex >= $this->config['totalTypes']) {
+        } elseif ($this->typeIndex >= $this->config['totalTypes']) {
             $fieldType = $this->objectTypes[array_rand($this->objectTypes)];
             $fieldName = 'randomTypeField' . $fieldIndex;
         } else {
@@ -112,7 +112,7 @@ class SchemaGenerator
                 'name' => $name,
                 'type' => Type::listOf($type),
                 'args' => $this->createFieldArgs($name, $typeName),
-                'resolve' => function() {
+                'resolve' => function () {
                     return [
                         'string1',
                         'string2',

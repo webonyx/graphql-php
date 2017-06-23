@@ -240,7 +240,7 @@ class NoFragmentCyclesTest extends TestCase
     ', [
             FormattedError::create(
                 NoFragmentCycles::cycleErrorMessage('fragA', [ 'fragC' ]),
-                [new SourceLocation(2,31), new SourceLocation(4,31)]
+                [new SourceLocation(2, 31), new SourceLocation(4, 31)]
             ),
             FormattedError::create(
                 NoFragmentCycles::cycleErrorMessage('fragC', [ 'fragB' ]),

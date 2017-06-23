@@ -17,7 +17,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class LoneAnonymousOperation
 {
-    static function anonOperationNotAloneMessage()
+    public static function anonOperationNotAloneMessage()
     {
         return 'This anonymous operation must be the only defined operation.';
     }
@@ -26,7 +26,7 @@ class LoneAnonymousOperation
     {
         $operationCount = 0;
         return [
-            NodeKind::DOCUMENT => function(DocumentNode $node) use (&$operationCount) {
+            NodeKind::DOCUMENT => function (DocumentNode $node) use (&$operationCount) {
                 $tmp = Utils::filter(
                     $node->definitions,
                     function ($definition) {
@@ -35,7 +35,7 @@ class LoneAnonymousOperation
                 );
                 $operationCount = count($tmp);
             },
-            NodeKind::OPERATION_DEFINITION => function(OperationDefinitionNode $node) use (&$operationCount, $context) {
+            NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) use (&$operationCount, $context) {
                 if (!$node->name && $operationCount > 1) {
                     $context->reportError(
                         new Error(self::anonOperationNotAloneMessage(), [$node])

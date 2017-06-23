@@ -25,7 +25,7 @@ class StoryType extends ObjectType
     {
         $config = [
             'name' => 'Story',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'id' => Types::id(),
                     'author' => Types::user(),
@@ -75,7 +75,7 @@ class StoryType extends ObjectType
             'interfaces' => [
                 Types::node()
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+            'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
                 if (method_exists($this, $info->fieldName)) {
                     return $this->{$info->fieldName}($value, $args, $context, $info);
                 } else {

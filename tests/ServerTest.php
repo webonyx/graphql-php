@@ -342,7 +342,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
-                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$called) {
+                    'resolve' => function ($value, $args, $context, ResolveInfo $info) use (&$called) {
                         $called = true;
                         $this->assertEquals(null, $context);
                         $this->assertEquals(null, $value);
@@ -370,7 +370,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
-                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$called, $contextValue, $rootValue) {
+                    'resolve' => function ($value, $args, $context, ResolveInfo $info) use (&$called, $contextValue, $rootValue) {
                         $called = true;
                         $this->assertSame($rootValue, $value);
                         $this->assertSame($contextValue, $context);
@@ -399,7 +399,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'err' => [
                     'type' => Type::string(),
-                    'resolve' => function() {
+                    'resolve' => function () {
                         trigger_error('notice', E_USER_NOTICE);
                         return 'err';
                     }
@@ -438,7 +438,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArraySubset($expected, $result->toArray());
 
-        $server->setPhpErrorFormatter(function(\ErrorException $e) {
+        $server->setPhpErrorFormatter(function (\ErrorException $e) {
             return ['test' => $e->getMessage()];
         });
 
@@ -465,7 +465,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'withException' => [
                     'type' => Type::string(),
-                    'resolve' => function() {
+                    'resolve' => function () {
                         throw new \Exception("Error");
                     }
                 ]
@@ -498,7 +498,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $expected['errors'][0]['exception'] = ['message' => 'Error', 'trace' => []];
         $this->assertArraySubset($expected, $result->toArray());
 
-        $server->setExceptionFormatter(function(\Exception $e) {
+        $server->setExceptionFormatter(function (\Exception $e) {
             return ['test' => $e->getMessage()];
         });
 
@@ -519,7 +519,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
 
         $output = null;
         $mock->method('produceOutput')
-            ->will($this->returnCallback(function($a1, $a2) use (&$output) {
+            ->will($this->returnCallback(function ($a1, $a2) use (&$output) {
                 $output = func_get_args();
             }));
 
@@ -544,7 +544,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'test' => [
                     'type' => Type::string(),
-                    'resolve' => function() {
+                    'resolve' => function () {
                         return 'ok';
                     }
                 ]

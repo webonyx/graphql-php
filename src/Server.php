@@ -240,22 +240,22 @@ class Server
         if ($this->queryType) {
             $err = 'Query Type is already set';
             $errMethod = __CLASS__ . '::setQueryType';
-        } else if ($this->mutationType) {
+        } elseif ($this->mutationType) {
             $err = 'Mutation Type is already set';
             $errMethod = __CLASS__ . '::setMutationType';
-        } else if ($this->subscriptionType) {
+        } elseif ($this->subscriptionType) {
             $err = 'Subscription Type is already set';
             $errMethod = __CLASS__ . '::setSubscriptionType';
-        } else if ($this->directives) {
+        } elseif ($this->directives) {
             $err = 'Directives are already set';
             $errMethod = __CLASS__ . '::setDirectives';
-        } else if ($this->types) {
+        } elseif ($this->types) {
             $err = 'Additional types are already set';
             $errMethod = __CLASS__ . '::addTypes';
-        } else if ($this->typeResolutionStrategy) {
+        } elseif ($this->typeResolutionStrategy) {
             $err = 'Type Resolution Strategy is already set';
             $errMethod = __CLASS__ . '::setTypeResolutionStrategy';
-        } else if ($this->schema && $this->schema !== $schema) {
+        } elseif ($this->schema && $this->schema !== $schema) {
             $err = 'Different schema is already set';
         }
 
@@ -486,7 +486,7 @@ class Server
         $this->phpErrors = [];
         if ($this->debug & static::DEBUG_PHP_ERRORS) {
             // Catch custom errors (to report them in query results)
-            set_error_handler(function($severity, $message, $file, $line) {
+            set_error_handler(function ($severity, $message, $file, $line) {
                 $this->phpErrors[] = new \ErrorException($message, 0, $severity, $file, $line);
             });
         }

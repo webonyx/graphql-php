@@ -10,9 +10,9 @@ use GraphQL\Validator\ValidationContext;
 
 class UniqueOperationNames
 {
-    static function duplicateOperationNameMessage($operationName)
+    public static function duplicateOperationNameMessage($operationName)
     {
-      return "There can only be one operation named \"$operationName\".";
+        return "There can only be one operation named \"$operationName\".";
     }
 
     public $knownOperationNames;
@@ -22,7 +22,7 @@ class UniqueOperationNames
         $this->knownOperationNames = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => function(OperationDefinitionNode $node) use ($context) {
+            NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) use ($context) {
                 $operationName = $node->name;
 
                 if ($operationName) {
@@ -37,7 +37,7 @@ class UniqueOperationNames
                 }
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION => function() {
+            NodeKind::FRAGMENT_DEFINITION => function () {
                 return Visitor::skipNode();
             }
         ];

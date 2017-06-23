@@ -21,7 +21,7 @@ if (!empty($_GET['debug'])) {
 
     // Catch custom errors (to report them in query results if debugging is enabled)
     $phpErrors = [];
-    set_error_handler(function($severity, $message, $file, $line) use (&$phpErrors) {
+    set_error_handler(function ($severity, $message, $file, $line) use (&$phpErrors) {
         $phpErrors[] = new ErrorException($message, 0, $severity, $file, $line);
     });
 }

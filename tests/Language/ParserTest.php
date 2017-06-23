@@ -22,7 +22,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
      */
     public function testParseProvidesUsefulErrors()
     {
-        $run = function($num, $str, $expectedMessage, $expectedPositions = null, $expectedLocations = null) {
+        $run = function ($num, $str, $expectedMessage, $expectedPositions = null, $expectedLocations = null) {
             try {
                 Parser::parse($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);
@@ -38,7 +38,7 @@ class ParserTest extends \PHPUnit_Framework_TestCase
             }
         };
 
-        $run(0, '{', "Syntax Error GraphQL (1:2) Expected Name, found <EOF>\n\n1: {\n    ^\n", [1], [new SourceLocation(1,2)]);
+        $run(0, '{', "Syntax Error GraphQL (1:2) Expected Name, found <EOF>\n\n1: {\n    ^\n", [1], [new SourceLocation(1, 2)]);
         $run(1,
 '{ ...MissingOn }
 fragment MissingOn Type
@@ -251,7 +251,7 @@ fragment $fragmentName on Type {
 ');
         $result = Parser::parse($source);
 
-        $loc = function($start, $end) use ($source) {
+        $loc = function ($start, $end) use ($source) {
             return [
                 'start' => $start,
                 'end' => $end

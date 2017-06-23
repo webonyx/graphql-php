@@ -103,7 +103,7 @@ class StarWarsSchema
         $characterInterface = new InterfaceType([
             'name' => 'Character',
             'description' => 'A character in the Star Wars Trilogy',
-            'fields' => function() use (&$characterInterface, $episodeEnum) {
+            'fields' => function () use (&$characterInterface, $episodeEnum) {
                 return [
                     'id' => [
                         'type' => Type::nonNull(Type::string()),
@@ -164,7 +164,7 @@ class StarWarsSchema
                         $fieldSelection['id'] = true;
 
                         $friends = array_map(
-                            function($friend) use ($fieldSelection) {
+                            function ($friend) use ($fieldSelection) {
                                 return array_intersect_key($friend, $fieldSelection);
                             },
                             StarWarsData::getFriends($human)
@@ -184,7 +184,7 @@ class StarWarsSchema
                 'secretBackstory' => [
                     'type' => Type::string(),
                     'description' => 'Where are they from and how they came to be who they are.',
-                    'resolve' => function() {
+                    'resolve' => function () {
                         // This is to demonstrate error reporting
                         throw new \Exception('secretBackstory is secret.');
                     },
@@ -232,7 +232,7 @@ class StarWarsSchema
                 'secretBackstory' => [
                     'type' => Type::string(),
                     'description' => 'Construction date and the name of the designer.',
-                    'resolve' => function() {
+                    'resolve' => function () {
                         // This is to demonstrate error reporting
                         throw new \Exception('secretBackstory is secret.');
                     },

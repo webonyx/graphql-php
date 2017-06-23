@@ -51,7 +51,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
                 if (!is_array($value)) {
                     if (is_string($name)) {
                         $value = ['name' => $name, 'value' => $value];
-                    } else if (is_int($name) && is_string($value)) {
+                    } elseif (is_int($name) && is_string($value)) {
                         $value = ['name' => $value, 'value' => $value];
                     }
                 }

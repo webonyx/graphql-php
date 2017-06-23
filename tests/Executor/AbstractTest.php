@@ -36,7 +36,9 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
         $dogType = new ObjectType([
             'name' => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf' => function($obj) { return $obj instanceof Dog; },
+            'isTypeOf' => function ($obj) {
+                return $obj instanceof Dog;
+            },
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()]
@@ -99,7 +101,9 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
     {
         $dogType = new ObjectType([
             'name' => 'Dog',
-            'isTypeOf' => function($obj) { return $obj instanceof Dog; },
+            'isTypeOf' => function ($obj) {
+                return $obj instanceof Dog;
+            },
             'fields' => [
                 'name' => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()]
@@ -128,7 +132,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($petType),
-                        'resolve' => function() {
+                        'resolve' => function () {
                             return [ new Dog('Odie', true), new Cat('Garfield', false) ];
                         }
                     ]
@@ -161,7 +165,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
     /**
      * @it resolveType on Interface yields useful error
      */
-    function testResolveTypeOnInterfaceYieldsUsefulError()
+    public function testResolveTypeOnInterfaceYieldsUsefulError()
     {
         $DogType = null;
         $CatType = null;
@@ -364,9 +368,13 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
     {
         $PetType = new InterfaceType([
             'name' => 'Pet',
-            'resolveType' => function($obj) {
-                if ($obj instanceof Dog) return 'Dog';
-                if ($obj instanceof Cat) return 'Cat';
+            'resolveType' => function ($obj) {
+                if ($obj instanceof Dog) {
+                    return 'Dog';
+                }
+                if ($obj instanceof Cat) {
+                    return 'Cat';
+                }
                 return null;
             },
             'fields' => [
@@ -398,7 +406,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
                 'fields' => [
                     'pets' => [
                         'type' => Type::listOf($PetType),
-                        'resolve' => function() {
+                        'resolve' => function () {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false)

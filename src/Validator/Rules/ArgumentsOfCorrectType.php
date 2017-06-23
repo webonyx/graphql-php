@@ -11,7 +11,7 @@ use GraphQL\Validator\ValidationContext;
 
 class ArgumentsOfCorrectType
 {
-    static function badValueMessage($argName, $type, $value, $verboseErrors = [])
+    public static function badValueMessage($argName, $type, $value, $verboseErrors = [])
     {
         $message = $verboseErrors ? ("\n" . implode("\n", $verboseErrors)) : '';
         return "Argument \"$argName\" has invalid value $value.$message";
@@ -20,7 +20,7 @@ class ArgumentsOfCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeKind::ARGUMENT => function(ArgumentNode $argNode) use ($context) {
+            NodeKind::ARGUMENT => function (ArgumentNode $argNode) use ($context) {
                 $argDef = $context->getArgument();
                 if ($argDef) {
                     $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argNode->value);

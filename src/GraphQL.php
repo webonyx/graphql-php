@@ -32,7 +32,7 @@ class GraphQL
             return $result->toArray();
         }
         if ($result instanceof Promise) {
-            return $result->then(function(ExecutionResult $executionResult) {
+            return $result->then(function (ExecutionResult $executionResult) {
                 return $executionResult->toArray();
             });
         }

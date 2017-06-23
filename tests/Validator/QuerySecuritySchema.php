@@ -59,7 +59,7 @@ class QuerySecuritySchema
         self::$humanType = new ObjectType(
             [
                 'name' => 'Human',
-                'fields' => function() {
+                'fields' => function () {
                     return [
                         'firstName' => ['type' => Type::nonNull(Type::string())],
                         'dogs' => [

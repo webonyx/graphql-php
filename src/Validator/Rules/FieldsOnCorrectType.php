@@ -11,7 +11,7 @@ use GraphQL\Validator\ValidationContext;
 
 class FieldsOnCorrectType
 {
-    static function undefinedFieldMessage($field, $type, array $suggestedTypes = [])
+    public static function undefinedFieldMessage($field, $type, array $suggestedTypes = [])
     {
         $message = 'Cannot query field "' . $field . '" on type "' . $type.'".';
 
@@ -19,7 +19,9 @@ class FieldsOnCorrectType
         $count = count($suggestedTypes);
         if ($count > 0) {
             $suggestions = array_slice($suggestedTypes, 0, $maxLength);
-            $suggestions = Utils::map($suggestions, function($t) { return "\"$t\""; });
+            $suggestions = Utils::map($suggestions, function ($t) {
+                return "\"$t\"";
+            });
             $suggestions = implode(', ', $suggestions);
 
             if ($count > $maxLength) {
@@ -34,7 +36,7 @@ class FieldsOnCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeKind::FIELD => function(FieldNode $node) use ($context) {
+            NodeKind::FIELD => function (FieldNode $node) use ($context) {
                 $type = $context->getParentType();
                 if ($type) {
                     $fieldDef = $context->getFieldDef();
@@ -70,11 +72,15 @@ class FieldsOnCorrectType
      * @param $fieldName
      * @return array
      */
-    static function getImplementationsIncludingField(Schema $schema, AbstractType $type, $fieldName)
+    public static function getImplementationsIncludingField(Schema $schema, AbstractType $type, $fieldName)
     {
         $types = $schema->getPossibleTypes($type);
-        $types = Utils::filter($types, function($t) use ($fieldName) {return isset($t->getFields()[$fieldName]);});
-        $types = Utils::map($types, function($t) {return $t->name;});
+        $types = Utils::filter($types, function ($t) use ($fieldName) {
+            return isset($t->getFields()[$fieldName]);
+        });
+        $types = Utils::map($types, function ($t) {
+            return $t->name;
+        });
         sort($types);
         return $types;
     }
@@ -85,7 +91,7 @@ class FieldsOnCorrectType
      * return them, sorted by how often the implementations include the other
      * interface.
      */
-    static function getSiblingInterfacesIncludingField(Schema $schema, AbstractType $type, $fieldName)
+    public static function getSiblingInterfacesIncludingField(Schema $schema, AbstractType $type, $fieldName)
     {
         $types = $schema->getPossibleTypes($type);
         $suggestedInterfaces = array_reduce($types, function ($acc, $t) use ($fieldName) {
@@ -101,7 +107,7 @@ class FieldsOnCorrectType
             return $acc;
         }, []);
         $suggestedInterfaceNames = array_keys($suggestedInterfaces);
-        usort($suggestedInterfaceNames, function($a, $b) use ($suggestedInterfaces) {
+        usort($suggestedInterfaceNames, function ($a, $b) use ($suggestedInterfaces) {
             return $suggestedInterfaces[$b] - $suggestedInterfaces[$a];
         });
         return $suggestedInterfaceNames;

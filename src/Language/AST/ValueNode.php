@@ -13,5 +13,4 @@ export type ValueNode = VariableNode
  */
 interface ValueNode
 {
-
 }

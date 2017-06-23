@@ -12,7 +12,7 @@ use GraphQL\Validator\ValidationContext;
 
 class VariablesInAllowedPosition
 {
-    static function badVarPosMessage($varName, $varType, $expectedType)
+    public static function badVarPosMessage($varName, $varType, $expectedType)
     {
         return "Variable \"\$$varName\" of type \"$varType\" used in position expecting ".
         "type \"$expectedType\".";
@@ -27,7 +27,7 @@ class VariablesInAllowedPosition
                 'enter' => function () {
                     $this->varDefMap = [];
                 },
-                'leave' => function(OperationDefinitionNode $operation) use ($context) {
+                'leave' => function (OperationDefinitionNode $operation) use ($context) {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
@@ -87,5 +87,4 @@ class VariablesInAllowedPosition
     {
         return (!$varDef->defaultValue || $varType instanceof NonNull) ? $varType : new NonNull($varType);
     }
-
 }

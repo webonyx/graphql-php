@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type;
 
-
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
@@ -23,7 +22,8 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils;
 use GraphQL\Utils\AST;
 
-class TypeKind {
+class TypeKind
+{
     const SCALAR = 0;
     const OBJECT = 1;
     const INTERFACE_KIND = 2;
@@ -271,7 +271,7 @@ EOD;
                     'directives' => [
                         'description' => 'A list of all directives supported by this server.',
                         'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_directive()))),
-                        'resolve' => function(Schema $schema) {
+                        'resolve' => function (Schema $schema) {
                             return $schema->getDirectives();
                         }
                     ]
@@ -312,7 +312,7 @@ EOD;
                     'onOperation' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => function($d) {
+                        'resolve' => function ($d) {
                             return in_array(DirectiveLocation::QUERY, $d->locations) ||
                                 in_array(DirectiveLocation::MUTATION, $d->locations) ||
                                 in_array(DirectiveLocation::SUBSCRIPTION, $d->locations);
@@ -321,7 +321,7 @@ EOD;
                     'onFragment' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => function($d) {
+                        'resolve' => function ($d) {
                             return in_array(DirectiveLocation::FRAGMENT_SPREAD, $d->locations) ||
                             in_array(DirectiveLocation::INLINE_FRAGMENT, $d->locations) ||
                             in_array(DirectiveLocation::FRAGMENT_DEFINITION, $d->locations);
@@ -330,7 +330,7 @@ EOD;
                     'onField' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => function($d) {
+                        'resolve' => function ($d) {
                             return in_array(DirectiveLocation::FIELD, $d->locations);
                         }
                     ]
@@ -443,7 +443,7 @@ EOD;
                     'Object and Interface types provide the fields they describe. Abstract ' .
                     'types, Union and Interface, provide the Object types possible ' .
                     'at runtime. List and NonNull types compose other types.',
-                'fields' => function() {
+                'fields' => function () {
                     return [
                         'kind' => [
                             'type' => Type::nonNull(self::_typeKind()),
@@ -557,13 +557,12 @@ EOD;
     public static function _field()
     {
         if (!isset(self::$map['__Field'])) {
-
             self::$map['__Field'] = new ObjectType([
                 'name' => '__Field',
                 'description' =>
                     'Object and Interface types are described by a list of Fields, each of ' .
                     'which has a name, potentially a list of arguments, and a return type.',
-                'fields' => function() {
+                'fields' => function () {
                     return [
                         'name' => ['type' => Type::nonNull(Type::string())],
                         'description' => ['type' => Type::string()],
@@ -604,7 +603,7 @@ EOD;
                     'Arguments provided to Fields or Directives and the input fields of an ' .
                     'InputObject are represented as Input Values which describe their type ' .
                     'and optionally a default value.',
-                'fields' => function() {
+                'fields' => function () {
                     return [
                         'name' => ['type' => Type::nonNull(Type::string())],
                         'description' => ['type' => Type::string()],

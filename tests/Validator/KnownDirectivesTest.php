@@ -123,7 +123,7 @@ class KnownDirectivesTest extends TestCase
         );
     }
 
-    function misplacedDirective($directiveName, $placement, $line, $column)
+    public function misplacedDirective($directiveName, $placement, $line, $column)
     {
         return FormattedError::create(
             KnownDirectives::misplacedDirectiveMessage($directiveName, $placement),

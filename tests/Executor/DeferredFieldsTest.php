@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
-
 use GraphQL\Deferred;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -59,7 +58,7 @@ class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
         $this->path = [];
         $this->userType = new ObjectType([
             'name' => 'User',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -70,12 +69,12 @@ class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
                     ],
                     'bestFriend' => [
                         'type' => $this->userType,
-                        'resolve' => function($user, $args, $context, ResolveInfo $info) {
+                        'resolve' => function ($user, $args, $context, ResolveInfo $info) {
                             $this->path[] = $info->path;
 
-                            return new Deferred(function() use ($user) {
+                            return new Deferred(function () use ($user) {
                                 $this->path[] = 'deferred-for-best-friend-of-' . $user['id'];
-                                return Utils::find($this->userDataSource, function($entry) use ($user) {
+                                return Utils::find($this->userDataSource, function ($entry) use ($user) {
                                     return $entry['id'] === $user['bestFriendId'];
                                 });
                             });
@@ -90,19 +89,19 @@ class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'title' => [
                     'type' => Type::string(),
-                    'resolve' => function($entry, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($entry, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
                         return $entry['title'];
                     }
                 ],
                 'author' => [
                     'type' => $this->userType,
-                    'resolve' => function($story, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($story, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
 
-                        return new Deferred(function() use ($story) {
+                        return new Deferred(function () use ($story) {
                             $this->path[] = 'deferred-for-story-' . $story['id'] . '-author';
-                            return Utils::find($this->userDataSource, function($entry) use ($story) {
+                            return Utils::find($this->userDataSource, function ($entry) use ($story) {
                                 return $entry['id'] === $story['authorId'];
                             });
                         });
@@ -116,7 +115,7 @@ class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'resolve' => function($category, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
                         return $category['name'];
                     }
@@ -124,21 +123,21 @@ class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
 
                 'stories' => [
                     'type' => Type::listOf($this->storyType),
-                    'resolve' => function($category, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
-                        return Utils::filter($this->storyDataSource, function($story) use ($category) {
+                        return Utils::filter($this->storyDataSource, function ($story) use ($category) {
                             return in_array($category['id'], $story['categoryIds']);
                         });
                     }
                 ],
                 'topStory' => [
                     'type' => $this->storyType,
-                    'resolve' => function($category, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
 
                         return new Deferred(function () use ($category) {
                             $this->path[] = 'deferred-for-category-' . $category['id'] . '-topStory';
-                            return Utils::find($this->storyDataSource, function($story) use ($category) {
+                            return Utils::find($this->storyDataSource, function ($story) use ($category) {
                                 return $story['id'] === $category['topStoryId'];
                             });
                         });
@@ -152,23 +151,23 @@ class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'topStories' => [
                     'type' => Type::listOf($this->storyType),
-                    'resolve' => function($val, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
-                        return Utils::filter($this->storyDataSource, function($story) {
+                        return Utils::filter($this->storyDataSource, function ($story) {
                             return $story['id'] % 2 === 1;
                         });
                     }
                 ],
                 'featuredCategory' => [
                     'type' => $this->categoryType,
-                    'resolve' => function($val, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
                         return $this->categoryDataSource[0];
                     }
                 ],
                 'categories' => [
                     'type' => Type::listOf($this->categoryType),
-                    'resolve' => function($val, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
                         return $this->categoryDataSource;
                     }
@@ -352,21 +351,21 @@ class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
     {
         $complexType = new ObjectType([
             'name' => 'ComplexType',
-            'fields' => function() use (&$complexType) {
+            'fields' => function () use (&$complexType) {
                 return [
                     'sync' => [
                         'type' => Type::string(),
-                        'resolve' => function($v, $a, $c, ResolveInfo $info) {
+                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
                             $this->path[] = $info->path;
                             return 'sync';
                         }
                     ],
                     'deferred' => [
                         'type' => Type::string(),
-                        'resolve' => function($v, $a, $c, ResolveInfo $info) {
+                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
                             $this->path[] = $info->path;
 
-                            return new Deferred(function() use ($info) {
+                            return new Deferred(function () use ($info) {
                                 $this->path[] = ['!dfd for: ', $info->path];
                                 return 'deferred';
                             });
@@ -374,17 +373,17 @@ class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
                     ],
                     'nest' => [
                         'type' => $complexType,
-                        'resolve' => function($v, $a, $c, ResolveInfo $info) {
+                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
                             $this->path[] = $info->path;
                             return [];
                         }
                     ],
                     'deferredNest' => [
                         'type' => $complexType,
-                        'resolve' => function($v, $a, $c, ResolveInfo $info) {
+                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
                             $this->path[] = $info->path;
 
-                            return new Deferred(function() use ($info) {
+                            return new Deferred(function () use ($info) {
                                 $this->path[] = ['!dfd nest for: ', $info->path];
                                 return [];
                             });

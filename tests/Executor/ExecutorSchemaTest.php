@@ -29,7 +29,7 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
 
         $BlogAuthor = new ObjectType([
             'name' => 'Author',
-            'fields' => function() use (&$BlogArticle, &$BlogImage) {
+            'fields' => function () use (&$BlogArticle, &$BlogImage) {
                 return [
                     'id' => ['type' => Type::string()],
                     'name' => ['type' => Type::string()],
@@ -179,7 +179,7 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
     private function article($id)
     {
         $johnSmith = null;
-        $article = function($id) use (&$johnSmith) {
+        $article = function ($id) use (&$johnSmith) {
             return [
                 'id' => $id,
                 'isPublished' => 'true',
@@ -191,7 +191,7 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
             ];
         };
 
-        $getPic = function($uid, $width, $height) {
+        $getPic = function ($uid, $width, $height) {
             return [
                 'url' => "cdn://$uid",
                 'width' => $width,
@@ -202,7 +202,9 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
         $johnSmith = [
             'id' => 123,
             'name' => 'John Smith',
-            'pic' => function($width, $height) use ($getPic) {return $getPic(123, $width, $height);},
+            'pic' => function ($width, $height) use ($getPic) {
+                return $getPic(123, $width, $height);
+            },
             'recentArticle' => $article(1),
         ];
 

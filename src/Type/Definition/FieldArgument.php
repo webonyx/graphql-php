@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-
 /**
  * Class FieldArgument
  *

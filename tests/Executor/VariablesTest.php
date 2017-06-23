@@ -352,7 +352,6 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
             'data' => ['fieldWithNonNullableStringInput' => '"default"']
         ];
         $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
-
     }
 
     /**
@@ -870,7 +869,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                 'fieldWithDefaultArgumentValue' => [
                     'type' => Type::string(),
                     'args' => [ 'input' => [ 'type' => Type::string(), 'defaultValue' => 'Hello World' ]],
-                    'resolve' => function($_, $args) {
+                    'resolve' => function ($_, $args) {
                         return isset($args['input']) ? json_encode($args['input']) : null;
                     }
                 ],
@@ -882,7 +881,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                             'defaultValue' => 'Hello World'
                         ]
                     ],
-                    'resolve' => function($_, $args) {
+                    'resolve' => function ($_, $args) {
                         return isset($args['input']) ? json_encode($args['input']) : null;
                     }
                 ],

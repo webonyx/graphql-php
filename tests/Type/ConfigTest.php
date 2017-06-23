@@ -261,7 +261,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                     ['nested' => ''],
                     ['nested' => '1'],
                 ],
-                'testThunk' => function() {
+                'testThunk' => function () {
                     // Currently config won't validate thunk return value
                 }
             ],
@@ -279,7 +279,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 
         $this->expectValidationThrows(
             [
-                'testThunk' => $closure = function() {}
+                'testThunk' => $closure = function () {
+                }
             ],
             [
                 'testThunk' => Config::arrayOf(
@@ -387,7 +388,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             [Config::ANY, ''],
             [Config::ANY, '0'],
             [Config::ANY, 1],
-            [Config::ANY, function() {}],
+            [Config::ANY, function () {
+            }],
             [Config::ANY, []],
             [Config::ANY, new \stdClass()],
             [Config::STRING, null],
@@ -418,7 +420,8 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             [Config::NUMERIC, -1],
             [Config::NUMERIC, 1],
             [Config::CALLBACK, null],
-            [Config::CALLBACK, function() {}],
+            [Config::CALLBACK, function () {
+            }],
             [Config::CALLBACK, [$this, 'getValidValues']],
             [Config::SCALAR, null],
             [Config::SCALAR, 0],
@@ -477,40 +480,47 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
             [Config::STRING, 'string', 1, 'integer'],
             [Config::STRING, 'string', 0, 'integer'],
             [Config::STRING, 'string', false, 'boolean'],
-            [Config::STRING, 'string', $tmp = function() {}, Utils::getVariableType($tmp)], // Note: can't use "Closure" as HHVM returns different string
+            [Config::STRING, 'string', $tmp = function () {
+            }, Utils::getVariableType($tmp)], // Note: can't use "Closure" as HHVM returns different string
             [Config::STRING, 'string', [], 'array'],
             [Config::STRING, 'string', new \stdClass(), 'stdClass'],
             [Config::BOOLEAN, 'boolean', '', 'string'],
             [Config::BOOLEAN, 'boolean', 1, 'integer'],
-            [Config::BOOLEAN, 'boolean', $tmp = function() {}, Utils::getVariableType($tmp)],
+            [Config::BOOLEAN, 'boolean', $tmp = function () {
+            }, Utils::getVariableType($tmp)],
             [Config::BOOLEAN, 'boolean', [], 'array'],
             [Config::BOOLEAN, 'boolean', new \stdClass(), 'stdClass'],
             [Config::INT, 'int', false, 'boolean'],
             [Config::INT, 'int', '', 'string'],
             [Config::INT, 'int', '0', 'string'],
             [Config::INT, 'int', '1', 'string'],
-            [Config::INT, 'int', $tmp = function() {}, Utils::getVariableType($tmp)],
+            [Config::INT, 'int', $tmp = function () {
+            }, Utils::getVariableType($tmp)],
             [Config::INT, 'int', [], 'array'],
             [Config::INT, 'int', new \stdClass(), 'stdClass'],
             [Config::FLOAT, 'float', '', 'string'],
             [Config::FLOAT, 'float', '0', 'string'],
-            [Config::FLOAT, 'float', $tmp = function() {}, Utils::getVariableType($tmp)],
+            [Config::FLOAT, 'float', $tmp = function () {
+            }, Utils::getVariableType($tmp)],
             [Config::FLOAT, 'float', [], 'array'],
             [Config::FLOAT, 'float', new \stdClass(), 'stdClass'],
             [Config::NUMERIC, 'numeric', '', 'string'],
             [Config::NUMERIC, 'numeric', 'tmp', 'string'],
             [Config::NUMERIC, 'numeric', [], 'array'],
             [Config::NUMERIC, 'numeric', new \stdClass(), 'stdClass'],
-            [Config::NUMERIC, 'numeric', $tmp = function() {}, Utils::getVariableType($tmp)],
+            [Config::NUMERIC, 'numeric', $tmp = function () {
+            }, Utils::getVariableType($tmp)],
             [Config::CALLBACK, 'callable', 1, 'integer'],
             [Config::CALLBACK, 'callable', '', 'string'],
             [Config::CALLBACK, 'callable', [], 'array'],
             [Config::CALLBACK, 'callable', new \stdClass(), 'stdClass'],
             [Config::SCALAR, 'scalar', [], 'array'],
             [Config::SCALAR, 'scalar', new \stdClass(), 'stdClass'],
-            [Config::SCALAR, 'scalar', $tmp = function() {}, Utils::getVariableType($tmp)],
+            [Config::SCALAR, 'scalar', $tmp = function () {
+            }, Utils::getVariableType($tmp)],
             [Config::NAME, 'name', 5, 'integer'],
-            [Config::NAME, 'name', $tmp = function() {}, Utils::getVariableType($tmp)],
+            [Config::NAME, 'name', $tmp = function () {
+            }, Utils::getVariableType($tmp)],
             [Config::NAME, 'name', [], 'array'],
             [Config::NAME, 'name', new \stdClass(), 'stdClass'],
             [Config::NAME, 'name', '', null, 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "" does not.'],

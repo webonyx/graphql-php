@@ -15,7 +15,7 @@ class UserType extends ObjectType
         $config = [
             'name' => 'User',
             'description' => 'Our blog authors',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'id' => Types::id(),
                     'email' => Types::email(),
@@ -35,7 +35,7 @@ class UserType extends ObjectType
                     'lastStoryPosted' => Types::story(),
                     'fieldWithError' => [
                         'type' => Types::string(),
-                        'resolve' => function() {
+                        'resolve' => function () {
                             throw new \Exception("This is error field");
                         }
                     ]
@@ -44,7 +44,7 @@ class UserType extends ObjectType
             'interfaces' => [
                 Types::node()
             ],
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+            'resolveField' => function ($value, $args, $context, ResolveInfo $info) {
                 if (method_exists($this, $info->fieldName)) {
                     return $this->{$info->fieldName}($value, $args, $context, $info);
                 } else {

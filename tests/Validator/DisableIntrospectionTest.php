@@ -23,7 +23,7 @@ class DisableIntrospectionTest extends TestCase
         }
       }
         ',
-            [$this->error(3, 9)] 
+            [$this->error(3, 9)]
         );
     }
     

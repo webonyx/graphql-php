@@ -24,7 +24,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
 
         $author = new ObjectType([
             'name' => 'Author',
-            'fields' => function() use ($image, &$article) {
+            'fields' => function () use ($image, &$article) {
                 return [
                     'id' => ['type' => Type::string()],
                     'name' => ['type' => Type::string()],
@@ -144,7 +144,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'article' => [
                     'type' => $article,
-                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDefaultSelection, &$actualDeepSelection) {
+                    'resolve' => function ($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDefaultSelection, &$actualDeepSelection) {
                         $hasCalled = true;
                         $actualDefaultSelection = $info->getFieldSelection();
                         $actualDeepSelection = $info->getFieldSelection(5);
@@ -178,7 +178,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
 
         $author = new ObjectType([
             'name' => 'Author',
-            'fields' => function() use ($image, &$article) {
+            'fields' => function () use ($image, &$article) {
                 return [
                     'id' => ['type' => Type::string()],
                     'name' => ['type' => Type::string()],
@@ -303,7 +303,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'article' => [
                     'type' => $article,
-                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDeepSelection) {
+                    'resolve' => function ($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDeepSelection) {
                         $hasCalled = true;
                         $actualDeepSelection = $info->getFieldSelection(5);
                         return null;
@@ -319,6 +319,4 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['data' => ['article' => null]], $result);
         $this->assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
-
-
 }

@@ -108,7 +108,7 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
 
         $dataType = new ObjectType([
             'name' => 'DataType',
-            'fields' => function() use (&$dataType) {
+            'fields' => function () use (&$dataType) {
                 return [
                     'sync' => ['type' => Type::string()],
                     'nonNullSync' => ['type' => Type::nonNull(Type::string())],

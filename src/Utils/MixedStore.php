@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Utils;
+
 use GraphQL\Utils;
 
 /**
@@ -133,9 +134,9 @@ class MixedStore implements \ArrayAccess
     {
         if (is_scalar($offset)) {
             $this->scalarStore[$offset] = $value;
-        } else if (is_object($offset)) {
+        } elseif (is_object($offset)) {
             $this->objectStore[$offset] = $value;
-        } else if (is_array($offset)) {
+        } elseif (is_array($offset)) {
             $this->arrayKeys[] = $offset;
             $this->arrayValues[] = $value;
         } else {
@@ -156,9 +157,9 @@ class MixedStore implements \ArrayAccess
     {
         if (is_scalar($offset)) {
             unset($this->scalarStore[$offset]);
-        } else if (is_object($offset)) {
+        } elseif (is_object($offset)) {
             $this->objectStore->offsetUnset($offset);
-        } else if (is_array($offset)) {
+        } elseif (is_array($offset)) {
             $index = array_search($offset, $this->arrayKeys, true);
 
             if (false !== $index) {

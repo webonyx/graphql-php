@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NodeKind;
@@ -10,14 +9,16 @@ use GraphQL\Validator\ValidationContext;
 
 class KnownTypeNames
 {
-    static function unknownTypeMessage($type)
+    public static function unknownTypeMessage($type)
     {
         return "Unknown type \"$type\".";
     }
 
     public function __invoke(ValidationContext $context)
     {
-        $skip = function() {return Visitor::skipNode();};
+        $skip = function () {
+            return Visitor::skipNode();
+        };
 
         return [
             NodeKind::OBJECT_TYPE_DEFINITION => $skip,
@@ -25,7 +26,7 @@ class KnownTypeNames
             NodeKind::UNION_TYPE_DEFINITION => $skip,
             NodeKind::INPUT_OBJECT_TYPE_DEFINITION => $skip,
 
-            NodeKind::NAMED_TYPE => function(NamedTypeNode $node, $key) use ($context) {
+            NodeKind::NAMED_TYPE => function (NamedTypeNode $node, $key) use ($context) {
                 $typeName = $node->name->value;
                 $type = $context->getSchema()->getType($typeName);
                 if (!$type) {

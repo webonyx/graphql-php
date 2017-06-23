@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
@@ -14,13 +13,13 @@ use GraphQL\Validator\ValidationContext;
 
 class DefaultValuesOfCorrectType
 {
-    static function badValueForDefaultArgMessage($varName, $type, $value, $verboseErrors = null)
+    public static function badValueForDefaultArgMessage($varName, $type, $value, $verboseErrors = null)
     {
         $message = $verboseErrors ? ("\n" . implode("\n", $verboseErrors)) : '';
         return "Variable \$$varName has invalid default value: $value.$message";
     }
 
-    static function defaultForNonNullArgMessage($varName, $type, $guessType)
+    public static function defaultForNonNullArgMessage($varName, $type, $guessType)
     {
         return "Variable \$$varName of type $type " .
         "is required and will never use the default value. " .
@@ -30,7 +29,7 @@ class DefaultValuesOfCorrectType
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeKind::VARIABLE_DEFINITION => function(VariableDefinitionNode $varDefNode) use ($context) {
+            NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $varDefNode) use ($context) {
                 $name = $varDefNode->variable->name->value;
                 $defaultValue = $varDefNode->defaultValue;
                 $type = $context->getInputType();
@@ -52,8 +51,12 @@ class DefaultValuesOfCorrectType
                 }
                 return Visitor::skipNode();
             },
-            NodeKind::SELECTION_SET => function() {return Visitor::skipNode();},
-            NodeKind::FRAGMENT_DEFINITION => function() {return Visitor::skipNode();}
+            NodeKind::SELECTION_SET => function () {
+                return Visitor::skipNode();
+            },
+            NodeKind::FRAGMENT_DEFINITION => function () {
+                return Visitor::skipNode();
+            }
         ];
     }
 }

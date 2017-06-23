@@ -49,22 +49,23 @@ class Printer
     }
 
     protected function __construct()
-    {}
+    {
+    }
 
     public function printAST($ast)
     {
         return Visitor::visit($ast, [
             'leave' => [
-                NodeKind::NAME => function(Node $node) {
+                NodeKind::NAME => function (Node $node) {
                     return '' . $node->value;
                 },
-                NodeKind::VARIABLE => function($node) {
+                NodeKind::VARIABLE => function ($node) {
                     return '$' . $node->name;
                 },
-                NodeKind::DOCUMENT => function(DocumentNode $node) {
+                NodeKind::DOCUMENT => function (DocumentNode $node) {
                     return $this->join($node->definitions, "\n\n") . "\n";
                 },
-                NodeKind::OPERATION_DEFINITION => function(OperationDefinitionNode $node) {
+                NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) {
                     $op = $node->operation;
                     $name = $node->name;
                     $varDefs = $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')');
@@ -76,28 +77,28 @@ class Printer
                         ? $selectionSet
                         : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
                 },
-                NodeKind::VARIABLE_DEFINITION => function(VariableDefinitionNode $node) {
+                NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) {
                     return $node->variable . ': ' . $node->type . $this->wrap(' = ', $node->defaultValue);
                 },
-                NodeKind::SELECTION_SET => function(SelectionSetNode $node) {
+                NodeKind::SELECTION_SET => function (SelectionSetNode $node) {
                     return $this->block($node->selections);
                 },
-                NodeKind::FIELD => function(FieldNode $node) {
+                NodeKind::FIELD => function (FieldNode $node) {
                     return $this->join([
                         $this->wrap('', $node->alias, ': ') . $node->name . $this->wrap('(', $this->join($node->arguments, ', '), ')'),
                         $this->join($node->directives, ' '),
                         $node->selectionSet
                     ], ' ');
                 },
-                NodeKind::ARGUMENT => function(ArgumentNode $node) {
+                NodeKind::ARGUMENT => function (ArgumentNode $node) {
                     return $node->name . ': ' . $node->value;
                 },
 
                 // Fragments
-                NodeKind::FRAGMENT_SPREAD => function(FragmentSpreadNode $node) {
+                NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) {
                     return '...' . $node->name . $this->wrap(' ', $this->join($node->directives, ' '));
                 },
-                NodeKind::INLINE_FRAGMENT => function(InlineFragmentNode $node) {
+                NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) {
                     return $this->join([
                         "...",
                         $this->wrap('on ', $node->typeCondition),
@@ -105,73 +106,73 @@ class Printer
                         $node->selectionSet
                     ], ' ');
                 },
-                NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) {
+                NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) {
                     return "fragment {$node->name} on {$node->typeCondition} "
                         . $this->wrap('', $this->join($node->directives, ' '), ' ')
                         . $node->selectionSet;
                 },
 
                 // Value
-                NodeKind::INT => function(IntValueNode  $node) {
+                NodeKind::INT => function (IntValueNode  $node) {
                     return $node->value;
                 },
-                NodeKind::FLOAT => function(FloatValueNode $node) {
+                NodeKind::FLOAT => function (FloatValueNode $node) {
                     return $node->value;
                 },
-                NodeKind::STRING => function(StringValueNode $node) {
+                NodeKind::STRING => function (StringValueNode $node) {
                     return json_encode($node->value);
                 },
-                NodeKind::BOOLEAN => function(BooleanValueNode $node) {
+                NodeKind::BOOLEAN => function (BooleanValueNode $node) {
                     return $node->value ? 'true' : 'false';
                 },
-                NodeKind::NULL => function(NullValueNode $node) {
+                NodeKind::NULL => function (NullValueNode $node) {
                     return 'null';
                 },
-                NodeKind::ENUM => function(EnumValueNode $node) {
+                NodeKind::ENUM => function (EnumValueNode $node) {
                     return $node->value;
                 },
-                NodeKind::LST => function(ListValueNode $node) {
+                NodeKind::LST => function (ListValueNode $node) {
                     return '[' . $this->join($node->values, ', ') . ']';
                 },
-                NodeKind::OBJECT => function(ObjectValueNode $node) {
+                NodeKind::OBJECT => function (ObjectValueNode $node) {
                     return '{' . $this->join($node->fields, ', ') . '}';
                 },
-                NodeKind::OBJECT_FIELD => function(ObjectFieldNode $node) {
+                NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) {
                     return $node->name . ': ' . $node->value;
                 },
 
                 // DirectiveNode
-                NodeKind::DIRECTIVE => function(DirectiveNode $node) {
+                NodeKind::DIRECTIVE => function (DirectiveNode $node) {
                     return '@' . $node->name . $this->wrap('(', $this->join($node->arguments, ', '), ')');
                 },
 
                 // Type
-                NodeKind::NAMED_TYPE => function(NamedTypeNode $node) {
+                NodeKind::NAMED_TYPE => function (NamedTypeNode $node) {
                     return $node->name;
                 },
-                NodeKind::LIST_TYPE => function(ListTypeNode $node) {
+                NodeKind::LIST_TYPE => function (ListTypeNode $node) {
                     return '[' . $node->type . ']';
                 },
-                NodeKind::NON_NULL_TYPE => function(NonNullTypeNode $node) {
+                NodeKind::NON_NULL_TYPE => function (NonNullTypeNode $node) {
                     return $node->type . '!';
                 },
 
                 // Type System Definitions
-                NodeKind::SCHEMA_DEFINITION => function(SchemaDefinitionNode $def) {
+                NodeKind::SCHEMA_DEFINITION => function (SchemaDefinitionNode $def) {
                     return $this->join([
                         'schema',
                         $this->join($def->directives, ' '),
                         $this->block($def->operationTypes)
                     ], ' ');
                 },
-                NodeKind::OPERATION_TYPE_DEFINITION => function(OperationTypeDefinitionNode $def) {
+                NodeKind::OPERATION_TYPE_DEFINITION => function (OperationTypeDefinitionNode $def) {
                     return $def->operation . ': ' . $def->type;
                 },
 
-                NodeKind::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinitionNode $def) {
+                NodeKind::SCALAR_TYPE_DEFINITION => function (ScalarTypeDefinitionNode $def) {
                     return $this->join(['scalar', $def->name, $this->join($def->directives, ' ')], ' ');
                 },
-                NodeKind::OBJECT_TYPE_DEFINITION => function(ObjectTypeDefinitionNode $def) {
+                NodeKind::OBJECT_TYPE_DEFINITION => function (ObjectTypeDefinitionNode $def) {
                     return $this->join([
                         'type',
                         $def->name,
@@ -180,20 +181,20 @@ class Printer
                         $this->block($def->fields)
                     ], ' ');
                 },
-                NodeKind::FIELD_DEFINITION => function(FieldDefinitionNode $def) {
+                NodeKind::FIELD_DEFINITION => function (FieldDefinitionNode $def) {
                     return $def->name
                          . $this->wrap('(', $this->join($def->arguments, ', '), ')')
                          . ': ' . $def->type
                          . $this->wrap(' ', $this->join($def->directives, ' '));
                 },
-                NodeKind::INPUT_VALUE_DEFINITION => function(InputValueDefinitionNode $def) {
+                NodeKind::INPUT_VALUE_DEFINITION => function (InputValueDefinitionNode $def) {
                     return $this->join([
                         $def->name . ': ' . $def->type,
                         $this->wrap('= ', $def->defaultValue),
                         $this->join($def->directives, ' ')
                     ], ' ');
                 },
-                NodeKind::INTERFACE_TYPE_DEFINITION => function(InterfaceTypeDefinitionNode $def) {
+                NodeKind::INTERFACE_TYPE_DEFINITION => function (InterfaceTypeDefinitionNode $def) {
                     return $this->join([
                         'interface',
                         $def->name,
@@ -201,7 +202,7 @@ class Printer
                         $this->block($def->fields)
                     ], ' ');
                 },
-                NodeKind::UNION_TYPE_DEFINITION => function(UnionTypeDefinitionNode $def) {
+                NodeKind::UNION_TYPE_DEFINITION => function (UnionTypeDefinitionNode $def) {
                     return $this->join([
                         'union',
                         $def->name,
@@ -209,7 +210,7 @@ class Printer
                         '= ' . $this->join($def->types, ' | ')
                     ], ' ');
                 },
-                NodeKind::ENUM_TYPE_DEFINITION => function(EnumTypeDefinitionNode $def) {
+                NodeKind::ENUM_TYPE_DEFINITION => function (EnumTypeDefinitionNode $def) {
                     return $this->join([
                         'enum',
                         $def->name,
@@ -217,13 +218,13 @@ class Printer
                         $this->block($def->values)
                     ], ' ');
                 },
-                NodeKind::ENUM_VALUE_DEFINITION => function(EnumValueDefinitionNode $def) {
+                NodeKind::ENUM_VALUE_DEFINITION => function (EnumValueDefinitionNode $def) {
                     return $this->join([
                         $def->name,
                         $this->join($def->directives, ' ')
                     ], ' ');
                 },
-                NodeKind::INPUT_OBJECT_TYPE_DEFINITION => function(InputObjectTypeDefinitionNode $def) {
+                NodeKind::INPUT_OBJECT_TYPE_DEFINITION => function (InputObjectTypeDefinitionNode $def) {
                     return $this->join([
                         'input',
                         $def->name,
@@ -231,10 +232,10 @@ class Printer
                         $this->block($def->fields)
                     ], ' ');
                 },
-                NodeKind::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinitionNode $def) {
+                NodeKind::TYPE_EXTENSION_DEFINITION => function (TypeExtensionDefinitionNode $def) {
                     return "extend {$def->definition}";
                 },
-                NodeKind::DIRECTIVE_DEFINITION => function(DirectiveDefinitionNode $def) {
+                NodeKind::DIRECTIVE_DEFINITION => function (DirectiveDefinitionNode $def) {
                     return 'directive @' . $def->name . $this->wrap('(', $this->join($def->arguments, ', '), ')')
                         . ' on ' . $this->join($def->locations, ' | ');
                 }
@@ -282,7 +283,9 @@ class Printer
                 $separator,
                 array_filter(
                     $maybeArray,
-                    function($x) { return !!$x;}
+                    function ($x) {
+                        return !!$x;
+                    }
                 )
             )
             : '';

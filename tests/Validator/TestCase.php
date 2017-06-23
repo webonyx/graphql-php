@@ -46,7 +46,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Canine = new InterfaceType([
             'name' => 'Canine',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -67,7 +67,9 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Dog = new ObjectType([
             'name' => 'Dog',
-            'isTypeOf' => function() {return true;},
+            'isTypeOf' => function () {
+                return true;
+            },
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
@@ -94,8 +96,10 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Cat = new ObjectType([
             'name' => 'Cat',
-            'isTypeOf' => function() {return true;},
-            'fields' => function() use (&$FurColor) {
+            'isTypeOf' => function () {
+                return true;
+            },
+            'fields' => function () use (&$FurColor) {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -113,7 +117,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $CatOrDog = new UnionType([
             'name' => 'CatOrDog',
             'types' => [$Dog, $Cat],
-            'resolveType' => function($value) {
+            'resolveType' => function ($value) {
                 // not used for validation
                 return null;
             }
@@ -129,9 +133,11 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $Human = null;
         $Human = new ObjectType([
             'name' => 'Human',
-            'isTypeOf' => function() {return true;},
+            'isTypeOf' => function () {
+                return true;
+            },
             'interfaces' => [$Being, $Intelligent],
-            'fields' => function() use (&$Human, $Pet) {
+            'fields' => function () use (&$Human, $Pet) {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -146,7 +152,9 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Alien = new ObjectType([
             'name' => 'Alien',
-            'isTypeOf' => function() {return true;},
+            'isTypeOf' => function () {
+                return true;
+            },
             'interfaces' => [$Being, $Intelligent],
             'fields' => [
                 'iq' => ['type' => Type::int()],
@@ -161,7 +169,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $DogOrHuman = new UnionType([
             'name' => 'DogOrHuman',
             'types' => [$Dog, $Human],
-            'resolveType' => function() {
+            'resolveType' => function () {
                 // not used for validation
                 return null;
             }
@@ -170,7 +178,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $HumanOrAlien = new UnionType([
             'name' => 'HumanOrAlien',
             'types' => [$Human, $Alien],
-            'resolveType' => function() {
+            'resolveType' => function () {
                 // not used for validation
                 return null;
             }
@@ -307,7 +315,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         return $defaultSchema;
     }
 
-    function expectValid($schema, $rules, $queryString)
+    public function expectValid($schema, $rules, $queryString)
     {
         $this->assertEquals(
             [],
@@ -316,7 +324,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         );
     }
 
-    function expectInvalid($schema, $rules, $queryString, $expectedErrors)
+    public function expectInvalid($schema, $rules, $queryString, $expectedErrors)
     {
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
 
@@ -326,32 +334,32 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         return $errors;
     }
 
-    function expectPassesRule($rule, $queryString)
+    public function expectPassesRule($rule, $queryString)
     {
         $this->expectValid($this->getDefaultSchema(), [$rule], $queryString);
     }
 
-    function expectFailsRule($rule, $queryString, $errors)
+    public function expectFailsRule($rule, $queryString, $errors)
     {
         return $this->expectInvalid($this->getDefaultSchema(), [$rule], $queryString, $errors);
     }
 
-    function expectPassesRuleWithSchema($schema, $rule, $queryString)
+    public function expectPassesRuleWithSchema($schema, $rule, $queryString)
     {
         $this->expectValid($schema, [$rule], $queryString);
     }
 
-    function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors)
+    public function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors)
     {
         $this->expectInvalid($schema, [$rule], $queryString, $errors);
     }
 
-    function expectPassesCompleteValidation($queryString)
+    public function expectPassesCompleteValidation($queryString)
     {
         $this->expectValid($this->getDefaultSchema(), DocumentValidator::allRules(), $queryString);
     }
 
-    function expectFailsCompleteValidation($queryString, $errors)
+    public function expectFailsCompleteValidation($queryString, $errors)
     {
         $this->expectInvalid($this->getDefaultSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }

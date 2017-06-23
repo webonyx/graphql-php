@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\FieldNode;
@@ -14,12 +13,12 @@ use GraphQL\Validator\ValidationContext;
 
 class ProvidedNonNullArguments
 {
-    static function missingFieldArgMessage($fieldName, $argName, $type)
+    public static function missingFieldArgMessage($fieldName, $argName, $type)
     {
         return "Field \"$fieldName\" argument \"$argName\" of type \"$type\" is required but not provided.";
     }
 
-    static function missingDirectiveArgMessage($directiveName, $argName, $type)
+    public static function missingDirectiveArgMessage($directiveName, $argName, $type)
     {
         return "Directive \"@$directiveName\" argument \"$argName\" of type \"$type\" is required but not provided.";
     }
@@ -28,7 +27,7 @@ class ProvidedNonNullArguments
     {
         return [
             NodeKind::FIELD => [
-                'leave' => function(FieldNode $fieldNode) use ($context) {
+                'leave' => function (FieldNode $fieldNode) use ($context) {
                     $fieldDef = $context->getFieldDef();
 
                     if (!$fieldDef) {
@@ -52,7 +51,7 @@ class ProvidedNonNullArguments
                 }
             ],
             NodeKind::DIRECTIVE => [
-                'leave' => function(DirectiveNode $directiveNode) use ($context) {
+                'leave' => function (DirectiveNode $directiveNode) use ($context) {
                     $directiveDef = $context->getDirective();
                     if (!$directiveDef) {
                         return Visitor::skipNode();

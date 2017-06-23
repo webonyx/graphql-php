@@ -5,7 +5,8 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\SchemaUtils;
-use \Traversable, \InvalidArgumentException;
+use \Traversable;
+use \InvalidArgumentException;
 
 class Utils
 {

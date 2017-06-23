@@ -86,10 +86,10 @@ class Error extends \Exception implements \JsonSerializable
             $nodes = $error->nodes ?: $nodes;
             $source = $error->source;
             $positions = $error->positions;
-        } else if ($error instanceof \Exception) {
+        } elseif ($error instanceof \Exception) {
             $message = $error->getMessage();
             $originalError = $error;
-        } else if ($error instanceof \Error) {
+        } elseif ($error instanceof \Error) {
             $message = $error->getMessage();
             $originalError = $error;
         } else {
@@ -158,10 +158,10 @@ class Error extends \Exception implements \JsonSerializable
     {
         if (null === $this->positions) {
             if (!empty($this->nodes)) {
-                $positions = array_map(function($node) {
+                $positions = array_map(function ($node) {
                     return isset($node->loc) ? $node->loc->start : null;
                 }, $this->nodes);
-                $this->positions = array_filter($positions, function($p) {
+                $this->positions = array_filter($positions, function ($p) {
                     return $p !== null;
                 });
             }
@@ -201,7 +201,7 @@ class Error extends \Exception implements \JsonSerializable
             'message' => $this->getMessage(),
         ];
 
-        $locations = Utils::map($this->getLocations(), function(SourceLocation $loc) {
+        $locations = Utils::map($this->getLocations(), function (SourceLocation $loc) {
             return $loc->toSerializableArray();
         });
 
@@ -222,7 +222,7 @@ class Error extends \Exception implements \JsonSerializable
      * which is a value of any type other than a resource.
      * @since 5.4.0
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return $this->toSerializableArray();
     }

@@ -3,7 +3,6 @@
 
 namespace GraphQL\Tests\Executor\Promise;
 
-
 use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use React\Promise\Deferred;
@@ -19,7 +18,7 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        if(! class_exists('React\Promise\Promise')) {
+        if (! class_exists('React\Promise\Promise')) {
             $this->markTestSkipped('react/promise package must be installed to run GraphQL\Tests\Executor\Promise\ReactPromiseAdapterTest');
         }
     }
@@ -28,10 +27,12 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $reactAdapter = new ReactPromiseAdapter();
 
-        $this->assertSame(true, $reactAdapter->isThenable(new ReactPromise(function() {})));
+        $this->assertSame(true, $reactAdapter->isThenable(new ReactPromise(function () {
+        })));
         $this->assertSame(true, $reactAdapter->isThenable(new FulfilledPromise()));
         $this->assertSame(true, $reactAdapter->isThenable(new RejectedPromise()));
-        $this->assertSame(true, $reactAdapter->isThenable(new LazyPromise(function() {})));
+        $this->assertSame(true, $reactAdapter->isThenable(new LazyPromise(function () {
+        })));
         $this->assertSame(false, $reactAdapter->isThenable(false));
         $this->assertSame(false, $reactAdapter->isThenable(true));
         $this->assertSame(false, $reactAdapter->isThenable(1));
@@ -74,7 +75,7 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $reactAdapter = new ReactPromiseAdapter();
         $resolvedPromise = $reactAdapter->create(function ($resolve) {
-             $resolve(1);
+            $resolve(1);
         });
 
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $resolvedPromise);
@@ -83,7 +84,7 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $result = null;
 
         $resolvedPromise->then(function ($value) use (&$result) {
-           $result = $value;
+            $result = $value;
         });
 
         $this->assertSame(1, $result);
@@ -137,7 +138,7 @@ class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $result = null;
 
         $allPromise->then(function ($values) use (&$result) {
-           $result = $values;
+            $result = $values;
         });
 
         $this->assertSame([1, 2, 3], $result);
