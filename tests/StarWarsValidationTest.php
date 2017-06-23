@@ -72,7 +72,7 @@ class StartWarsValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testDisallowsFieldsOnScalars()
     {
-      $query = '
+        $query = '
         query HeroFieldsOnScalarQuery {
           hero {
             name {

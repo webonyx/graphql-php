@@ -126,7 +126,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
                 "4: \n",
                 $e->getMessage()
             );
-       }
+        }
     }
 
     /**
@@ -198,7 +198,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      */
     public function testReportsUsefulErrors()
     {
-        $run = function($num, $str, $expectedMessage) {
+        $run = function ($num, $str, $expectedMessage) {
             try {
                 $this->lexOne($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);
@@ -299,7 +299,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      */
     public function testReportsUsefulNumberErrors()
     {
-        $run = function($num, $str, $expectedMessage) {
+        $run = function ($num, $str, $expectedMessage) {
             try {
                 $this->lexOne($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);
@@ -382,7 +382,7 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      */
     public function testReportsUsefulUnknownCharErrors()
     {
-        $run = function($num, $str, $expectedMessage) {
+        $run = function ($num, $str, $expectedMessage) {
             try {
                 $this->lexOne($str);
                 $this->fail('Expected exception not thrown in example: ' . $num);

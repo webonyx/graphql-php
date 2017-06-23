@@ -100,7 +100,7 @@ class EagerResolution implements Resolution
                 foreach ($type->getTypes() as $innerType) {
                     $possibleTypesMap[$type->name][$innerType->name] = 1;
                 }
-            } else if ($type instanceof InterfaceType) {
+            } elseif ($type instanceof InterfaceType) {
                 foreach ($this->implementations[$type->name] as $obj) {
                     $possibleTypesMap[$type->name][$obj->name] = 1;
                 }

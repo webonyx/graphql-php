@@ -11,12 +11,12 @@ use GraphQL\Validator\ValidationContext;
 
 class FragmentsOnCompositeTypes
 {
-    static function inlineFragmentOnNonCompositeErrorMessage($type)
+    public static function inlineFragmentOnNonCompositeErrorMessage($type)
     {
         return "Fragment cannot condition on non composite type \"$type\".";
     }
 
-    static function fragmentOnNonCompositeErrorMessage($fragName, $type)
+    public static function fragmentOnNonCompositeErrorMessage($fragName, $type)
     {
         return "Fragment \"$fragName\" cannot condition on non composite type \"$type\".";
     }
@@ -24,7 +24,7 @@ class FragmentsOnCompositeTypes
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeKind::INLINE_FRAGMENT => function(InlineFragmentNode $node) use ($context) {
+            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context) {
                 $type = $context->getType();
 
                 if ($node->typeCondition && $type && !Type::isCompositeType($type)) {
@@ -34,7 +34,7 @@ class FragmentsOnCompositeTypes
                     ));
                 }
             },
-            NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) use ($context) {
+            NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) use ($context) {
                 $type = $context->getType();
 
                 if ($type && !Type::isCompositeType($type)) {

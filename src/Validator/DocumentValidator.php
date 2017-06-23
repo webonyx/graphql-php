@@ -132,7 +132,9 @@ class DocumentValidator
     public static function isError($value)
     {
         return is_array($value)
-            ? count(array_filter($value, function($item) { return $item instanceof \Exception;})) === count($value)
+            ? count(array_filter($value, function ($item) {
+                return $item instanceof \Exception;
+            })) === count($value)
             : $value instanceof \Exception;
     }
 
@@ -180,11 +182,11 @@ class DocumentValidator
             $itemType = $type->getWrappedType();
             if ($valueNode instanceof ListValueNode) {
                 $errors = [];
-                foreach($valueNode->values as $index => $itemNode) {
+                foreach ($valueNode->values as $index => $itemNode) {
                     $tmp = static::isValidLiteralValue($itemType, $itemNode);
 
                     if ($tmp) {
-                        $errors = array_merge($errors, Utils::map($tmp, function($error) use ($index) {
+                        $errors = array_merge($errors, Utils::map($tmp, function ($error) use ($index) {
                             return "In element #$index: $error";
                         }));
                     }
@@ -214,14 +216,16 @@ class DocumentValidator
             }
 
             // Ensure every defined field is valid.
-            $fieldNodeMap = Utils::keyMap($fieldNodes, function($fieldNode) {return $fieldNode->name->value;});
+            $fieldNodeMap = Utils::keyMap($fieldNodes, function ($fieldNode) {
+                return $fieldNode->name->value;
+            });
             foreach ($fields as $fieldName => $field) {
                 $result = static::isValidLiteralValue(
                     $field->getType(),
                     isset($fieldNodeMap[$fieldName]) ? $fieldNodeMap[$fieldName]->value : null
                 );
                 if ($result) {
-                    $errors = array_merge($errors, Utils::map($result, function($error) use ($fieldName) {
+                    $errors = array_merge($errors, Utils::map($result, function ($error) use ($fieldName) {
                         return "In field \"$fieldName\": $error";
                     }));
                 }

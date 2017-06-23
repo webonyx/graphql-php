@@ -131,14 +131,14 @@ class ResolveInfo
                 $fields[$selectionNode->name->value] = $descend > 0 && !empty($selectionNode->selectionSet)
                     ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     : true;
-            } else if ($selectionNode instanceof FragmentSpreadNode) {
+            } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;
                 if (isset($this->fragments[$spreadName])) {
                     /** @var FragmentDefinitionNode $fragment */
                     $fragment = $this->fragments[$spreadName];
                     $fields = array_merge_recursive($this->foldSelectionSet($fragment->selectionSet, $descend), $fields);
                 }
-            } else if ($selectionNode instanceof InlineFragmentNode) {
+            } elseif ($selectionNode instanceof InlineFragmentNode) {
                 $fields = array_merge_recursive($this->foldSelectionSet($selectionNode->selectionSet, $descend), $fields);
             }
         }

@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
@@ -13,12 +12,12 @@ use GraphQL\Utils\TypeInfo;
 
 class PossibleFragmentSpreads
 {
-    static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)
+    public static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)
     {
         return "Fragment \"$fragName\" cannot be spread here as objects of type \"$parentType\" can never be of type \"$fragType\".";
     }
 
-    static function typeIncompatibleAnonSpreadMessage($parentType, $fragType)
+    public static function typeIncompatibleAnonSpreadMessage($parentType, $fragType)
     {
         return "Fragment cannot be spread here as objects of type \"$parentType\" can never be of type \"$fragType\".";
     }
@@ -26,7 +25,7 @@ class PossibleFragmentSpreads
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeKind::INLINE_FRAGMENT => function(InlineFragmentNode $node) use ($context) {
+            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context) {
                 $fragType = $context->getType();
                 $parentType = $context->getParentType();
 
@@ -37,7 +36,7 @@ class PossibleFragmentSpreads
                     ));
                 }
             },
-            NodeKind::FRAGMENT_SPREAD => function(FragmentSpreadNode $node) use ($context) {
+            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context) {
                 $fragName = $node->name->value;
                 $fragType = $this->getFragmentType($context, $fragName);
                 $parentType = $context->getParentType();

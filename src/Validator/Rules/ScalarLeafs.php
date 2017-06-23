@@ -9,12 +9,12 @@ use GraphQL\Validator\ValidationContext;
 
 class ScalarLeafs
 {
-    static function noSubselectionAllowedMessage($field, $type)
+    public static function noSubselectionAllowedMessage($field, $type)
     {
         return "Field \"$field\" of type \"$type\" must not have a sub selection.";
     }
 
-    static function requiredSubselectionMessage($field, $type)
+    public static function requiredSubselectionMessage($field, $type)
     {
         return "Field \"$field\" of type \"$type\" must have a sub selection.";
     }
@@ -22,7 +22,7 @@ class ScalarLeafs
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeKind::FIELD => function(FieldNode $node) use ($context) {
+            NodeKind::FIELD => function (FieldNode $node) use ($context) {
                 $type = $context->getType();
                 if ($type) {
                     if (Type::isLeafType($type)) {
@@ -32,7 +32,7 @@ class ScalarLeafs
                                 [$node->selectionSet]
                             ));
                         }
-                    } else if (!$node->selectionSet) {
+                    } elseif (!$node->selectionSet) {
                         $context->reportError(new Error(
                             self::requiredSubselectionMessage($node->name->value, $type),
                             [$node]

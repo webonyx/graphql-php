@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Executor;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
@@ -119,14 +118,14 @@ class Values
             if (!$argumentNode) {
                 if ($argDef->defaultValueExists()) {
                     $coercedValues[$name] = $argDef->defaultValue;
-                } else if ($argType instanceof NonNull) {
+                } elseif ($argType instanceof NonNull) {
                     throw new Error(
                         'Argument "' . $name . '" of required type ' .
                         '"' . Utils::printSafe($argType) . '" was not provided.',
                         [$node]
                     );
                 }
-            } else if ($argumentNode->value instanceof VariableNode) {
+            } elseif ($argumentNode->value instanceof VariableNode) {
                 $variableName = $argumentNode->value->name->value;
 
                 if ($variableValues && array_key_exists($variableName, $variableValues)) {
@@ -134,9 +133,9 @@ class Values
                     // This assumes that this query has been validated and the variable
                     // usage here is of the correct type.
                     $coercedValues[$name] = $variableValues[$variableName];
-                } else if ($argDef->defaultValueExists()) {
+                } elseif ($argDef->defaultValueExists()) {
                     $coercedValues[$name] = $argDef->defaultValue;
-                } else if ($argType instanceof NonNull) {
+                } elseif ($argType instanceof NonNull) {
                     throw new Error(
                         'Argument "' . $name . '" of required type "' . Utils::printSafe($argType) . '" was ' .
                         'provided the variable "$' . $variableName . '" which was not provided ' .
@@ -310,7 +309,7 @@ class Values
                 if (!array_key_exists($fieldName, $value)) {
                     if ($field->defaultValueExists()) {
                         $coercedObj[$fieldName] = $field->defaultValue;
-                    } else if ($field->getType() instanceof NonNull) {
+                    } elseif ($field->getType() instanceof NonNull) {
                         // Intentionally return no value.
                         return $undefined;
                     }

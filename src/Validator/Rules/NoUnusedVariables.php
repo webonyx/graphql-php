@@ -8,7 +8,7 @@ use GraphQL\Validator\ValidationContext;
 
 class NoUnusedVariables
 {
-    static function unusedVariableMessage($varName, $opName = null)
+    public static function unusedVariableMessage($varName, $opName = null)
     {
         return $opName
             ? "Variable \"$$varName\" is never used in operation \"$opName\"."
@@ -23,10 +23,10 @@ class NoUnusedVariables
 
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function() {
+                'enter' => function () {
                     $this->variableDefs = [];
                 },
-                'leave' => function(OperationDefinitionNode $operation) use ($context) {
+                'leave' => function (OperationDefinitionNode $operation) use ($context) {
                     $variableNameUsed = [];
                     $usages = $context->getRecursiveVariableUsages($operation);
                     $opName = $operation->name ? $operation->name->value : null;
@@ -48,7 +48,7 @@ class NoUnusedVariables
                     }
                 }
             ],
-            NodeKind::VARIABLE_DEFINITION => function($def) {
+            NodeKind::VARIABLE_DEFINITION => function ($def) {
                 $this->variableDefs[] = $def;
             }
         ];

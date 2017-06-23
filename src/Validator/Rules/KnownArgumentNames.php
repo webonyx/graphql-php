@@ -22,7 +22,7 @@ class KnownArgumentNames
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeKind::ARGUMENT => function(ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
+            NodeKind::ARGUMENT => function (ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
                 $argumentOf = $ancestors[count($ancestors) - 1];
                 if ($argumentOf->kind === NodeKind::FIELD) {
                     $fieldDef = $context->getFieldDef();
@@ -44,7 +44,7 @@ class KnownArgumentNames
                             ));
                         }
                     }
-                } else if ($argumentOf->kind === NodeKind::DIRECTIVE) {
+                } elseif ($argumentOf->kind === NodeKind::DIRECTIVE) {
                     $directive = $context->getDirective();
                     if ($directive) {
                         $directiveArgDef = null;

@@ -32,13 +32,13 @@ class ImageType extends ObjectType
                 // Just for the sake of example
                 'fieldWithError' => [
                     'type' => Types::string(),
-                    'resolve' => function() {
+                    'resolve' => function () {
                         throw new \Exception("Field with exception");
                     }
                 ],
                 'nonNullFieldWithError' => [
                     'type' => Types::nonNull(Types::string()),
-                    'resolve' => function() {
+                    'resolve' => function () {
                         throw new \Exception("Non-null field with exception");
                     }
                 ]

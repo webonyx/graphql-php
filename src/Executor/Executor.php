@@ -139,8 +139,7 @@ class Executor
         $contextValue,
         $rawVariableValues,
         $operationName = null
-    )
-    {
+    ) {
         $errors = [];
         $fragments = [];
         $operation = null;
@@ -400,7 +399,7 @@ class Executor
 
         $promise = $this->promises->all($valuesAndPromises);
 
-        return $promise->then(function($values) use ($keys) {
+        return $promise->then(function ($values) use ($keys) {
             $resolvedResults = [];
             foreach ($values as $i => $value) {
                 $resolvedResults[$keys[$i]] = $value;
@@ -444,8 +443,7 @@ class Executor
         SelectionSetNode $selectionSet,
         $fields,
         $visitedFragmentNames
-    )
-    {
+    ) {
         $exeContext = $this->exeContext;
         foreach ($selectionSet->selections as $selection) {
             switch ($selection->kind) {
@@ -511,7 +509,7 @@ class Executor
 
         /** @var \GraphQL\Language\AST\DirectiveNode $skipNode */
         $skipNode = $directives
-            ? Utils::find($directives, function(\GraphQL\Language\AST\DirectiveNode $directive) use ($skipDirective) {
+            ? Utils::find($directives, function (\GraphQL\Language\AST\DirectiveNode $directive) use ($skipDirective) {
                 return $directive->name->value === $skipDirective->name;
             })
             : null;
@@ -525,7 +523,7 @@ class Executor
 
         /** @var \GraphQL\Language\AST\DirectiveNode $includeNode */
         $includeNode = $directives
-            ? Utils::find($directives, function(\GraphQL\Language\AST\DirectiveNode $directive) use ($includeDirective) {
+            ? Utils::find($directives, function (\GraphQL\Language\AST\DirectiveNode $directive) use ($includeDirective) {
                 return $directive->name->value === $includeDirective->name;
             })
             : null;
@@ -621,7 +619,7 @@ class Executor
 
         if (isset($fieldDef->resolveFn)) {
             $resolveFn = $fieldDef->resolveFn;
-        } else if (isset($parentType->resolveFieldFn)) {
+        } elseif (isset($parentType->resolveFieldFn)) {
             $resolveFn = $parentType->resolveFieldFn;
         } else {
             $resolveFn = self::$defaultFieldResolver;
@@ -702,8 +700,7 @@ class Executor
         ResolveInfo $info,
         $path,
         $result
-    )
-    {
+    ) {
         $exeContext = $this->exeContext;
 
         // If the field type is non-nullable, then it is resolved without any
@@ -762,8 +759,7 @@ class Executor
         ResolveInfo $info,
         $path,
         $result
-    )
-    {
+    ) {
         try {
             $completed = $this->completeValue(
                 $returnType,
@@ -822,8 +818,7 @@ class Executor
         ResolveInfo $info,
         $path,
         &$result
-    )
-    {
+    ) {
         if ($this->promises->isThenable($result)) {
             $result = $this->promises->convertThenable($result);
             Utils::invariant($result instanceof Promise);
@@ -912,7 +907,7 @@ class Executor
             if (isset($source[$fieldName])) {
                 $property = $source[$fieldName];
             }
-        } else if (is_object($source)) {
+        } elseif (is_object($source)) {
             if (isset($source->{$fieldName})) {
                 $property = $source->{$fieldName};
             }
@@ -946,9 +941,9 @@ class Executor
 
         if ($fieldName === $schemaMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $schemaMetaFieldDef;
-        } else if ($fieldName === $typeMetaFieldDef->name && $schema->getQueryType() === $parentType) {
+        } elseif ($fieldName === $typeMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $typeMetaFieldDef;
-        } else if ($fieldName === $typeNameMetaFieldDef->name) {
+        } elseif ($fieldName === $typeNameMetaFieldDef->name) {
             return $typeNameMetaFieldDef;
         }
 

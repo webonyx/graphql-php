@@ -94,7 +94,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
 
         $this->content = new InterfaceType([
             'name' => 'Content',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'title' => Type::string(),
                     'body' => Type::string(),
@@ -111,7 +111,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
                 $this->node,
                 $this->content
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -129,7 +129,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
                 $this->node,
                 $this->content
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -148,7 +148,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
                 $this->node,
                 $this->content
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -174,7 +174,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
             'interfaces' => [
                 $this->node
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     'author' => $this->user,
@@ -191,7 +191,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
             'interfaces' => [
                 $this->node
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     'name' => Type::string(),
@@ -204,7 +204,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
             'interfaces' => [
                 $this->node
             ],
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     $this->node->getField('id'),
                     'name' => Type::string()
@@ -468,7 +468,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
         $eager = new EagerResolution([]);
         $emptyDescriptor = $eager->getDescriptor();
 
-        $typeLoader = function($name) {
+        $typeLoader = function ($name) {
             throw new \Exception("This should be never called for empty descriptor");
         };
 
@@ -482,7 +482,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
 
         $called = 0;
         $descriptor = $eager->getDescriptor();
-        $typeLoader = function($name) use (&$called) {
+        $typeLoader = function ($name) use (&$called) {
             $called++;
             $prop = lcfirst($name);
             return $this->{$prop};
@@ -547,7 +547,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $invalidTypeLoader = function($name) {
+        $invalidTypeLoader = function ($name) {
             switch ($name) {
                 case 'null':
                     return null;
@@ -568,7 +568,6 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
                 "Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer",
                 $e->getMessage()
             );
-
         }
 
         try {

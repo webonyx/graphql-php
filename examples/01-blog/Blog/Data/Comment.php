@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Examples\Blog\Data;
 
-
 use GraphQL\Utils;
 
 class Comment

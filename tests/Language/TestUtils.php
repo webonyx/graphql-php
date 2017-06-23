@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Tests\Language;
 
-
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Node;
 
@@ -19,17 +18,18 @@ class TestUtils
         ];
 
         foreach (get_object_vars($node) as $prop => $propValue) {
-            if (isset($result[$prop]))
+            if (isset($result[$prop])) {
                 continue;
+            }
 
             if (is_array($propValue)) {
                 $tmp = [];
                 foreach ($propValue as $tmp1) {
                     $tmp[] = $tmp1 instanceof Node ? self::nodeToArray($tmp1) : (array) $tmp1;
                 }
-            } else if ($propValue instanceof Node) {
+            } elseif ($propValue instanceof Node) {
                 $tmp = self::nodeToArray($propValue);
-            } else if (is_scalar($propValue) || null === $propValue) {
+            } elseif (is_scalar($propValue) || null === $propValue) {
                 $tmp = $propValue;
             } else {
                 $tmp = null;

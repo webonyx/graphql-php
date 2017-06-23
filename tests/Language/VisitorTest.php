@@ -27,7 +27,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $selectionSet = null;
         $editedAst = Visitor::visit($ast, [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function(OperationDefinitionNode $node) use (&$selectionSet) {
+                'enter' => function (OperationDefinitionNode $node) use (&$selectionSet) {
                     $selectionSet = $node->selectionSet;
 
                     $newNode = clone $node;
@@ -37,7 +37,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                     $newNode->didEnter = true;
                     return $newNode;
                 },
-                'leave' => function(OperationDefinitionNode $node) use (&$selectionSet) {
+                'leave' => function (OperationDefinitionNode $node) use (&$selectionSet) {
                     $newNode = clone $node;
                     $newNode->selectionSet = $selectionSet;
                     $newNode->didLeave = true;
@@ -71,7 +71,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                     $tmp->didEnter = true;
                     return $tmp;
                 },
-                'leave' => function(DocumentNode $node) use ($definitions) {
+                'leave' => function (DocumentNode $node) use ($definitions) {
                     $tmp = clone $node;
                     $node->definitions = $definitions;
                     $node->didLeave = true;
@@ -95,7 +95,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
-            'enter' => function($node) {
+            'enter' => function ($node) {
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::removeNode();
                 }
@@ -119,7 +119,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
-            'leave' => function($node) {
+            'leave' => function ($node) {
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::removeNode();
                 }
@@ -142,23 +142,23 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
      */
     public function testVisitsEditedNode()
     {
-        $addedField = new FieldNode(array(
-            'name' => new NameNode(array(
+        $addedField = new FieldNode([
+            'name' => new NameNode([
                 'value' => '__typename'
-            ))
-        ));
+            ])
+        ]);
 
         $didVisitAddedField = false;
 
         $ast = Parser::parse('{ a { x } }');
 
         Visitor::visit($ast, [
-            'enter' => function($node) use ($addedField, &$didVisitAddedField) {
+            'enter' => function ($node) use ($addedField, &$didVisitAddedField) {
                 if ($node instanceof FieldNode && $node->name->value === 'a') {
                     return new FieldNode([
-                        'selectionSet' => new SelectionSetNode(array(
+                        'selectionSet' => new SelectionSetNode([
                             'selections' => array_merge([$addedField], $node->selectionSet->selections)
-                        ))
+                        ])
                     ]);
                 }
                 if ($node === $addedField) {
@@ -179,7 +179,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
-            'enter' => function(Node $node) use (&$visited) {
+            'enter' => function (Node $node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::skipNode();
@@ -220,13 +220,13 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
-            'enter' => function(Node $node) use (&$visited) {
+            'enter' => function (Node $node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
                 if ($node instanceof NameNode && $node->value === 'x') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function(Node $node) use (&$visited) {
+            'leave' => function (Node $node) use (&$visited) {
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ]);
@@ -259,10 +259,10 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function ($node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function ($node) use (&$visited) {
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
 
                 if ($node->kind === NodeKind::NAME && $node->value === 'x') {
@@ -298,14 +298,14 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b { x }, c }');
 
         Visitor::visit($ast, [
-            NodeKind::NAME => function(NameNode $node) use (&$visited) {
+            NodeKind::NAME => function (NameNode $node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, $node->value];
             },
             NodeKind::SELECTION_SET => [
-                'enter' => function(SelectionSetNode $node) use (&$visited) {
+                'enter' => function (SelectionSetNode $node) use (&$visited) {
                     $visited[] = ['enter', $node->kind, null];
                 },
-                'leave' => function(SelectionSetNode $node) use (&$visited) {
+                'leave' => function (SelectionSetNode $node) use (&$visited) {
                     $visited[] = ['leave', $node->kind, null];
                 }
             ]
@@ -335,11 +335,11 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $visited = [];
         Visitor::visit($ast, [
-            'enter' => function(Node $node, $key, $parent) use (&$visited) {
+            'enter' => function (Node $node, $key, $parent) use (&$visited) {
                 $r = ['enter', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
                 $visited[] = $r;
             },
-            'leave' => function(Node $node, $key, $parent) use (&$visited) {
+            'leave' => function (Node $node, $key, $parent) use (&$visited) {
                 $r = ['leave', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
                 $visited[] = $r;
             }
@@ -668,7 +668,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function($node) use (&$visited) {
+                'enter' => function ($node) use (&$visited) {
                     $visited[] = [ 'enter', $node->kind, isset($node->value) ?  $node->value : null];
 
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
@@ -676,7 +676,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                     }
                 },
 
-                'leave' => function($node) use (&$visited) {
+                'leave' => function ($node) use (&$visited) {
                     $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
                 }
             ]
@@ -711,24 +711,24 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a { x }, b { y} }');
         Visitor::visit($ast, Visitor::visitInParallel([
         [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function ($node) use (&$visited) {
                 $visited[] = ['no-a', 'enter', $node->kind, isset($node->value) ? $node->value : null];
                 if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'a') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function ($node) use (&$visited) {
                 $visited[] = [ 'no-a', 'leave', $node->kind, isset($node->value) ? $node->value : null ];
             }
         ],
         [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function ($node) use (&$visited) {
                 $visited[] = ['no-b', 'enter', $node->kind, isset($node->value) ? $node->value : null];
                 if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function ($node) use (&$visited) {
                 $visited[] = ['no-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ]
@@ -781,14 +781,14 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([ [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function ($node) use (&$visited) {
                 $value = isset($node->value) ? $node->value : null;
                 $visited[] = ['enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'x') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function ($node) use (&$visited) {
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ] ]));
@@ -820,26 +820,26 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a { y }, b { x } }');
         Visitor::visit($ast, Visitor::visitInParallel([
         [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function ($node) use (&$visited) {
                 $value = isset($node->value) ? $node->value : null;
                 $visited[] = ['break-a', 'enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'a') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function ($node) use (&$visited) {
                 $visited[] = [ 'break-a', 'leave', $node->kind, isset($node->value) ? $node->value : null ];
             }
         ],
         [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function ($node) use (&$visited) {
                 $value = isset($node->value) ? $node->value : null;
                 $visited[] = ['break-b', 'enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'b') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function ($node) use (&$visited) {
                 $visited[] = ['break-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ],
@@ -878,10 +878,10 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([ [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function ($node) use (&$visited) {
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function ($node) use (&$visited) {
                 $value = isset($node->value) ? $node->value : null;
                 $visited[] = ['leave', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'x') {
@@ -918,10 +918,10 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a { y }, b { x } }');
         Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function($node) use (&$visited) {
+                'enter' => function ($node) use (&$visited) {
                     $visited[] = ['break-a', 'enter', $node->kind, isset($node->value) ? $node->value : null];
                 },
-                'leave' => function($node) use (&$visited) {
+                'leave' => function ($node) use (&$visited) {
                     $visited[] = ['break-a', 'leave', $node->kind, isset($node->value) ? $node->value : null];
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'a') {
                         return Visitor::stop();
@@ -929,10 +929,10 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                 }
             ],
             [
-                'enter' => function($node) use (&$visited) {
+                'enter' => function ($node) use (&$visited) {
                     $visited[] = ['break-b', 'enter', $node->kind, isset($node->value) ? $node->value : null];
                 },
-                'leave' => function($node) use (&$visited) {
+                'leave' => function ($node) use (&$visited) {
                     $visited[] = ['break-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                         return Visitor::stop();

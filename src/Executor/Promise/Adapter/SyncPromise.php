@@ -74,10 +74,10 @@ class SyncPromise
                 }
                 if (is_object($value) && method_exists($value, 'then')) {
                     $value->then(
-                        function($resolvedValue) {
+                        function ($resolvedValue) {
                             $this->resolve($resolvedValue);
                         },
-                        function($reason) {
+                        function ($reason) {
                             $this->reject($reason);
                         }
                     );
@@ -132,7 +132,7 @@ class SyncPromise
                     } catch (\Exception $e) {
                         $promise->reject($e);
                     }
-                } else if ($this->state === self::REJECTED) {
+                } elseif ($this->state === self::REJECTED) {
                     try {
                         if ($onRejected) {
                             $promise->resolve($onRejected($this->result));

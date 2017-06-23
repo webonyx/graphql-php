@@ -307,7 +307,6 @@ class Visitor
                 }
                 $parent = $node;
             }
-
         } while ($stack);
 
         if (count($edits) !== 0) {
@@ -321,7 +320,7 @@ class Visitor
      * @param $visitors
      * @return array
      */
-    static function visitInParallel($visitors)
+    public static function visitInParallel($visitors)
     {
         $visitorsCount = count($visitors);
         $skipping = new \SplFixedArray($visitorsCount);
@@ -338,12 +337,12 @@ class Visitor
                             if ($result instanceof VisitorOperation) {
                                 if ($result->doContinue) {
                                     $skipping[$i] = $node;
-                                } else if ($result->doBreak) {
+                                } elseif ($result->doBreak) {
                                     $skipping[$i] = $result;
-                                } else if ($result->removeNode) {
+                                } elseif ($result->removeNode) {
                                     return $result;
                                 }
-                            } else if ($result !== null) {
+                            } elseif ($result !== null) {
                                 return $result;
                             }
                         }
@@ -360,14 +359,14 @@ class Visitor
                             if ($result instanceof VisitorOperation) {
                                 if ($result->doBreak) {
                                     $skipping[$i] = $result;
-                                } else if ($result->removeNode) {
+                                } elseif ($result->removeNode) {
                                     return $result;
                                 }
-                            } else if ($result !== null) {
+                            } elseif ($result !== null) {
                                 return $result;
                             }
                         }
-                    } else if ($skipping[$i] === $node) {
+                    } elseif ($skipping[$i] === $node) {
                         $skipping[$i] = null;
                     }
                 }
@@ -379,7 +378,7 @@ class Visitor
      * Creates a new visitor instance which maintains a provided TypeInfo instance
      * along with visiting visitor.
      */
-    static function visitWithTypeInfo(TypeInfo $typeInfo, $visitor)
+    public static function visitWithTypeInfo(TypeInfo $typeInfo, $visitor)
     {
         return [
             'enter' => function ($node) use ($typeInfo, $visitor) {

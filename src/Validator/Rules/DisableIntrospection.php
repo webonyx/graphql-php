@@ -21,7 +21,7 @@ class DisableIntrospection extends AbstractQuerySecurity
         $this->isEnabled = $enabled;
     }
 
-    static function introspectionDisabledMessage()
+    public static function introspectionDisabledMessage()
     {
         return 'GraphQL introspection is not allowed, but the query contained __schema or __type';
     }

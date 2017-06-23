@@ -72,7 +72,7 @@ class ReactPromiseAdapter implements PromiseAdapter
             return $item instanceof Promise ? $item->adoptedPromise : $item;
         });
 
-        $promise = \React\Promise\all($promisesOrValues)->then(function($values) use ($promisesOrValues) {
+        $promise = \React\Promise\all($promisesOrValues)->then(function ($values) use ($promisesOrValues) {
             $orderedResults = [];
 
             foreach ($promisesOrValues as $key => $value) {

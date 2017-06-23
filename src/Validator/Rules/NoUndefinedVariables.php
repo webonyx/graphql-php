@@ -17,7 +17,7 @@ use GraphQL\Validator\ValidationContext;
  */
 class NoUndefinedVariables
 {
-    static function undefinedVarMessage($varName, $opName = null)
+    public static function undefinedVarMessage($varName, $opName = null)
     {
         return $opName
             ? "Variable \"$$varName\" is not defined by operation \"$opName\"."
@@ -30,10 +30,10 @@ class NoUndefinedVariables
 
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function() use (&$variableNameDefined) {
+                'enter' => function () use (&$variableNameDefined) {
                     $variableNameDefined = [];
                 },
-                'leave' => function(OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
+                'leave' => function (OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
@@ -52,7 +52,7 @@ class NoUndefinedVariables
                     }
                 }
             ],
-            NodeKind::VARIABLE_DEFINITION => function(VariableDefinitionNode $def) use (&$variableNameDefined) {
+            NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $def) use (&$variableNameDefined) {
                 $variableNameDefined[$def->variable->name->value] = true;
             }
         ];

@@ -122,6 +122,5 @@ class LoneAnonymousOperationTest extends TestCase
             LoneAnonymousOperation::anonOperationNotAloneMessage(),
             [new SourceLocation($line, $column)]
         );
-
     }
 }

@@ -37,7 +37,9 @@ type Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -74,7 +76,7 @@ extend type Hello {
 }
 ';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {
+        $loc = function ($start, $end) {
             return TestUtils::locArray($start, $end);
         };
         $expected = [
@@ -114,7 +116,7 @@ extend type Hello {
 type Hello {
   world: String!
 }';
-        $loc = function($start, $end) {
+        $loc = function ($start, $end) {
             return TestUtils::locArray($start, $end);
         };
         $doc = Parser::parse($body);
@@ -124,7 +126,7 @@ type Hello {
             'definitions' => [
                 [
                     'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
-                    'name' => $this->nameNode('Hello', $loc(6,11)),
+                    'name' => $this->nameNode('Hello', $loc(6, 11)),
                     'interfaces' => [],
                     'directives' => [],
                     'fields' => [
@@ -135,14 +137,14 @@ type Hello {
                                 'type' => $this->typeNode('String', $loc(23, 29)),
                                 'loc' => $loc(23, 30)
                             ],
-                            $loc(16,30)
+                            $loc(16, 30)
                         )
                     ],
-                    'loc' => $loc(1,32),
+                    'loc' => $loc(1, 32),
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0,32)
+            'loc' => $loc(0, 32)
         ];
 
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
@@ -154,7 +156,9 @@ type Hello {
     public function testSimpleTypeInheritingInterface()
     {
         $body = 'type Hello implements World { }';
-        $loc = function($start, $end) { return TestUtils::locArray($start, $end); };
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
         $doc = Parser::parse($body);
 
         $expected = [
@@ -168,11 +172,11 @@ type Hello {
                     ],
                     'directives' => [],
                     'fields' => [],
-                    'loc' => $loc(0,31),
+                    'loc' => $loc(0, 31),
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0,31)
+            'loc' => $loc(0, 31)
         ];
 
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
@@ -184,7 +188,9 @@ type Hello {
     public function testSimpleTypeInheritingMultipleInterfaces()
     {
         $body = 'type Hello implements Wo, rld { }';
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
         $doc = Parser::parse($body);
 
         $expected = [
@@ -194,8 +200,8 @@ type Hello {
                     'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'interfaces' => [
-                        $this->typeNode('Wo', $loc(22,24)),
-                        $this->typeNode('rld', $loc(26,29))
+                        $this->typeNode('Wo', $loc(22, 24)),
+                        $this->typeNode('rld', $loc(26, 29))
                     ],
                     'directives' => [],
                     'fields' => [],
@@ -215,7 +221,9 @@ type Hello {
     public function testSingleValueEnum()
     {
         $body = 'enum Hello { WORLD }';
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
         $doc = Parser::parse($body);
 
         $expected = [
@@ -242,7 +250,9 @@ type Hello {
     public function testDoubleValueEnum()
     {
         $body = 'enum Hello { WO, RLD }';
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
         $doc = Parser::parse($body);
 
         $expected = [
@@ -276,7 +286,9 @@ interface Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -296,7 +308,7 @@ interface Hello {
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0,36)
+            'loc' => $loc(0, 36)
         ];
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
@@ -311,7 +323,9 @@ type Hello {
   world(flag: Boolean): String
 }';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -356,7 +370,9 @@ type Hello {
   world(flag: Boolean = true): String
 }';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -400,7 +416,9 @@ type Hello {
   world(things: [String]): String
 }';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -416,7 +434,7 @@ type Hello {
                             $this->typeNode('String', $loc(41, 47)),
                             [
                                 $this->inputValueNode(
-                                    $this->nameNode('things', $loc(22,28)),
+                                    $this->nameNode('things', $loc(22, 28)),
                                     ['kind' => NodeKind::LIST_TYPE, 'type' => $this->typeNode('String', $loc(31, 37)), 'loc' => $loc(30, 38)],
                                     null,
                                     $loc(22, 38)
@@ -445,7 +463,9 @@ type Hello {
   world(argOne: Boolean, argTwo: Int): String
 }';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -493,7 +513,9 @@ type Hello {
     {
         $body = 'union Hello = World';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
         $expected = [
             'kind' => NodeKind::DOCUMENT,
             'definitions' => [
@@ -519,7 +541,9 @@ type Hello {
     {
         $body = 'union Hello = Wo | Rld';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -548,7 +572,9 @@ type Hello {
     {
         $body = 'scalar Hello';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
         $expected = [
             'kind' => NodeKind::DOCUMENT,
             'definitions' => [
@@ -575,7 +601,9 @@ input Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $expected = [
             'kind' => NodeKind::DOCUMENT,
@@ -627,7 +655,9 @@ type Hello {
   world: String
 }';
         $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $loc = function ($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
 
         $fieldNode = $this->fieldNode(
             $this->nameNode('world', $loc(134, 139)),

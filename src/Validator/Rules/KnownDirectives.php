@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\Node;
@@ -11,12 +10,12 @@ use GraphQL\Type\Definition\DirectiveLocation;
 
 class KnownDirectives
 {
-    static function unknownDirectiveMessage($directiveName)
+    public static function unknownDirectiveMessage($directiveName)
     {
         return "Unknown directive \"$directiveName\".";
     }
 
-    static function misplacedDirectiveMessage($directiveName, $location)
+    public static function misplacedDirectiveMessage($directiveName, $location)
     {
         return "Directive \"$directiveName\" may not be used on \"$location\".";
     }
@@ -48,7 +47,7 @@ class KnownDirectives
                         self::misplacedDirectiveMessage($node->name->value, $node->type),
                         [$node]
                     ));
-                } else if (!in_array($candidateLocation, $directiveDef->locations)) {
+                } elseif (!in_array($candidateLocation, $directiveDef->locations)) {
                     $context->reportError(new Error(
                         self::misplacedDirectiveMessage($node->name->value, $candidateLocation),
                         [ $node ]

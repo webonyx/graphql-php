@@ -8,7 +8,6 @@
 
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -20,7 +19,7 @@ use GraphQL\Validator\ValidationContext;
 
 class NoFragmentCycles
 {
-    static function cycleErrorMessage($fragName, array $spreadNames = [])
+    public static function cycleErrorMessage($fragName, array $spreadNames = [])
     {
         $via = !empty($spreadNames) ? ' via ' . implode(', ', $spreadNames) : '';
         return "Cannot spread fragment \"$fragName\" within itself$via.";

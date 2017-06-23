@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Tests;
 
-
 use GraphQL\GraphQL;
 
 class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
@@ -222,7 +221,7 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
     /**
      * @it Allows us to query for Luke, changing his key with an alias
      */
-    function testLukeKeyAlias()
+    public function testLukeKeyAlias()
     {
         $query = '
         query FetchLukeAliased {
@@ -242,7 +241,7 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
     /**
      * @it Allows us to query for both Luke and Leia, using two root fields and an alias
      */
-    function testTwoRootKeysAsAnAlias()
+    public function testTwoRootKeysAsAnAlias()
     {
         $query = '
         query FetchLukeAndLeiaAliased {
@@ -270,7 +269,7 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
     /**
      * @it Allows us to query using duplicated content
      */
-    function testQueryUsingDuplicatedContent()
+    public function testQueryUsingDuplicatedContent()
     {
         $query = '
         query DuplicateFields {
@@ -300,7 +299,7 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
     /**
      * @it Allows us to use a fragment to avoid duplicating content
      */
-    function testUsingFragment()
+    public function testUsingFragment()
     {
         $query = '
         query UseFragment {

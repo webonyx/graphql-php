@@ -148,7 +148,6 @@ class NoUnusedFragmentsTest extends TestCase
      */
     public function testContainsUnknownAndUndefFragments()
     {
-
         $this->expectFailsRule(new NoUnusedFragments, '
       query Foo {
         human(id: 4) {

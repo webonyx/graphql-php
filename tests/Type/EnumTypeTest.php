@@ -44,7 +44,8 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $Complex1 = ['someRandomFunction' => function() {}];
+        $Complex1 = ['someRandomFunction' => function () {
+        }];
         $Complex2 = new \ArrayObject(['someRandomValue' => 123]);
 
         $ComplexEnum = new EnumType([
@@ -83,7 +84,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                         'fromName' => ['type' => Type::string()],
                         'fromValue' => ['type' => Type::string()]
                     ],
-                    'resolve' => function($value, $args) {
+                    'resolve' => function ($value, $args) {
                         if (isset($args['fromName'])) {
                             return $args['fromName'];
                         }
@@ -123,7 +124,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                             'type' => Type::boolean()
                         ]
                     ],
-                    'resolve' => function($value, $args) use ($Complex1, $Complex2) {
+                    'resolve' => function ($value, $args) use ($Complex1, $Complex2) {
                         if (!empty($args['provideGoodValue'])) {
                             // Note: this is one of the references of the internal values which
                             // ComplexEnum allows.

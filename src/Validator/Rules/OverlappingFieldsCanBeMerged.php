@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -25,13 +24,13 @@ use GraphQL\Validator\ValidationContext;
 
 class OverlappingFieldsCanBeMerged
 {
-    static function fieldsConflictMessage($responseName, $reason)
+    public static function fieldsConflictMessage($responseName, $reason)
     {
         $reasonMessage = self::reasonMessage($reason);
         return "Fields \"$responseName\" conflict because $reasonMessage.";
     }
 
-    static function reasonMessage($reason)
+    public static function reasonMessage($reason)
     {
         if (is_array($reason)) {
             $tmp = array_map(function ($tmp) {
@@ -57,7 +56,7 @@ class OverlappingFieldsCanBeMerged
             NodeKind::SELECTION_SET => [
                 // Note: we validate on the reverse traversal so deeper conflicts will be
                 // caught first, for clearer error messages.
-                'leave' => function(SelectionSetNode $selectionSet) use ($context) {
+                'leave' => function (SelectionSetNode $selectionSet) use ($context) {
                     $fieldMap = $this->collectFieldNodesAndDefs(
                         $context,
                         $context->getParentType(),
@@ -122,8 +121,7 @@ class OverlappingFieldsCanBeMerged
         array $pair1,
         array $pair2,
         ValidationContext $context
-    )
-    {
+    ) {
         list($parentType1, $ast1, $def1) = $pair1;
         list($parentType2, $ast2, $def2) = $pair2;
 
@@ -239,22 +237,27 @@ class OverlappingFieldsCanBeMerged
         $responseName,
         FieldNode $ast1,
         FieldNode $ast2
-    )
-    {
+    ) {
         if (!empty($conflicts)) {
             return [
                 [
                     $responseName,
-                    Utils::map($conflicts, function($conflict) {return $conflict[0];})
+                    Utils::map($conflicts, function ($conflict) {
+                        return $conflict[0];
+                    })
                 ],
                 array_reduce(
                     $conflicts,
-                    function($allFields, $conflict) { return array_merge($allFields, $conflict[1]);},
+                    function ($allFields, $conflict) {
+                        return array_merge($allFields, $conflict[1]);
+                    },
                     [ $ast1 ]
                 ),
                 array_reduce(
                     $conflicts,
-                    function($allFields, $conflict) {return array_merge($allFields, $conflict[2]);},
+                    function ($allFields, $conflict) {
+                        return array_merge($allFields, $conflict[2]);
+                    },
                     [ $ast2 ]
                 )
             ];
@@ -407,7 +410,7 @@ class OverlappingFieldsCanBeMerged
         return (!$value1 && !$value2) || (Printer::doPrint($value1) === Printer::doPrint($value2));
     }
 
-    function sameType($type1, $type2)
+    public function sameType($type1, $type2)
     {
         return (string) $type1 === (string) $type2;
     }

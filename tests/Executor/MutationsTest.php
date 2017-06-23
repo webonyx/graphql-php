@@ -182,7 +182,8 @@ class NumberHolder
     }
 }
 
-class Root {
+class Root
+{
     public $numberHolder;
 
     public function __construct($originalNumber)

@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Language\AST;
 
-
 class ObjectFieldNode extends Node
 {
     public $kind = NodeKind::OBJECT_FIELD;

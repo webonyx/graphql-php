@@ -37,7 +37,7 @@ class SyntaxError extends Error
         $unicodeChars = json_decode('"\u2028\u2029"'); // Quick hack to get js-compatible representation of these chars
         $lines = preg_split('/\r\n|[\n\r' . $unicodeChars . ']/su', $source->body);
 
-        $lpad = function($len, $str) {
+        $lpad = function ($len, $str) {
             return str_pad($str, $len - mb_strlen($str, 'UTF-8') + 1, ' ', STR_PAD_LEFT);
         };
 

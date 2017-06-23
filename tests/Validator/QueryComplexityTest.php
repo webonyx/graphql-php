@@ -159,10 +159,10 @@ class QueryComplexityTest extends AbstractQuerySecurityTest
         $query = 'query MyQuery { human(name: INVALID_VALUE) { dogs {name} } }';
 
         $reportedError = new Error("OtherValidatorError");
-        $otherRule = function(ValidationContext $context) use ($reportedError) {
+        $otherRule = function (ValidationContext $context) use ($reportedError) {
             return [
                 NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function() use ($context, $reportedError) {
+                    'leave' => function () use ($context, $reportedError) {
                         $context->reportError($reportedError);
                     }
                 ]

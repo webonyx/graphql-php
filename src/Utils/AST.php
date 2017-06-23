@@ -52,7 +52,7 @@ class AST
      * @param InputType $type
      * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
      */
-    static function astFromValue($value, InputType $type)
+    public static function astFromValue($value, InputType $type)
     {
         if ($type instanceof NonNull) {
             $astValue = self::astFromValue($value, $type->getWrappedType());
@@ -104,9 +104,9 @@ class AST
                 // "no key" and "value is null":
                 if (null !== $fieldValue) {
                     $fieldExists = true;
-                } else if ($isArray) {
+                } elseif ($isArray) {
                     $fieldExists = array_key_exists($fieldName, $value);
-                } else if ($isArrayLike) {
+                } elseif ($isArrayLike) {
                     /** @var \ArrayAccess $value */
                     $fieldExists = $value->offsetExists($fieldName);
                 } else {
@@ -277,7 +277,9 @@ class AST
 
             $coercedObj = [];
             $fields = $type->getFields();
-            $fieldNodes = Utils::keyMap($valueNode->fields, function($field) {return $field->name->value;});
+            $fieldNodes = Utils::keyMap($valueNode->fields, function ($field) {
+                return $field->name->value;
+            });
             foreach ($fields as $field) {
                 /** @var ValueNode $fieldNode */
                 $fieldName = $field->name;
@@ -286,7 +288,7 @@ class AST
                 if (!$fieldNode || self::isMissingVariable($fieldNode->value, $variables)) {
                     if ($field->defaultValueExists()) {
                         $coercedObj[$fieldName] = $field->defaultValue;
-                    } else if ($field->getType() instanceof NonNull) {
+                    } elseif ($field->getType() instanceof NonNull) {
                         // Invalid: intentionally return no value.
                         return $undefined;
                     }

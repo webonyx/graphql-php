@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Benchmarks;
+
 use GraphQL\GraphQL;
 use GraphQL\Tests\StarWarsSchema;
 use GraphQL\Type\Introspection;

@@ -23,7 +23,7 @@ class HtmlField
                 ],
                 'maxLength' => Types::int()
             ],
-            'resolve' => function($object, $args) use ($objectKey) {
+            'resolve' => function ($object, $args) use ($objectKey) {
                 $html = $object->{$objectKey};
                 $text = strip_tags($html);
 

@@ -76,7 +76,9 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     {
         $this->objectType = new ObjectType([
             'name' => 'Object',
-            'isTypeOf' => function() {return true;}
+            'isTypeOf' => function () {
+                return true;
+            }
         ]);
         $this->interfaceType = new InterfaceType(['name' => 'Interface']);
         $this->unionType = new UnionType(['name' => 'Union', 'types' => [$this->objectType]]);
@@ -94,7 +96,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
         $this->blogAuthor = new ObjectType([
             'name' => 'Author',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'id' => ['type' => Type::string()],
                     'name' => ['type' => Type::string()],
@@ -325,7 +327,9 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 'f' => ['type' => Type::int()]
             ],
             'interfaces' => [$someInterface],
-            'isTypeOf' => function() {return true;}
+            'isTypeOf' => function () {
+                return true;
+            }
         ]);
 
         $schema = new Schema([
@@ -352,8 +356,12 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'f' => ['type' => Type::int()]
             ],
-            'interfaces' => function() use (&$someInterface) { return [$someInterface]; },
-            'isTypeOf' => function() {return true;}
+            'interfaces' => function () use (&$someInterface) {
+                return [$someInterface];
+            },
+            'isTypeOf' => function () {
+                return true;
+            }
         ]);
 
         $someInterface = new InterfaceType([
@@ -484,7 +492,9 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     {
         $union = new UnionType([
             'name' => 'ThunkUnion',
-            'types' => function() {return [$this->objectType]; }
+            'types' => function () {
+                return [$this->objectType];
+            }
         ]);
 
         $types = $union->getTypes();
@@ -507,7 +517,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
         $user = new ObjectType([
             'name' => 'User',
-            'fields' => function() use (&$blog, &$called) {
+            'fields' => function () use (&$blog, &$called) {
                 $this->assertNotNull($blog, 'Blog type is expected to be defined at this point, but it is null');
                 $called = true;
 
@@ -516,20 +526,20 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                     'blogs' => ['type' => Type::nonNull(Type::listOf(Type::nonNull($blog)))]
                 ];
             },
-            'interfaces' => function() use ($node) {
+            'interfaces' => function () use ($node) {
                 return [$node];
             }
         ]);
 
         $blog = new ObjectType([
             'name' => 'Blog',
-            'fields' => function() use ($user) {
+            'fields' => function () use ($user) {
                 return [
                     'id' => ['type' => Type::nonNull(Type::id())],
                     'owner' => ['type' => Type::nonNull($user)]
                 ];
             },
-            'interfaces' => function() use ($node) {
+            'interfaces' => function () use ($node) {
                 return [$node];
             }
         ]);
@@ -561,7 +571,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $called = false;
         $inputObject = new InputObjectType([
             'name' => 'InputObject',
-            'fields' => function() use (&$inputObject, &$called) {
+            'fields' => function () use (&$inputObject, &$called) {
                 $called = true;
                 return [
                     'value' => ['type' => Type::string()],
@@ -596,7 +606,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $called = false;
         $interface = new InterfaceType([
             'name' => 'SomeInterface',
-            'fields' => function() use (&$interface, &$called) {
+            'fields' => function () use (&$interface, &$called) {
                 $called = true;
                 return [
                     'value' => ['type' => Type::string()],
@@ -627,7 +637,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     {
         $interface = new InterfaceType([
             'name' => 'SomeInterface',
-            'fields' => function() use (&$interface) {
+            'fields' => function () use (&$interface) {
                 return [
                     'value' => Type::string(),
                     'nested' => $interface,
@@ -678,4 +688,3 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('OtherCustom', $otherCustom->name);
     }
 }
-

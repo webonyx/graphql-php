@@ -21,7 +21,8 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testIsThenable()
     {
-        $this->assertEquals(true, $this->promises->isThenable(new Deferred(function() {})));
+        $this->assertEquals(true, $this->promises->isThenable(new Deferred(function () {
+        })));
         $this->assertEquals(false, $this->promises->isThenable(false));
         $this->assertEquals(false, $this->promises->isThenable(true));
         $this->assertEquals(false, $this->promises->isThenable(1));
@@ -34,7 +35,8 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testConvert()
     {
-        $dfd = new Deferred(function() {});
+        $dfd = new Deferred(function () {
+        });
         $result = $this->promises->convertThenable($dfd);
 
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
@@ -50,7 +52,8 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testThen()
     {
-        $dfd = new Deferred(function() {});
+        $dfd = new Deferred(function () {
+        });
         $promise = $this->promises->convertThenable($dfd);
 
         $result = $this->promises->then($promise);
@@ -61,12 +64,13 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
 
     public function testCreatePromise()
     {
-        $promise = $this->promises->create(function($resolve, $reject) {});
+        $promise = $this->promises->create(function ($resolve, $reject) {
+        });
 
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
         $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
 
-        $promise = $this->promises->create(function($resolve, $reject) {
+        $promise = $this->promises->create(function ($resolve, $reject) {
             $resolve('A');
         });
 
@@ -96,7 +100,7 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $promise1 = new SyncPromise();
         $promise2 = new SyncPromise();
         $promise3 = $promise2->then(
-            function($value) {
+            function ($value) {
                 return $value .'-value3';
             }
         );
@@ -123,11 +127,11 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
     {
         $called = [];
 
-        $deferred1 = new Deferred(function() use (&$called) {
+        $deferred1 = new Deferred(function () use (&$called) {
             $called[] = 1;
             return 1;
         });
-        $deferred2 = new Deferred(function() use (&$called) {
+        $deferred2 = new Deferred(function () use (&$called) {
             $called[] = 2;
             return 2;
         });
@@ -135,16 +139,16 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $p1 = $this->promises->convertThenable($deferred1);
         $p2 = $this->promises->convertThenable($deferred2);
 
-        $p3 = $p2->then(function() use (&$called) {
-            $dfd = new Deferred(function() use (&$called) {
+        $p3 = $p2->then(function () use (&$called) {
+            $dfd = new Deferred(function () use (&$called) {
                 $called[] = 3;
                 return 3;
             });
             return $this->promises->convertThenable($dfd);
         });
 
-        $p4 = $p3->then(function() use (&$called) {
-            return new Deferred(function() use (&$called) {
+        $p4 = $p3->then(function () use (&$called) {
+            return new Deferred(function () use (&$called) {
                 $called[] = 4;
                 return 4;
             });
@@ -176,11 +180,11 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $onRejectedCalled = false;
 
         $promise->then(
-            function($nextValue) use (&$actualNextValue, &$onFulfilledCalled) {
+            function ($nextValue) use (&$actualNextValue, &$onFulfilledCalled) {
                 $onFulfilledCalled = true;
                 $actualNextValue = $nextValue;
             },
-            function(\Exception $reason) use (&$actualNextReason, &$onRejectedCalled) {
+            function (\Exception $reason) use (&$actualNextReason, &$onRejectedCalled) {
                 $onRejectedCalled = true;
                 $actualNextReason = $reason->getMessage();
             }

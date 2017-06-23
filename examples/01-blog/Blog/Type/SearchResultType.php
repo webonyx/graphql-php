@@ -12,16 +12,16 @@ class SearchResultType extends UnionType
     {
         $config = [
             'name' => 'SearchResultType',
-            'types' => function() {
+            'types' => function () {
                 return [
                     Types::story(),
                     Types::user()
                 ];
             },
-            'resolveType' => function($value) {
+            'resolveType' => function ($value) {
                 if ($value instanceof Story) {
                     return Types::story();
-                } else if ($value instanceof User) {
+                } elseif ($value instanceof User) {
                     return Types::user();
                 }
             }

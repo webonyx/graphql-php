@@ -25,9 +25,9 @@ class NodeType extends InterfaceType
     {
         if ($object instanceof User) {
             return Types::user();
-        } else if ($object instanceof Image) {
+        } elseif ($object instanceof Image) {
             return Types::image();
-        } else if ($object instanceof Story) {
+        } elseif ($object instanceof Story) {
             return Types::story();
         }
     }

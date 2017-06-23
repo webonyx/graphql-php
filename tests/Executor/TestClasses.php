@@ -5,7 +5,7 @@ use GraphQL\Type\Definition\ScalarType;
 
 class Dog
 {
-    function __construct($name, $woofs)
+    public function __construct($name, $woofs)
     {
         $this->name = $name;
         $this->woofs = $woofs;
@@ -14,7 +14,7 @@ class Dog
 
 class Cat
 {
-    function __construct($name, $meows)
+    public function __construct($name, $meows)
     {
         $this->name = $name;
         $this->meows = $meows;
@@ -23,7 +23,7 @@ class Cat
 
 class Human
 {
-    function __construct($name)
+    public function __construct($name)
     {
         $this->name = $name;
     }
@@ -35,7 +35,7 @@ class Person
     public $pets;
     public $friends;
 
-    function __construct($name, $pets = null, $friends = null)
+    public function __construct($name, $pets = null, $friends = null)
     {
         $this->name = $name;
         $this->pets = $pets;
@@ -107,7 +107,7 @@ class Adder
     {
         $this->num = $num;
 
-        $this->test = function($source, $args, $context)  {
+        $this->test = function ($source, $args, $context) {
             return $this->num + $args['addend1'] + $context['addend2'];
         };
     }

@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Tests;
 
-
 use GraphQL\GraphQL;
 
 class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
@@ -329,7 +328,7 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         }
         ';
 
-        $expected = array(
+        $expected = [
             '__schema' => [
                 'queryType' => [
                     'fields' => [
@@ -337,13 +336,13 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                             'name' => 'hero',
                             'args' => [
                                 [
-                                    'defaultValue' => NULL,
+                                    'defaultValue' => null,
                                     'description' => 'If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.',
                                     'name' => 'episode',
                                     'type' => [
                                         'kind' => 'ENUM',
                                         'name' => 'Episode',
-                                        'ofType' => NULL,
+                                        'ofType' => null,
                                     ],
                                 ],
                             ],
@@ -356,13 +355,13 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                                     'description' => 'id of the human',
                                     'type' => [
                                         'kind' => 'NON_NULL',
-                                        'name' => NULL,
+                                        'name' => null,
                                         'ofType' => [
                                             'kind' => 'SCALAR',
                                             'name' => 'String',
                                         ],
                                     ],
-                                    'defaultValue' => NULL,
+                                    'defaultValue' => null,
                                 ],
                             ],
                         ],
@@ -374,21 +373,21 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                                     'description' => 'id of the droid',
                                     'type' => [
                                         'kind' => 'NON_NULL',
-                                        'name' => NULL,
+                                        'name' => null,
                                         'ofType' =>
                                             [
                                                 'kind' => 'SCALAR',
                                                 'name' => 'String',
                                             ],
                                     ],
-                                    'defaultValue' => NULL,
+                                    'defaultValue' => null,
                                 ],
                             ],
                         ],
                     ],
                 ],
             ],
-        );
+        ];
 
         $this->assertValidQuery($query, $expected);
     }

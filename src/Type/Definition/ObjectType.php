@@ -1,9 +1,9 @@
 <?php
 namespace GraphQL\Type\Definition;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Utils;
-
 
 /**
  * Object Type Definition
@@ -161,7 +161,9 @@ class ObjectType extends Type implements OutputType, CompositeType
     public function implementsInterface($iface)
     {
         $iface = Type::resolve($iface);
-        return !!Utils::find($this->getInterfaces(), function($implemented) use ($iface) {return $iface === $implemented;});
+        return !!Utils::find($this->getInterfaces(), function ($implemented) use ($iface) {
+            return $iface === $implemented;
+        });
     }
 
     /**

@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
@@ -10,7 +9,7 @@ use GraphQL\Validator\ValidationContext;
 
 class KnownFragmentNames
 {
-    static function unknownFragmentMessage($fragName)
+    public static function unknownFragmentMessage($fragName)
     {
         return "Unknown fragment \"$fragName\".";
     }
@@ -18,7 +17,7 @@ class KnownFragmentNames
     public function __invoke(ValidationContext $context)
     {
         return [
-            NodeKind::FRAGMENT_SPREAD => function(FragmentSpreadNode $node) use ($context) {
+            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context) {
                 $fragmentName = $node->name->value;
                 $fragment = $context->getFragment($fragmentName);
                 if (!$fragment) {

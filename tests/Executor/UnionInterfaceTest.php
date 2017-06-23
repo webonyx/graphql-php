@@ -90,7 +90,6 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         $this->odie = new Dog('Odie', true);
         $this->liz = new Person('Liz');
         $this->john = new Person('John', [$this->garfield, $this->odie], [$this->liz, $this->odie]);
-
     }
 
     // Execute: Union and intersection types
@@ -100,7 +99,6 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanIntrospectOnUnionAndIntersectionTypes()
     {
-
         $ast = Parser::parse('
       {
         Named: __type(name: "Named") {

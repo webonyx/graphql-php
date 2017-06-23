@@ -11,7 +11,7 @@ use GraphQL\Validator\ValidationContext;
 
 class UniqueFragmentNames
 {
-    static function duplicateFragmentNameMessage($fragName)
+    public static function duplicateFragmentNameMessage($fragName)
     {
         return "There can only be one fragment named \"$fragName\".";
     }

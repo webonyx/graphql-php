@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils;
 
@@ -103,7 +104,7 @@ class FieldDefinition
                     $field['name'] = $name;
                 }
                 $fieldDef = self::create($field, $parentTypeName);
-            } else if ($field instanceof FieldDefinition) {
+            } elseif ($field instanceof FieldDefinition) {
                 $fieldDef = $field;
             } else {
                 if (is_string($name)) {

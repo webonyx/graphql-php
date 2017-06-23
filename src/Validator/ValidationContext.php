@@ -79,7 +79,7 @@ class ValidationContext
      * @param DocumentNode $ast
      * @param TypeInfo $typeInfo
      */
-    function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
+    public function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
         $this->schema = $schema;
         $this->ast = $ast;
@@ -94,7 +94,7 @@ class ValidationContext
     /**
      * @param Error $error
      */
-    function reportError(Error $error)
+    public function reportError(Error $error)
     {
         $this->errors[] = $error;
     }
@@ -102,7 +102,7 @@ class ValidationContext
     /**
      * @return Error[]
      */
-    function getErrors()
+    public function getErrors()
     {
         return $this->errors;
     }
@@ -110,7 +110,7 @@ class ValidationContext
     /**
      * @return Schema
      */
-    function getSchema()
+    public function getSchema()
     {
         return $this->schema;
     }
@@ -118,7 +118,7 @@ class ValidationContext
     /**
      * @return DocumentNode
      */
-    function getDocument()
+    public function getDocument()
     {
         return $this->ast;
     }
@@ -127,12 +127,12 @@ class ValidationContext
      * @param $name
      * @return FragmentDefinitionNode|null
      */
-    function getFragment($name)
+    public function getFragment($name)
     {
         $fragments = $this->fragments;
         if (!$fragments) {
             $this->fragments = $fragments =
-                array_reduce($this->getDocument()->definitions, function($frags, $statement) {
+                array_reduce($this->getDocument()->definitions, function ($frags, $statement) {
                     if ($statement->kind === NodeKind::FRAGMENT_DEFINITION) {
                         $frags[$statement->name->value] = $statement;
                     }
@@ -146,7 +146,7 @@ class ValidationContext
      * @param HasSelectionSet $node
      * @return FragmentSpreadNode[]
      */
-    function getFragmentSpreads(HasSelectionSet $node)
+    public function getFragmentSpreads(HasSelectionSet $node)
     {
         $spreads = isset($this->fragmentSpreads[$node]) ? $this->fragmentSpreads[$node] : null;
         if (!$spreads) {
@@ -159,7 +159,7 @@ class ValidationContext
                     $selection = $set->selections[$i];
                     if ($selection->kind === NodeKind::FRAGMENT_SPREAD) {
                         $spreads[] = $selection;
-                    } else if ($selection->selectionSet) {
+                    } elseif ($selection->selectionSet) {
                         $setsToVisit[] = $selection->selectionSet;
                     }
                 }
@@ -173,7 +173,7 @@ class ValidationContext
      * @param OperationDefinitionNode $operation
      * @return FragmentDefinitionNode[]
      */
-    function getRecursivelyReferencedFragments(OperationDefinitionNode $operation)
+    public function getRecursivelyReferencedFragments(OperationDefinitionNode $operation)
     {
         $fragments = isset($this->recursivelyReferencedFragments[$operation]) ? $this->recursivelyReferencedFragments[$operation] : null;
 
@@ -206,7 +206,7 @@ class ValidationContext
      * @param HasSelectionSet $node
      * @return array List of ['node' => VariableNode, 'type' => ?InputObjectType]
      */
-    function getVariableUsages(HasSelectionSet $node)
+    public function getVariableUsages(HasSelectionSet $node)
     {
         $usages = isset($this->variableUsages[$node]) ? $this->variableUsages[$node] : null;
 
@@ -231,7 +231,7 @@ class ValidationContext
      * @param OperationDefinitionNode $operation
      * @return array List of ['node' => VariableNode, 'type' => ?InputObjectType]
      */
-    function getRecursiveVariableUsages(OperationDefinitionNode $operation)
+    public function getRecursiveVariableUsages(OperationDefinitionNode $operation)
     {
         $usages = isset($this->recursiveVariableUsages[$operation]) ? $this->recursiveVariableUsages[$operation] : null;
 
@@ -254,7 +254,7 @@ class ValidationContext
      *
      * @return Type
      */
-    function getType()
+    public function getType()
     {
         return $this->typeInfo->getType();
     }
@@ -262,7 +262,7 @@ class ValidationContext
     /**
      * @return CompositeType
      */
-    function getParentType()
+    public function getParentType()
     {
         return $this->typeInfo->getParentType();
     }
@@ -270,7 +270,7 @@ class ValidationContext
     /**
      * @return InputType
      */
-    function getInputType()
+    public function getInputType()
     {
         return $this->typeInfo->getInputType();
     }
@@ -278,17 +278,17 @@ class ValidationContext
     /**
      * @return FieldDefinition
      */
-    function getFieldDef()
+    public function getFieldDef()
     {
         return $this->typeInfo->getFieldDef();
     }
 
-    function getDirective()
+    public function getDirective()
     {
         return $this->typeInfo->getDirective();
     }
 
-    function getArgument()
+    public function getArgument()
     {
         return $this->typeInfo->getArgument();
     }

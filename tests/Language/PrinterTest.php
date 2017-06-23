@@ -44,7 +44,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testProducesHelpfulErrorMessages()
     {
-        $badAst1 = new \ArrayObject(array('random' => 'Data'));
+        $badAst1 = new \ArrayObject(['random' => 'Data']);
         try {
             Printer::doPrint($badAst1);
             $this->fail('Expected exception not thrown');

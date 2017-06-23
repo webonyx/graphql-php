@@ -21,7 +21,7 @@ class SchemaPrinter
 {
     public static function doPrint(Schema $schema)
     {
-        return self::printFilteredSchema($schema, function($n) {
+        return self::printFilteredSchema($schema, function ($n) {
             return !self::isSpecDirective($n);
         }, 'self::isDefinedType');
     }
@@ -63,13 +63,15 @@ class SchemaPrinter
 
     private static function printFilteredSchema(Schema $schema, $directiveFilter, $typeFilter)
     {
-        $directives = array_filter($schema->getDirectives(), function($directive) use ($directiveFilter) {
+        $directives = array_filter($schema->getDirectives(), function ($directive) use ($directiveFilter) {
             return $directiveFilter($directive->name);
         });
         $typeMap = $schema->getTypeMap();
         $types = array_filter(array_keys($typeMap), $typeFilter);
         sort($types);
-        $types = array_map(function($typeName) use ($typeMap) { return $typeMap[$typeName]; }, $types);
+        $types = array_map(function ($typeName) use ($typeMap) {
+            return $typeMap[$typeName];
+        }, $types);
 
         return implode("\n\n", array_filter(array_merge(
             [self::printSchemaDefinition($schema)],
@@ -140,13 +142,13 @@ class SchemaPrinter
     {
         if ($type instanceof ScalarType) {
             return self::printScalar($type);
-        } else if ($type instanceof ObjectType) {
+        } elseif ($type instanceof ObjectType) {
             return self::printObject($type);
-        } else if ($type instanceof InterfaceType) {
+        } elseif ($type instanceof InterfaceType) {
             return self::printInterface($type);
-        } else if ($type instanceof UnionType) {
+        } elseif ($type instanceof UnionType) {
             return self::printUnion($type);
-        } else if ($type instanceof EnumType) {
+        } elseif ($type instanceof EnumType) {
             return self::printEnum($type);
         }
         Utils::invariant($type instanceof InputObjectType);
@@ -162,7 +164,7 @@ class SchemaPrinter
     {
         $interfaces = $type->getInterfaces();
         $implementedInterfaces = !empty($interfaces) ?
-            ' implements ' . implode(', ', array_map(function($i) {
+            ' implements ' . implode(', ', array_map(function ($i) {
                 return $i->name;
             }, $interfaces)) : '';
         return self::printDescription($type) .
@@ -173,7 +175,7 @@ class SchemaPrinter
 
     private static function printInterface(InterfaceType $type)
     {
-        return self::printDescription($type) . 
+        return self::printDescription($type) .
             "interface {$type->name} {\n" .
                 self::printFields($type) . "\n" .
             "}";
@@ -195,7 +197,7 @@ class SchemaPrinter
 
     private static function printEnumValues($values)
     {
-        return implode("\n", array_map(function($value, $i) {
+        return implode("\n", array_map(function ($value, $i) {
             return self::printDescription($value, '  ', !$i) . '  ' .
                 $value->name . self::printDeprecated($value);
         }, $values, array_keys($values)));
@@ -204,9 +206,9 @@ class SchemaPrinter
     private static function printInputObject(InputObjectType $type)
     {
         $fields = array_values($type->getFields());
-        return self::printDescription($type) . 
+        return self::printDescription($type) .
             "input {$type->name} {\n" .
-                implode("\n", array_map(function($f, $i) {
+                implode("\n", array_map(function ($f, $i) {
                     return self::printDescription($f, '  ', !$i) . '  ' . self::printInputValue($f);
                 }, $fields, array_keys($fields))) . "\n" .
             "}";
@@ -215,11 +217,11 @@ class SchemaPrinter
     private static function printFields($type)
     {
         $fields = array_values($type->getFields());
-        return implode("\n", array_map(function($f, $i) {
-                return self::printDescription($f, '  ', !$i) . '  ' .
+        return implode("\n", array_map(function ($f, $i) {
+            return self::printDescription($f, '  ', !$i) . '  ' .
                     $f->name . self::printArgs($f->args, '  ') . ': ' .
                     (string) $f->getType() . self::printDeprecated($f);
-            }, $fields, array_keys($fields)));
+        }, $fields, array_keys($fields)));
     }
 
     private static function printArgs($args, $indentation = '')
@@ -229,11 +231,13 @@ class SchemaPrinter
         }
 
         // If every arg does not have a description, print them on one line.
-        if (Utils::every($args, function($arg) { return empty($arg->description); })) {
+        if (Utils::every($args, function ($arg) {
+            return empty($arg->description);
+        })) {
             return '(' . implode(', ', array_map('self::printInputValue', $args)) . ')';
         }
 
-        return "(\n" . implode("\n", array_map(function($arg, $i) use ($indentation) {
+        return "(\n" . implode("\n", array_map(function ($arg, $i) use ($indentation) {
             return self::printDescription($arg, '  ' . $indentation, !$i) . '  ' . $indentation .
                 self::printInputValue($arg);
         }, $args, array_keys($args))) . "\n" . $indentation . ')';
@@ -297,7 +301,7 @@ class SchemaPrinter
         }
         preg_match_all("/((?: |^).{15," . ($len - 40) . "}(?= |$))/", $line, $parts);
         $parts = $parts[0];
-        return array_map(function($part) {
+        return array_map(function ($part) {
             return trim($part);
         }, $parts);
     }

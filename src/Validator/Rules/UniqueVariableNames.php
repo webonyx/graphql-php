@@ -9,7 +9,7 @@ use GraphQL\Validator\ValidationContext;
 
 class UniqueVariableNames
 {
-    static function duplicateVariableMessage($variableName)
+    public static function duplicateVariableMessage($variableName)
     {
         return "There can be only one variable named \"$variableName\".";
     }
@@ -21,10 +21,10 @@ class UniqueVariableNames
         $this->knownVariableNames = [];
 
         return [
-            NodeKind::OPERATION_DEFINITION => function() {
+            NodeKind::OPERATION_DEFINITION => function () {
                 $this->knownVariableNames = [];
             },
-            NodeKind::VARIABLE_DEFINITION => function(VariableDefinitionNode $node) use ($context) {
+            NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) use ($context) {
                 $variableName = $node->variable->name->value;
                 if (!empty($this->knownVariableNames[$variableName])) {
                     $context->reportError(new Error(
