@@ -290,15 +290,17 @@ class Utils
      */
     public static function ord($char, $encoding = 'UTF-8')
     {
+        if (!$char && '0' !== $char) {
+            return 0;
+        }
         if (!isset($char[1])) {
             return ord($char);
         }
-        if ($encoding === 'UCS-4BE') {
-            list(, $ord) = (strlen($char) === 4) ? unpack('N', $char) : unpack('n', $char);
-            return $ord;
-        } else {
-            return self::ord(mb_convert_encoding($char, 'UCS-4BE', $encoding), 'UCS-4BE');
+        if ($encoding !== 'UCS-4BE') {
+            $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
+        list(, $ord) = unpack('N', $char);
+        return $ord;
     }
 
     /**
