@@ -552,7 +552,7 @@ class Server
             $httpStatus = $this->unexpectedErrorStatus;
             $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $e);
             $result = ['errors' => [$this->formatError($error)]];
-        } catch (\Error $e) {
+        } catch (\Throwable $e) {
             $httpStatus = $this->unexpectedErrorStatus;
             $error = new Error($this->unexpectedErrorMessage, null, null, null, null, $e);
             $result = ['errors' => [$this->formatError($error)]];
@@ -561,7 +561,10 @@ class Server
         $this->produceOutput($result, $httpStatus);
     }
 
-    private function formatException(\Exception $e)
+    /**
+    * @param \Throwable $e
+    */
+    private function formatException($e)
     {
         $formatter = $this->exceptionFormatter;
         return $formatter($e);

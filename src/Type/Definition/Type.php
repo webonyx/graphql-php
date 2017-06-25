@@ -263,6 +263,8 @@ abstract class Type implements \JsonSerializable
             return $this->toString();
         } catch (\Exception $e) {
             echo $e;
+        } catch (\Throwable $e) {
+            echo $e;
         }
     }
 }

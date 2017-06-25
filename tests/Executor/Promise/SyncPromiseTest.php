@@ -218,6 +218,8 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         try {
             $promise->reject('a');
             $this->fail('Expected exception not thrown');
+        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+            throw $e;
         } catch (\Throwable $e) {
             $this->assertEquals(SyncPromise::PENDING, $promise->state);
         } catch (\Exception $e) {

@@ -664,7 +664,7 @@ class Executor
      * @param mixed $source
      * @param mixed $context
      * @param ResolveInfo $info
-     * @return \Exception|Promise|mixed
+     * @return \Throwable|Promise|mixed
      */
     private function resolveOrError($fieldDef, $fieldNode, $resolveFn, $source, $context, $info)
     {
@@ -680,7 +680,7 @@ class Executor
             return $resolveFn($source, $args, $context, $info);
         } catch (\Exception $error) {
             return $error;
-        } catch (\Error $error) {
+        } catch (\Throwable $error) {
             return $error;
         }
     }
@@ -780,7 +780,7 @@ class Executor
             return $completed;
         } catch (\Exception $error) {
             throw Error::createLocatedError($error, $fieldNodes, $path);
-        } catch (\Error $error) {
+        } catch (\Throwable $error) {
             throw Error::createLocatedError($error, $fieldNodes, $path);
         }
     }
@@ -813,8 +813,7 @@ class Executor
      * @param $result
      * @return array|null|Promise
      * @throws Error
-     * @throws \Exception
-     * @throws \Error
+     * @throws \Throwable
      */
     private function completeValue(
         Type $returnType,
@@ -836,11 +835,7 @@ class Executor
             });
         }
 
-        if ($result instanceof \Exception) {
-            throw $result;
-        }
-
-        if ($result instanceof \Error) {
+        if ($result instanceof \Exception || $result instanceof \Throwable) {
             throw $result;
         }
 
