@@ -10,6 +10,7 @@ use \GraphQL\Schema;
 use \GraphQL\GraphQL;
 use \GraphQL\Type\Definition\Config;
 use \GraphQL\Error\FormattedError;
+use GraphQL\Type\LazyResolution;
 
 // Disable default PHP error reporting - we have better one for debug mode (see bellow)
 ini_set('display_errors', 0);
@@ -50,9 +51,34 @@ try {
     }
 
     // GraphQL schema to be passed to query executor:
-    $schema = new Schema([
+    $schemaConfig = [
         'query' => Types::query()
-    ]);
+    ];
+
+    $schemaDescriptorFile = __DIR__.'/schema.descriptor';
+    if (file_exists($schemaDescriptorFile)) {
+        $schemaDescriptor = include $schemaDescriptorFile;
+        $schemaConfig['typeResolution'] = new LazyResolution($schemaDescriptor, function ($typeName) {
+            $classNames = [
+                'GraphQL\Examples\Blog\Type\\' . $typeName . 'Type',
+                'GraphQL\Type\Definition\\' . $typeName . 'Type'
+            ];
+
+            foreach ($classNames as $className) {
+                if (class_exists($className)) {
+                    return new $className();
+                }
+            }
+
+            return null;
+        });
+    }
+
+    $schema = new Schema($schemaConfig);
+
+    if (! file_exists($schemaDescriptorFile)) {
+        file_put_contents($schemaDescriptorFile, "<?php\n return " . var_export($schema->getDescriptor(), true) . ';');
+    }
 
     $result = GraphQL::execute(
         $schema,
