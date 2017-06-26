@@ -25,6 +25,7 @@ use GraphQL\Utils;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\Rules\ArgumentsOfCorrectType;
 use GraphQL\Validator\Rules\DefaultValuesOfCorrectType;
+use GraphQL\Validator\Rules\DisableIntrospection;
 use GraphQL\Validator\Rules\FieldsOnCorrectType;
 use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 use GraphQL\Validator\Rules\KnownArgumentNames;
@@ -100,6 +101,7 @@ class DocumentValidator
                 'UniqueInputFieldNames' => new UniqueInputFieldNames(),
 
                 // Query Security
+                'DisableIntrospection' => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
                 'QueryDepth' => new QueryDepth(QueryDepth::DISABLED), // default disabled
                 'QueryComplexity' => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
             ];

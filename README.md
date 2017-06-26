@@ -559,6 +559,24 @@ $queryDepth->setMaxQueryDepth($maxQueryDepth = 10);
 GraphQL::execute(/*...*/);
 ```
 
+#### Disabling Introspection
+
+This is a PHP port of [graphql-disable-introspection](https://github.com/helfer/graphql-disable-introspection).
+The rule prohibits queries that contain `__type` or `__schema` fields.
+
+This document validator rule is disabled by default. Here an example to enable it:
+
+```php
+use GraphQL\GraphQL;
+use GraphQL\Validator\Rules\DisableIntrospection;
+
+/** @var \GraphQL\Validator\Rules\DisableIntrospection $disableIntrospection */
+$disableIntrospection = DocumentValidator::getRule('DisableIntrospection');
+$disableIntrospection->setEnabled(DisableIntrospection::ENABLED);
+
+GraphQL::execute(/*...*/);
+```
+
 ### More Examples
 Make sure to check [tests](https://github.com/webonyx/graphql-php/tree/master/tests) for more usage examples.
 
