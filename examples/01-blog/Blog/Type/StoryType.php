@@ -76,8 +76,9 @@ class StoryType extends ObjectType
                 Types::node()
             ],
             'resolveField' => function($value, $args, $context, ResolveInfo $info) {
-                if (method_exists($this, $info->fieldName)) {
-                    return $this->{$info->fieldName}($value, $args, $context, $info);
+                $method = 'resolve' . ucfirst($info->fieldName);
+                if (method_exists($this, $method)) {
+                    return $this->{$method}($value, $args, $context, $info);
                 } else {
                     return $value->{$info->fieldName};
                 }
@@ -86,12 +87,12 @@ class StoryType extends ObjectType
         parent::__construct($config);
     }
 
-    public function author(Story $story)
+    public function resolveAuthor(Story $story)
     {
         return DataSource::findUser($story->authorId);
     }
 
-    public function affordances(Story $story, $args, AppContext $context)
+    public function resolveAffordances(Story $story, $args, AppContext $context)
     {
         $isViewer = $context->viewer === DataSource::findUser($story->authorId);
         $isLiked = DataSource::isLikedBy($story->id, $context->viewer->id);
@@ -108,17 +109,17 @@ class StoryType extends ObjectType
         return $affordances;
     }
 
-    public function hasViewerLiked(Story $story, $args, AppContext $context)
+    public function resolveHasViewerLiked(Story $story, $args, AppContext $context)
     {
         return DataSource::isLikedBy($story->id, $context->viewer->id);
     }
 
-    public function totalCommentCount(Story $story)
+    public function resolveTotalCommentCount(Story $story)
     {
         return DataSource::countComments($story->id);
     }
 
-    public function comments(Story $story, $args)
+    public function resolveComments(Story $story, $args)
     {
         $args += ['after' => null];
         return DataSource::findComments($story->id, $args['limit'], $args['after']);

@@ -45,8 +45,9 @@ class UserType extends ObjectType
                 Types::node()
             ],
             'resolveField' => function($value, $args, $context, ResolveInfo $info) {
-                if (method_exists($this, $info->fieldName)) {
-                    return $this->{$info->fieldName}($value, $args, $context, $info);
+                $method = 'resolve' . ucfirst($info->fieldName);
+                if (method_exists($this, $method)) {
+                    return $this->{$method}($value, $args, $context, $info);
                 } else {
                     return $value->{$info->fieldName};
                 }
@@ -55,12 +56,12 @@ class UserType extends ObjectType
         parent::__construct($config);
     }
 
-    public function photo(User $user, $args)
+    public function resolvePhoto(User $user, $args)
     {
         return DataSource::getUserPhoto($user->id, $args['size']);
     }
 
-    public function lastStoryPosted(User $user)
+    public function resolveLastStoryPosted(User $user)
     {
         return DataSource::findLastStoryFor($user->id);
     }
