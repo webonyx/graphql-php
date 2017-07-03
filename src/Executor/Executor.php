@@ -969,8 +969,58 @@ class Executor
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
 
         if (null === $runtimeType) {
-            $runtimeType = self::inferTypeOf($result, $exeContext->contextValue, $info, $returnType);
+            $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
         }
+
+        if ($this->promises->isThenable($runtimeType)) {
+            $runtimeType = $this->promises->convertThenable($runtimeType);
+            Utils::invariant($runtimeType instanceof Promise);
+        }
+
+        if ($runtimeType instanceof Promise) {
+            return $runtimeType->then(function($resolvedRuntimeType) use ($returnType, $fieldNodes, $info, $path, &$result) {
+                return $this->validateRuntimeTypeAndCompleteObjectValue(
+                    $returnType,
+                    $fieldNodes,
+                    $info,
+                    $path,
+                    $resolvedRuntimeType,
+                    $result
+                );
+            });
+        }
+
+        return $this->validateRuntimeTypeAndCompleteObjectValue(
+            $returnType,
+            $fieldNodes,
+            $info,
+            $path,
+            $runtimeType,
+            $result
+        );
+    }
+
+    /**
+     * @param AbstractType $returnType
+     * @param FieldNode[] $fieldNodes
+     * @param ResolveInfo $info
+     * @param array $path
+     * @param mixed $returnedRuntimeType
+     * @param $result
+     * @return array|Promise|\stdClass
+     * @throws Error
+     */
+    private function validateRuntimeTypeAndCompleteObjectValue(
+        AbstractType $returnType,
+        $fieldNodes,
+        ResolveInfo $info,
+        $path,
+        $returnedRuntimeType,
+        &$result
+    )
+    {
+        $exeContext = $this->exeContext;
+        $runtimeType = $returnedRuntimeType;
 
         // If resolveType returns a string, we assume it's a ObjectType name.
         if (is_string($runtimeType)) {
@@ -1064,12 +1114,61 @@ class Executor
      */
     private function completeObjectValue(ObjectType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
-        $exeContext = $this->exeContext;
+        $isTypeOf = $returnType->isTypeOf($result, $this->exeContext->contextValue, $info);
 
-        // If there is an isTypeOf predicate function, call it with the
-        // current result. If isTypeOf returns false, then raise an error rather
-        // than continuing execution.
-        if (false === $returnType->isTypeOf($result, $exeContext->contextValue, $info)) {
+        if (null === $isTypeOf) {
+            return $this->validateResultTypeAndExecuteFields(
+                $returnType,
+                $fieldNodes,
+                $info,
+                $path,
+                $result,
+                true
+            );
+        }
+
+        if ($this->promises->isThenable($isTypeOf)) {
+            /** @var Promise $isTypeOf */
+            $isTypeOf = $this->promises->convertThenable($isTypeOf);
+            Utils::invariant($isTypeOf instanceof Promise);
+
+            return $isTypeOf->then(function($isTypeOfResult) use ($returnType, $fieldNodes, $info, $path, &$result) {
+                return $this->validateResultTypeAndExecuteFields(
+                    $returnType,
+                    $fieldNodes,
+                    $info,
+                    $path,
+                    $result,
+                    $isTypeOfResult
+                );
+            });
+        }
+
+        return $this->validateResultTypeAndExecuteFields($returnType, $fieldNodes, $info, $path, $result, $isTypeOf);
+    }
+
+    /**
+     * @param ObjectType $returnType
+     * @param FieldNode[] $fieldNodes
+     * @param ResolveInfo $info
+     * @param array $path
+     * @param array $result
+     * @param bool $isTypeOfResult
+     * @return array|Promise|\stdClass
+     * @throws Error
+     */
+    private function validateResultTypeAndExecuteFields(
+        ObjectType $returnType,
+        $fieldNodes,
+        ResolveInfo $info,
+        $path,
+        &$result,
+        $isTypeOfResult
+    )
+    {
+        // If isTypeOf returns false, then raise an error
+        // rather than continuing execution.
+        if (false === $isTypeOfResult) {
             throw new Error(
                 "Expected value of type $returnType but got: " . Utils::getVariableType($result),
                 $fieldNodes
@@ -1095,23 +1194,47 @@ class Executor
     }
 
     /**
-     * Infer type of the value using isTypeOf of corresponding AbstractType
+     * If a resolveType function is not given, then a default resolve behavior is
+     * used which tests each possible type for the abstract type by calling
+     * isTypeOf for the object being coerced, returning the first type that matches.
      *
      * @param $value
      * @param $context
      * @param ResolveInfo $info
      * @param AbstractType $abstractType
-     * @return ObjectType|null
+     * @return ObjectType|Promise|null
      */
-    private static function inferTypeOf($value, $context, ResolveInfo $info, AbstractType $abstractType)
+    private function defaultTypeResolver($value, $context, ResolveInfo $info, AbstractType $abstractType)
     {
         $possibleTypes = $info->schema->getPossibleTypes($abstractType);
+        $promisedIsTypeOfResults = [];
+        $promisedIsTypeOfResultTypes = [];
 
         foreach ($possibleTypes as $type) {
-            if ($type->isTypeOf($value, $context, $info)) {
-                return $type;
+            $isTypeOfResult = $type->isTypeOf($value, $context, $info);
+
+            if (null !== $isTypeOfResult) {
+                if ($this->promises->isThenable($isTypeOfResult)) {
+                    $promisedIsTypeOfResults[] = $this->promises->convertThenable($isTypeOfResult);
+                    $promisedIsTypeOfResultTypes[] = $type;
+                } else if ($isTypeOfResult) {
+                    return $type;
+                }
             }
         }
+
+        if (!empty($promisedIsTypeOfResults)) {
+            return $this->promises->all($promisedIsTypeOfResults)
+                ->then(function($isTypeOfResults) use ($promisedIsTypeOfResultTypes) {
+                    foreach ($isTypeOfResults as $index => $result) {
+                        if ($result) {
+                            return $promisedIsTypeOfResultTypes[$index];
+                        }
+                    }
+                    return null;
+                });
+        }
+
         return null;
     }
 
