@@ -236,7 +236,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             '{ colorEnum(fromString: "GREEN") }',
             null,
             [
-                'message' => 'Expected a value of type "Color" but received: GREEN',
+                'message' => 'Expected a value of type "Color" but received: "GREEN"',
                 'locations' => [new SourceLocation(1, 3)]
             ]
         );
@@ -447,7 +447,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [[
-                    'message' => 'Expected a value of type "SimpleEnum" but received: WRONG',
+                    'message' => 'Expected a value of type "SimpleEnum" but received: "WRONG"',
                     'locations' => [['line' => 4, 'column' => 13]]
                 ]]
             ],

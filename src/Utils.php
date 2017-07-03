@@ -253,6 +253,9 @@ class Utils
         if ('' === $var) {
             return '(empty string)';
         }
+        if (is_string($var)) {
+            return "\"$var\"";
+        }
         if (is_scalar($var)) {
             return (string) $var;
         }

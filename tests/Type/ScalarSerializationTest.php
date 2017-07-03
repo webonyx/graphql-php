@@ -59,7 +59,7 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
             $intType->serialize('one');
             $this->fail('Expected exception was not thrown');
         } catch (UserError $e) {
-            $this->assertEquals('Int cannot represent non 32-bit signed integer value: one', $e->getMessage());
+            $this->assertEquals('Int cannot represent non 32-bit signed integer value: "one"', $e->getMessage());
         }
 
         try {
@@ -93,7 +93,7 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
             $floatType->serialize('one');
             $this->fail('Expected exception was not thrown');
         } catch (UserError $e) {
-            $this->assertEquals('Float cannot represent non numeric value: one', $e->getMessage());
+            $this->assertEquals('Float cannot represent non numeric value: "one"', $e->getMessage());
         }
 
         try {

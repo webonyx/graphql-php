@@ -248,7 +248,7 @@ class Values
                 // a non-null value.
                 $parseResult = $type->parseValue($value);
                 if (null === $parseResult) {
-                    $v = json_encode($value);
+                    $v = Utils::printSafe($value);
                     return [
                         "Expected type \"{$type->name}\", found $v."
                     ];
@@ -256,10 +256,12 @@ class Values
                 return [];
             } catch (\Exception $e) {
                 return [
+                    "Expected type \"{$type->name}\", found " . Utils::printSafe($value) . ': ' .
                     $e->getMessage()
                 ];
             } catch (\Throwable $e) {
                 return [
+                    "Expected type \"{$type->name}\", found " . Utils::printSafe($value) . ': ' .
                     $e->getMessage()
                 ];
             }
