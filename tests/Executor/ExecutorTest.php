@@ -934,9 +934,10 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         ], $result->data);
 
         $this->assertEquals(1, count($result->errors));
-        $this->assertArraySubset([
-            'message' => 'Expected value of type SpecialType but got: GraphQL\Tests\Executor\NotSpecial',
-            'locations' => [['line' => 1, 'column' => 3]]
+        $this->assertEquals([
+            'message' => 'Expected value of type "SpecialType" but got: instance of GraphQL\Tests\Executor\NotSpecial.',
+            'locations' => [['line' => 1, 'column' => 3]],
+            'path' => ['specials', 1]
         ], $result->errors[0]->toSerializableArray());
     }
 
