@@ -243,16 +243,26 @@ class Values
         }
 
         if ($type instanceof LeafType) {
-            // Scalar/Enum input checks to ensure the type can parse the value to
-            // a non-null value.
-            $parseResult = $type->parseValue($value);
-            if (null === $parseResult) {
-                $v = json_encode($value);
+            try {
+                // Scalar/Enum input checks to ensure the type can parse the value to
+                // a non-null value.
+                $parseResult = $type->parseValue($value);
+                if (null === $parseResult) {
+                    $v = json_encode($value);
+                    return [
+                        "Expected type \"{$type->name}\", found $v."
+                    ];
+                }
+                return [];
+            } catch (\Exception $e) {
                 return [
-                    "Expected type \"{$type->name}\", found $v."
+                    $e->getMessage()
+                ];
+            } catch (\Throwable $e) {
+                return [
+                    $e->getMessage()
                 ];
             }
-            return [];
         }
 
         throw new InvariantViolation('Must be input type');
