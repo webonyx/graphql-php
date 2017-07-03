@@ -1,5 +1,5 @@
 <?php
-namespace Type;
+namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\Config;
