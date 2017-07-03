@@ -287,7 +287,7 @@ class BuildSchema
     private function produceInterfaceType(TypeNode $typeNode)
     {
         $type = $this->produceType($typeNode);
-        Utils::invariant($type instanceof InterfaceType, 'Expected Input type.');
+        Utils::invariant($type instanceof InterfaceType, 'Expected Interface type.');
         return $type;
     }
 
