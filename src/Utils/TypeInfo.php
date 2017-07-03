@@ -11,6 +11,7 @@ use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -292,6 +293,11 @@ class TypeInfo
     private $argument;
 
     /**
+     * @var mixed
+     */
+    private $enumValue;
+
+    /**
      * TypeInfo constructor.
      * @param Schema $schema
      */
@@ -362,6 +368,14 @@ class TypeInfo
     function getArgument()
     {
         return $this->argument;
+    }
+
+    /**
+     * @return mixed
+     */
+    function getEnumValue()
+    {
+        return $this->enumValue;
     }
 
     /**
@@ -447,7 +461,16 @@ class TypeInfo
                     $fieldType = $inputField ? $inputField->getType() : null;
                 }
                 $this->inputTypeStack[] = $fieldType;
-            break;
+                break;
+
+            case NodeKind::ENUM:
+                $enumType = Type::getNamedType($this->getInputType());
+                $enumValue = null;
+                if ($enumType instanceof EnumType) {
+                    $enumValue = $enumType->getValue($node->value);
+                }
+                $this->enumValue = $enumValue;
+                break;
         }
     }
 
@@ -485,6 +508,9 @@ class TypeInfo
             case NodeKind::LST:
             case NodeKind::OBJECT_FIELD:
                 array_pop($this->inputTypeStack);
+                break;
+            case NodeKind::ENUM:
+                $this->enumValue = null;
                 break;
         }
     }

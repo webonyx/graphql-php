@@ -243,6 +243,11 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     // TODO: does not allow isDeprecated without deprecationReason on field
     // TODO: does not allow isDeprecated without deprecationReason on enum
 
+    // Type System: Object fields must have valid resolve values
+    // TODO: accepts a lambda as an Object field resolver
+    // TODO: rejects an empty Object field resolver
+    // TODO: rejects a constant scalar value resolver
+
     private function assertEachCallableThrows($closures, $expectedError)
     {
         foreach ($closures as $index => $factory) {

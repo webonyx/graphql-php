@@ -383,9 +383,9 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it may present a values API for complex enums
+     * @it presents a getValues() API for complex enums
      */
-    public function testMayPresentValuesAPIForComplexEnums()
+    public function testPresentsGetValuesAPIForComplexEnums()
     {
         $ComplexEnum = $this->ComplexEnum;
         $values = $ComplexEnum->getValues();
@@ -395,6 +395,19 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->Complex1, $values[0]->value);
         $this->assertEquals('TWO', $values[1]->name);
         $this->assertEquals($this->Complex2, $values[1]->value);
+    }
+
+    /**
+     * @it presents a getValue() API for complex enums
+     */
+    public function testPresentsGetValueAPIForComplexEnums()
+    {
+        $oneValue = $this->ComplexEnum->getValue('ONE');
+        $this->assertEquals('ONE', $oneValue->name);
+        $this->assertEquals($this->Complex1, $oneValue->value);
+
+        $badUsage = $this->ComplexEnum->getValue($this->Complex1);
+        $this->assertEquals(null, $badUsage);
     }
 
     /**

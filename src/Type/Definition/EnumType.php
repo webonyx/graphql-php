@@ -72,6 +72,16 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     }
 
     /**
+     * @param $name
+     * @return mixed|null
+     */
+    public function getValue($name)
+    {
+        $lookup = $this->getNameLookup();
+        return is_scalar($name) && isset($lookup[$name]) ? $lookup[$name] : null;
+    }
+
+    /**
      * @param $value
      * @return null
      */
