@@ -31,6 +31,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType
             $config['name'] = $this->tryInferName();
         }
 
+        Utils::assertValidName($config['name'], !empty($config['isIntrospection']));
+
         Config::validate($config, [
             'name' => Config::NAME | Config::REQUIRED,
             'values' => Config::arrayOf([

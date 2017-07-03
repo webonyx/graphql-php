@@ -29,7 +29,7 @@ class InputObjectType extends Type implements InputType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::invariant(!empty($config['name']), 'Every type is expected to have name');
+        Utils::assertValidName($config['name']);
 
         Config::validate($config, [
             'name' => Config::NAME | Config::REQUIRED,

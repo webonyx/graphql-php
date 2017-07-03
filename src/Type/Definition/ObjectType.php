@@ -79,7 +79,7 @@ class ObjectType extends Type implements OutputType, CompositeType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::invariant(!empty($config['name']), 'Every type is expected to have name');
+        Utils::assertValidName($config['name'], !empty($config['isIntrospection']));
 
         // Note: this validation is disabled by default, because it is resource-consuming
         // TODO: add bin/validate script to check if schema is valid during development

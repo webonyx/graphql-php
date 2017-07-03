@@ -331,4 +331,33 @@ class Utils
             // Otherwise print the escaped form.
             : '"\\u' . dechex($code) . '"';
     }
+
+    /**
+     * @param $name
+     * @param bool $isIntrospection
+     * @throws Error
+     */
+    public static function assertValidName($name, $isIntrospection = false)
+    {
+        $regex = '/^[_a-zA-Z][_a-zA-Z0-9]*$/';
+
+        if (!$name || !is_string($name)) {
+            throw new InvariantViolation(
+                "Must be named. Unexpected name: " . self::printSafe($name)
+            );
+        }
+
+        if (!$isIntrospection && isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
+            throw new InvariantViolation(
+                'Name "'.$name.'" must not begin with "__", which is reserved by ' .
+                'GraphQL introspection.'
+            );
+        }
+
+        if (!preg_match($regex, $name)) {
+            throw new InvariantViolation(
+                'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "'.$name.'" does not.'
+            );
+        }
+    }
 }

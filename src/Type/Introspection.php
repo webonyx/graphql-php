@@ -232,6 +232,7 @@ EOD;
         if (!isset(self::$map['__Schema'])) {
             self::$map['__Schema'] = new ObjectType([
                 'name' => '__Schema',
+                'isIntrospection' => true,
                 'description' =>
                     'A GraphQL Schema defines the capabilities of a GraphQL ' .
                     'server. It exposes all available types and directives on ' .
@@ -286,6 +287,7 @@ EOD;
         if (!isset(self::$map['__Directive'])) {
             self::$map['__Directive'] = new ObjectType([
                 'name' => '__Directive',
+                'isIntrospection' => true,
                 'description' =>     'A Directive provides a way to describe alternate runtime execution and ' .
                     'type validation behavior in a GraphQL document.' .
                     "\n\nIn some cases, you need to provide options to alter GraphQL's " .
@@ -345,6 +347,7 @@ EOD;
         if (!isset(self::$map['__DirectiveLocation'])) {
             self::$map['__DirectiveLocation'] = new EnumType([
                 'name' => '__DirectiveLocation',
+                'isIntrospection' => true,
                 'description' =>
                     'A Directive can be adjacent to many parts of the GraphQL language, a ' .
                     '__DirectiveLocation describes one such possible adjacencies.',
@@ -433,6 +436,7 @@ EOD;
         if (!isset(self::$map['__Type'])) {
             self::$map['__Type'] = new ObjectType([
                 'name' => '__Type',
+                'isIntrospection' => true,
                 'description' =>
                     'The fundamental unit of any GraphQL Schema is the type. There are ' .
                     'many kinds of types in GraphQL as represented by the `__TypeKind` enum.' .
@@ -560,6 +564,7 @@ EOD;
 
             self::$map['__Field'] = new ObjectType([
                 'name' => '__Field',
+                'isIntrospection' => true,
                 'description' =>
                     'Object and Interface types are described by a list of Fields, each of ' .
                     'which has a name, potentially a list of arguments, and a return type.',
@@ -600,6 +605,7 @@ EOD;
         if (!isset(self::$map['__InputValue'])) {
             self::$map['__InputValue'] = new ObjectType([
                 'name' => '__InputValue',
+                'isIntrospection' => true,
                 'description' =>
                     'Arguments provided to Fields or Directives and the input fields of an ' .
                     'InputObject are represented as Input Values which describe their type ' .
@@ -637,6 +643,7 @@ EOD;
         if (!isset(self::$map['__EnumValue'])) {
             self::$map['__EnumValue'] = new ObjectType([
                 'name' => '__EnumValue',
+                'isIntrospection' => true,
                 'description' =>
                     'One possible value for a given Enum. Enum values are unique values, not ' .
                     'a placeholder for a string or numeric value. However an Enum value is ' .
@@ -664,6 +671,7 @@ EOD;
         if (!isset(self::$map['__TypeKind'])) {
             self::$map['__TypeKind'] = new EnumType([
                 'name' => '__TypeKind',
+                'isIntrospection' => true,
                 'description' => 'An enum describing what kind of type a given `__Type` is.',
                 'values' => [
                     'SCALAR' => [

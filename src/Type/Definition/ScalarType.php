@@ -32,6 +32,6 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
             $this->name = $this->tryInferName();
         }
 
-        Utils::invariant($this->name, 'Type must be named.');
+        Utils::assertValidName($this->name);
     }
 }

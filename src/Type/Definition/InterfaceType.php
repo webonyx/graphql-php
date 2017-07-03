@@ -34,6 +34,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             $config['name'] = $this->tryInferName();
         }
 
+        Utils::assertValidName($config['name']);
+
         Config::validate($config, [
             'name' => Config::NAME,
             'fields' => Config::arrayOf(
