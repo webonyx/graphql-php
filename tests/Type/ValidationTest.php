@@ -34,7 +34,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
     public function testRejectsAnObjectTypeWithReservedName()
     {
-        $this->assertEachCallableThrows([
+        $this->assertWarnsOnce([
             function() {
                 return new ObjectType([
                     'name' => '__ReservedName',
@@ -53,6 +53,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             function() {
                 return new UnionType([
                     'name' => '__ReservedName',
+                    'types' => [new ObjectType(['name' => 'Test'])]
                 ]);
             },
             function() {
@@ -264,6 +265,26 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 $this->fail('Expected exception not thrown for entry ' . $index);
             } catch (InvariantViolation $e) {
                 $this->assertEquals($expectedError, $e->getMessage(), 'Error in callable #' . $index);
+            }
+        }
+    }
+
+    private function assertWarnsOnce($closures, $expectedError)
+    {
+        $warned = false;
+
+        foreach ($closures as $index => $factory) {
+            if (!$warned) {
+                try {
+                    $factory();
+                    $this->fail('Expected exception not thrown for entry ' . $index);
+                } catch (\PHPUnit_Framework_Error_Warning $e) {
+                    $warned = true;
+                    $this->assertEquals($expectedError, $e->getMessage(), 'Error in callable #' . $index);
+                }
+            } else {
+                // Should not throw
+                $factory();
             }
         }
     }

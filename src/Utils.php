@@ -2,6 +2,7 @@
 namespace GraphQL;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\SchemaUtils;
@@ -351,9 +352,10 @@ class Utils
         }
 
         if (!$isIntrospection && isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
-            throw new InvariantViolation(
+            Warning::warnOnce(
                 'Name "'.$name.'" must not begin with "__", which is reserved by ' .
-                'GraphQL introspection.'
+                'GraphQL introspection.',
+                'warnAboutDunder'
             );
         }
 
