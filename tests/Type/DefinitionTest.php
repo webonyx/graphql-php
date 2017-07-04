@@ -254,6 +254,41 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it defines an enum type with a value of `null`
+     */
+    public function testDefinesAnEnumTypeWithAValueOfNullAndUndefined()
+    {
+        $EnumTypeWithNullishValue = new EnumType([
+            'name' => 'EnumWithNullishValue',
+            'values' => [
+                'NULL' => ['value' => null],
+                'UNDEFINED' => ['value' => null],
+            ]
+        ]);
+
+        $expected = [
+            [
+                'name' => 'NULL',
+                'description' => null,
+                'deprecationReason' => null,
+                'value' => null,
+            ],
+            [
+                'name' => 'UNDEFINED',
+                'description' => null,
+                'deprecationReason' => null,
+                'value' => null,
+            ],
+        ];
+
+        $actual = $EnumTypeWithNullishValue->getValues();
+
+        $this->assertEquals(count($expected), count($actual));
+        $this->assertEquals($expected[0], (array)$actual[0]);
+        $this->assertEquals($expected[1], (array)$actual[1]);
+    }
+
+    /**
      * @it defines an object type with deprecated field
      */
     public function testDefinesAnObjectTypeWithDeprecatedField()
