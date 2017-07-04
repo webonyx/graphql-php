@@ -31,4 +31,16 @@ interface LeafType
      * @return mixed
      */
     public function parseLiteral($valueNode);
+
+    /**
+     * @param string $value
+     * @return bool
+     */
+    public function isValidValue($value);
+
+    /**
+     * @param \GraphQL\Language\AST\Node $valueNode
+     * @return mixed
+     */
+    public function isValidLiteral($valueNode);
 }

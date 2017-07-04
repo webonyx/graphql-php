@@ -247,7 +247,7 @@ class Values
                 // Scalar/Enum input checks to ensure the type can parse the value to
                 // a non-null value.
                 $parseResult = $type->parseValue($value);
-                if (null === $parseResult) {
+                if (null === $parseResult && !$type->isValidValue($value)) {
                     $v = Utils::printSafe($value);
                     return [
                         "Expected type \"{$type->name}\", found $v."

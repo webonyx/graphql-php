@@ -133,6 +133,20 @@ class ArgumentsOfCorrectTypeTest extends TestCase
     }
 
     /**
+     * @it Enum with null value
+     */
+    public function testEnumWithNullValue()
+    {
+        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        {
+          complicatedArgs {
+            enumArgField(enumArg: NO_FUR)
+          }
+        }
+        ');
+    }
+
+    /**
      * @it null into nullable type
      */
     public function testNullIntoNullableType()

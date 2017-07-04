@@ -44,6 +44,16 @@ class MixedStore implements \ArrayAccess
     private $lastArrayValue;
 
     /**
+     * @var mixed
+     */
+    private $nullValue;
+
+    /**
+     * @var bool
+     */
+    private $nullValueIsSet = false;
+
+    /**
      * MixedStore constructor.
      */
     public function __construct()
@@ -83,6 +93,9 @@ class MixedStore implements \ArrayAccess
                 }
             }
         }
+        if (null === $offset) {
+            return $this->nullValueIsSet;
+        }
         return false;
     }
 
@@ -114,6 +127,9 @@ class MixedStore implements \ArrayAccess
                 }
             }
         }
+        if (null === $offset) {
+            return $this->nullValue;
+        }
         return null;
     }
 
@@ -138,6 +154,9 @@ class MixedStore implements \ArrayAccess
         } else if (is_array($offset)) {
             $this->arrayKeys[] = $offset;
             $this->arrayValues[] = $value;
+        } else if (null === $offset) {
+            $this->nullValue = $value;
+            $this->nullValueIsSet = true;
         } else {
             throw new \InvalidArgumentException("Unexpected offset type: " . Utils::printSafe($offset));
         }
@@ -165,6 +184,9 @@ class MixedStore implements \ArrayAccess
                 array_splice($this->arrayKeys, $index, 1);
                 array_splice($this->arrayValues, $index, 1);
             }
+        } else if (null === $offset) {
+            $this->nullValue = null;
+            $this->nullValueIsSet = false;
         }
     }
 }

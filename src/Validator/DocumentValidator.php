@@ -1,22 +1,16 @@
 <?php
 namespace GraphQL\Validator;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\FragmentSpreadNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NullValueNode;
-use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
-use GraphQL\Language\VisitorOperation;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -231,11 +225,8 @@ class DocumentValidator
         }
 
         if ($type instanceof LeafType) {
-            // Scalar/Enum input checks to ensure the type can parse the value to
-            // a non-null value.
-            $parseResult = $type->parseLiteral($valueNode);
-
-            if (null === $parseResult) {
+            // Scalars must parse to a non-null value
+            if (!$type->isValidLiteral($valueNode)) {
                 $printed = Printer::doPrint($valueNode);
                 return [ "Expected type \"{$type->name}\", found $printed." ];
             }

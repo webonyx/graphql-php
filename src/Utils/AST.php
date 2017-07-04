@@ -307,9 +307,9 @@ class AST
         if ($type instanceof LeafType) {
             $parsed = $type->parseLiteral($valueNode);
 
-            if (null === $parsed) {
-                // null represent a failure to parse correctly,
-                // in which case no value is returned.
+            if (null === $parsed && !$type->isValidLiteral($valueNode)) {
+                // Invalid values represent a failure to parse correctly, in which case
+                // no value is returned.
                 return $undefined;
             }
 

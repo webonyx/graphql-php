@@ -92,6 +92,24 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     }
 
     /**
+     * @param string $value
+     * @return bool
+     */
+    public function isValidValue($value)
+    {
+        return is_string($value) && $this->getNameLookup()->offsetExists($value);
+    }
+
+    /**
+     * @param $valueNode
+     * @return bool
+     */
+    public function isValidLiteral($valueNode)
+    {
+        return $valueNode instanceof EnumValueNode && $this->getNameLookup()->offsetExists($valueNode->value);
+    }
+
+    /**
      * @param $value
      * @return null
      */
