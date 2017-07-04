@@ -2,6 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Utils;
 
 /**
@@ -127,7 +128,10 @@ class Config
 
         if (!empty($unexpectedKeys)) {
             if (!self::$allowCustomOptions) {
-                trigger_error(sprintf('Error in "%s" type definition: Non-standard keys "%s" ' . $suffix, $typeName, implode(', ', $unexpectedKeys)));
+                Warning::warnOnce(
+                    sprintf('Error in "%s" type definition: Non-standard keys "%s" ' . $suffix, $typeName, implode(', ', $unexpectedKeys)),
+                    Warning::CONFIG_WARNING
+                );
             }
             $map = array_intersect_key($map, $definitions);
         }

@@ -34,7 +34,10 @@ class Utils
         foreach ($vars as $key => $value) {
             if (!property_exists($obj, $key)) {
                 $cls = get_class($obj);
-                trigger_error("Trying to set non-existing property '$key' on class '$cls'");
+                Warning::warn(
+                    "Trying to set non-existing property '$key' on class '$cls'",
+                    Warning::ASSIGN_WARNING
+                );
             }
             $obj->{$key} = $value;
         }
@@ -356,7 +359,7 @@ class Utils
                 'Name "'.$name.'" must not begin with "__", which is reserved by ' .
                 'GraphQL introspection. In a future release of graphql this will ' .
                 'become an exception',
-                'warnAboutDunder'
+                Warning::NAME_WARNING
             );
         }
 

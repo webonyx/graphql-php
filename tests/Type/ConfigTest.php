@@ -643,7 +643,7 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
                 ['test' => Config::STRING]
             );
             $this->fail('Expected exception not thrown');
-        } catch (\PHPUnit_Framework_Error_Notice $e) {
+        } catch (\PHPUnit_Framework_Error_Warning $e) {
             $this->assertEquals(
                 $this->typeError('Non-standard keys "test2" '),
                 $e->getMessage()
