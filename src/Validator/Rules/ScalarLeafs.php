@@ -25,7 +25,7 @@ class ScalarLeafs
             NodeKind::FIELD => function(FieldNode $node) use ($context) {
                 $type = $context->getType();
                 if ($type) {
-                    if (Type::isLeafType($type)) {
+                    if (Type::isLeafType(Type::getNamedType($type))) {
                         if ($node->selectionSet) {
                             $context->reportError(new Error(
                                 self::noSubselectionAllowedMessage($node->name->value, $type),

@@ -138,8 +138,7 @@ abstract class Type implements \JsonSerializable
      */
     public static function isLeafType($type)
     {
-        $nakedType = self::getNamedType($type);
-        return $nakedType instanceof LeafType;
+        return $type instanceof LeafType;
     }
 
     /**
