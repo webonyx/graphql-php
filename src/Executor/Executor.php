@@ -322,8 +322,9 @@ class Executor
             if ($result === self::$UNDEFINED) {
                 return $results;
             }
-            if ($result instanceof Promise) {
-                return $result->then(function ($resolvedResult) use ($responseName, $results) {
+            $promise = $this->getPromise($result);
+            if ($promise) {
+                return $promise->then(function ($resolvedResult) use ($responseName, $results) {
                     $results[$responseName] = $resolvedResult;
                     return $results;
                 });
@@ -365,7 +366,7 @@ class Executor
             if ($result === self::$UNDEFINED) {
                 continue;
             }
-            if (!$containsPromise && $result instanceof Promise) {
+            if (!$containsPromise && $this->getPromise($result)) {
                 $containsPromise = true;
             }
             $finalResults[$responseName] = $result;
@@ -728,8 +729,10 @@ class Executor
                 $path,
                 $result
             );
-            if ($completed instanceof Promise) {
-                return $completed->then(null, function ($error) use ($exeContext) {
+
+            $promise = $this->getPromise($completed);
+            if ($promise) {
+                return $promise->then(null, function ($error) use ($exeContext) {
                     $exeContext->addError($error);
                     return $this->promises->createFulfilled(null);
                 });
@@ -772,8 +775,9 @@ class Executor
                 $path,
                 $result
             );
-            if ($completed instanceof Promise) {
-                return $completed->then(null, function ($error) use ($fieldNodes, $path) {
+            $promise = $this->getPromise($completed);
+            if ($promise) {
+                return $promise->then(null, function ($error) use ($fieldNodes, $path) {
                     return $this->promises->createRejected(Error::createLocatedError($error, $fieldNodes, $path));
                 });
             }
@@ -823,14 +827,11 @@ class Executor
         &$result
     )
     {
-        if ($this->promises->isThenable($result)) {
-            $result = $this->promises->convertThenable($result);
-            Utils::invariant($result instanceof Promise);
-        }
+        $promise = $this->getPromise($result);
 
         // If result is a Promise, apply-lift over completeValue.
-        if ($result instanceof Promise) {
-            return $result->then(function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
+        if ($promise) {
+            return $promise->then(function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
                 return $this->completeValue($returnType, $fieldNodes, $info, $path, $resolved);
             });
         }
@@ -968,17 +969,13 @@ class Executor
         $exeContext = $this->exeContext;
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
 
-        if ($this->promises->isThenable($runtimeType)) {
-            $runtimeType = $this->promises->convertThenable($runtimeType);
-            Utils::invariant($runtimeType instanceof Promise);
-        }
-
         if (null === $runtimeType) {
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
         }
 
-        if ($runtimeType instanceof Promise) {
-            return $runtimeType->then(function($resolvedRuntimeType) use ($returnType, $fieldNodes, $info, $path, &$result) {
+        $promise = $this->getPromise($runtimeType);
+        if ($promise) {
+            return $promise->then(function($resolvedRuntimeType) use ($returnType, $fieldNodes, $info, $path, &$result) {
                 return $this->completeObjectValue(
                     $this->ensureValidRuntimeType(
                         $resolvedRuntimeType,
@@ -1077,7 +1074,7 @@ class Executor
             $fieldPath = $path;
             $fieldPath[] = $i++;
             $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $item);
-            if (!$containsPromise && $completedItem instanceof Promise) {
+            if (!$containsPromise && $this->getPromise($completedItem)) {
                 $containsPromise = true;
             }
             $completedItems[] = $completedItem;
@@ -1125,12 +1122,9 @@ class Executor
         $isTypeOf = $returnType->isTypeOf($result, $this->exeContext->contextValue, $info);
 
         if (null !== $isTypeOf) {
-            if ($this->promises->isThenable($isTypeOf)) {
-                /** @var Promise $isTypeOf */
-                $isTypeOf = $this->promises->convertThenable($isTypeOf);
-                Utils::invariant($isTypeOf instanceof Promise);
-
-                return $isTypeOf->then(function($isTypeOfResult) use ($returnType, $fieldNodes, $info, $path, &$result) {
+            $promise = $this->getPromise($isTypeOf);
+            if ($promise) {
+                return $promise->then(function($isTypeOfResult) use ($returnType, $fieldNodes, $info, $path, &$result) {
                     if (!$isTypeOfResult) {
                         throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
                     }
@@ -1232,8 +1226,9 @@ class Executor
             $isTypeOfResult = $type->isTypeOf($value, $context, $info);
 
             if (null !== $isTypeOfResult) {
-                if ($this->promises->isThenable($isTypeOfResult)) {
-                    $promisedIsTypeOfResults[$index] = $this->promises->convertThenable($isTypeOfResult);
+                $promise = $this->getPromise($isTypeOfResult);
+                if ($promise) {
+                    $promisedIsTypeOfResults[$index] = $promise;
                 } else if ($isTypeOfResult) {
                     return $type;
                 }
@@ -1252,6 +1247,32 @@ class Executor
                 });
         }
 
+        return null;
+    }
+
+    /**
+     * Only returns the value if it acts like a Promise, i.e. has a "then" function,
+     * otherwise returns null.
+     *
+     * @param mixed $value
+     * @return Promise|null
+     */
+    private function getPromise($value)
+    {
+        if (null === $value || $value instanceof Promise) {
+            return $value;
+        }
+        if ($this->promises->isThenable($value)) {
+            $promise = $this->promises->convertThenable($value);
+            if (!$promise instanceof Promise) {
+                throw new InvariantViolation(sprintf(
+                    '%s::convertThenable is expected to return instance of GraphQL\Executor\Promise\Promise, got: %s',
+                    get_class($this->promises),
+                    Utils::printSafe($promise)
+                ));
+            }
+            return $promise;
+        }
         return null;
     }
 
