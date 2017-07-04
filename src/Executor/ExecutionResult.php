@@ -54,12 +54,12 @@ class ExecutionResult implements \JsonSerializable
     {
         $result = [];
 
-        if (null !== $this->data) {
-            $result['data'] = $this->data;
-        }
-
         if (!empty($this->errors)) {
             $result['errors'] = array_map($this->errorFormatter, $this->errors);
+        }
+
+        if (null !== $this->data) {
+            $result['data'] = $this->data;
         }
         
         if (!empty($this->extensions)) {
