@@ -12,7 +12,7 @@ class UniqueOperationNames
 {
     static function duplicateOperationNameMessage($operationName)
     {
-      return "There can only be one operation named \"$operationName\".";
+      return "There can be only one operation named \"$operationName\".";
     }
 
     public $knownOperationNames;

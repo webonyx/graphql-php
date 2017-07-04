@@ -13,7 +13,7 @@ class UniqueFragmentNames
 {
     static function duplicateFragmentNameMessage($fragName)
     {
-        return "There can only be one fragment named \"$fragName\".";
+        return "There can be only one fragment named \"$fragName\".";
     }
 
     public $knownFragmentNames;
