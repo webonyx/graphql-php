@@ -7,7 +7,7 @@ final class Warning
     const ASSIGN_WARNING = 2;
     const CONFIG_WARNING = 4;
 
-    const ALL = self::NAME_WARNING | self::ASSIGN_WARNING | self::CONFIG_WARNING;
+    const ALL = 7;
 
     static $enableWarnings = self::ALL;
 
