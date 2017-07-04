@@ -122,9 +122,9 @@ class DocumentValidator
         self::$rules[$name] = $rule;
     }
 
-    public static function validate(Schema $schema, DocumentNode $ast, array $rules = null)
+    public static function validate(Schema $schema, DocumentNode $ast, array $rules = null, TypeInfo $typeInfo = null)
     {
-        $typeInfo = new TypeInfo($schema);
+        $typeInfo = $typeInfo ?: new TypeInfo($schema);
         $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules ?: static::allRules());
         return $errors;
     }
