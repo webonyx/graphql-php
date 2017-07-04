@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Type;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\Type;
 
@@ -19,53 +20,77 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame(123, $intType->serialize('123'));
         $this->assertSame(0, $intType->serialize(0));
         $this->assertSame(-1, $intType->serialize(-1));
-        $this->assertSame(0, $intType->serialize(0.1));
-        $this->assertSame(1, $intType->serialize(1.1));
-        $this->assertSame(-1, $intType->serialize(-1.1));
         $this->assertSame(100000, $intType->serialize(1e5));
+        $this->assertSame(0, $intType->serialize(0e5));
+
+        // The GraphQL specification does not allow serializing non-integer values
+        // as Int to avoid accidental data loss.
+        try {
+            $intType->serialize(0.1);
+            $this->fail('Expected exception not thrown');
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('Int cannot represent non-integer value: 0.1', $e->getMessage());
+        }
+        try {
+            $intType->serialize(1.1);
+            $this->fail('Expected exception not thrown');
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('Int cannot represent non-integer value: 1.1', $e->getMessage());
+        }
+        try {
+            $intType->serialize(-1.1);
+            $this->fail('Expected exception not thrown');
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('Int cannot represent non-integer value: -1.1', $e->getMessage());
+        }
+        try {
+            $intType->serialize('-1.1');
+            $this->fail('Expected exception not thrown');
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('Int cannot represent non-integer value: "-1.1"', $e->getMessage());
+        }
+
         // Maybe a safe PHP int, but bigger than 2^32, so not
         // representable as a GraphQL Int
         try {
             $intType->serialize(9876504321);
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: 9876504321', $e->getMessage());
         }
 
         try {
             $intType->serialize(-9876504321);
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: -9876504321', $e->getMessage());
         }
 
         try {
             $intType->serialize(1e100);
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: 1.0E+100', $e->getMessage());
         }
 
         try {
             $intType->serialize(-1e100);
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: -1.0E+100', $e->getMessage());
         }
-
-        $this->assertSame(-1, $intType->serialize('-1.1'));
 
         try {
             $intType->serialize('one');
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: "one"', $e->getMessage());
         }
 
         try {
             $intType->serialize('');
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Int cannot represent non 32-bit signed integer value: (empty string)', $e->getMessage());
         }
 

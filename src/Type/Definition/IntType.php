@@ -1,9 +1,9 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Language\AST\IntValueNode;
-use GraphQL\Language\AST\ValueNode;
 use GraphQL\Utils;
 
 /**
@@ -47,7 +47,11 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     public function parseValue($value)
     {
-        return $this->coerceInt($value);
+        try {
+            return $this->coerceInt($value);
+        } catch (InvariantViolation $e) {
+            throw new UserError($e->getMessage(), $e->getCode(), $e);
+        }
     }
 
     /**
@@ -57,19 +61,33 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     private function coerceInt($value)
     {
         if ($value === '') {
-            throw new UserError(
+            throw new InvariantViolation(
                 'Int cannot represent non 32-bit signed integer value: (empty string)'
             );
         }
         if (false === $value || true === $value) {
             return (int) $value;
         }
-        if (is_numeric($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
-            return (int) $value;
+        if (!is_numeric($value) || $value > self::MAX_INT || $value < self::MIN_INT) {
+            throw new InvariantViolation(
+                sprintf('Int cannot represent non 32-bit signed integer value: %s', Utils::printSafe($value))
+            );
         }
-        throw new UserError(
-            sprintf('Int cannot represent non 32-bit signed integer value: %s', Utils::printSafe($value))
-        );
+        $num = (float) $value;
+
+        // The GraphQL specification does not allow serializing non-integer values
+        // as Int to avoid accidental data loss.
+        // Examples: 1.0 == 1; 1.1 != 1, etc
+        if ($num != (int)$value) {
+            // Additionally account for scientific notation (i.e. 1e3), because (float)'1e3' is 1000, but (int)'1e3' is 1
+            $trimmed = floor($num);
+            if ($trimmed !== $num) {
+                throw new InvariantViolation(
+                    'Int cannot represent non-integer value: ' . Utils::printSafe($value)
+                );
+            }
+        }
+        return (int) $value;
     }
 
     /**

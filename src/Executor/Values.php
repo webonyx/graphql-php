@@ -183,7 +183,7 @@ class Values
      * @param InputType $type
      * @return array
      */
-    private static function isValidPHPValue($value, InputType $type)
+    public static function isValidPHPValue($value, InputType $type)
     {
         // A value must be provided if the type is non-null.
         if ($type instanceof NonNull) {
