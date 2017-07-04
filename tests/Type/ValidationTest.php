@@ -61,7 +61,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                     'name' => '__ReservedName',
                 ]);
             }
-        ], 'Name "__ReservedName" must not begin with "__", which is reserved by GraphQL introspection.');
+        ], 'Name "__ReservedName" must not begin with "__", which is reserved by GraphQL introspection. In a future release of graphql this will become an exception');
     }
 
     public function testRejectsAnObjectTypeWithInvalidName()

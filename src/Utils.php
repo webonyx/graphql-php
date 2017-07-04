@@ -354,7 +354,8 @@ class Utils
         if (!$isIntrospection && isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             Warning::warnOnce(
                 'Name "'.$name.'" must not begin with "__", which is reserved by ' .
-                'GraphQL introspection.',
+                'GraphQL introspection. In a future release of graphql this will ' .
+                'become an exception',
                 'warnAboutDunder'
             );
         }
