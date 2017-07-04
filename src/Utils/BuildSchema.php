@@ -112,8 +112,12 @@ class BuildSchema
                 case NodeKind::ENUM_TYPE_DEFINITION:
                 case NodeKind::UNION_TYPE_DEFINITION:
                 case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
+                    $typeName = $d->name->value;
+                    if (!empty($this->nodeMap[$typeName])) {
+                        throw new Error("Type \"$typeName\" was defined more than once.");
+                    }
                     $typeDefs[] = $d;
-                    $this->nodeMap[$d->name->value] = $d;
+                    $this->nodeMap[$typeName] = $d;
                     break;
                 case NodeKind::DIRECTIVE_DEFINITION:
                     $directiveDefs[] = $d;
@@ -453,6 +457,12 @@ class BuildSchema
         ]);
     }
 
+    /**
+     * Given a collection of directives, returns the string value for the
+     * deprecation reason.
+     *
+     * @param $directives
+     */
     private function getDeprecationReason($directives)
     {
         $deprecatedAST = $directives ? Utils::find(

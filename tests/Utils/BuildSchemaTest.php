@@ -896,4 +896,28 @@ fragment Foo on Type { field }
         $doc = Parser::parse($body);
         BuildSchema::buildAST($doc);
     }
+
+    /**
+     * @it Forbids duplicate type definitions
+     */
+    public function testForbidsDuplicateTypeDefinitions()
+    {
+        $body = '
+schema {
+  query: Repeated
+}
+
+type Repeated {
+  id: Int
+}
+
+type Repeated {
+  id: String
+}
+';
+        $doc = Parser::parse($body);
+
+        $this->setExpectedException('GraphQL\Error\Error', 'Type "Repeated" was defined more than once.');
+        BuildSchema::buildAST($doc);
+    }
 }
