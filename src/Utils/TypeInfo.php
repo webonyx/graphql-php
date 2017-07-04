@@ -388,12 +388,7 @@ class TypeInfo
         switch ($node->kind) {
             case NodeKind::SELECTION_SET:
                 $namedType = Type::getNamedType($this->getType());
-                $compositeType = null;
-                if (Type::isCompositeType($namedType)) {
-                    // isCompositeType is a type refining predicate, so this is safe.
-                    $compositeType = $namedType;
-                }
-                $this->parentTypeStack[] = $compositeType; // push
+                $this->parentTypeStack[] = Type::isCompositeType($namedType) ? $namedType : null;
                 break;
 
             case NodeKind::FIELD:
@@ -426,12 +421,12 @@ class TypeInfo
             case NodeKind::FRAGMENT_DEFINITION:
                 $typeConditionNode = $node->typeCondition;
                 $outputType = $typeConditionNode ? self::typeFromAST($schema, $typeConditionNode) : $this->getType();
-                $this->typeStack[] = $outputType; // push
+                $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null; // push
                 break;
 
             case NodeKind::VARIABLE_DEFINITION:
                 $inputType = self::typeFromAST($schema, $node->type);
-                $this->inputTypeStack[] = $inputType; // push
+                $this->inputTypeStack[] = Type::isInputType($inputType) ? $inputType : null; // push
                 break;
 
             case NodeKind::ARGUMENT:
