@@ -3,6 +3,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
+use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -203,7 +204,7 @@ class SchemaPrinter
 
     private static function printInputObject(InputObjectType $type)
     {
-        $fields = array_values($type->getFields());
+        $fields = self::sortFields($type->getFields());
         return self::printDescription($type) . 
             "input {$type->name} {\n" .
                 implode("\n", array_map(function($f, $i) {
@@ -214,7 +215,7 @@ class SchemaPrinter
 
     private static function printFields($type)
     {
-        $fields = array_values($type->getFields());
+        $fields = self::sortFields($type->getFields());
         return implode("\n", array_map(function($f, $i) {
                 return self::printDescription($f, '  ', !$i) . '  ' .
                     $f->name . self::printArgs($f->args, '  ') . ': ' .
@@ -300,5 +301,11 @@ class SchemaPrinter
         return array_map(function($part) {
             return trim($part);
         }, $parts);
+    }
+
+    private static function sortFields(array $fields)
+    {
+        ksort($fields);
+        return array_values($fields);
     }
 }
