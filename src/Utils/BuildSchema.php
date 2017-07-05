@@ -6,6 +6,8 @@ use GraphQL\Executor\Values;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
@@ -359,7 +361,7 @@ class BuildSchema
                     'type' => $this->produceOutputType($field->type),
                     'description' => $this->getDescription($field),
                     'args' => $this->makeInputValues($field->arguments),
-                    'deprecationReason' => $this->getDeprecationReason($field->directives)
+                    'deprecationReason' => $this->getDeprecationReason($field)
                 ];
             }
         );
@@ -416,7 +418,7 @@ class BuildSchema
                 function($enumValue) {
                     return [
                         'description' => $this->getDescription($enumValue),
-                        'deprecationReason' => $this->getDeprecationReason($enumValue->directives)
+                        'deprecationReason' => $this->getDeprecationReason($enumValue)
                     ];
                 }
             )
@@ -461,23 +463,13 @@ class BuildSchema
      * Given a collection of directives, returns the string value for the
      * deprecation reason.
      *
-     * @param $directives
+     * @param EnumValueDefinitionNode | FieldDefinitionNode $node
+     * @return string
      */
-    private function getDeprecationReason($directives)
+    private function getDeprecationReason($node)
     {
-        $deprecatedAST = $directives ? Utils::find(
-            $directives,
-            function($directive) {
-                return $directive->name->value === Directive::deprecatedDirective()->name;
-            }
-        ) : null;
-        if (!$deprecatedAST) {
-            return;
-        }
-        return Values::getArgumentValues(
-            Directive::deprecatedDirective(),
-            $deprecatedAST
-        )['reason'];
+        $deprecated = Values::getDirectiveValues(Directive::deprecatedDirective(), $node);
+        return isset($deprecated['reason']) ? $deprecated['reason'] : null;
     }
 
     /**

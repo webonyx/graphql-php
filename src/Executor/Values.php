@@ -5,15 +5,17 @@ namespace GraphQL\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\NullValueNode;
-use GraphQL\Language\AST\ValueNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
@@ -159,6 +161,33 @@ class Values
             }
         }
         return $coercedValues;
+    }
+
+    /**
+     * Prepares an object map of argument values given a directive definition
+     * and a AST node which may contain directives. Optionally also accepts a map
+     * of variable values.
+     *
+     * If the directive does not exist on the node, returns undefined.
+     *
+     * @param Directive $directiveDef
+     * @param FragmentSpreadNode | FieldNode | InlineFragmentNode | EnumValueDefinitionNode | FieldDefinitionNode $node
+     * @param array|null $variableValues
+     *
+     * @return array|null
+     */
+    public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null)
+    {
+        if (isset($node->directives) && is_array($node->directives)) {
+            $directiveNode = Utils::find($node->directives, function(DirectiveNode $directive) use ($directiveDef) {
+                return $directive->name->value === $directiveDef->name;
+            });
+
+            if ($directiveNode) {
+                return self::getArgumentValues($directiveDef, $directiveNode, $variableValues);
+            }
+        }
+        return null;
     }
 
     /**

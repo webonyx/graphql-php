@@ -8,6 +8,8 @@ use GraphQL\Executor\Promise\Promise;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
@@ -508,7 +510,7 @@ class Executor
         foreach ($selectionSet->selections as $selection) {
             switch ($selection->kind) {
                 case NodeKind::FIELD:
-                    if (!$this->shouldIncludeNode($selection->directives)) {
+                    if (!$this->shouldIncludeNode($selection)) {
                         continue;
                     }
                     $name = self::getFieldEntryKey($selection);
@@ -518,7 +520,7 @@ class Executor
                     $fields[$name][] = $selection;
                     break;
                 case NodeKind::INLINE_FRAGMENT:
-                    if (!$this->shouldIncludeNode($selection->directives) ||
+                    if (!$this->shouldIncludeNode($selection) ||
                         !$this->doesFragmentConditionMatch($selection, $runtimeType)
                     ) {
                         continue;
@@ -532,7 +534,7 @@ class Executor
                     break;
                 case NodeKind::FRAGMENT_SPREAD:
                     $fragName = $selection->name->value;
-                    if (!empty($visitedFragmentNames[$fragName]) || !$this->shouldIncludeNode($selection->directives)) {
+                    if (!empty($visitedFragmentNames[$fragName]) || !$this->shouldIncludeNode($selection)) {
                         continue;
                     }
                     $visitedFragmentNames[$fragName] = true;
@@ -558,43 +560,35 @@ class Executor
      * Determines if a field should be included based on the @include and @skip
      * directives, where @skip has higher precedence than @include.
      *
-     * @param $directives
+     * @param FragmentSpreadNode | FieldNode | InlineFragmentNode $node
      * @return bool
      */
-    private function shouldIncludeNode($directives)
+    private function shouldIncludeNode($node)
     {
-        $exeContext = $this->exeContext;
+        $variableValues = $this->exeContext->variableValues;
         $skipDirective = Directive::skipDirective();
+
+        $skip = Values::getDirectiveValues(
+            $skipDirective,
+            $node,
+            $variableValues
+        );
+
+        if (isset($skip['if']) && $skip['if'] === true) {
+            return false;
+        }
+
         $includeDirective = Directive::includeDirective();
 
-        /** @var \GraphQL\Language\AST\DirectiveNode $skipNode */
-        $skipNode = $directives
-            ? Utils::find($directives, function(\GraphQL\Language\AST\DirectiveNode $directive) use ($skipDirective) {
-                return $directive->name->value === $skipDirective->name;
-            })
-            : null;
+        $include = Values::getDirectiveValues(
+            $includeDirective,
+            $node,
+            $variableValues
+        );
 
-        if ($skipNode) {
-            $argValues = Values::getArgumentValues($skipDirective, $skipNode, $exeContext->variableValues);
-            if (isset($argValues['if']) && $argValues['if'] === true) {
-                return false;
-            }
+        if (isset($include['if']) && $include['if'] === false) {
+            return false;
         }
-
-        /** @var \GraphQL\Language\AST\DirectiveNode $includeNode */
-        $includeNode = $directives
-            ? Utils::find($directives, function(\GraphQL\Language\AST\DirectiveNode $directive) use ($includeDirective) {
-                return $directive->name->value === $includeDirective->name;
-            })
-            : null;
-
-        if ($includeNode) {
-            $argValues = Values::getArgumentValues($includeDirective, $includeNode, $exeContext->variableValues);
-            if (isset($argValues['if']) && $argValues['if'] === false) {
-                return false;
-            }
-        }
-
         return true;
     }
 
