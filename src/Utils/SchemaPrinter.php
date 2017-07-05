@@ -204,7 +204,7 @@ class SchemaPrinter
 
     private static function printInputObject(InputObjectType $type)
     {
-        $fields = self::sortFields($type->getFields());
+        $fields = array_values($type->getFields());
         return self::printDescription($type) . 
             "input {$type->name} {\n" .
                 implode("\n", array_map(function($f, $i) {
@@ -215,7 +215,7 @@ class SchemaPrinter
 
     private static function printFields($type)
     {
-        $fields = self::sortFields($type->getFields());
+        $fields = array_values($type->getFields());
         return implode("\n", array_map(function($f, $i) {
                 return self::printDescription($f, '  ', !$i) . '  ' .
                     $f->name . self::printArgs($f->args, '  ') . ': ' .
@@ -301,11 +301,5 @@ class SchemaPrinter
         return array_map(function($part) {
             return trim($part);
         }, $parts);
-    }
-
-    private static function sortFields(array $fields)
-    {
-        ksort($fields);
-        return array_values($fields);
     }
 }

@@ -71,11 +71,11 @@ schema {
 }
 
 type HelloScalars {
-  bool: Boolean
+  str: String
+  int: Int
   float: Float
   id: ID
-  int: Int
-  str: String
+  bool: Boolean
 }
 ';
         $output = $this->cycleOutput($body);
@@ -194,11 +194,11 @@ schema {
 }
 
 type HelloScalars {
-  listOfNonNullStrs: [String!]
-  listOfStrs: [String]
-  nonNullListOfNonNullStrs: [String!]!
-  nonNullListOfStrs: [String]!
   nonNullStr: String!
+  listOfStrs: [String]
+  listOfNonNullStrs: [String!]
+  nonNullListOfStrs: [String]!
+  nonNullListOfNonNullStrs: [String!]!
 }
 ';
         $output = $this->cycleOutput($body);
@@ -216,8 +216,8 @@ schema {
 }
 
 type Recurse {
-  recurse: Recurse
   str: String
+  recurse: Recurse
 }
 ';
         $output = $this->cycleOutput($body);
@@ -259,10 +259,10 @@ schema {
 }
 
 type Hello {
-  booleanToStr(bool: Boolean): String
+  str(int: Int): String
   floatToStr(float: Float): String
   idToStr(id: ID): String
-  str(int: Int): String
+  booleanToStr(bool: Boolean): String
   strToStr(bool: String): String
 }
 ';
@@ -479,9 +479,9 @@ schema {
 }
 
 type HelloScalars {
-  bool: Boolean
-  int: Int
   str: String
+  int: Int
+  bool: Boolean
 }
 
 type Mutation {
@@ -504,9 +504,9 @@ schema {
 }
 
 type HelloScalars {
-  bool: Boolean
-  int: Int
   str: String
+  int: Int
+  bool: Boolean
 }
 
 type Subscription {
@@ -572,9 +572,9 @@ enum MyEnum {
 }
 
 type Query {
-  enum: MyEnum
   field1: String @deprecated
   field2: Int @deprecated(reason: "Because I said so")
+  enum: MyEnum
 }
 ';
         $output = $this->cycleOutput($body);
