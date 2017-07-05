@@ -45,11 +45,16 @@ class ExecutionContext
     public $variableValues;
 
     /**
+     * @var callable
+     */
+    public $fieldResolver;
+
+    /**
      * @var array
      */
     public $errors;
 
-    public function __construct($schema, $fragments, $root, $contextValue, $operation, $variables, $errors)
+    public function __construct($schema, $fragments, $root, $contextValue, $operation, $variables, $errors, $fieldResolver)
     {
         $this->schema = $schema;
         $this->fragments = $fragments;
@@ -58,6 +63,7 @@ class ExecutionContext
         $this->operation = $operation;
         $this->variableValues = $variables;
         $this->errors = $errors ?: [];
+        $this->fieldResolver = $fieldResolver;
     }
 
     public function addError(Error $error)

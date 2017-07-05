@@ -972,6 +972,44 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * @it uses a custom field resolver
+     */
+    public function testUsesACustomFieldResolver()
+    {
+        $query = Parser::parse('{ foo }');
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'foo' => ['type' => Type::string()]
+                ]
+            ])
+        ]);
+
+        // For the purposes of test, just return the name of the field!
+        $customResolver = function ($source, $args, $context, ResolveInfo $info) {
+            return $info->fieldName;
+        };
+
+        $result = Executor::execute(
+            $schema,
+            $query,
+            null,
+            null,
+            null,
+            null,
+            $customResolver
+        );
+
+        $expected = [
+            'data' => ['foo' => 'foo']
+        ];
+
+        $this->assertEquals($expected, $result->toArray());
+    }
+
     public function testSubstitutesArgumentWithDefaultValue()
     {
         $schema = new Schema([

@@ -89,9 +89,18 @@ class Executor
      * @param $contextValue
      * @param array|\ArrayAccess $variableValues
      * @param null $operationName
+     * @param callable $fieldResolver
      * @return ExecutionResult|Promise
      */
-    public static function execute(Schema $schema, DocumentNode $ast, $rootValue = null, $contextValue = null, $variableValues = null, $operationName = null)
+    public static function execute(
+        Schema $schema,
+        DocumentNode $ast,
+        $rootValue = null,
+        $contextValue = null,
+        $variableValues = null,
+        $operationName = null,
+        $fieldResolver = null
+    )
     {
         if (null !== $variableValues) {
             Utils::invariant(
@@ -106,7 +115,15 @@ class Executor
             );
         }
 
-        $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $contextValue, $variableValues, $operationName);
+        $exeContext = self::buildExecutionContext(
+            $schema,
+            $ast,
+            $rootValue,
+            $contextValue,
+            $variableValues,
+            $operationName,
+            $fieldResolver
+        );
         $promiseAdapter = self::getPromiseAdapter();
 
         $executor = new self($exeContext, $promiseAdapter);
@@ -129,6 +146,8 @@ class Executor
      * @param $contextValue
      * @param $rawVariableValues
      * @param string $operationName
+     * @param callable $fieldResolver
+     *
      * @return ExecutionContext
      * @throws Error
      */
@@ -138,7 +157,8 @@ class Executor
         $rootValue,
         $contextValue,
         $rawVariableValues,
-        $operationName = null
+        $operationName = null,
+        $fieldResolver = null
     )
     {
         $errors = [];
@@ -183,7 +203,16 @@ class Executor
             $rawVariableValues ?: []
         );
 
-        $exeContext = new ExecutionContext($schema, $fragments, $rootValue, $contextValue, $operation, $variableValues, $errors);
+        $exeContext = new ExecutionContext(
+            $schema,
+            $fragments,
+            $rootValue,
+            $contextValue,
+            $operation,
+            $variableValues,
+            $errors,
+            $fieldResolver ?: self::$defaultFieldResolver
+        );
         return $exeContext;
     }
 
@@ -625,7 +654,7 @@ class Executor
         } else if (isset($parentType->resolveFieldFn)) {
             $resolveFn = $parentType->resolveFieldFn;
         } else {
-            $resolveFn = self::$defaultFieldResolver;
+            $resolveFn = $this->exeContext->fieldResolver;
         }
 
         // The resolve function's optional third argument is a context value that
