@@ -1080,14 +1080,17 @@ class Parser
 
     /**
      * UnionMembers :
-     *   - NamedType
+     *   - `|`? NamedType
      *   - UnionMembers | NamedType
      *
      * @return NamedTypeNode[]
      */
     function parseUnionMembers()
     {
+        // Optional leading pipe
+        $this->skip(Token::PIPE);
         $members = [];
+
         do {
             $members[] = $this->parseNamedType();
         } while ($this->skip(Token::PIPE));
@@ -1213,6 +1216,8 @@ class Parser
      */
     function parseDirectiveLocations()
     {
+        // Optional leading pipe
+        $this->skip(Token::PIPE);
         $locations = [];
         do {
             $locations[] = $this->parseName();

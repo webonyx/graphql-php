@@ -1,27 +1,9 @@
 <?php
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Language\AST\BooleanValueNode;
-use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\EnumTypeDefinitionNode;
-use GraphQL\Language\AST\EnumValueDefinitionNode;
-use GraphQL\Language\AST\FieldDefinitionNode;
-use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
-use GraphQL\Language\AST\InputValueDefinitionNode;
-use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
-use GraphQL\Language\AST\ListTypeNode;
-use GraphQL\Language\AST\Location;
-use GraphQL\Language\AST\NameNode;
-use GraphQL\Language\AST\NamedTypeNode;
-use GraphQL\Language\AST\Node;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NonNullTypeNode;
-use GraphQL\Language\AST\ObjectTypeDefinitionNode;
-use GraphQL\Language\AST\ScalarTypeDefinitionNode;
-use GraphQL\Language\AST\TypeExtensionDefinitionNode;
-use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
-use GraphQL\Language\Source;
 
 class SchemaParserTest extends \PHPUnit_Framework_TestCase
 {
@@ -539,6 +521,86 @@ type Hello {
             'loc' => $loc(0, 22)
         ];
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+
+    /**
+     * @it Union with two types and leading pipe
+     */
+    public function testUnionWithTwoTypesAndLeadingPipe()
+    {
+        $body = 'union Hello = | Wo | Rld';
+        $doc = Parser::parse($body);
+        $expected = [
+            'kind' => 'Document',
+            'definitions' => [
+                [
+                    'kind' => 'UnionTypeDefinition',
+                    'name' => $this->nameNode('Hello', ['start' => 6, 'end' => 11]),
+                    'directives' => [],
+                    'types' => [
+                        $this->typeNode('Wo', ['start' => 16, 'end' => 18]),
+                        $this->typeNode('Rld', ['start' => 21, 'end' => 24]),
+                    ],
+                    'loc' => ['start' => 0, 'end' => 24],
+                    'description' => null
+                ]
+            ],
+            'loc' => ['start' => 0, 'end' => 24],
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it Union fails with no types
+     */
+    public function testUnionFailsWithNoTypes()
+    {
+        $body = 'union Hello = |';
+        try {
+            Parser::parse($body);
+        } catch (SyntaxError $e) {
+            $this->assertContains('Syntax Error GraphQL (1:16) Expected Name, found <EOF>', $e->getMessage());
+        }
+    }
+
+    /**
+     * @it Union fails with leading douple pipe
+     */
+    public function testUnionFailsWithLeadingDoublePipe()
+    {
+        $body = 'union Hello = || Wo | Rld';
+        try {
+            Parser::parse($body);
+        } catch (SyntaxError $e) {
+            $this->assertContains('Syntax Error GraphQL (1:16) Expected Name, found |', $e->getMessage());
+        }
+    }
+
+    /**
+     * @it Union fails with double pipe
+     */
+    public function testUnionFailsWithDoublePipe()
+    {
+        $body = 'union Hello = Wo || Rld';
+        try {
+            Parser::parse($body);
+        } catch (SyntaxError $e) {
+            $this->assertContains('Syntax Error GraphQL (1:19) Expected Name, found |', $e->getMessage());
+        }
+    }
+
+    /**
+     * @it Union fails with trailing pipe
+     */
+    public function testUnionFailsWithTrailingPipe()
+    {
+        $body = 'union Hello = | Wo | Rld |';
+        try {
+            Parser::parse($body);
+        } catch (SyntaxError $e) {
+            $this->assertContains('Syntax Error GraphQL (1:27) Expected Name, found <EOF>', $e->getMessage());
+        }
     }
 
     /**
