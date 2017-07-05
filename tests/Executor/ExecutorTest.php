@@ -589,9 +589,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it throws if no operation is provided
+     * @it provides error if no operation is provided
      */
-    public function testThrowsIfNoOperationIsProvided()
+    public function testProvidesErrorIfNoOperationIsProvided()
     {
         $doc = 'fragment Example on Type { a }';
         $data = [ 'a' => 'b' ];
@@ -605,62 +605,84 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ])
         ]);
 
-        try {
-            Executor::execute($schema, $ast, $data);
-            $this->fail('Expected exception was not thrown');
-        } catch (Error $e) {
-            $this->assertEquals('Must provide an operation.', $e->getMessage());
-        }
+        $result = Executor::execute($schema, $ast, $data);
+        $expected = [
+            'errors' => [
+                [
+                    'message' => 'Must provide an operation.',
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $result->toArray());
     }
 
     /**
-     * @it throws if no operation name is provided with multiple operations
+     * @it errors if no op name is provided with multiple operations
      */
-    public function testThrowsIfNoOperationIsProvidedWithMultipleOperations()
+    public function testErrorsIfNoOperationIsProvidedWithMultipleOperations()
     {
         $doc = 'query Example { a } query OtherExample { a }';
-        $data = [ 'a' => 'b' ];
+        $data = ['a' => 'b'];
         $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
                 'fields' => [
-                    'a' => [ 'type' => Type::string() ],
+                    'a' => ['type' => Type::string()],
                 ]
             ])
         ]);
 
-        try {
-            Executor::execute($schema, $ast, $data);
-            $this->fail('Expected exception is not thrown');
-        } catch (Error $err) {
-            $this->assertEquals('Must provide operation name if query contains multiple operations.', $err->getMessage());
-        }
+        $result = Executor::execute($schema, $ast, $data);
+
+        $expected = [
+            'errors' => [
+                [
+                    'message' => 'Must provide operation name if query contains multiple operations.',
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $result->toArray());
     }
 
     /**
-     * @it throws if unknown operation name is provided
+     * @it errors if unknown operation name is provided
      */
-    public function testThrowsIfUnknownOperationNameIsProvided()
+    public function testErrorsIfUnknownOperationNameIsProvided()
     {
         $doc = 'query Example { a } query OtherExample { a }';
-        $data = [ 'a' => 'b' ];
         $ast = Parser::parse($doc);
         $schema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Type',
                 'fields' => [
-                    'a' => [ 'type' => Type::string() ],
+                    'a' => ['type' => Type::string()],
                 ]
             ])
         ]);
 
-        try {
-            Executor::execute($schema, $ast, $data, null, null, 'UnknownExample');
-            $this->fail('Expected exception was not thrown');
-        } catch (Error $e) {
-            $this->assertEquals('Unknown operation named "UnknownExample".', $e->getMessage());
-        }
+
+        $result = Executor::execute(
+            $schema,
+            $ast,
+            null,
+            null,
+            null,
+            'UnknownExample'
+        );
+
+        $expected = [
+            'errors' => [
+                [
+                    'message' => 'Unknown operation named "UnknownExample".',
+                ]
+            ]
+
+        ];
+
+        $this->assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -956,20 +978,24 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             'query' => new ObjectType([
                 'name' => 'Query',
                 'fields' => [
-                    'foo' => ['type' => Type::string() ]
+                    'foo' => ['type' => Type::string()]
                 ]
             ])
         ]);
 
-        try {
-            Executor::execute($schema, $query);
-            $this->fail('Expected exception was not thrown');
-        } catch (Error $e) {
-            $this->assertEquals([
-                'message' => 'GraphQL cannot execute a request containing a ObjectTypeDefinition.',
-                'locations' => [['line' => 4, 'column' => 7]]
-            ], $e->toSerializableArray());
-        }
+
+        $result = Executor::execute($schema, $query);
+
+        $expected = [
+            'errors' => [
+                [
+                    'message' => 'GraphQL cannot execute a request containing a ObjectTypeDefinition.',
+                    'locations' => [['line' => 4, 'column' => 7]],
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $result->toArray());
     }
 
     /**

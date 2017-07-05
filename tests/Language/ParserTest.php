@@ -1,12 +1,12 @@
 <?php
 namespace GraphQL\Tests\Language;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Parser;
@@ -17,6 +17,33 @@ use GraphQL\Utils;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @it asserts that a source to parse was provided
+     */
+    public function testAssertsThatASourceToParseWasProvided()
+    {
+        try {
+            Parser::parse(null);
+            $this->fail('Expected exception was not thrown');
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('GraphQL query body is expected to be string, but got NULL', $e->getMessage());
+        }
+
+        try {
+            Parser::parse(['a' => 'b']);
+            $this->fail('Expected exception was not thrown');
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('GraphQL query body is expected to be string, but got array', $e->getMessage());
+        }
+
+        try {
+            Parser::parse(new \stdClass());
+            $this->fail('Expected exception was not thrown');
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('GraphQL query body is expected to be string, but got stdClass', $e->getMessage());
+        }
+    }
+
     /**
      * @it parse provides useful errors
      */

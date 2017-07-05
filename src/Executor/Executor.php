@@ -115,16 +115,25 @@ class Executor
             );
         }
 
-        $exeContext = self::buildExecutionContext(
-            $schema,
-            $ast,
-            $rootValue,
-            $contextValue,
-            $variableValues,
-            $operationName,
-            $fieldResolver
-        );
         $promiseAdapter = self::getPromiseAdapter();
+
+        try {
+            $exeContext = self::buildExecutionContext(
+                $schema,
+                $ast,
+                $rootValue,
+                $contextValue,
+                $variableValues,
+                $operationName,
+                $fieldResolver
+            );
+        } catch (Error $e) {
+            if ($promiseAdapter instanceof SyncPromiseAdapter) {
+                return new ExecutionResult(null, [$e]);
+            } else {
+                return $promiseAdapter->createFulfilled(new ExecutionResult(null, [$e]));
+            }
+        }
 
         $executor = new self($exeContext, $promiseAdapter);
         $result = $executor->executeQuery();
@@ -283,11 +292,30 @@ class Executor
         $fields = $this->collectFields($type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
 
         $path = [];
-        if ($operation->operation === 'mutation') {
-            return $this->executeFieldsSerially($type, $rootValue, $path, $fields);
-        }
 
-        return $this->executeFields($type, $rootValue, $path, $fields);
+        // Errors from sub-fields of a NonNull type may propagate to the top level,
+        // at which point we still log the error and null the parent field, which
+        // in this case is the entire response.
+        //
+        // Similar to completeValueCatchingError.
+        try {
+            $result = $operation->operation === 'mutation' ?
+                $this->executeFieldsSerially($type, $rootValue, $path, $fields) :
+                $this->executeFields($type, $rootValue, $path, $fields);
+
+            $promise = $this->getPromise($result);
+            if ($promise) {
+                return $promise->then(null, function($error) {
+                    $this->exeContext->addError($error);
+                    return null;
+                });
+            }
+            return $result;
+
+        } catch (Error $error) {
+            $this->exeContext->addError($error);
+            return null;
+        }
     }
 
 
