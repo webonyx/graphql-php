@@ -45,7 +45,7 @@ class GraphQL
      *    value or method on the source value with the field's name).
      *
      * @param Schema $schema
-     * @param string|DocumentNode $requestString
+     * @param string|DocumentNode $source
      * @param mixed $rootValue
      * @param array|null $variableValues
      * @param string|null $operationName
@@ -54,7 +54,7 @@ class GraphQL
      */
     public static function execute(
         Schema $schema,
-        $requestString,
+        $source,
         $rootValue = null,
         $contextValue = null,
         $variableValues = null,
@@ -64,7 +64,7 @@ class GraphQL
     {
         $result = self::executeAndReturnResult(
             $schema,
-            $requestString,
+            $source,
             $rootValue,
             $contextValue,
             $variableValues,
@@ -88,7 +88,7 @@ class GraphQL
      * which can be used for custom error formatting or adding extensions to response
      *
      * @param Schema $schema
-     * @param string|DocumentNode $requestString
+     * @param string|DocumentNode $source
      * @param mixed $rootValue
      * @param array|null $variableValues
      * @param string|null $operationName
@@ -97,7 +97,7 @@ class GraphQL
      */
     public static function executeAndReturnResult(
         Schema $schema,
-        $requestString,
+        $source,
         $rootValue = null,
         $contextValue = null,
         $variableValues = null,
@@ -106,11 +106,10 @@ class GraphQL
     )
     {
         try {
-            if ($requestString instanceof DocumentNode) {
-                $documentNode = $requestString;
+            if ($source instanceof DocumentNode) {
+                $documentNode = $source;
             } else {
-                $source = new Source($requestString ?: '', 'GraphQL request');
-                $documentNode = Parser::parse($source);
+                $documentNode = Parser::parse(new Source($source ?: '', 'GraphQL'));
             }
 
             /** @var QueryComplexity $queryComplexity */
