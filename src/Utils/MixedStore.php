@@ -16,7 +16,12 @@ class MixedStore implements \ArrayAccess
     /**
      * @var array
      */
-    private $scalarStore;
+    private $standardStore;
+
+    /**
+     * @var array
+     */
+    private $floatStore;
 
     /**
      * @var \SplObjectStorage
@@ -51,17 +56,41 @@ class MixedStore implements \ArrayAccess
     /**
      * @var bool
      */
-    private $nullValueIsSet = false;
+    private $nullValueIsSet;
+
+    /**
+     * @var mixed
+     */
+    private $trueValue;
+
+    /**
+     * @var bool
+     */
+    private $trueValueIsSet;
+
+    /**
+     * @var mixed
+     */
+    private $falseValue;
+
+    /**
+     * @var bool
+     */
+    private $falseValueIsSet;
 
     /**
      * MixedStore constructor.
      */
     public function __construct()
     {
-        $this->scalarStore = [];
+        $this->standardStore = [];
+        $this->floatStore = [];
         $this->objectStore = new \SplObjectStorage();
         $this->arrayKeys = [];
         $this->arrayValues = [];
+        $this->nullValueIsSet = false;
+        $this->trueValueIsSet = false;
+        $this->falseValueIsSet = false;
     }
 
     /**
@@ -78,8 +107,17 @@ class MixedStore implements \ArrayAccess
      */
     public function offsetExists($offset)
     {
-        if (is_scalar($offset)) {
-            return array_key_exists($offset, $this->scalarStore);
+        if (false === $offset) {
+            return $this->falseValueIsSet;
+        }
+        if (true === $offset) {
+            return $this->trueValueIsSet;
+        }
+        if (is_int($offset) || is_string($offset)) {
+            return array_key_exists($offset, $this->standardStore);
+        }
+        if (is_float($offset)) {
+            return array_key_exists((string) $offset, $this->floatStore);
         }
         if (is_object($offset)) {
             return $this->objectStore->offsetExists($offset);
@@ -110,8 +148,17 @@ class MixedStore implements \ArrayAccess
      */
     public function offsetGet($offset)
     {
-        if (is_scalar($offset)) {
-            return $this->scalarStore[$offset];
+        if (true === $offset) {
+            return $this->trueValue;
+        }
+        if (false === $offset) {
+            return $this->falseValue;
+        }
+        if (is_int($offset) || is_string($offset)) {
+            return $this->standardStore[$offset];
+        }
+        if (is_float($offset)) {
+            return $this->floatStore[(string)$offset];
         }
         if (is_object($offset)) {
             return $this->objectStore->offsetGet($offset);
@@ -147,8 +194,16 @@ class MixedStore implements \ArrayAccess
      */
     public function offsetSet($offset, $value)
     {
-        if (is_scalar($offset)) {
-            $this->scalarStore[$offset] = $value;
+        if (false === $offset) {
+            $this->falseValue = $value;
+            $this->falseValueIsSet = true;
+        } else if (true === $offset) {
+            $this->trueValue = $value;
+            $this->trueValueIsSet = true;
+        } else if (is_int($offset) || is_string($offset)) {
+            $this->standardStore[$offset] = $value;
+        } else if (is_float($offset)) {
+            $this->floatStore[(string)$offset] = $value;
         } else if (is_object($offset)) {
             $this->objectStore[$offset] = $value;
         } else if (is_array($offset)) {
@@ -173,8 +228,16 @@ class MixedStore implements \ArrayAccess
      */
     public function offsetUnset($offset)
     {
-        if (is_scalar($offset)) {
-            unset($this->scalarStore[$offset]);
+        if (true === $offset) {
+            $this->trueValue = null;
+            $this->trueValueIsSet = false;
+        } else if (false === $offset) {
+            $this->falseValue = null;
+            $this->falseValueIsSet = false;
+        } else if (is_int($offset) || is_string($offset)) {
+            unset($this->standardStore[$offset]);
+        } else if (is_float($offset)) {
+            unset($this->floatStore[(string)$offset]);
         } else if (is_object($offset)) {
             $this->objectStore->offsetUnset($offset);
         } else if (is_array($offset)) {

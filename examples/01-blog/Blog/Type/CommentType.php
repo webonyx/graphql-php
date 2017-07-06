@@ -36,8 +36,9 @@ class CommentType extends ObjectType
                 ];
             },
             'resolveField' => function($value, $args, $context, ResolveInfo $info) {
-                if (method_exists($this, $info->fieldName)) {
-                    return $this->{$info->fieldName}($value, $args, $context, $info);
+                $method = 'resolve' . ucfirst($info->fieldName);
+                if (method_exists($this, $method)) {
+                    return $this->{$method}($value, $args, $context, $info);
                 } else {
                     return $value->{$info->fieldName};
                 }
@@ -46,7 +47,7 @@ class CommentType extends ObjectType
         parent::__construct($config);
     }
 
-    public function author(Comment $comment)
+    public function resolveAuthor(Comment $comment)
     {
         if ($comment->isAnonymous) {
             return null;
@@ -54,7 +55,7 @@ class CommentType extends ObjectType
         return DataSource::findUser($comment->authorId);
     }
 
-    public function parent(Comment $comment)
+    public function resolveParent(Comment $comment)
     {
         if ($comment->parentId) {
             return DataSource::findComment($comment->parentId);
@@ -62,13 +63,13 @@ class CommentType extends ObjectType
         return null;
     }
 
-    public function replies(Comment $comment, $args)
+    public function resolveReplies(Comment $comment, $args)
     {
         $args += ['after' => null];
         return DataSource::findReplies($comment->id, $args['limit'], $args['after']);
     }
 
-    public function totalReplyCount(Comment $comment)
+    public function resolveTotalReplyCount(Comment $comment)
     {
         return DataSource::countReplies($comment->id);
     }
