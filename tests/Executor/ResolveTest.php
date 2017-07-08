@@ -44,32 +44,15 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
     /**
      * @it default function calls methods
      */
-    public function testDefaultFunctionCallsMethods()
+    public function testDefaultFunctionCallsClosures()
     {
         $schema = $this->buildSchema(['type' => Type::string()]);
         $_secret = 'secretValue' . uniqid();
 
         $source = [
-            'test' => function () use ($_secret) {
+            'test' => function() use ($_secret) {
                 return $_secret;
             }
-        ];
-        $this->assertEquals(
-            ['data' => ['test' => $_secret]],
-            GraphQL::execute($schema, '{ test }', $source)
-        );
-    }
-
-    /**
-     * @it default function calls callables
-     */
-    public function testDefaultFunctionCallsCallables()
-    {
-        $schema = $this->buildSchema(['type' => Type::string()]);
-        $_secret = 'secretValue' . uniqid();
-
-        $source = [
-            'test' => new ResolveTestCallableFixture($_secret)
         ];
         $this->assertEquals(
             ['data' => ['test' => $_secret]],
@@ -130,20 +113,5 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
             ['data' => ['test' => '["Source!",{"aStr":"String!","aInt":-123}]']],
             GraphQL::execute($schema, '{ test(aInt: -123, aStr: "String!") }', 'Source!')
         );
-    }
-}
-
-class ResolveTestCallableFixture
-{
-    private $value;
-
-    public function __construct($value)
-    {
-        $this->value = $value;
-    }
-
-    public function __invoke($root, $args, $context)
-    {
-        return $this->value;
     }
 }

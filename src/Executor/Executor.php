@@ -965,7 +965,7 @@ class Executor
             }
         }
 
-        return is_callable($property) ? $property($source, $args, $context, $info) : $property;
+        return $property instanceof \Closure ? $property($source, $args, $context, $info) : $property;
     }
 
     /**
