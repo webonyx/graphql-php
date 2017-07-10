@@ -579,6 +579,8 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             'types' => [$user, $blog]
         ]);
 
+        $this->assertFalse($called);
+        $schema->getType('Query');
         $this->assertTrue($called);
 
         $this->assertEquals([$node], $blog->getInterfaces());
@@ -619,8 +621,8 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             'mutation' => $someMutation
         ]);
 
-        $this->assertTrue($called);
         $this->assertSame($inputObject, $schema->getType('InputObject'));
+        $this->assertTrue($called);
         $this->assertEquals(count($inputObject->getFields()), 2);
         $this->assertSame($inputObject->getField('nested')->getType(), $inputObject);
         $this->assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
@@ -651,8 +653,8 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             'query' => $query
         ]);
 
-        $this->assertTrue($called);
         $this->assertSame($interface, $schema->getType('SomeInterface'));
+        $this->assertTrue($called);
         $this->assertEquals(count($interface->getFields()), 2);
         $this->assertSame($interface->getField('nested')->getType(), $interface);
         $this->assertSame($interface->getField('value')->getType(), Type::string());

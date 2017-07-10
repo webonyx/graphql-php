@@ -238,14 +238,15 @@ class PossibleFragmentSpreadsTest extends TestCase
      */
     public function testInterfaceIntoNonOverlappingInterface()
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        // Ideally this should fail, but our new lazy schema doesn't scan through all types and fields
+        // So we don't have enough knowledge to check interface intersection and always allow this to pass:
+
+        $this->expectPassesRule(new PossibleFragmentSpreads, '
       fragment invalidInterfaceWithinInterface on Pet {
         ...intelligentFragment
       }
       fragment intelligentFragment on Intelligent { iq }
-        ',
-            [$this->error('intelligentFragment', 'Pet', 'Intelligent', 3, 9)]
-        );
+        ');
     }
 
     /**
@@ -253,13 +254,14 @@ class PossibleFragmentSpreadsTest extends TestCase
      */
     public function testInterfaceIntoNonOverlappingInterfaceInInlineFragment()
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        // Ideally this should fail, but our new lazy schema doesn't scan through all types and fields
+        // So we don't have enough knowledge to check interface intersection and always allow this to pass:
+
+        $this->expectPassesRule(new PossibleFragmentSpreads, '
       fragment invalidInterfaceWithinInterfaceAnon on Pet {
         ...on Intelligent { iq }
       }
-        ',
-            [$this->errorAnon('Pet', 'Intelligent', 3, 9)]
-        );
+        ');
     }
 
     /**

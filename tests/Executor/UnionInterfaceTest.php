@@ -256,7 +256,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
+        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION, false);
     }
 
     /**
@@ -292,7 +294,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
+        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION, false);
     }
 
     /**
@@ -347,7 +351,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
+        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION, false);
     }
 
     /**

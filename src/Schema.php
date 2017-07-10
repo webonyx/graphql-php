@@ -1,13 +1,15 @@
 <?php
 namespace GraphQL;
 
+use GraphQL\Schema\Config;
+use GraphQL\Schema\Descriptor;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\EagerResolution;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
-use GraphQL\Type\Resolution;
 
 /**
  * Schema Definition
@@ -39,30 +41,35 @@ use GraphQL\Type\Resolution;
 class Schema
 {
     /**
-     * @var array
+     * @var Config
      */
     private $config;
 
     /**
-     * @var array<string, array<string, boolean>>
-     */
-    private $possibleTypeMap = [];
-
-    /**
-     * @var Resolution
-     */
-    private $typeResolutionStrategy;
-
-    /**
-     * Required for `getTypeMap()` and `getDescriptor()` methods
+     * Contains actual descriptor for this schema
      *
-     * @var EagerResolution
+     * @var Descriptor
      */
-    private $eagerTypeResolutionStrategy;
+    private $descriptor;
+
+    /**
+     * Contains currently resolved schema types
+     *
+     * @var Type[]
+     */
+    private $resolvedTypes = [];
+
+    /**
+     * True when $resolvedTypes contain all possible schema types
+     *
+     * @var bool
+     */
+    private $fullyLoaded = false;
 
     /**
      * Schema constructor.
-     * @param array $config
+     *
+     * @param array|Config $config
      */
     public function __construct($config = null)
     {
@@ -74,63 +81,36 @@ class Schema
             );
             list($queryType, $mutationType, $subscriptionType) = func_get_args() + [null, null, null];
 
-            $config = [
-                'query' => $queryType,
-                'mutation' => $mutationType,
-                'subscription' => $subscriptionType
-            ];
+            $config = Config::create()
+                ->setQuery($queryType)
+                ->setMutation($mutationType)
+                ->setSubscription($subscriptionType)
+            ;
+        } else if (is_array($config)) {
+            $config = Config::create($config);
         }
 
-        $config += [
-            'query' => null,
-            'mutation' => null,
-            'subscription' => null,
-            'types' => [],
-            'directives' => null,
-            'typeResolution' => null
-        ];
-
-        $this->init($config);
-    }
-
-    /**
-     * @param array $config
-     */
-    private function init(array $config)
-    {
         Utils::invariant(
-            $config['query'] instanceof ObjectType,
-            "Schema query must be Object Type but got: " . Utils::getVariableType($config['query'])
+            $config instanceof Config,
+            'Schema constructor expects instance of GraphQL\Schema\Config or an array with keys: %s; but got: %s',
+            implode(', ', [
+                'query',
+                'mutation',
+                'subscription',
+                'types',
+                'directives',
+                'descriptor',
+                'typeLoader'
+            ]),
+            Utils::getVariableType($config)
         );
 
         Utils::invariant(
-            !$config['mutation'] || $config['mutation'] instanceof ObjectType,
-            "Schema mutation must be Object Type if provided but got: " . Utils::getVariableType($config['mutation'])
-        );
-
-        Utils::invariant(
-            !$config['subscription'] || $config['subscription'] instanceof ObjectType,
-            "Schema subscription must be Object Type if provided but got: " . Utils::getVariableType($config['subscription'])
-        );
-
-        Utils::invariant(
-            !$config['types'] || is_array($config['types']),
-            "Schema types must be Array if provided but got: " . Utils::getVariableType($config['types'])
-        );
-
-        Utils::invariant(
-            !$config['directives'] || (is_array($config['directives']) && Utils::every($config['directives'], function($d) {return $d instanceof Directive;})),
-            "Schema directives must be Directive[] if provided but got " . Utils::getVariableType($config['directives'])
-        );
-
-        Utils::invariant(
-            !$config['typeResolution'] || $config['typeResolution'] instanceof Resolution,
-            "Type resolution strategy is expected to be instance of GraphQL\\Type\\Resolution, but got " .
-            Utils::getVariableType($config['typeResolution'])
+            $config->query instanceof ObjectType,
+            "Schema query must be Object Type but got: " . Utils::getVariableType($config->query)
         );
 
         $this->config = $config;
-        $this->typeResolutionStrategy = $config['typeResolution'] ?: $this->getEagerTypeResolutionStrategy();
     }
 
     /**
@@ -138,53 +118,126 @@ class Schema
      */
     public function getQueryType()
     {
-        return $this->config['query'];
+        return $this->config->query;
     }
 
     /**
-     * @return ObjectType
+     * @return ObjectType|null
      */
     public function getMutationType()
     {
-        return $this->config['mutation'];
+        return $this->config->mutation;
     }
 
     /**
-     * @return ObjectType
+     * @return ObjectType|null
      */
     public function getSubscriptionType()
     {
-        return $this->config['subscription'];
+        return $this->config->subscription;
+    }
+
+    /**
+     * @return Config
+     */
+    public function getConfig()
+    {
+        return $this->config;
     }
 
     /**
      * Returns full map of types in this schema.
-     * Note: internally it will eager-load all types using GraphQL\Type\EagerResolution strategy
      *
      * @return Type[]
      */
     public function getTypeMap()
     {
-        return $this->getEagerTypeResolutionStrategy()->getTypeMap();
+        if (!$this->fullyLoaded) {
+            if ($this->config->descriptor && $this->config->typeLoader) {
+                $typesToResolve = array_diff_key($this->config->descriptor->typeMap, $this->resolvedTypes);
+                foreach ($typesToResolve as $typeName => $_) {
+                    $this->resolvedTypes[$typeName] = $this->loadType($typeName);
+                }
+            } else {
+                $this->resolvedTypes = $this->collectAllTypes();
+            }
+            $this->fullyLoaded = true;
+        }
+        return $this->resolvedTypes;
     }
 
     /**
+     * Returns type by it's name
+     *
      * @param string $name
      * @return Type
      */
     public function getType($name)
     {
-        return $this->typeResolutionStrategy->resolveType($name);
+        return $this->resolveType($name);
     }
 
     /**
-     * Returns serializable schema representation suitable for GraphQL\Type\LazyResolution
+     * Returns serializable schema descriptor which can be passed later
+     * to Schema config to enable a set of performance optimizations
      *
-     * @return array
+     * @return Descriptor
      */
     public function getDescriptor()
     {
-        return $this->getEagerTypeResolutionStrategy()->getDescriptor();
+        if ($this->descriptor) {
+            return $this->descriptor;
+        }
+        if ($this->config->descriptor) {
+            return $this->config->descriptor;
+        }
+        return $this->descriptor = $this->buildDescriptor();
+    }
+
+    /**
+     * @return Descriptor
+     */
+    public function buildDescriptor()
+    {
+        $this->resolvedTypes = $this->collectAllTypes();
+        $this->fullyLoaded = true;
+
+        $descriptor = new Descriptor();
+        $descriptor->version = '1.0';
+        $descriptor->created = time();
+
+        foreach ($this->resolvedTypes as $type) {
+            if ($type instanceof ObjectType) {
+                foreach ($type->getInterfaces() as $interface) {
+                    $descriptor->possibleTypeMap[$interface->name][$type->name] = 1;
+                }
+            } else if ($type instanceof UnionType) {
+                foreach ($type->getTypes() as $innerType) {
+                    $descriptor->possibleTypeMap[$type->name][$innerType->name] = 1;
+                }
+            }
+            $descriptor->typeMap[$type->name] = 1;
+        }
+
+        return $this->descriptor = $descriptor;
+    }
+
+    private function collectAllTypes()
+    {
+        $initialTypes = [
+            $this->config->query,
+            $this->config->mutation,
+            $this->config->subscription,
+            Introspection::_schema()
+        ];
+        if (!empty($this->config->types)) {
+            $initialTypes = array_merge($initialTypes, $this->config->types);
+        }
+        $typeMap = [];
+        foreach ($initialTypes as $type) {
+            $typeMap = Utils\TypeInfo::extractTypes($type, $typeMap);
+        }
+        return $typeMap + Type::getInternalTypes();
     }
 
     /**
@@ -193,7 +246,47 @@ class Schema
      */
     public function getPossibleTypes(AbstractType $abstractType)
     {
-        return $this->typeResolutionStrategy->resolvePossibleTypes($abstractType);
+        if ($abstractType instanceof UnionType) {
+            return $abstractType->getTypes();
+        }
+
+        /** @var InterfaceType $abstractType */
+        $descriptor = $this->getDescriptor();
+
+        $result = [];
+        if (isset($descriptor->possibleTypeMap[$abstractType->name])) {
+            foreach ($descriptor->possibleTypeMap[$abstractType->name] as $typeName => $_) {
+                $result[] = $this->resolveType($typeName);
+            }
+        }
+        return $result;
+    }
+
+    public function resolveType($typeOrName)
+    {
+        if ($typeOrName instanceof Type) {
+            if ($typeOrName->name && !isset($this->resolvedTypes[$typeOrName->name])) {
+                $this->resolvedTypes[$typeOrName->name] = $typeOrName;
+            }
+            return $typeOrName;
+        }
+        if (!isset($this->resolvedTypes[$typeOrName])) {
+            $this->resolvedTypes[$typeOrName] = $this->loadType($typeOrName);
+        }
+        return $this->resolvedTypes[$typeOrName];
+    }
+
+    private function loadType($typeName)
+    {
+        $typeLoader = $this->config->typeLoader;
+
+        if (!$typeLoader) {
+            return $this->defaultTypeLoader($typeName);
+        }
+
+        $type = $typeLoader($typeName);
+        // TODO: validate returned value
+        return $type;
     }
 
     /**
@@ -203,23 +296,16 @@ class Schema
      */
     public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType)
     {
-        if (!isset($this->possibleTypeMap[$abstractType->name])) {
-            $tmp = [];
-            foreach ($this->getPossibleTypes($abstractType) as $type) {
-                $tmp[$type->name] = 1;
-            }
-
-            Utils::invariant(
-                !empty($tmp),
-                'Could not find possible implementing types for $%s ' .
-                'in schema. Check that schema.types is defined and is an array of ' .
-                'all possible types in the schema.',
-                $abstractType->name
-            );
-
-            $this->possibleTypeMap[$abstractType->name] = $tmp;
+        if ($this->config->descriptor) {
+            return !empty($this->config->descriptor->possibleTypeMap[$abstractType->name][$possibleType->name]);
         }
-        return !empty($this->possibleTypeMap[$abstractType->name][$possibleType->name]);
+
+        if ($abstractType instanceof InterfaceType) {
+            return $possibleType->implementsInterface($abstractType);
+        }
+
+        /** @var UnionType $abstractType */
+        return $abstractType->isPossibleType($possibleType);
     }
 
     /**
@@ -227,7 +313,7 @@ class Schema
      */
     public function getDirectives()
     {
-        return isset($this->config['directives']) ? $this->config['directives'] : GraphQL::getInternalDirectives();
+        return $this->config->directives ?: GraphQL::getInternalDirectives();
     }
 
     /**
@@ -244,25 +330,20 @@ class Schema
         return null;
     }
 
-    private function getEagerTypeResolutionStrategy()
+    /**
+     * @param $typeName
+     * @return Type
+     */
+    private function defaultTypeLoader($typeName)
     {
-        if (!$this->eagerTypeResolutionStrategy) {
-            if ($this->typeResolutionStrategy instanceof EagerResolution) {
-                $this->eagerTypeResolutionStrategy = $this->typeResolutionStrategy;
-            } else {
-                // Build type map now to detect any errors within this schema.
-                $initialTypes = [
-                    $this->config['query'],
-                    $this->config['mutation'],
-                    $this->config['subscription'],
-                    Introspection::_schema()
-                ];
-                if (!empty($this->config['types'])) {
-                    $initialTypes = array_merge($initialTypes, $this->config['types']);
-                }
-                $this->eagerTypeResolutionStrategy = new EagerResolution($initialTypes);
-            }
+        // Default type loader simply fallbacks to collecting all types
+        if (!$this->fullyLoaded) {
+            $this->resolvedTypes = $this->collectAllTypes();
+            $this->fullyLoaded = true;
         }
-        return $this->eagerTypeResolutionStrategy;
+        if (!isset($this->resolvedTypes[$typeName])) {
+            return null;
+        }
+        return $this->resolvedTypes[$typeName];
     }
 }

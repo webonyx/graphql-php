@@ -22,7 +22,7 @@ class HugeSchemaBench
     private $schemaBuilder;
 
     /**
-     * @var array
+     * @var Schema\Descriptor
      */
     private $descriptor;
 
@@ -54,7 +54,9 @@ class HugeSchemaBench
     public function benchSchema()
     {
         $this->schemaBuilder
-            ->buildSchema();
+            ->buildSchema()
+            ->getTypeMap()
+        ;
     }
 
     public function benchSchemaLazy()
@@ -75,16 +77,13 @@ class HugeSchemaBench
 
     private function createLazySchema()
     {
-        $strategy = new LazyResolution(
-            $this->descriptor,
-            function($name) {
-                return $this->schemaBuilder->loadType($name);
-            }
+        return new Schema(
+            Schema\Config::create()
+                ->setQuery($this->schemaBuilder->buildQueryType())
+                // ->setDescriptor($this->descriptor)
+                ->setTypeLoader(function($name) {
+                    return $this->schemaBuilder->loadType($name);
+                })
         );
-
-        return new Schema([
-            'query' => $this->schemaBuilder->buildQueryType(),
-            'typeResolution' => $strategy,
-        ]);
     }
 }

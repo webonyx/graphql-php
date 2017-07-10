@@ -16,6 +16,20 @@ use GraphQL\Validator\Rules\QueryComplexity;
 
 class GraphQL
 {
+    const WARNING_ON_IMPLEMENTATION_RESOLUTION = 1;
+
+    private static $ignoredErrors = [];
+
+    public static function setIgnoreError($errorCode, $set = true)
+    {
+        self::$ignoredErrors[$errorCode] = $set ? true : null;
+    }
+
+    public static function isIgnoredError($errorCode)
+    {
+        return isset(self::$ignoredErrors[$errorCode]);
+    }
+
     /**
      * This is the primary entry point function for fulfilling GraphQL operations
      * by parsing, validating, and executing a GraphQL document along side a

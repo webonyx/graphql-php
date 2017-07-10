@@ -89,7 +89,29 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $this->assertEquals($expected, Executor::execute($schema, Parser::parse($query)));
+        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION);
+        $result = Executor::execute($schema, Parser::parse($query));
+        $this->assertEquals($expected, $result);
+
+        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION, false);
+        $result = Executor::execute($schema, Parser::parse($query));
+        $this->assertEquals(2, count($result->errors));
+        $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $result->errors[0]->getPrevious());
+        $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $result->errors[1]->getPrevious());
+
+        $this->assertEquals(
+            'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: '.
+            'instance of GraphQL\Tests\Executor\Dog. Switching to slow resolution method using `isTypeOf` of '.
+            'all possible implementations. It degrades query performance significantly.  '.
+            'Make sure your `resolveType` always returns valid implementation or throws.',
+            $result->errors[0]->getMessage());
+
+        $this->assertEquals(
+            'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: '.
+            'instance of GraphQL\Tests\Executor\Cat. Switching to slow resolution method using `isTypeOf` of '.
+            'all possible implementations. It degrades query performance significantly.  '.
+            'Make sure your `resolveType` always returns valid implementation or throws.',
+            $result->errors[1]->getMessage());
     }
 
     /**

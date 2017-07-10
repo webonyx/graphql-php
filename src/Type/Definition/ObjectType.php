@@ -58,6 +58,11 @@ class ObjectType extends Type implements OutputType, CompositeType
     private $interfaces;
 
     /**
+     * @var array
+     */
+    private $interfaceMap = [];
+
+    /**
      * Keeping reference of config for late bindings and custom app-level metadata
      *
      * @var array
@@ -148,7 +153,9 @@ class ObjectType extends Type implements OutputType, CompositeType
                 if (!$iface instanceof InterfaceType) {
                     throw new InvariantViolation(sprintf('Expecting interface type, got %s', Utils::printSafe($iface)));
                 }
+                // TODO: return interfaceMap vs interfaces. Possibly breaking change?
                 $this->interfaces[] = $iface;
+                $this->interfaceMap[$iface->name] = $iface;
             }
         }
         return $this->interfaces;
@@ -161,7 +168,8 @@ class ObjectType extends Type implements OutputType, CompositeType
     public function implementsInterface($iface)
     {
         $iface = Type::resolve($iface);
-        return !!Utils::find($this->getInterfaces(), function($implemented) use ($iface) {return $iface === $implemented;});
+        $this->getInterfaces();
+        return isset($this->interfaceMap[$iface->name]);
     }
 
     /**
