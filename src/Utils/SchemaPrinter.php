@@ -12,7 +12,6 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Utils\Utils;
 
 /**
  * Class SchemaPrinter

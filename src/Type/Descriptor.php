@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Schema;
+namespace GraphQL\Type;
 
 use GraphQL\Utils\Utils;
 

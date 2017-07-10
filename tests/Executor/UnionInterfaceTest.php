@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Executor;
 
 require_once __DIR__ . '/TestClasses.php';
 
+use GraphQL\Error\Warning;
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
@@ -256,9 +257,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION);
+        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
-        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION, false);
+        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
     }
 
     /**
@@ -294,9 +295,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION);
+        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
-        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION, false);
+        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
     }
 
     /**
@@ -351,9 +352,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION);
+        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
-        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION, false);
+        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
     }
 
     /**

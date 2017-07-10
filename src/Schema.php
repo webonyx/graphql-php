@@ -1,8 +1,7 @@
 <?php
 namespace GraphQL;
 
-use GraphQL\Schema\Config;
-use GraphQL\Schema\Descriptor;
+use GraphQL\Type\Descriptor;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\InterfaceType;
@@ -83,12 +82,13 @@ class Schema
             );
             list($queryType, $mutationType, $subscriptionType) = func_get_args() + [null, null, null];
 
-            $config = Config::create()
-                ->setQuery($queryType)
-                ->setMutation($mutationType)
-                ->setSubscription($subscriptionType)
-            ;
-        } else if (is_array($config)) {
+            $config = [
+                'query' => $queryType,
+                'mutation' => $mutationType,
+                'subscription' => $subscriptionType
+            ];
+        }
+        if (is_array($config)) {
             $config = Config::create($config);
         }
 
@@ -101,8 +101,8 @@ class Schema
                 'subscription',
                 'types',
                 'directives',
-                'descriptor',
-                'typeLoader'
+                'typeLoader',
+                'descriptor'
             ]),
             Utils::getVariableType($config)
         );
@@ -116,6 +116,8 @@ class Schema
     }
 
     /**
+     * Returns schema query type
+     *
      * @return ObjectType
      */
     public function getQueryType()
@@ -124,6 +126,8 @@ class Schema
     }
 
     /**
+     * Returns schema mutation type
+     *
      * @return ObjectType|null
      */
     public function getMutationType()
@@ -132,6 +136,8 @@ class Schema
     }
 
     /**
+     * Returns schema subscription
+     *
      * @return ObjectType|null
      */
     public function getSubscriptionType()
@@ -148,7 +154,8 @@ class Schema
     }
 
     /**
-     * Returns full map of types in this schema.
+     * Returns array of all types in this schema. Keys of this array represent type names, values are instances
+     * of corresponding type definitions
      *
      * @return Type[]
      */
@@ -156,6 +163,7 @@ class Schema
     {
         if (!$this->fullyLoaded) {
             if ($this->config->descriptor && $this->config->typeLoader) {
+                // Following is still faster than $this->collectAllTypes() because it won't init fields
                 $typesToResolve = array_diff_key($this->config->descriptor->typeMap, $this->resolvedTypes);
                 foreach ($typesToResolve as $typeName => $_) {
                     $this->resolvedTypes[$typeName] = $this->loadType($typeName);
@@ -185,22 +193,12 @@ class Schema
      *
      * @return Descriptor
      */
-    public function getDescriptor()
+    public function describe()
     {
         if ($this->descriptor) {
             return $this->descriptor;
         }
-        if ($this->config->descriptor) {
-            return $this->config->descriptor;
-        }
-        return $this->descriptor = $this->buildDescriptor();
-    }
 
-    /**
-     * @return Descriptor
-     */
-    public function buildDescriptor()
-    {
         $this->resolvedTypes = $this->collectAllTypes();
         $this->fullyLoaded = true;
 
@@ -243,6 +241,9 @@ class Schema
     }
 
     /**
+     * Returns all possible concrete types for given abstract type
+     * (implementations for interfaces and members of union type for unions)
+     *
      * @param AbstractType $abstractType
      * @return ObjectType[]
      */
@@ -253,7 +254,7 @@ class Schema
         }
 
         /** @var InterfaceType $abstractType */
-        $descriptor = $this->getDescriptor();
+        $descriptor = $this->config->descriptor ?: $this->describe();
 
         $result = [];
         if (isset($descriptor->possibleTypeMap[$abstractType->name])) {
@@ -264,6 +265,13 @@ class Schema
         return $result;
     }
 
+    /**
+     * Accepts name of type or type instance and returns type instance. If type with given name is not loaded yet -
+     * will load it first.
+     *
+     * @param $typeOrName
+     * @return Type
+     */
     public function resolveType($typeOrName)
     {
         if ($typeOrName instanceof Type) {
@@ -292,6 +300,9 @@ class Schema
     }
 
     /**
+     * Returns true if object type is concrete type of given abstract type
+     * (implementation for interfaces and members of union type for unions)
+     *
      * @param AbstractType $abstractType
      * @param ObjectType $possibleType
      * @return bool
@@ -311,6 +322,8 @@ class Schema
     }
 
     /**
+     * Returns a list of directives supported by this schema
+     *
      * @return Directive[]
      */
     public function getDirectives()
@@ -319,6 +332,8 @@ class Schema
     }
 
     /**
+     * Returns instance of directive by name
+     *
      * @param $name
      * @return Directive
      */

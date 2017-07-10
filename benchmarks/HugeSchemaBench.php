@@ -22,7 +22,7 @@ class HugeSchemaBench
     private $schemaBuilder;
 
     /**
-     * @var Schema\Descriptor
+     * @var \GraphQL\Type\Descriptor
      */
     private $descriptor;
 
@@ -47,7 +47,7 @@ class HugeSchemaBench
         $this->schema = $this->schemaBuilder->buildSchema();
 
         $queryBuilder = new QueryGenerator($this->schema, 0.05);
-        $this->descriptor = $this->schema->getDescriptor();
+        $this->descriptor = $this->schema->describe();
         $this->smallQuery = $queryBuilder->buildQuery();
     }
 
@@ -78,7 +78,7 @@ class HugeSchemaBench
     private function createLazySchema()
     {
         return new Schema(
-            Schema\Config::create()
+            \GraphQL\Config::create()
                 ->setQuery($this->schemaBuilder->buildQueryType())
                 // ->setDescriptor($this->descriptor)
                 ->setTypeLoader(function($name) {

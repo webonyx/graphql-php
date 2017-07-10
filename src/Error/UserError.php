@@ -4,8 +4,7 @@ namespace GraphQL\Error;
 /**
  * Class UserError
  *
- * Note:
- * Error that can be display safely to client...
+ * Error that can be safely displayed to client...
  *
  * @package GraphQL\Error
  */
