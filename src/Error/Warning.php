@@ -6,6 +6,7 @@ final class Warning
     const NAME_WARNING = 1;
     const ASSIGN_WARNING = 2;
     const CONFIG_WARNING = 4;
+    const RESOLVE_TYPE_WARNING = 8;
 
     const ALL = 7;
 
@@ -22,6 +23,18 @@ final class Warning
         } else {
             $suppress = (int) $suppress;
             self::$enableWarnings &= ~$suppress;
+        }
+    }
+
+    public static function enable($enable = true)
+    {
+        if (true === $enable) {
+            self::$enableWarnings = self::ALL;
+        } else if (false === $enable) {
+            self::$enableWarnings = 0;
+        } else {
+            $enable = (int) $enable;
+            self::$enableWarnings |= $enable;
         }
     }
 

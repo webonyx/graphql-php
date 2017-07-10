@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\Warning;
 use GraphQL\GraphQL;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\InterfaceType;
@@ -85,7 +86,9 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
           }
         }';
 
+        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
         $result = GraphQL::execute($schema, $query);
+        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
 
         $expected = [
             'data' => [
@@ -170,7 +173,9 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
+        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
         $result = GraphQL::execute($schema, $query);
+        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
 
         $expected = [
             'data' => [

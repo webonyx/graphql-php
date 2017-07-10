@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Executor;
 
 require_once __DIR__ . '/TestClasses.php';
 
+use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
@@ -89,15 +90,14 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION);
+        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
         $result = Executor::execute($schema, Parser::parse($query));
         $this->assertEquals($expected, $result);
 
-        GraphQL::setIgnoreError(GraphQL::WARNING_ON_IMPLEMENTATION_RESOLUTION, false);
+        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
         $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertEquals(2, count($result->errors));
+        $this->assertEquals(1, count($result->errors));
         $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $result->errors[0]->getPrevious());
-        $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $result->errors[1]->getPrevious());
 
         $this->assertEquals(
             'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: '.
@@ -105,13 +105,6 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             'all possible implementations. It degrades query performance significantly.  '.
             'Make sure your `resolveType` always returns valid implementation or throws.',
             $result->errors[0]->getMessage());
-
-        $this->assertEquals(
-            'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: '.
-            'instance of GraphQL\Tests\Executor\Cat. Switching to slow resolution method using `isTypeOf` of '.
-            'all possible implementations. It degrades query performance significantly.  '.
-            'Make sure your `resolveType` always returns valid implementation or throws.',
-            $result->errors[1]->getMessage());
     }
 
     /**
