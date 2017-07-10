@@ -5,7 +5,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class UrlType extends ScalarType
 {

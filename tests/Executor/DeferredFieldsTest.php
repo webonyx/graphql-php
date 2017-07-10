@@ -9,7 +9,7 @@ use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
 {

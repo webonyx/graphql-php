@@ -13,7 +13,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class DefinitionTest extends \PHPUnit_Framework_TestCase
 {

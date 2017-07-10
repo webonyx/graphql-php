@@ -4,7 +4,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Language\AST\IntValueNode;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class IntType

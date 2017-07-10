@@ -6,7 +6,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Utils\AST;
 
 class ValueFromAstTest extends \PHPUnit_Framework_TestCase

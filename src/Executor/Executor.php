@@ -27,7 +27,8 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
-use GraphQL\Utils;
+use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\Utils;
 
 /**
  * Terminology
@@ -609,7 +610,7 @@ class Executor
             return true;
         }
 
-        $conditionalType = Utils\TypeInfo::typeFromAST($this->exeContext->schema, $typeConditionNode);
+        $conditionalType = TypeInfo::typeFromAST($this->exeContext->schema, $typeConditionNode);
         if ($conditionalType === $type) {
             return true;
         }

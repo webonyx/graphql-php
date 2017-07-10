@@ -9,7 +9,7 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Schema;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class ResolveInfo

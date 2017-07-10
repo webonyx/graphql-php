@@ -5,7 +5,7 @@ use GraphQL\Language\Lexer;
 use GraphQL\Language\Source;
 use GraphQL\Language\Token;
 use GraphQL\Error\SyntaxError;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class LexerTest extends \PHPUnit_Framework_TestCase
 {

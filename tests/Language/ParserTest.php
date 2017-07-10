@@ -13,7 +13,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Error\SyntaxError;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {

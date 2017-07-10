@@ -15,7 +15,7 @@ use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\Rules\ArgumentsOfCorrectType;
 use GraphQL\Validator\Rules\DefaultValuesOfCorrectType;

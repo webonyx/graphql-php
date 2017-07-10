@@ -5,7 +5,7 @@ use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class SyncPromiseAdapter

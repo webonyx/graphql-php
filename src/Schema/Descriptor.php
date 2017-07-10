@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Schema;
 
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class Descriptor implements \JsonSerializable
 {

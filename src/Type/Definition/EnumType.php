@@ -2,7 +2,8 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\EnumValueNode;
-use GraphQL\Utils;
+use GraphQL\Utils\MixedStore;
+use GraphQL\Utils\Utils;
 
 /**
  * Class EnumType
@@ -16,7 +17,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     private $values;
 
     /**
-     * @var Utils\MixedStore<mixed, EnumValueDefinition>
+     * @var MixedStore<mixed, EnumValueDefinition>
      */
     private $valueLookup;
 
@@ -138,12 +139,12 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     }
 
     /**
-     * @return Utils\MixedStore<mixed, EnumValueDefinition>
+     * @return MixedStore<mixed, EnumValueDefinition>
      */
     private function getValueLookup()
     {
         if (null === $this->valueLookup) {
-            $this->valueLookup = new Utils\MixedStore();
+            $this->valueLookup = new MixedStore();
 
             foreach ($this->getValues() as $valueName => $value) {
                 $this->valueLookup->offsetSet($value->value, $value);

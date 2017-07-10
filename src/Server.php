@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Resolution;
 use GraphQL\Validator\DocumentValidator;
+use GraphQL\Utils\Utils;
 
 class Server
 {

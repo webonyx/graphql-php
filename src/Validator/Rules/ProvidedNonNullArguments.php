@@ -9,7 +9,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
 class ProvidedNonNullArguments

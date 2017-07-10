@@ -9,7 +9,8 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
-use GraphQL\Utils;
+use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\Utils;
 
 /**
  * EXPERIMENTAL!
@@ -38,7 +39,7 @@ class EagerResolution implements Resolution
     {
         $typeMap = [];
         foreach ($initialTypes as $type) {
-            $typeMap = Utils\TypeInfo::extractTypes($type, $typeMap);
+            $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
         $this->typeMap = $typeMap + Type::getInternalTypes();
 

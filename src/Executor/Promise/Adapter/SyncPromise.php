@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Executor\Promise\Adapter;
 
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class SyncPromise

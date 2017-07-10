@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language\AST;
 
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 abstract class Node
 {

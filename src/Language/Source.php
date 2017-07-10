@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language;
 
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class Source
 {

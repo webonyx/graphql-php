@@ -1,5 +1,9 @@
 # Upgrade
 
+## Upgrade v0.9.x > v0.10.x
+### Deprecated: GraphQL\Utils moved to GraphQL\Utils\Utils
+Old class still exists, but triggers deprecation warning.
+
 ## Upgrade v0.7.x > v0.8.x
 All of those changes apply to those who extends various parts of this library.
 If you only use the library and don't try to extend it - everything should work without breaks.

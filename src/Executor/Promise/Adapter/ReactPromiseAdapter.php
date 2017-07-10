@@ -3,7 +3,7 @@ namespace GraphQL\Executor\Promise\Adapter;
 
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use React\Promise\Promise as ReactPromise;
 use React\Promise\PromiseInterface as ReactPromiseInterface;
 

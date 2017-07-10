@@ -23,7 +23,9 @@ use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\AST;
+use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
 
 class Values
@@ -44,7 +46,7 @@ class Values
         $coercedValues = [];
         foreach ($definitionNodes as $definitionNode) {
             $varName = $definitionNode->variable->name->value;
-            $varType = Utils\TypeInfo::typeFromAST($schema, $definitionNode->type);
+            $varType = TypeInfo::typeFromAST($schema, $definitionNode->type);
 
             if (!Type::isInputType($varType)) {
                 throw new Error(
@@ -57,7 +59,7 @@ class Values
             if (!array_key_exists($varName, $inputs)) {
                 $defaultValue = $definitionNode->defaultValue;
                 if ($defaultValue) {
-                    $coercedValues[$varName] = Utils\AST::valueFromAST($defaultValue, $varType);
+                    $coercedValues[$varName] = AST::valueFromAST($defaultValue, $varType);
                 }
                 if ($varType instanceof NonNull) {
                     throw new Error(
@@ -148,7 +150,7 @@ class Values
                 }
             } else {
                 $valueNode = $argumentNode->value;
-                $coercedValue = Utils\AST::valueFromAST($valueNode, $argType, $variableValues);
+                $coercedValue = AST::valueFromAST($valueNode, $argType, $variableValues);
                 if ($coercedValue === $undefined) {
                     $errors = DocumentValidator::isValidLiteralValue($argType, $valueNode);
                     $message = !empty($errors) ? ("\n" . implode("\n", $errors)) : '';
@@ -191,7 +193,7 @@ class Values
     }
 
     /**
-     * @deprecated as of 8.0 (Moved to Utils\AST::valueFromAST)
+     * @deprecated as of 8.0 (Moved to \GraphQL\Utils\AST::valueFromAST)
      *
      * @param $valueNode
      * @param InputType $type
@@ -200,7 +202,7 @@ class Values
      */
     public static function valueFromAST($valueNode, InputType $type, $variables = null)
     {
-        return Utils\AST::valueFromAST($valueNode, $type, $variables);
+        return AST::valueFromAST($valueNode, $type, $variables);
     }
 
     /**

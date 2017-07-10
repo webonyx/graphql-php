@@ -15,7 +15,7 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
 class NoFragmentCycles

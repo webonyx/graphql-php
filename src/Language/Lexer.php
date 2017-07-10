@@ -2,7 +2,7 @@
 namespace GraphQL\Language;
 
 use GraphQL\Error\SyntaxError;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * A Lexer is a stateful stream generator in that every time

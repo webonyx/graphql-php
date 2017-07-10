@@ -4,7 +4,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\UserError;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class FloatType

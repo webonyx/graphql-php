@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests;
 
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class UtilsTest extends \PHPUnit_Framework_TestCase
 {

@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class UnionType

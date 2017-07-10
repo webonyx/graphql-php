@@ -44,7 +44,7 @@ namespace MyApp;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class EmailType extends ScalarType
 {

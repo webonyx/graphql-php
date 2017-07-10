@@ -3,7 +3,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class Config

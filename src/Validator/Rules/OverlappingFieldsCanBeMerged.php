@@ -18,7 +18,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Utils\PairSet;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;

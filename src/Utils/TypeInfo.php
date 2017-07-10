@@ -24,7 +24,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class TypeInfo

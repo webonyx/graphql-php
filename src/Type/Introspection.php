@@ -20,7 +20,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Utils\AST;
 
 class TypeKind {

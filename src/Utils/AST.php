@@ -22,7 +22,7 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class AST

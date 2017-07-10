@@ -4,7 +4,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
 class KnownArgumentNames

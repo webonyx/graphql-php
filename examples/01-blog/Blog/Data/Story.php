@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Examples\Blog\Data;
 
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 class Story
 {

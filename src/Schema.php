@@ -10,6 +10,8 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
+use GraphQL\Utils\TypeInfo;
+use GraphQL\Utils\Utils;
 
 /**
  * Schema Definition
@@ -235,7 +237,7 @@ class Schema
         }
         $typeMap = [];
         foreach ($initialTypes as $type) {
-            $typeMap = Utils\TypeInfo::extractTypes($type, $typeMap);
+            $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
         return $typeMap + Type::getInternalTypes();
     }

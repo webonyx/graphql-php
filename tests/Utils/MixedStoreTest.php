@@ -2,7 +2,7 @@
 namespace GraphQL\Tests\Utils;
 
 
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Utils\MixedStore;
 
 class MixedStoreTest extends \PHPUnit_Framework_TestCase

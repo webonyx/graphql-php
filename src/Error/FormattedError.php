@@ -4,7 +4,7 @@ namespace GraphQL\Error;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class FormattedError
@@ -68,7 +68,7 @@ class FormattedError
         // Remove invariant entries as they don't provide much value:
         if (
             isset($trace[0]['function']) && isset($trace[0]['class']) &&
-            ('GraphQL\Utils::invariant' === $trace[0]['class'].'::'.$trace[0]['function'])) {
+            ('GraphQL\Utils\Utils::invariant' === $trace[0]['class'].'::'.$trace[0]['function'])) {
             array_shift($trace);
         }
 

@@ -3,7 +3,7 @@ namespace GraphQL\Error;
 
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class Error

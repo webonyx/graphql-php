@@ -5,7 +5,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * EXPERIMENTAL!

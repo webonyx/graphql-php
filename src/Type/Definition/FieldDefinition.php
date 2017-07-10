@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class FieldDefinition

@@ -31,7 +31,6 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
-use GraphQL\Utils;
 
 /**
  * Class BuildSchema
@@ -394,7 +393,7 @@ class BuildSchema
                     'description' => $this->getDescription($value)
                 ];
                 if (isset($value->defaultValue)) {
-                    $config['defaultValue'] = Utils\AST::valueFromAST($value->defaultValue, $type);
+                    $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
                 }
                 return $config;
             }

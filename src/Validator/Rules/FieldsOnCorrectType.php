@@ -6,7 +6,7 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\AbstractType;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
 class FieldsOnCorrectType

@@ -4,7 +4,7 @@ namespace GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class Config
