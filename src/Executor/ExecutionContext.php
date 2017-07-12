@@ -54,7 +54,17 @@ class ExecutionContext
      */
     public $errors;
 
-    public function __construct($schema, $fragments, $root, $contextValue, $operation, $variables, $errors, $fieldResolver)
+    public function __construct(
+        $schema,
+        $fragments,
+        $root,
+        $contextValue,
+        $operation,
+        $variables,
+        $errors,
+        $fieldResolver,
+        $promiseAdapter
+    )
     {
         $this->schema = $schema;
         $this->fragments = $fragments;
@@ -64,6 +74,7 @@ class ExecutionContext
         $this->variableValues = $variables;
         $this->errors = $errors ?: [];
         $this->fieldResolver = $fieldResolver;
+        $this->promises = $promiseAdapter;
     }
 
     public function addError(Error $error)

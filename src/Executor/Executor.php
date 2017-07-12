@@ -88,6 +88,8 @@ class Executor
     }
 
     /**
+     * Executes DocumentNode against given schema
+     *
      * @param Schema $schema
      * @param DocumentNode $ast
      * @param $rootValue
@@ -95,6 +97,8 @@ class Executor
      * @param array|\ArrayAccess $variableValues
      * @param null $operationName
      * @param callable $fieldResolver
+     * @param PromiseAdapter $promiseAdapter
+     *
      * @return ExecutionResult|Promise
      */
     public static function execute(
@@ -104,7 +108,8 @@ class Executor
         $contextValue = null,
         $variableValues = null,
         $operationName = null,
-        $fieldResolver = null
+        callable $fieldResolver = null,
+        PromiseAdapter $promiseAdapter = null
     )
     {
         if (null !== $variableValues) {
@@ -120,7 +125,7 @@ class Executor
             );
         }
 
-        $promiseAdapter = self::getPromiseAdapter();
+        $promiseAdapter = $promiseAdapter ?: self::getPromiseAdapter();
 
         try {
             $exeContext = self::buildExecutionContext(
@@ -130,7 +135,8 @@ class Executor
                 $contextValue,
                 $variableValues,
                 $operationName,
-                $fieldResolver
+                $fieldResolver,
+                $promiseAdapter
             );
         } catch (Error $e) {
             if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -151,7 +157,7 @@ class Executor
     }
 
     /**
-     * Constructs a ExecutionContext object from the arguments passed to
+     * Constructs an ExecutionContext object from the arguments passed to
      * execute, which we will pass throughout the other execution methods.
      *
      * @param Schema $schema
@@ -161,6 +167,7 @@ class Executor
      * @param $rawVariableValues
      * @param string $operationName
      * @param callable $fieldResolver
+     * @param PromiseAdapter $promiseAdapter
      *
      * @return ExecutionContext
      * @throws Error
@@ -172,7 +179,8 @@ class Executor
         $contextValue,
         $rawVariableValues,
         $operationName = null,
-        $fieldResolver = null
+        callable $fieldResolver = null,
+        PromiseAdapter $promiseAdapter = null
     )
     {
         $errors = [];
@@ -225,7 +233,8 @@ class Executor
             $operation,
             $variableValues,
             $errors,
-            $fieldResolver ?: self::$defaultFieldResolver
+            $fieldResolver ?: self::$defaultFieldResolver,
+            $promiseAdapter ?: self::getPromiseAdapter()
         );
         return $exeContext;
     }
@@ -244,16 +253,14 @@ class Executor
      * Executor constructor.
      *
      * @param ExecutionContext $context
-     * @param PromiseAdapter $promiseAdapter
      */
-    private function __construct(ExecutionContext $context, PromiseAdapter $promiseAdapter)
+    private function __construct(ExecutionContext $context)
     {
         if (!self::$UNDEFINED) {
             self::$UNDEFINED = Utils::undefined();
         }
 
         $this->exeContext = $context;
-        $this->promises = $promiseAdapter;
     }
 
     /**
@@ -268,7 +275,7 @@ class Executor
         // field and its descendants will be omitted, and sibling fields will still
         // be executed. An execution which encounters errors will still result in a
         // resolved Promise.
-        $result = $this->promises->create(function (callable $resolve) {
+        $result = $this->exeContext->promises->create(function (callable $resolve) {
             return $resolve($this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue));
         });
         return $result
@@ -375,7 +382,7 @@ class Executor
      */
     private function executeFieldsSerially(ObjectType $parentType, $sourceValue, $path, $fields)
     {
-        $prevPromise = $this->promises->createFulfilled([]);
+        $prevPromise = $this->exeContext->promises->createFulfilled([]);
 
         $process = function ($results, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
             $fieldPath = $path;
@@ -461,7 +468,7 @@ class Executor
         $keys = array_keys($assoc);
         $valuesAndPromises = array_values($assoc);
 
-        $promise = $this->promises->all($valuesAndPromises);
+        $promise = $this->exeContext->promises->all($valuesAndPromises);
 
         return $promise->then(function($values) use ($keys) {
             $resolvedResults = [];
@@ -788,7 +795,7 @@ class Executor
             if ($promise) {
                 return $promise->then(null, function ($error) use ($exeContext) {
                     $exeContext->addError($error);
-                    return $this->promises->createFulfilled(null);
+                    return $this->exeContext->promises->createFulfilled(null);
                 });
             }
             return $completed;
@@ -832,7 +839,7 @@ class Executor
             $promise = $this->getPromise($completed);
             if ($promise) {
                 return $promise->then(null, function ($error) use ($fieldNodes, $path) {
-                    return $this->promises->createRejected(Error::createLocatedError($error, $fieldNodes, $path));
+                    return $this->exeContext->promises->createRejected(Error::createLocatedError($error, $fieldNodes, $path));
                 });
             }
             return $completed;
@@ -1142,7 +1149,7 @@ class Executor
             }
             $completedItems[] = $completedItem;
         }
-        return $containsPromise ? $this->promises->all($completedItems) : $completedItems;
+        return $containsPromise ? $this->exeContext->promises->all($completedItems) : $completedItems;
     }
 
     /**
@@ -1299,7 +1306,7 @@ class Executor
         }
 
         if (!empty($promisedIsTypeOfResults)) {
-            return $this->promises->all($promisedIsTypeOfResults)
+            return $this->exeContext->promises->all($promisedIsTypeOfResults)
                 ->then(function($isTypeOfResults) use ($possibleTypes) {
                     foreach ($isTypeOfResults as $index => $result) {
                         if ($result) {
@@ -1325,12 +1332,12 @@ class Executor
         if (null === $value || $value instanceof Promise) {
             return $value;
         }
-        if ($this->promises->isThenable($value)) {
-            $promise = $this->promises->convertThenable($value);
+        if ($this->exeContext->promises->isThenable($value)) {
+            $promise = $this->exeContext->promises->convertThenable($value);
             if (!$promise instanceof Promise) {
                 throw new InvariantViolation(sprintf(
                     '%s::convertThenable is expected to return instance of GraphQL\Executor\Promise\Promise, got: %s',
-                    get_class($this->promises),
+                    get_class($this->exeContext->promises),
                     Utils::printSafe($promise)
                 ));
             }

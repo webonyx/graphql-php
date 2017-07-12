@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL;
 
-use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Type\Descriptor;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
@@ -50,11 +49,6 @@ class Config
      * @var callable
      */
     public $typeLoader;
-
-    /**
-     * @var PromiseAdapter
-     */
-    public $promiseAdapter;
 
     /**
      * @param array $options
@@ -125,15 +119,6 @@ class Config
                     Utils::getVariableType($options['descriptor'])
                 );
                 $config->setDescriptor($options['descriptor']);
-            }
-
-            if (isset($options['promiseAdapter'])) {
-                Utils::invariant(
-                    $options['promiseAdapter'] instanceof PromiseAdapter,
-                    'Promise adapter must be an instance of GraphQL\Executor\Promise\PromiseAdapter but got: %s',
-                    Utils::getVariableType($options['promiseAdapter'])
-                );
-                $config->setPromiseAdapter($options['promiseAdapter']);
             }
         }
 
@@ -281,24 +266,6 @@ class Config
     public function setTypeLoader(callable $typeLoader)
     {
         $this->typeLoader = $typeLoader;
-        return $this;
-    }
-
-    /**
-     * @return PromiseAdapter
-     */
-    public function getPromiseAdapter()
-    {
-        return $this->promiseAdapter;
-    }
-
-    /**
-     * @param PromiseAdapter $promiseAdapter
-     * @return Config
-     */
-    public function setPromiseAdapter($promiseAdapter)
-    {
-        $this->promiseAdapter = $promiseAdapter;
         return $this;
     }
 }

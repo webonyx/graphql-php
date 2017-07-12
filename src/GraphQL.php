@@ -50,6 +50,8 @@ class GraphQL
      * @param array|null $variableValues
      * @param string|null $operationName
      * @param callable $fieldResolver
+     * @param PromiseAdapter $promiseAdapter
+     *
      * @return Promise|array
      */
     public static function execute(
@@ -59,7 +61,8 @@ class GraphQL
         $contextValue = null,
         $variableValues = null,
         $operationName = null,
-        callable $fieldResolver = null
+        callable $fieldResolver = null,
+        PromiseAdapter $promiseAdapter = null
     )
     {
         $result = self::executeAndReturnResult(
@@ -69,7 +72,8 @@ class GraphQL
             $contextValue,
             $variableValues,
             $operationName,
-            $fieldResolver
+            $fieldResolver,
+            $promiseAdapter
         );
 
         if ($result instanceof ExecutionResult) {
@@ -94,6 +98,8 @@ class GraphQL
      * @param array|null $variableValues
      * @param string|null $operationName
      * @param callable $fieldResolver
+     * @param PromiseAdapter $promiseAdapter
+     *
      * @return ExecutionResult|Promise
      */
     public static function executeAndReturnResult(
@@ -103,7 +109,8 @@ class GraphQL
         $contextValue = null,
         $variableValues = null,
         $operationName = null,
-        callable $fieldResolver = null
+        callable $fieldResolver = null,
+        PromiseAdapter $promiseAdapter = null
     )
     {
         try {
@@ -129,7 +136,8 @@ class GraphQL
                     $contextValue,
                     $variableValues,
                     $operationName,
-                    $fieldResolver
+                    $fieldResolver,
+                    $promiseAdapter
                 );
             }
         } catch (Error $e) {
