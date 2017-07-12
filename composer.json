@@ -9,7 +9,7 @@
     "API"
   ],
   "require": {
-    "php": ">=5.4,<8.0-DEV",
+    "php": ">=5.5,<8.0-DEV",
     "ext-mbstring": "*"
   },
   "require-dev": {
