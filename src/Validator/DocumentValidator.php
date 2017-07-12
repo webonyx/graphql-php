@@ -118,8 +118,11 @@ class DocumentValidator
 
     public static function validate(Schema $schema, DocumentNode $ast, array $rules = null, TypeInfo $typeInfo = null)
     {
+        if (null === $rules) {
+            $rules = static::allRules();
+        }
         $typeInfo = $typeInfo ?: new TypeInfo($schema);
-        $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules ?: static::allRules());
+        $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules);
         return $errors;
     }
 

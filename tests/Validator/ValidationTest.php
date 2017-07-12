@@ -23,4 +23,16 @@ class ValidationTest extends TestCase
           }
         ');
     }
+
+    public function testPassesValidationWithEmptyRules()
+    {
+        $query = '{invalid}';
+
+        $expectedError = [
+            'message' => 'Cannot query field "invalid" on type "QueryRoot".',
+            'locations' => [ ['line' => 1, 'column' => 2] ]
+        ];
+        $this->expectFailsCompleteValidation($query, [$expectedError]);
+        $this->expectValid($this->getDefaultSchema(), [], $query);
+    }
 }
