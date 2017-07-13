@@ -43,13 +43,19 @@ class GraphQL
      *    A resolver function to use when one is not provided by the schema.
      *    If not provided, the default field resolver is used (which looks for a
      *    value or method on the source value with the field's name).
+     * validationRules:
+     *    A set of rules for query validation step. Default value is all available rules.
+     *    Empty array would allow to skip query validation (may be convenient for persisted
+     *    queries which are validated before persisting and assumed valid during execution)
      *
      * @param Schema $schema
      * @param string|DocumentNode $source
      * @param mixed $rootValue
+     * @param array $contextValue
      * @param array|null $variableValues
      * @param string|null $operationName
      * @param callable $fieldResolver
+     * @param array $validationRules
      * @param PromiseAdapter $promiseAdapter
      *
      * @return Promise|array
@@ -62,6 +68,7 @@ class GraphQL
         $variableValues = null,
         $operationName = null,
         callable $fieldResolver = null,
+        array $validationRules = null,
         PromiseAdapter $promiseAdapter = null
     )
     {
@@ -73,6 +80,7 @@ class GraphQL
             $variableValues,
             $operationName,
             $fieldResolver,
+            $validationRules,
             $promiseAdapter
         );
 
@@ -98,6 +106,7 @@ class GraphQL
      * @param array|null $variableValues
      * @param string|null $operationName
      * @param callable $fieldResolver
+     * @param array $validationRules
      * @param PromiseAdapter $promiseAdapter
      *
      * @return ExecutionResult|Promise
@@ -110,6 +119,7 @@ class GraphQL
         $variableValues = null,
         $operationName = null,
         callable $fieldResolver = null,
+        array $validationRules = null,
         PromiseAdapter $promiseAdapter = null
     )
     {
@@ -124,7 +134,7 @@ class GraphQL
             $queryComplexity = DocumentValidator::getRule('QueryComplexity');
             $queryComplexity->setRawVariableValues($variableValues);
 
-            $validationErrors = DocumentValidator::validate($schema, $documentNode);
+            $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
 
             if (!empty($validationErrors)) {
                 return new ExecutionResult(null, $validationErrors);
