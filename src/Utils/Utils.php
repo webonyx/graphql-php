@@ -385,4 +385,28 @@ class Utils
             );
         }
     }
+
+    /**
+     * Wraps original closure with PHP error handling (using set_error_handler).
+     * Resulting closure will collect all PHP errors that occur during the call in $errors array.
+     *
+     * @param callable $fn
+     * @param \ErrorException[] $errors
+     * @return \Closure
+     */
+    public static function withErrorHandling(callable $fn, array &$errors)
+    {
+        return function() use ($fn, &$errors) {
+            // Catch custom errors (to report them in query results)
+            set_error_handler(function ($severity, $message, $file, $line) use (&$errors) {
+                $errors[] = new \ErrorException($message, 0, $severity, $file, $line);
+            });
+
+            try {
+                return $fn();
+            } finally {
+                restore_error_handler();
+            }
+        };
+    }
 }

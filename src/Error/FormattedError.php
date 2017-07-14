@@ -8,53 +8,49 @@ use GraphQL\Utils\Utils;
 
 /**
  * Class FormattedError
- * @todo move this class to Utils/ErrorUtils
+ * 
  * @package GraphQL\Error
  */
 class FormattedError
 {
     /**
-     * @deprecated as of 8.0
-     * @param $error
-     * @param SourceLocation[] $locations
+     * @param \Throwable $e
+     * @param $debug
+     *
      * @return array
      */
-    public static function create($error, array $locations = [])
+    public static function createFromException($e, $debug = false)
     {
-        $formatted = [
-            'message' => $error
-        ];
-
-        if (!empty($locations)) {
-            $formatted['locations'] = array_map(function($loc) { return $loc->toArray();}, $locations);
+        if ($e instanceof Error) {
+            $result = $e->toSerializableArray();
+        } else if ($e instanceof \ErrorException) {
+            $result = [
+                'message' => $e->getMessage(),
+            ];
+            if ($debug) {
+                $result += [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                    'severity' => $e->getSeverity()
+                ];
+            }
+        } else {
+            Utils::invariant(
+                $e instanceof \Exception || $e instanceof \Throwable,
+                "Expected exception, got %s",
+                Utils::getVariableType($e)
+            );
+            $result = [
+                'message' => $e->getMessage()
+            ];
         }
 
-        return $formatted;
-    }
+        if ($debug) {
+            $debugging = $e->getPrevious() ?: $e;
+            $result['trace'] = static::toSafeTrace($debugging->getTrace());
+        }
 
-    /**
-     * @param \ErrorException $e
-     * @return array
-     */
-    public static function createFromPHPError(\ErrorException $e)
-    {
-        return [
-            'message' => $e->getMessage(),
-            'severity' => $e->getSeverity(),
-            'trace' => self::toSafeTrace($e->getTrace())
-        ];
-    }
-
-    /**
-     * @param \Throwable $e
-     * @return array
-     */
-    public static function createFromException($e)
-    {
-        return [
-            'message' => $e->getMessage(),
-            'trace' => self::toSafeTrace($e->getTrace())
-        ];
+        return $result;
     }
 
     /**
@@ -132,5 +128,38 @@ class FormattedError
             return 'null';
         }
         return gettype($var);
+    }
+
+    /**
+     * @deprecated as of v0.8.0
+     * @param $error
+     * @param SourceLocation[] $locations
+     * @return array
+     */
+    public static function create($error, array $locations = [])
+    {
+        $formatted = [
+            'message' => $error
+        ];
+
+        if (!empty($locations)) {
+            $formatted['locations'] = array_map(function($loc) { return $loc->toArray();}, $locations);
+        }
+
+        return $formatted;
+    }
+
+    /**
+     * @param \ErrorException $e
+     * @deprecated as of v0.10.0, use general purpose method createFromException() instead
+     * @return array
+     */
+    public static function createFromPHPError(\ErrorException $e)
+    {
+        return [
+            'message' => $e->getMessage(),
+            'severity' => $e->getSeverity(),
+            'trace' => self::toSafeTrace($e->getTrace())
+        ];
     }
 }

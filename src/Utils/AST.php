@@ -3,6 +3,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FloatValueNode;
@@ -12,6 +13,7 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\ObjectValueNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableNode;
@@ -331,5 +333,24 @@ class AST
     {
         return $valueNode instanceof VariableNode &&
         (!$variables || !array_key_exists($valueNode->name->value, $variables));
+    }
+
+    /**
+     * @param string $operation
+     * @param DocumentNode $document
+     * @return bool
+     */
+    public static function isMutation($operation, DocumentNode $document)
+    {
+        if (is_array($document->definitions)) {
+            foreach ($document->definitions as $def) {
+                if ($def instanceof OperationDefinitionNode) {
+                    if ($def->operation === 'mutation' && $def->name->value === $operation) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

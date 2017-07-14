@@ -15,6 +15,11 @@ use GraphQL\Type\Resolution;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Utils\Utils;
 
+trigger_error(
+    'GraphQL\Server is deprecated in favor of new implementation: GraphQL\Server\StandardServer and will be removed in next version',
+    E_USER_DEPRECATED
+);
+
 class Server
 {
     const DEBUG_PHP_ERRORS = 1;
