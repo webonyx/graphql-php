@@ -253,6 +253,23 @@ class Utils
         if (is_object($var)) {
             return 'instance of ' . get_class($var);
         }
+        if (is_array($var)) {
+            $count = count($var);
+            if (!isset($var[0]) && $count > 0) {
+                $keys = [];
+                $keyCount = 0;
+                foreach ($var as $key => $value) {
+                    $keys[] = $key;
+                    if ($keyCount++ > 4) {
+                        break;
+                    }
+                }
+                $msg = "associative array($count) with first keys: " . implode(', ', $keys);
+            } else {
+                $msg = "array($count)";
+            }
+            return $msg;
+        }
         if ('' === $var) {
             return '(empty string)';
         }
