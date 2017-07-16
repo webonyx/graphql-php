@@ -28,7 +28,7 @@ class Helper
      *
      * @return ExecutionResult|Promise
      */
-    public static function executeOperation(ServerConfig $config, OperationParams $op)
+    public function executeOperation(ServerConfig $config, OperationParams $op)
     {
         $phpErrors = [];
         $execute = function() use ($config, $op) {
@@ -83,8 +83,12 @@ class Helper
      * @param OperationParams $op
      * @return string|DocumentNode
      */
-    private static function loadPersistedQuery(ServerConfig $config, OperationParams $op)
+    public function loadPersistedQuery(ServerConfig $config, OperationParams $op)
     {
+        if (!$op->queryId) {
+            throw new InvariantViolation("Could not load persisted query: queryId is not set");
+        }
+
         // Load query if we got persisted query id:
         $loader = $config->getPersistentQueryLoader();
 
@@ -110,7 +114,7 @@ class Helper
      * @param OperationParams $params
      * @return array
      */
-    private static function resolveValidationRules(ServerConfig $config, OperationParams $params)
+    public function resolveValidationRules(ServerConfig $config, OperationParams $params)
     {
         // Allow customizing validation rules per operation:
         $validationRules = $config->getValidationRules();
@@ -129,16 +133,85 @@ class Helper
         return $validationRules;
     }
 
+
     /**
      * Parses HTTP request and returns GraphQL QueryParams contained in this request.
      * For batched requests it returns an array of QueryParams.
      *
      * @return OperationParams|OperationParams[]
      */
-    public static function parseHttpRequest()
+    public function parseHttpRequest()
     {
-        $contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : null;
+        list ($parsedBody, $isReadonly) = $this->parseRawBody();
+        return $this->toOperationParams($parsedBody, $isReadonly);
+    }
 
+    /**
+     * Extracts parsed body and readonly flag from HTTP request
+     *
+     * If $readRawBodyFn argument is not provided - will attempt to read raw request body from php://input stream
+     *
+     * @param callable|null $readRawBodyFn
+     * @return array
+     */
+    public function parseRawBody(callable $readRawBodyFn = null)
+    {
+        $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null;
+
+        if ($method === 'GET') {
+            $isReadonly = true;
+            $request = array_change_key_case($_GET);
+
+            if (isset($request['query']) || isset($request['queryid']) || isset($request['documentid'])) {
+                $body = $_GET;
+            } else {
+                throw new UserError('Cannot execute GET request without "query" or "queryId" parameter');
+            }
+        } else if ($method === 'POST') {
+            $isReadonly = false;
+            $contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : null;
+
+            if (stripos($contentType, 'application/graphql') !== false) {
+                $rawBody =  $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
+                $body = ['query' => $rawBody ?: ''];
+            } else if (stripos($contentType, 'application/json') !== false) {
+                $rawBody = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
+                $body = json_decode($rawBody ?: '', true);
+
+                if (json_last_error()) {
+                    throw new UserError("Could not parse JSON: " . json_last_error_msg());
+                }
+                if (!is_array($body)) {
+                    throw new UserError(
+                        "GraphQL Server expects JSON object or array, but got " .
+                        Utils::printSafeJson($body)
+                    );
+                }
+            } else if (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
+                $body = $_POST;
+            } else if (null === $contentType) {
+                throw new UserError('Missing "Content-Type" header');
+            } else {
+                throw new UserError("Unexpected content type: " . Utils::printSafeJson($contentType));
+            }
+        } else {
+            throw new UserError('HTTP Method "' . $method . '" is not supported', 405);
+        }
+        return [
+            $body,
+            $isReadonly
+        ];
+    }
+
+    /**
+     * Converts parsed body to OperationParams (or list of OperationParams for batched request)
+     *
+     * @param $parsedBody
+     * @param $isReadonly
+     * @return OperationParams|OperationParams[]
+     */
+    public function toOperationParams($parsedBody, $isReadonly)
+    {
         $assertValid = function (OperationParams $opParams, $queryNum = null) {
             $errors = $opParams->validate();
             if (!empty($errors[0])) {
@@ -147,45 +220,69 @@ class Helper
             }
         };
 
-        if (stripos($contentType, 'application/graphql' !== false)) {
-            $body = file_get_contents('php://input') ?: '';
-            $op = OperationParams::create(['query' => $body]);
-            $assertValid($op);
-        } else if (stripos($contentType, 'application/json') !== false || stripos($contentType, 'text/json') !== false) {
-            $body = file_get_contents('php://input') ?: '';
-            $data = json_decode($body, true);
-
-            if (json_last_error()) {
-                throw new UserError("Could not parse JSON: " . json_last_error_msg());
+        if (isset($parsedBody[0])) {
+            // Batched query
+            $result = [];
+            foreach ($parsedBody as $index => $entry) {
+                $op = OperationParams::create($entry, $isReadonly);
+                $assertValid($op, $index);
+                $result[] = $op;
             }
-            if (!is_array($data)) {
-                throw new UserError(
-                    "GraphQL Server expects JSON object or array, but got %s" .
-                    Utils::printSafe($data)
-                );
-            }
-            if (isset($data[0])) {
-                $op = [];
-                foreach ($data as $index => $entry) {
-                    $params = OperationParams::create($entry);
-                    $assertValid($params, $index);
-                    $op[] = $params;
-                }
-            } else {
-                $op = OperationParams::create($data);
-                $assertValid($op);
-            }
-        } else if (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
-            if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-                $op = OperationParams::create($_GET, false);
-            } else {
-                $op = OperationParams::create($_POST);
-            }
-            $assertValid($op);
         } else {
-            throw new UserError("Bad request: unexpected content type: " . Utils::printSafe($contentType));
+            $result = OperationParams::create($parsedBody, $isReadonly);
+            $assertValid($result);
+        }
+        return $result;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function readRawBody()
+    {
+        return file_get_contents('php://input');
+    }
+
+    /**
+     * Assertion to check that parsed body is valid instance of OperationParams (or array of instances)
+     *
+     * @param $method
+     * @param $parsedBody
+     */
+    public function assertBodyIsParsedProperly($method, $parsedBody)
+    {
+        if (is_array($parsedBody)) {
+            foreach ($parsedBody as $index => $entry) {
+                if (!$entry instanceof OperationParams) {
+                    throw new InvariantViolation(sprintf(
+                        '%s expects instance of %s or array of instances. Got invalid array where entry at position %d is %s',
+                        $method,
+                        OperationParams::class,
+                        $index,
+                        Utils::printSafe($entry)
+                    ));
+                }
+                $errors = $entry->validate();
+
+                if (!empty($errors[0])) {
+                    $err = $index ? "Error in query #$index: {$errors[0]}" : $errors[0];
+                    throw new InvariantViolation($err);
+                }
+            }
         }
 
-        return $op;
+        if ($parsedBody instanceof OperationParams) {
+            $errors = $parsedBody->validate();
+            if (!empty($errors[0])) {
+                throw new InvariantViolation($errors[0]);
+            }
+        }
+
+        throw new InvariantViolation(sprintf(
+            '%s expects instance of %s or array of instances, but got %s',
+            $method,
+            OperationParams::class,
+            Utils::printSafe($parsedBody)
+        ));
     }
 }

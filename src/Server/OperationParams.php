@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Server;
-use GraphQL\Utils;
+
+use GraphQL\Utils\Utils;
 
 /**
  * Class QueryParams
@@ -82,25 +83,25 @@ class OperationParams
             $errors[] = 'GraphQL Request must include at least one of those two parameters: "query" or "queryId"';
         }
         if ($this->query && $this->queryId) {
-            $errors[] = 'GraphQL Request parameters: "query" and "queryId" are mutually exclusive';
+            $errors[] = 'GraphQL Request parameters "query" and "queryId" are mutually exclusive';
         }
 
         if ($this->query !== null && (!is_string($this->query) || empty($this->query))) {
-            $errors[] = 'GraphQL Request parameter "query" must be string, but got: ' .
-                Utils::printSafe($this->query);
+            $errors[] = 'GraphQL Request parameter "query" must be string, but got ' .
+                Utils::printSafeJson($this->query);
         }
-        if ($this->queryId !== null && (!is_string($this->query) || empty($this->query))) {
-            $errors[] = 'GraphQL Request parameter "queryId" must be string, but got: ' .
-                Utils::printSafe($this->query);
+        if ($this->queryId !== null && (!is_string($this->queryId) || empty($this->queryId))) {
+            $errors[] = 'GraphQL Request parameter "queryId" must be string, but got ' .
+                Utils::printSafeJson($this->queryId);
         }
 
         if ($this->operation !== null && (!is_string($this->operation) || empty($this->operation))) {
-            $errors[] = 'GraphQL Request parameter "operation" must be string, but got: ' .
-                Utils::printSafe($this->operation);
+            $errors[] = 'GraphQL Request parameter "operation" must be string, but got ' .
+                Utils::printSafeJson($this->operation);
         }
         if ($this->variables !== null && (!is_array($this->variables) || isset($this->variables[0]))) {
-            $errors[] = 'GraphQL Request parameter "variables" must be associative array, but got: ' .
-                Utils::printSafe($this->variables);
+            $errors[] = 'GraphQL Request parameter "variables" must be object, but got ' .
+                Utils::printSafeJson($this->variables);
         }
         return $errors;
     }

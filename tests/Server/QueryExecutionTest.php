@@ -356,7 +356,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
     private function executePersistedQuery($queryId, $variables = null)
     {
         $op = OperationParams::create(['queryId' => $queryId, 'variables' => $variables]);
-        $result = Helper::executeOperation($this->config, $op);
+        $helper = new Helper();
+        $result = $helper->executeOperation($this->config, $op);
         $this->assertInstanceOf(ExecutionResult::class, $result);
         return $result;
     }
@@ -364,8 +365,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
     private function executeQuery($query, $variables = null)
     {
         $op = OperationParams::create(['query' => $query, 'variables' => $variables]);
-
-        $result = Helper::executeOperation($this->config, $op);
+        $helper = new Helper();
+        $result = $helper->executeOperation($this->config, $op);
         $this->assertInstanceOf(ExecutionResult::class, $result);
         return $result;
     }

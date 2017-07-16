@@ -242,6 +242,48 @@ class Utils
     }
 
     /**
+     * @param mixed $var
+     * @return string
+     */
+    public static function printSafeJson($var)
+    {
+        if ($var instanceof \stdClass) {
+            $var = (array) $var;
+        }
+        if (is_array($var)) {
+            $count = count($var);
+            if (!isset($var[0]) && $count > 0) {
+                $keys = [];
+                $keyCount = 0;
+                foreach ($var as $key => $value) {
+                    $keys[] = '"' . $key . '"';
+                    if ($keyCount++ > 4) {
+                        break;
+                    }
+                }
+                $keysLabel = $keyCount === 1 ? 'key' : 'keys';
+                $msg = "object with first $keysLabel: " . implode(', ', $keys);
+            } else {
+                $msg = "array($count)";
+            }
+            return $msg;
+        }
+        if ('' === $var) {
+            return '(empty string)';
+        }
+        if (is_string($var)) {
+            return "\"$var\"";
+        }
+        if (is_scalar($var)) {
+            return (string) $var;
+        }
+        if (null === $var) {
+            return 'null';
+        }
+        return gettype($var);
+    }
+
+    /**
      * @param $var
      * @return string
      */
@@ -259,12 +301,13 @@ class Utils
                 $keys = [];
                 $keyCount = 0;
                 foreach ($var as $key => $value) {
-                    $keys[] = $key;
+                    $keys[] = '"' . $key . '"';
                     if ($keyCount++ > 4) {
                         break;
                     }
                 }
-                $msg = "associative array($count) with first keys: " . implode(', ', $keys);
+                $keysLabel = $keyCount === 1 ? 'key' : 'keys';
+                $msg = "associative array($count) with first $keysLabel: " . implode(', ', $keys);
             } else {
                 $msg = "array($count)";
             }
