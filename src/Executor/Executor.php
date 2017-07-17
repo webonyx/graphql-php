@@ -112,21 +112,49 @@ class Executor
         PromiseAdapter $promiseAdapter = null
     )
     {
-        if (null !== $variableValues) {
-            Utils::invariant(
-                is_array($variableValues) || $variableValues instanceof \ArrayAccess,
-                "Variable values are expected to be array or instance of ArrayAccess, got " . Utils::getVariableType($variableValues)
-            );
-        }
-        if (null !== $operationName) {
-            Utils::invariant(
-                is_string($operationName),
-                "Operation name is supposed to be string, got " . Utils::getVariableType($operationName)
-            );
-        }
-
         $promiseAdapter = $promiseAdapter ?: self::getPromiseAdapter();
 
+        $result = self::promiseToExecute(
+            $promiseAdapter,
+            $schema,
+            $ast,
+            $rootValue,
+            $contextValue,
+            $variableValues,
+            $operationName,
+            $fieldResolver
+        );
+
+        // Wait for promised results when using sync promises
+        if ($promiseAdapter instanceof SyncPromiseAdapter) {
+            $result = $promiseAdapter->wait($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param PromiseAdapter $promiseAdapter
+     * @param Schema $schema
+     * @param DocumentNode $ast
+     * @param null $rootValue
+     * @param null $contextValue
+     * @param null $variableValues
+     * @param null $operationName
+     * @param callable|null $fieldResolver
+     * @return Promise
+     */
+    public static function promiseToExecute(
+        PromiseAdapter $promiseAdapter,
+        Schema $schema,
+        DocumentNode $ast,
+        $rootValue = null,
+        $contextValue = null,
+        $variableValues = null,
+        $operationName = null,
+        callable $fieldResolver = null
+    )
+    {
         try {
             $exeContext = self::buildExecutionContext(
                 $schema,
@@ -139,21 +167,11 @@ class Executor
                 $promiseAdapter
             );
         } catch (Error $e) {
-            if ($promiseAdapter instanceof SyncPromiseAdapter) {
-                return new ExecutionResult(null, [$e]);
-            } else {
-                return $promiseAdapter->createFulfilled(new ExecutionResult(null, [$e]));
-            }
+            return $promiseAdapter->createFulfilled(new ExecutionResult(null, [$e]));
         }
 
-        $executor = new self($exeContext, $promiseAdapter);
-        $result = $executor->executeQuery();
-
-        if ($result instanceof Promise && $promiseAdapter instanceof SyncPromiseAdapter) {
-            $result = $promiseAdapter->wait($result);
-        }
-
-        return $result;
+        $executor = new self($exeContext);
+        return $executor->executeQuery();
     }
 
     /**
@@ -183,6 +201,19 @@ class Executor
         PromiseAdapter $promiseAdapter = null
     )
     {
+        if (null !== $rawVariableValues) {
+            Utils::invariant(
+                is_array($rawVariableValues) || $rawVariableValues instanceof \ArrayAccess,
+                "Variable values are expected to be array or instance of ArrayAccess, got " . Utils::getVariableType($rawVariableValues)
+            );
+        }
+        if (null !== $operationName) {
+            Utils::invariant(
+                is_string($operationName),
+                "Operation name is supposed to be string, got " . Utils::getVariableType($operationName)
+            );
+        }
+
         $errors = [];
         $fragments = [];
         $operation = null;
