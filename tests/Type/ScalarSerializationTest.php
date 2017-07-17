@@ -119,6 +119,21 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('-1.1', $stringType->serialize(-1.1));
         $this->assertSame('true', $stringType->serialize(true));
         $this->assertSame('false', $stringType->serialize(false));
+        $this->assertSame('null', $stringType->serialize(null));
+
+        try {
+            $stringType->serialize([]);
+            $this->fail('Expected exception was not thrown');
+        } catch (UserError $e) {
+            $this->assertEquals('String cannot represent non scalar value: array', $e->getMessage());
+        }
+
+        try {
+            $stringType->serialize(new \stdClass());
+            $this->fail('Expected exception was not thrown');
+        } catch (UserError $e) {
+            $this->assertEquals('String cannot represent non scalar value: instance of stdClass', $e->getMessage());
+        }
     }
 
     /**
