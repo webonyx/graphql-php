@@ -1,8 +1,6 @@
 <?php
 namespace GraphQL\Server;
 
-use GraphQL\Error\InvariantViolation;
-use GraphQL\Utils\Utils;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 
@@ -58,13 +56,10 @@ class StandardServer
         }
         $this->helper->assertValidRequest($parsedBody);
 
-        $batched = is_array($parsedBody);
-
-        $result = [];
-        foreach ((array) $parsedBody as $index => $operationParams) {
-            $result[] = $this->helper->executeOperation($this->config, $operationParams);
+        if (is_array($parsedBody)) {
+            return $this->helper->executeBatch($this->config, $parsedBody);
+        } else {
+            return $this->helper->executeOperation($this->config, $parsedBody);
         }
-
-        return $batched ? $result : $result[0];
     }
 }
