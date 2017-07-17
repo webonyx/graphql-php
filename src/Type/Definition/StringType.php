@@ -1,7 +1,9 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\UserError;
 use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Utils;
 
 /**
  * Class StringType
@@ -42,6 +44,12 @@ represent free-form human-readable text.';
         }
         if ($value === false) {
             return 'false';
+        }
+        if ($value === null) {
+            return 'null';
+        }
+        if (!is_scalar($value)) {
+            throw new UserError("String cannot represent non scalar value: " . Utils::printSafe($value));
         }
         return (string) $value;
     }
