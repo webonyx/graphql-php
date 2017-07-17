@@ -39,17 +39,17 @@ class OperationParams
     /**
      * @var bool
      */
-    private $allowsMutations;
+    private $readOnly;
 
     /**
      * Creates an instance from given array
      *
      * @param array $params
-     * @param bool $allowsMutations
+     * @param bool $readonly
      *
      * @return static
      */
-    public static function create(array $params, $allowsMutations = true)
+    public static function create(array $params, $readonly = false)
     {
         $instance = new static();
         $instance->originalInput = $params;
@@ -68,7 +68,7 @@ class OperationParams
         $instance->queryId = $params['queryid'] ?: $params['documentid'];
         $instance->operation = $params['operation'];
         $instance->variables = $params['variables'];
-        $instance->allowsMutations = (bool) $allowsMutations;
+        $instance->readOnly = (bool) $readonly;
 
         return $instance;
     }
@@ -76,36 +76,6 @@ class OperationParams
     /**
      * @return array
      */
-    public function validate()
-    {
-        $errors = [];
-        if (!$this->query && !$this->queryId) {
-            $errors[] = 'GraphQL Request must include at least one of those two parameters: "query" or "queryId"';
-        }
-        if ($this->query && $this->queryId) {
-            $errors[] = 'GraphQL Request parameters "query" and "queryId" are mutually exclusive';
-        }
-
-        if ($this->query !== null && (!is_string($this->query) || empty($this->query))) {
-            $errors[] = 'GraphQL Request parameter "query" must be string, but got ' .
-                Utils::printSafeJson($this->query);
-        }
-        if ($this->queryId !== null && (!is_string($this->queryId) || empty($this->queryId))) {
-            $errors[] = 'GraphQL Request parameter "queryId" must be string, but got ' .
-                Utils::printSafeJson($this->queryId);
-        }
-
-        if ($this->operation !== null && (!is_string($this->operation) || empty($this->operation))) {
-            $errors[] = 'GraphQL Request parameter "operation" must be string, but got ' .
-                Utils::printSafeJson($this->operation);
-        }
-        if ($this->variables !== null && (!is_array($this->variables) || isset($this->variables[0]))) {
-            $errors[] = 'GraphQL Request parameter "variables" must be object, but got ' .
-                Utils::printSafeJson($this->variables);
-        }
-        return $errors;
-    }
-
     public function getOriginalInput()
     {
         return $this->originalInput;
@@ -114,8 +84,8 @@ class OperationParams
     /**
      * @return bool
      */
-    public function allowsMutation()
+    public function isReadOnly()
     {
-        return $this->allowsMutations;
+        return $this->readOnly;
     }
 }

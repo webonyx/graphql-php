@@ -54,10 +54,9 @@ class StandardServer
     public function executeRequest($parsedBody = null)
     {
         if (null !== $parsedBody) {
-            $this->helper->assertBodyIsParsedProperly(__METHOD__, $parsedBody);
-        } else {
             $parsedBody = $this->helper->parseHttpRequest();
         }
+        $this->helper->assertValidRequest($parsedBody);
 
         $batched = is_array($parsedBody);
 

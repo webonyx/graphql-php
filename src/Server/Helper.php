@@ -37,7 +37,7 @@ class Helper
             if (!$doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);
             }
-            if (!$op->allowsMutation() && AST::isMutation($op->operation, $doc)) {
+            if ($op->isReadOnly() && AST::isMutation($op->operation, $doc)) {
                 throw new UserError("Cannot execute mutation in read-only context");
             }
 
@@ -133,47 +133,35 @@ class Helper
         return $validationRules;
     }
 
-
     /**
      * Parses HTTP request and returns GraphQL QueryParams contained in this request.
      * For batched requests it returns an array of QueryParams.
      *
-     * @return OperationParams|OperationParams[]
-     */
-    public function parseHttpRequest()
-    {
-        list ($parsedBody, $isReadonly) = $this->parseRawBody();
-        return $this->toOperationParams($parsedBody, $isReadonly);
-    }
-
-    /**
-     * Extracts parsed body and readonly flag from HTTP request
+     * This function doesn't check validity of these params.
      *
      * If $readRawBodyFn argument is not provided - will attempt to read raw request body from php://input stream
      *
      * @param callable|null $readRawBodyFn
-     * @return array
+     * @return OperationParams|OperationParams[]
      */
-    public function parseRawBody(callable $readRawBodyFn = null)
+    public function parseHttpRequest(callable $readRawBodyFn = null)
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null;
 
         if ($method === 'GET') {
-            $isReadonly = true;
             $request = array_change_key_case($_GET);
 
             if (isset($request['query']) || isset($request['queryid']) || isset($request['documentid'])) {
-                $body = $_GET;
+                $result = OperationParams::create($_GET, true);
             } else {
                 throw new UserError('Cannot execute GET request without "query" or "queryId" parameter');
             }
         } else if ($method === 'POST') {
-            $isReadonly = false;
             $contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : null;
 
             if (stripos($contentType, 'application/graphql') !== false) {
                 $rawBody =  $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
-                $body = ['query' => $rawBody ?: ''];
+                $result = OperationParams::create(['query' => $rawBody ?: '']);
             } else if (stripos($contentType, 'application/json') !== false) {
                 $rawBody = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
                 $body = json_decode($rawBody ?: '', true);
@@ -187,8 +175,17 @@ class Helper
                         Utils::printSafeJson($body)
                     );
                 }
+                if (isset($body[0])) {
+                    $result = [];
+                    foreach ($body as $index => $entry) {
+                        $op = OperationParams::create($entry, true);
+                        $result[] = $op;
+                    }
+                } else {
+                    $result = OperationParams::create($body);
+                }
             } else if (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
-                $body = $_POST;
+                $result = OperationParams::create($_POST);
             } else if (null === $contentType) {
                 throw new UserError('Missing "Content-Type" header');
             } else {
@@ -196,41 +193,6 @@ class Helper
             }
         } else {
             throw new UserError('HTTP Method "' . $method . '" is not supported', 405);
-        }
-        return [
-            $body,
-            $isReadonly
-        ];
-    }
-
-    /**
-     * Converts parsed body to OperationParams (or list of OperationParams for batched request)
-     *
-     * @param $parsedBody
-     * @param $isReadonly
-     * @return OperationParams|OperationParams[]
-     */
-    public function toOperationParams($parsedBody, $isReadonly)
-    {
-        $assertValid = function (OperationParams $opParams, $queryNum = null) {
-            $errors = $opParams->validate();
-            if (!empty($errors[0])) {
-                $err = $queryNum ? "Error in query #$queryNum: {$errors[0]}" : $errors[0];
-                throw new UserError($err);
-            }
-        };
-
-        if (isset($parsedBody[0])) {
-            // Batched query
-            $result = [];
-            foreach ($parsedBody as $index => $entry) {
-                $op = OperationParams::create($entry, $isReadonly);
-                $assertValid($op, $index);
-                $result[] = $op;
-            }
-        } else {
-            $result = OperationParams::create($parsedBody, $isReadonly);
-            $assertValid($result);
         }
         return $result;
     }
@@ -244,45 +206,80 @@ class Helper
     }
 
     /**
+     * Checks validity of operation params and returns array of errors (empty array when params are valid)
+     *
+     * @param OperationParams $params
+     * @return array
+     */
+    public function validateOperationParams(OperationParams $params)
+    {
+        $errors = [];
+        if (!$params->query && !$params->queryId) {
+            $errors[] = 'GraphQL Request must include at least one of those two parameters: "query" or "queryId"';
+        }
+        if ($params->query && $params->queryId) {
+            $errors[] = 'GraphQL Request parameters "query" and "queryId" are mutually exclusive';
+        }
+
+        if ($params->query !== null && (!is_string($params->query) || empty($params->query))) {
+            $errors[] = 'GraphQL Request parameter "query" must be string, but got ' .
+                Utils::printSafeJson($params->query);
+        }
+        if ($params->queryId !== null && (!is_string($params->queryId) || empty($params->queryId))) {
+            $errors[] = 'GraphQL Request parameter "queryId" must be string, but got ' .
+                Utils::printSafeJson($params->queryId);
+        }
+
+        if ($params->operation !== null && (!is_string($params->operation) || empty($params->operation))) {
+            $errors[] = 'GraphQL Request parameter "operation" must be string, but got ' .
+                Utils::printSafeJson($params->operation);
+        }
+        if ($params->variables !== null && (!is_array($params->variables) || isset($params->variables[0]))) {
+            $errors[] = 'GraphQL Request parameter "variables" must be object, but got ' .
+                Utils::printSafeJson($params->variables);
+        }
+        return $errors;
+    }
+
+    /**
      * Assertion to check that parsed body is valid instance of OperationParams (or array of instances)
      *
-     * @param $method
-     * @param $parsedBody
+     * @param OperationParams|OperationParams[] $parsedBody
+     * @throws InvariantViolation
+     * @throws UserError
      */
-    public function assertBodyIsParsedProperly($method, $parsedBody)
+    public function assertValidRequest($parsedBody)
     {
         if (is_array($parsedBody)) {
             foreach ($parsedBody as $index => $entry) {
                 if (!$entry instanceof OperationParams) {
                     throw new InvariantViolation(sprintf(
-                        '%s expects instance of %s or array of instances. Got invalid array where entry at position %d is %s',
-                        $method,
+                        'GraphQL Server: Parsed http request must be an instance of %s or array of such instances, '.
+                        'but got invalid array where entry at position %d is %s',
                         OperationParams::class,
                         $index,
                         Utils::printSafe($entry)
                     ));
                 }
-                $errors = $entry->validate();
+
+                $errors = $this->validateOperationParams($entry);
 
                 if (!empty($errors[0])) {
                     $err = $index ? "Error in query #$index: {$errors[0]}" : $errors[0];
-                    throw new InvariantViolation($err);
+                    throw new UserError($err);
                 }
             }
-        }
-
-        if ($parsedBody instanceof OperationParams) {
-            $errors = $parsedBody->validate();
+        } else if ($parsedBody instanceof OperationParams) {
+            $errors = $this->validateOperationParams($parsedBody);
             if (!empty($errors[0])) {
-                throw new InvariantViolation($errors[0]);
+                throw new UserError($errors[0]);
             }
+        } else {
+            throw new InvariantViolation(sprintf(
+                'GraphQL Server: Parsed http request must be an instance of %s or array of such instances, but got %s',
+                OperationParams::class,
+                Utils::printSafe($parsedBody)
+            ));
         }
-
-        throw new InvariantViolation(sprintf(
-            '%s expects instance of %s or array of instances, but got %s',
-            $method,
-            OperationParams::class,
-            Utils::printSafe($parsedBody)
-        ));
     }
 }

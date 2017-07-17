@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
@@ -10,16 +11,16 @@ use GraphQL\Server\OperationParams;
  */
 class RequestParsingTest extends \PHPUnit_Framework_TestCase
 {
-    public function testParsesSimpleGraphqlRequest()
+    public function testParsesGraphqlRequest()
     {
         $query = '{my query}';
-        list ($parsedBody, $isReadonly) = $this->parseRawRequest('application/graphql', $query);
+        $parsedBody = $this->parseRawRequest('application/graphql', $query);
 
-        $this->assertSame(['query' => $query], $parsedBody);
-        $this->assertFalse($isReadonly);
+        $this->assertValidOperationParams($parsedBody, $query);
+        $this->assertFalse($parsedBody->isReadOnly());
     }
 
-    public function testParsesSimpleUrlencodedRequest()
+    public function testParsesUrlencodedRequest()
     {
         $query = '{my query}';
         $variables = ['test' => 1, 'test2' => 2];
@@ -31,12 +32,12 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
             'operation' => $operation
         ];
 
-        list ($parsedBody, $isReadonly) = $this->parseFormUrlencodedRequest($post);
-        $this->assertSame($post, $parsedBody);
-        $this->assertFalse($isReadonly);
+        $parsedBody = $this->parseFormUrlencodedRequest($post);
+        $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation);
+        $this->assertFalse($parsedBody->isReadOnly());
     }
 
-    public function testParsesSimpleGETRequest()
+    public function testParsesGetRequest()
     {
         $query = '{my query}';
         $variables = ['test' => 1, 'test2' => 2];
@@ -48,12 +49,12 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
             'operation' => $operation
         ];
 
-        list ($parsedBody, $isReadonly) = $this->parseGetRequest($get);
-        $this->assertSame($get, $parsedBody);
-        $this->assertTrue($isReadonly);
+        $parsedBody = $this->parseGetRequest($get);
+        $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation);
+        $this->assertTrue($parsedBody->isReadonly());
     }
 
-    public function testParsesSimpleJSONRequest()
+    public function testParsesJSONRequest()
     {
         $query = '{my query}';
         $variables = ['test' => 1, 'test2' => 2];
@@ -64,10 +65,9 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
             'variables' => $variables,
             'operation' => $operation
         ];
-
-        list ($parsedBody, $isReadonly) = $this->parseRawRequest('application/json', json_encode($body));
-        $this->assertEquals($body, $parsedBody);
-        $this->assertFalse($isReadonly);
+        $parsedBody = $this->parseRawRequest('application/json', json_encode($body));
+        $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation);
+        $this->assertFalse($parsedBody->isReadOnly());
     }
 
     public function testParsesBatchJSONRequest()
@@ -85,9 +85,16 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
-        list ($parsedBody, $isReadonly) = $this->parseRawRequest('application/json', json_encode($body));
-        $this->assertEquals($body, $parsedBody);
-        $this->assertFalse($isReadonly);
+        $parsedBody = $this->parseRawRequest('application/json', json_encode($body));
+        $this->assertInternalType('array', $parsedBody);
+        $this->assertCount(2, $parsedBody);
+
+        $this->assertValidOperationParams($parsedBody[0], $body[0]['query'], null, $body[0]['variables'], $body[0]['operation']);
+        $this->assertValidOperationParams($parsedBody[1], null, $body[1]['queryId'], $body[1]['variables'], $body[1]['operation']);
+
+        // Batched queries must be read-only (do not allow batched mutations)
+        $this->assertTrue($parsedBody[0]->isReadOnly());
+        $this->assertTrue($parsedBody[1]->isReadOnly());
     }
 
     public function testFailsParsingInvalidJsonRequest()
@@ -130,162 +137,6 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $this->parseRawRequest(null, 'test', "PUT");
     }
 
-    public function testSimpleRequestShouldPass()
-    {
-        $query = '{my q}';
-        $variables = ['a' => 'b', 'c' => 'd'];
-        $operation = 'op';
-
-        $parsedBody = [
-            'query' => $query,
-            'variables' => $variables,
-            'operation' => $operation,
-        ];
-
-        $helper = new Helper();
-        $params = $helper->toOperationParams($parsedBody, false);
-        $this->assertValidOperationParams($params, $query, null, $variables, $operation);
-    }
-
-    public function testRequestWithQueryIdShouldPass()
-    {
-        $queryId = 'some-query-id';
-        $variables = ['a' => 'b', 'c' => 'd'];
-        $operation = 'op';
-
-        $parsedBody = [
-            'queryId' => $queryId,
-            'variables' => $variables,
-            'operation' => $operation,
-        ];
-
-        $helper = new Helper();
-        $params = $helper->toOperationParams($parsedBody, false);
-        $this->assertValidOperationParams($params, null, $queryId, $variables, $operation);
-    }
-
-    public function testProducesCorrectOperationParamsForBatchRequest()
-    {
-        $query = '{my q}';
-        $queryId = 'some-query-id';
-        $variables = ['a' => 'b', 'c' => 'd'];
-        $operation = 'op';
-
-        $parsedBody = [
-            [
-                'query' => $query,
-                'variables' => $variables,
-                'operation' => $operation,
-            ],
-            [
-                'queryId' => $queryId,
-                'variables' => [],
-                'operation' => null
-            ],
-        ];
-
-        $helper = new Helper();
-        $params = $helper->toOperationParams($parsedBody, false);
-
-        $this->assertTrue(is_array($params));
-        $this->assertValidOperationParams($params[0], $query, null, $variables, $operation);
-        $this->assertValidOperationParams($params[1], null, $queryId, [], null);
-    }
-
-    public function testRequiresQueryOrQueryId()
-    {
-        $parsedBody = [
-            'variables' => ['foo' => 'bar'],
-            'operation' => 'op',
-        ];
-
-        $helper = new Helper();
-
-        $this->setExpectedException(
-            UserError::class,
-            'GraphQL Request must include at least one of those two parameters: "query" or "queryId"'
-        );
-        $helper->toOperationParams($parsedBody, false);
-    }
-
-    public function testFailsWhenBothQueryAndQueryIdArePresent()
-    {
-        $parsedBody = [
-            'query' => '{my query}',
-            'queryId' => 'my-query-id',
-        ];
-
-        $helper = new Helper();
-
-        $this->setExpectedException(
-            UserError::class,
-            'GraphQL Request parameters "query" and "queryId" are mutually exclusive'
-        );
-        $helper->toOperationParams($parsedBody, false);
-    }
-
-    public function testFailsWhenQueryParameterIsNotString()
-    {
-        $parsedBody = [
-            'query' => ['t' => '{my query}']
-        ];
-
-        $helper = new Helper();
-
-        $this->setExpectedException(
-            UserError::class,
-            'GraphQL Request parameter "query" must be string, but got object with first key: "t"'
-        );
-        $helper->toOperationParams($parsedBody, false);
-    }
-
-    public function testFailsWhenQueryIdParameterIsNotString()
-    {
-        $parsedBody = [
-            'queryId' => ['t' => '{my query}']
-        ];
-
-        $helper = new Helper();
-
-        $this->setExpectedException(
-            UserError::class,
-            'GraphQL Request parameter "queryId" must be string, but got object with first key: "t"'
-        );
-        $helper->toOperationParams($parsedBody, false);
-    }
-
-    public function testFailsWhenOperationParameterIsNotString()
-    {
-        $parsedBody = [
-            'query' => '{my query}',
-            'operation' => []
-        ];
-
-        $helper = new Helper();
-
-        $this->setExpectedException(
-            UserError::class,
-            'GraphQL Request parameter "operation" must be string, but got array(0)'
-        );
-        $helper->toOperationParams($parsedBody, false);
-    }
-
-    public function testFailsWhenVariablesParameterIsNotObject()
-    {
-        $parsedBody = [
-            'query' => '{my query}',
-            'variables' => 'test'
-        ];
-
-        $helper = new Helper();
-
-        $this->setExpectedException(
-            UserError::class,
-            'GraphQL Request parameter "variables" must be object, but got "test"'
-        );
-        $helper->toOperationParams($parsedBody, false);
-    }
-
     /**
      * @param string $contentType
      * @param string $content
@@ -299,7 +150,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = $method;
 
         $helper = new Helper();
-        return $helper->parseRawBody(function() use ($content) {
+        return $helper->parseHttpRequest(function() use ($content) {
             return $content;
         });
     }
@@ -315,12 +166,14 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $_POST = $postValue;
 
         $helper = new Helper();
-        return $helper->parseRawBody();
+        return $helper->parseHttpRequest(function() {
+            throw new InvariantViolation("Shouldn't read from php://input for urlencoded request");
+        });
     }
 
     /**
      * @param $getValue
-     * @return array
+     * @return OperationParams
      */
     private function parseGetRequest($getValue)
     {
@@ -328,7 +181,9 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $_GET = $getValue;
 
         $helper = new Helper();
-        return $helper->parseRawBody();
+        return $helper->parseHttpRequest(function() {
+            throw new InvariantViolation("Shouldn't read from php://input for urlencoded request");
+        });
     }
 
     /**
