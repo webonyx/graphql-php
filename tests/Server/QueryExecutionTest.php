@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Deferred;
 use GraphQL\Error\Error;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\ExecutionResult;
@@ -66,6 +67,21 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
                         ],
                         'resolve' => function($root, $args) {
                             return $args['arg'];
+                        }
+                    ],
+                    'dfd' => [
+                        'type' => Type::string(),
+                        'args' => [
+                            'num' => [
+                                'type' => Type::nonNull(Type::int())
+                            ],
+                        ],
+                        'resolve' => function($root, $args, $context) {
+                            $context['buffer']($args['num']);
+
+                            return new Deferred(function() use ($args, $context) {
+                                return $context['load']($args['num']);
+                            });
                         }
                     ]
                 ]
@@ -353,6 +369,117 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
+    public function testExecutesBatchedQueries()
+    {
+        $batch = [
+            [
+                'query' => '{invalid}'
+            ],
+            [
+                'query' => '{f1,fieldWithException}'
+            ],
+            [
+                'query' => '
+                    query ($a: String!, $b: String!) {
+                        a: fieldWithArg(arg: $a)
+                        b: fieldWithArg(arg: $b)
+                    }
+                ',
+                'variables' => ['a' => 'a', 'b' => 'b'],
+            ]
+        ];
+
+        $result = $this->executeBatchedQuery($batch);
+
+        $expected = [
+            [
+                'errors' => [['message' => 'Cannot query field "invalid" on type "Query".']]
+            ],
+            [
+                'data' => [
+                    'f1' => 'f1',
+                    'fieldWithException' => null
+                ],
+                'errors' => [
+                    ['message' => 'This is the exception we want']
+                ]
+            ],
+            [
+                'data' => [
+                    'a' => 'a',
+                    'b' => 'b'
+                ]
+            ]
+        ];
+
+        $this->assertArraySubset($expected[0], $result[0]->toArray());
+        $this->assertArraySubset($expected[1], $result[1]->toArray());
+        $this->assertArraySubset($expected[2], $result[2]->toArray());
+    }
+
+    public function testDeferredsAreSharedAmongAllBatchedQueries()
+    {
+        $batch = [
+            [
+                'query' => '{dfd(num: 1)}'
+            ],
+            [
+                'query' => '{dfd(num: 2)}'
+            ],
+            [
+                'query' => '{dfd(num: 3)}',
+            ]
+        ];
+
+        $calls = [];
+
+        $this->config
+            ->setRootValue('1')
+            ->setContext([
+                'buffer' => function($num) use (&$calls) {
+                    $calls[] = "buffer: $num";
+                },
+                'load' => function($num) use (&$calls) {
+                    $calls[] = "load: $num";
+                    return "loaded: $num";
+                }
+            ]);
+
+        $result = $this->executeBatchedQuery($batch);
+
+        $expectedCalls = [
+            'buffer: 1',
+            'buffer: 2',
+            'buffer: 3',
+            'load: 1',
+            'load: 2',
+            'load: 3',
+        ];
+        $this->assertEquals($expectedCalls, $calls);
+
+        $expected = [
+            [
+                'data' => [
+                    'dfd' => 'loaded: 1'
+                ]
+            ],
+            [
+                'data' => [
+                    'dfd' => 'loaded: 2'
+                ]
+            ],
+            [
+                'data' => [
+                    'dfd' => 'loaded: 3'
+                ]
+            ],
+        ];
+
+        $this->assertEquals($expected[0], $result[0]->toArray());
+        $this->assertEquals($expected[1], $result[1]->toArray());
+        $this->assertEquals($expected[2], $result[2]->toArray());
+    }
+
     private function executePersistedQuery($queryId, $variables = null)
     {
         $op = OperationParams::create(['queryId' => $queryId, 'variables' => $variables]);
@@ -368,6 +495,23 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $helper = new Helper();
         $result = $helper->executeOperation($this->config, $op);
         $this->assertInstanceOf(ExecutionResult::class, $result);
+        return $result;
+    }
+
+    private function executeBatchedQuery(array $qs)
+    {
+        $batch = [];
+        foreach ($qs as $params) {
+            $batch[] = OperationParams::create($params, true);
+        }
+        $helper = new Helper();
+        $result = $helper->executeBatch($this->config, $batch);
+        $this->assertInternalType('array', $result);
+        $this->assertCount(count($qs), $result);
+
+        foreach ($result as $index => $entry) {
+            $this->assertInstanceOf(ExecutionResult::class, $entry, "Result at $index is not an instance of " . ExecutionResult::class);
+        }
         return $result;
     }
 

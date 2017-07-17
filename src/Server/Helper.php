@@ -1,16 +1,20 @@
 <?php
 namespace GraphQL\Server;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\ExecutionResult;
+use GraphQL\Executor\Executor;
+use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
-use GraphQL\GraphQL;
+use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+use GraphQL\Validator\DocumentValidator;
 
 /**
  * Class Helper
@@ -21,7 +25,8 @@ use GraphQL\Utils\Utils;
 class Helper
 {
     /**
-     * Executes GraphQL operation with given server configuration and returns execution result (or promise)
+     * Executes GraphQL operation with given server configuration and returns execution result
+     * (or promise when promise adapter is different from SyncPromiseAdapter)
      *
      * @param ServerConfig $config
      * @param OperationParams $op
@@ -30,35 +35,97 @@ class Helper
      */
     public function executeOperation(ServerConfig $config, OperationParams $op)
     {
+        $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
+        $result = $this->promiseToExecuteOperation($promiseAdapter, $config, $op);
+
+        if ($promiseAdapter instanceof SyncPromiseAdapter) {
+            $result = $promiseAdapter->wait($result);
+        }
+
+        return $result;
+    }
+
+    /**
+     * Executes batched GraphQL operations with shared promise queue
+     * (thus, effectively batching deferreds|promises of all queries at once)
+     *
+     * @param ServerConfig $config
+     * @param OperationParams[] $operations
+     * @return ExecutionResult[]|Promise
+     */
+    public function executeBatch(ServerConfig $config, array $operations)
+    {
+        $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
+        $result = [];
+
+        foreach ($operations as $operation) {
+            $result[] = $this->promiseToExecuteOperation($promiseAdapter, $config, $operation);
+        }
+
+        $result = $promiseAdapter->all($result);
+
+        // Wait for promised results when using sync promises
+        if ($promiseAdapter instanceof SyncPromiseAdapter) {
+            $result = $promiseAdapter->wait($result);
+        }
+        return $result;
+    }
+
+    /**
+     * @param PromiseAdapter $promiseAdapter
+     * @param ServerConfig $config
+     * @param OperationParams $op
+     * @return Promise
+     */
+    private function promiseToExecuteOperation(PromiseAdapter $promiseAdapter, ServerConfig $config, OperationParams $op)
+    {
         $phpErrors = [];
-        $execute = function() use ($config, $op) {
-            $doc = $op->queryId ? static::loadPersistedQuery($config, $op) : $op->query;
 
-            if (!$doc instanceof DocumentNode) {
-                $doc = Parser::parse($doc);
-            }
-            if ($op->isReadOnly() && AST::isMutation($op->operation, $doc)) {
-                throw new UserError("Cannot execute mutation in read-only context");
-            }
+        $execute = function() use ($config, $op, $promiseAdapter) {
+            try {
+                $doc = $op->queryId ? static::loadPersistedQuery($config, $op) : $op->query;
 
-            return GraphQL::executeAndReturnResult(
-                $config->getSchema(),
-                $doc,
-                $config->getRootValue(),
-                $config->getContext(),
-                $op->variables,
-                $op->operation,
-                $config->getDefaultFieldResolver(),
-                static::resolveValidationRules($config, $op),
-                $config->getPromiseAdapter()
-            );
+                if (!$doc instanceof DocumentNode) {
+                    $doc = Parser::parse($doc);
+                }
+                if ($op->isReadOnly() && AST::isMutation($op->operation, $doc)) {
+                    throw new UserError("Cannot execute mutation in read-only context");
+                }
+
+                $validationErrors = DocumentValidator::validate(
+                    $config->getSchema(),
+                    $doc,
+                    $this->resolveValidationRules($config, $op)
+                );
+
+                if (!empty($validationErrors)) {
+                    return $promiseAdapter->createFulfilled(
+                        new ExecutionResult(null, $validationErrors)
+                    );
+                } else {
+                    return Executor::promiseToExecute(
+                        $promiseAdapter,
+                        $config->getSchema(),
+                        $doc,
+                        $config->getRootValue(),
+                        $config->getContext(),
+                        $op->variables,
+                        $op->operation,
+                        $config->getDefaultFieldResolver()
+                    );
+                }
+            } catch (Error $e) {
+                return $promiseAdapter->createFulfilled(
+                    new ExecutionResult(null, [$e])
+                );
+            }
         };
         if ($config->getDebug()) {
             $execute = Utils::withErrorHandling($execute, $phpErrors);
         }
         $result = $execute();
 
-        $applyErrorFormatting = function(ExecutionResult $result) use ($config, $phpErrors) {
+        $applyErrorFormatting = function (ExecutionResult $result) use ($config, $phpErrors) {
             if ($config->getDebug()) {
                 $errorFormatter = function($e) {
                     return FormattedError::createFromException($e, true);
@@ -73,15 +140,15 @@ class Helper
             return $result;
         };
 
-        return $result instanceof Promise ?
-            $result->then($applyErrorFormatting) :
-            $applyErrorFormatting($result);
+        return $result->then($applyErrorFormatting);
     }
 
     /**
      * @param ServerConfig $config
      * @param OperationParams $op
-     * @return string|DocumentNode
+     * @return mixed
+     * @throws Error
+     * @throws InvariantViolation
      */
     public function loadPersistedQuery(ServerConfig $config, OperationParams $op)
     {
