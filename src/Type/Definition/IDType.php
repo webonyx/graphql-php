@@ -1,10 +1,11 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 
 /**
  * Class IDType
@@ -33,7 +34,19 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function serialize($value)
     {
-        return $this->parseValue($value);
+        if ($value === true) {
+            return 'true';
+        }
+        if ($value === false) {
+            return 'false';
+        }
+        if ($value === null) {
+            return 'null';
+        }
+        if (!is_scalar($value)) {
+            throw new InvariantViolation("ID type cannot represent non scalar value: " . Utils::printSafe($value));
+        }
+        return (string) $value;
     }
 
     /**
@@ -52,7 +65,7 @@ When expected as an input type, any string (such as `"4"`) or integer
             return 'null';
         }
         if (!is_scalar($value)) {
-            throw new UserError("String cannot represent non scalar value: " . Utils::printSafe($value));
+            throw new UserError("ID type cannot represent non scalar value: " . Utils::printSafeJson($value));
         }
         return (string) $value;
     }

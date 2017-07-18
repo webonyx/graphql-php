@@ -38,7 +38,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     public function serialize($value)
     {
-        return $this->coerceInt($value);
+        return $this->coerceInt($value, false);
     }
 
     /**
@@ -47,21 +47,20 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     public function parseValue($value)
     {
-        try {
-            return $this->coerceInt($value);
-        } catch (InvariantViolation $e) {
-            throw new UserError($e->getMessage(), $e->getCode(), $e);
-        }
+        return $this->coerceInt($value, true);
     }
 
     /**
      * @param $value
+     * @param bool $isInput
      * @return int|null
      */
-    private function coerceInt($value)
+    private function coerceInt($value, $isInput)
     {
+        $errClass = $isInput ? UserError::class : InvariantViolation::class;
+
         if ($value === '') {
-            throw new InvariantViolation(
+            throw new $errClass(
                 'Int cannot represent non 32-bit signed integer value: (empty string)'
             );
         }
@@ -69,22 +68,24 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             return (int) $value;
         }
         if (!is_numeric($value) || $value > self::MAX_INT || $value < self::MIN_INT) {
-            throw new InvariantViolation(
-                sprintf('Int cannot represent non 32-bit signed integer value: %s', Utils::printSafe($value))
-            );
+            throw new $errClass(sprintf(
+                'Int cannot represent non 32-bit signed integer value: %s',
+                $isInput ? Utils::printSafeJson($value) : Utils::printSafe($value)
+            ));
         }
         $num = (float) $value;
 
         // The GraphQL specification does not allow serializing non-integer values
         // as Int to avoid accidental data loss.
         // Examples: 1.0 == 1; 1.1 != 1, etc
-        if ($num != (int)$value) {
+        if ($num != (int) $value) {
             // Additionally account for scientific notation (i.e. 1e3), because (float)'1e3' is 1000, but (int)'1e3' is 1
             $trimmed = floor($num);
             if ($trimmed !== $num) {
-                throw new InvariantViolation(
-                    'Int cannot represent non-integer value: ' . Utils::printSafe($value)
-                );
+                throw new $errClass(sprintf(
+                    'Int cannot represent non-integer value: %s',
+                    $isInput ? Utils::printSafeJson($value) : Utils::printSafe($value)
+                ));
             }
         }
         return (int) $value;
