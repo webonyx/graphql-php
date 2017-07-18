@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\UserError;
 use GraphQL\Error\Warning;
 use GraphQL\GraphQL;
 use GraphQL\Schema;
@@ -120,7 +121,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
             'interfaces' => [$PetType],
             'isTypeOf' => function () {
                 return new Deferred(function () {
-                    throw new \Exception('We are testing this error');
+                    throw new UserError('We are testing this error');
                 });
             },
             'fields' => [
@@ -578,7 +579,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
             'name' => 'Pet',
             'resolveType' => function () {
                 return new Deferred(function () {
-                    throw new \Exception('We are testing this error');
+                    throw new UserError('We are testing this error');
                 });
             },
             'fields' => [

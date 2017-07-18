@@ -5,6 +5,7 @@ require_once __DIR__ . '/TestClasses.php';
 
 use GraphQL\Deferred;
 use GraphQL\Error\Error;
+use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
@@ -371,55 +372,55 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
                 return 'sync';
             },
             'syncError' => function () {
-                throw new \Exception('Error getting syncError');
+                throw new UserError('Error getting syncError');
             },
             'syncRawError' => function() {
-                throw new \Exception('Error getting syncRawError');
+                throw new UserError('Error getting syncRawError');
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
             'syncReturnError' => function() {
-                return new \Exception('Error getting syncReturnError');
+                return new UserError('Error getting syncReturnError');
             },
             'syncReturnErrorList' => function () {
                 return [
                     'sync0',
-                    new \Exception('Error getting syncReturnErrorList1'),
+                    new UserError('Error getting syncReturnErrorList1'),
                     'sync2',
-                    new \Exception('Error getting syncReturnErrorList3')
+                    new UserError('Error getting syncReturnErrorList3')
                 ];
             },
             'async' => function() {
                 return new Deferred(function() { return 'async'; });
             },
             'asyncReject' => function() {
-                return new Deferred(function() { throw new \Exception('Error getting asyncReject'); });
+                return new Deferred(function() { throw new UserError('Error getting asyncReject'); });
             },
             'asyncRawReject' => function () {
                 return new Deferred(function() {
-                    throw new \Exception('Error getting asyncRawReject');
+                    throw new UserError('Error getting asyncRawReject');
                 });
             },
             'asyncEmptyReject' => function () {
                 return new Deferred(function() {
-                    throw new \Exception();
+                    throw new UserError();
                 });
             },
             'asyncError' => function() {
                 return new Deferred(function() {
-                    throw new \Exception('Error getting asyncError');
+                    throw new UserError('Error getting asyncError');
                 });
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
             'asyncRawError' => function() {
                 return new Deferred(function() {
-                    throw new \Exception('Error getting asyncRawError');
+                    throw new UserError('Error getting asyncRawError');
                 });
             },
             'asyncReturnError' => function() {
                 return new Deferred(function() {
-                    throw new \Exception('Error getting asyncReturnError');
+                    throw new UserError('Error getting asyncReturnError');
                 });
             },
         ];

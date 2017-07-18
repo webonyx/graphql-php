@@ -113,6 +113,28 @@ exceptions thrown by resolvers. To access original exceptions use `$error->getPr
 But note that previous exception is only available for **Execution** errors and will be `null`
 for **Syntax** or **Validation** errors.
 
+For example:
+
+```php
+$result = GraphQL::executeAndReturnResult()
+    ->setErrorFormatter(function(GraphQL\Error\Error $err) {
+        $resolverException = $err->getPrevious();
+
+        if ($resolverException instanceof MyResolverException) {
+            $formattedError = [
+                'message' => $resolverException->getMessage(),
+                'code' => $resolverException->getCode()
+            ];
+        } else {
+            $formattedError = [
+                'message' => $err->getMessage()
+            ];
+        }
+        return $formattedError;
+    })
+    ->toArray();
+```
+
 # Schema Errors
 So far we only covered errors which occur during query execution process. But schema definition can 
 also throw if there is an error in one of type definitions.

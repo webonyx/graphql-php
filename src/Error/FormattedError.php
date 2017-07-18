@@ -13,20 +13,67 @@ use GraphQL\Utils\Utils;
  */
 class FormattedError
 {
+    const INCLUDE_DEBUG_MESSAGE = 1;
+    const INCLUDE_TRACE = 2;
+
+    private static $internalErrorMessage = 'Internal server error';
+
+    public static function setInternalErrorMessage($msg)
+    {
+        self::$internalErrorMessage = $msg;
+    }
+
     /**
      * @param \Throwable $e
-     * @param $debug
+     * @param bool|int $debug
+     * @param string $internalErrorMessage
      *
      * @return array
      */
-    public static function createFromException($e, $debug = false)
+    public static function createFromException($e, $debug = false, $internalErrorMessage = null)
     {
-        if ($e instanceof Error) {
-            $result = $e->toSerializableArray();
-        } else if ($e instanceof \ErrorException) {
+        Utils::invariant(
+            $e instanceof \Exception || $e instanceof \Throwable,
+            "Expected exception, got %s",
+            Utils::getVariableType($e)
+        );
+
+        $debug = (int) $debug;
+        $internalErrorMessage = $internalErrorMessage ?: self::$internalErrorMessage;
+
+        if ($e instanceof ClientAware) {
+            if ($e->isClientSafe()) {
+                $result = [
+                    'message' => $e->getMessage()
+                ];
+            } else {
+                $result = [
+                    'message' => $internalErrorMessage,
+                    'isInternalError' => true
+                ];
+            }
+        } else {
             $result = [
-                'message' => $e->getMessage(),
+                'message' => $internalErrorMessage,
+                'isInternalError' => true
             ];
+        }
+        if (($debug & self::INCLUDE_DEBUG_MESSAGE > 0) && $result['message'] === $internalErrorMessage) {
+            $result['debugMessage'] = $e->getMessage();
+        }
+
+        if ($e instanceof Error) {
+            $locations = Utils::map($e->getLocations(), function(SourceLocation $loc) {
+                return $loc->toSerializableArray();
+            });
+
+            if (!empty($locations)) {
+                $result['locations'] = $locations;
+            }
+            if (!empty($e->path)) {
+                $result['path'] = $e->path;
+            }
+        } else if ($e instanceof \ErrorException) {
             if ($debug) {
                 $result += [
                     'file' => $e->getFile(),
@@ -34,18 +81,16 @@ class FormattedError
                     'severity' => $e->getSeverity()
                 ];
             }
-        } else {
-            Utils::invariant(
-                $e instanceof \Exception || $e instanceof \Throwable,
-                "Expected exception, got %s",
-                Utils::getVariableType($e)
-            );
-            $result = [
-                'message' => $e->getMessage()
-            ];
+        } else if ($e instanceof \Error) {
+            if ($debug) {
+                $result += [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ];
+            }
         }
 
-        if ($debug) {
+        if ($debug & self::INCLUDE_TRACE > 0) {
             $debugging = $e->getPrevious() ?: $e;
             $result['trace'] = static::toSafeTrace($debugging->getTrace());
         }

@@ -48,7 +48,7 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
                     'fieldWithException' => [
                         'type' => Type::string(),
                         'resolve' => function($root, $args, $context, $info) {
-                            throw new \Exception("This is the exception we want");
+                            throw new UserError("This is the exception we want");
                         }
                     ],
                     'testContextAndRootValue' => [
@@ -122,10 +122,10 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
             ],
             'extensions' => [
                 'phpErrors' => [
-                    ['message' => 'deprecated', 'severity' => 16384],
-                    ['message' => 'notice', 'severity' => 1024],
-                    ['message' => 'warning', 'severity' => 512],
-                    ['message' => 'Undefined index: test', 'severity' => 8],
+                    ['debugMessage' => 'deprecated', 'severity' => 16384],
+                    ['debugMessage' => 'notice', 'severity' => 1024],
+                    ['debugMessage' => 'warning', 'severity' => 512],
+                    ['debugMessage' => 'Undefined index: test', 'severity' => 8],
                 ]
             ]
         ];
@@ -518,7 +518,7 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
     private function assertQueryResultEquals($expected, $query, $variables = null)
     {
         $result = $this->executeQuery($query, $variables);
-        $this->assertArraySubset($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray(true));
         return $result;
     }
 }

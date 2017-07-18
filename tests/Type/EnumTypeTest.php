@@ -415,12 +415,12 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testMayBeInternallyRepresentedWithComplexValues()
     {
-        $result = GraphQL::execute($this->schema, '{
+        $result = GraphQL::executeAndReturnResult($this->schema, '{
         first: complexEnum
         second: complexEnum(fromEnum: TWO)
         good: complexEnum(provideGoodValue: true)
         bad: complexEnum(provideBadValue: true)
-        }');
+        }')->toArray(true);
 
         $expected = [
             'data' => [
@@ -430,7 +430,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                 'bad' => null
             ],
             'errors' => [[
-                'message' =>
+                'debugMessage' =>
                     'Expected a value of type "Complex" but received: instance of ArrayObject',
                 'locations' => [['line' => 5, 'column' => 9]]
             ]]
@@ -460,11 +460,11 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [[
-                    'message' => 'Expected a value of type "SimpleEnum" but received: "WRONG"',
+                    'debugMessage' => 'Expected a value of type "SimpleEnum" but received: "WRONG"',
                     'locations' => [['line' => 4, 'column' => 13]]
                 ]]
             ],
-            GraphQL::execute($this->schema, $q)
+            GraphQL::executeAndReturnResult($this->schema, $q)->toArray(true)
         );
     }
 

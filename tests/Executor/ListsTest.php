@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
@@ -72,7 +73,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $this->checkHandlesNullableLists(
             function () {
                 return new Deferred(function () {
-                    throw new \Exception('bad');
+                    throw new UserError('bad');
                 });
             },
             [
@@ -131,7 +132,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                         return 1;
                     }),
                     new Deferred(function() {
-                        throw new \Exception('bad');
+                        throw new UserError('bad');
                     }),
                     new Deferred(function() {
                         return 2;
@@ -174,12 +175,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10]]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
     }
 
@@ -210,19 +212,20 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10]]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
 
         // Rejected
         $this->checkHandlesNonNullableLists(
             function () {
                 return new Deferred(function() {
-                    throw new \Exception('bad');
+                    throw new UserError('bad');
                 });
             },
             [
@@ -280,7 +283,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                         return 1;
                     }),
                     new Deferred(function() {
-                        throw new \Exception('bad');
+                        throw new UserError('bad');
                     }),
                     new Deferred(function() {
                         return 2;
@@ -317,12 +320,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => [ 'test' => null ] ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [ ['line' => 1, 'column' => 10] ]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
 
         // Returns null
@@ -353,12 +357,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => [ 'test' => null ] ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10]]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
 
         // Returns null
@@ -373,7 +378,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $this->checkHandlesListOfNonNulls(
             function () {
                 return new Deferred(function() {
-                    throw new \Exception('bad');
+                    throw new UserError('bad');
                 });
             },
             [
@@ -425,7 +430,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                         return 1;
                     }),
                     new Deferred(function() {
-                        throw new \Exception('bad');
+                        throw new UserError('bad');
                     }),
                     new Deferred(function() {
                         return 2;
@@ -463,12 +468,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10 ]]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
 
         // Returns null
@@ -477,12 +483,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [ ['line' => 1, 'column' => 10] ]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
     }
 
@@ -507,12 +514,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [ ['line' => 1, 'column' => 10] ]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
 
         // Returns null
@@ -523,19 +531,20 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [ ['line' => 1, 'column' => 10] ]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
 
         // Rejected
         $this->checkHandlesNonNullListOfNonNulls(
             function () {
                 return new Deferred(function() {
-                    throw new \Exception('bad');
+                    throw new UserError('bad');
                 });
             },
             [
@@ -586,12 +595,13 @@ class ListsTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => [ 'nest' => null ],
                 'errors' => [
-                    FormattedError::create(
-                        'Cannot return null for non-nullable field DataType.test.',
-                        [ new SourceLocation(1, 10) ]
-                    )
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10]]
+                    ]
                 ]
-            ]
+            ],
+            true
         );
 
         // Contains reject
@@ -602,7 +612,7 @@ class ListsTest extends \PHPUnit_Framework_TestCase
                         return 1;
                     }),
                     new Deferred(function() {
-                        throw new \Exception('bad');
+                        throw new UserError('bad');
                     }),
                     new Deferred(function() {
                         return 2;
@@ -628,25 +638,25 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $this->check($testType, $testData, $expected);
     }
 
-    private function checkHandlesNonNullableLists($testData, $expected)
+    private function checkHandlesNonNullableLists($testData, $expected, $debug = false)
     {
         $testType = Type::nonNull(Type::listOf(Type::int()));
-        $this->check($testType, $testData, $expected);
+        $this->check($testType, $testData, $expected, $debug);
     }
 
-    private function checkHandlesListOfNonNulls($testData, $expected)
+    private function checkHandlesListOfNonNulls($testData, $expected, $debug = false)
     {
         $testType = Type::listOf(Type::nonNull(Type::int()));
-        $this->check($testType, $testData, $expected);
+        $this->check($testType, $testData, $expected, $debug);
     }
 
-    public function checkHandlesNonNullListOfNonNulls($testData, $expected)
+    public function checkHandlesNonNullListOfNonNulls($testData, $expected, $debug = false)
     {
         $testType = Type::nonNull(Type::listOf(Type::nonNull(Type::int())));
-        $this->check($testType, $testData, $expected);
+        $this->check($testType, $testData, $expected, $debug);
     }
 
-    private function check($testType, $testData, $expected)
+    private function check($testType, $testData, $expected, $debug = false)
     {
         $data = ['test' => $testData];
         $dataType = null;
@@ -675,6 +685,6 @@ class ListsTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ nest { test } }');
 
         $result = Executor::execute($schema, $ast, $data);
-        $this->assertArraySubset($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray($debug));
     }
 }

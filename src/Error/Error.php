@@ -14,7 +14,7 @@ use GraphQL\Utils\Utils;
  *
  * @package GraphQL
  */
-class Error extends \Exception implements \JsonSerializable
+class Error extends \Exception implements \JsonSerializable, ClientAware
 {
     /**
      * A message describing the Error for debugging purposes.
@@ -61,6 +61,11 @@ class Error extends \Exception implements \JsonSerializable
      * @var array
      */
     private $positions;
+
+    /**
+     * @var bool
+     */
+    private $isClientSafe;
 
     /**
      * Given an arbitrary Error, presumably thrown while attempting to execute a
@@ -133,6 +138,22 @@ class Error extends \Exception implements \JsonSerializable
         $this->source = $source;
         $this->positions = $positions;
         $this->path = $path;
+
+        if ($previous instanceof ClientAware) {
+            $this->isClientSafe = $previous->isClientSafe();
+        } else if ($previous === null) {
+            $this->isClientSafe = true;
+        } else {
+            $this->isClientSafe = false;
+        }
+    }
+
+    /**
+     * @return bool
+     */
+    public function isClientSafe()
+    {
+        return $this->isClientSafe;
     }
 
     /**
@@ -190,6 +211,7 @@ class Error extends \Exception implements \JsonSerializable
     /**
      * Returns array representation of error suitable for serialization
      *
+     * @deprecated Use FormattedError::createFromException() instead
      * @return array
      */
     public function toSerializableArray()

@@ -3,6 +3,7 @@ namespace GraphQL\Tests;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\UserError;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Schema;
 use GraphQL\Server;
@@ -465,7 +466,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
                 'withException' => [
                     'type' => Type::string(),
                     'resolve' => function() {
-                        throw new \Exception("Error");
+                        throw new UserError("Error");
                     }
                 ]
             ]

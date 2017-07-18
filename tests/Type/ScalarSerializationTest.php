@@ -117,14 +117,14 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
         try {
             $floatType->serialize('one');
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Float cannot represent non numeric value: "one"', $e->getMessage());
         }
 
         try {
             $floatType->serialize('');
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('Float cannot represent non numeric value: (empty string)', $e->getMessage());
         }
 
@@ -149,14 +149,14 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
         try {
             $stringType->serialize([]);
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
-            $this->assertEquals('String cannot represent non scalar value: array', $e->getMessage());
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('String cannot represent non scalar value: array(0)', $e->getMessage());
         }
 
         try {
             $stringType->serialize(new \stdClass());
             $this->fail('Expected exception was not thrown');
-        } catch (UserError $e) {
+        } catch (InvariantViolation $e) {
             $this->assertEquals('String cannot represent non scalar value: instance of stdClass', $e->getMessage());
         }
     }

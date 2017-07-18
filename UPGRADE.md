@@ -1,15 +1,43 @@
 # Upgrade
 
 ## Upgrade v0.9.x > v0.10.x
-### Deprecated: GraphQL\Utils moved to GraphQL\Utils\Utils
-Old class still exists, but triggers deprecation warning.
+#### Breaking: default error formatting
+By default exceptions thrown in resolvers will be reported with generic message `"Internal server error"`.
+Only exceptions implementing interface `GraphQL\Error\ClientAware` and claiming themselves as `safe` will 
+be reported with full error message.
+
+This is done to avoid information leak in production when unhandled exceptions occur in resolvers 
+(e.g. database connection errors, file access errors, etc).
+
+During development or debugging use `$executionResult->toArray(true)`. It will add `debugMessage` key to 
+each error entry in result. If you also want to add `trace` for each error - pass flags instead:
+
+```
+use GraphQL\Error\FormattedError;
+$debug = FormattedError::INCLUDE_DEBUG_MESSAGE | FormattedError::INCLUDE_TRACE;
+$result = GraphQL::executeAndReturnResult()->toArray($debug);
+```
+
+To change default `"Internal server error"` message to something else, use: 
+```
+GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
+```
+
+**This change only affects default error reporting mechanism. If you set your own error formatter using 
+`ExecutionResult::setErrorFormatter()` you won't be affected by this change.**
+
+If you are not happy with this change just set [your own error 
+formatter](http://webonyx.github.io/graphql-php/error-handling/#custom-error-formatting).
+
+#### Deprecated: GraphQL\Utils moved to GraphQL\Utils\Utils
+Old class still exists, but triggers deprecation warning when referenced.
 
 ## Upgrade v0.7.x > v0.8.x
 All of those changes apply to those who extends various parts of this library.
 If you only use the library and don't try to extend it - everything should work without breaks.
 
 
-### Breaking: Custom directives handling
+#### Breaking: Custom directives handling
 When passing custom directives to schema, default directives (like `@skip` and `@include`) 
 are not added to schema automatically anymore. If you need them - add them explicitly with 
 your other directives.
@@ -30,15 +58,15 @@ $schema = new Schema([
 ]);
 ```
 
-### Breaking: Schema protected property and methods visibility 
+#### Breaking: Schema protected property and methods visibility 
 Most of the `protected` properties and methods of `GraphQL\Schema` were changed to `private`.
 Please use public interface instead.
 
-### Breaking: Node kind constants
+#### Breaking: Node kind constants
 Node kind constants were extracted from `GraphQL\Language\AST\Node` to 
 separate class `GraphQL\Language\AST\NodeKind`
 
-### Non-breaking: AST node classes renamed
+#### Non-breaking: AST node classes renamed
 AST node classes were renamed to disambiguate with types. e.g.:
 
 ```
@@ -50,7 +78,7 @@ etc.
 Old names are still available via `class_alias` defined in `src/deprecated.php`. 
 This file is included automatically when using composer autoloading.
 
-### Deprecations
+#### Deprecations
 There are several deprecations which still work, but trigger `E_USER_DEPRECATED` when used.
 
 For example `GraphQL\Executor\Executor::setDefaultResolveFn()` is renamed to `setDefaultResolver()`
@@ -61,7 +89,7 @@ but still works with old name.
 There are a few new breaking changes in v0.7.0 that were added to the graphql-js reference implementation 
 with the spec of April2016
 
-### 1. Context for resolver
+#### 1. Context for resolver
 
 You can now pass a custom context to the `GraphQL::execute` function that is available in all resolvers as 3rd argument. 
 This can for example be used to pass the current user etc.
@@ -119,7 +147,7 @@ function resolveMyField($object, array $args, $context, ResolveInfo $info){
 }
 ```
 
-### 2. Schema constructor signature
+#### 2. Schema constructor signature
 
 The signature of the Schema constructor now accepts an associative config array instead of positional arguments:
  
@@ -137,7 +165,7 @@ $schema = new Schema([
 ]);
 ```
 
-### 3. Types can be directly passed to schema
+#### 3. Types can be directly passed to schema
 
 There are edge cases when GraphQL cannot infer some types from your schema. 
 One example is when you define a field of interface type and object types implementing 

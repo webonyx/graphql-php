@@ -3,6 +3,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
@@ -31,10 +32,10 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->syncError = new \Exception('sync');
-        $this->nonNullSyncError = new \Exception('nonNullSync');
-        $this->promiseError = new \Exception('promise');
-        $this->nonNullPromiseError = new \Exception('nonNullPromise');
+        $this->syncError = new UserError('sync');
+        $this->nonNullSyncError = new UserError('nonNullSync');
+        $this->promiseError = new UserError('promise');
+        $this->nonNullPromiseError = new UserError('nonNullPromise');
 
         $this->throwingData = [
             'sync' => function () {
@@ -482,10 +483,13 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'nest' => null
             ],
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(4, 11)])
+                [
+                    'debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullSync.',
+                    'locations' => [['line' => 4, 'column' => 11]]
+                ]
             ]
         ];
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true));
     }
 
     public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullInAPromise()
@@ -505,11 +509,17 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'nest' => null,
             ],
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullPromise.', [new SourceLocation(4, 11)]),
+                [
+                    'debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullPromise.',
+                    'locations' => [['line' => 4, 'column' => 11]]
+                ],
             ]
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+        );
     }
 
     public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullSynchronously()
@@ -529,11 +539,17 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'promiseNest' => null,
             ],
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(4, 11)]),
+                [
+                    'debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullSync.',
+                    'locations' => [['line' => 4, 'column' => 11]]
+                ],
             ]
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+        );
     }
 
     public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullInaAPromise()
@@ -553,11 +569,17 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'promiseNest' => null,
             ],
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullPromise.', [new SourceLocation(4, 11)]),
+                [
+                    'debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullPromise.',
+                    'locations' => [['line' => 4, 'column' => 11]]
+                ],
             ]
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+        );
     }
 
     public function testNullsAComplexTreeOfNullableFieldsThatReturnNull()
@@ -687,14 +709,17 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
                 'anotherPromiseNest' => null,
             ],
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(8, 19)]),
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(19, 19)]),
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullPromise.', [new SourceLocation(30, 19)]),
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullPromise.', [new SourceLocation(41, 19)]),
+                ['debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullSync.', 'locations' => [ ['line' => 8, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullSync.', 'locations' => [ ['line' => 19, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullPromise.', 'locations' => [ ['line' => 30, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullPromise.', 'locations' => [ ['line' => 41, 'column' => 19]]],
             ]
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+        );
     }
 
     /**
@@ -743,10 +768,16 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
 
         $expected = [
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullSync.', [new SourceLocation(2, 17)]),
+                [
+                    'debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullSync.',
+                    'locations' => [['line' => 2, 'column' => 17]]
+                ],
             ]
         ];
-        $this->assertArraySubset($expected, Executor::execute($this->schema, Parser::parse($doc), $this->nullingData)->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, Parser::parse($doc), $this->nullingData)->toArray(true)
+        );
     }
 
     public function testNullsTheTopLevelIfAsyncNonNullableFieldResolvesNull()
@@ -760,10 +791,16 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'data' => null,
             'errors' => [
-                FormattedError::create('Cannot return null for non-nullable field DataType.nonNullPromise.', [new SourceLocation(2, 17)]),
+                [
+                    'debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullPromise.',
+                    'locations' => [['line' => 2, 'column' => 17]]
+                ],
             ]
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+        );
     }
 }

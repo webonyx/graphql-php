@@ -106,17 +106,17 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 'sixth' => null,
             ],
             'errors' => [
-                FormattedError::create(
-                    'Cannot change the number',
-                    [new SourceLocation(8, 7)]
-                ),
-                FormattedError::create(
-                    'Cannot change the number',
-                    [new SourceLocation(17, 7)]
-                )
+                [
+                    'debugMessage' => 'Cannot change the number',
+                    'locations' => [['line' => 8, 'column' => 7]]
+                ],
+                [
+                    'debugMessage' => 'Cannot change the number',
+                    'locations' => [['line' => 17, 'column' => 7]]
+                ]
             ]
         ];
-        $this->assertArraySubset($expected, $mutationResult->toArray());
+        $this->assertArraySubset($expected, $mutationResult->toArray(true));
     }
 
     private function schema()

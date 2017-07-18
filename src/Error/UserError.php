@@ -4,10 +4,17 @@ namespace GraphQL\Error;
 /**
  * Class UserError
  *
- * Error that can be safely displayed to client...
+ * Error caused by actions of GraphQL clients. Can be safely displayed to client...
  *
  * @package GraphQL\Error
  */
-class UserError extends InvariantViolation
+class UserError extends \RuntimeException implements ClientAware
 {
+    /**
+     * @return bool
+     */
+    public function isClientSafe()
+    {
+        return true;
+    }
 }

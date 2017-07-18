@@ -6,9 +6,6 @@ use GraphQL\Error\UserError;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 
-/**
- * @backupGlobals enabled
- */
 class RequestParsingTest extends \PHPUnit_Framework_TestCase
 {
     public function testParsesGraphqlRequest()
