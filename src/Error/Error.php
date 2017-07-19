@@ -79,8 +79,13 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
      */
     public static function createLocatedError($error, $nodes = null, $path = null)
     {
-        if ($error instanceof self && $error->path) {
-            return $error;
+        if ($error instanceof self) {
+            if ($error->path && $error->nodes) {
+                return $error;
+            } else {
+                $nodes = $nodes ?: $error->nodes;
+                $path = $path ?: $error->path;
+            }
         }
 
         $source = $positions = $originalError = null;
