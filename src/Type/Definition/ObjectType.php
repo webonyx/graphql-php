@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\UserError;
 use GraphQL\Utils\Utils;
 
 
@@ -133,7 +133,7 @@ class ObjectType extends Type implements OutputType, CompositeType
             $this->getFields();
         }
         if (!isset($this->fields[$name])) {
-            throw new UserError(sprintf("Field '%s' is not defined for type '%s'", $name, $this->name));
+            throw new Error(sprintf("Field '%s' is not defined for type '%s'", $name, $this->name));
         }
         return $this->fields[$name];
     }

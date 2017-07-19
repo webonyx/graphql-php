@@ -1,8 +1,8 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\UserError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Utils\Utils;
 
@@ -57,7 +57,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     private function coerceInt($value, $isInput)
     {
-        $errClass = $isInput ? UserError::class : InvariantViolation::class;
+        $errClass = $isInput ? Error::class : InvariantViolation::class;
 
         if ($value === '') {
             throw new $errClass(
