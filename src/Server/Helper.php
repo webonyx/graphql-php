@@ -35,14 +35,7 @@ class Helper
     public function executeOperation(ServerConfig $config, OperationParams $op)
     {
         $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
-
-        $errors = $this->validateOperationParams($op);
-
-        if (!empty($errors)) {
-            $result = $promiseAdapter->createFulfilled(new ExecutionResult(null, $errors));
-        } else {
-            $result = $this->promiseToExecuteOperation($promiseAdapter, $config, $op);
-        }
+        $result = $this->promiseToExecuteOperation($promiseAdapter, $config, $op);
 
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
             $result = $promiseAdapter->wait($result);
@@ -65,12 +58,7 @@ class Helper
         $result = [];
 
         foreach ($operations as $operation) {
-            $errors = $this->validateOperationParams($operation);
-            if (!empty($errors)) {
-                $result[] = $promiseAdapter->createFulfilled(new ExecutionResult(null, $errors));
-            } else {
-                $result[] = $this->promiseToExecuteOperation($promiseAdapter, $config, $operation);
-            }
+            $result[] = $this->promiseToExecuteOperation($promiseAdapter, $config, $operation);
         }
 
         $result = $promiseAdapter->all($result);
@@ -91,6 +79,14 @@ class Helper
     private function promiseToExecuteOperation(PromiseAdapter $promiseAdapter, ServerConfig $config, OperationParams $op)
     {
         try {
+            $errors = $this->validateOperationParams($op);
+
+            if (!empty($errors)) {
+                return $promiseAdapter->createFulfilled(
+                    new ExecutionResult(null, $errors)
+                );
+            }
+
             $doc = $op->queryId ? static::loadPersistedQuery($config, $op) : $op->query;
 
             if (!$doc instanceof DocumentNode) {
