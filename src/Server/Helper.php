@@ -14,6 +14,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class Helper
@@ -146,12 +147,8 @@ class Helper
      * @throws Error
      * @throws InvariantViolation
      */
-    public function loadPersistedQuery(ServerConfig $config, OperationParams $op)
+    private function loadPersistedQuery(ServerConfig $config, OperationParams $op)
     {
-        if (!$op->queryId) {
-            throw new InvariantViolation("Could not load persisted query: queryId is not set");
-        }
-
         // Load query if we got persisted query id:
         $loader = $config->getPersistentQueryLoader();
 
@@ -177,7 +174,7 @@ class Helper
      * @param OperationParams $params
      * @return array
      */
-    public function resolveValidationRules(ServerConfig $config, OperationParams $params)
+    private function resolveValidationRules(ServerConfig $config, OperationParams $params)
     {
         // Allow customizing validation rules per operation:
         $validationRules = $config->getValidationRules();
@@ -197,8 +194,8 @@ class Helper
     }
 
     /**
-     * Parses HTTP request and returns GraphQL QueryParams contained in this request.
-     * For batched requests it returns an array of QueryParams.
+     * Parses HTTP request and returns GraphQL OperationParams contained in this request.
+     * For batched requests it returns an array of OperationParams.
      *
      * This function doesn't check validity of these params.
      *
@@ -211,43 +208,87 @@ class Helper
     public function parseHttpRequest(callable $readRawBodyFn = null)
     {
         $method = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : null;
+        $bodyParams = [];
+        $urlParams = $_GET;
 
-        if ($method === 'GET') {
-            $result = OperationParams::create($_GET, true);
-        } else if ($method === 'POST') {
+        if ($method === 'POST') {
             $contentType = isset($_SERVER['CONTENT_TYPE']) ? $_SERVER['CONTENT_TYPE'] : null;
 
             if (stripos($contentType, 'application/graphql') !== false) {
                 $rawBody =  $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
-                $result = OperationParams::create(['query' => $rawBody ?: '']);
+                $bodyParams = ['query' => $rawBody ?: ''];
             } else if (stripos($contentType, 'application/json') !== false) {
                 $rawBody = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
-                $body = json_decode($rawBody ?: '', true);
+                $bodyParams = json_decode($rawBody ?: '', true);
 
                 if (json_last_error()) {
                     throw new Error("Could not parse JSON: " . json_last_error_msg());
                 }
-                if (!is_array($body)) {
+                if (!is_array($bodyParams)) {
                     throw new Error(
                         "GraphQL Server expects JSON object or array, but got " .
-                        Utils::printSafeJson($body)
+                        Utils::printSafeJson($bodyParams)
                     );
                 }
-                if (isset($body[0])) {
-                    $result = [];
-                    foreach ($body as $index => $entry) {
-                        $op = OperationParams::create($entry);
-                        $result[] = $op;
-                    }
-                } else {
-                    $result = OperationParams::create($body);
-                }
             } else if (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
-                $result = OperationParams::create($_POST);
+                $bodyParams = $_POST;
             } else if (null === $contentType) {
                 throw new Error('Missing "Content-Type" header');
             } else {
                 throw new Error("Unexpected content type: " . Utils::printSafeJson($contentType));
+            }
+        }
+
+        return $this->parseRequestParams($method, $bodyParams, $urlParams);
+    }
+
+    /**
+     * Converts PSR7 request to OperationParams[]
+     *
+     * @param ServerRequestInterface $request
+     * @return array|Helper
+     */
+    public function parsePsrRequest(ServerRequestInterface $request)
+    {
+        $contentType = $request->getHeader('content-type');
+        if (isset($contentType[0]) && $contentType[0] === 'application/graphql') {
+            $bodyParams = ['query' => $request->getBody()->getContents()];
+        } else {
+            $bodyParams = $request->getParsedBody();
+        }
+
+        return $this->parseRequestParams(
+            $request->getMethod(),
+            $bodyParams,
+            $request->getQueryParams()
+        );
+    }
+
+    /**
+     * Parses normalized request params and returns instance of OperationParams or array of OperationParams in
+     * case of batch operation.
+     *
+     * Returned value is a suitable input for `executeOperation` or `executeBatch` (if array)
+     *
+     * @param string $method
+     * @param array $bodyParams
+     * @param array $queryParams
+     * @return OperationParams|OperationParams[]
+     * @throws Error
+     */
+    public function parseRequestParams($method, array $bodyParams, array $queryParams)
+    {
+        if ($method === 'GET') {
+            $result = OperationParams::create($queryParams, true);
+        } else if ($method === 'POST') {
+            if (isset($bodyParams[0])) {
+                $result = [];
+                foreach ($bodyParams as $index => $entry) {
+                    $op = OperationParams::create($entry);
+                    $result[] = $op;
+                }
+            } else {
+                $result = OperationParams::create($bodyParams);
             }
         } else {
             throw new Error('HTTP Method "' . $method . '" is not supported');
@@ -258,7 +299,7 @@ class Helper
     /**
      * @return bool|string
      */
-    public function readRawBody()
+    private function readRawBody()
     {
         return file_get_contents('php://input');
     }

@@ -4,6 +4,7 @@ namespace GraphQL\Server;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
+use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Class StandardServer
@@ -47,6 +48,22 @@ class StandardServer
     }
 
     /**
+     * Executes GraphQL operation with given server configuration and returns execution result
+     * (or promise when promise adapter is different from SyncPromiseAdapter)
+     *
+     * @param ServerRequestInterface $request
+     * @return ExecutionResult|ExecutionResult[]|Promise
+     */
+    public function executePsrRequest(ServerRequestInterface $request)
+    {
+        $parsedBody = $this->helper->parsePsrRequest($request);
+        return $this->executeRequest($parsedBody);
+    }
+
+    /**
+     * Executes GraphQL operation with given server configuration and returns execution result
+     * (or promise when promise adapter is different from SyncPromiseAdapter)
+     *
      * @param OperationParams|OperationParams[] $parsedBody
      * @return ExecutionResult|ExecutionResult[]|Promise
      * @throws InvariantViolation
