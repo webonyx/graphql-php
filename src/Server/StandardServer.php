@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Server;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 
@@ -48,13 +49,13 @@ class StandardServer
     /**
      * @param OperationParams|OperationParams[] $parsedBody
      * @return ExecutionResult|ExecutionResult[]|Promise
+     * @throws InvariantViolation
      */
     public function executeRequest($parsedBody = null)
     {
         if (null !== $parsedBody) {
             $parsedBody = $this->helper->parseHttpRequest();
         }
-        $this->helper->assertValidRequest($parsedBody);
 
         if (is_array($parsedBody)) {
             return $this->helper->executeBatch($this->config, $parsedBody);

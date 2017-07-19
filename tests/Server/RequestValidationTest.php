@@ -1,8 +1,6 @@
 <?php
 namespace GraphQL\Tests\Server;
 
-use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\UserError;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 
@@ -36,44 +34,6 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertValid($parsedBody);
-    }
-
-    public function testBatchRequestShouldValidate()
-    {
-        $query = '{my q}';
-        $queryId = 'some-query-id';
-        $variables = ['a' => 'b', 'c' => 'd'];
-        $operation = 'op';
-
-        $parsedBody = [
-            OperationParams::create([
-                'query' => $query,
-                'variables' => $variables,
-                'operation' => $operation,
-            ]),
-            OperationParams::create([
-                'queryId' => $queryId,
-                'variables' => [],
-                'operation' => null
-            ]),
-        ];
-
-        $this->assertValid($parsedBody);
-    }
-
-    public function testThrowsOnInvalidRequest()
-    {
-        $parsedBody = 'str';
-        $this->assertInternalError(
-            $parsedBody,
-            'GraphQL Server: Parsed http request must be an instance of GraphQL\Server\OperationParams or array of such instances, but got "str"'
-        );
-
-        $parsedBody = ['str'];
-        $this->assertInternalError(
-            $parsedBody,
-            'GraphQL Server: Parsed http request must be an instance of GraphQL\Server\OperationParams or array of such instances, but got invalid array where entry at position 0 is "str"'
-        );
     }
 
     public function testRequiresQueryOrQueryId()
@@ -143,37 +103,33 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
     {
         $parsedBody = OperationParams::create([
             'query' => '{my query}',
-            'variables' => 'test'
+            'variables' => 0
         ]);
 
-        $this->assertInputError($parsedBody, 'GraphQL Request parameter "variables" must be object, but got "test"');
+        $this->assertInputError(
+            $parsedBody,
+            'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got 0'
+        );
     }
 
     private function assertValid($parsedRequest)
     {
         $helper = new Helper();
-        $helper->assertValidRequest($parsedRequest);
+        $errors = $helper->validateOperationParams($parsedRequest);
+
+        if (!empty($errors)) {
+            throw $errors[0];
+        }
     }
 
     private function assertInputError($parsedRequest, $expectedMessage)
     {
-        try {
-            $helper = new Helper();
-            $helper->assertValidRequest($parsedRequest);
-            $this->fail('Expected exception not thrown');
-        } catch (UserError $e) {
-            $this->assertEquals($expectedMessage, $e->getMessage());
-        }
-    }
-
-    private function assertInternalError($parsedRequest, $expectedMessage)
-    {
-        try {
-            $helper = new Helper();
-            $helper->assertValidRequest($parsedRequest);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals($expectedMessage, $e->getMessage());
+        $helper = new Helper();
+        $errors = $helper->validateOperationParams($parsedRequest);
+        if (!empty($errors[0])) {
+            $this->assertEquals($expectedMessage, $errors[0]->getMessage());
+        } else {
+            $this->fail('Expected error not returned');
         }
     }
 }

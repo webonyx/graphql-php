@@ -336,17 +336,17 @@ class AST
     }
 
     /**
-     * @param string $operation
      * @param DocumentNode $document
+     * @param string $operationName
      * @return bool
      */
-    public static function isMutation($operation, DocumentNode $document)
+    public static function getOperation(DocumentNode $document, $operationName = null)
     {
         if (is_array($document->definitions)) {
             foreach ($document->definitions as $def) {
                 if ($def instanceof OperationDefinitionNode) {
-                    if ($def->operation === 'mutation' && $def->name->value === $operation) {
-                        return true;
+                    if (!$operationName || (isset($def->name->value) && $def->name->value === $operationName)) {
+                        return $def->operation;
                     }
                 }
             }

@@ -1,8 +1,8 @@
 <?php
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\UserError;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 
@@ -67,6 +67,38 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $this->assertFalse($parsedBody->isReadOnly());
     }
 
+    public function testParsesVariablesAsJSON()
+    {
+        $query = '{my query}';
+        $variables = ['test' => 1, 'test2' => 2];
+        $operation = 'op';
+
+        $body = [
+            'query' => $query,
+            'variables' => json_encode($variables),
+            'operation' => $operation
+        ];
+        $parsedBody = $this->parseRawRequest('application/json', json_encode($body));
+        $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation);
+        $this->assertFalse($parsedBody->isReadOnly());
+    }
+
+    public function testIgnoresInvalidVariablesJson()
+    {
+        $query = '{my query}';
+        $variables = '"some invalid json';
+        $operation = 'op';
+
+        $body = [
+            'query' => $query,
+            'variables' => $variables,
+            'operation' => $operation
+        ];
+        $parsedBody = $this->parseRawRequest('application/json', json_encode($body));
+        $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation);
+        $this->assertFalse($parsedBody->isReadOnly());
+    }
+
     public function testParsesBatchJSONRequest()
     {
         $body = [
@@ -88,17 +120,13 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
 
         $this->assertValidOperationParams($parsedBody[0], $body[0]['query'], null, $body[0]['variables'], $body[0]['operation']);
         $this->assertValidOperationParams($parsedBody[1], null, $body[1]['queryId'], $body[1]['variables'], $body[1]['operation']);
-
-        // Batched queries must be read-only (do not allow batched mutations)
-        $this->assertTrue($parsedBody[0]->isReadOnly());
-        $this->assertTrue($parsedBody[1]->isReadOnly());
     }
 
     public function testFailsParsingInvalidJsonRequest()
     {
         $body = 'not really{} a json';
 
-        $this->setExpectedException(UserError::class, 'Could not parse JSON: Syntax error');
+        $this->setExpectedException(Error::class, 'Could not parse JSON: Syntax error');
         $this->parseRawRequest('application/json', $body);
     }
 
@@ -106,31 +134,25 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     {
         $body = '"str"';
 
-        $this->setExpectedException(UserError::class, 'GraphQL Server expects JSON object or array, but got "str"');
+        $this->setExpectedException(Error::class, 'GraphQL Server expects JSON object or array, but got "str"');
         $this->parseRawRequest('application/json', $body);
-    }
-
-    public function testFailsParsingInvalidGetRequest()
-    {
-        $this->setExpectedException(UserError::class, 'Cannot execute GET request without "query" or "queryId" parameter');
-        $this->parseGetRequest([]);
     }
 
     public function testFailsParsingInvalidContentType()
     {
-        $this->setExpectedException(UserError::class, 'Unexpected content type: "not-supported-content-type"');
+        $this->setExpectedException(Error::class, 'Unexpected content type: "not-supported-content-type"');
         $this->parseRawRequest('not-supported-content-type', 'test');
     }
 
     public function testFailsWithMissingContentType()
     {
-        $this->setExpectedException(UserError::class, 'Missing "Content-Type" header');
+        $this->setExpectedException(Error::class, 'Missing "Content-Type" header');
         $this->parseRawRequest(null, 'test');
     }
 
     public function testFailsOnMethodsOtherThanPostOrGet()
     {
-        $this->setExpectedException(UserError::class, 'HTTP Method "PUT" is not supported');
+        $this->setExpectedException(Error::class, 'HTTP Method "PUT" is not supported');
         $this->parseRawRequest(null, 'test', "PUT");
     }
 

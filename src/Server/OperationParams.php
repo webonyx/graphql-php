@@ -1,8 +1,6 @@
 <?php
 namespace GraphQL\Server;
 
-use GraphQL\Utils\Utils;
-
 /**
  * Class QueryParams
  * Represents all available parsed query parameters
@@ -52,9 +50,9 @@ class OperationParams
     public static function create(array $params, $readonly = false)
     {
         $instance = new static();
-        $instance->originalInput = $params;
 
         $params = array_change_key_case($params, CASE_LOWER);
+        $instance->originalInput = $params;
 
         $params += [
             'query' => null,
@@ -63,6 +61,13 @@ class OperationParams
             'operation' => null,
             'variables' => null
         ];
+
+        if (is_string($params['variables'])) {
+            $tmp = json_decode($params['variables'], true);
+            if (!json_last_error()) {
+                $params['variables'] = $tmp;
+            }
+        }
 
         $instance->query = $params['query'];
         $instance->queryId = $params['queryid'] ?: $params['documentid'];
@@ -74,11 +79,12 @@ class OperationParams
     }
 
     /**
-     * @return array
+     * @param string $key
+     * @return mixed
      */
-    public function getOriginalInput()
+    public function getOriginalInput($key)
     {
-        return $this->originalInput;
+        return isset($this->originalInput[$key]) ? $this->originalInput[$key] : null;
     }
 
     /**

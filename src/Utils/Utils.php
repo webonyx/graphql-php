@@ -271,14 +271,20 @@ class Utils
         if ('' === $var) {
             return '(empty string)';
         }
+        if (null === $var) {
+            return 'null';
+        }
+        if (false === $var) {
+            return 'false';
+        }
+        if (true === $var) {
+            return 'false';
+        }
         if (is_string($var)) {
             return "\"$var\"";
         }
         if (is_scalar($var)) {
             return (string) $var;
-        }
-        if (null === $var) {
-            return 'null';
         }
         return gettype($var);
     }
@@ -316,14 +322,20 @@ class Utils
         if ('' === $var) {
             return '(empty string)';
         }
+        if (null === $var) {
+            return 'null';
+        }
+        if (false === $var) {
+            return 'false';
+        }
+        if (true === $var) {
+            return 'false';
+        }
         if (is_string($var)) {
             return "\"$var\"";
         }
         if (is_scalar($var)) {
             return (string) $var;
-        }
-        if (null === $var) {
-            return 'null';
         }
         return gettype($var);
     }

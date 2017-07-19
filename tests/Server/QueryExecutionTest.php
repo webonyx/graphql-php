@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Server;
 
 use GraphQL\Deferred;
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Language\Parser;
@@ -85,6 +86,19 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
                         }
                     ]
                 ]
+            ]),
+            'mutation' => new ObjectType([
+                'name' => 'Mutation',
+                'fields' => [
+                    'm1' => [
+                        'type' => new ObjectType([
+                            'name' => 'TestMutation',
+                            'fields' => [
+                                'result' => Type::string()
+                            ]
+                        ])
+                    ]
+                ]
             ])
         ]);
 
@@ -104,39 +118,17 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $this->assertQueryResultEquals($expected, $query);
     }
 
-    public function testDebugPhpErrors()
+    public function testReturnsSyntaxErrors()
     {
-        $this->config->setDebug(true);
+        $query = '{f1';
 
-        $query = '
-        {
-            fieldWithPhpError
-            f1
-        }
-        ';
-
-        $expected = [
-            'data' => [
-                'fieldWithPhpError' => 'fieldWithPhpError',
-                'f1' => 'f1'
-            ],
-            'extensions' => [
-                'phpErrors' => [
-                    ['debugMessage' => 'deprecated', 'severity' => 16384],
-                    ['debugMessage' => 'notice', 'severity' => 1024],
-                    ['debugMessage' => 'warning', 'severity' => 512],
-                    ['debugMessage' => 'Undefined index: test', 'severity' => 8],
-                ]
-            ]
-        ];
-
-        $result = $this->assertQueryResultEquals($expected, $query);
-
-        // Assert php errors contain trace:
-        $this->assertArrayHasKey('trace', $result->extensions['phpErrors'][0]);
-        $this->assertArrayHasKey('trace', $result->extensions['phpErrors'][1]);
-        $this->assertArrayHasKey('trace', $result->extensions['phpErrors'][2]);
-        $this->assertArrayHasKey('trace', $result->extensions['phpErrors'][3]);
+        $result = $this->executeQuery($query);
+        $this->assertSame(null, $result->data);
+        $this->assertCount(1, $result->errors);
+        $this->assertContains(
+            'Syntax Error GraphQL (1:4) Expected Name, found <EOF>',
+            $result->errors[0]->getMessage()
+        );
     }
 
     public function testDebugExceptions()
@@ -280,8 +272,32 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
 
     public function testPersistedQueriesAreDisabledByDefault()
     {
-        $this->setExpectedException(UserError::class, 'Persisted queries are not supported by this server');
-        $this->executePersistedQuery('some-id');
+        $result = $this->executePersistedQuery('some-id');
+
+        $expected = [
+            'errors' => [
+                [
+                    'message' => 'Persisted queries are not supported by this server'
+                ]
+            ]
+        ];
+        $this->assertEquals($expected, $result->toArray());
+    }
+
+    public function testMutationsAreNotAllowedInReadonlyMode()
+    {
+        $mutation = 'mutation { a }';
+
+        $expected = [
+            'errors' => [
+                [
+                    'message' => 'GET supports only query operation'
+                ]
+            ]
+        ];
+
+        $result = $this->executeQuery($mutation, null, true);
+        $this->assertEquals($expected, $result->toArray());
     }
 
     public function testAllowsPersistentQueries()
@@ -313,6 +329,19 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $result = $this->executePersistedQuery('some-id');
         $this->assertTrue($called);
         $this->assertEquals($expected, $result->toArray());
+    }
+
+    public function testProhibitsInvalidPersistedQueryLoader()
+    {
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode '.
+            'but got: associative array(1) with first key: "err"'
+        );
+        $this->config->setPersistentQueryLoader(function($queryId, OperationParams $params) use (&$called) {
+            return ['err' => 'err'];
+        });
+        $this->executePersistedQuery('some-id');
     }
 
     public function testPersistedQueriesAreStillValidatedByDefault()
@@ -367,6 +396,18 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
             ]
         ];
         $this->assertEquals($expected, $result->toArray());
+    }
+
+    public function testProhibitsUnexpectedValidationRules()
+    {
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'Expecting validation rules to be array or callable returning array, but got: instance of stdClass'
+        );
+        $this->config->setValidationRules(function(OperationParams $params) {
+            return new \stdClass();
+        });
+        $this->executeQuery('{f1}');
     }
 
     public function testExecutesBatchedQueries()
@@ -489,9 +530,9 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         return $result;
     }
 
-    private function executeQuery($query, $variables = null)
+    private function executeQuery($query, $variables = null, $readonly = false)
     {
-        $op = OperationParams::create(['query' => $query, 'variables' => $variables]);
+        $op = OperationParams::create(['query' => $query, 'variables' => $variables], $readonly);
         $helper = new Helper();
         $result = $helper->executeOperation($this->config, $op);
         $this->assertInstanceOf(ExecutionResult::class, $result);
