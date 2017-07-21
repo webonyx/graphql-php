@@ -543,7 +543,7 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
     {
         $batch = [];
         foreach ($qs as $params) {
-            $batch[] = OperationParams::create($params, true);
+            $batch[] = OperationParams::create($params);
         }
         $helper = new Helper();
         $result = $helper->executeBatch($this->config, $batch);

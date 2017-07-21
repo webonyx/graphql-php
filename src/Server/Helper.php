@@ -14,7 +14,9 @@ use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Class Helper
@@ -131,7 +133,9 @@ class Helper
                     return FormattedError::createFromException($e, true);
                 };
             } else {
-                $errorFormatter = $config->getErrorFormatter();
+                $errorFormatter = $config->getErrorFormatter() ?: function($e) {
+                    return FormattedError::createFromException($e, false);
+                };
             }
             $result->setErrorFormatter($errorFormatter);
             return $result;
@@ -265,6 +269,66 @@ class Helper
     }
 
     /**
+     * Converts query execution result to PSR response
+     *
+     * @param Promise|ExecutionResult|ExecutionResult[] $result
+     * @param ResponseInterface $response
+     * @param StreamInterface $writableBodyStream
+     * @return Promise|ResponseInterface
+     */
+    public function toPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream)
+    {
+        if ($result instanceof Promise) {
+            return $result->then(function($actualResult) use ($response, $writableBodyStream) {
+                return $this->doConvertToPsrResponse($actualResult, $response, $writableBodyStream);
+            });
+        } else {
+            return $this->doConvertToPsrResponse($result, $response, $writableBodyStream);
+        }
+    }
+
+    private function doConvertToPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream)
+    {
+        $httpStatus = $this->resolveHttpStatus($result);
+
+        $result = json_encode($result);
+        $writableBodyStream->write($result);
+
+        return $response
+            ->withStatus($httpStatus)
+            ->withHeader('Content-Type', 'application/json')
+            ->withBody($writableBodyStream);
+    }
+
+    /**
+     * @param Promise|ExecutionResult|ExecutionResult[] $result
+     * @param bool $exitWhenDone
+     */
+    public function sendResponse($result, $exitWhenDone = false)
+    {
+        if ($result instanceof Promise) {
+            $result->then(function($actualResult) use ($exitWhenDone) {
+                $this->doSendResponse($actualResult, $exitWhenDone);
+            });
+        } else {
+            $this->doSendResponse($result, $exitWhenDone);
+        }
+    }
+
+    private function doSendResponse($result, $exitWhenDone)
+    {
+        $httpStatus = $this->resolveHttpStatus($result);
+        $body = json_encode($result);
+
+        header('Content-Type: application/json', true, $httpStatus);
+        echo $body;
+
+        if ($exitWhenDone) {
+            exit;
+        }
+    }
+
+    /**
      * Parses normalized request params and returns instance of OperationParams or array of OperationParams in
      * case of batch operation.
      *
@@ -346,5 +410,40 @@ class Helper
             );
         }
         return $errors;
+    }
+
+    /**
+     * @param $result
+     * @return int
+     */
+    private function resolveHttpStatus($result)
+    {
+        if (is_array($result)) {
+            Utils::each($tmp, function ($executionResult, $index) {
+                if (!$executionResult instanceof ExecutionResult) {
+                    throw new InvariantViolation(sprintf(
+                        "Expecting every entry of batched query result to be instance of %s but entry at position %d is %s",
+                        ExecutionResult::class,
+                        $index,
+                        Utils::printSafe($executionResult)
+                    ));
+                }
+            });
+            $httpStatus = 200;
+        } else {
+            if (!$result instanceof ExecutionResult) {
+                throw new InvariantViolation(sprintf(
+                    "Expecting query result to be instance of %s but got %s",
+                    ExecutionResult::class,
+                    Utils::printSafe($result)
+                ));
+            }
+            if ($result->data === null && !empty($result->errors)) {
+                $httpStatus = 400;
+            } else {
+                $httpStatus = 200;
+            }
+        }
+        return $httpStatus;
     }
 }

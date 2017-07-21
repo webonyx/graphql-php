@@ -4,7 +4,9 @@ namespace GraphQL\Server;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Class StandardServer
@@ -79,5 +81,31 @@ class StandardServer
         } else {
             return $this->helper->executeOperation($this->config, $parsedBody);
         }
+    }
+
+   /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @param StreamInterface $writableBodyStream
+     * @return ResponseInterface|Promise
+     */
+    public function processPsrRequest(
+        ServerRequestInterface $request,
+        ResponseInterface $response,
+        StreamInterface $writableBodyStream
+    )
+    {
+        $result = $this->executePsrRequest($request);
+        return $this->helper->toPsrResponse($result, $response, $writableBodyStream);
+    }
+
+    /**
+     * @param OperationParams|OperationParams[] $parsedBody
+     * @param bool $exitWhenDone
+     */
+    public function processRequest($parsedBody = null, $exitWhenDone = false)
+    {
+        $result = $this->executeRequest($parsedBody);
+        $this->helper->sendResponse($result, $exitWhenDone);
     }
 }

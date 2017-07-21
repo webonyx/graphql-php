@@ -35,7 +35,7 @@ class ServerConfig
     /**
      * @var callable
      */
-    private $errorFormatter = [FormattedError::class, 'createFromException'];
+    private $errorFormatter;
 
     /**
      * @var bool
