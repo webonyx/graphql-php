@@ -11,6 +11,7 @@ use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
@@ -180,7 +181,7 @@ class Values
      */
     public static function getDirectiveValues(Directive $directiveDef, $node, $variableValues = null)
     {
-        if (isset($node->directives) && is_array($node->directives)) {
+        if (isset($node->directives) && $node->directives instanceof NodeList) {
             $directiveNode = Utils::find($node->directives, function(DirectiveNode $directive) use ($directiveDef) {
                 return $directive->name->value === $directiveDef->name;
             });

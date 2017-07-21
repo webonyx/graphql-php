@@ -3,6 +3,7 @@ namespace GraphQL\Language;
 
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
 
 class VisitorOperation
@@ -180,7 +181,7 @@ class Visitor
         $visitorKeys = $keyMap ?: self::$visitorKeys;
 
         $stack = null;
-        $inArray = is_array($root);
+        $inArray = $root instanceof NodeList || is_array($root);
         $keys = [$root];
         $index = -1;
         $edits = [];
@@ -206,6 +207,9 @@ class Visitor
                 if ($isEdited) {
                     if ($inArray) {
                         // $node = $node; // arrays are value types in PHP
+                        if ($node instanceof NodeList) {
+                            $node = clone $node;
+                        }
                     } else {
                         $node = clone $node;
                     }
@@ -218,10 +222,14 @@ class Visitor
                             $editKey -= $editOffset;
                         }
                         if ($inArray && $editValue === null) {
-                            array_splice($node, $editKey, 1);
+                            if ($node instanceof NodeList) {
+                                $node->splice($editKey, 1);
+                            } else {
+                                array_splice($node, $editKey, 1);
+                            }
                             $editOffset++;
                         } else {
-                            if (is_array($node)) {
+                            if ($node instanceof NodeList || is_array($node)) {
                                 $node[$editKey] = $editValue;
                             } else {
                                 $node->{$editKey} = $editValue;
@@ -236,7 +244,7 @@ class Visitor
                 $stack = $stack['prev'];
             } else {
                 $key = $parent ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
-                $node = $parent ? (is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
+                $node = $parent ? (($parent instanceof NodeList || is_array($parent)) ? $parent[$key] : $parent->{$key}) : $newRoot;
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
@@ -246,7 +254,7 @@ class Visitor
             }
 
             $result = null;
-            if (!is_array($node)) {
+            if (!$node instanceof NodeList && !is_array($node)) {
                 if (!($node instanceof Node)) {
                     throw new \Exception('Invalid AST Node: ' . json_encode($node));
                 }
@@ -297,7 +305,7 @@ class Visitor
                     'edits' => $edits,
                     'prev' => $stack
                 ];
-                $inArray = is_array($node);
+                $inArray = $node instanceof NodeList || is_array($node);
 
                 $keys = ($inArray ? $node : $visitorKeys[$node->kind]) ?: [];
                 $index = -1;

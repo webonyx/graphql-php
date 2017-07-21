@@ -70,4 +70,66 @@ class NodeKind
     // Directive Definitions
 
     const DIRECTIVE_DEFINITION = 'DirectiveDefinition';
+
+    /**
+     * @todo conver to const array when moving to PHP5.6
+     * @var array
+     */
+    public static $classMap = [
+        NodeKind::NAME => NameNode::class,
+
+        // Document
+        NodeKind::DOCUMENT => DocumentNode::class,
+        NodeKind::OPERATION_DEFINITION => OperationDefinitionNode::class,
+        NodeKind::VARIABLE_DEFINITION => VariableDefinitionNode::class,
+        NodeKind::VARIABLE => VariableNode::class,
+        NodeKind::SELECTION_SET => SelectionSetNode::class,
+        NodeKind::FIELD => FieldNode::class,
+        NodeKind::ARGUMENT => ArgumentNode::class,
+
+        // Fragments
+        NodeKind::FRAGMENT_SPREAD => FragmentSpreadNode::class,
+        NodeKind::INLINE_FRAGMENT => InlineFragmentNode::class,
+        NodeKind::FRAGMENT_DEFINITION => FragmentDefinitionNode::class,
+
+        // Values
+        NodeKind::INT => IntValueNode::class,
+        NodeKind::FLOAT => FloatValueNode::class,
+        NodeKind::STRING => StringValueNode::class,
+        NodeKind::BOOLEAN => BooleanValueNode::class,
+        NodeKind::ENUM => EnumValueNode::class,
+        NodeKind::NULL => NullValueNode::class,
+        NodeKind::LST => ListValueNode::class,
+        NodeKind::OBJECT => ObjectValueNode::class,
+        NodeKind::OBJECT_FIELD => ObjectFieldNode::class,
+
+        // Directives
+        NodeKind::DIRECTIVE => DirectiveNode::class,
+
+        // Types
+        NodeKind::NAMED_TYPE => NamedTypeNode::class,
+        NodeKind::LIST_TYPE => ListTypeNode::class,
+        NodeKind::NON_NULL_TYPE => NonNullTypeNode::class,
+
+        // Type System Definitions
+        NodeKind::SCHEMA_DEFINITION => SchemaDefinitionNode::class,
+        NodeKind::OPERATION_TYPE_DEFINITION => OperationTypeDefinitionNode::class,
+
+        // Type Definitions
+        NodeKind::SCALAR_TYPE_DEFINITION => ScalarTypeDefinitionNode::class,
+        NodeKind::OBJECT_TYPE_DEFINITION => ObjectTypeDefinitionNode::class,
+        NodeKind::FIELD_DEFINITION => FieldDefinitionNode::class,
+        NodeKind::INPUT_VALUE_DEFINITION => InputValueDefinitionNode::class,
+        NodeKind::INTERFACE_TYPE_DEFINITION => InterfaceTypeDefinitionNode::class,
+        NodeKind::UNION_TYPE_DEFINITION => UnionTypeDefinitionNode::class,
+        NodeKind::ENUM_TYPE_DEFINITION => EnumTypeDefinitionNode::class,
+        NodeKind::ENUM_VALUE_DEFINITION => EnumValueDefinitionNode::class,
+        NodeKind::INPUT_OBJECT_TYPE_DEFINITION =>InputObjectTypeDefinitionNode::class,
+
+        // Type Extensions
+        NodeKind::TYPE_EXTENSION_DEFINITION => TypeExtensionDefinitionNode::class,
+
+        // Directive Definitions
+        NodeKind::DIRECTIVE_DEFINITION => DirectiveDefinitionNode::class
+    ];
 }

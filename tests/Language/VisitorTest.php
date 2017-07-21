@@ -6,6 +6,7 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Parser;
@@ -157,7 +158,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                 if ($node instanceof FieldNode && $node->name->value === 'a') {
                     return new FieldNode([
                         'selectionSet' => new SelectionSetNode(array(
-                            'selections' => array_merge([$addedField], $node->selectionSet->selections)
+                            'selections' => NodeList::create([$addedField])->merge($node->selectionSet->selections)
                         ))
                     ]);
                 }

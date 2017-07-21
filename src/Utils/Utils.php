@@ -183,12 +183,19 @@ class Utils
         return $grouped;
     }
 
+    /**
+     * @param array|Traversable $traversable
+     * @param callable $keyFn
+     * @param callable $valFn
+     * @return array
+     */
     public static function keyValMap($traversable, callable $keyFn, callable $valFn)
     {
-        return array_reduce($traversable, function ($map, $item) use ($keyFn, $valFn) {
+        $map = [];
+        foreach ($traversable as $item) {
             $map[$keyFn($item)] = $valFn($item);
-            return $map;
-        }, []);
+        }
+        return $map;
     }
 
     /**

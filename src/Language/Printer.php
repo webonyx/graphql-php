@@ -38,6 +38,7 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\TypeExtensionDefinitionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
+use GraphQL\Utils\Utils;
 
 class Printer
 {
@@ -280,7 +281,7 @@ class Printer
         return $maybeArray
             ? implode(
                 $separator,
-                array_filter(
+                Utils::filter(
                     $maybeArray,
                     function($x) { return !!$x;}
                 )

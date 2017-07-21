@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeList;
 
 class TestUtils
 {
@@ -22,7 +23,7 @@ class TestUtils
             if (isset($result[$prop]))
                 continue;
 
-            if (is_array($propValue)) {
+            if (is_array($propValue) || $propValue instanceof NodeList) {
                 $tmp = [];
                 foreach ($propValue as $tmp1) {
                     $tmp[] = $tmp1 instanceof Node ? self::nodeToArray($tmp1) : (array) $tmp1;

@@ -7,6 +7,7 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Parser;
@@ -150,20 +151,20 @@ HEREDOC;
         $result = Parser::parse($query, ['noLocation' => true]);
 
         $expected = new SelectionSetNode([
-            'selections' => [
+            'selections' => new NodeList([
                 new FieldNode([
                     'name' => new NameNode(['value' => 'field']),
-                    'arguments' => [
+                    'arguments' => new NodeList([
                         new ArgumentNode([
                             'name' => new NameNode(['value' => 'arg']),
                             'value' => new StringValueNode([
                                 'value' => "Has a $char multi-byte character."
                             ])
                         ])
-                    ],
-                    'directives' => []
+                    ]),
+                    'directives' => new NodeList([])
                 ])
-            ]
+            ])
         ]);
 
         $this->assertEquals($expected, $result->definitions[0]->selectionSet);

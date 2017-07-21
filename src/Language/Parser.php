@@ -26,6 +26,7 @@ use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NamedTypeNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectFieldNode;
@@ -248,7 +249,7 @@ class Parser
         while (!$this->skip($closeKind)) {
             $nodes[] = $parseFn($this);
         }
-        return $nodes;
+        return new NodeList($nodes);
     }
 
     /**
@@ -260,7 +261,7 @@ class Parser
      * @param $openKind
      * @param $parseFn
      * @param $closeKind
-     * @return array
+     * @return NodeList
      * @throws SyntaxError
      */
     function many($openKind, $parseFn, $closeKind)
@@ -271,7 +272,7 @@ class Parser
         while (!$this->skip($closeKind)) {
             $nodes[] = $parseFn($this);
         }
-        return $nodes;
+        return new NodeList($nodes);
     }
 
     /**
@@ -307,7 +308,7 @@ class Parser
         } while (!$this->skip(Token::EOF));
 
         return new DocumentNode([
-            'definitions' => $definitions,
+            'definitions' => new NodeList($definitions),
             'loc' => $this->loc($start)
         ]);
     }
@@ -363,7 +364,7 @@ class Parser
                 'operation' => 'query',
                 'name' => null,
                 'variableDefinitions' => null,
-                'directives' => [],
+                'directives' => new NodeList([]),
                 'selectionSet' => $this->parseSelectionSet(),
                 'loc' => $this->loc($start)
             ]);
@@ -408,13 +409,13 @@ class Parser
      */
     function parseVariableDefinitions()
     {
-      return $this->peek(Token::PAREN_L) ?
-        $this->many(
-          Token::PAREN_L,
-          [$this, 'parseVariableDefinition'],
-          Token::PAREN_R
-        ) :
-        [];
+        return $this->peek(Token::PAREN_L) ?
+            $this->many(
+                Token::PAREN_L,
+                [$this, 'parseVariableDefinition'],
+                Token::PAREN_R
+            ) :
+            new NodeList([]);
     }
 
     /**
@@ -513,7 +514,7 @@ class Parser
     {
         return $this->peek(Token::PAREN_L) ?
             $this->many(Token::PAREN_L, [$this, 'parseArgument'], Token::PAREN_R) :
-            [];
+            new NodeList([]);
     }
 
     /**
@@ -726,7 +727,7 @@ class Parser
             $fields[] = $this->parseObjectField($isConst);
         }
         return new ObjectValueNode([
-            'fields' => $fields,
+            'fields' => new NodeList($fields),
             'loc' => $this->loc($start)
         ]);
     }
@@ -760,7 +761,7 @@ class Parser
         while ($this->peek(Token::AT)) {
             $directives[] = $this->parseDirective();
         }
-        return $directives;
+        return new NodeList($directives);
     }
 
     /**

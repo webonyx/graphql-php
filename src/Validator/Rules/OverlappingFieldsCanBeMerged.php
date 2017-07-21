@@ -379,7 +379,7 @@ class OverlappingFieldsCanBeMerged
      *
      * @return bool|string
      */
-    private function sameArguments(array $arguments1, array $arguments2)
+    private function sameArguments($arguments1, $arguments2)
     {
         if (count($arguments1) !== count($arguments2)) {
             return false;

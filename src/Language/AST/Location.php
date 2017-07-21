@@ -45,12 +45,28 @@ class Location
      */
     public $source;
 
-    public function __construct(Token $startToken, Token $endToken, Source $source = null)
+    /**
+     * @param $start
+     * @param $end
+     * @return static
+     */
+    public static function create($start, $end)
+    {
+        $tmp = new static();
+        $tmp->start = $start;
+        $tmp->end = $end;
+        return $tmp;
+    }
+
+    public function __construct(Token $startToken = null, Token $endToken = null, Source $source = null)
     {
         $this->startToken = $startToken;
         $this->endToken = $endToken;
-        $this->start = $startToken->start;
-        $this->end = $endToken->end;
         $this->source = $source;
+
+        if ($startToken && $endToken) {
+            $this->start = $startToken->start;
+            $this->end = $endToken->end;
+        }
     }
 }
