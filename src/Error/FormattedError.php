@@ -91,8 +91,12 @@ class FormattedError
         }
 
         if ($debug & self::INCLUDE_TRACE > 0) {
-            $debugging = $e->getPrevious() ?: $e;
-            $result['trace'] = static::toSafeTrace($debugging->getTrace());
+            $isTrivial = $e instanceof Error && !$e->getPrevious();
+
+            if (!$isTrivial) {
+                $debugging = $e->getPrevious() ?: $e;
+                $result['trace'] = static::toSafeTrace($debugging->getTrace());
+            }
         }
 
         return $result;
