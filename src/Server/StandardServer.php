@@ -72,7 +72,7 @@ class StandardServer
      */
     public function executeRequest($parsedBody = null)
     {
-        if (null !== $parsedBody) {
+        if (null === $parsedBody) {
             $parsedBody = $this->helper->parseHttpRequest();
         }
 

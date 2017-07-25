@@ -60,7 +60,7 @@ abstract class Node
      * This is a reverse operation for $node->toArray(true)
      *
      * @param array $node
-     * @return EnumValueDefinitionNode
+     * @return Node
      */
     public static function fromArray(array $node)
     {
