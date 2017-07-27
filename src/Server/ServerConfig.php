@@ -23,12 +23,12 @@ class ServerConfig
     private $schema;
 
     /**
-     * @var mixed
+     * @var mixed|callable
      */
     private $context;
 
     /**
-     * @var mixed
+     * @var mixed|callable
      */
     private $rootValue;
 
@@ -63,7 +63,7 @@ class ServerConfig
     private $persistentQueryLoader;
 
     /**
-     * @return mixed
+     * @return mixed|callable
      */
     public function getContext()
     {
@@ -71,7 +71,7 @@ class ServerConfig
     }
 
     /**
-     * @param mixed $context
+     * @param mixed|callable $context
      * @return $this
      */
     public function setContext($context)
@@ -81,7 +81,7 @@ class ServerConfig
     }
 
     /**
-     * @param mixed $rootValue
+     * @param mixed|callable $rootValue
      * @return $this
      */
     public function setRootValue($rootValue)
@@ -91,7 +91,7 @@ class ServerConfig
     }
 
     /**
-     * @return mixed
+     * @return mixed|callable
      */
     public function getRootValue()
     {

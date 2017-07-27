@@ -95,14 +95,16 @@ class Helper
             if (!$doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);
             }
-            if ($op->isReadOnly() && AST::getOperation($doc, $op->operation) !== 'query') {
+
+            $operationType = AST::getOperation($doc, $op->operation);
+            if ($op->isReadOnly() && $operationType !== 'query') {
                 throw new Error("GET supports only query operation");
             }
 
             $validationErrors = DocumentValidator::validate(
                 $config->getSchema(),
                 $doc,
-                $this->resolveValidationRules($config, $op)
+                $this->resolveValidationRules($config, $op, $doc, $operationType)
             );
 
             if (!empty($validationErrors)) {
@@ -114,8 +116,8 @@ class Helper
                     $promiseAdapter,
                     $config->getSchema(),
                     $doc,
-                    $config->getRootValue(),
-                    $config->getContext(),
+                    $this->resolveRootValue($config, $op, $doc, $operationType),
+                    $this->resolveContextValue($config, $op, $doc, $operationType),
                     $op->variables,
                     $op->operation,
                     $config->getDefaultFieldResolver()
@@ -176,15 +178,17 @@ class Helper
     /**
      * @param ServerConfig $config
      * @param OperationParams $params
+     * @param DocumentNode $doc
+     * @param $operationType
      * @return array
      */
-    private function resolveValidationRules(ServerConfig $config, OperationParams $params)
+    private function resolveValidationRules(ServerConfig $config, OperationParams $params, DocumentNode $doc, $operationType)
     {
         // Allow customizing validation rules per operation:
         $validationRules = $config->getValidationRules();
 
         if (is_callable($validationRules)) {
-            $validationRules = $validationRules($params);
+            $validationRules = $validationRules($params, $doc, $operationType);
 
             if (!is_array($validationRules)) {
                 throw new InvariantViolation(sprintf(
@@ -195,6 +199,42 @@ class Helper
         }
 
         return $validationRules;
+    }
+
+    /**
+     * @param ServerConfig $config
+     * @param OperationParams $params
+     * @param DocumentNode $doc
+     * @param $operationType
+     * @return mixed
+     */
+    private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, $operationType)
+    {
+        $root = $config->getRootValue();
+
+        if (is_callable($root)) {
+            $root = $root($params, $doc, $operationType);
+        }
+
+        return $root;
+    }
+
+    /**
+     * @param ServerConfig $config
+     * @param OperationParams $params
+     * @param DocumentNode $doc
+     * @param $operationType
+     * @return mixed
+     */
+    private function resolveContextValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, $operationType)
+    {
+        $context = $config->getContext();
+
+        if (is_callable($context)) {
+            $context = $context($params, $doc, $operationType);
+        }
+
+        return $context;
     }
 
     /**
