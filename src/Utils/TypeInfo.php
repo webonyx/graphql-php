@@ -211,7 +211,7 @@ class TypeInfo
         }
         if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {
             foreach ((array) $type->getFields() as $fieldName => $field) {
-                if (isset($field->args)) {
+                if (!empty($field->args)) {
                     $fieldArgTypes = array_map(function(FieldArgument $arg) { return $arg->getType(); }, $field->args);
                     $nestedTypes = array_merge($nestedTypes, $fieldArgTypes);
                 }
