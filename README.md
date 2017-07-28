@@ -237,7 +237,7 @@ resolveType | `callback($value, $context, ResolveInfo $info) => objectType` | An
 
 **Notes**:
 
-1. If `resolveType` option is omitted, GraphQL PHP will loop through all interface implementors and use their `isTypeOf()` method to pick the first suitable one. This is obviously less efficient than single `resolveType` call. So it is recommended to define `resolveType` when possible.
+1. If `resolveType` option is omitted, GraphQL PHP will loop through all interface implementers and use their `isTypeOf()` method to pick the first suitable one. This is obviously less efficient than single `resolveType` call. So it is recommended to define `resolveType` when possible.
 
 2. Interface types do not participate in data fetching. They just resolve actual `object` type which will be asked for data when GraphQL query is executed.
 
