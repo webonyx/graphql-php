@@ -224,19 +224,43 @@ class Schema
 
     private function collectAllTypes()
     {
-        $initialTypes = [
-            $this->config->query,
-            $this->config->mutation,
-            $this->config->subscription,
-            Introspection::_schema()
-        ];
-        if (!empty($this->config->types)) {
-            $initialTypes = array_merge($initialTypes, $this->config->types);
-        }
+        $initialTypes = array_merge(
+            [
+                $this->config->query,
+                $this->config->mutation,
+                $this->config->subscription,
+                Introspection::_schema()
+            ],
+            array_values($this->resolvedTypes)
+        );
+
         $typeMap = [];
         foreach ($initialTypes as $type) {
             $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
+
+        $types = $this->config->types;
+        if (is_callable($types)) {
+            $types = $types();
+
+            Utils::invariant(
+                is_array($types) || $types instanceof \Traversable,
+                'Schema types callable must return array or instance of Traversable but got: %s',
+                Utils::getVariableType($types)
+            );
+        }
+
+        if (!empty($types)) {
+            foreach ($types as $type) {
+                Utils::invariant(
+                    $type instanceof Type,
+                    'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but got: %s',
+                    Utils::getVariableType($types)
+                );
+                $typeMap = TypeInfo::extractTypes($type, $typeMap);
+            }
+        }
+
         return $typeMap + Type::getInternalTypes();
     }
 

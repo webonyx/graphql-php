@@ -31,7 +31,7 @@ class Config
     public $subscription;
 
     /**
-     * @var Type[]
+     * @var Type[]|callable
      */
     public $types;
 
@@ -88,8 +88,8 @@ class Config
 
             if (isset($options['types'])) {
                 Utils::invariant(
-                    is_array($options['types']),
-                    'Schema types must be array if provided but got: %s',
+                    is_array($options['types']) || is_callable($options['types']),
+                    'Schema types must be array or callable if provided but got: %s',
                     Utils::getVariableType($options['types'])
                 );
                 $config->setTypes($options['types']);
@@ -110,6 +110,7 @@ class Config
                     'Schema type loader must be callable if provided but got: %s',
                     Utils::getVariableType($options['typeLoader'])
                 );
+                $config->setTypeLoader($options['typeLoader']);
             }
 
             if (isset($options['descriptor'])) {
@@ -188,20 +189,11 @@ class Config
     }
 
     /**
-     * @param Type[] $types
+     * @param Type[]|callable $types
      * @return Config
      */
     public function setTypes($types)
     {
-        foreach ($types as $index => $type) {
-            Utils::invariant(
-                $type instanceof Type,
-                'Schema types must be GraphQL\Type\Definition\Type[], but entry at index "%s" is "%s"',
-                $index,
-                Utils::getVariableType($type)
-            );
-        }
-
         $this->types = $types;
         return $this;
     }
@@ -220,15 +212,6 @@ class Config
      */
     public function setDirectives(array $directives)
     {
-        foreach ($directives as $index => $directive) {
-            Utils::invariant(
-                $directive instanceof Directive,
-                'Schema directives must be GraphQL\Type\Definition\Directive[] if provided but but entry at index "%s" is "%s"',
-                $index,
-                Utils::getVariableType($directive)
-            );
-        }
-
         $this->directives = $directives;
         return $this;
     }
