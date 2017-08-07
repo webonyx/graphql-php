@@ -487,10 +487,10 @@ class ServerTest extends \PHPUnit_Framework_TestCase
                 'locations' => [[
                     'line' => 1,
                     'column' => 2
-                ]]
+                ]],
             ]]
         ];
-        $this->assertEquals($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray());
 
         $server->setDebug(Server::DEBUG_EXCEPTIONS);
         $server->setExceptionFormatter(function($e) {
@@ -507,7 +507,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
 
         $result = $server->executeQuery('{withException}');
         $expected['errors'][0]['exception'] = ['test' => 'Error'];
-        $this->assertEquals($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray());
     }
 
     public function testHandleRequest()
@@ -530,7 +530,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $mock->handleRequest();
 
         $this->assertInternalType('array', $output);
-        $this->assertEquals(['errors' => [['message' => 'Unexpected Error']]], $output[0]);
+        $this->assertArraySubset(['errors' => [['message' => 'Unexpected Error']]], $output[0]);
         $this->assertEquals(500, $output[1]);
 
         $output = null;
@@ -565,7 +565,8 @@ class ServerTest extends \PHPUnit_Framework_TestCase
                 'locations' => [[
                     'line' => 1,
                     'column' => 2
-                ]]
+                ]],
+                'category' => 'graphql',
             ]]],
             200
         ];

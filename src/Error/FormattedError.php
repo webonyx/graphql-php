@@ -44,18 +44,19 @@ class FormattedError
         if ($e instanceof ClientAware) {
             if ($e->isClientSafe()) {
                 $result = [
-                    'message' => $e->getMessage()
+                    'message' => $e->getMessage(),
+                    'category' => $e->getCategory()
                 ];
             } else {
                 $result = [
                     'message' => $internalErrorMessage,
-                    'isInternalError' => true
+                    'category' => $e->getCategory()
                 ];
             }
         } else {
             $result = [
                 'message' => $internalErrorMessage,
-                'isInternalError' => true
+                'category' => Error::INTERNAL
             ];
         }
         if (($debug & self::INCLUDE_DEBUG_MESSAGE > 0) && $result['message'] === $internalErrorMessage) {

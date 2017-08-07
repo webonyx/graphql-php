@@ -1481,7 +1481,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                 )
             ]
         ];
-        $this->assertEquals($expected, GraphQL::execute($schema, $request));
+        $this->assertArraySubset($expected, GraphQL::execute($schema, $request));
     }
 
     /**

@@ -186,7 +186,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
                 [
                     'message' => 'We are testing this error',
                     'locations' => [['line' => 2, 'column' => 7]],
-                    'path' => ['pets', 0]
+                    'path' => ['pets', 0],
                 ],
                 [
                     'message' => 'We are testing this error',
@@ -196,7 +196,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, $result);
+        $this->assertArraySubset($expected, $result);
     }
 
     /**
@@ -380,7 +380,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, $result);
+        $this->assertArraySubset($expected, $result);
     }
 
     /**
@@ -481,7 +481,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, $result);
+        $this->assertArraySubset($expected, $result);
     }
 
     /**
@@ -655,6 +655,6 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, $result);
+        $this->assertArraySubset($expected, $result);
     }
 }

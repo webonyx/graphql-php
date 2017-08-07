@@ -16,6 +16,9 @@ use GraphQL\Utils\Utils;
  */
 class Error extends \Exception implements \JsonSerializable, ClientAware
 {
+    const GRAPHQL = 'graphql';
+    const INTERNAL = 'internal';
+
     /**
      * A message describing the Error for debugging purposes.
      *
@@ -66,6 +69,11 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
      * @var bool
      */
     private $isClientSafe;
+
+    /**
+     * @var string
+     */
+    protected $category;
 
     /**
      * Given an arbitrary Error, presumably thrown while attempting to execute a
@@ -131,7 +139,14 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
      * @param array|null $path
      * @param \Throwable $previous
      */
-    public function __construct($message, $nodes = null, Source $source = null, $positions = null, $path = null, $previous = null)
+    public function __construct(
+        $message,
+        $nodes = null,
+        Source $source = null,
+        $positions = null,
+        $path = null,
+        $previous = null
+    )
     {
         parent::__construct($message, 0, $previous);
 
@@ -146,19 +161,30 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-        } else if ($previous === null) {
-            $this->isClientSafe = true;
-        } else {
+            $this->category = $previous->getCategory() ?: static::INTERNAL;
+        } else if ($previous) {
             $this->isClientSafe = false;
+            $this->category = static::INTERNAL;
+        } else {
+            $this->isClientSafe = true;
+            $this->category = static::GRAPHQL;
         }
     }
 
     /**
-     * @return bool
+     * @inheritdoc
      */
     public function isClientSafe()
     {
         return $this->isClientSafe;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCategory()
+    {
+        return $this->category;
     }
 
     /**
@@ -222,7 +248,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     public function toSerializableArray()
     {
         $arr = [
-            'message' => $this->getMessage(),
+            'message' => $this->getMessage()
         ];
 
         $locations = Utils::map($this->getLocations(), function(SourceLocation $loc) {

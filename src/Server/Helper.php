@@ -98,7 +98,7 @@ class Helper
 
             $operationType = AST::getOperation($doc, $op->operation);
             if ($op->isReadOnly() && $operationType !== 'query') {
-                throw new Error("GET supports only query operation");
+                throw new RequestError("GET supports only query operation");
             }
 
             $validationErrors = DocumentValidator::validate(
@@ -123,6 +123,10 @@ class Helper
                     $config->getDefaultFieldResolver()
                 );
             }
+        } catch (RequestError $e) {
+            $result = $promiseAdapter->createFulfilled(
+                new ExecutionResult(null, [Error::createLocatedError($e)])
+            );
         } catch (Error $e) {
             $result = $promiseAdapter->createFulfilled(
                 new ExecutionResult(null, [$e])
@@ -159,7 +163,7 @@ class Helper
         $loader = $config->getPersistentQueryLoader();
 
         if (!$loader) {
-            throw new Error("Persisted queries are not supported by this server");
+            throw new RequestError("Persisted queries are not supported by this server");
         }
 
         $source = $loader($op->queryId, $op);
@@ -266,10 +270,10 @@ class Helper
                 $bodyParams = json_decode($rawBody ?: '', true);
 
                 if (json_last_error()) {
-                    throw new Error("Could not parse JSON: " . json_last_error_msg());
+                    throw new RequestError("Could not parse JSON: " . json_last_error_msg());
                 }
                 if (!is_array($bodyParams)) {
-                    throw new Error(
+                    throw new RequestError(
                         "GraphQL Server expects JSON object or array, but got " .
                         Utils::printSafeJson($bodyParams)
                     );
@@ -277,9 +281,9 @@ class Helper
             } else if (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
                 $bodyParams = $_POST;
             } else if (null === $contentType) {
-                throw new Error('Missing "Content-Type" header');
+                throw new RequestError('Missing "Content-Type" header');
             } else {
-                throw new Error("Unexpected content type: " . Utils::printSafeJson($contentType));
+                throw new RequestError("Unexpected content type: " . Utils::printSafeJson($contentType));
             }
         }
 
@@ -395,7 +399,7 @@ class Helper
                 $result = OperationParams::create($bodyParams);
             }
         } else {
-            throw new Error('HTTP Method "' . $method . '" is not supported');
+            throw new RequestError('HTTP Method "' . $method . '" is not supported');
         }
         return $result;
     }
@@ -418,33 +422,33 @@ class Helper
     {
         $errors = [];
         if (!$params->query && !$params->queryId) {
-            $errors[] = new Error('GraphQL Request must include at least one of those two parameters: "query" or "queryId"');
+            $errors[] = new RequestError('GraphQL Request must include at least one of those two parameters: "query" or "queryId"');
         }
         if ($params->query && $params->queryId) {
-            $errors[] = new Error('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
+            $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
         }
 
         if ($params->query !== null && (!is_string($params->query) || empty($params->query))) {
-            $errors[] = new Error(
+            $errors[] = new RequestError(
                 'GraphQL Request parameter "query" must be string, but got ' .
                 Utils::printSafeJson($params->query)
             );
         }
         if ($params->queryId !== null && (!is_string($params->queryId) || empty($params->queryId))) {
-            $errors[] = new Error(
+            $errors[] = new RequestError(
                 'GraphQL Request parameter "queryId" must be string, but got ' .
                 Utils::printSafeJson($params->queryId)
             );
         }
 
         if ($params->operation !== null && (!is_string($params->operation) || empty($params->operation))) {
-            $errors[] = new Error(
+            $errors[] = new RequestError(
                 'GraphQL Request parameter "operation" must be string, but got ' .
                 Utils::printSafeJson($params->operation)
             );
         }
         if ($params->variables !== null && (!is_array($params->variables) || isset($params->variables[0]))) {
-            $errors[] = new Error(
+            $errors[] = new RequestError(
                 'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got ' .
                 Utils::printSafeJson($params->getOriginalInput('variables'))
             );

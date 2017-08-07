@@ -522,7 +522,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $result = Executor::execute($schema, $docAst, $data)->toArray();
 
-        $this->assertEquals($expected, $result);
+        $this->assertArraySubset($expected, $result);
     }
 
     /**
@@ -615,7 +615,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray());
     }
 
     /**
@@ -645,7 +645,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray());
     }
 
     /**
@@ -683,7 +683,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         ];
 
-        $this->assertEquals($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray());
     }
 
     /**
@@ -996,7 +996,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        $this->assertEquals($expected, $result->toArray());
+        $this->assertArraySubset($expected, $result->toArray());
     }
 
     /**

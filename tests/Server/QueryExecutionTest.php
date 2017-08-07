@@ -277,7 +277,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'Persisted queries are not supported by this server'
+                    'message' => 'Persisted queries are not supported by this server',
+                    'category' => 'request'
                 ]
             ]
         ];
@@ -291,7 +292,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'errors' => [
                 [
-                    'message' => 'GET supports only query operation'
+                    'message' => 'GET supports only query operation',
+                    'category' => 'request'
                 ]
             ]
         ];
@@ -354,7 +356,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
             'errors' => [
                 [
                     'message' => 'Cannot query field "invalid" on type "Query".',
-                    'locations' => [ ['line' => 1, 'column' => 2] ]
+                    'locations' => [ ['line' => 1, 'column' => 2] ],
+                    'category' => 'graphql'
                 ]
             ]
         ];
@@ -391,7 +394,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
             'errors' => [
                 [
                     'message' => 'Cannot query field "invalid2" on type "Query".',
-                    'locations' => [ ['line' => 1, 'column' => 2] ]
+                    'locations' => [ ['line' => 1, 'column' => 2] ],
+                    'category' => 'graphql'
                 ]
             ]
         ];

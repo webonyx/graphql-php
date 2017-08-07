@@ -5,6 +5,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
+use GraphQL\Server\RequestError;
 
 class RequestParsingTest extends \PHPUnit_Framework_TestCase
 {
@@ -126,7 +127,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     {
         $body = 'not really{} a json';
 
-        $this->setExpectedException(Error::class, 'Could not parse JSON: Syntax error');
+        $this->setExpectedException(RequestError::class, 'Could not parse JSON: Syntax error');
         $this->parseRawRequest('application/json', $body);
     }
 
@@ -134,25 +135,25 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     {
         $body = '"str"';
 
-        $this->setExpectedException(Error::class, 'GraphQL Server expects JSON object or array, but got "str"');
+        $this->setExpectedException(RequestError::class, 'GraphQL Server expects JSON object or array, but got "str"');
         $this->parseRawRequest('application/json', $body);
     }
 
     public function testFailsParsingInvalidContentType()
     {
-        $this->setExpectedException(Error::class, 'Unexpected content type: "not-supported-content-type"');
+        $this->setExpectedException(RequestError::class, 'Unexpected content type: "not-supported-content-type"');
         $this->parseRawRequest('not-supported-content-type', 'test');
     }
 
     public function testFailsWithMissingContentType()
     {
-        $this->setExpectedException(Error::class, 'Missing "Content-Type" header');
+        $this->setExpectedException(RequestError::class, 'Missing "Content-Type" header');
         $this->parseRawRequest(null, 'test');
     }
 
     public function testFailsOnMethodsOtherThanPostOrGet()
     {
-        $this->setExpectedException(Error::class, 'HTTP Method "PUT" is not supported');
+        $this->setExpectedException(RequestError::class, 'HTTP Method "PUT" is not supported');
         $this->parseRawRequest(null, 'test', "PUT");
     }
 

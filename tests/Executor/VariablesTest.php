@@ -162,7 +162,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" got invalid value {"a":"foo","b":"bar","c":null}.'. "\n".
                         'In field "c": Expected "String!", found null.',
-                    'locations' => [['line' => 2, 'column' => 17]]
+                    'locations' => [['line' => 2, 'column' => 17]],
+                    'category' => 'graphql'
                 ]
             ]
         ];
@@ -178,6 +179,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                         'Variable "$input" got invalid value "foo bar".' . "\n" .
                         'Expected "TestInputObject", found not an object.',
                     'locations' => [ [ 'line' => 2, 'column' => 17 ] ],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -193,7 +195,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" got invalid value {"a":"foo","b":"bar"}.'. "\n".
                         'In field "c": Expected "String!", found null.',
-                    'locations' => [['line' => 2, 'column' => 17]]
+                    'locations' => [['line' => 2, 'column' => 17]],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -216,7 +219,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                         'Variable "$input" got invalid value {"na":{"a":"foo"}}.' . "\n" .
                         'In field "na": In field "c": Expected "String!", found null.' . "\n" .
                         'In field "nb": Expected "String!", found null.',
-                    'locations' => [['line' => 2, 'column' => 19]]
+                    'locations' => [['line' => 2, 'column' => 19]],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -232,7 +236,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" got invalid value {"a":"foo","b":"bar","c":"baz","d":"dog"}.'."\n".
                         'In field "d": Expected type "ComplexScalar", found "dog".',
-                    'locations' => [['line' => 2, 'column' => 17]]
+                    'locations' => [['line' => 2, 'column' => 17]],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -374,7 +379,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
             'errors' => [
                 [
                     'message' => 'Variable "$value" of required type "String!" was not provided.',
-                    'locations' => [['line' => 2, 'column' => 31]]
+                    'locations' => [['line' => 2, 'column' => 31]],
+                    'category' => 'graphql'
                 ]
             ]
         ];
@@ -399,7 +405,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$value" got invalid value null.' . "\n".
                         'Expected "String!", found null.',
-                    'locations' => [['line' => 2, 'column' => 31]]
+                    'locations' => [['line' => 2, 'column' => 31]],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -453,7 +460,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
             'errors' => [[
                 'message' => 'Argument "input" of required type "String!" was not provided.',
                 'locations' => [ [ 'line' => 3, 'column' => 9 ] ],
-                'path' => [ 'fieldWithNonNullableStringInput' ]
+                'path' => [ 'fieldWithNonNullableStringInput' ],
+                'category' => 'graphql',
             ]]
         ];
         $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
@@ -483,7 +491,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'Argument "input" of required type "String!" was provided the ' .
                     'variable "$foo" which was not provided a runtime value.',
                 'locations' => [['line' => 3, 'column' => 48]],
-                'path' => ['fieldWithNonNullableStringInput']
+                'path' => ['fieldWithNonNullableStringInput'],
+                'category' => 'graphql',
             ]]
         ];
         $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
@@ -555,7 +564,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" got invalid value null.' . "\n" .
                         'Expected "[String]!", found null.',
-                    'locations' => [['line' => 2, 'column' => 17]]
+                    'locations' => [['line' => 2, 'column' => 17]],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -642,7 +652,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" got invalid value ["A",null,"B"].' . "\n" .
                         'In element #1: Expected "String!", found null.',
-                    'locations' => [ ['line' => 2, 'column' => 17] ]
+                    'locations' => [ ['line' => 2, 'column' => 17] ],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -667,7 +678,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" got invalid value null.' . "\n" .
                         'Expected "[String!]!", found null.',
-                    'locations' => [ ['line' => 2, 'column' => 17] ]
+                    'locations' => [ ['line' => 2, 'column' => 17] ],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -707,7 +719,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" got invalid value ["A",null,"B"].'."\n".
                         'In element #1: Expected "String!", found null.',
-                    'locations' => [ ['line' => 2, 'column' => 17] ]
+                    'locations' => [ ['line' => 2, 'column' => 17] ],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -733,7 +746,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" expected value of type "TestType!" which cannot ' .
                         'be used as an input type.',
-                    'locations' => [['line' => 2, 'column' => 25]]
+                    'locations' => [['line' => 2, 'column' => 25]],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -760,7 +774,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" expected value of type "UnknownType!" which ' .
                         'cannot be used as an input type.',
-                    'locations' => [['line' => 2, 'column' => 25]]
+                    'locations' => [['line' => 2, 'column' => 25]],
+                    'category' => 'graphql',
                 ]
             ]
         ];
@@ -814,7 +829,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'Argument "input" got invalid value WRONG_TYPE.' . "\n" .
                     'Expected type "String", found WRONG_TYPE.',
                 'locations' => [ [ 'line' => 2, 'column' => 50 ] ],
-                'path' => [ 'fieldWithDefaultArgumentValue' ]
+                'path' => [ 'fieldWithDefaultArgumentValue' ],
+                'category' => 'graphql',
             ]]
         ];
 

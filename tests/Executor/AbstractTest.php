@@ -274,7 +274,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
         ];
         $actual = GraphQL::execute($schema, $query);
 
-        $this->assertEquals($expected, $actual);
+        $this->assertArraySubset($expected, $actual);
     }
 
     /**
@@ -369,7 +369,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
                 'path' => ['pets', 2]
             ]]
         ];
-        $this->assertEquals($expected, $result);
+        $this->assertArraySubset($expected, $result);
     }
 
     /**
