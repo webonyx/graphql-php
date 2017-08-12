@@ -1,6 +1,6 @@
 # Upgrade
 
-## Upgrade v0.9.x > v0.10.x
+## Upgrade v0.8.x, v0.9.x > v0.10.x
 ### Breaking: default error formatting
 By default exceptions thrown in resolvers will be reported with generic message `"Internal server error"`.
 Only exceptions implementing interface `GraphQL\Error\ClientAware` and claiming themselves as `safe` will 
@@ -9,13 +9,16 @@ be reported with full error message.
 This is done to avoid information leak in production when unhandled exceptions occur in resolvers 
 (e.g. database connection errors, file access errors, etc).
 
+Also every error reported to client now has new `category` key which is either `graphql` or `internal`.
+Exceptions implementing `ClientAware` interface may define their own custom categories.
+
 During development or debugging use `$executionResult->toArray(true)`. It will add `debugMessage` key to 
 each error entry in result. If you also want to add `trace` for each error - pass flags instead:
 
 ```
 use GraphQL\Error\FormattedError;
 $debug = FormattedError::INCLUDE_DEBUG_MESSAGE | FormattedError::INCLUDE_TRACE;
-$result = GraphQL::executeAndReturnResult()->toArray($debug);
+$result = GraphQL::executeAndReturnResult(/*args*/)->toArray($debug);
 ```
 
 To change default `"Internal server error"` message to something else, use: 
@@ -26,19 +29,30 @@ GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 **This change only affects default error reporting mechanism. If you set your own error formatter using 
 `ExecutionResult::setErrorFormatter()` you won't be affected by this change.**
 
-If default formatting doesn't work for you - just set [your own error 
+If new default formatting doesn't work for you - just set [your own error 
 formatter](http://webonyx.github.io/graphql-php/error-handling/#custom-error-formatting).
 
-### Breaking: `GraphQL\Error\UserError` base class
-`GraphQL\Error\UserError` now extends `\RuntimeException` (previously it was extending 
-`GraphQL\Error\InvariantViolation`).
+### Breaking: AST now uses `NodeList` vs array for lists of nodes
+It helps us unserialize AST from array lazily. This change affects you only if you use `array_`
+functions with AST or mutate AST directly.
 
-**This may affect authors of derived libraries and those using custom error formatting.** 
-If you were catching `InvariantViolation` anywhere in your code, you should also catch `UserError` now.
+Before the change:
+```php
+new GraphQL\Language\AST\DocumentNode([
+    'definitions' => array(/*...*/)
+]);
+```
+After the change:
+```
+new GraphQL\Language\AST\DocumentNode([
+    'definitions' => new NodeList([/*...*/])
+]);
+```
 
-Same applies to `instanceof` checks.
 
-`UserError` is thrown when library detects invalid input from client.
+### Breaking: scalar types now throw different exceptions when parsing and serializing
+On invalid user input they throw standard `GraphQL\Error\Error` now, but when they 
+encounter invalid output during serialization they throw `GraphQL\Error\InvariantViolation`.
 
 
 ### Deprecated: `GraphQL\Utils` moved to `GraphQL\Utils\Utils`
