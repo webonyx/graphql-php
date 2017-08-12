@@ -11,7 +11,7 @@ $searchResultType = new UnionType([
     'types' => [
         MyTypes::story(),
         MyTypes::user()
-    ];
+    ],
     'resolveType' => function($value) {
         if ($value->type === 'story') {
             return MyTypes::story();            
