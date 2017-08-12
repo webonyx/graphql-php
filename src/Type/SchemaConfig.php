@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Descriptor;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
@@ -203,7 +204,7 @@ class SchemaConfig
      */
     public function getDirectives()
     {
-        return $this->directives;
+        return $this->directives ?: [];
     }
 
     /**

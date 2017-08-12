@@ -62,12 +62,12 @@ class LazyInterfaceTest extends \PHPUnit_Framework_TestCase
         if (!$this->lazyInterface) {
             $this->lazyInterface = new InterfaceType([
                 'name' => 'LazyInterface',
+                'fields' => [
+                    'a' => Type::string()
+                ],
                 'resolveType' => function() {
                     return $this->getTestObjectType();
                 },
-                'resolve' => function() {
-                    return [];
-                }
             ]);
         }
 

@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
@@ -26,6 +27,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType
      */
     private $nameLookup;
 
+    /**
+     * @var array
+     */
+    public $config;
+
     public function __construct($config)
     {
         if (!isset($config['name'])) {
@@ -47,21 +53,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->values = [];
-
-        if (!empty($config['values'])) {
-            foreach ($config['values'] as $name => $value) {
-                if (!is_array($value)) {
-                    if (is_string($name)) {
-                        $value = ['name' => $name, 'value' => $value];
-                    } else if (is_int($name) && is_string($value)) {
-                        $value = ['name' => $value, 'value' => $value];
-                    }
-                }
-                // value will be equal to name only if 'value'  is not set in definition
-                $this->values[] = new EnumValueDefinition($value + ['name' => $name, 'value' => $name]);
-            }
-        }
+        $this->config = $config;
     }
 
     /**
@@ -69,6 +61,33 @@ class EnumType extends Type implements InputType, OutputType, LeafType
      */
     public function getValues()
     {
+        if ($this->values === null) {
+            $this->values = [];
+            $config = $this->config;
+
+            if (isset($config['values'])) {
+                if (!is_array($config['values'])) {
+                    throw new InvariantViolation("{$this->name} values must be an array");
+                }
+                foreach ($config['values'] as $name => $value) {
+                    if (is_string($name)) {
+                        if (!is_array($value)) {
+                            throw new InvariantViolation(
+                                "{$this->name}.$name must refer to an associative array with a " .
+                                '"value" key representing an internal value but got: ' . Utils::printSafe($value)
+                            );
+                        }
+                        $value += ['name' => $name, 'value' => $name];
+                    } else if (is_int($name) && is_string($value)) {
+                        $value = ['name' => $value, 'value' => $value];
+                    } else {
+                        throw new InvariantViolation("{$this->name} values must be an array with value names as keys.");
+                    }
+                    $this->values[] = new EnumValueDefinition($value);
+                }
+            }
+        }
+
         return $this->values;
     }
 
@@ -167,5 +186,43 @@ class EnumType extends Type implements InputType, OutputType, LeafType
             $this->nameLookup = $lookup;
         }
         return $this->nameLookup;
+    }
+
+    /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        parent::assertValid();
+
+        Utils::invariant(
+            isset($this->config['values']),
+            "{$this->name} values must be an array."
+        );
+
+        $values = $this->getValues();
+
+        Utils::invariant(
+            !empty($values),
+            "{$this->name} values must be not empty."
+        );
+        foreach ($values as $value) {
+            try {
+                Utils::assertValidName($value->name);
+            } catch (InvariantViolation $e) {
+                throw new InvariantViolation(
+                    "{$this->name} has value with invalid name: " .
+                    Utils::printSafe($value->name) . " ({$e->getMessage()})"
+                );
+            }
+            Utils::invariant(
+                !in_array($value->name, ['true', 'false', 'null']),
+                "{$this->name}: \"{$value->name}\" can not be used as an Enum value."
+            );
+            Utils::invariant(
+                !isset($value->config['isDeprecated']),
+                "{$this->name}.{$value->name} should provide \"deprecationReason\" instead of \"isDeprecated\"."
+            );
+        }
     }
 }

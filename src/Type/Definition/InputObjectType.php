@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 /**
@@ -56,6 +57,13 @@ class InputObjectType extends Type implements InputType
             $this->fields = [];
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
             $fields = is_callable($fields) ? call_user_func($fields) : $fields;
+
+            if (!is_array($fields)) {
+                throw new InvariantViolation(
+                    "{$this->name} fields must be an array or a callable which returns such an array."
+                );
+            }
+
             foreach ($fields as $name => $field) {
                 if ($field instanceof Type) {
                     $field = ['type' => $field];
@@ -80,5 +88,42 @@ class InputObjectType extends Type implements InputType
         }
         Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
         return $this->fields[$name];
+    }
+
+    /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        parent::assertValid();
+
+        $fields = $this->getFields();
+
+        Utils::invariant(
+            !empty($fields),
+            "{$this->name} fields must not be empty"
+        );
+
+        foreach ($fields as $field) {
+            try {
+                Utils::assertValidName($field->name);
+            } catch (InvariantViolation $e) {
+                throw new InvariantViolation("{$this->name}.{$field->name}: {$e->getMessage()}");
+            }
+
+            $fieldType = $field->type;
+            if ($fieldType instanceof WrappingType) {
+                $fieldType = $fieldType->getWrappedType(true);
+            }
+            Utils::invariant(
+                $fieldType instanceof InputType,
+                "{$this->name}.{$field->name} field type must be Input Type but got: %s.",
+                Utils::printSafe($field->type)
+            );
+            Utils::invariant(
+                !isset($field->config['resolve']),
+                "{$this->name}.{$field->name} field type has a resolve property, but Input Types cannot define resolvers."
+            );
+        }
     }
 }

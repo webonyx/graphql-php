@@ -14,6 +14,13 @@ final class Warning
 
     static $warned = [];
 
+    static private $warningHandler;
+
+    public static function setWarningHandler(callable $warningHandler = null)
+    {
+        self::$warningHandler = $warningHandler;
+    }
+
     static function suppress($suppress = true)
     {
         if (true === $suppress) {
@@ -40,7 +47,10 @@ final class Warning
 
     static function warnOnce($errorMessage, $warningId)
     {
-        if ((self::$enableWarnings & $warningId) > 0 && !isset(self::$warned[$warningId])) {
+        if (self::$warningHandler) {
+            $fn = self::$warningHandler;
+            $fn($errorMessage, $warningId);
+        } else if ((self::$enableWarnings & $warningId) > 0 && !isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
             trigger_error($errorMessage, E_USER_WARNING);
         }
@@ -48,7 +58,10 @@ final class Warning
 
     static function warn($errorMessage, $warningId)
     {
-        if ((self::$enableWarnings & $warningId) > 0) {
+        if (self::$warningHandler) {
+            $fn = self::$warningHandler;
+            $fn($errorMessage, $warningId);
+        } else if ((self::$enableWarnings & $warningId) > 0) {
             trigger_error($errorMessage, E_USER_WARNING);
         }
     }

@@ -47,7 +47,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
 
     public function testSchemaDefinition()
     {
-        $mutationType = $queryType = $subscriptionType = new ObjectType(['name' => 'A', 'fields' => []]);
+        $mutationType = $queryType = $subscriptionType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
 
         $schema = new Schema([
             'query' => $queryType
@@ -283,7 +283,7 @@ class ServerTest extends \PHPUnit_Framework_TestCase
     public function testValidate()
     {
         $server = Server::create()
-            ->setQueryType(new ObjectType(['name' => 'Q', 'fields' => []]));
+            ->setQueryType(new ObjectType(['name' => 'Q', 'fields' => ['a' => Type::string()]]));
 
         $ast = $server->parse('{q}');
         $errors = $server->validate($ast);

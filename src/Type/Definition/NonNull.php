@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 /**
@@ -20,10 +21,16 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
      */
     public function __construct($type)
     {
-        Utils::invariant(
-            $type instanceof Type || is_callable($type),
-            'Expecting instance of GraphQL\Type\Definition\Type or callable returning instance of that class'
-        );
+        if (!$type instanceof Type && !is_callable($type)) {
+            throw new InvariantViolation(
+                'Can only create NonNull of a Nullable GraphQLType but got: ' . Utils::printSafe($type)
+            );
+        }
+        if ($type instanceof NonNull) {
+            throw new InvariantViolation(
+                'Can only create NonNull of a Nullable GraphQLType but got: ' . Utils::printSafe($type)
+            );
+        }
         Utils::invariant(
             !($type instanceof NonNull),
             'Cannot nest NonNull inside NonNull'

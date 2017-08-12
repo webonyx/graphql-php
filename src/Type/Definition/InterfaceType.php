@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 /**
@@ -57,10 +58,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     public function getFields()
     {
         if (null === $this->fields) {
-            $this->fields = [];
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
-            $fields = is_callable($fields) ? call_user_func($fields) : $fields;
-            $this->fields = FieldDefinition::createMap($fields, $this->name);
+            $this->fields = FieldDefinition::defineFieldMap($this, $fields);
         }
         return $this->fields;
     }
@@ -94,5 +93,32 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             return $fn($objectValue, $context, $info);
         }
         return null;
+    }
+
+    /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        parent::assertValid();
+
+        $fields = $this->getFields();
+
+        Utils::invariant(
+            !isset($this->config['resolveType']) || is_callable($this->config['resolveType']),
+            "{$this->name} must provide \"resolveType\" as a function."
+        );
+
+        Utils::invariant(
+            !empty($fields),
+            "{$this->name} fields must not be empty"
+        );
+
+        foreach ($fields as $field) {
+            $field->assertValid($this);
+            foreach ($field->args as $arg) {
+                $arg->assertValid($field, $this);
+            }
+        }
     }
 }

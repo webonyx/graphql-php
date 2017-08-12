@@ -7,6 +7,7 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
@@ -45,7 +46,7 @@ class VariablesInAllowedPosition
                             $schema = $context->getSchema();
                             $varType = TypeInfo::typeFromAST($schema, $varDef->type);
 
-                            if ($varType && !TypeInfo::isTypeSubTypeOf($schema, $this->effectiveType($varType, $varDef), $type)) {
+                            if ($varType && !TypeComparators::isTypeSubTypeOf($schema, $this->effectiveType($varType, $varDef), $type)) {
                                 $context->reportError(new Error(
                                     self::badVarPosMessage($varName, $varType, $type),
                                     [$varDef, $node]

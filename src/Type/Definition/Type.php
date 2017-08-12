@@ -238,6 +238,13 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+    }
+
+    /**
      * @return string
      */
     public function toString()

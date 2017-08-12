@@ -243,11 +243,11 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
         $value = $enumTypeWithDeprecatedValue->getValues()[0];
 
-        $this->assertEquals([
+        $this->assertArraySubset([
             'name' => 'foo',
             'description' => null,
             'deprecationReason' => 'Just because',
-            'value' => 'foo'
+            'value' => 'foo',
         ], (array) $value);
 
         $this->assertEquals(true, $value->isDeprecated());
@@ -284,8 +284,8 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $actual = $EnumTypeWithNullishValue->getValues();
 
         $this->assertEquals(count($expected), count($actual));
-        $this->assertEquals($expected[0], (array)$actual[0]);
-        $this->assertEquals($expected[1], (array)$actual[1]);
+        $this->assertArraySubset($expected[0], (array)$actual[0]);
+        $this->assertArraySubset($expected[1], (array)$actual[1]);
     }
 
     /**

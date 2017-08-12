@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 /**
@@ -19,11 +20,11 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
      */
     public function __construct($type)
     {
-        Utils::invariant(
-            $type instanceof Type || is_callable($type),
-            'Expecting instance of GraphQL\Type\Definition\Type or callable returning instance of that class'
-        );
-
+        if (!$type instanceof Type && !is_callable($type)) {
+            throw new InvariantViolation(
+                'Can only create List of a GraphQLType but got: ' . Utils::printSafe($type)
+            );
+        }
         $this->ofType = $type;
     }
 

@@ -68,19 +68,6 @@ $episodeEnum = new EnumType([
     'name' => 'Episode',
     'description' => 'One of the films in the Star Wars Trilogy',
     'values' => [
-        'NEWHOPE' => 'NEWHOPE', 
-        'EMPIRE' => 'EMPIRE', 
-        'JEDI' => 'JEDI'
-    ]
-]);
-```
-
-which is in turn equivalent of:
-```php
-$episodeEnum = new EnumType([
-    'name' => 'Episode',
-    'description' => 'One of the films in the Star Wars Trilogy',
-    'values' => [
         'NEWHOPE' => ['value' => 'NEWHOPE'], 
         'EMPIRE' => ['value' => 'EMPIRE'], 
         'JEDI' => ['value' => 'JEDI']

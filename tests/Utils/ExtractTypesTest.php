@@ -318,7 +318,7 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
     {
         $otherUserType = new ObjectType([
             'name' => 'User',
-            'fields' => []
+            'fields' => ['a' => Type::string()]
         ]);
 
         $queryType = new ObjectType([

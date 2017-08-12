@@ -1,6 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
-use GraphQL\Error\Error;
+
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
@@ -60,7 +60,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     /**
      * @var array
      */
-    private $interfaceMap = [];
+    private $interfaceMap;
 
     /**
      * Keeping reference of config for late bindings and custom app-level metadata
@@ -111,13 +111,13 @@ class ObjectType extends Type implements OutputType, CompositeType
 
     /**
      * @return FieldDefinition[]
+     * @throws InvariantViolation
      */
     public function getFields()
     {
         if (null === $this->fields) {
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
-            $fields = is_callable($fields) ? call_user_func($fields) : $fields;
-            $this->fields = FieldDefinition::createMap($fields, $this->name);
+            $this->fields = FieldDefinition::defineFieldMap($this, $fields);
         }
         return $this->fields;
     }
@@ -132,9 +132,7 @@ class ObjectType extends Type implements OutputType, CompositeType
         if (null === $this->fields) {
             $this->getFields();
         }
-        if (!isset($this->fields[$name])) {
-            throw new Error(sprintf("Field '%s' is not defined for type '%s'", $name, $this->name));
-        }
+        Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
         return $this->fields[$name];
     }
 
@@ -147,11 +145,21 @@ class ObjectType extends Type implements OutputType, CompositeType
             $interfaces = isset($this->config['interfaces']) ? $this->config['interfaces'] : [];
             $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
 
+            if (!is_array($interfaces)) {
+                throw new InvariantViolation(
+                    "{$this->name} interfaces must be an Array or a callable which returns an Array."
+                );
+            }
+
             $this->interfaces = [];
             foreach ($interfaces as $iface) {
                 $iface = Type::resolve($iface);
                 if (!$iface instanceof InterfaceType) {
-                    throw new InvariantViolation(sprintf('Expecting interface type, got %s', Utils::printSafe($iface)));
+                    throw new InvariantViolation(sprintf(
+                        '%s may only implement Interface types, it cannot implement %s',
+                        $this->name,
+                        Utils::printSafe($iface)
+                    ));
                 }
                 // TODO: return interfaceMap vs interfaces. Possibly breaking change?
                 $this->interfaces[] = $iface;
@@ -159,6 +167,17 @@ class ObjectType extends Type implements OutputType, CompositeType
             }
         }
         return $this->interfaces;
+    }
+
+    private function getInterfaceMap()
+    {
+        if (!$this->interfaceMap) {
+            $this->interfaceMap = [];
+            foreach ($this->getInterfaces() as $interface) {
+                $this->interfaceMap[$interface->name] = $interface;
+            }
+        }
+        return $this->interfaceMap;
     }
 
     /**
@@ -181,5 +200,62 @@ class ObjectType extends Type implements OutputType, CompositeType
     public function isTypeOf($value, $context, ResolveInfo $info)
     {
         return isset($this->config['isTypeOf']) ? call_user_func($this->config['isTypeOf'], $value, $context, $info) : null;
+    }
+
+    /**
+     * Validates type config and throws if one of type options is invalid.
+     * Note: this method is shallow, it won't validate object fields and their arguments.
+     *
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        parent::assertValid();
+
+        Utils::invariant(
+            null === $this->description || is_string($this->description),
+            "{$this->name} description must be string if set, but it is: " . Utils::printSafe($this->description)
+        );
+
+        Utils::invariant(
+            !isset($this->config['isTypeOf']) || is_callable($this->config['isTypeOf']),
+            "{$this->name} must provide 'isTypeOf' as a function"
+        );
+
+        // getFields() and getInterfaceMap() will do structural validation
+        $fields = $this->getFields();
+        Utils::invariant(
+            !empty($fields),
+            "{$this->name} fields must not be empty"
+        );
+        foreach ($fields as $field) {
+            $field->assertValid($this);
+            foreach ($field->args as $arg) {
+                $arg->assertValid($field, $this);
+            }
+        }
+
+        $implemented = [];
+        foreach ($this->getInterfaces() as $iface) {
+            Utils::invariant(
+                $iface instanceof InterfaceType,
+                "{$this->name} may only implement Interface types, it cannot implement: %s.",
+                Utils::printSafe($iface)
+            );
+            Utils::invariant(
+                !isset($implemented[$iface->name]),
+                "{$this->name} may declare it implements {$iface->name} only once."
+            );
+            $implemented[$iface->name] = true;
+            if (!isset($iface->config['resolveType'])) {
+                Utils::invariant(
+                    isset($this->config['isTypeOf']),
+                    "Interface Type {$iface->name} does not provide a \"resolveType\" " .
+                    "function and implementing Type {$this->name} does not provide a " .
+                    '"isTypeOf" function. There is no way to resolve this implementing ' .
+                    'type during execution.'
+                );
+            }
+        }
     }
 }

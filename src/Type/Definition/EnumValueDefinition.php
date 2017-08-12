@@ -28,9 +28,19 @@ class EnumValueDefinition
      */
     public $description;
 
+    /**
+     * @var array
+     */
+    public $config;
+
     public function __construct(array $config)
     {
-        Utils::assign($this, $config);
+        $this->name = isset($config['name']) ? $config['name'] : null;
+        $this->value = isset($config['value']) ? $config['value'] : null;
+        $this->deprecationReason = isset($config['deprecationReason']) ? $config['deprecationReason'] : null;
+        $this->description = isset($config['description']) ? $config['description'] : null;
+
+        $this->config = $config;
     }
 
     /**

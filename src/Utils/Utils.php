@@ -218,7 +218,7 @@ class Utils
      * @param string $message
      * @param mixed $sprintfParam1
      * @param mixed $sprintfParam2 ...
-     * @throws \Exception
+     * @throws InvariantViolation
      */
     public static function invariant($test, $message = '')
     {
@@ -420,7 +420,7 @@ class Utils
     /**
      * @param $name
      * @param bool $isIntrospection
-     * @throws Error
+     * @throws InvariantViolation
      */
     public static function assertValidName($name, $isIntrospection = false)
     {

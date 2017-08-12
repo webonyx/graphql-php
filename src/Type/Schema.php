@@ -390,4 +390,111 @@ class Schema
         }
         return $this->resolvedTypes[$typeName];
     }
+
+
+    /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        foreach ($this->config->getDirectives() as $index => $directive) {
+            Utils::invariant(
+                $directive instanceof Directive,
+                "Each entry of \"directives\" option of Schema config must be an instance of %s but entry at position %d is %s.",
+                Directive::class,
+                $index,
+                Utils::printSafe($directive)
+            );
+        }
+
+        foreach ($this->getTypeMap() as $name => $type) {
+            $type->assertValid();
+
+            if ($type instanceof AbstractType) {
+                $possibleTypes = $this->getPossibleTypes($type);
+
+                Utils::invariant(
+                    !empty($possibleTypes),
+                    "Could not find possible implementing types for {$type->name} " .
+                    'in schema. Check that schema.types is defined and is an array of ' .
+                    'all possible types in the schema.'
+                );
+
+            } else if ($type instanceof ObjectType) {
+                foreach ($type->getInterfaces() as $iface) {
+                    $this->assertImplementsIntarface($type, $iface);
+                }
+            }
+        }
+    }
+
+    private function assertImplementsIntarface(ObjectType $object, InterfaceType $iface)
+    {
+        $objectFieldMap = $object->getFields();
+        $ifaceFieldMap  = $iface->getFields();
+
+        // Assert each interface field is implemented.
+        foreach ($ifaceFieldMap as $fieldName => $ifaceField) {
+
+            // Assert interface field exists on object.
+            Utils::invariant(
+                isset($objectFieldMap[$fieldName]),
+                "{$iface->name} expects field \"{$fieldName}\" but {$object->name} does not provide it"
+            );
+
+            $objectField = $objectFieldMap[$fieldName];
+
+            // Assert interface field type is satisfied by object field type, by being
+            // a valid subtype. (covariant)
+            Utils::invariant(
+                TypeComparators::isTypeSubTypeOf($this, $objectField->getType(), $ifaceField->getType()),
+                "{$iface->name}.{$fieldName} expects type \"{$ifaceField->getType()}\" " .
+                "but " .
+                "{$object->name}.${fieldName} provides type \"{$objectField->getType()}\""
+            );
+
+            // Assert each interface field arg is implemented.
+            foreach ($ifaceField->args as $ifaceArg) {
+                $argName = $ifaceArg->name;
+
+                /** @var FieldArgument $objectArg */
+                $objectArg = Utils::find($objectField->args, function(FieldArgument $arg) use ($argName) {
+                    return $arg->name === $argName;
+                });
+
+                // Assert interface field arg exists on object field.
+                Utils::invariant(
+                    $objectArg,
+                    "{$iface->name}.{$fieldName} expects argument \"{$argName}\" but ".
+                    "{$object->name}.{$fieldName} does not provide it."
+                );
+
+                // Assert interface field arg type matches object field arg type.
+                // (invariant)
+                Utils::invariant(
+                    TypeComparators::isEqualType($ifaceArg->getType(), $objectArg->getType()),
+                    "{$iface->name}.{$fieldName}({$argName}:) expects type " .
+                    "\"{$ifaceArg->getType()->name}\" but " .
+                    "{$object->name}.{$fieldName}({$argName}:) provides type " .
+                    "\"{$objectArg->getType()->name}\"."
+                );
+
+                // Assert additional arguments must not be required.
+                foreach ($objectField->args as $objectArg) {
+                    $argName = $objectArg->name;
+                    $ifaceArg = Utils::find($ifaceField->args, function(FieldArgument $arg) use ($argName) {
+                        return $arg->name === $argName;
+                    });
+                    if (!$ifaceArg) {
+                        Utils::invariant(
+                            !($objectArg->getType() instanceof NonNull),
+                            "{$object->name}.{$fieldName}({$argName}:) is of required type " .
+                            "\"{$objectArg->getType()}\" but is not also provided by the " .
+                            "interface {$iface->name}.{$fieldName}."
+                        );
+                    }
+                }
+            }
+        }
+    }
 }
