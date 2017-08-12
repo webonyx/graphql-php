@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL;
+namespace GraphQL\Type;
 
 use GraphQL\Type\Descriptor;
 use GraphQL\Type\Definition\Directive;
@@ -13,7 +13,7 @@ use GraphQL\Utils\Utils;
  *
  * @package GraphQL
  */
-class Config
+class SchemaConfig
 {
     /**
      * @var ObjectType
@@ -52,7 +52,7 @@ class Config
 
     /**
      * @param array $options
-     * @return Config
+     * @return SchemaConfig
      */
     public static function create(array $options = [])
     {
@@ -136,7 +136,7 @@ class Config
 
     /**
      * @param ObjectType $query
-     * @return Config
+     * @return SchemaConfig
      */
     public function setQuery(ObjectType $query)
     {
@@ -154,7 +154,7 @@ class Config
 
     /**
      * @param ObjectType $mutation
-     * @return Config
+     * @return SchemaConfig
      */
     public function setMutation(ObjectType $mutation)
     {
@@ -172,7 +172,7 @@ class Config
 
     /**
      * @param ObjectType $subscription
-     * @return Config
+     * @return SchemaConfig
      */
     public function setSubscription(ObjectType $subscription)
     {
@@ -190,7 +190,7 @@ class Config
 
     /**
      * @param Type[]|callable $types
-     * @return Config
+     * @return SchemaConfig
      */
     public function setTypes($types)
     {
@@ -208,7 +208,7 @@ class Config
 
     /**
      * @param Directive[] $directives
-     * @return Config
+     * @return SchemaConfig
      */
     public function setDirectives(array $directives)
     {
@@ -226,7 +226,7 @@ class Config
 
     /**
      * @param Descriptor $descriptor
-     * @return Config
+     * @return SchemaConfig
      */
     public function setDescriptor(Descriptor $descriptor)
     {
@@ -244,7 +244,7 @@ class Config
 
     /**
      * @param callable $typeLoader
-     * @return Config
+     * @return SchemaConfig
      */
     public function setTypeLoader(callable $typeLoader)
     {

@@ -3,7 +3,6 @@ namespace GraphQL\Type;
 
 
 use GraphQL\Language\Printer;
-use GraphQL\Schema;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\DirectiveLocation;
 use GraphQL\Type\Definition\EnumType;

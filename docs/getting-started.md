@@ -75,7 +75,7 @@ Now when our type is ready, let's create GraphQL endpoint for it `graphql.php`:
 ```php
 <?php
 use GraphQL\GraphQL;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 
 $schema = new Schema([
     'query' => $queryType

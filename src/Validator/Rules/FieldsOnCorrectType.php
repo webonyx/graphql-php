@@ -4,8 +4,6 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Schema;
-use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 

@@ -8,7 +8,7 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 /**

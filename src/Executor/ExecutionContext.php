@@ -4,7 +4,7 @@ namespace GraphQL\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 
 /**
  * Data that must be available at all points during query execution.

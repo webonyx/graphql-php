@@ -2,7 +2,7 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Language\Printer;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;

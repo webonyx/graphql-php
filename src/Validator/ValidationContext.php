@@ -9,7 +9,7 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
 use \SplObjectStorage;
 use GraphQL\Error\Error;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\Node;

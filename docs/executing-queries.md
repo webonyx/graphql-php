@@ -27,7 +27,7 @@ Description of method arguments:
 
 Argument     | Type     | Notes
 ------------ | -------- | -----
-schema       | `GraphQL\Schema` | **Required.** Instance of your application [Schema](type-system/schema/)
+schema       | `GraphQL\Type\Schema` | **Required.** Instance of your application [Schema](type-system/schema/)
 queryString  | `string` or `GraphQL\Language\AST\DocumentNode` | **Required.** Actual GraphQL query string to be parsed, validated and executed. If you parse query elsewhere before executing - pass corresponding ast document here to avoid new parsing.
 rootValue  | `mixed` | Any value that represents a root of your data graph. It is passed as 1st argument to field resolvers of [Query type](type-system/schema/#query-and-mutation-types). Can be omitted or set to null if actual root values are fetched by Query type itself.
 contextValue  | `mixed` | Any value that holds information shared between all field resolvers. Most often they use it to pass currently logged in user, locale details, etc.<br><br>It will be available as 3rd argument in all field resolvers. (see section on [Field Definitions](type-system/object-types/#field-configuration-options) for reference) **graphql-php** never modifies this value and passes it *as is* to all underlying resolvers.

@@ -2,7 +2,7 @@
 Schema is a container of your type hierarchy, which accepts root types in constructor and provides
 methods for receiving information about your types to internal GrahpQL tools.
 
-In **graphql-php** schema is an instance of `GraphQL\Schema` which accepts configuration array 
+In **graphql-php** schema is an instance of `GraphQL\Type\Schema` which accepts configuration array 
 in constructor:
 
 ```php
@@ -25,7 +25,7 @@ of your API:
 ```php
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 
 $queryType = new ObjectType([
     'name' => 'Query',

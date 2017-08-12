@@ -48,7 +48,7 @@ class GraphQL
      *    Empty array would allow to skip query validation (may be convenient for persisted
      *    queries which are validated before persisting and assumed valid during execution)
      *
-     * @param Schema $schema
+     * @param \GraphQL\Type\Schema $schema
      * @param string|DocumentNode $source
      * @param mixed $rootValue
      * @param array $contextValue
@@ -61,7 +61,7 @@ class GraphQL
      * @return Promise|array
      */
     public static function execute(
-        Schema $schema,
+        \GraphQL\Type\Schema $schema,
         $source,
         $rootValue = null,
         $contextValue = null,
@@ -99,7 +99,7 @@ class GraphQL
      * Same as `execute`, but returns instance of ExecutionResult instead of array,
      * which can be used for custom error formatting or adding extensions to response
      *
-     * @param Schema $schema
+     * @param \GraphQL\Type\Schema $schema
      * @param string|DocumentNode $source
      * @param mixed $rootValue
      * @param mixed $contextValue
@@ -112,7 +112,7 @@ class GraphQL
      * @return ExecutionResult|Promise
      */
     public static function executeAndReturnResult(
-        Schema $schema,
+        \GraphQL\Type\Schema $schema,
         $source,
         $rootValue = null,
         $contextValue = null,

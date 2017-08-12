@@ -1,10 +1,9 @@
 <?php
 namespace GraphQL\Server;
 
-use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\PromiseAdapter;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 class ServerConfig
