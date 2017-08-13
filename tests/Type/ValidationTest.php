@@ -814,7 +814,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $schema = $this->schemaWithFieldType(new ObjectType([
             'name' => 'SomeObject',
-            'interfaces' => function () use ($NonUniqInterface, $AnotherInterface, $NonUniqInterface) {
+            'interfaces' => function () use ($NonUniqInterface, $AnotherInterface) {
                 return [$NonUniqInterface, $AnotherInterface, $NonUniqInterface];
             },
             'fields' => ['f' => ['type' => Type::string()]]

@@ -78,7 +78,7 @@ class HugeSchemaBench
     private function createLazySchema()
     {
         return new Schema(
-            \GraphQL\Config::create()
+            \GraphQL\Type\SchemaConfig::create()
                 ->setQuery($this->schemaBuilder->buildQueryType())
                 // ->setDescriptor($this->descriptor)
                 ->setTypeLoader(function($name) {
