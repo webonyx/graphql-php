@@ -7,8 +7,9 @@ final class Warning
     const ASSIGN_WARNING = 2;
     const CONFIG_WARNING = 4;
     const RESOLVE_TYPE_WARNING = 8;
+    const CONFIG_DEPRECATION_WARNING = 16;
 
-    const ALL = 7;
+    const ALL = 23;
 
     static $enableWarnings = self::ALL;
 
@@ -45,24 +46,24 @@ final class Warning
         }
     }
 
-    static function warnOnce($errorMessage, $warningId)
+    static function warnOnce($errorMessage, $warningId, $messageLevel = null)
     {
         if (self::$warningHandler) {
             $fn = self::$warningHandler;
             $fn($errorMessage, $warningId);
         } else if ((self::$enableWarnings & $warningId) > 0 && !isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
-            trigger_error($errorMessage, E_USER_WARNING);
+            trigger_error($errorMessage, $messageLevel ?: E_USER_WARNING);
         }
     }
 
-    static function warn($errorMessage, $warningId)
+    static function warn($errorMessage, $warningId, $messageLevel = null)
     {
         if (self::$warningHandler) {
             $fn = self::$warningHandler;
             $fn($errorMessage, $warningId);
         } else if ((self::$enableWarnings & $warningId) > 0) {
-            trigger_error($errorMessage, E_USER_WARNING);
+            trigger_error($errorMessage, $messageLevel ?: E_USER_WARNING);
         }
     }
 }

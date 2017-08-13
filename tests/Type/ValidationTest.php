@@ -3,7 +3,6 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
-use GraphQL\Type\Definition\Config;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
@@ -42,8 +41,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        Config::disableValidation();
-
         $this->String = 'TestString';
 
         $this->SomeScalarType = new CustomScalarType([

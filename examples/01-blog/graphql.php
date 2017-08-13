@@ -6,19 +6,14 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 use \GraphQL\Examples\Blog\Types;
 use \GraphQL\Examples\Blog\AppContext;
 use \GraphQL\Examples\Blog\Data\DataSource;
-use \GraphQL\Schema;
+use \GraphQL\Type\Schema;
 use \GraphQL\GraphQL;
-use \GraphQL\Type\Definition\Config;
 use \GraphQL\Error\FormattedError;
 
 // Disable default PHP error reporting - we have better one for debug mode (see bellow)
 ini_set('display_errors', 0);
 
 if (!empty($_GET['debug'])) {
-    // Enable additional validation of type configs
-    // (disabled by default because it is costly)
-    Config::enableValidation();
-
     // Catch custom errors (to report them in query results if debugging is enabled)
     $phpErrors = [];
     set_error_handler(function($severity, $message, $file, $line) use (&$phpErrors) {

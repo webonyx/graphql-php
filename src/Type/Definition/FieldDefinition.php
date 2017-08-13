@@ -128,9 +128,9 @@ class FieldDefinition
     }
 
     /**
-     * @param array|Config $fields
+     * @param array $fields
      * @param string $parentTypeName
-     * @deprecated
+     * @deprecated use defineFieldMap instead
      * @return array
      */
     public static function createMap(array $fields, $parentTypeName = null)

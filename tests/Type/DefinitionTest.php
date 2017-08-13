@@ -3,8 +3,7 @@ namespace GraphQL\Tests\Type;
 
 require_once __DIR__ . '/TestClasses.php';
 
-use GraphQL\Schema;
-use GraphQL\Type\Definition\Config;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -496,20 +495,18 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             $this->inputObjectType
         ];
 
-        // TODO: extract config validation to separate test
-        Config::enableValidation();
         foreach ($badUnionTypes as $type) {
             try {
-                new UnionType(['name' => 'BadUnion', 'types' => [$type]]);
+                $union = new UnionType(['name' => 'BadUnion', 'types' => [$type]]);
+                $union->assertValid();
                 $this->fail('Expected exception not thrown');
             } catch (\Exception $e) {
                 $this->assertSame(
-                    'Error in "BadUnion" type definition: expecting "ObjectType definition" at "types:0", but got "' . Utils::getVariableType($type) . '"',
+                    'BadUnion may only contain Object types, it cannot contain: ' . Utils::printSafe($type) . '.',
                     $e->getMessage()
                 );
             }
         }
-        Config::disableValidation();
     }
 
     /**

@@ -1,7 +1,6 @@
 <?php
 namespace Utils;
 
-use GraphQL\Type\Definition\Config;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -81,8 +80,6 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        Config::enableValidation(false);
-
         $this->node = new InterfaceType([
             'name' => 'Node',
             'fields' => [

@@ -56,6 +56,13 @@ class Config
      */
     public static function enableValidation($allowCustomOptions = true)
     {
+        Warning::warnOnce(
+            'GraphQL\Type\Defintion\Config is deprecated and will be removed in the next version. ' .
+            'See https://github.com/webonyx/graphql-php/issues/148 for alternatives',
+            Warning::CONFIG_DEPRECATION_WARNING,
+            E_USER_DEPRECATED
+        );
+
         self::$enableValidation = true;
         self::$allowCustomOptions = $allowCustomOptions;
     }

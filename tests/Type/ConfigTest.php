@@ -12,6 +12,11 @@ use GraphQL\Utils\Utils;
 
 class ConfigTest extends \PHPUnit_Framework_TestCase
 {
+    public function setUp()
+    {
+        \PHPUnit_Framework_Error_Deprecated::$enabled = false;
+    }
+
     public static function tearDownAfterClass()
     {
         Config::disableValidation();
