@@ -106,7 +106,7 @@ class TypeInfo
         }
         if (!$type instanceof Type) {
             Warning::warnOnce(
-                'One of schema types is not a valid type definition instance. Ignoring it. '.
+                'One of the schema types is not a valid type definition instance. '.
                 'Try running $schema->assertValid() to find out the cause of this warning.',
                 Warning::NOT_A_TYPE
             );

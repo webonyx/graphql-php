@@ -1,8 +1,6 @@
 <?php
 namespace GraphQL\Type;
 
-use GraphQL\Error\InvariantViolation;
-use GraphQL\Type\Descriptor;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -40,11 +38,6 @@ class SchemaConfig
      * @var Directive[]
      */
     public $directives;
-
-    /**
-     * @var Descriptor
-     */
-    public $descriptor;
 
     /**
      * @var callable
@@ -105,6 +98,20 @@ class SchemaConfig
                 $config->setDirectives($options['directives']);
             }
 
+            if (isset($options['typeResolution'])) {
+                trigger_error(
+                    'Type resolution strategies are deprecated. Just pass single option `typeLoader` '.
+                    'to schema constructor instead.',
+                    E_USER_DEPRECATED
+                );
+                if ($options['typeResolution'] instanceof Resolution && !isset($options['typeLoader'])) {
+                    $strategy = $options['typeResolution'];
+                    $options['typeLoader'] = function($name) use ($strategy) {
+                        return $strategy->resolveType($name);
+                    };
+                }
+            }
+
             if (isset($options['typeLoader'])) {
                 Utils::invariant(
                     is_callable($options['typeLoader']),
@@ -112,15 +119,6 @@ class SchemaConfig
                     Utils::getVariableType($options['typeLoader'])
                 );
                 $config->setTypeLoader($options['typeLoader']);
-            }
-
-            if (isset($options['descriptor'])) {
-                Utils::invariant(
-                    $options['descriptor'] instanceof Descriptor,
-                    'Schema descriptor must be instance of GraphQL\Type\Descriptor but got: %s',
-                    Utils::getVariableType($options['descriptor'])
-                );
-                $config->setDescriptor($options['descriptor']);
             }
         }
 
@@ -214,24 +212,6 @@ class SchemaConfig
     public function setDirectives(array $directives)
     {
         $this->directives = $directives;
-        return $this;
-    }
-
-    /**
-     * @return Descriptor
-     */
-    public function getDescriptor()
-    {
-        return $this->descriptor;
-    }
-
-    /**
-     * @param Descriptor $descriptor
-     * @return SchemaConfig
-     */
-    public function setDescriptor(Descriptor $descriptor)
-    {
-        $this->descriptor = $descriptor;
         return $this;
     }
 

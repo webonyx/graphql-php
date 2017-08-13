@@ -50,18 +50,16 @@ class Schema
     private $config;
 
     /**
-     * Contains actual descriptor for this schema
-     *
-     * @var Descriptor
-     */
-    private $descriptor;
-
-    /**
      * Contains currently resolved schema types
      *
      * @var Type[]
      */
     private $resolvedTypes = [];
+
+    /**
+     * @var array
+     */
+    private $possibleTypeMap;
 
     /**
      * True when $resolvedTypes contain all possible schema types
@@ -104,8 +102,7 @@ class Schema
                 'subscription',
                 'types',
                 'directives',
-                'typeLoader',
-                'descriptor'
+                'typeLoader'
             ]),
             Utils::getVariableType($config)
         );
@@ -116,6 +113,15 @@ class Schema
         );
 
         $this->config = $config;
+
+        $this->resolvedTypes[$config->query->name] = $config->query;
+
+        if ($config->mutation) {
+            $this->resolvedTypes[$config->mutation->name] = $config->mutation;
+        }
+        if ($config->subscription) {
+            $this->resolvedTypes[$config->subscription->name] = $config->subscription;
+        }
     }
 
     /**
@@ -165,15 +171,7 @@ class Schema
     public function getTypeMap()
     {
         if (!$this->fullyLoaded) {
-            if ($this->config->descriptor && $this->config->typeLoader) {
-                // Following is still faster than $this->collectAllTypes() because it won't init fields
-                $typesToResolve = array_diff_key($this->config->descriptor->typeMap, $this->resolvedTypes);
-                foreach ($typesToResolve as $typeName => $_) {
-                    $this->resolvedTypes[$typeName] = $this->loadType($typeName);
-                }
-            } else {
-                $this->resolvedTypes = $this->collectAllTypes();
-            }
+            $this->resolvedTypes = $this->collectAllTypes();
             $this->fullyLoaded = true;
         }
         return $this->resolvedTypes;
@@ -190,51 +188,11 @@ class Schema
         return $this->resolveType($name);
     }
 
-    /**
-     * Returns serializable schema descriptor which can be passed later
-     * to Schema config to enable a set of performance optimizations
-     *
-     * @return Descriptor
-     */
-    public function describe()
-    {
-        if ($this->descriptor) {
-            return $this->descriptor;
-        }
-
-        $this->resolvedTypes = $this->collectAllTypes();
-        $this->fullyLoaded = true;
-
-        $descriptor = new Descriptor();
-        $descriptor->version = '1.0';
-        $descriptor->created = time();
-
-        foreach ($this->resolvedTypes as $type) {
-            if ($type instanceof ObjectType) {
-                foreach ($type->getInterfaces() as $interface) {
-                    $descriptor->possibleTypeMap[$interface->name][$type->name] = 1;
-                }
-            } else if ($type instanceof UnionType) {
-                foreach ($type->getTypes() as $innerType) {
-                    $descriptor->possibleTypeMap[$type->name][$innerType->name] = 1;
-                }
-            }
-            $descriptor->typeMap[$type->name] = 1;
-        }
-
-        return $this->descriptor = $descriptor;
-    }
-
     private function collectAllTypes()
     {
         $initialTypes = array_merge(
-            [
-                $this->config->query,
-                $this->config->mutation,
-                $this->config->subscription,
-                Introspection::_schema()
-            ],
-            array_values($this->resolvedTypes)
+            array_values($this->resolvedTypes),
+            [Introspection::_schema()]
         );
 
         $typeMap = [];
@@ -276,20 +234,30 @@ class Schema
      */
     public function getPossibleTypes(AbstractType $abstractType)
     {
-        if ($abstractType instanceof UnionType) {
-            return $abstractType->getTypes();
-        }
+        $possibleTypeMap = $this->getPossibleTypeMap();
+        return array_values($possibleTypeMap[$abstractType->name]);
+    }
 
-        /** @var InterfaceType $abstractType */
-        $descriptor = $this->config->descriptor ?: $this->describe();
-
-        $result = [];
-        if (isset($descriptor->possibleTypeMap[$abstractType->name])) {
-            foreach ($descriptor->possibleTypeMap[$abstractType->name] as $typeName => $_) {
-                $result[] = $this->resolveType($typeName);
+    /**
+     * @return array
+     */
+    private function getPossibleTypeMap()
+    {
+        if ($this->possibleTypeMap === null) {
+            $this->possibleTypeMap = [];
+            foreach ($this->getTypeMap() as $type) {
+                if ($type instanceof ObjectType) {
+                    foreach ($type->getInterfaces() as $interface) {
+                        $this->possibleTypeMap[$interface->name][$type->name] = $type;
+                    }
+                } else if ($type instanceof UnionType) {
+                    foreach ($type->getTypes() as $innerType) {
+                        $this->possibleTypeMap[$type->name][$innerType->name] = $innerType;
+                    }
+                }
             }
         }
-        return $result;
+        return $this->possibleTypeMap;
     }
 
     /**
@@ -336,10 +304,6 @@ class Schema
      */
     public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType)
     {
-        if ($this->config->descriptor) {
-            return !empty($this->config->descriptor->possibleTypeMap[$abstractType->name][$possibleType->name]);
-        }
-
         if ($abstractType instanceof InterfaceType) {
             return $possibleType->implementsInterface($abstractType);
         }
@@ -381,14 +345,8 @@ class Schema
     private function defaultTypeLoader($typeName)
     {
         // Default type loader simply fallbacks to collecting all types
-        if (!$this->fullyLoaded) {
-            $this->resolvedTypes = $this->collectAllTypes();
-            $this->fullyLoaded = true;
-        }
-        if (!isset($this->resolvedTypes[$typeName])) {
-            return null;
-        }
-        return $this->resolvedTypes[$typeName];
+        $typeMap = $this->getTypeMap();
+        return isset($typeMap[$typeName]) ? $typeMap[$typeName] : null;
     }
 
 

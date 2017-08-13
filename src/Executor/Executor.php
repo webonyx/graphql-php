@@ -1062,7 +1062,7 @@ class Executor
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
 
         if (null === $runtimeType) {
-            if ($returnType instanceof InterfaceType && !$exeContext->schema->getConfig()->descriptor) {
+            if ($returnType instanceof InterfaceType) {
                 Warning::warnOnce(
                     "GraphQL Interface Type `{$returnType->name}` returned `null` from it`s `resolveType` function ".
                     'for value: ' . Utils::printSafe($result) . '. Switching to slow resolution method using `isTypeOf` ' .
