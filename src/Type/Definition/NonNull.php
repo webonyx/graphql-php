@@ -45,7 +45,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
      */
     public function getWrappedType($recurse = false)
     {
-        $type = Type::resolve($this->ofType);
+        $type = $this->ofType;
 
         Utils::invariant(
             !($type instanceof NonNull),

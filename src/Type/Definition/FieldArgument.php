@@ -34,14 +34,9 @@ class FieldArgument
     public $config;
 
     /**
-     * @var InputType|callable
-     */
-    private $type;
-
-    /**
      * @var InputType
      */
-    private $resolvedType;
+    private $type;
 
     /**
      * @var bool
@@ -95,10 +90,7 @@ class FieldArgument
      */
     public function getType()
     {
-        if (null === $this->resolvedType) {
-            $this->resolvedType = Type::resolve($this->type);
-        }
-        return $this->resolvedType;
+        return $this->type;
     }
 
     /**

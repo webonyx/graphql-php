@@ -180,29 +180,6 @@ abstract class Type implements \JsonSerializable
         while ($type instanceof WrappingType) {
             $type = $type->getWrappedType();
         }
-        return self::resolve($type);
-    }
-
-    /**
-     * @param $type
-     * @return mixed
-     */
-    public static function resolve($type)
-    {
-        if (is_callable($type)) {
-            trigger_error(
-                'Passing type as closure is deprecated (see https://github.com/webonyx/graphql-php/issues/35 for alternatives)',
-                E_USER_DEPRECATED
-            );
-            $type = $type();
-        }
-
-        if (!$type instanceof Type) {
-            throw new InvariantViolation(sprintf(
-                'Expecting instance of ' . __CLASS__ . ', got "%s"',
-                Utils::getVariableType($type)
-            ));
-        }
         return $type;
     }
 

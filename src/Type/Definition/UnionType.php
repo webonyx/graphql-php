@@ -83,10 +83,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
                 );
             }
 
-            $this->types = [];
-            foreach ($types as $type) {
-                $this->types[] = Type::resolve($type);
-            }
+            $this->types = $types;
         }
         return $this->types;
     }

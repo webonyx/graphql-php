@@ -33,7 +33,7 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
      */
     public function toString()
     {
-        $type = Type::resolve($this->ofType);
+        $type = $this->ofType;
         $str = $type instanceof Type ? $type->toString() : (string) $type;
         return '[' . $str . ']';
     }
@@ -44,7 +44,7 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
      */
     public function getWrappedType($recurse = false)
     {
-        $type = Type::resolve($this->ofType);
+        $type = $this->ofType;
         return ($recurse && $type instanceof WrappingType) ? $type->getWrappedType($recurse) : $type;
     }
 }

@@ -121,6 +121,14 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->notInputTypes[] = $this->String;
+
+        Warning::suppress(Warning::NOT_A_TYPE);
+    }
+
+    public function tearDown()
+    {
+        parent::tearDown();
+        Warning::enable(Warning::NOT_A_TYPE);
     }
 
     public function testRejectsTypesWithoutNames()
@@ -572,11 +580,9 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             ]
         ]));
 
-        // FIXME: this exception message is caused by old mechanism of type resolution (see #35),
-        // this has to be changed as soon as we drop this mechanism
         $this->setExpectedException(
             InvariantViolation::class,
-            'Expecting instance of GraphQL\Type\Definition\Type, got "stdClass'
+            'SomeObject.field field type must be Output Type but got: instance of stdClass'
         );
         $schema->assertValid();
     }
@@ -719,10 +725,9 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             ]
         ]));
 
-        // FIXME
         $this->setExpectedException(
             InvariantViolation::class,
-            'Expecting instance of GraphQL\Type\Definition\Type, got "NULL"'
+            'SomeObject.badField(0:) Must be named. Unexpected name: 0'
         );
 
         $schema->assertValid();
@@ -1023,7 +1028,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(
             InvariantViolation::class,
-            'Expecting instance of GraphQL\Type\Definition\Type, got "NULL"'
+            'SomeInputObject.0: Must be named. Unexpected name: 0'
         );
         $schema->assertValid();
     }
@@ -1737,7 +1742,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(
             InvariantViolation::class,
-            'Expecting instance of GraphQL\Type\Definition\Type, got "NULL"'
+            'BadObject.badField field type must be Output Type but got: null'
         );
 
         $schema->assertValid();
@@ -1755,12 +1760,10 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 $schema->assertValid();
                 $this->fail('Expected exception not thrown for ' . Utils::printSafe($type));
             } catch (InvariantViolation $e) {
-                // FIXME
-                if ($type !== 'TestString') {
-                    $this->assertEquals('BadObject.badField field type must be Output Type but got: ' . $type, $e->getMessage());
-                } else {
-                    $this->assertEquals('Expecting instance of GraphQL\Type\Definition\Type, got "string"', $e->getMessage());
-                }
+                $this->assertEquals(
+                    'BadObject.badField field type must be Output Type but got: ' . Utils::printSafe($type),
+                    $e->getMessage()
+                );
             }
         }
     }
@@ -1844,7 +1847,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 $this->fail('Exepected exception not thrown for type ' . $type);
             } catch (InvariantViolation $e) {
                 $this->assertEquals(
-                    'BadObject may only implement Interface types, it cannot implement ' . $type,
+                    'BadObject may only implement Interface types, it cannot implement ' . $type . '.',
                     $e->getMessage()
                 );
             }
@@ -1914,7 +1917,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(
             InvariantViolation::class,
-            'Expecting instance of GraphQL\Type\Definition\Type, got "NULL"' // FIXME
+            'BadInterface.badField field type must be Output Type but got: null'
         );
 
         $schema->assertValid();
@@ -1932,18 +1935,10 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 $schema->assertValid();
                 $this->fail('Expected exception not thrown for type ' . $type);
             } catch (InvariantViolation $e) {
-                if ($type !== 'TestString') {
-                    $this->assertEquals(
-                        'BadInterface.badField field type must be Output Type but got: ' . $type,
-                        $e->getMessage()
-                    );
-                } else {
-                    // FIXME
-                    $this->assertEquals(
-                        'Expecting instance of GraphQL\Type\Definition\Type, got "string"',
-                        $e->getMessage()
-                    );
-                }
+                $this->assertEquals(
+                    'BadInterface.badField field type must be Output Type but got: ' . Utils::printSafe($type),
+                    $e->getMessage()
+                );
             }
         }
     }
@@ -1974,7 +1969,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             $this->fail('Expected exception not thrown');
         } catch (InvariantViolation $e) {
             $this->assertEquals(
-                'Expecting instance of GraphQL\Type\Definition\Type, got "NULL"',
+                'BadObject.badField(badArg): argument type must be Input Type but got: null',
                 $e->getMessage()
             );
         }
@@ -1991,17 +1986,10 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 $schema->assertValid();
                 $this->fail('Expected exception not thrown for type ' . $type);
             } catch (InvariantViolation $e) {
-                if ($type !== 'TestString') {
-                    $this->assertEquals(
-                        'BadObject.badField(badArg): argument type must be Input Type but got: ' . $type,
-                        $e->getMessage()
-                    );
-                } else {
-                    $this->assertEquals(
-                        'Expecting instance of GraphQL\Type\Definition\Type, got "string"',
-                        $e->getMessage()
-                    );
-                }
+                $this->assertEquals(
+                    'BadObject.badField(badArg): argument type must be Input Type but got: ' . Utils::printSafe($type),
+                    $e->getMessage()
+                );
             }
         }
     }
@@ -2027,10 +2015,9 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $schema = $this->schemaWithInputFieldOfType(null);
 
-        // FIXME
         $this->setExpectedException(
             InvariantViolation::class,
-            'Expecting instance of GraphQL\Type\Definition\Type, got "NULL"'
+            'BadInputObject.badField field type must be Input Type but got: null.'
         );
         $schema->assertValid();
     }
@@ -2046,17 +2033,10 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 $schema->assertValid();
                 $this->fail('Expected exception not thrown for type ' . $type);
             } catch (InvariantViolation $e) {
-                if ($type !== 'TestString') {
-                    $this->assertEquals(
-                        "BadInputObject.badField field type must be Input Type but got: $type.",
-                        $e->getMessage()
-                    );
-                } else {
-                    $this->assertEquals(
-                        'Expecting instance of GraphQL\Type\Definition\Type, got "string"',
-                        $e->getMessage()
-                    );
-                }
+                $this->assertEquals(
+                    "BadInputObject.badField field type must be Input Type but got: " . Utils::printSafe($type) . ".",
+                    $e->getMessage()
+                );
             }
         }
     }

@@ -56,14 +56,9 @@ class FieldDefinition
     public $config;
 
     /**
-     * @var OutputType|callable
-     */
-    private $type;
-
-    /**
      * @var OutputType
      */
-    private $resolvedType;
+    private $type;
 
     private static $def;
 
@@ -216,11 +211,7 @@ class FieldDefinition
      */
     public function getType()
     {
-        if (null === $this->resolvedType) {
-            // TODO: deprecate types as callbacks - instead just allow field definitions to be callbacks
-            $this->resolvedType = Type::resolve($this->type);
-        }
-        return $this->resolvedType;
+        return $this->type;
     }
 
     /**

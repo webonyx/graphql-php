@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Utils;
 
+use GraphQL\Error\Warning;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
@@ -102,6 +103,14 @@ class TypeInfo
 
         if ($type instanceof WrappingType) {
             return self::extractTypes($type->getWrappedType(true), $typeMap);
+        }
+        if (!$type instanceof Type) {
+            Warning::warnOnce(
+                'One of schema types is not a valid type definition instance. Ignoring it. '.
+                'Try running $schema->assertValid() to find out the cause of this warning.',
+                Warning::NOT_A_TYPE
+            );
+            return $typeMap;
         }
 
         if (!empty($typeMap[$type->name])) {

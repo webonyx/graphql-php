@@ -151,20 +151,7 @@ class ObjectType extends Type implements OutputType, CompositeType
                 );
             }
 
-            $this->interfaces = [];
-            foreach ($interfaces as $iface) {
-                $iface = Type::resolve($iface);
-                if (!$iface instanceof InterfaceType) {
-                    throw new InvariantViolation(sprintf(
-                        '%s may only implement Interface types, it cannot implement %s',
-                        $this->name,
-                        Utils::printSafe($iface)
-                    ));
-                }
-                // TODO: return interfaceMap vs interfaces. Possibly breaking change?
-                $this->interfaces[] = $iface;
-                $this->interfaceMap[$iface->name] = $iface;
-            }
+            $this->interfaces = $interfaces;
         }
         return $this->interfaces;
     }
@@ -186,9 +173,8 @@ class ObjectType extends Type implements OutputType, CompositeType
      */
     public function implementsInterface($iface)
     {
-        $iface = Type::resolve($iface);
-        $this->getInterfaces();
-        return isset($this->interfaceMap[$iface->name]);
+        $map = $this->getInterfaceMap();
+        return isset($map[$iface->name]);
     }
 
     /**
@@ -239,7 +225,7 @@ class ObjectType extends Type implements OutputType, CompositeType
         foreach ($this->getInterfaces() as $iface) {
             Utils::invariant(
                 $iface instanceof InterfaceType,
-                "{$this->name} may only implement Interface types, it cannot implement: %s.",
+                "{$this->name} may only implement Interface types, it cannot implement %s.",
                 Utils::printSafe($iface)
             );
             Utils::invariant(

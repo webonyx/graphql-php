@@ -8,8 +8,9 @@ final class Warning
     const CONFIG_WARNING = 4;
     const RESOLVE_TYPE_WARNING = 8;
     const CONFIG_DEPRECATION_WARNING = 16;
+    const NOT_A_TYPE = 32;
 
-    const ALL = 23;
+    const ALL = 63;
 
     static $enableWarnings = self::ALL;
 
