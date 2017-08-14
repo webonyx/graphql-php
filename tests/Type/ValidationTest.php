@@ -2698,6 +2698,35 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         $schema->assertValid();
     }
 
+    public function testRejectsDifferentInstancesOfTheSameType()
+    {
+        // Invalid: always creates new instance vs returning one from registry
+        $typeLoader = function($name) use (&$typeLoader) {
+            switch ($name) {
+                case 'Query':
+                    return new ObjectType([
+                        'name' => 'Query',
+                        'fields' => [
+                            'test' => Type::string()
+                        ]
+                    ]);
+                default:
+                    return null;
+            }
+        };
+
+        $schema = new Schema([
+            'query' => $typeLoader('Query'),
+            'typeLoader' => $typeLoader
+        ]);
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'Type loader returns different instance for Query than field/argument definitions. '.
+            'Make sure you always return the same instance for the same type name.'
+        );
+        $schema->assertValid();
+    }
+
 
     private function assertEachCallableThrows($closures, $expectedError)
     {

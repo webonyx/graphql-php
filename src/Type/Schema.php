@@ -358,7 +358,6 @@ class Schema
         return isset($typeMap[$typeName]) ? $typeMap[$typeName] : null;
     }
 
-
     /**
      * @throws InvariantViolation
      */
@@ -391,6 +390,15 @@ class Schema
                 foreach ($type->getInterfaces() as $iface) {
                     $this->assertImplementsIntarface($type, $iface);
                 }
+            }
+
+            // Make sure type loader returns the same instance as registered in other places of schema
+            if ($this->config->typeLoader) {
+                Utils::invariant(
+                    $this->loadType($name) === $type,
+                    "Type loader returns different instance for {$name} than field/argument definitions. ".
+                    'Make sure you always return the same instance for the same type name.'
+                );
             }
         }
     }
