@@ -113,7 +113,7 @@ class Schema
         );
 
         $this->config = $config;
-
+        $this->resolvedTypes = Type::getInternalTypes() + Introspection::getTypes();
         $this->resolvedTypes[$config->query->name] = $config->query;
 
         if ($config->mutation) {
@@ -207,7 +207,7 @@ class Schema
         foreach ($this->resolveAdditionalTypes() as $type) {
             $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
-        return $typeMap + Type::getInternalTypes() + Introspection::getTypes();
+        return $typeMap;
     }
 
     /**
@@ -373,7 +373,13 @@ class Schema
             );
         }
 
+        $internalTypes = Type::getInternalTypes() + Introspection::getTypes();
+
         foreach ($this->getTypeMap() as $name => $type) {
+            if (isset($internalTypes[$name])) {
+                continue ;
+            }
+
             $type->assertValid();
 
             if ($type instanceof AbstractType) {

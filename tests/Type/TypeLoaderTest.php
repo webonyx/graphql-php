@@ -339,4 +339,17 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($withoutLoader->getType('BlogStory'), $withLoader->getType('BlogStory'));
         $this->assertSame($withoutLoader->getDirectives(), $withLoader->getDirectives());
     }
+
+    public function testSkipsLoaderForInternalTypes()
+    {
+        $schema = new Schema([
+            'query' => $this->query,
+            'mutation' => $this->mutation,
+            'typeLoader' => $this->typeLoader
+        ]);
+
+        $type = $schema->getType('ID');
+        $this->assertSame(Type::id(), $type);
+        $this->assertEquals([], $this->calls);
+    }
 }

@@ -26,24 +26,24 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         $expected = [
             '__schema' => [
                 'types' => [
-                    ['name' => 'Query'],
-                    ['name' => 'Episode'],
-                    ['name' => 'Character'],
-                    ['name' => 'String'],
-                    ['name' => 'Human'],
-                    ['name' => 'Droid'],
                     ['name' => 'ID'],
+                    ['name' => 'String'],
                     ['name' => 'Float'],
                     ['name' => 'Int'],
                     ['name' => 'Boolean'],
                     ['name' => '__Schema'],
                     ['name' => '__Type'],
-                    ['name' => '__Directive'],
+                    ['name' => '__TypeKind'],
                     ['name' => '__Field'],
                     ['name' => '__InputValue'],
                     ['name' => '__EnumValue'],
-                    ['name' => '__TypeKind'],
+                    ['name' => '__Directive'],
                     ['name' => '__DirectiveLocation'],
+                    ['name' => 'Query'],
+                    ['name' => 'Episode'],
+                    ['name' => 'Character'],
+                    ['name' => 'Human'],
+                    ['name' => 'Droid'],
                 ]
             ]
         ];
