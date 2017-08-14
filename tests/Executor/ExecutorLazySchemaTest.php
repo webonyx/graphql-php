@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Executor;
 
 require_once __DIR__ . '/TestClasses.php';
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -112,5 +113,60 @@ class ExecutorLazySchemaTest extends \PHPUnit_Framework_TestCase
             'implementations. It requires full schema scan and degrades query performance significantly.  '.
             'Make sure your `resolveType` always returns valid implementation or throws.',
             $result->errors[0]->getMessage());
+    }
+
+    public function testHintsOnConflictingTypeInstancesInDefinitions()
+    {
+        $calls = [];
+        $typeLoader = function($name) use (&$calls) {
+            $calls[] = $name;
+            switch ($name) {
+                case 'Test':
+                    return new ObjectType([
+                        'name' => 'Test',
+                        'fields' => function() {
+                            return [
+                                'test' => Type::string(),
+                            ];
+                        }
+                    ]);
+                default:
+                    return null;
+            }
+        };
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => function() use ($typeLoader) {
+                return [
+                    'test' => $typeLoader('Test')
+                ];
+            }
+        ]);
+        $schema = new Schema([
+            'query' => $query,
+            'typeLoader' => $typeLoader
+        ]);
+
+        $query = '
+            {
+                test {
+                    test
+                }
+            }
+        ';
+
+        $this->assertEquals([], $calls);
+        $result = Executor::execute($schema, Parser::parse($query), ['test' => ['test' => 'value']]);
+        $this->assertEquals(['Test', 'Test'], $calls);
+
+        $this->assertEquals(
+            'Schema must contain unique named types but contains multiple types named "Test". '.
+            'Make sure that type loader returns the same instance as defined in Query.test',
+            $result->errors[0]->getMessage()
+        );
+        $this->assertInstanceOf(
+            InvariantViolation::class,
+            $result->errors[0]->getPrevious()
+        );
     }
 }

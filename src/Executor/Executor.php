@@ -960,6 +960,18 @@ class Executor
             return $this->completeListValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
+        // Account for invalid schema definition when typeLoader returns different
+        // instance than `resolveType` or $field->getType() or $arg->getType()
+        if ($returnType !== $this->exeContext->schema->getType($returnType->name)) {
+            $hint = "";
+            if ($this->exeContext->schema->getConfig()->typeLoader) {
+                $hint = "Make sure that type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}";
+            }
+            throw new InvariantViolation(
+                "Schema must contain unique named types but contains multiple types named \"$returnType\". $hint"
+            );
+        }
+
         // If field type is Scalar or Enum, serialize to a valid value, returning
         // null if serialization is not possible.
         if ($returnType instanceof LeafType) {
@@ -1130,18 +1142,24 @@ class Executor
             $runtimeTypeOrName;
 
         if (!$runtimeType instanceof ObjectType) {
-            throw new Error(
+            throw new InvariantViolation(
                 "Abstract type {$returnType} must resolve to an Object type at runtime " .
                 "for field {$info->parentType}.{$info->fieldName} with " .
-                'value "' . Utils::printSafe($result) . '", received "'. Utils::printSafe($runtimeType) . '".',
-                $fieldNodes
+                'value "' . Utils::printSafe($result) . '", received "'. Utils::printSafe($runtimeType) . '".'
             );
         }
 
         if (!$this->exeContext->schema->isPossibleType($returnType, $runtimeType)) {
-            throw new Error(
-                "Runtime Object type \"$runtimeType\" is not a possible type for \"$returnType\".",
-                $fieldNodes
+            throw new InvariantViolation(
+                "Runtime Object type \"$runtimeType\" is not a possible type for \"$returnType\"."
+            );
+        }
+
+        if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
+            throw new InvariantViolation(
+                "Schema must contain unique named types but contains multiple types named \"$runtimeType\". ".
+                "Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same ".
+                "type instance as referenced anywhere else within the schema."
             );
         }
 

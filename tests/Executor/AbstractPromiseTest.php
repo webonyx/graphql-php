@@ -361,7 +361,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        $result = GraphQL::execute($schema, $query);
+        $result = GraphQL::executeAndReturnResult($schema, $query)->toArray(true);
 
         $expected = [
             'data' => [
@@ -373,7 +373,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
             ],
             'errors' => [
                 [
-                    'message' => 'Runtime Object type "Human" is not a possible type for "Pet".',
+                    'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
                     'locations' => [['line' => 2, 'column' => 7]],
                     'path' => ['pets', 2]
                 ],
@@ -462,7 +462,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        $result = GraphQL::execute($schema, $query);
+        $result = GraphQL::executeAndReturnResult($schema, $query)->toArray(true);
 
         $expected = [
             'data' => [
@@ -474,7 +474,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
             ],
             'errors' => [
                 [
-                    'message' => 'Runtime Object type "Human" is not a possible type for "Pet".',
+                    'debugMessage' => 'Runtime Object type "Human" is not a possible type for "Pet".',
                     'locations' => [['line' => 2, 'column' => 7]],
                     'path' => ['pets', 2]
                 ]
