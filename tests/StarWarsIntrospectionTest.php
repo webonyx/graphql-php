@@ -32,18 +32,18 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                     ['name' => 'String'],
                     ['name' => 'Human'],
                     ['name' => 'Droid'],
+                    ['name' => 'ID'],
+                    ['name' => 'Float'],
+                    ['name' => 'Int'],
+                    ['name' => 'Boolean'],
                     ['name' => '__Schema'],
                     ['name' => '__Type'],
-                    ['name' => '__TypeKind'],
-                    ['name' => 'Boolean'],
+                    ['name' => '__Directive'],
                     ['name' => '__Field'],
                     ['name' => '__InputValue'],
                     ['name' => '__EnumValue'],
-                    ['name' => '__Directive'],
+                    ['name' => '__TypeKind'],
                     ['name' => '__DirectiveLocation'],
-                    ['name' => 'ID'],
-                    ['name' => 'Float'],
-                    ['name' => 'Int']
                 ]
             ]
         ];

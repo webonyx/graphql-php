@@ -230,7 +230,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it TODO: accepts a Schema whose query and mutation types are object types
+     * @it accepts a Schema whose query and mutation types are object types
      */
     public function testAcceptsASchemaWhoseQueryAndMutationTypesAreObjectTypes()
     {
@@ -357,13 +357,11 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema(['query' => $QueryType]);
-
         $this->setExpectedException(
             InvariantViolation::class,
             'Schema must contain unique named types but contains multiple types named "String".'
         );
-        $schema->assertValid();
+        new Schema(['query' => $QueryType]);
     }
 
     /**
@@ -389,14 +387,12 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema([ 'query' => $QueryType ]);
-
         $this->setExpectedException(
             InvariantViolation::class,
             'Schema must contain unique named types but contains multiple types named "SameName".'
         );
 
-        $schema->assertValid();
+        new Schema([ 'query' => $QueryType ]);
     }
 
     /**
@@ -429,17 +425,15 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $schema = new Schema([
-            'query' => $QueryType,
-            'types' => [ $FirstBadObject, $SecondBadObject ]
-        ]);
-
         $this->setExpectedException(
             InvariantViolation::class,
             'Schema must contain unique named types but contains multiple types named "BadObject".'
         );
 
-        $schema->assertValid();
+        new Schema([
+            'query' => $QueryType,
+            'types' => [ $FirstBadObject, $SecondBadObject ]
+        ]);
     }
 
 
@@ -498,17 +492,16 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectTypeFieldWithUndefinedConfig()
     {
-        $schema = $this->schemaWithFieldType(new ObjectType([
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'SomeObject.f field config must be an array, but got'
+        );
+        $this->schemaWithFieldType(new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
                 'f' => null
             ]
         ]));
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeObject.f field config must be an array, but got'
-        );
-        $schema->assertValid();
     }
 
     /**
@@ -609,16 +602,14 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectTypeWithAFieldFunctionThatReturnsNothing()
     {
-        $schema = $this->schemaWithFieldType(new ObjectType([
-            'name' => 'SomeObject',
-            'fields' => function() {}
-        ]));
-
         $this->setExpectedException(
             InvariantViolation::class,
             'SomeObject fields must be an array or a callable which returns such an array.'
         );
-        $schema->assertValid();
+        $this->schemaWithFieldType(new ObjectType([
+            'name' => 'SomeObject',
+            'fields' => function() {}
+        ]));
     }
 
     /**
@@ -782,17 +773,15 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectTypeWithIncorrectlyTypedInterfaces()
     {
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'SomeObject interfaces must be an Array or a callable which returns an Array.'
+        );
         $schema = $this->schemaWithFieldType(new ObjectType([
             'name' => 'SomeObject',
             'interfaces' => new \stdClass(),
             'fields' => ['f' => ['type' => Type::string()]]
         ]));
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeObject interfaces must be an Array or a callable which returns an Array.'
-        );
-
         $schema->assertValid();
     }
 
@@ -837,20 +826,17 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectTypeWithInterfacesAsAFunctionReturningAnIncorrectType()
     {
-        $schema = $this->schemaWithFieldType(new ObjectType([
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'SomeObject interfaces must be an Array or a callable which returns an Array.'
+        );
+        $this->schemaWithFieldType(new ObjectType([
             'name' => 'SomeObject',
             'interfaces' => function () {
                 return new \stdClass();
             },
             'fields' => ['f' => ['type' => Type::string()]]
         ]));
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeObject interfaces must be an Array or a callable which returns an Array.'
-        );
-
-        $schema->assertValid();
     }
 
     // DESCRIBE: Type System: Union types must be array
@@ -892,17 +878,14 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAUnionTypeWithoutTypes()
     {
-        $schema = $this->schemaWithFieldType(new UnionType([
-            'name' => 'SomeUnion',
-            'resolveType' => function() {return null;}
-        ]));
-
         $this->setExpectedException(
             InvariantViolation::class,
             'SomeUnion types must be an Array or a callable which returns an Array.'
         );
-
-        $schema->assertValid();
+        $this->schemaWithFieldType(new UnionType([
+            'name' => 'SomeUnion',
+            'resolveType' => function() {return null;}
+        ]));
     }
 
     /**
@@ -929,18 +912,16 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAUnionTypeWithIncorrectlyTypedTypes()
     {
-        $schema = $this->schemaWithFieldType(new UnionType([
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'SomeUnion types must be an Array or a callable which returns an Array.'
+        );
+        $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
             'resolveType' => function () {
             },
             'types' => $this->SomeObjectType
         ]));
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeUnion types must be an Array or a callable which returns an Array.'
-        );
-        $schema->assertValid();
     }
 
     /**
@@ -1038,16 +1019,14 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnInputObjectTypeWithEmptyFields()
     {
-        $schema = $this->schemaWithInputObject(new InputObjectType([
-            'name' => 'SomeInputObject',
-            'fields' => new \stdClass()
-        ]));
-
         $this->setExpectedException(
             InvariantViolation::class,
             'SomeInputObject fields must be an array or a callable which returns such an array.'
         );
-        $schema->assertValid();
+        $this->schemaWithInputObject(new InputObjectType([
+            'name' => 'SomeInputObject',
+            'fields' => new \stdClass()
+        ]));
     }
 
     /**
@@ -1055,18 +1034,15 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnInputObjectTypeWithAFieldFunctionThatReturnsNothing()
     {
-        $schema = $this->schemaWithInputObject(new ObjectType([
-            'name' => 'SomeInputObject',
-            'fields' => function () {
-            }
-        ]));
-
         $this->setExpectedException(
             InvariantViolation::class,
             'SomeInputObject fields must be an array or a callable which returns such an array.'
         );
-
-        $schema->assertValid();
+        $this->schemaWithInputObject(new ObjectType([
+            'name' => 'SomeInputObject',
+            'fields' => function () {
+            }
+        ]));
     }
 
     /**
@@ -1074,19 +1050,16 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnInputObjectTypeWithAFieldFunctionThatReturnsEmpty()
     {
-        $schema = $this->schemaWithInputObject(new InputObjectType([
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'SomeInputObject fields must be an array or a callable which returns such an array.'
+        );
+        $this->schemaWithInputObject(new InputObjectType([
             'name' => 'SomeInputObject',
             'fields' => function () {
                 return new \stdClass();
             }
         ]));
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeInputObject fields must be an array or a callable which returns such an array.'
-        );
-
-        $schema->assertValid();
     }
 
     // DESCRIBE: Type System: Input Object fields must not have resolvers
@@ -1222,12 +1195,11 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             'fields' => ['f' => ['type' => Type::string()]]
         ]);
 
-        $schema = $this->schemaWithFieldType(new ObjectType([
+        $this->schemaWithFieldType(new ObjectType([
             'name' => 'SomeObject',
             'interfaces' => [$AnotherInterfaceType],
             'fields' => ['f' => ['type' => Type::string()]]
         ]));
-        $schema->assertValid();
     }
 
     /**
@@ -1322,7 +1294,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     }
 
     // DESCRIBE: Type System: Union types must be resolvable
-    // TODO: accepts a Union type defining resolveType
 
     /**
      * @it accepts a Union type defining resolveType

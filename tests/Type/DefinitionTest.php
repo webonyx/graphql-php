@@ -576,9 +576,8 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             'types' => [$user, $blog]
         ]);
 
-        $this->assertFalse($called);
-        $schema->getType('Blog');
         $this->assertTrue($called);
+        $schema->getType('Blog');
 
         $this->assertEquals([$node], $blog->getInterfaces());
         $this->assertEquals([$node], $user->getInterfaces());

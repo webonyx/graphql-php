@@ -75,6 +75,42 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                         'possibleTypes' => NULL,
                                     ),
                                     array (
+                                        'kind' => 'SCALAR',
+                                        'name' => 'ID',
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                    ),
+                                    array (
+                                        'kind' => 'SCALAR',
+                                        'name' => 'Float',
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                    ),
+                                    array (
+                                        'kind' => 'SCALAR',
+                                        'name' => 'Int',
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                    ),
+                                    array (
+                                        'kind' => 'SCALAR',
+                                        'name' => 'Boolean',
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                    ),
+                                    array (
                                         'kind' => 'OBJECT',
                                         'name' => '__Schema',
                                         'fields' =>
@@ -127,60 +163,60 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
-                                                    array (
-                                                        'name' => 'mutationType',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'OBJECT',
-                                                                'name' => '__Type',
-                                                            ),
-                                                        'isDeprecated' => false,
-                                                        'deprecationReason' => NULL,
-                                                    ),
-                                                    array (
-                                                        'name' => 'subscriptionType',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'OBJECT',
-                                                                'name' => '__Type',
-                                                            ),
-                                                        'isDeprecated' => false,
-                                                        'deprecationReason' => NULL,
-                                                    ),
-                                                    array (
-                                                        'name' => 'directives',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => NULL,
-                                                                'ofType' =>
-                                                                    array (
-                                                                        'kind' => 'LIST',
-                                                                        'name' => NULL,
-                                                                        'ofType' =>
-                                                                            array (
-                                                                                'kind' => 'NON_NULL',
-                                                                                'name' => NULL,
-                                                                                'ofType' =>
-                                                                                    array (
-                                                                                        'kind' => 'OBJECT',
-                                                                                        'name' => '__Directive',
-                                                                                    ),
-                                                                            ),
-                                                                    ),
-                                                            ),
-                                                        'isDeprecated' => false,
-                                                        'deprecationReason' => NULL,
-                                                    ),
+                                                array (
+                                                    'name' => 'mutationType',
+                                                    'args' =>
+                                                        array (
+                                                        ),
+                                                    'type' =>
+                                                        array (
+                                                            'kind' => 'OBJECT',
+                                                            'name' => '__Type',
+                                                        ),
+                                                    'isDeprecated' => false,
+                                                    'deprecationReason' => NULL,
+                                                ),
+                                                array (
+                                                    'name' => 'subscriptionType',
+                                                    'args' =>
+                                                        array (
+                                                        ),
+                                                    'type' =>
+                                                        array (
+                                                            'kind' => 'OBJECT',
+                                                            'name' => '__Type',
+                                                        ),
+                                                    'isDeprecated' => false,
+                                                    'deprecationReason' => NULL,
+                                                ),
+                                                array (
+                                                    'name' => 'directives',
+                                                    'args' =>
+                                                        array (
+                                                        ),
+                                                    'type' =>
+                                                        array (
+                                                            'kind' => 'NON_NULL',
+                                                            'name' => NULL,
+                                                            'ofType' =>
+                                                                array (
+                                                                    'kind' => 'LIST',
+                                                                    'name' => NULL,
+                                                                    'ofType' =>
+                                                                        array (
+                                                                            'kind' => 'NON_NULL',
+                                                                            'name' => NULL,
+                                                                            'ofType' =>
+                                                                                array (
+                                                                                    'kind' => 'OBJECT',
+                                                                                    'name' => '__Directive',
+                                                                                ),
+                                                                        ),
+                                                                ),
+                                                        ),
+                                                    'isDeprecated' => false,
+                                                    'deprecationReason' => NULL,
+                                                ),
                                             ),
                                         'inputFields' => NULL,
                                         'interfaces' =>
@@ -404,70 +440,164 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                         'possibleTypes' => NULL,
                                     ),
                                     array (
-                                        'kind' => 'ENUM',
-                                        'name' => '__TypeKind',
-                                        'fields' => NULL,
-                                        'inputFields' => NULL,
-                                        'interfaces' => NULL,
-                                        'enumValues' =>
+                                        'kind' => 'OBJECT',
+                                        'name' => '__Directive',
+                                        'fields' =>
                                             array (
                                                 0 =>
                                                     array (
-                                                        'name' => 'SCALAR',
+                                                        'name' => 'name',
+                                                        'args' =>
+                                                            array (
+                                                            ),
+                                                        'type' =>
+                                                            array (
+                                                                'kind' => 'NON_NULL',
+                                                                'name' => NULL,
+                                                                'ofType' =>
+                                                                    array (
+                                                                        'kind' => 'SCALAR',
+                                                                        'name' => 'String',
+                                                                    ),
+                                                            ),
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
                                                 1 =>
                                                     array (
-                                                        'name' => 'OBJECT',
+                                                        'name' => 'description',
+                                                        'args' =>
+                                                            array (
+                                                            ),
+                                                        'type' =>
+                                                            array (
+                                                                'kind' => 'SCALAR',
+                                                                'name' => 'String',
+                                                            ),
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
                                                 2 =>
                                                     array (
-                                                        'name' => 'INTERFACE',
+                                                        'name' => 'locations',
+                                                        'args' =>
+                                                            array (
+                                                            ),
+                                                        'type' =>
+                                                            array (
+                                                                'kind' => 'NON_NULL',
+                                                                'name' => NULL,
+                                                                'ofType' =>
+                                                                    array (
+                                                                        'kind' => 'LIST',
+                                                                        'name' => NULL,
+                                                                        'ofType' =>
+                                                                            array (
+                                                                                'kind' => 'NON_NULL',
+                                                                                'name' => NULL,
+                                                                                'ofType' =>
+                                                                                    array (
+                                                                                        'kind' => 'ENUM',
+                                                                                        'name' => '__DirectiveLocation',
+                                                                                    ),
+                                                                            ),
+                                                                    ),
+                                                            ),
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
                                                 3 =>
                                                     array (
-                                                        'name' => 'UNION',
+                                                        'name' => 'args',
+                                                        'args' =>
+                                                            array (
+                                                            ),
+                                                        'type' =>
+                                                            array (
+                                                                'kind' => 'NON_NULL',
+                                                                'name' => NULL,
+                                                                'ofType' =>
+                                                                    array (
+                                                                        'kind' => 'LIST',
+                                                                        'name' => NULL,
+                                                                        'ofType' =>
+                                                                            array (
+                                                                                'kind' => 'NON_NULL',
+                                                                                'name' => NULL,
+                                                                                'ofType' =>
+                                                                                    array (
+                                                                                        'kind' => 'OBJECT',
+                                                                                        'name' => '__InputValue',
+                                                                                    ),
+                                                                            ),
+                                                                    ),
+                                                            ),
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
                                                 4 =>
                                                     array (
-                                                        'name' => 'ENUM',
-                                                        'isDeprecated' => false,
-                                                        'deprecationReason' => NULL,
+                                                        'name' => 'onOperation',
+                                                        'args' =>
+                                                            array (
+                                                            ),
+                                                        'type' =>
+                                                            array (
+                                                                'kind' => 'NON_NULL',
+                                                                'name' => NULL,
+                                                                'ofType' =>
+                                                                    array (
+                                                                        'kind' => 'SCALAR',
+                                                                        'name' => 'Boolean',
+                                                                    ),
+                                                            ),
+                                                        'isDeprecated' => true,
+                                                        'deprecationReason' => 'Use `locations`.',
                                                     ),
                                                 5 =>
                                                     array (
-                                                        'name' => 'INPUT_OBJECT',
-                                                        'isDeprecated' => false,
-                                                        'deprecationReason' => NULL,
+                                                        'name' => 'onFragment',
+                                                        'args' =>
+                                                            array (
+                                                            ),
+                                                        'type' =>
+                                                            array (
+                                                                'kind' => 'NON_NULL',
+                                                                'name' => NULL,
+                                                                'ofType' =>
+                                                                    array (
+                                                                        'kind' => 'SCALAR',
+                                                                        'name' => 'Boolean',
+                                                                    ),
+                                                            ),
+                                                        'isDeprecated' => true,
+                                                        'deprecationReason' => 'Use `locations`.',
                                                     ),
                                                 6 =>
                                                     array (
-                                                        'name' => 'LIST',
-                                                        'isDeprecated' => false,
-                                                        'deprecationReason' => NULL,
-                                                    ),
-                                                7 =>
-                                                    array (
-                                                        'name' => 'NON_NULL',
-                                                        'isDeprecated' => false,
-                                                        'deprecationReason' => NULL,
+                                                        'name' => 'onField',
+                                                        'args' =>
+                                                            array (
+                                                            ),
+                                                        'type' =>
+                                                            array (
+                                                                'kind' => 'NON_NULL',
+                                                                'name' => NULL,
+                                                                'ofType' =>
+                                                                    array (
+                                                                        'kind' => 'SCALAR',
+                                                                        'name' => 'Boolean',
+
+                                                                    ),
+                                                            ),
+                                                        'isDeprecated' => true,
+                                                        'deprecationReason' => 'Use `locations`.',
                                                     ),
                                             ),
-                                        'possibleTypes' => NULL,
-                                    ),
-                                    array (
-                                        'kind' => 'SCALAR',
-                                        'name' => 'Boolean',
-                                        'fields' => NULL,
                                         'inputFields' => NULL,
-                                        'interfaces' => NULL,
+                                        'interfaces' =>
+                                            array (
+                                            ),
                                         'enumValues' => NULL,
                                         'possibleTypes' => NULL,
                                     ),
@@ -757,165 +887,62 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                         'possibleTypes' => NULL,
                                     ),
                                     array (
-                                        'kind' => 'OBJECT',
-                                        'name' => '__Directive',
-                                        'fields' =>
+                                        'kind' => 'ENUM',
+                                        'name' => '__TypeKind',
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' =>
                                             array (
                                                 0 =>
                                                     array (
-                                                        'name' => 'name',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => NULL,
-                                                                'ofType' =>
-                                                                    array (
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'String',
-                                                                    ),
-                                                            ),
+                                                        'name' => 'SCALAR',
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
                                                 1 =>
                                                     array (
-                                                        'name' => 'description',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'SCALAR',
-                                                                'name' => 'String',
-                                                            ),
+                                                        'name' => 'OBJECT',
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
                                                 2 =>
                                                     array (
-                                                        'name' => 'locations',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => NULL,
-                                                                'ofType' =>
-                                                                    array (
-                                                                        'kind' => 'LIST',
-                                                                        'name' => NULL,
-                                                                        'ofType' =>
-                                                                            array (
-                                                                                'kind' => 'NON_NULL',
-                                                                                'name' => NULL,
-                                                                                'ofType' =>
-                                                                                    array (
-                                                                                        'kind' => 'ENUM',
-                                                                                        'name' => '__DirectiveLocation',
-                                                                                    ),
-                                                                            ),
-                                                                    ),
-                                                            ),
+                                                        'name' => 'INTERFACE',
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
                                                 3 =>
                                                     array (
-                                                        'name' => 'args',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => NULL,
-                                                                'ofType' =>
-                                                                    array (
-                                                                        'kind' => 'LIST',
-                                                                        'name' => NULL,
-                                                                        'ofType' =>
-                                                                            array (
-                                                                                'kind' => 'NON_NULL',
-                                                                                'name' => NULL,
-                                                                                'ofType' =>
-                                                                                    array (
-                                                                                        'kind' => 'OBJECT',
-                                                                                        'name' => '__InputValue',
-                                                                                    ),
-                                                                            ),
-                                                                    ),
-                                                            ),
+                                                        'name' => 'UNION',
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => NULL,
                                                     ),
                                                 4 =>
                                                     array (
-                                                        'name' => 'onOperation',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => NULL,
-                                                                'ofType' =>
-                                                                    array (
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'Boolean',
-                                                                    ),
-                                                            ),
-                                                        'isDeprecated' => true,
-                                                        'deprecationReason' => 'Use `locations`.',
+                                                        'name' => 'ENUM',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
                                                     ),
                                                 5 =>
                                                     array (
-                                                        'name' => 'onFragment',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => NULL,
-                                                                'ofType' =>
-                                                                    array (
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'Boolean',
-                                                                    ),
-                                                            ),
-                                                        'isDeprecated' => true,
-                                                        'deprecationReason' => 'Use `locations`.',
+                                                        'name' => 'INPUT_OBJECT',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
                                                     ),
                                                 6 =>
                                                     array (
-                                                        'name' => 'onField',
-                                                        'args' =>
-                                                            array (
-                                                            ),
-                                                        'type' =>
-                                                            array (
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => NULL,
-                                                                'ofType' =>
-                                                                    array (
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'Boolean',
-
-                                                                    ),
-                                                            ),
-                                                        'isDeprecated' => true,
-                                                        'deprecationReason' => 'Use `locations`.',
+                                                        'name' => 'LIST',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                7 =>
+                                                    array (
+                                                        'name' => 'NON_NULL',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
                                                     ),
                                             ),
-                                        'inputFields' => NULL,
-                                        'interfaces' =>
-                                            array (
-                                            ),
-                                        'enumValues' => NULL,
                                         'possibleTypes' => NULL,
                                     ),
                                     array (
@@ -971,33 +998,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                             ),
                                         'possibleTypes' => NULL,
                                     ),
-                                    array (
-                                        'kind' => 'SCALAR',
-                                        'name' => 'ID',
-                                        'fields' => NULL,
-                                        'inputFields' => NULL,
-                                        'interfaces' => NULL,
-                                        'enumValues' => NULL,
-                                        'possibleTypes' => NULL,
-                                    ),
-                                    array (
-                                        'kind' => 'SCALAR',
-                                        'name' => 'Float',
-                                        'fields' => NULL,
-                                        'inputFields' => NULL,
-                                        'interfaces' => NULL,
-                                        'enumValues' => NULL,
-                                        'possibleTypes' => NULL,
-                                    ),
-                                    array (
-                                        'kind' => 'SCALAR',
-                                        'name' => 'Int',
-                                        'fields' => NULL,
-                                        'inputFields' => NULL,
-                                        'interfaces' => NULL,
-                                        'enumValues' => NULL,
-                                        'possibleTypes' => NULL,
-                                    )
                                 ),
                             'directives' =>
                                 array (

@@ -57,7 +57,7 @@ class SchemaConfig
                 Utils::invariant(
                     $options['query'] instanceof ObjectType,
                     'Schema query must be Object Type if provided but got: %s',
-                    Utils::getVariableType($options['query'])
+                    Utils::printSafe($options['query'])
                 );
                 $config->setQuery($options['query']);
             }
@@ -66,7 +66,7 @@ class SchemaConfig
                 Utils::invariant(
                     $options['mutation'] instanceof ObjectType,
                     'Schema mutation must be Object Type if provided but got: %s',
-                    Utils::getVariableType($options['mutation'])
+                    Utils::printSafe($options['mutation'])
                 );
                 $config->setMutation($options['mutation']);
             }
@@ -75,7 +75,7 @@ class SchemaConfig
                 Utils::invariant(
                     $options['subscription'] instanceof ObjectType,
                     'Schema subscription must be Object Type if provided but got: %s',
-                    Utils::getVariableType($options['subscription'])
+                    Utils::printSafe($options['subscription'])
                 );
                 $config->setSubscription($options['subscription']);
             }
@@ -84,7 +84,7 @@ class SchemaConfig
                 Utils::invariant(
                     is_array($options['types']) || is_callable($options['types']),
                     'Schema types must be array or callable if provided but got: %s',
-                    Utils::getVariableType($options['types'])
+                    Utils::printSafe($options['types'])
                 );
                 $config->setTypes($options['types']);
             }
@@ -93,7 +93,7 @@ class SchemaConfig
                 Utils::invariant(
                     is_array($options['directives']),
                     'Schema directives must be array if provided but got: %s',
-                    Utils::getVariableType($options['directives'])
+                    Utils::printSafe($options['directives'])
                 );
                 $config->setDirectives($options['directives']);
             }
@@ -116,7 +116,7 @@ class SchemaConfig
                 Utils::invariant(
                     is_callable($options['typeLoader']),
                     'Schema type loader must be callable if provided but got: %s',
-                    Utils::getVariableType($options['typeLoader'])
+                    Utils::printSafe($options['typeLoader'])
                 );
                 $config->setTypeLoader($options['typeLoader']);
             }
@@ -184,7 +184,7 @@ class SchemaConfig
      */
     public function getTypes()
     {
-        return $this->types;
+        return $this->types ?: [];
     }
 
     /**

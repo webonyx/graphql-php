@@ -122,6 +122,9 @@ class Schema
         if ($config->subscription) {
             $this->resolvedTypes[$config->subscription->name] = $config->subscription;
         }
+        if (!$this->config->typeLoader) {
+            $this->getTypeMap();
+        }
     }
 
     /**

@@ -226,6 +226,20 @@ EOD;
         return $includeDescription ? $withDescription : $withoutDescription;
     }
 
+    public static function getTypes()
+    {
+        return [
+            '__Schema' => self::_schema(),
+            '__Type' => self::_type(),
+            '__Directive' => self::_directive(),
+            '__Field' => self::_field(),
+            '__InputValue' => self::_inputValue(),
+            '__EnumValue' => self::_enumValue(),
+            '__TypeKind' => self::_typeKind(),
+            '__DirectiveLocation' => self::_directiveLocation(),
+        ];
+    }
+
     public static function _schema()
     {
         if (!isset(self::$map['__Schema'])) {
