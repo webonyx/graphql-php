@@ -185,44 +185,51 @@ class Schema
      */
     public function getType($name)
     {
-        return $this->resolveType($name);
+        if (!isset($this->resolvedTypes[$name])) {
+            $this->resolvedTypes[$name] = $this->loadType($name);
+        }
+        return $this->resolvedTypes[$name];
     }
 
+    /**
+     * @return array
+     */
     private function collectAllTypes()
     {
-        $initialTypes = array_merge(
-            array_values($this->resolvedTypes),
-            [Introspection::_schema()]
-        );
+        $initialTypes = $this->resolvedTypes;
 
         $typeMap = [];
         foreach ($initialTypes as $type) {
             $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
 
-        $types = $this->config->types;
-        if (is_callable($types)) {
-            $types = $types();
+        if ($this->config->types) {
+            $types = $this->config->types;
 
-            Utils::invariant(
-                is_array($types) || $types instanceof \Traversable,
-                'Schema types callable must return array or instance of Traversable but got: %s',
-                Utils::getVariableType($types)
-            );
-        }
+            if (is_callable($types)) {
+                $types = $types();
+            }
 
-        if (!empty($types)) {
-            foreach ($types as $type) {
-                Utils::invariant(
-                    $type instanceof Type,
-                    'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but got: %s',
+            if (!is_array($types) && !$types instanceof \Traversable) {
+                throw new InvariantViolation(sprintf(
+                    'Schema types callable must return array or instance of Traversable but got: %s',
                     Utils::getVariableType($types)
-                );
+                ));
+            }
+
+            foreach ($types as $index => $type) {
+                if (!$type instanceof Type) {
+                    throw new InvariantViolation(
+                        'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
+                        $index,
+                        Utils::printSafe($type)
+                    );
+                }
                 $typeMap = TypeInfo::extractTypes($type, $typeMap);
             }
         }
 
-        return $typeMap + Type::getInternalTypes();
+        return $typeMap + Type::getInternalTypes() + Introspection::getTypes();
     }
 
     /**
@@ -235,7 +242,7 @@ class Schema
     public function getPossibleTypes(AbstractType $abstractType)
     {
         $possibleTypeMap = $this->getPossibleTypeMap();
-        return array_values($possibleTypeMap[$abstractType->name]);
+        return isset($possibleTypeMap[$abstractType->name]) ? array_values($possibleTypeMap[$abstractType->name]) : [];
     }
 
     /**
@@ -261,26 +268,9 @@ class Schema
     }
 
     /**
-     * Accepts name of type or type instance and returns type instance. If type with given name is not loaded yet -
-     * will load it first.
-     *
-     * @param $typeOrName
+     * @param $typeName
      * @return Type
      */
-    public function resolveType($typeOrName)
-    {
-        if ($typeOrName instanceof Type) {
-            if ($typeOrName->name && !isset($this->resolvedTypes[$typeOrName->name])) {
-                $this->resolvedTypes[$typeOrName->name] = $typeOrName;
-            }
-            return $typeOrName;
-        }
-        if (!isset($this->resolvedTypes[$typeOrName])) {
-            $this->resolvedTypes[$typeOrName] = $this->loadType($typeOrName);
-        }
-        return $this->resolvedTypes[$typeOrName];
-    }
-
     private function loadType($typeName)
     {
         $typeLoader = $this->config->typeLoader;
@@ -290,7 +280,18 @@ class Schema
         }
 
         $type = $typeLoader($typeName);
-        // TODO: validate returned value
+
+        if (!$type instanceof Type) {
+            throw new InvariantViolation(
+                "Type loader is expected to return valid type \"$typeName\", but it returned " . Utils::printSafe($type)
+            );
+        }
+        if ($type->name !== $typeName) {
+            throw new InvariantViolation(
+                "Type loader is expected to return type \"$typeName\", but it returned \"{$type->name}\""
+            );
+        }
+
         return $type;
     }
 
