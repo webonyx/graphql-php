@@ -6,7 +6,7 @@ final class Warning
     const NAME_WARNING = 1;
     const ASSIGN_WARNING = 2;
     const CONFIG_WARNING = 4;
-    const RESOLVE_TYPE_WARNING = 8;
+    const FULL_SCHEMA_SCAN_WARNING = 8;
     const CONFIG_DEPRECATION_WARNING = 16;
     const NOT_A_TYPE = 32;
 

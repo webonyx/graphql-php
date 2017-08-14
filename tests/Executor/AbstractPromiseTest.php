@@ -87,9 +87,9 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
           }
         }';
 
-        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
+        Warning::suppress(Warning::FULL_SCHEMA_SCAN_WARNING);
         $result = GraphQL::execute($schema, $query);
-        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
+        Warning::enable(Warning::FULL_SCHEMA_SCAN_WARNING);
 
         $expected = [
             'data' => [
@@ -174,9 +174,9 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
+        Warning::suppress(Warning::FULL_SCHEMA_SCAN_WARNING);
         $result = GraphQL::execute($schema, $query);
-        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
+        Warning::enable(Warning::FULL_SCHEMA_SCAN_WARNING);
 
         $expected = [
             'data' => [

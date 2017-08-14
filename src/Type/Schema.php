@@ -123,6 +123,7 @@ class Schema
             $this->resolvedTypes[$config->subscription->name] = $config->subscription;
         }
         if (!$this->config->typeLoader) {
+            // Perform full scan of the schema
             $this->getTypeMap();
         }
     }
@@ -199,40 +200,44 @@ class Schema
      */
     private function collectAllTypes()
     {
-        $initialTypes = $this->resolvedTypes;
-
         $typeMap = [];
-        foreach ($initialTypes as $type) {
+        foreach ($this->resolvedTypes as $type) {
             $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
+        foreach ($this->resolveAdditionalTypes() as $type) {
+            $typeMap = TypeInfo::extractTypes($type, $typeMap);
+        }
+        return $typeMap + Type::getInternalTypes() + Introspection::getTypes();
+    }
 
-        if ($this->config->types) {
-            $types = $this->config->types;
+    /**
+     * @return \Generator
+     */
+    private function resolveAdditionalTypes()
+    {
+        $types = $this->config->types ?: [];
 
-            if (is_callable($types)) {
-                $types = $types();
-            }
-
-            if (!is_array($types) && !$types instanceof \Traversable) {
-                throw new InvariantViolation(sprintf(
-                    'Schema types callable must return array or instance of Traversable but got: %s',
-                    Utils::getVariableType($types)
-                ));
-            }
-
-            foreach ($types as $index => $type) {
-                if (!$type instanceof Type) {
-                    throw new InvariantViolation(
-                        'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
-                        $index,
-                        Utils::printSafe($type)
-                    );
-                }
-                $typeMap = TypeInfo::extractTypes($type, $typeMap);
-            }
+        if (is_callable($types)) {
+            $types = $types();
         }
 
-        return $typeMap + Type::getInternalTypes() + Introspection::getTypes();
+        if (!is_array($types) && !$types instanceof \Traversable) {
+            throw new InvariantViolation(sprintf(
+                'Schema types callable must return array or instance of Traversable but got: %s',
+                Utils::getVariableType($types)
+            ));
+        }
+
+        foreach ($types as $index => $type) {
+            if (!$type instanceof Type) {
+                throw new InvariantViolation(
+                    'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
+                    $index,
+                    Utils::printSafe($type)
+                );
+            }
+            yield $type;
+        }
     }
 
     /**

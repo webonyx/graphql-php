@@ -235,6 +235,10 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
         $input = $schema->getType('PostStoryMutationInput');
         $this->assertSame($this->postStoryMutationInput, $input);
         $this->assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
+
+        $result = $schema->isPossibleType($this->node, $this->blogStory);
+        $this->assertTrue($result);
+        $this->assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
     }
 
     public function testOnlyCallsLoaderOnce()
@@ -315,5 +319,24 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
         );
 
         $schema->getType('Node');
+    }
+
+    public function testReturnsIdenticalResults()
+    {
+        $withoutLoader = new Schema([
+            'query' => $this->query,
+            'mutation' => $this->mutation
+        ]);
+
+        $withLoader = new Schema([
+            'query' => $this->query,
+            'mutation' => $this->mutation,
+            'typeLoader' => $this->typeLoader
+        ]);
+
+        $this->assertSame($withoutLoader->getQueryType(), $withLoader->getQueryType());
+        $this->assertSame($withoutLoader->getMutationType(), $withLoader->getMutationType());
+        $this->assertSame($withoutLoader->getType('BlogStory'), $withLoader->getType('BlogStory'));
+        $this->assertSame($withoutLoader->getDirectives(), $withLoader->getDirectives());
     }
 }

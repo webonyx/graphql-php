@@ -256,9 +256,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
+        Warning::suppress(Warning::FULL_SCHEMA_SCAN_WARNING);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
-        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
+        Warning::enable(Warning::FULL_SCHEMA_SCAN_WARNING);
     }
 
     /**
@@ -294,9 +294,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
+        Warning::suppress(Warning::FULL_SCHEMA_SCAN_WARNING);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
-        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
+        Warning::enable(Warning::FULL_SCHEMA_SCAN_WARNING);
     }
 
     /**
@@ -351,9 +351,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
-        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
+        Warning::suppress(Warning::FULL_SCHEMA_SCAN_WARNING);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
-        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
+        Warning::enable(Warning::FULL_SCHEMA_SCAN_WARNING);
     }
 
     /**

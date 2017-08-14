@@ -3,14 +3,11 @@ namespace GraphQL\Tests\Executor;
 
 require_once __DIR__ . '/TestClasses.php';
 
-use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
-use GraphQL\Error\FormattedError;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
-use GraphQL\Language\SourceLocation;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -90,21 +87,8 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        Warning::suppress(Warning::RESOLVE_TYPE_WARNING);
         $result = Executor::execute($schema, Parser::parse($query));
         $this->assertEquals($expected, $result);
-
-        Warning::enable(Warning::RESOLVE_TYPE_WARNING);
-        $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertEquals(1, count($result->errors));
-        $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $result->errors[0]->getPrevious());
-
-        $this->assertEquals(
-            'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: '.
-            'instance of GraphQL\Tests\Executor\Dog. Switching to slow resolution method using `isTypeOf` of '.
-            'all possible implementations. It degrades query performance significantly.  '.
-            'Make sure your `resolveType` always returns valid implementation or throws.',
-            $result->errors[0]->getMessage());
     }
 
     /**
