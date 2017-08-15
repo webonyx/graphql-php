@@ -11,9 +11,17 @@ class ServerConfig
     /**
      * @return static
      */
-    public static function create()
+    public static function create(array $config = [])
     {
-        return new static();
+        $instance = new static();
+        foreach ($config as $key => $value) {
+            $method = 'set' . ucfirst($key);
+            if (!method_exists($instance, $method)) {
+                throw new InvariantViolation("Unknown server config option \"$key\"");
+            }
+            $instance->$method($value);
+        }
+        return $instance;
     }
 
     /**
@@ -40,6 +48,11 @@ class ServerConfig
      * @var bool
      */
     private $debug = false;
+
+    /**
+     * @var bool
+     */
+    private $queryBatching = false;
 
     /**
      * @var array|callable
@@ -173,7 +186,7 @@ class ServerConfig
     {
         if (!is_callable($validationRules) && !is_array($validationRules) && $validationRules !== null) {
             throw new InvariantViolation(
-                __METHOD__ . ' expects array of validation rules or callable returning such array, but got: %s' .
+                'Server config expects array of validation rules or callable returning such array, but got ' .
                 Utils::printSafe($validationRules)
             );
         }
@@ -251,6 +264,26 @@ class ServerConfig
     public function setDebug($set = true)
     {
         $this->debug = (bool) $set;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getQueryBatching()
+    {
+        return $this->queryBatching;
+    }
+
+    /**
+     * Allow batching queries
+     *
+     * @param bool $enableBatching
+     * @return ServerConfig
+     */
+    public function setQueryBatching($enableBatching)
+    {
+        $this->queryBatching = (bool) $enableBatching;
         return $this;
     }
 }

@@ -43,8 +43,15 @@ class StandardServer
      * StandardServer constructor.
      * @param ServerConfig $config
      */
-    protected function __construct(ServerConfig $config)
+    protected function __construct($config)
     {
+        if (is_array($config)) {
+            $config = ServerConfig::create($config);
+        }
+        if (!$config instanceof ServerConfig) {
+            throw new InvariantViolation("");
+        }
+
         $this->config = $config;
         $this->helper = new Helper();
     }

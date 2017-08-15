@@ -1,11 +1,12 @@
 <?php
 namespace GraphQL\Tests\Server;
 
-use GraphQL\Error\FormattedError;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\Type;
 
 class ServerConfigTest extends \PHPUnit_Framework_TestCase
 {
@@ -21,6 +22,7 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $config->getDefaultFieldResolver());
         $this->assertEquals(null, $config->getPersistentQueryLoader());
         $this->assertEquals(false, $config->getDebug());
+        $this->assertEquals(false, $config->getQueryBatching());
     }
 
     public function testAllowsSettingSchema()
@@ -140,5 +142,63 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
 
         $config->setDebug(false);
         $this->assertSame(false, $config->getDebug());
+    }
+
+    public function testAcceptsArray()
+    {
+        $arr = [
+            'schema' => new \GraphQL\Type\Schema([
+                'query' => new ObjectType(['name' => 't', 'fields' => ['a' => Type::string()]])
+            ]),
+            'context' => new \stdClass(),
+            'rootValue' => new \stdClass(),
+            'errorFormatter' => function() {},
+            'promiseAdapter' => new SyncPromiseAdapter(),
+            'validationRules' => [function() {}],
+            'defaultFieldResolver' => function() {},
+            'persistentQueryLoader' => function() {},
+            'debug' => true,
+            'queryBatching' => true,
+        ];
+
+        $config = ServerConfig::create($arr);
+
+        $this->assertSame($arr['schema'], $config->getSchema());
+        $this->assertSame($arr['context'], $config->getContext());
+        $this->assertSame($arr['rootValue'], $config->getRootValue());
+        $this->assertSame($arr['errorFormatter'], $config->getErrorFormatter());
+        $this->assertSame($arr['promiseAdapter'], $config->getPromiseAdapter());
+        $this->assertSame($arr['validationRules'], $config->getValidationRules());
+        $this->assertSame($arr['defaultFieldResolver'], $config->getDefaultFieldResolver());
+        $this->assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
+        $this->assertSame(true, $config->getDebug());
+        $this->assertSame(true, $config->getQueryBatching());
+    }
+
+    public function testThrowsOnInvalidArrayKey()
+    {
+        $arr = [
+            'missingKey' => 'value'
+        ];
+
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'Unknown server config option "missingKey"'
+        );
+
+        ServerConfig::create($arr);
+    }
+
+    public function testInvalidValidationRules()
+    {
+        $rules = new \stdClass();
+        $config = ServerConfig::create();
+
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'Server config expects array of validation rules or callable returning such array, but got instance of stdClass'
+        );
+
+        $config->setValidationRules($rules);
     }
 }

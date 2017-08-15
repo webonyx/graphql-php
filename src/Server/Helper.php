@@ -28,7 +28,7 @@ class Helper
 {
     /**
      * Executes GraphQL operation with given server configuration and returns execution result
-     * (or promise when promise adapter is different from SyncPromiseAdapter)
+     * (or promise when promise adapter is different than SyncPromiseAdapter)
      *
      * @param ServerConfig $config
      * @param OperationParams $op
@@ -61,7 +61,7 @@ class Helper
         $result = [];
 
         foreach ($operations as $operation) {
-            $result[] = $this->promiseToExecuteOperation($promiseAdapter, $config, $operation);
+            $result[] = $this->promiseToExecuteOperation($promiseAdapter, $config, $operation, true);
         }
 
         $result = $promiseAdapter->all($result);
@@ -77,20 +77,28 @@ class Helper
      * @param PromiseAdapter $promiseAdapter
      * @param ServerConfig $config
      * @param OperationParams $op
+     * @param bool $isBatch
      * @return Promise
      */
-    private function promiseToExecuteOperation(PromiseAdapter $promiseAdapter, ServerConfig $config, OperationParams $op)
+    private function promiseToExecuteOperation(PromiseAdapter $promiseAdapter, ServerConfig $config, OperationParams $op, $isBatch = false)
     {
         try {
+            if ($isBatch && !$config->getQueryBatching()) {
+                throw new RequestError("Batched queries are not supported by this server");
+            }
+
             $errors = $this->validateOperationParams($op);
 
             if (!empty($errors)) {
+                $errors = Utils::map($errors, function(RequestError $err) {
+                    return Error::createLocatedError($err, null, null);
+                });
                 return $promiseAdapter->createFulfilled(
                     new ExecutionResult(null, $errors)
                 );
             }
 
-            $doc = $op->queryId ? static::loadPersistedQuery($config, $op) : $op->query;
+            $doc = $op->queryId ? $this->loadPersistedQuery($config, $op) : $op->query;
 
             if (!$doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);
@@ -154,8 +162,7 @@ class Helper
      * @param ServerConfig $config
      * @param OperationParams $op
      * @return mixed
-     * @throws Error
-     * @throws InvariantViolation
+     * @throws RequestError
      */
     private function loadPersistedQuery(ServerConfig $config, OperationParams $op)
     {
@@ -251,7 +258,7 @@ class Helper
      *
      * @param callable|null $readRawBodyFn
      * @return OperationParams|OperationParams[]
-     * @throws Error
+     * @throws RequestError
      */
     public function parseHttpRequest(callable $readRawBodyFn = null)
     {
@@ -359,6 +366,10 @@ class Helper
         }
     }
 
+    /**
+     * @param $result
+     * @param $exitWhenDone
+     */
     private function doSendResponse($result, $exitWhenDone)
     {
         $httpStatus = $this->resolveHttpStatus($result);
@@ -382,7 +393,7 @@ class Helper
      * @param array $bodyParams
      * @param array $queryParams
      * @return OperationParams|OperationParams[]
-     * @throws Error
+     * @throws RequestError
      */
     public function parseRequestParams($method, array $bodyParams, array $queryParams)
     {

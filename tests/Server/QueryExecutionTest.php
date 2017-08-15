@@ -10,6 +10,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
+use GraphQL\Server\RequestError;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -102,7 +103,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
             ])
         ]);
 
-        $this->config = ServerConfig::create()->setSchema($schema);
+        $this->config = ServerConfig::create()
+            ->setSchema($schema);
     }
 
     public function testSimpleQueryExecution()
@@ -285,6 +287,42 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
+    public function testBatchedQueriesAreDisabledByDefault()
+    {
+        $batch = [
+            [
+                'query' => '{invalid}'
+            ],
+            [
+                'query' => '{f1,fieldWithException}'
+            ]
+        ];
+
+        $result = $this->executeBatchedQuery($batch);
+
+        $expected = [
+            [
+                'errors' => [
+                    [
+                        'message' => 'Batched queries are not supported by this server',
+                        'category' => 'request'
+                    ]
+                ]
+            ],
+            [
+                'errors' => [
+                    [
+                        'message' => 'Batched queries are not supported by this server',
+                        'category' => 'request'
+                    ]
+                ]
+            ],
+        ];
+
+        $this->assertEquals($expected[0], $result[0]->toArray());
+        $this->assertEquals($expected[1], $result[1]->toArray());
+    }
+
     public function testMutationsAreNotAllowedInReadonlyMode()
     {
         $mutation = 'mutation { a }';
@@ -416,6 +454,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
 
     public function testExecutesBatchedQueries()
     {
+        $this->config->setQueryBatching(true);
+
         $batch = [
             [
                 'query' => '{invalid}'
@@ -479,6 +519,7 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $calls = [];
 
         $this->config
+            ->setQueryBatching(true)
             ->setRootValue('1')
             ->setContext([
                 'buffer' => function($num) use (&$calls) {
@@ -523,6 +564,27 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected[0], $result[0]->toArray());
         $this->assertEquals($expected[1], $result[1]->toArray());
         $this->assertEquals($expected[2], $result[2]->toArray());
+    }
+
+    public function testValidatesParamsBeforeExecution()
+    {
+        $op = OperationParams::create(['queryBad' => '{f1}']);
+        $helper = new Helper();
+        $result = $helper->executeOperation($this->config, $op);
+        $this->assertInstanceOf(ExecutionResult::class, $result);
+
+        $this->assertEquals(null, $result->data);
+        $this->assertCount(1, $result->errors);
+
+        $this->assertEquals(
+            'GraphQL Request must include at least one of those two parameters: "query" or "queryId"',
+            $result->errors[0]->getMessage()
+        );
+
+        $this->assertInstanceOf(
+            RequestError::class,
+            $result->errors[0]->getPrevious()
+        );
     }
 
     private function executePersistedQuery($queryId, $variables = null)
