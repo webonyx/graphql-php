@@ -223,7 +223,7 @@ class Helper
     {
         $root = $config->getRootValue();
 
-        if (is_callable($root)) {
+        if ($root instanceof \Closure) {
             $root = $root($params, $doc, $operationType);
         }
 
@@ -241,7 +241,7 @@ class Helper
     {
         $context = $config->getContext();
 
-        if (is_callable($context)) {
+        if ($context instanceof \Closure) {
             $context = $context($params, $doc, $operationType);
         }
 
@@ -302,14 +302,43 @@ class Helper
      *
      * @param ServerRequestInterface $request
      * @return array|Helper
+     * @throws RequestError
      */
     public function parsePsrRequest(ServerRequestInterface $request)
     {
-        $contentType = $request->getHeader('content-type');
-        if (isset($contentType[0]) && $contentType[0] === 'application/graphql') {
-            $bodyParams = ['query' => $request->getBody()->getContents()];
+        if ($request->getMethod() === 'GET') {
+            $bodyParams = [];
         } else {
-            $bodyParams = $request->getParsedBody();
+            $contentType = $request->getHeader('content-type');
+
+            if (!isset($contentType[0])) {
+                throw new RequestError('Missing "Content-Type" header');
+            }
+
+            if (stripos('application/graphql', $contentType[0]) !== false) {
+                $bodyParams = ['query' => $request->getBody()->getContents()];
+            } else if (stripos('application/json', $contentType[0]) !== false) {
+                $bodyParams = $request->getParsedBody();
+
+                if (null === $bodyParams) {
+                    throw new InvariantViolation(
+                        "PSR request is expected to provide parsed body for \"application/json\" requests but got null"
+                    );
+                }
+
+                if (!is_array($bodyParams)) {
+                    throw new RequestError(
+                        "GraphQL Server expects JSON object or array, but got " .
+                        Utils::printSafeJson($bodyParams)
+                    );
+                }
+            } else {
+                $bodyParams = $request->getParsedBody();
+
+                if (!is_array($bodyParams)) {
+                    throw new RequestError("Unexpected content type: " . Utils::printSafeJson($contentType[0]));
+                }
+            }
         }
 
         return $this->parseRequestParams(
@@ -473,8 +502,8 @@ class Helper
      */
     private function resolveHttpStatus($result)
     {
-        if (is_array($result)) {
-            Utils::each($tmp, function ($executionResult, $index) {
+        if (is_array($result) && isset($result[0])) {
+            Utils::each($result, function ($executionResult, $index) {
                 if (!$executionResult instanceof ExecutionResult) {
                     throw new InvariantViolation(sprintf(
                         "Expecting every entry of batched query result to be instance of %s but entry at position %d is %s",

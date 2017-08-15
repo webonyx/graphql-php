@@ -30,12 +30,12 @@ class ServerConfig
     private $schema;
 
     /**
-     * @var mixed|callable
+     * @var mixed|\Closure
      */
     private $context;
 
     /**
-     * @var mixed|callable
+     * @var mixed|\Closure
      */
     private $rootValue;
 
@@ -83,7 +83,7 @@ class ServerConfig
     }
 
     /**
-     * @param mixed|callable $context
+     * @param mixed|\Closure $context
      * @return $this
      */
     public function setContext($context)
@@ -93,7 +93,7 @@ class ServerConfig
     }
 
     /**
-     * @param mixed|callable $rootValue
+     * @param mixed|\Closure $rootValue
      * @return $this
      */
     public function setRootValue($rootValue)

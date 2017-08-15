@@ -342,7 +342,7 @@ class AST
      */
     public static function getOperation(DocumentNode $document, $operationName = null)
     {
-        if (is_array($document->definitions)) {
+        if ($document->definitions) {
             foreach ($document->definitions as $def) {
                 if ($def instanceof OperationDefinitionNode) {
                     if (!$operationName || (isset($def->name->value) && $def->name->value === $operationName)) {

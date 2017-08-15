@@ -6,6 +6,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\ExecutionResult;
+use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
 use GraphQL\Server\Helper;
@@ -228,6 +229,27 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         ];
         $this->assertQueryResultEquals($expected, $query);
         $this->assertTrue($called);
+    }
+
+    public function testAllowsValidationRulesAsClosure()
+    {
+        $called = false;
+        $params = $doc = $operationType = null;
+
+        $this->config->setValidationRules(function($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) {
+            $called = true;
+            $params = $p;
+            $doc = $d;
+            $operationType = $o;
+            return [];
+        });
+
+        $this->assertFalse($called);
+        $this->executeQuery('{f1}');
+        $this->assertTrue($called);
+        $this->assertInstanceOf(OperationParams::class, $params);
+        $this->assertInstanceOf(DocumentNode::class, $doc);
+        $this->assertEquals('query', $operationType);
     }
 
     public function testAllowsDifferentValidationRulesDependingOnOperation()
@@ -585,6 +607,46 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
             RequestError::class,
             $result->errors[0]->getPrevious()
         );
+    }
+
+    public function testAllowsContextAsClosure()
+    {
+        $called = false;
+        $params = $doc = $operationType = null;
+
+        $this->config->setContext(function($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) {
+            $called = true;
+            $params = $p;
+            $doc = $d;
+            $operationType = $o;
+        });
+
+        $this->assertFalse($called);
+        $this->executeQuery('{f1}');
+        $this->assertTrue($called);
+        $this->assertInstanceOf(OperationParams::class, $params);
+        $this->assertInstanceOf(DocumentNode::class, $doc);
+        $this->assertEquals('query', $operationType);
+    }
+
+    public function testAllowsRootValueAsClosure()
+    {
+        $called = false;
+        $params = $doc = $operationType = null;
+
+        $this->config->setRootValue(function($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) {
+            $called = true;
+            $params = $p;
+            $doc = $d;
+            $operationType = $o;
+        });
+
+        $this->assertFalse($called);
+        $this->executeQuery('{f1}');
+        $this->assertTrue($called);
+        $this->assertInstanceOf(OperationParams::class, $params);
+        $this->assertInstanceOf(DocumentNode::class, $doc);
+        $this->assertEquals('query', $operationType);
     }
 
     private function executePersistedQuery($queryId, $variables = null)
