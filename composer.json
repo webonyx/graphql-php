@@ -32,6 +32,7 @@
     }
   },
   "suggest": {
-    "react/promise": "To use ReactPHP promise adapter"
+    "react/promise": "To leverage async resolving on React PHP platform",
+    "psr/http-message": "To use standard GraphQL server"
   }
 }
