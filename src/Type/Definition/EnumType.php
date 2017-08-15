@@ -72,12 +72,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType
                 foreach ($config['values'] as $name => $value) {
                     if (is_string($name)) {
                         if (!is_array($value)) {
-                            throw new InvariantViolation(
-                                "{$this->name}.$name must refer to an associative array with a " .
-                                '"value" key representing an internal value but got: ' . Utils::printSafe($value)
-                            );
+                            $value = ['name' => $name, 'value' => $value];
+                        } else {
+                            $value += ['name' => $name, 'value' => $name];
                         }
-                        $value += ['name' => $name, 'value' => $name];
                     } else if (is_int($name) && is_string($value)) {
                         $value = ['name' => $value, 'value' => $value];
                     } else {

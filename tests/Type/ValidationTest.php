@@ -1598,46 +1598,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it rejects an Enum type with missing value definition
-     */
-    public function testRejectsAnEnumTypeWithMissingValueDefinition()
-    {
-        $type = new EnumType([
-            'name' => 'SomeEnum',
-            'values' => [
-                'FOO' => null
-            ]
-        ]);
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeEnum.FOO must refer to an associative array with a "value" key representing an internal value but got: null'
-        );
-
-        $type->assertValid();
-    }
-
-    /**
-     * @it rejects an Enum type with incorrectly typed value definition
-     */
-    public function testRejectsAnEnumTypeWithIncorrectlyTypedValueDefinition()
-    {
-        $enumType = new EnumType([
-            'name' => 'SomeEnum',
-            'values' => [
-                'FOO' => 10
-            ]
-        ]);
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeEnum.FOO must refer to an associative array with a "value" key representing an internal value but got: 10'
-        );
-
-        $enumType->assertValid();
-    }
-
-    /**
      * @it rejects an Enum type with incorrectly named values
      */
     public function testRejectsAnEnumTypeWithIncorrectlyNamedValues()
