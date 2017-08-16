@@ -24,6 +24,9 @@ class FormattedError
     }
 
     /**
+     * Standard GraphQL error formatter. Converts any exception to GraphQL error
+     * conforming to GraphQL spec
+     *
      * @param \Throwable $e
      * @param bool|int $debug
      * @param string $internalErrorMessage
@@ -56,7 +59,7 @@ class FormattedError
         } else {
             $result = [
                 'message' => $internalErrorMessage,
-                'category' => Error::INTERNAL
+                'category' => Error::CATEGORY_INTERNAL
             ];
         }
         if (($debug & self::INCLUDE_DEBUG_MESSAGE > 0) && $result['message'] === $internalErrorMessage) {

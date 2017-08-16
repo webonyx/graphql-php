@@ -16,8 +16,8 @@ use GraphQL\Utils\Utils;
  */
 class Error extends \Exception implements \JsonSerializable, ClientAware
 {
-    const GRAPHQL = 'graphql';
-    const INTERNAL = 'internal';
+    const CATEGORY_GRAPHQL = 'graphql';
+    const CATEGORY_INTERNAL = 'internal';
 
     /**
      * A message describing the Error for debugging purposes.
@@ -161,13 +161,13 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-            $this->category = $previous->getCategory() ?: static::INTERNAL;
+            $this->category = $previous->getCategory() ?: static::CATEGORY_INTERNAL;
         } else if ($previous) {
             $this->isClientSafe = false;
-            $this->category = static::INTERNAL;
+            $this->category = static::CATEGORY_INTERNAL;
         } else {
             $this->isClientSafe = true;
-            $this->category = static::GRAPHQL;
+            $this->category = static::CATEGORY_GRAPHQL;
         }
     }
 
@@ -237,6 +237,17 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         }
 
         return $this->locations;
+    }
+
+    /**
+     * Returns an array describing the JSON-path into the execution response which
+     * corresponds to this error. Only included for errors during execution.
+     *
+     * @return array|null
+     */
+    public function getPath()
+    {
+        return $this->path;
     }
 
     /**
