@@ -8,8 +8,12 @@ use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\ListValueNode;
+use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\ObjectValueNode;
@@ -24,6 +28,8 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 /**
@@ -321,6 +327,26 @@ class AST
         throw new InvariantViolation('Must be input type');
     }
 
+    /**
+     * @param Schema $schema
+     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+     * @return Type
+     * @throws InvariantViolation
+     */
+    public static function typeFromAST(Schema $schema, $inputTypeNode)
+    {
+        if ($inputTypeNode instanceof ListTypeNode) {
+            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            return $innerType ? new ListOfType($innerType) : null;
+        }
+        if ($inputTypeNode instanceof NonNullTypeNode) {
+            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
+            return $innerType ? new NonNull($innerType) : null;
+        }
+
+        Utils::invariant($inputTypeNode && $inputTypeNode instanceof NamedTypeNode, 'Must be a named type');
+        return $schema->getType($inputTypeNode->name->value);
+    }
 
     /**
      * Returns true if the provided valueNode is a variable which is not defined

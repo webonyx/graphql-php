@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Utils;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\ListTypeNode;
@@ -55,26 +56,15 @@ class TypeInfo
         return TypeComparators::doTypesOverlap($schema, $typeA, $typeB);
     }
 
-
     /**
      * @param Schema $schema
-     * @param $inputTypeAST
+     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      * @return Type
-     * @throws \Exception
+     * @throws InvariantViolation
      */
     public static function typeFromAST(Schema $schema, $inputTypeNode)
     {
-        if ($inputTypeNode instanceof ListTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
-            return $innerType ? new ListOfType($innerType) : null;
-        }
-        if ($inputTypeNode instanceof NonNullTypeNode) {
-            $innerType = self::typeFromAST($schema, $inputTypeNode->type);
-            return $innerType ? new NonNull($innerType) : null;
-        }
-
-        Utils::invariant($inputTypeNode && $inputTypeNode instanceof NamedTypeNode, 'Must be a named type');
-        return $schema->getType($inputTypeNode->name->value);
+        return AST::typeFromAST($schema, $inputTypeNode);
     }
 
     /**
