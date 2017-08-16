@@ -4,6 +4,7 @@ namespace GraphQL\Server;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
+use GraphQL\Utils;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -49,7 +50,7 @@ class StandardServer
             $config = ServerConfig::create($config);
         }
         if (!$config instanceof ServerConfig) {
-            throw new InvariantViolation("");
+            throw new InvariantViolation("Expecting valid server config, but got " . Utils::printSafe($config));
         }
 
         $this->config = $config;
