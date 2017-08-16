@@ -88,11 +88,13 @@ $variableValues = isset($input['variables']) ? $input['variables'] : null;
 
 try {
     $rootValue = ['prefix' => 'You said: '];
-    $result = GraphQL::execute($schema, $query, $rootValue, null, $variableValues);
+    $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
 } catch (\Exception $e) {
     $result = [
-        'error' => [
-            'message' => $e->getMessage()
+        'errors' => [
+            [
+                'message' => $e->getMessage()
+            ]
         ]
     ];
 }

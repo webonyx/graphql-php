@@ -2,16 +2,18 @@
 Schema is a container of your type hierarchy, which accepts root types in constructor and provides
 methods for receiving information about your types to internal GrahpQL tools.
 
-In **graphql-php** schema is an instance of `GraphQL\Type\Schema` which accepts configuration array 
-in constructor:
+In **graphql-php** schema is an instance of [`GraphQL\Type\Schema`](/reference/#graphqltypeschema) 
+which accepts configuration array in constructor:
 
 ```php
+use GraphQL\Type\Schema;
+
 $schema = new Schema([
     'query' => $queryType, 
     'mutation' => $mutationType,
 ]);
 ```
-See possible constructor options [below](#configuration-options)
+See possible constructor options [below](#configuration-options).
 
 # Query and Mutation types
 Schema consists of two root types:
@@ -76,7 +78,8 @@ Field names of Mutation type are usually verbs and they almost always have argum
 with complex input values (see [Input Types](input-types/) for details).
 
 # Configuration Options
-Schema constructor expects an array with following options:
+Schema constructor expects an instance of [`GraphQL\Type\SchemaConfig`](/reference/#graphqltypeschemaconfig) 
+or an array with following options:
 
 Option       | Type     | Notes
 ------------ | -------- | -----

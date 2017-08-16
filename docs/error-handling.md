@@ -1,143 +1,145 @@
 # Errors in GraphQL
 
-Query execution process never throws exceptions. Instead all errors that occur during query execution
-are caught, collected and included in response. 
+Query execution process never throws exceptions. Instead all errors are caught and collected in 
+[execution result](executing-queries/#execution-result).
 
-There are 3 types of errors in GraphQL (Syntax, Validation and Execution errors):
+Later `$result->toArray()` automatically converts these errors to array using default 
+error formatting. But you can apply [custom error filtering and formatting](#custom-error-filtering-and-formatting)
+for your specific requirements.
 
-**Syntax** errors are returned in response when query has invalid syntax and could not be parsed.
-Example output for invalid query `{hello` (missing bracket):
+# Default Error formatting
+By default each error entry is converted to associative array with following structure:
+
 ```php
 [
-    'errors' => [
-        [
-            'message' => "Syntax Error GraphQL request (1:7) Expected Name, found <EOF>\n\n1: {hello\n         ^\n",
-            'locations' => [
-                ['line' => 1, 'column' => 7]
-            ]
-        ]
-    ]
-]
-```
-
-**Validation** errors - returned in response when query has semantic errors. 
-Example output for invalid query `{unknownField}`:
-```php
-[
-    'errors' => [
-        [
-            'message' => 'Cannot query field "unknownField" on type "Query".',
-            'locations' => [
-                ['line' => 1, 'column' => 2]
-            ]
-        ]
-    ]
-]
-```
-
-**Execution** errors - included in response when some field resolver throws 
-(or returns unexpected value). Example output for query with exception thrown in 
-field resolver `{fieldWithException}`:
-```php
-[
-    'data' => [
-        'fieldWithException' => null
+    'message' => 'Error message',
+    'category' => 'graphql',
+    'locations' => [
+        ['line' => 1, 'column' => 2]
     ],
-    'errors' => [
-        [
-            'message' => 'Exception message thrown in field resolver',
-            'locations' => [
-                ['line' => 1, 'column' => 2]
-            ],
-            'path': [
-                'fieldWithException'
-            ]
-        ]
+    'path': [
+        'listField',
+        0,
+        'fieldWithException'
     ]
 ]
 ```
+Entry at key **locations** points to character in query string which caused the error.
+In some cases (like deep fragment fields) locations will include several entries to track down path to 
+field with error in query.
 
-Obviously when **Syntax** or **Validation** error is detected - process is interrupted and query is not 
-executed. In such scenarios response only contains **errors**, but not **data**.
+Entry at key **path** exists only for errors caused by exceptions thrown in resolvers. It contains path 
+from the very root field to actual field value producing an error 
+(including indexes for list types and field names for composite types). 
 
-GraphQL is forgiving to **Execution** errors which occur in resolvers of nullable fields. 
-If such field throws or returns unexpected value the value of the field in response will be simply 
-replaced with `null` and error entry will be added to response.
+**Internal errors**
 
-If exception is thrown in non-null field - error bubbles up to first nullable field. This nullable field is  
-replaced with `null` and error entry is added to response. If all fields up to the root are non-null - 
-**data** entry will be removed from response and only **errors** key will be presented.
+As of version **0.10.0** all exceptions thrown in resolvers are reported with generic message **"Internal server error"**.
+This is done to avoid information leak in production environments (e.g. database connection errors, file access errors, etc).
 
-# Debugging tools
-
-Each error entry contains pointer to line and column in original query string which caused 
-the error:
- 
-```php
-'locations' => [
-    ['line' => 1, 'column' => 2]
-]
-```
- 
- GraphQL clients like **Relay** or **GraphiQL** leverage this information to highlight 
-actual piece of query containing error. 
-
-In some cases (like deep fragment fields) locations will include several entries to track down the 
-path to field with error in query.
-
-**Execution** errors also contain **path** from the very root field to actual field value producing 
-an error (including indexes for array types and fieldNames for object types). So in complex situation 
-this path could look like this:
-
-```php
-'path' => [
-    'lastStoryPosted',
-    'author',
-    'friends',
-    3
-    'fieldWithException'
-]
-```
-
-# Custom Error Formatting
-
-If you want to apply custom formatting to errors - use **GraphQL::executeAndReturnResult()** instead
-of **GraphQL::execute()**.
-
-It has exactly the same [signature](executing-queries/), but instead of array it 
-returns `GraphQL\Executor\ExecutionResult` instance which holds errors in public **$errors** 
-property and data in **$data** property.
-
-Each entry of **$errors** array contains instance of `GraphQL\Error\Error` which wraps original 
-exceptions thrown by resolvers. To access original exceptions use `$error->getPrevious()` method.
-But note that previous exception is only available for **Execution** errors and will be `null`
-for **Syntax** or **Validation** errors.
+Only exceptions implementing interface `GraphQL\Error\ClientAware` and claiming themselves as **safe** will 
+be reported with full error message.
 
 For example:
+```php
+use GraphQL\Error\ClientAware;
+
+class MySafeException extends \Exception implements ClientAware
+{
+    public function isClientSafe()
+    {
+        return true;
+    }
+    
+    public function getCategory()
+    {
+        return 'businessLogic';
+    }
+}
+```
+When such exception is thrown it will be reported with full error message:
+```php
+[
+    'message' => 'My reported error',
+    'category' => 'businessLogic',
+    'locations' => [
+        ['line' => 10, 'column' => 2]
+    ],
+    'path': [
+        'path',
+        'to',
+        'fieldWithException'
+    ]
+]
+```
+
+To change default **"Internal server error"** message to something else, use: 
+```
+GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
+```
+
+#Debugging tools
+
+During development or debugging use `$result->toArray(true)` to add **debugMessage** key to 
+each formatted error entry. If you also want to add exception trace - pass flags instead:
+
+```
+use GraphQL\Error\FormattedError;
+$debug = FormattedError::INCLUDE_DEBUG_MESSAGE | FormattedError::INCLUDE_TRACE;
+$result = GraphQL::executeQuery(/*args*/)->toArray($debug);
+```
+
+This will make each error entry to look like this:
+```php
+[
+    'message' => 'Internal server error',
+    'debugMessage' => 'Actual exception message',
+    'category' => 'internal',
+    'locations' => [
+        ['line' => 10, 'column' => 2]
+    ],
+    'path': [
+        'listField',
+        0,
+        'fieldWithException'
+    ],
+    'trace' => [
+        /* Formatted original exception trace */
+    ]
+]
+```
+
+# Custom Error Handling and Formatting
+It is possible to define custom **formatter** and **handler** for result errors.
+
+**Formatter** is responsible for converting instances of `GraphQL\Error\Error` to array.
+**Handler** is useful for error filtering and logging. 
+
+For example these are default formatter and handler:
 
 ```php
-$result = GraphQL::executeAndReturnResult()
-    ->setErrorFormatter(function(GraphQL\Error\Error $err) {
-        $resolverException = $err->getPrevious();
+use GraphQL\Error\Error;
+use GraphQL\Error\FormattedError;
 
-        if ($resolverException instanceof MyResolverException) {
-            $formattedError = [
-                'message' => $resolverException->getMessage(),
-                'code' => $resolverException->getCode()
-            ];
-        } else {
-            $formattedError = [
-                'message' => $err->getMessage()
-            ];
-        }
-        return $formattedError;
-    })
+$myErrorFormatter = function(Error $error) {
+    return FormattedError::createFromException($error);
+};
+
+$myErrorHandler = function(array $errors, callable $formatter) {
+    return array_map($formatter, $errors);
+};
+
+$result = GraphQL::executeQuery(/* $args */)
+    ->setErrorFormatter($myErrorFormatter)
+    ->setErrorHandler($myErrorHandler)
     ->toArray();
 ```
 
+You may also re-throw exceptions in result handler for debugging, etc.
+
 # Schema Errors
 So far we only covered errors which occur during query execution process. But schema definition can 
-also throw if there is an error in one of type definitions.
+also throw `GraphQL\Error\InvariantViolation` if there is an error in one of type definitions.
 
 Usually such errors mean that there is some logical error in your schema and it is the only case 
 when it makes sense to return `500` error code for GraphQL endpoint:
@@ -148,7 +150,7 @@ try {
         // ...
     ]);
     
-    $body = GraphQL::execute($schema, $query);
+    $body = GraphQL::executeQuery($schema, $query);
     $status = 200;
 } catch(\Exception $e) {
     $body = json_encode([
