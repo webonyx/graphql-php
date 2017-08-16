@@ -109,6 +109,15 @@ This will make each error entry to look like this:
 ]
 ```
 
+If you prefer first resolver exception to be re-thrown, use following flags:
+```php
+use GraphQL\Error\FormattedError;
+$debug = FormattedError::INCLUDE_DEBUG_MESSAGE | FormattedError::RETHROW_RESOLVER_EXCEPTIONS;
+
+// Following will throw if there was an exception in resolver during execution:
+$result = GraphQL::executeQuery(/*args*/)->toArray($debug); 
+```
+
 # Custom Error Handling and Formatting
 It is possible to define custom **formatter** and **handler** for result errors.
 

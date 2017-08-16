@@ -871,6 +871,7 @@ class FormattedError
 {
     const INCLUDE_DEBUG_MESSAGE = 1;
     const INCLUDE_TRACE = 2;
+    const RETHROW_RESOLVER_EXCEPTIONS = 4;
 
     public static function setInternalErrorMessage($msg);
 

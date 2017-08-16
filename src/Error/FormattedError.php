@@ -15,6 +15,7 @@ class FormattedError
 {
     const INCLUDE_DEBUG_MESSAGE = 1;
     const INCLUDE_TRACE = 2;
+    const RETHROW_RESOLVER_EXCEPTIONS = 4;
 
     private static $internalErrorMessage = 'Internal server error';
 
@@ -30,8 +31,10 @@ class FormattedError
      * @param \Throwable $e
      * @param bool|int $debug
      * @param string $internalErrorMessage
-     *
      * @return array
+     * @throws Error
+     *
+     * @throws \Throwable
      */
     public static function createFromException($e, $debug = false, $internalErrorMessage = null)
     {
@@ -40,6 +43,12 @@ class FormattedError
             "Expected exception, got %s",
             Utils::getVariableType($e)
         );
+
+        if ($debug & self::RETHROW_RESOLVER_EXCEPTIONS > 0) {
+            if (!$e instanceof Error || $e->getPrevious()) {
+                throw $e;
+            }
+        }
 
         $debug = (int) $debug;
         $internalErrorMessage = $internalErrorMessage ?: self::$internalErrorMessage;
