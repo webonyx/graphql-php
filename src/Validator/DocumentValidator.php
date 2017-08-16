@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Validator;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -54,6 +55,11 @@ class DocumentValidator
 
     private static $initRules = false;
 
+    /**
+     * Returns all validation rules
+     *
+     * @return callable[]
+     */
     public static function allRules()
     {
         if (!self::$initRules) {
@@ -104,6 +110,12 @@ class DocumentValidator
         return self::$defaultRules;
     }
 
+    /**
+     * Returns validation rule
+     *
+     * @param string $name
+     * @return callable|null
+     */
     public static function getRule($name)
     {
         $rules = static::allRules();
@@ -111,12 +123,45 @@ class DocumentValidator
         return isset($rules[$name]) ? $rules[$name] : null ;
     }
 
+    /**
+     * Add rule to list of default validation rules
+     *
+     * @param string $name
+     * @param callable $rule
+     */
     public static function addRule($name, callable $rule)
     {
         self::$rules[$name] = $rule;
     }
 
-    public static function validate(Schema $schema, DocumentNode $ast, array $rules = null, TypeInfo $typeInfo = null)
+    /**
+     * Implements the "Validation" section of the spec.
+     *
+     * Validation runs synchronously, returning an array of encountered errors, or
+     * an empty array if no errors were encountered and the document is valid.
+     *
+     * A list of specific validation rules may be provided. If not provided, the
+     * default list of rules defined by the GraphQL specification will be used.
+     *
+     * Each validation rules is a function which returns a visitor
+     * (see the GraphQL\Language\Visitor API). Visitor methods are expected to return
+     * GraphQL\Error\Error, or arrays of GraphQL\Error\Error when invalid.
+     *
+     * Optionally a custom TypeInfo instance may be provided. If not provided, one
+     * will be created from the provided schema.
+     *
+     * @param Schema $schema
+     * @param DocumentNode $ast
+     * @param array|null $rules
+     * @param TypeInfo|null $typeInfo
+     * @return Error[]
+     */
+    public static function validate(
+        Schema $schema,
+        DocumentNode $ast,
+        array $rules = null,
+        TypeInfo $typeInfo = null
+    )
     {
         if (null === $rules) {
             $rules = static::allRules();

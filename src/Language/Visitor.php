@@ -18,7 +18,7 @@ class VisitorOperation
 class Visitor
 {
     /**
-     * Break visitor
+     * Returns marker for visitor break
      *
      * @return VisitorOperation
      */
@@ -30,7 +30,9 @@ class Visitor
     }
 
     /**
-     * Skip current node
+     * Returns marker for skipping current node
+     *
+     * @return VisitorOperation
      */
     public static function skipNode()
     {
@@ -40,7 +42,9 @@ class Visitor
     }
 
     /**
-     * Remove current node
+     * Returns marker for removing a node
+     *
+     * @return VisitorOperation
      */
     public static function removeNode()
     {
@@ -105,23 +109,23 @@ class Visitor
      * a new version of the AST with the changes applied will be returned from the
      * visit function.
      *
-     *     var editedAST = visit(ast, {
-     *       enter(node, key, parent, path, ancestors) {
-     *         // @return
-     *         //   undefined: no action
-     *         //   false: skip visiting this node
-     *         //   visitor.BREAK: stop visiting altogether
-     *         //   null: delete this node
+     *     $editedAST = Visitor::visit($ast, [
+     *       'enter' => function ($node, $key, $parent, $path, $ancestors) {
+     *         // return
+     *         //   null: no action
+     *         //   Visitor::skipNode(): skip visiting this node
+     *         //   Visitor::stop(): stop visiting altogether
+     *         //   Visitor::removeNode(): delete this node
      *         //   any value: replace this node with the returned value
      *       },
-     *       leave(node, key, parent, path, ancestors) {
-     *         // @return
-     *         //   undefined: no action
-     *         //   visitor.BREAK: stop visiting altogether
-     *         //   null: delete this node
+     *       'leave' => function ($node, $key, $parent, $path, $ancestors) {
+     *         // return
+     *         //   null: no action
+     *         //   Visitor::stop(): stop visiting altogether
+     *         //   Visitor::removeNode(): delete this node
      *         //   any value: replace this node with the returned value
      *       }
-     *     });
+     *     ]);
      *
      * Alternatively to providing enter() and leave() functions, a visitor can
      * instead provide functions named the same as the kinds of AST nodes, or
@@ -130,51 +134,57 @@ class Visitor
      *
      * 1) Named visitors triggered when entering a node a specific kind.
      *
-     *     visit(ast, {
-     *       Kind(node) {
+     *     Visitor::visit($ast, [
+     *       'Kind' => function ($node) {
      *         // enter the "Kind" node
      *       }
-     *     })
+     *     ]);
      *
      * 2) Named visitors that trigger upon entering and leaving a node of
      *    a specific kind.
      *
-     *     visit(ast, {
-     *       Kind: {
-     *         enter(node) {
+     *     Visitor::visit($ast, [
+     *       'Kind' => [
+     *         'enter' => function ($node) {
      *           // enter the "Kind" node
      *         }
-     *         leave(node) {
+     *         'leave' => function ($node) {
      *           // leave the "Kind" node
      *         }
-     *       }
-     *     })
+     *       ]
+     *     ]);
      *
      * 3) Generic visitors that trigger upon entering and leaving any node.
      *
-     *     visit(ast, {
-     *       enter(node) {
+     *     Visitor::visit($ast, [
+     *       'enter' => function ($node) {
      *         // enter any node
      *       },
-     *       leave(node) {
+     *       'leave' => function ($node) {
      *         // leave any node
      *       }
-     *     })
+     *     ]);
      *
      * 4) Parallel visitors for entering and leaving nodes of a specific kind.
      *
-     *     visit(ast, {
-     *       enter: {
-     *         Kind(node) {
+     *     Visitor::visit($ast, [
+     *       'enter' => [
+     *         'Kind' => function($node) {
      *           // enter the "Kind" node
      *         }
      *       },
-     *       leave: {
-     *         Kind(node) {
+     *       'leave' => [
+     *         'Kind' => function ($node) {
      *           // leave the "Kind" node
      *         }
-     *       }
-     *     })
+     *       ]
+     *     ]);
+     *
+     * @param Node $root
+     * @param array $visitor
+     * @param array $keyMap
+     * @return Node|mixed
+     * @throws \Exception
      */
     public static function visit($root, $visitor, $keyMap = null)
     {

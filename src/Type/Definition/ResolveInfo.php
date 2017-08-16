@@ -34,12 +34,12 @@ class ResolveInfo
     public $fieldNodes;
 
     /**
-     * @var OutputType
+     * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
      */
     public $returnType;
 
     /**
-     * @var Type|CompositeType
+     * @var ObjectType|InterfaceType|UnionType
      */
     public $parentType;
 
@@ -80,10 +80,9 @@ class ResolveInfo
     }
 
     /**
-     * Helper method that returns names of all fields selected in query for $this->fieldName up to $depth levels
+     * Helper method that returns names of all fields selected in query for
+     * $this->fieldName up to $depth levels
      *
-     *
-     * query AppHomeRoute{viewer{id,..._0c28183ce}} fragment _0c28183ce on Viewer{id,profile{firstName,id,locations{id}}}
      * Example:
      * query MyQuery{
      * {
@@ -98,7 +97,8 @@ class ResolveInfo
      *   }
      * }
      *
-     * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1, method will return:
+     * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1,
+     * method will return:
      * [
      *     'id' => true,
      *     'nested' => [

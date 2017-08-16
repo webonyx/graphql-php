@@ -45,6 +45,8 @@ class SchemaConfig
     public $typeLoader;
 
     /**
+     * Converts an array of options to instance of SchemaConfig
+     *
      * @param array $options
      * @return SchemaConfig
      */

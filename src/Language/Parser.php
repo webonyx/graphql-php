@@ -70,12 +70,12 @@ class Parser
     /**
      * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
      * that value.
-     * Throws GraphQLError if a syntax error is encountered.
+     * Throws GraphQL\Error\SyntaxError if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Values directly and
      * in isolation of complete GraphQL documents.
      *
-     * Consider providing the results to the utility function: valueFromAST().
+     * Consider providing the results to the utility function: GraphQL\Utils\AST::valueFromAST().
      *
      * @param Source|string $source
      * @param array $options
@@ -94,12 +94,13 @@ class Parser
     /**
      * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for
      * that type.
-     * Throws GraphQLError if a syntax error is encountered.
+     * Throws GraphQL\Error\SyntaxError if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Types directly and
      * in isolation of complete GraphQL documents.
      *
-     * Consider providing the results to the utility function: typeFromAST().
+     * Consider providing the results to the utility function: GraphQL\Utils\AST::typeFromAST().
+     *
      * @param Source|string $source
      * @param array $options
      * @return ListTypeNode|NameNode|NonNullTypeNode

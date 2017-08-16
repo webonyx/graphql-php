@@ -18,11 +18,27 @@ final class Warning
 
     static private $warningHandler;
 
+    /**
+     * Sets warning handler which (when set) will intercept all system warnings.
+     * When not set, trigger_error() is used to notify about warnings.
+     *
+     * @param callable|null $warningHandler
+     */
     public static function setWarningHandler(callable $warningHandler = null)
     {
         self::$warningHandler = $warningHandler;
     }
 
+    /**
+     * Suppress warning by id (has no effect when custom warning handler is set)
+     *
+     * Usage example:
+     * Warning::suppress(Warning::NOT_A_TYPE)
+     *
+     * When passing true - suppresses all warnings.
+     *
+     * @param bool|int $suppress
+     */
     static function suppress($suppress = true)
     {
         if (true === $suppress) {
@@ -35,6 +51,16 @@ final class Warning
         }
     }
 
+    /**
+     * Re-enable previously suppressed warning by id
+     *
+     * Usage example:
+     * Warning::suppress(Warning::NOT_A_TYPE)
+     *
+     * When passing true - re-enables all warnings.
+     *
+     * @param bool|int $enable
+     */
     public static function enable($enable = true)
     {
         if (true === $enable) {

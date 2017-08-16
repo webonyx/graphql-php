@@ -170,6 +170,8 @@ class Schema
      * Returns array of all types in this schema. Keys of this array represent type names, values are instances
      * of corresponding type definitions
      *
+     * This operation requires full schema scan. Do not use in production environment.
+     *
      * @return Type[]
      */
     public function getTypeMap()
@@ -243,6 +245,8 @@ class Schema
     /**
      * Returns all possible concrete types for given abstract type
      * (implementations for interfaces and members of union type for unions)
+     *
+     * This operation requires full schema scan. Do not use in production environment.
      *
      * @param AbstractType $abstractType
      * @return ObjectType[]
@@ -359,6 +363,10 @@ class Schema
     }
 
     /**
+     * Validates schema.
+     *
+     * This operation requires full schema scan. Do not use in production environment.
+     *
      * @throws InvariantViolation
      */
     public function assertValid()

@@ -42,6 +42,12 @@ use GraphQL\Utils\Utils;
 
 class Printer
 {
+    /**
+     * Prints AST to string. Capable of printing GraphQL queries and Type definition language.
+     *
+     * @param Node $ast
+     * @return string
+     */
     public static function doPrint($ast)
     {
         static $instance;
