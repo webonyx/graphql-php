@@ -328,7 +328,7 @@ class BuildSchema
         if ($this->typeConfigDecorator) {
             $fn = $this->typeConfigDecorator;
             try {
-                $config = $fn($this->nodeMap[$typeName], $config, $this->nodeMap);
+                $config = $fn($config, $this->nodeMap[$typeName], $this->nodeMap);
             } catch (\Exception $e) {
                 throw new Error(
                     "Type config decorator passed to " . (static::class) . " threw an error ".
@@ -608,13 +608,14 @@ class BuildSchema
      * A helper function to build a GraphQLSchema directly from a source
      * document.
      * 
-     * @param Source|string $source
+     * @param DocumentNode|Source|string $source
      * @param callable $typeConfigDecorator
      * @return Schema
      */
     public static function build($source, callable $typeConfigDecorator = null)
     {
-        return self::buildAST(Parser::parse($source), $typeConfigDecorator);
+        $doc = $source instanceof DocumentNode ? $source : Parser::parse($source);
+        return self::buildAST($doc, $typeConfigDecorator);
     }
 
     // Count the number of spaces on the starting side of a string.

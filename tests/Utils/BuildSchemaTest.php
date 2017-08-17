@@ -957,9 +957,9 @@ interface Hello {
         $decorated = [];
         $calls = [];
 
-        $typeConfigDecorator = function($node, $defaultConfig, $allNodesMap) use (&$decorated, &$calls) {
-            $decorated[] = $node->name->value;
-            $calls[] = [$node, $defaultConfig, $allNodesMap];
+        $typeConfigDecorator = function($defaultConfig, $node, $allNodesMap) use (&$decorated, &$calls) {
+            $decorated[] = $defaultConfig['name'];
+            $calls[] = [$defaultConfig, $node, $allNodesMap];
             return ['description' => 'My description of ' . $node->name->value] + $defaultConfig;
         };
 
@@ -967,7 +967,7 @@ interface Hello {
         $schema->getTypeMap();
         $this->assertEquals(['Query', 'Color', 'Hello'], $decorated);
 
-        list($node, $defaultConfig, $allNodesMap) = $calls[0];
+        list($defaultConfig, $node, $allNodesMap) = $calls[0];
         $this->assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
         $this->assertEquals('Query', $defaultConfig['name']);
         $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
@@ -978,7 +978,7 @@ interface Hello {
         $this->assertEquals('My description of Query', $schema->getType('Query')->description);
 
 
-        list($node, $defaultConfig, $allNodesMap) = $calls[1];
+        list($defaultConfig, $node, $allNodesMap) = $calls[1];
         $this->assertInstanceOf(EnumTypeDefinitionNode::class, $node);
         $this->assertEquals('Color', $defaultConfig['name']);
         $enumValue = [
@@ -994,7 +994,7 @@ interface Hello {
         $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
         $this->assertEquals('My description of Color', $schema->getType('Color')->description);
 
-        list($node, $defaultConfig, $allNodesMap) = $calls[2];
+        list($defaultConfig, $node, $allNodesMap) = $calls[2];
         $this->assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         $this->assertEquals('Hello', $defaultConfig['name']);
         $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
@@ -1035,7 +1035,7 @@ type World implements Hello {
         $doc = Parser::parse($body);
         $created = [];
 
-        $typeConfigDecorator = function($node, $config) use (&$created) {
+        $typeConfigDecorator = function($config, $node) use (&$created) {
             $created[] = $node->name->value;
             return $config;
         };
