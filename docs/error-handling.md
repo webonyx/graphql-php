@@ -84,16 +84,16 @@ During development or debugging use `$result->toArray(true)` to add **debugMessa
 each formatted error entry. If you also want to add exception trace - pass flags instead:
 
 ```
-use GraphQL\Error\FormattedError;
-$debug = FormattedError::INCLUDE_DEBUG_MESSAGE | FormattedError::INCLUDE_TRACE;
+use GraphQL\Error\Debug;
+$debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
 $result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 ```
 
 This will make each error entry to look like this:
 ```php
 [
-    'message' => 'Internal server error',
     'debugMessage' => 'Actual exception message',
+    'message' => 'Internal server error',
     'category' => 'internal',
     'locations' => [
         ['line' => 10, 'column' => 2]
@@ -111,8 +111,8 @@ This will make each error entry to look like this:
 
 If you prefer first resolver exception to be re-thrown, use following flags:
 ```php
-use GraphQL\Error\FormattedError;
-$debug = FormattedError::INCLUDE_DEBUG_MESSAGE | FormattedError::RETHROW_RESOLVER_EXCEPTIONS;
+use GraphQL\Error\Debug;
+$debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::RETHROW_INTERNAL_EXCEPTIONS;
 
 // Following will throw if there was an exception in resolver during execution:
 $result = GraphQL::executeQuery(/*args*/)->toArray($debug); 
@@ -144,7 +144,8 @@ $result = GraphQL::executeQuery(/* $args */)
     ->toArray();
 ```
 
-You may also re-throw exceptions in result handler for debugging, etc.
+Note that when you pass [debug flags](#debugging-tools) to `$result->toArray` your custom formatter will still be 
+decorated with same debugging information mentioned above.
 
 # Schema Errors
 So far we only covered errors which occur during query execution process. But schema definition can 

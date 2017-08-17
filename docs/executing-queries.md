@@ -1,4 +1,4 @@
-# Overview
+# Using Facade Method
 Query execution is a complex process involving multiple steps, including query **parsing**, 
 **validating** and finally **executing** against your [schema](type-system/schema/).
 
@@ -33,7 +33,7 @@ Returned array contains **data** and **errors** keys, as described by
 This array is suitable for further serialization (e.g. using `json_encode`).
 See also section on [error handling and formatting](error-handling/).
 
-Description of method arguments:
+Description of `executeQuery` method arguments:
 
 Argument     | Type     | Notes
 ------------ | -------- | -----
@@ -47,59 +47,7 @@ fieldResolver | `callable` | A resolver function to use when one is not provided
 validationRules | `array` | A set of rules for query validation step. Default value is all available rules. Empty array would allow to skip query validation (may be convenient for persisted queries which are validated before persisting and assumed valid during execution)
 promiseAdapter | `GraphQL\Executir\Promise\PromiseAdapter` | Adapter for async-enabled PHP platforms like ReactPHP (read about [async platforms integration](data-fetching/#async-php))
 
-# Execution Result
-```php
-namespace GraphQL\Executor;
-
-class ExecutionResult 
-{
-    /**
-     * @var array
-     */
-    public $data;
-
-    /**
-     * @var GraphQL\Error\Error[]
-     */
-    public $errors;
-
-    /**
-     *
-     */
-    public setErrorsHandler(callable $errorsHandler);
-    
-    public setErrorFormatter(callable $errorsHandler);
-}
-```
-
-
-# Parsing
-Following reading describes implementation details of query execution process. It may clarify some 
-internals of GraphQL but is not required to use it. Feel free to skip to next section 
-on [Error Handling](error-handling/) for essentials.
-
-TODOC
-
-# Validating
-TODOC
-
-# Executing
-TODOC
-
-# Errors explained
-There are 3 types of errors in GraphQL:
-
-- **Syntax**: query has invalid syntax and could not be parsed;
-- **Validation**: query is incompatible with type system (e.g. unknown field is requested);
-- **Execution**: occurs when some field resolver throws (or returns unexpected value).
-
-Obviously when **Syntax** or **Validation** error is detected - process is interrupted and query is not 
-executed.
-
-GraphQL is forgiving to **Execution** errors which occur in resolvers of nullable fields. 
-If such field throws or returns unexpected value the value of the field in response will be simply 
-replaced with `null` and error entry will be registered.
-
-If exception is thrown in non-null field - error bubbles up to first nullable field. This nullable field is  
-replaced with `null` and error entry is added to response. If all fields up to the root are non-null - 
-**data** entry will be removed from response and only **errors** key will be presented.
+# Using Server
+If you are building HTTP GraphQL API, you may prefer GraphQL [Standard Server](/server/) which supports 
+more features out of the box, including parsing HTTP requests, batching queries (apollo style) 
+and producing response.

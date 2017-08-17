@@ -13,14 +13,15 @@ pages:
   - Input Types: type-system/input-types.md
   - Directives: type-system/directives.md
   - Schema: type-system/schema.md
-  # - Using Type Language: type-system/type-language.md
+  - Using Type Language: type-system/type-language.md
 - Executing Queries: executing-queries.md
 - Fetching Data: data-fetching.md
 - Handling Errors: error-handling.md
+# - Mutations: mutations.md
 # - Security: security.md
 # - Performance tips: performance.md
 # - Standard Server: server.md
-# - Best Practices: best-practices.md
-- Complementary Tools: complementary-tools.md
+- How it works: how-it-works.md
 - Class Reference: reference.md
+- Complementary Tools: complementary-tools.md
 theme: readthedocs

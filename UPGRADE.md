@@ -1,13 +1,15 @@
-# Upgrade
-
 ## Upgrade v0.8.x, v0.9.x > v0.10.x
+
+### Breaking: minimum PHP version was changed from 5.4 to 5.5
+It allows us to leverage `::class` constant, `generators` and other features of newer PHP versions.
+
 ### Breaking: default error formatting
 By default exceptions thrown in resolvers will be reported with generic message `"Internal server error"`.
 Only exceptions implementing interface `GraphQL\Error\ClientAware` and claiming themselves as `safe` will 
 be reported with full error message.
 
-This is done to avoid information leak in production when unhandled exceptions occur in resolvers 
-(e.g. database connection errors, file access errors, etc).
+This breaking change is done to avoid information leak in production when unhandled 
+exceptions were reported to clients (e.g. database connection errors, file access errors, etc).
 
 Also every error reported to client now has new `category` key which is either `graphql` or `internal`.
 Exceptions implementing `ClientAware` interface may define their own custom categories.
@@ -27,10 +29,19 @@ GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 ```
 
 **This change only affects default error reporting mechanism. If you set your own error formatter using 
-`ExecutionResult::setErrorFormatter()` you won't be affected by this change.**
+`$executionResult->setErrorFormatter($myFormatter)` you won't be affected by this change.**
 
-If new default formatting doesn't work for you - just set [your own error 
-formatter](http://webonyx.github.io/graphql-php/error-handling/#custom-error-formatting).
+If you need to revert to old behavior temporary, use:
+
+```php
+GraphQL::executeAndReturnResult(/**/)
+    ->setErrorFormatter('\GraphQL\Error\Error::formatError')
+    ->toArray();
+```
+But note that this is deprecated format and will be removed in future versions. 
+
+In general, if new default formatting doesn't work for you - just set [your own error
+formatter](http://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting).
 
 ### Breaking: AST now uses `NodeList` vs array for lists of nodes
 It helps us unserialize AST from array lazily. This change affects you only if you use `array_`
@@ -51,12 +62,38 @@ new GraphQL\Language\AST\DocumentNode([
 
 
 ### Breaking: scalar types now throw different exceptions when parsing and serializing
-On invalid user input they throw standard `GraphQL\Error\Error` now, but when they 
-encounter invalid output during serialization they throw `GraphQL\Error\InvariantViolation`.
+On invalid client input (`parseValue` and `parseLiteral`) they throw standard `GraphQL\Error\Error` 
+but when they encounter invalid output (in `serialize`) they throw `GraphQL\Error\InvariantViolation`.
 
+Previously they were throwing `GraphQL\Error\UserError`. This exception is no longer used so make sure 
+to adjust if you were checking for this error in your custom error formatters.
+
+### Breaking: removed previously deprecated ability to define type as callable
+See https://github.com/webonyx/graphql-php/issues/35
+
+### Deprecated: `GraphQL\GraphQL::executeAndReturnResult` renamed to `GraphQL\GraphQL::executeQuery`
+Old method name is still available, but will trigger deprecation warning in next version.
+
+### Deprecated: `GraphQL\GraphQL::execute`
+Use `GraphQL\GraphQL::executeQuery()->toArray()` instead.
+Old method still exists, but will trigger deprecation warning in next version.
+
+### Deprecated: `GraphQL\Schema` moved to `GraphQL\Type\Schema`
+Old class still exists, but will trigger deprecation warning in next version.
 
 ### Deprecated: `GraphQL\Utils` moved to `GraphQL\Utils\Utils`
 Old class still exists, but triggers deprecation warning when referenced.
+
+### Deprecated: `GraphQL\Type\Definition\Config`
+If you were using config validation in previous versions, replace:
+```php
+GraphQL\Type\Definition\Config::enableValidation();
+```
+with: 
+```php
+$schema->assertValid();
+``` 
+See https://github.com/webonyx/graphql-php/issues/148
 
 ## Upgrade v0.7.x > v0.8.x
 All of those changes apply to those who extends various parts of this library.

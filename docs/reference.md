@@ -863,21 +863,28 @@ interface ClientAware
 }
 ```
 
+# GraphQL\Error\Debug
+```php
+namespace GraphQL\Error;
+
+class Debug
+{
+    const INCLUDE_DEBUG_MESSAGE = 1;
+    const INCLUDE_TRACE = 2;
+    const RETHROW_INTERNAL_EXCEPTIONS = 4;
+}
+```
+
 # GraphQL\Error\FormattedError
 ```php
 namespace GraphQL\Error;
 
 class FormattedError
 {
-    const INCLUDE_DEBUG_MESSAGE = 1;
-    const INCLUDE_TRACE = 2;
-    const RETHROW_RESOLVER_EXCEPTIONS = 4;
-
     public static function setInternalErrorMessage($msg);
 
     /**
-     * Standard GraphQL error formatter. Converts any exception to GraphQL error
-     * conforming to GraphQL spec
+     * Standard GraphQL error formatter. Converts any exception to array conforming to GraphQL spec
      *
      * @param \Throwable $e
      * @param bool|int $debug
@@ -886,5 +893,20 @@ class FormattedError
      * @return array
      */
     public static function createFromException($e, $debug = false, $internalErrorMessage = null);
+    
+    /**
+     * Adds "debugMessage", "trace", "file", "line" entries to $formattedError.
+     * 
+     * @return array
+     */
+    public static function addDebugEntries(array $formattedError, $e, $debug);
+    
+    /**
+     * Prepares final error formatter taking in account $debug flags.
+     * If initial formatter is not set, FormattedError::createFromException is used
+     *
+     * @return callable|\Closure
+     */
+    public static function prepareFormatter(callable $formatter = null, $debug);
 }
 ```
