@@ -50,33 +50,25 @@ class MyType extends ObjectType
 }
 ```
 
-You can also mix-and-match styles for convenience. For example:
-```php
-<?php
-namespace MyApp;
+Using [GraphQL Type language](graphql.org/learn/schema/#type-language):
 
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Type\Definition\Type;
+```graphql
+schema {
+    query: Query
+    mutation: Mutation
+}
 
-class BlogPostType extends ObjectType
-{
-    public function __construct()
-    {
-        $config = [
-            'fields' => [
-                'body' => new ObjectType([
-                    'name' => 'BlogPostBody',
-                    'fields' => [
-                        'html' => Type::string(),
-                        'text' => Type::string(),
-                    ]
-                ])
-            ]
-        ];
-        parent::__construct($config);
-    }
+type Query {
+    greetings(input: HelloInput!): String!
+}
+
+input HelloInput {
+    firstName: String!
+    lastName: String
 }
 ```
+
+[Read more](/type-system/type-language/) about it in a dedicated docs section.
 
 # Type Registry
 Every type must be presented in Schema by single instance (**graphql-php** 

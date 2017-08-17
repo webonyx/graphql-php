@@ -49,3 +49,6 @@ Ready for real-world usage.
 
 ## Github
 Project source code is [hosted on GitHub](https://github.com/webonyx/graphql-php).
+
+## Framework Integrations
+Read the section about [Complementary tools](complementary-tools/).

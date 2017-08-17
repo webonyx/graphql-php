@@ -42,6 +42,7 @@ Here is an example of simple `Email` type:
 namespace MyApp;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
@@ -62,9 +63,12 @@ class EmailType extends ScalarType
     {
         // Assuming internal representation of email is always correct:
         return $value;
-
-        // If it might be incorrect and you want to make sure that only correct values are included in response -
-        // use following line instead:
+        
+        // If it might be incorrect and you want to make sure that only correct values are included
+        // in response - use following line instead:
+        // if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
+        //     throw new InvariantViolation("Could not serialize following value as email: " . Utils::printSafe($value));
+        // }
         // return $this->parseValue($value);
     }
 
@@ -77,7 +81,7 @@ class EmailType extends ScalarType
     public function parseValue($value)
     {
         if (!filter_var($value, FILTER_VALIDATE_EMAIL)) {
-            throw new \UnexpectedValueException("Cannot represent value as email: " . Utils::printSafe($value));
+            throw new Error("Cannot represent following value as email: " . Utils::printSafeJson($value));
         }
         return $value;
     }

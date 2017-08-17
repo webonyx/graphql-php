@@ -3,10 +3,10 @@ GraphQL is data-storage agnostic. You can use any underlying data storage engine
 plain files or in-memory data structures.
 
 In order to convert GraphQL query to PHP array **graphql-php** traverses query fields (using depth-first algorithm) and 
-runs special `resolve` function on each field. This `resolve` function is provided by you as a part of 
+runs special **resolve** function on each field. This **resolve** function is provided by you as a part of 
 [field definition](type-system/object-types/#field-configuration-options) or [query execution call](executing-queries/#overview).
 
-Result returned by `resolve` function is directly included in response (for scalars and enums)
+Result returned by **resolve** function is directly included in response (for scalars and enums)
 or passed down to nested fields (for objects).
 
 Let's walk through an example. Consider following GraphQL query:
@@ -22,7 +22,7 @@ Let's walk through an example. Consider following GraphQL query:
 }
 ```
 
-We need Schema that can fulfill it. On the very top level Schema contains Query type:
+We need a Schema that can fulfill it. On the very top level the Schema contains Query type:
 
 ```php
 $queryType = new ObjectType([
@@ -44,12 +44,12 @@ $queryType = new ObjectType([
 ]);
 ```
 
-As we see field `lastStory` has `resolve` function that is responsible for fetching data.
+As we see field **lastStory** has **resolve** function that is responsible for fetching data.
 
 In our example we simply return array value, but in real-world application you would query
 your database/cache/search index and return result.
 
-Since `lastStory` is of complex type `BlogStory` this result is passed down to fields of this type:
+Since **lastStory** is of composite type **BlogStory** this result is passed down to fields of this type:
 
 ```php
 $blogStoryType = new ObjectType([
@@ -81,15 +81,15 @@ $blogStoryType = new ObjectType([
 ]);
 ```
 
-Here `$blogStory` is the array returned by `lastStory` field above. 
+Here **$blogStory** is the array returned by **lastStory** field above. 
 
-Again: in real-world applications you would fetch user data from datastore by `authorId` and return it.
+Again: in real-world applications you would fetch user data from datastore by **authorId** and return it.
 Also note that you don't have to return arrays. You can return any value, **graphql-php** will pass it untouched
 to nested resolvers.
 
-But then the question appears - field `title` has no `resolve` option. How is it resolved?
+But then the question appears - field **title** has no **resolve** option. How is it resolved?
 
-The answer is: there is default resolver for all fields. When you define your own `resolve` function
+There is a default resolver for all fields. When you define your own **resolve** function
 for a field you simply override this default resolver.
 
 # Default Field Resolver
@@ -114,12 +114,10 @@ function defaultFieldResolver($source, $args, $context, ResolveInfo $info)
 }
 ```
 
-As you see it returns value by key (for arrays) or property (for objects). If value is not set - it returns `null`.
+As you see it returns value by key (for arrays) or property (for objects). 
+If value is not set - it returns **null**.
 
-To override default resolver - use:
-```php
-GraphQL\GraphQL::setDefaultFieldResolver($myResolverCallback);
-```
+To override the default resolver, pass it as an argument of [executeQuery](executing-queries) call.
 
 # Default Field Resolver per Type
 Sometimes it might be convenient to set default field resolver per type. You can do so by providing
@@ -154,8 +152,8 @@ Keep in mind that **field resolver** has precedence over **default field resolve
 # Solving N+1 Problem
 Since: 0.9.0
 
-One of the most annoying problems with data fetching is so-called [N+1 problem](https://secure.phabricator.com/book/phabcontrib/article/n_plus_one/).
-
+One of the most annoying problems with data fetching is a so-called 
+[N+1 problem](https://secure.phabricator.com/book/phabcontrib/article/n_plus_one/). <br>
 Consider following GraphQL query:
 ```
 {
@@ -219,28 +217,41 @@ In this example only one query will be executed for all story authors comparing 
 in naive implementation.
 
 # Async PHP
-Since: 0.9.0
+Since: 0.10.0 (version 0.9.0 had slightly different API which is deprecated)
 
 If your project runs in environment that supports async operations 
-(like `HHVM`, `ReactPHP`, `Icicle.io`, `appserver.io` `PHP threads`, etc) you can leverage
-the power of your platform to resolve fields asynchronously.
+(like HHVM, ReactPHP, Icicle.io, appserver.io, PHP threads, etc) 
+you can leverage the power of your platform to resolve some fields asynchronously.
 
 The only requirement: your platform must support the concept of Promises compatible with
 [Promises A+](https://promisesaplus.com/) specification.
 
-To enable async support - set adapter for promises:
+To start using this feature, switch facade method for query execution from 
+**executeQuery** to **promiseToExecute**:
+
+```php
+$promise = GraphQL::promiseToExecute(
+    $promiseAdapter,
+    $schema, 
+    $queryString, 
+    $rootValue = null, 
+    $contextValue = null, 
+    $variableValues = null, 
+    $operationName = null,
+    $fieldResolver = null,
+    $validationRules = null
+);
+$promise->then(function(ExecutionResult $result) {
+    return $result->toArray();
+});
 ```
-GraphQL\GraphQL::setPromiseAdapter($adapter);
-```
 
-Where `$adapter` is an instance of class implementing `GraphQL\Executor\Promise\PromiseAdapter` interface.
+Where **$promiseAdapter** is an instance of:
 
-Then in your `resolve` functions you should return `Promises` of your platform instead of 
-`GraphQL\Deferred` instances.
+* For [ReactPHP](https://github.com/reactphp/react) (requires **react/promise** as composer dependency): <br> 
+  `GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter`
 
-Platforms supported out of the box:
+* Other platforms: write your own class implementing interface: <br> 
+  `GraphQL\Executor\Promise\PromiseAdapter`. 
 
-* [ReactPHP](https://github.com/reactphp/react) (requires **react/promise** as composer dependency):
-  `GraphQL\GraphQL::setPromiseAdapter(new GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter());`
-
-To integrate other platform - implement `GraphQL\Executor\Promise\PromiseAdapter` interface. 
+Then your **resolve** functions should return promises of your platform instead of `GraphQL\Deferred`s.

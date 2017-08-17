@@ -1,6 +1,6 @@
 ## Upgrade v0.8.x, v0.9.x > v0.10.x
 
-### Breaking: minimum PHP version was changed from 5.4 to 5.5
+### Breaking: changed minimum PHP version from 5.4 to 5.5
 It allows us to leverage `::class` constant, `generators` and other features of newer PHP versions.
 
 ### Breaking: default error formatting
@@ -71,8 +71,9 @@ to adjust if you were checking for this error in your custom error formatters.
 ### Breaking: removed previously deprecated ability to define type as callable
 See https://github.com/webonyx/graphql-php/issues/35
 
-### Deprecated: `GraphQL\GraphQL::executeAndReturnResult` renamed to `GraphQL\GraphQL::executeQuery`
-Old method name is still available, but will trigger deprecation warning in next version.
+### Deprecated: `GraphQL\GraphQL::executeAndReturnResult` 
+Method is renamed to `GraphQL\GraphQL::executeQuery`. Old method name is still available, 
+but will trigger deprecation warning in the next version.
 
 ### Deprecated: `GraphQL\GraphQL::execute`
 Use `GraphQL\GraphQL::executeQuery()->toArray()` instead.
@@ -94,6 +95,13 @@ with:
 $schema->assertValid();
 ``` 
 See https://github.com/webonyx/graphql-php/issues/148
+
+### Non-breaking: usage on async platforms
+When using the library on async platforms use separate method `GraphQL::promiseToExecute()`. 
+It requires promise adapter in it's first argument and always returns a `Promise`.
+
+Old methods `GraphQL::execute` and `GraphQL::executeAndReturnResult` still work in backwards-compatible manner, 
+but they are deprecated and will be removed eventually.
 
 ## Upgrade v0.7.x > v0.8.x
 All of those changes apply to those who extends various parts of this library.
