@@ -239,7 +239,7 @@ class Parser
      * @param int $openKind
      * @param callable $parseFn
      * @param int $closeKind
-     * @return array
+     * @return NodeList
      * @throws SyntaxError
      */
     function any($openKind, $parseFn, $closeKind)
@@ -406,7 +406,7 @@ class Parser
     }
 
     /**
-     * @return VariableDefinitionNode[]
+     * @return VariableDefinitionNode[]|NodeList
      */
     function parseVariableDefinitions()
     {
@@ -509,7 +509,7 @@ class Parser
     }
 
     /**
-     * @return ArgumentNode[]
+     * @return ArgumentNode[]|NodeList
      */
     function parseArguments()
     {
@@ -754,7 +754,7 @@ class Parser
     // Implements the parsing rules in the Directives section.
 
     /**
-     * @return DirectiveNode[]
+     * @return DirectiveNode[]|NodeList
      */
     function parseDirectives()
     {
@@ -993,7 +993,7 @@ class Parser
     }
 
     /**
-     * @return InputValueDefinitionNode[]
+     * @return InputValueDefinitionNode[]|NodeList
      */
     function parseArgumentDefs()
     {
