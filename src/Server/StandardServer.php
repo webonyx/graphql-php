@@ -20,17 +20,6 @@ use Psr\Http\Message\StreamInterface;
 class StandardServer
 {
     /**
-     * Creates new server
-     *
-     * @param ServerConfig $config
-     * @return static
-     */
-    public static function create(ServerConfig $config)
-    {
-        return new static($config);
-    }
-
-    /**
      * @var ServerConfig
      */
     private $config;
@@ -41,10 +30,11 @@ class StandardServer
     private $helper;
 
     /**
-     * StandardServer constructor.
-     * @param ServerConfig $config
+     * Standard GraphQL HTTP server implementation
+     *
+     * @param ServerConfig|array $config
      */
-    protected function __construct($config)
+    public function __construct($config)
     {
         if (is_array($config)) {
             $config = ServerConfig::create($config);
@@ -52,9 +42,7 @@ class StandardServer
         if (!$config instanceof ServerConfig) {
             throw new InvariantViolation("Expecting valid server config, but got " . Utils::printSafe($config));
         }
-
-        $this->config = $config;
-        $this->helper = new Helper();
+        return new static($config);
     }
 
     /**
@@ -111,7 +99,7 @@ class StandardServer
      * @param OperationParams|OperationParams[] $parsedBody
      * @param bool $exitWhenDone
      */
-    public function processRequest($parsedBody = null, $exitWhenDone = false)
+    public function handleRequest($parsedBody = null, $exitWhenDone = false)
     {
         $result = $this->executeRequest($parsedBody);
         $this->helper->sendResponse($result, $exitWhenDone);

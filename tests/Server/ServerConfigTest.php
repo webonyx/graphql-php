@@ -20,7 +20,7 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $config->getErrorsHandler());
         $this->assertEquals(null, $config->getPromiseAdapter());
         $this->assertEquals(null, $config->getValidationRules());
-        $this->assertEquals(null, $config->getDefaultFieldResolver());
+        $this->assertEquals(null, $config->getFieldResolver());
         $this->assertEquals(null, $config->getPersistentQueryLoader());
         $this->assertEquals(false, $config->getDebug());
         $this->assertEquals(false, $config->getQueryBatching());
@@ -126,12 +126,12 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
         $config = ServerConfig::create();
 
         $resolver = function() {};
-        $config->setDefaultFieldResolver($resolver);
-        $this->assertSame($resolver, $config->getDefaultFieldResolver());
+        $config->setFieldResolver($resolver);
+        $this->assertSame($resolver, $config->getFieldResolver());
 
         $resolver = 'date'; // test for callable
-        $config->setDefaultFieldResolver($resolver);
-        $this->assertSame($resolver, $config->getDefaultFieldResolver());
+        $config->setFieldResolver($resolver);
+        $this->assertSame($resolver, $config->getFieldResolver());
     }
 
     public function testAllowsSettingPersistedQueryLoader()
@@ -169,7 +169,7 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
             'errorFormatter' => function() {},
             'promiseAdapter' => new SyncPromiseAdapter(),
             'validationRules' => [function() {}],
-            'defaultFieldResolver' => function() {},
+            'fieldResolver' => function() {},
             'persistentQueryLoader' => function() {},
             'debug' => true,
             'queryBatching' => true,
@@ -183,7 +183,7 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($arr['errorFormatter'], $config->getErrorFormatter());
         $this->assertSame($arr['promiseAdapter'], $config->getPromiseAdapter());
         $this->assertSame($arr['validationRules'], $config->getValidationRules());
-        $this->assertSame($arr['defaultFieldResolver'], $config->getDefaultFieldResolver());
+        $this->assertSame($arr['fieldResolver'], $config->getFieldResolver());
         $this->assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
         $this->assertSame(true, $config->getDebug());
         $this->assertSame(true, $config->getQueryBatching());

@@ -83,6 +83,9 @@ class Helper
     private function promiseToExecuteOperation(PromiseAdapter $promiseAdapter, ServerConfig $config, OperationParams $op, $isBatch = false)
     {
         try {
+            if (!$config->getSchema()) {
+                throw new InvariantViolation("Schema is required for the server");
+            }
             if ($isBatch && !$config->getQueryBatching()) {
                 throw new RequestError("Batched queries are not supported by this server");
             }
@@ -117,7 +120,7 @@ class Helper
                 $this->resolveContextValue($config, $op, $doc, $operationType),
                 $op->variables,
                 $op->operation,
-                $config->getDefaultFieldResolver(),
+                $config->getFieldResolver(),
                 $this->resolveValidationRules($config, $op, $doc, $operationType)
             );
 

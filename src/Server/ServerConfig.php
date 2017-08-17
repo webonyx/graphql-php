@@ -67,7 +67,7 @@ class ServerConfig
     /**
      * @var callable
      */
-    private $defaultFieldResolver;
+    private $fieldResolver;
 
     /**
      * @var PromiseAdapter
@@ -223,18 +223,18 @@ class ServerConfig
     /**
      * @return callable
      */
-    public function getDefaultFieldResolver()
+    public function getFieldResolver()
     {
-        return $this->defaultFieldResolver;
+        return $this->fieldResolver;
     }
 
     /**
-     * @param callable $defaultFieldResolver
+     * @param callable $fieldResolver
      * @return $this
      */
-    public function setDefaultFieldResolver(callable $defaultFieldResolver)
+    public function setFieldResolver(callable $fieldResolver)
     {
-        $this->defaultFieldResolver = $defaultFieldResolver;
+        $this->fieldResolver = $fieldResolver;
         return $this;
     }
 
