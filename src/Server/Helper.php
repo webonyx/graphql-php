@@ -141,21 +141,20 @@ class Helper
             );
         }
 
-        $applyErrorFormatting = function (ExecutionResult $result) use ($config) {
-            if ($config->getDebug()) {
-                $errorFormatter = function($e) {
-                    return FormattedError::createFromException($e, true);
-                };
-            } else {
-                $errorFormatter = $config->getErrorFormatter() ?: function($e) {
-                    return FormattedError::createFromException($e, false);
-                };
+        $applyErrorHandling = function (ExecutionResult $result) use ($config) {
+            if ($config->getErrorsHandler()) {
+                $result->setErrorsHandler($config->getErrorsHandler());
             }
-            $result->setErrorFormatter($errorFormatter);
+            if ($config->getErrorFormatter() || $config->getDebug()) {
+                $result->setErrorFormatter(
+                    FormattedError::prepareFormatter($config->getErrorFormatter(),
+                    $config->getDebug())
+                );
+            }
             return $result;
         };
 
-        return $result->then($applyErrorFormatting);
+        return $result->then($applyErrorHandling);
     }
 
     /**

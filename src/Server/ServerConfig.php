@@ -40,9 +40,14 @@ class ServerConfig
     private $rootValue;
 
     /**
-     * @var callable
+     * @var callable|null
      */
     private $errorFormatter;
+
+    /**
+     * @var callable|null
+     */
+    private $errorsHandler;
 
     /**
      * @var bool
@@ -131,7 +136,7 @@ class ServerConfig
     }
 
     /**
-     * @return callable
+     * @return callable|null
      */
     public function getErrorFormatter()
     {
@@ -148,6 +153,26 @@ class ServerConfig
     {
         $this->errorFormatter = $errorFormatter;
         return $this;
+    }
+
+    /**
+     * Expects function(array $errors, callable $formatter) : array
+     *
+     * @param callable $handler
+     * @return $this
+     */
+    public function setErrorsHandler(callable $handler)
+    {
+        $this->errorsHandler = $handler;
+        return $this;
+    }
+
+    /**
+     * @return callable|null
+     */
+    public function getErrorsHandler()
+    {
+        return $this->errorsHandler;
     }
 
     /**
@@ -243,27 +268,14 @@ class ServerConfig
     }
 
     /**
-     * Settings this option has two effects:
+     * Set response debug flags, see GraphQL\Error\Debug class for a list of available flags
      *
-     * 1. Replaces current error formatter with the one for debugging (has precedence over `setErrorFormatter()`).
-     *    This error formatter adds `trace` entry for all errors in ExecutionResult when it is converted to array.
-     *
-     * 2. All PHP errors are intercepted during query execution (including warnings, notices and deprecations).
-     *
-     *    These PHP errors are converted to arrays with `message`, `file`, `line`, `trace` keys and then added to
-     *    `extensions` section of ExecutionResult under key `phpErrors`.
-     *
-     *    After query execution error handler will be removed from stack,
-     *    so any errors occurring after execution will not be caught.
-     *
-     * Use this feature for development and debugging only.
-     *
-     * @param bool $set
+     * @param bool|int $set
      * @return $this
      */
     public function setDebug($set = true)
     {
-        $this->debug = (bool) $set;
+        $this->debug = $set;
         return $this;
     }
 

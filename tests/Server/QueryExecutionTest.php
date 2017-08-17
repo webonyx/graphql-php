@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Server;
 
 use GraphQL\Deferred;
+use GraphQL\Error\Debug;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
@@ -136,7 +137,8 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
 
     public function testDebugExceptions()
     {
-        $this->config->setDebug(true);
+        $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
+        $this->config->setDebug($debug);
 
         $query = '
         {
@@ -647,6 +649,72 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf(OperationParams::class, $params);
         $this->assertInstanceOf(DocumentNode::class, $doc);
         $this->assertEquals('query', $operationType);
+    }
+
+    public function testAppliesErrorFormatter()
+    {
+        $called = false;
+        $error = null;
+        $this->config->setErrorFormatter(function($e) use (&$called, &$error) {
+            $called = true;
+            $error = $e;
+            return ['test' => 'formatted'];
+        });
+
+        $result = $this->executeQuery('{fieldWithException}');
+        $this->assertFalse($called);
+        $formatted = $result->toArray();
+        $expected = [
+            'errors' => [
+                ['test' => 'formatted']
+            ]
+        ];
+        $this->assertTrue($called);
+        $this->assertArraySubset($expected, $formatted);
+        $this->assertInstanceOf(Error::class, $error);
+
+        // Assert debugging still works even with custom formatter
+        $formatted = $result->toArray(Debug::INCLUDE_TRACE);
+        $expected = [
+            'errors' => [
+                [
+                    'test' => 'formatted',
+                    'trace' => []
+                ]
+            ]
+        ];
+        $this->assertArraySubset($expected, $formatted);
+    }
+
+    public function testAppliesErrorsHandler()
+    {
+        $called = false;
+        $errors = null;
+        $formatter = null;
+        $this->config->setErrorsHandler(function($e, $f) use (&$called, &$errors, &$formatter) {
+            $called = true;
+            $errors = $e;
+            $formatter = $f;
+            return [
+                ['test' => 'handled']
+            ];
+        });
+
+        $result = $this->executeQuery('{fieldWithException,test: fieldWithException}');
+
+        $this->assertFalse($called);
+        $formatted = $result->toArray();
+        $expected = [
+            'errors' => [
+                ['test' => 'handled']
+            ]
+        ];
+        $this->assertTrue($called);
+        $this->assertArraySubset($expected, $formatted);
+        $this->assertInternalType('array', $errors);
+        $this->assertCount(2, $errors);
+        $this->assertInternalType('callable', $formatter);
+        $this->assertArraySubset($expected, $formatted);
     }
 
     private function executePersistedQuery($queryId, $variables = null)

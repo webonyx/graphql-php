@@ -13,10 +13,6 @@ use GraphQL\Utils\Utils;
  */
 class FormattedError
 {
-    const INCLUDE_DEBUG_MESSAGE = 1;
-    const INCLUDE_TRACE = 2;
-    const RETHROW_RESOLVER_EXCEPTIONS = 4;
-
     private static $internalErrorMessage = 'Internal server error';
 
     public static function setInternalErrorMessage($msg)
@@ -32,8 +28,6 @@ class FormattedError
      * @param bool|int $debug
      * @param string $internalErrorMessage
      * @return array
-     * @throws Error
-     *
      * @throws \Throwable
      */
     public static function createFromException($e, $debug = false, $internalErrorMessage = null)
@@ -44,35 +38,18 @@ class FormattedError
             Utils::getVariableType($e)
         );
 
-        if ($debug & self::RETHROW_RESOLVER_EXCEPTIONS > 0) {
-            if (!$e instanceof Error || $e->getPrevious()) {
-                throw $e;
-            }
-        }
-
-        $debug = (int) $debug;
         $internalErrorMessage = $internalErrorMessage ?: self::$internalErrorMessage;
 
         if ($e instanceof ClientAware) {
-            if ($e->isClientSafe()) {
-                $result = [
-                    'message' => $e->getMessage(),
-                    'category' => $e->getCategory()
-                ];
-            } else {
-                $result = [
-                    'message' => $internalErrorMessage,
-                    'category' => $e->getCategory()
-                ];
-            }
+            $formattedError = [
+                'message' => $e->isClientSafe() ? $e->getMessage() : $internalErrorMessage,
+                'category' => $e->getCategory()
+            ];
         } else {
-            $result = [
+            $formattedError = [
                 'message' => $internalErrorMessage,
                 'category' => Error::CATEGORY_INTERNAL
             ];
-        }
-        if (($debug & self::INCLUDE_DEBUG_MESSAGE > 0) && $result['message'] === $internalErrorMessage) {
-            $result['debugMessage'] = $e->getMessage();
         }
 
         if ($e instanceof Error) {
@@ -81,48 +58,105 @@ class FormattedError
             });
 
             if (!empty($locations)) {
-                $result['locations'] = $locations;
+                $formattedError['locations'] = $locations;
             }
             if (!empty($e->path)) {
-                $result['path'] = $e->path;
-            }
-        } else if ($e instanceof \ErrorException) {
-            if ($debug) {
-                $result += [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                    'severity' => $e->getSeverity()
-                ];
-            }
-        } else if ($e instanceof \Error) {
-            if ($debug) {
-                $result += [
-                    'file' => $e->getFile(),
-                    'line' => $e->getLine(),
-                ];
+                $formattedError['path'] = $e->path;
             }
         }
 
-        if ($debug & self::INCLUDE_TRACE > 0) {
+        if ($debug) {
+            $formattedError = self::addDebugEntries($formattedError, $e, $debug);
+        }
+
+        return $formattedError;
+    }
+
+    /**
+     * @param array $formattedError
+     * @param \Throwable $e
+     * @param bool $debug
+     * @return array
+     * @throws \Throwable
+     */
+    public static function addDebugEntries(array $formattedError, $e, $debug)
+    {
+        if (!$debug) {
+            return $formattedError;
+        }
+
+        Utils::invariant(
+            $e instanceof \Exception || $e instanceof \Throwable,
+            "Expected exception, got %s",
+            Utils::getVariableType($e)
+        );
+
+        $debug = (int) $debug;
+
+        if ($debug & Debug::RETHROW_INTERNAL_EXCEPTIONS) {
+            if (!$e instanceof Error) {
+                throw $e;
+            } else if ($e->getPrevious()) {
+                throw $e->getPrevious();
+            }
+        }
+
+        $isInternal = !$e instanceof ClientAware || !$e->isClientSafe();
+
+        if (($debug & Debug::INCLUDE_DEBUG_MESSAGE) && $isInternal) {
+            // Displaying debugMessage as a first entry:
+            $formattedError = ['debugMessage' => $e->getMessage()] + $formattedError;
+        }
+
+        if ($debug & Debug::INCLUDE_TRACE) {
+            if ($e instanceof \ErrorException || $e instanceof \Error) {
+                $formattedError += [
+                    'file' => $e->getFile(),
+                    'line' => $e->getLine(),
+                ];
+            }
+
             $isTrivial = $e instanceof Error && !$e->getPrevious();
 
             if (!$isTrivial) {
                 $debugging = $e->getPrevious() ?: $e;
-                $result['trace'] = static::toSafeTrace($debugging->getTrace());
+                $formattedError['trace'] = static::toSafeTrace($debugging);
             }
         }
+        return $formattedError;
+    }
 
-        return $result;
+    /**
+     * Prepares final error formatter taking in account $debug flags.
+     * If initial formatter is not set, FormattedError::createFromException is used
+     *
+     * @param callable|null $formatter
+     * @param $debug
+     * @return callable|\Closure
+     */
+    public static function prepareFormatter(callable $formatter = null, $debug)
+    {
+        $formatter = $formatter ?: function($e) {
+            return FormattedError::createFromException($e);
+        };
+        if ($debug) {
+            $formatter = function($e) use ($formatter, $debug) {
+                return FormattedError::addDebugEntries($formatter($e), $e, $debug);
+            };
+        }
+        return $formatter;
     }
 
     /**
      * Converts error trace to serializable array
      *
-     * @param array $trace
+     * @param \Throwable $error
      * @return array
      */
-    private static function toSafeTrace(array $trace)
+    public static function toSafeTrace($error)
     {
+        $trace = $error->getTrace();
+
         // Remove invariant entries as they don't provide much value:
         if (
             isset($trace[0]['function']) && isset($trace[0]['class']) &&
@@ -221,7 +255,7 @@ class FormattedError
         return [
             'message' => $e->getMessage(),
             'severity' => $e->getSeverity(),
-            'trace' => self::toSafeTrace($e->getTrace())
+            'trace' => self::toSafeTrace($e)
         ];
     }
 }

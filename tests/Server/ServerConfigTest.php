@@ -17,6 +17,7 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(null, $config->getContext());
         $this->assertEquals(null, $config->getRootValue());
         $this->assertEquals(null, $config->getErrorFormatter());
+        $this->assertEquals(null, $config->getErrorsHandler());
         $this->assertEquals(null, $config->getPromiseAdapter());
         $this->assertEquals(null, $config->getValidationRules());
         $this->assertEquals(null, $config->getDefaultFieldResolver());
@@ -75,6 +76,19 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
         $formatter = 'date'; // test for callable
         $config->setErrorFormatter($formatter);
         $this->assertSame($formatter, $config->getErrorFormatter());
+    }
+
+    public function testAllowsSettingErrorsHandler()
+    {
+        $config = ServerConfig::create();
+
+        $handler = function() {};
+        $config->setErrorsHandler($handler);
+        $this->assertSame($handler, $config->getErrorsHandler());
+
+        $handler = 'date'; // test for callable
+        $config->setErrorsHandler($handler);
+        $this->assertSame($handler, $config->getErrorsHandler());
     }
 
     public function testAllowsSettingPromiseAdapter()

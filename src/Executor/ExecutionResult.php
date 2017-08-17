@@ -98,23 +98,13 @@ class ExecutionResult implements \JsonSerializable
         $result = [];
 
         if (!empty($this->errors)) {
-            if ($debug) {
-                $errorFormatter = function($e) use ($debug) {
-                    return FormattedError::createFromException($e, $debug);
-                };
-            } else if (!$this->errorFormatter) {
-                $errorFormatter = function($e) {
-                    return FormattedError::createFromException($e, false);
-                };
-            } else {
-                $errorFormatter = $this->errorFormatter;
-            }
-
             $errorsHandler = $this->errorsHandler ?: function(array $errors, callable $formatter) {
                 return array_map($formatter, $errors);
             };
-
-            $result['errors'] = $errorsHandler($this->errors, $errorFormatter);
+            $result['errors'] = $errorsHandler(
+                $this->errors,
+                FormattedError::prepareFormatter($this->errorFormatter, $debug)
+            );
         }
 
         if (null !== $this->data) {

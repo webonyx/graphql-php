@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests;
 
+use GraphQL\Error\Debug;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\UserError;
@@ -494,7 +495,8 @@ class ServerTest extends \PHPUnit_Framework_TestCase
 
         $server->setDebug(Server::DEBUG_EXCEPTIONS);
         $server->setExceptionFormatter(function($e) {
-            return FormattedError::createFromException($e, true);
+            $debug = Debug::INCLUDE_TRACE;
+            return FormattedError::createFromException($e, $debug);
         });
         $result = $server->executeQuery('{withException}');
 
