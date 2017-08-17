@@ -88,3 +88,84 @@ mutation     | `ObjectType` | Object type (usually named "Mutation") containing 
 subscription     | `ObjectType` | Reserved for future subscriptions implementation. Currently presented for compatibility with introspection query of **graphql-js**, used by various clients (like Relay or GraphiQL)
 directives  | `Directive[]` | Full list of [directives](directives/) supported by your schema. By default contains built-in `@skip` and `@include` directives.<br><br> If you pass your own directives and still want to use built-in directives - add them explicitly. For example: `array_merge(GraphQL::getInternalDirectives(), [$myCustomDirective]`
 types     | `ObjectType[]` | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often it happens when object type is never referenced in fields directly, but is still a part of schema because it implements an interface which resolves to this object type in it's `resolveType` callback. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete use-case.
+
+# Lazy loading of types
+By default a schema will scan all of your type and field definitions to serve GraphQL queries. 
+It may cause performance overhead when there are many types in a schema. 
+
+In this case it is recommended to pass **typeLoader** option to schema constructor and define all 
+of your object **fields** as callbacks.
+
+Type loading concept is very similar to PHP class loading, but keep in mind that **typeLoader** must
+always return the same instance of a type.
+
+Usage example:
+```php
+class Types
+{
+    private $registry = [];
+
+    public function get($name)
+    {
+        if (!isset($this->types[$name])) {
+            $this->types[$name] = $this->{$name}();
+        }
+        return $this->types[$name];
+    }
+
+    private function MyTypeA()
+    {
+        return new ObjectType([
+            'name' => 'MyTypeA',
+            'fields' => function() {
+                return [
+                    'b' => ['type' => $this->get('MyTypeB')]
+                ];
+            }
+        ]);
+    }
+    
+    private function MyTypeB()
+    {
+        // ...
+    }
+}
+
+$registry = new Types();
+
+$schema = new Schema([
+    'query' => $registry->get('Query'),
+    'typeLoader' => function($name) use ($registry) {
+        return $registry->get($name);
+    }
+]);
+```
+
+
+# Schema Validation
+By default schema is created with only shallow validation of type and field definitions  
+(because validation requires full schema scan and is very costly on bigger schemas).
+
+But there is a special method `$schema->assertValid()` which throws `GraphQL\Error\InvariantViolation` 
+exception when it encounters any error, like:
+
+- Invalid types used for fields / arguments
+- Missing interface implementations
+- Invalid interface implementations
+- Other schema errors...
+
+Schema validation is supposed to be used in CLI commands or during build step of your app.
+Don't call it in web requests in production. 
+
+Usage example:
+```php
+$schema = new GraphQL\Type\Schema([
+    'query' => $myQueryType
+]);
+
+try {
+    $schema->assertValid();
+} catch (GraphQL\Error\InvariantViolation $e) {
+    echo $e->getMessage();
+}
+```
