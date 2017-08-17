@@ -9,11 +9,11 @@ use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
+use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\DocumentValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -109,28 +109,18 @@ class Helper
                 throw new RequestError("GET supports only query operation");
             }
 
-            $validationErrors = DocumentValidator::validate(
+            $result = GraphQL::promiseToExecute(
+                $promiseAdapter,
                 $config->getSchema(),
                 $doc,
+                $this->resolveRootValue($config, $op, $doc, $operationType),
+                $this->resolveContextValue($config, $op, $doc, $operationType),
+                $op->variables,
+                $op->operation,
+                $config->getDefaultFieldResolver(),
                 $this->resolveValidationRules($config, $op, $doc, $operationType)
             );
 
-            if (!empty($validationErrors)) {
-                $result = $promiseAdapter->createFulfilled(
-                    new ExecutionResult(null, $validationErrors)
-                );
-            } else {
-                $result = Executor::promiseToExecute(
-                    $promiseAdapter,
-                    $config->getSchema(),
-                    $doc,
-                    $this->resolveRootValue($config, $op, $doc, $operationType),
-                    $this->resolveContextValue($config, $op, $doc, $operationType),
-                    $op->variables,
-                    $op->operation,
-                    $config->getDefaultFieldResolver()
-                );
-            }
         } catch (RequestError $e) {
             $result = $promiseAdapter->createFulfilled(
                 new ExecutionResult(null, [Error::createLocatedError($e)])

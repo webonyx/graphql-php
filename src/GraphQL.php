@@ -2,9 +2,9 @@
 namespace GraphQL;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
+use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
@@ -52,25 +52,58 @@ class GraphQL
      * @param \GraphQL\Type\Schema $schema
      * @param string|DocumentNode $source
      * @param mixed $rootValue
-     * @param mixed $contextValue
+     * @param mixed $context
      * @param array|null $variableValues
      * @param string|null $operationName
      * @param callable $fieldResolver
      * @param array $validationRules
-     * @param PromiseAdapter $promiseAdapter
      *
-     * @return ExecutionResult|Promise
+     * @return ExecutionResult
      */
     public static function executeQuery(
         \GraphQL\Type\Schema $schema,
         $source,
         $rootValue = null,
-        $contextValue = null,
+        $context = null,
         $variableValues = null,
         $operationName = null,
         callable $fieldResolver = null,
-        array $validationRules = null,
-        PromiseAdapter $promiseAdapter = null
+        array $validationRules = null
+    )
+    {
+        $promiseAdapter = new SyncPromiseAdapter();
+
+        $promise = self::promiseToExecute($promiseAdapter, $schema, $source, $rootValue, $context,
+            $variableValues, $operationName, $fieldResolver, $validationRules);
+
+        return $promiseAdapter->wait($promise);
+    }
+
+    /**
+     * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise
+     *
+     * @param PromiseAdapter $promiseAdapter
+     * @param \GraphQL\Type\Schema $schema
+     * @param string|DocumentNode $source
+     * @param mixed $rootValue
+     * @param mixed $context
+     * @param array|null $variableValues
+     * @param string|null $operationName
+     * @param callable $fieldResolver
+     * @param array $validationRules
+     *
+     * @return Promise
+     */
+    public static function promiseToExecute(
+        PromiseAdapter $promiseAdapter,
+        \GraphQL\Type\Schema $schema,
+        $source,
+        $rootValue = null,
+        $context = null,
+        $variableValues = null,
+        $operationName = null,
+        callable $fieldResolver = null,
+        array $validationRules = null
     )
     {
         try {
@@ -87,21 +120,25 @@ class GraphQL
             $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
 
             if (!empty($validationErrors)) {
-                return new ExecutionResult(null, $validationErrors);
+                return $promiseAdapter->createFulfilled(
+                    new ExecutionResult(null, $validationErrors)
+                );
             } else {
-                return Executor::execute(
+                return Executor::promiseToExecute(
+                    $promiseAdapter,
                     $schema,
                     $documentNode,
                     $rootValue,
-                    $contextValue,
+                    $context,
                     $variableValues,
                     $operationName,
-                    $fieldResolver,
-                    $promiseAdapter
+                    $fieldResolver
                 );
             }
         } catch (Error $e) {
-            return new ExecutionResult(null, [$e]);
+            return $promiseAdapter->createFulfilled(
+                new ExecutionResult(null, [$e])
+            );
         }
     }
 
@@ -114,9 +151,6 @@ class GraphQL
      * @param mixed $contextValue
      * @param array|null $variableValues
      * @param string|null $operationName
-     * @param callable $fieldResolver
-     * @param array $validationRules
-     * @param PromiseAdapter $promiseAdapter
      * @return Promise|array
      */
     public static function execute(
@@ -125,33 +159,27 @@ class GraphQL
         $rootValue = null,
         $contextValue = null,
         $variableValues = null,
-        $operationName = null,
-        callable $fieldResolver = null,
-        array $validationRules = null,
-        PromiseAdapter $promiseAdapter = null
+        $operationName = null
     )
     {
-        $result = self::executeQuery(
+        $result = self::promiseToExecute(
+            $promiseAdapter = Executor::getPromiseAdapter(),
             $schema,
             $source,
             $rootValue,
             $contextValue,
             $variableValues,
-            $operationName,
-            $fieldResolver,
-            $validationRules,
-            $promiseAdapter
+            $operationName
         );
 
-        if ($result instanceof ExecutionResult) {
-            return $result->toArray();
-        }
-        if ($result instanceof Promise) {
-            return $result->then(function(ExecutionResult $executionResult) {
-                return $executionResult->toArray();
+        if ($promiseAdapter instanceof SyncPromiseAdapter) {
+            $result = $promiseAdapter->wait($result)->toArray();
+        } else {
+            $result = $result->then(function(ExecutionResult $r) {
+                return $r->toArray();
             });
         }
-        throw new InvariantViolation("Unexpected execution result");
+        return $result;
     }
 
     /**
@@ -163,9 +191,6 @@ class GraphQL
      * @param mixed $contextValue
      * @param array|null $variableValues
      * @param string|null $operationName
-     * @param callable $fieldResolver
-     * @param array $validationRules
-     * @param PromiseAdapter $promiseAdapter
      *
      * @return ExecutionResult|Promise
      */
@@ -175,23 +200,22 @@ class GraphQL
         $rootValue = null,
         $contextValue = null,
         $variableValues = null,
-        $operationName = null,
-        callable $fieldResolver = null,
-        array $validationRules = null,
-        PromiseAdapter $promiseAdapter = null
+        $operationName = null
     )
     {
-        return self::executeQuery(
+        $result = self::promiseToExecute(
+            $promiseAdapter = Executor::getPromiseAdapter(),
             $schema,
             $source,
             $rootValue,
             $contextValue,
             $variableValues,
-            $operationName,
-            $fieldResolver,
-            $validationRules,
-            $promiseAdapter
+            $operationName
         );
+        if ($promiseAdapter instanceof SyncPromiseAdapter) {
+            $result = $promiseAdapter->wait($result);
+        }
+        return $result;
     }
 
     /**

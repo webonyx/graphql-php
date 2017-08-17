@@ -134,6 +134,9 @@ class Executor
     }
 
     /**
+     * Executes DocumentNode against given $schema using given $promiseAdapter for deferred resolvers.
+     * Returns promise which is always fullfilled with instance of ExecutionResult
+     *
      * @param PromiseAdapter $promiseAdapter
      * @param Schema $schema
      * @param DocumentNode $ast
