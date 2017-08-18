@@ -22,6 +22,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils;
 use GraphQL\Utils\AST;
+use Opis\Closure\SerializableClosure;
 
 class TypeKind {
     const SCALAR = 0;
@@ -241,39 +242,29 @@ EOD;
                     'types' => [
                         'description' => 'A list of all types supported by this server.',
                         'type' => new NonNull(new ListOfType(new NonNull(self::_type()))),
-                        'resolve' => function (Schema $schema) {
-                            return array_values($schema->getTypeMap());
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionSchemaFields'
                     ],
                     'queryType' => [
                         'description' => 'The type that query operations will be rooted at.',
                         'type' => new NonNull(self::_type()),
-                        'resolve' => function (Schema $schema) {
-                            return $schema->getQueryType();
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionSchemaQueryType'
                     ],
                     'mutationType' => [
                         'description' =>
                             'If this server supports mutation, the type that ' .
                             'mutation operations will be rooted at.',
                         'type' => self::_type(),
-                        'resolve' => function (Schema $schema) {
-                            return $schema->getMutationType();
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionSchemaMutationType'
                     ],
                     'subscriptionType' => [
                         'description' => 'If this server support subscription, the type that subscription operations will be rooted at.',
                         'type'        => self::_type(),
-                        'resolve'     => function (Schema $schema) {
-                            return $schema->getSubscriptionType();
-                        },
+                        'resolve'     => 'GraphQL\Type\Introspection::resolveIntrospectionSchemaSubscriptionType'
                     ],
                     'directives' => [
                         'description' => 'A list of all directives supported by this server.',
                         'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_directive()))),
-                        'resolve' => function(Schema $schema) {
-                            return $schema->getDirectives();
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionSchemaDirectives'
                     ]
                 ]
             ]);
@@ -302,9 +293,7 @@ EOD;
                     ],
                     'args' => [
                         'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                        'resolve' => function (Directive $directive) {
-                            return $directive->args ?: [];
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionDirectiveOnArgs'
                     ],
 
                     // NOTE: the following three fields are deprecated and are no longer part
@@ -312,27 +301,17 @@ EOD;
                     'onOperation' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => function($d) {
-                            return in_array(DirectiveLocation::QUERY, $d->locations) ||
-                                in_array(DirectiveLocation::MUTATION, $d->locations) ||
-                                in_array(DirectiveLocation::SUBSCRIPTION, $d->locations);
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionDirectiveOnOperation'
                     ],
                     'onFragment' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => function($d) {
-                            return in_array(DirectiveLocation::FRAGMENT_SPREAD, $d->locations) ||
-                            in_array(DirectiveLocation::INLINE_FRAGMENT, $d->locations) ||
-                            in_array(DirectiveLocation::FRAGMENT_DEFINITION, $d->locations);
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionDirectiveOnFragment'
                     ],
                     'onField' => [
                         'deprecationReason' => 'Use `locations`.',
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => function($d) {
-                            return in_array(DirectiveLocation::FIELD, $d->locations);
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionDirectiveOnField'
                     ]
                 ]
             ]);
@@ -443,32 +422,11 @@ EOD;
                     'Object and Interface types provide the fields they describe. Abstract ' .
                     'types, Union and Interface, provide the Object types possible ' .
                     'at runtime. List and NonNull types compose other types.',
-                'fields' => function() {
+                'fields' => new SerializableClosure(function() {
                     return [
                         'kind' => [
                             'type' => Type::nonNull(self::_typeKind()),
-                            'resolve' => function (Type $type) {
-                                switch (true) {
-                                    case $type instanceof ListOfType:
-                                        return TypeKind::LIST_KIND;
-                                    case $type instanceof NonNull:
-                                        return TypeKind::NON_NULL;
-                                    case $type instanceof ScalarType:
-                                        return TypeKind::SCALAR;
-                                    case $type instanceof ObjectType:
-                                        return TypeKind::OBJECT;
-                                    case $type instanceof EnumType:
-                                        return TypeKind::ENUM;
-                                    case $type instanceof InputObjectType:
-                                        return TypeKind::INPUT_OBJECT;
-                                    case $type instanceof InterfaceType:
-                                        return TypeKind::INTERFACE_KIND;
-                                    case $type instanceof UnionType:
-                                        return TypeKind::UNION;
-                                    default:
-                                        throw new \Exception("Unknown kind of type: " . Utils::printSafe($type));
-                                }
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionTypeKind'
                         ],
                         'name' => ['type' => Type::string()],
                         'description' => ['type' => Type::string()],
@@ -477,78 +435,33 @@ EOD;
                             'args' => [
                                 'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false]
                             ],
-                            'resolve' => function (Type $type, $args) {
-                                if ($type instanceof ObjectType || $type instanceof InterfaceType) {
-                                    $fields = $type->getFields();
-
-                                    if (empty($args['includeDeprecated'])) {
-                                        $fields = array_filter($fields, function (FieldDefinition $field) {
-                                            return !$field->deprecationReason;
-                                        });
-                                    }
-                                    return array_values($fields);
-                                }
-                                return null;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionTypeFields'
                         ],
                         'interfaces' => [
                             'type' => Type::listOf(Type::nonNull(self::_type())),
-                            'resolve' => function ($type) {
-                                if ($type instanceof ObjectType) {
-                                    return $type->getInterfaces();
-                                }
-                                return null;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionTypeInterfaces'
                         ],
                         'possibleTypes' => [
                             'type' => Type::listOf(Type::nonNull(self::_type())),
-                            'resolve' => function ($type, $args, $context, ResolveInfo $info) {
-                                if ($type instanceof InterfaceType || $type instanceof UnionType) {
-                                    return $info->schema->getPossibleTypes($type);
-                                }
-                                return null;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionTypePossibleTypes'
                         ],
                         'enumValues' => [
                             'type' => Type::listOf(Type::nonNull(self::_enumValue())),
                             'args' => [
                                 'includeDeprecated' => ['type' => Type::boolean(), 'defaultValue' => false]
                             ],
-                            'resolve' => function ($type, $args) {
-                                if ($type instanceof EnumType) {
-                                    $values = array_values($type->getValues());
-
-                                    if (empty($args['includeDeprecated'])) {
-                                        $values = array_filter($values, function ($value) {
-                                            return !$value->deprecationReason;
-                                        });
-                                    }
-
-                                    return $values;
-                                }
-                                return null;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionTypeEnumValues'
                         ],
                         'inputFields' => [
                             'type' => Type::listOf(Type::nonNull(self::_inputValue())),
-                            'resolve' => function ($type) {
-                                if ($type instanceof InputObjectType) {
-                                    return array_values($type->getFields());
-                                }
-                                return null;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionTypeInputFields'
                         ],
                         'ofType' => [
                             'type' => self::_type(),
-                            'resolve' => function ($type) {
-                                if ($type instanceof WrappingType) {
-                                    return $type->getWrappedType();
-                                }
-                                return null;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionTypeOfType'
                         ]
                     ];
-                }
+                })
             ]);
         }
         return self::$map['__Type'];
@@ -563,33 +476,27 @@ EOD;
                 'description' =>
                     'Object and Interface types are described by a list of Fields, each of ' .
                     'which has a name, potentially a list of arguments, and a return type.',
-                'fields' => function() {
+                'fields' => new SerializableClosure(function() {
                     return [
                         'name' => ['type' => Type::nonNull(Type::string())],
                         'description' => ['type' => Type::string()],
                         'args' => [
                             'type' => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                            'resolve' => function (FieldDefinition $field) {
-                                return empty($field->args) ? [] : $field->args;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionFieldArgs'
                         ],
                         'type' => [
                             'type' => Type::nonNull(self::_type()),
-                            'resolve' => function ($field) {
-                                return $field->getType();
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionFieldType'
                         ],
                         'isDeprecated' => [
                             'type' => Type::nonNull(Type::boolean()),
-                            'resolve' => function (FieldDefinition $field) {
-                                return !!$field->deprecationReason;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionFieldIsDeprecated'
                         ],
                         'deprecationReason' => [
                             'type' => Type::string()
                         ]
                     ];
-                }
+                })
             ]);
         }
         return self::$map['__Field'];
@@ -604,29 +511,22 @@ EOD;
                     'Arguments provided to Fields or Directives and the input fields of an ' .
                     'InputObject are represented as Input Values which describe their type ' .
                     'and optionally a default value.',
-                'fields' => function() {
+                'fields' => new SerializableClosure(function() {
                     return [
                         'name' => ['type' => Type::nonNull(Type::string())],
                         'description' => ['type' => Type::string()],
                         'type' => [
                             'type' => Type::nonNull(self::_type()),
-                            'resolve' => function ($value) {
-                                return method_exists($value, 'getType') ? $value->getType() : $value->type;
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionInputValueType'
                         ],
                         'defaultValue' => [
                             'type' => Type::string(),
                             'description' =>
                                 'A GraphQL-formatted string representing the default value for this input value.',
-                            'resolve' => function ($inputValue) {
-                                /** @var FieldArgument|InputObjectField $inputValue */
-                                return !$inputValue->defaultValueExists()
-                                    ? null
-                                    : Printer::doPrint(AST::astFromValue($inputValue->defaultValue, $inputValue->getType()));
-                            }
+                            'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionInputValueDefaultValue'
                         ]
                     ];
-                }
+                })
             ]);
         }
         return self::$map['__InputValue'];
@@ -646,9 +546,7 @@ EOD;
                     'description' => ['type' => Type::string()],
                     'isDeprecated' => [
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => function ($enumValue) {
-                            return !!$enumValue->deprecationReason;
-                        }
+                        'resolve' => 'GraphQL\Type\Introspection::resolveIntrospectionEnumIsDeprecated'
                     ],
                     'deprecationReason' => [
                         'type' => Type::string()
@@ -762,5 +660,200 @@ EOD;
             ]);
         }
         return self::$map['__typename'];
+    }
+
+    /**
+     * RESOVLERS
+     */
+
+    public static function resolveIntrospectionSchemaFields(Schema $schema)
+    {
+        return array_values($schema->getTypeMap());
+    }
+
+    public static function resolveIntrospectionSchemaQueryType(Schema $schema)
+    {
+        return $schema->getQueryType();
+    }
+
+    public static function resolveIntrospectionSchemaMutationType(Schema $schema)
+    {
+        return $schema->getMutationType();
+    }
+
+    public static function resolveIntrospectionSchemaSubscriptionType(Schema $schema)
+    {
+        return $schema->getSubscriptionType();
+    }
+
+    public static function resolveIntrospectionSchemaDirectives(Schema $schema)
+    {
+        return $schema->getDirectives();
+    }
+
+    public static function resolveIntrospectionDirectiveOnArgs(Directive $directive)
+    {
+        return $directive->args ?: [];
+    }
+
+    public static function resolveIntrospectionDirectiveOnOperation($d)
+    {
+        return in_array(DirectiveLocation::QUERY, $d->locations) ||
+            in_array(DirectiveLocation::MUTATION, $d->locations) ||
+            in_array(DirectiveLocation::SUBSCRIPTION, $d->locations);
+    }
+
+    public static function resolveIntrospectionDirectiveOnFragment($d)
+    {
+        return in_array(DirectiveLocation::FRAGMENT_SPREAD, $d->locations) ||
+            in_array(DirectiveLocation::INLINE_FRAGMENT, $d->locations) ||
+            in_array(DirectiveLocation::FRAGMENT_DEFINITION, $d->locations);
+    }
+
+    public static function resolveIntrospectionDirectiveOnField($d)
+    {
+        return in_array(DirectiveLocation::FIELD, $d->locations);
+    }
+
+    public static function resolveIntrospectionTypeKind(Type $type)
+    {
+        switch (true) {
+            case $type instanceof ListOfType:
+                return TypeKind::LIST_KIND;
+            case $type instanceof NonNull:
+                return TypeKind::NON_NULL;
+            case $type instanceof ScalarType:
+                return TypeKind::SCALAR;
+            case $type instanceof ObjectType:
+                return TypeKind::OBJECT;
+            case $type instanceof EnumType:
+                return TypeKind::ENUM;
+            case $type instanceof InputObjectType:
+                return TypeKind::INPUT_OBJECT;
+            case $type instanceof InterfaceType:
+                return TypeKind::INTERFACE_KIND;
+            case $type instanceof UnionType:
+                return TypeKind::UNION;
+            default:
+                throw new \Exception("Unknown kind of type: " . Utils::printSafe($type));
+        }
+    }
+
+    public static function resolveIntrospectionTypeFields(Type $type, $args)
+    {
+        if ($type instanceof ObjectType || $type instanceof InterfaceType) {
+            $fields = $type->getFields();
+
+            if (empty($args['includeDeprecated'])) {
+                $fields = array_filter($fields, function (FieldDefinition $field) {
+                    return !$field->deprecationReason;
+                });
+            }
+
+            return array_values($fields);
+        }
+
+        return null;
+    }
+
+    public static function resolveIntrospectionTypeInterfaces($type)
+    {
+        if ($type instanceof ObjectType) {
+            return $type->getInterfaces();
+        }
+
+        return null;
+    }
+
+    public static function resolveIntrospectionTypePossibleTypes($type, $args, $context, ResolveInfo $info)
+    {
+        if ($type instanceof InterfaceType || $type instanceof UnionType) {
+            return $info->schema->getPossibleTypes($type);
+        }
+
+        return null;
+    }
+
+    public static function resolveIntrospectionTypeEnumValues($type, $args)
+    {
+        if ($type instanceof EnumType) {
+            $values = array_values($type->getValues());
+
+            if (empty($args['includeDeprecated'])) {
+                $values = array_filter($values, function ($value) {
+                    return !$value->deprecationReason;
+                });
+            }
+
+            return $values;
+        }
+
+        return null;
+    }
+
+    public static function resolveIntrospectionTypeInputFields($type)
+    {
+        if ($type instanceof InputObjectType) {
+            return array_values($type->getFields());
+        }
+
+        return null;
+    }
+
+    public static function resolveIntrospectionTypeOfType($type)
+    {
+        if ($type instanceof WrappingType) {
+            return $type->getWrappedType();
+        }
+
+        return null;
+    }
+
+    public static function resolveIntrospectionFieldArgs(FieldDefinition $field)
+    {
+        return empty($field->args) ? [] : $field->args;
+    }
+
+    public static function resolveIntrospectionFieldType(FieldDefinition $field)
+    {
+        return $field->getType();
+    }
+
+    public static function resolveIntrospectionFieldIsDeprecated(FieldDefinition $field)
+    {
+        return !! $field->deprecationReason;
+    }
+
+    public static function resolveIntrospectionInputValueType($value)
+    {
+        return method_exists($value, 'getType') ? $value->getType() : $value->type;
+    }
+
+    public static function resolveIntrospectionInputValueDefaultValue($inputValue)
+    {
+        /** @var FieldArgument|InputObjectField $inputValue */
+        return !$inputValue->defaultValueExists()
+            ? null
+            : Printer::doPrint(AST::astFromValue($inputValue->defaultValue, $inputValue->getType()));
+    }
+
+    public static function resolveIntrospectionEnumIsDeprecated($enumValue)
+    {
+        return !! $enumValue->deprecationReason;
+    }
+
+    public static function resolveIntrospectionSchema($source, $args, $context, ResolveInfo $info)
+    {
+        return $info->schema;
+    }
+
+    public static function resolveIntrospectionType($source, $args, $context, ResolveInfo $info)
+    {
+        return $info->schema->getType($args['name']);
+    }
+
+    public static function resolveIntrospectionTypeName($source, $args, $context, ResolveInfo $info)
+    {
+        return $info->parentType->name;
     }
 }
