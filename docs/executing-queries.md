@@ -146,3 +146,63 @@ So for example following batch will require single DB request (if user field is 
   }
 ]
 ```
+
+To enable query batching, pass **queryBatching** option in server config:
+```php
+<?php
+use GraphQL\Server\StandardServer;
+
+$server = new StandardServer([
+    'queryBatching' => true
+]);
+```
+
+# Custom Validation Rules
+Before execution, query is validated using set of standard rules defined by GraphQL spec.
+It is possible to override standard set of rules globally or per execution.
+
+Add rules globally:
+```php
+<?php
+use GraphQL\Validator\Rules;
+use GraphQL\Validator\DocumentValidator;
+
+// Add to standard set of rules globally:
+DocumentValidator::addRule(new Rules\DisableIntrospection());
+```
+
+Custom rules per execution:
+```php
+<?php
+use GraphQL\GraphQL;
+use GraphQL\Validator\Rules;
+
+$myValiationRules = array_merge(
+    GraphQL::getStandardValidationRules(),
+    [
+        new Rules\QueryComplexity(100),
+        new Rules\DisableIntrospection()
+    ]
+);
+
+$result = GraphQL::executeQuery(
+    $schema, 
+    $queryString, 
+    $rootValue = null, 
+    $context = null, 
+    $variableValues = null, 
+    $operationName = null,
+    $fieldResolver = null,
+    $myValiationRules // <-- this will override global validation rules for this request
+);
+```
+
+Or with a standard server:
+```php
+<?php 
+use GraphQL\Server\StandardServer;
+
+$server = new StandardServer([
+    'validationRules' => $myValiationRules
+]);
+```
