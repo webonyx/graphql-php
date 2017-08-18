@@ -55,7 +55,14 @@ class QueryType extends ObjectType
                         throw new \Exception("Exception message thrown in field resolver");
                     }
                 ],
-                'hello' => Type::string()
+                'hello' => Type::string(),
+                'node' => [
+                    'type' => Types::node(),
+                    'description' => 'Get any node. Will require type spread.',
+                    'args' => [
+                        'id' => Types::nonNull(Types::id())
+                    ]
+                ]
             ],
             'resolveField' => function($val, $args, $context, ResolveInfo $info) {
                 return $this->{$info->fieldName}($val, $args, $context, $info);
@@ -93,5 +100,10 @@ class QueryType extends ObjectType
     public function deprecatedField()
     {
         return 'You can request deprecated field, but it is not displayed in auto-generated documentation by default.';
+    }
+
+    public function node($rootValue, $args)
+    {
+        return DataSource::findUser($args['id']);
     }
 }
