@@ -8,14 +8,14 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
-class KnownTypeNames
+class KnownTypeNames extends AbstractValidationRule
 {
     static function unknownTypeMessage($type)
     {
         return "Unknown type \"$type\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         $skip = function() {return Visitor::skipNode();};
 

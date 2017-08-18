@@ -8,7 +8,7 @@ use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
-class UniqueInputFieldNames
+class UniqueInputFieldNames extends AbstractValidationRule
 {
     static function duplicateInputFieldMessage($fieldName)
     {
@@ -18,7 +18,7 @@ class UniqueInputFieldNames
     public $knownNames;
     public $knownNameStack;
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         $this->knownNames = [];
         $this->knownNameStack = [];

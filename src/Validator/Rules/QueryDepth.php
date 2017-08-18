@@ -45,7 +45,7 @@ class QueryDepth extends AbstractQuerySecurity
         return sprintf('Max query depth should be %d but got %d.', $max, $count);
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return $this->invokeIfNeeded(
             $context,

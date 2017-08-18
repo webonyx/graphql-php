@@ -11,7 +11,7 @@ use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
-class VariablesInAllowedPosition
+class VariablesInAllowedPosition extends AbstractValidationRule
 {
     static function badVarPosMessage($varName, $varType, $expectedType)
     {
@@ -21,7 +21,7 @@ class VariablesInAllowedPosition
 
     public $varDefMap;
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::OPERATION_DEFINITION => [

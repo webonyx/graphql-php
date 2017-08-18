@@ -7,7 +7,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-class KnownArgumentNames
+class KnownArgumentNames extends AbstractValidationRule
 {
     public static function unknownArgMessage($argName, $fieldName, $type)
     {
@@ -19,7 +19,7 @@ class KnownArgumentNames
         return "Unknown argument \"$argName\" on directive \"@$directiveName\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::ARGUMENT => function(ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {

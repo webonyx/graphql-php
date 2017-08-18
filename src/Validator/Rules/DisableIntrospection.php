@@ -11,7 +11,7 @@ class DisableIntrospection extends AbstractQuerySecurity
     const ENABLED = 1;
     private $isEnabled;
 
-    public function __construct($enabled)
+    public function __construct($enabled = self::ENABLED)
     {
         $this->setEnabled($enabled);
     }
@@ -31,7 +31,7 @@ class DisableIntrospection extends AbstractQuerySecurity
         return $this->isEnabled !== static::DISABLED;
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return $this->invokeIfNeeded(
             $context,

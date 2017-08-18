@@ -12,14 +12,14 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
-class VariablesAreInputTypes
+class VariablesAreInputTypes extends AbstractValidationRule
 {
     static function nonInputTypeOnVarMessage($variableName, $typeName)
     {
         return "Variable \"\$$variableName\" cannot be non-input type \"$typeName\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::VARIABLE_DEFINITION => function(VariableDefinitionNode $node) use ($context) {

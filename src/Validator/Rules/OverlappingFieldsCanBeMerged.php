@@ -23,7 +23,7 @@ use GraphQL\Utils\PairSet;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
-class OverlappingFieldsCanBeMerged
+class OverlappingFieldsCanBeMerged extends AbstractValidationRule
 {
     static function fieldsConflictMessage($responseName, $reason)
     {
@@ -49,7 +49,7 @@ class OverlappingFieldsCanBeMerged
      */
     public $comparedSet;
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         $this->comparedSet = new PairSet();
 

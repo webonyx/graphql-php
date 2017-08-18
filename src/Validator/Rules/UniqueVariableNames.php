@@ -7,7 +7,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
 
-class UniqueVariableNames
+class UniqueVariableNames extends AbstractValidationRule
 {
     static function duplicateVariableMessage($variableName)
     {
@@ -16,7 +16,7 @@ class UniqueVariableNames
 
     public $knownVariableNames;
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         $this->knownVariableNames = [];
 

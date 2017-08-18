@@ -10,7 +10,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
-class FragmentsOnCompositeTypes
+class FragmentsOnCompositeTypes extends AbstractValidationRule
 {
     static function inlineFragmentOnNonCompositeErrorMessage($type)
     {
@@ -22,7 +22,7 @@ class FragmentsOnCompositeTypes
         return "Fragment \"$fragName\" cannot condition on non composite type \"$type\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::INLINE_FRAGMENT => function(InlineFragmentNode $node) use ($context) {

@@ -8,14 +8,14 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Validator\ValidationContext;
 
-class KnownFragmentNames
+class KnownFragmentNames extends AbstractValidationRule
 {
     static function unknownFragmentMessage($fragName)
     {
         return "Unknown fragment \"$fragName\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::FRAGMENT_SPREAD => function(FragmentSpreadNode $node) use ($context) {

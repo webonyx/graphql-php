@@ -18,6 +18,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\TypeInfo;
+use GraphQL\Validator\Rules\AbstractValidationRule;
 use GraphQL\Validator\Rules\ArgumentsOfCorrectType;
 use GraphQL\Validator\Rules\DefaultValuesOfCorrectType;
 use GraphQL\Validator\Rules\DisableIntrospection;
@@ -53,6 +54,8 @@ class DocumentValidator
 
     private static $defaultRules;
 
+    private static $securityRules;
+
     private static $initRules = false;
 
     /**
@@ -63,8 +66,8 @@ class DocumentValidator
     public static function allRules()
     {
         if (!self::$initRules) {
-            self::$rules = array_merge(static::defaultRules(), self::$rules);
-            self::$initRules = true;
+            static::$rules = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
+            static::$initRules = true;
         }
 
         return self::$rules;
@@ -74,36 +77,31 @@ class DocumentValidator
     {
         if (null === self::$defaultRules) {
             self::$defaultRules = [
-                'UniqueOperationNames' => new UniqueOperationNames(),
-                'LoneAnonymousOperation' => new LoneAnonymousOperation(),
-                'KnownTypeNames' => new KnownTypeNames(),
-                'FragmentsOnCompositeTypes' => new FragmentsOnCompositeTypes(),
-                'VariablesAreInputTypes' => new VariablesAreInputTypes(),
-                'ScalarLeafs' => new ScalarLeafs(),
-                'FieldsOnCorrectType' => new FieldsOnCorrectType(),
-                'UniqueFragmentNames' => new UniqueFragmentNames(),
-                'KnownFragmentNames' => new KnownFragmentNames(),
-                'NoUnusedFragments' => new NoUnusedFragments(),
-                'PossibleFragmentSpreads' => new PossibleFragmentSpreads(),
-                'NoFragmentCycles' => new NoFragmentCycles(),
-                'UniqueVariableNames' => new UniqueVariableNames(),
-                'NoUndefinedVariables' => new NoUndefinedVariables(),
-                'NoUnusedVariables' => new NoUnusedVariables(),
-                'KnownDirectives' => new KnownDirectives(),
-                'UniqueDirectivesPerLocation' => new UniqueDirectivesPerLocation(),
-                'KnownArgumentNames' => new KnownArgumentNames(),
-                'UniqueArgumentNames' => new UniqueArgumentNames(),
-                'ArgumentsOfCorrectType' => new ArgumentsOfCorrectType(),
-                'ProvidedNonNullArguments' => new ProvidedNonNullArguments(),
-                'DefaultValuesOfCorrectType' => new DefaultValuesOfCorrectType(),
-                'VariablesInAllowedPosition' => new VariablesInAllowedPosition(),
-                'OverlappingFieldsCanBeMerged' => new OverlappingFieldsCanBeMerged(),
-                'UniqueInputFieldNames' => new UniqueInputFieldNames(),
-
-                // Query Security
-                'DisableIntrospection' => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
-                'QueryDepth' => new QueryDepth(QueryDepth::DISABLED), // default disabled
-                'QueryComplexity' => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
+                UniqueOperationNames::class => new UniqueOperationNames(),
+                LoneAnonymousOperation::class => new LoneAnonymousOperation(),
+                KnownTypeNames::class => new KnownTypeNames(),
+                FragmentsOnCompositeTypes::class => new FragmentsOnCompositeTypes(),
+                VariablesAreInputTypes::class => new VariablesAreInputTypes(),
+                ScalarLeafs::class => new ScalarLeafs(),
+                FieldsOnCorrectType::class => new FieldsOnCorrectType(),
+                UniqueFragmentNames::class => new UniqueFragmentNames(),
+                KnownFragmentNames::class => new KnownFragmentNames(),
+                NoUnusedFragments::class => new NoUnusedFragments(),
+                PossibleFragmentSpreads::class => new PossibleFragmentSpreads(),
+                NoFragmentCycles::class => new NoFragmentCycles(),
+                UniqueVariableNames::class => new UniqueVariableNames(),
+                NoUndefinedVariables::class => new NoUndefinedVariables(),
+                NoUnusedVariables::class => new NoUnusedVariables(),
+                KnownDirectives::class => new KnownDirectives(),
+                UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
+                KnownArgumentNames::class => new KnownArgumentNames(),
+                UniqueArgumentNames::class => new UniqueArgumentNames(),
+                ArgumentsOfCorrectType::class => new ArgumentsOfCorrectType(),
+                ProvidedNonNullArguments::class => new ProvidedNonNullArguments(),
+                DefaultValuesOfCorrectType::class => new DefaultValuesOfCorrectType(),
+                VariablesInAllowedPosition::class => new VariablesInAllowedPosition(),
+                OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
+                UniqueInputFieldNames::class => new UniqueInputFieldNames(),
             ];
         }
 
@@ -111,27 +109,50 @@ class DocumentValidator
     }
 
     /**
+     * @return array
+     */
+    public static function securityRules()
+    {
+        // This way of defining rules is deprecated
+        // When custom security rule is required - it should be just added via DocumentValidator::addRule();
+        // TODO: deprecate this
+
+        if (null === self::$securityRules) {
+            self::$securityRules = [
+                DisableIntrospection::class => new DisableIntrospection(DisableIntrospection::DISABLED), // DEFAULT DISABLED
+                QueryDepth::class => new QueryDepth(QueryDepth::DISABLED), // default disabled
+                QueryComplexity::class => new QueryComplexity(QueryComplexity::DISABLED), // default disabled
+            ];
+        }
+        return self::$securityRules;
+    }
+
+    /**
      * Returns validation rule
      *
      * @param string $name
-     * @return callable|null
+     * @return AbstractValidationRule
      */
     public static function getRule($name)
     {
         $rules = static::allRules();
 
+        if (isset($rules[$name])) {
+            return $rules[$name];
+        }
+
+        $name = "GraphQL\\Validator\\Rules\\$name";
         return isset($rules[$name]) ? $rules[$name] : null ;
     }
 
     /**
      * Add rule to list of default validation rules
      *
-     * @param string $name
-     * @param callable $rule
+     * @param AbstractValidationRule $rule
      */
-    public static function addRule($name, callable $rule)
+    public static function addRule(AbstractValidationRule $rule)
     {
-        self::$rules[$name] = $rule;
+        self::$rules[$rule->getName()] = $rule;
     }
 
     /**
@@ -292,7 +313,7 @@ class DocumentValidator
      * @param Schema $schema
      * @param TypeInfo $typeInfo
      * @param DocumentNode $documentNode
-     * @param array $rules
+     * @param AbstractValidationRule[] $rules
      * @return array
      */
     public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules)
@@ -300,7 +321,7 @@ class DocumentValidator
         $context = new ValidationContext($schema, $documentNode, $typeInfo);
         $visitors = [];
         foreach ($rules as $rule) {
-            $visitors[] = $rule($context);
+            $visitors[] = $rule->getVisitor($context);
         }
         Visitor::visit($documentNode, Visitor::visitWithTypeInfo($typeInfo, Visitor::visitInParallel($visitors)));
         return $context->getErrors();

@@ -43,6 +43,49 @@ But note that this is deprecated format and will be removed in future versions.
 In general, if new default formatting doesn't work for you - just set [your own error
 formatter](http://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting).
 
+### Breaking: Validation rules now have abstract base class
+Previously any callable was accepted by DocumentValidator as validation rule. Now only instances of 
+`GraphQL\Validator\Rules\AbstractValidationRule` are allowed.
+
+If you were using custom validation rules, just wrap them with 
+`GraphQL\Validator\Rules\CustomValidationRule` (created for backwards compatibility).
+
+Before:
+```php
+use GraphQL\Validator\DocumentValidator;
+
+$myRule = function(ValidationContext $context) {};
+DocumentValidator::validate($schema, $ast, [$myRule]);
+```
+
+After:
+```php
+use GraphQL\Validator\Rules\CustomValidationRule;
+use GraphQL\Validator\DocumentValidator;
+
+$myRule = new CustomValidationRule('MyRule', function(ValidationContext $context) {});
+DocumentValidator::validate($schema, $ast, [$myRule]);
+```
+
+Also `DocumentValidator::addRule()` signature changed. 
+
+Before the change:
+```php
+use GraphQL\Validator\DocumentValidator;
+
+$myRule = function(ValidationContext $context) {};
+DocumentValidator::addRule('MyRuleName', $myRule);
+```
+
+After the change:
+```php
+use GraphQL\Validator\DocumentValidator;
+
+$myRule = new CustomValidationRulefunction('MyRule', ValidationContext $context) {});
+DocumentValidator::addRule($myRule);
+```
+
+
 ### Breaking: AST now uses `NodeList` vs array for lists of nodes
 It helps us unserialize AST from array lazily. This change affects you only if you use `array_`
 functions with AST or mutate AST directly.

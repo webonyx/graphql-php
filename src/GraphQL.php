@@ -113,9 +113,18 @@ class GraphQL
                 $documentNode = Parser::parse(new Source($source ?: '', 'GraphQL'));
             }
 
-            /** @var QueryComplexity $queryComplexity */
-            $queryComplexity = DocumentValidator::getRule('QueryComplexity');
-            $queryComplexity->setRawVariableValues($variableValues);
+            // FIXME
+            if (!empty($validationRules)) {
+                foreach ($validationRules as $rule) {
+                    if ($rule instanceof QueryComplexity) {
+                        $rule->setRawVariableValues($variableValues);
+                    }
+                }
+            } else {
+                /** @var QueryComplexity $queryComplexity */
+                $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
+                $queryComplexity->setRawVariableValues($variableValues);
+            }
 
             $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
 
@@ -223,7 +232,7 @@ class GraphQL
      *
      * @return Directive[]
      */
-    public static function getInternalDirectives()
+    public static function getStandardDirectives()
     {
         return array_values(Directive::getInternalDirectives());
     }
@@ -233,9 +242,17 @@ class GraphQL
      *
      * @return Type[]
      */
-    public static function getInternalTypes()
+    public static function getStandardTypes()
     {
-        return Type::getInternalTypes();
+        return array_values(Type::getInternalTypes());
+    }
+
+    /**
+     * @return array
+     */
+    public static function getStandardValidationRules()
+    {
+        return array_values(DocumentValidator::defaultRules());
     }
 
     /**
@@ -252,5 +269,16 @@ class GraphQL
     public static function setPromiseAdapter(PromiseAdapter $promiseAdapter = null)
     {
         Executor::setPromiseAdapter($promiseAdapter);
+    }
+
+    /**
+     * Returns directives defined in GraphQL spec
+     *
+     * @deprecated Renamed to getStandardDirectives
+     * @return Directive[]
+     */
+    public static function getInternalDirectives()
+    {
+        return self::getStandardDirectives();
     }
 }

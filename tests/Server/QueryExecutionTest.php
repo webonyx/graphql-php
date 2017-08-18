@@ -17,6 +17,7 @@ use GraphQL\Server\ServerConfig;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\DocumentValidator;
+use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
 
 class QueryExecutionTest extends \PHPUnit_Framework_TestCase
@@ -219,10 +220,10 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
         $called = false;
 
         $rules = [
-            function() use (&$called) {
+            new CustomValidationRule('SomeRule', function() use (&$called) {
                 $called = true;
                 return [];
-            }
+            })
         ];
 
         $this->config->setValidationRules($rules);
@@ -268,9 +269,9 @@ class QueryExecutionTest extends \PHPUnit_Framework_TestCase
             } else {
                 $called2 = true;
                 return [
-                    function(ValidationContext $context) {
+                    new CustomValidationRule('MyRule', function(ValidationContext $context) {
                         $context->reportError(new Error("This is the error we are looking for!"));
-                    }
+                    })
                 ];
             }
         });

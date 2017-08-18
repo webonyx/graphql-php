@@ -6,14 +6,14 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Validator\ValidationContext;
 
-class UniqueDirectivesPerLocation
+class UniqueDirectivesPerLocation extends AbstractValidationRule
 {
     static function duplicateDirectiveMessage($directiveName)
     {
         return 'The directive "'.$directiveName.'" can only be used once at this location.';
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             'enter' => function(Node $node) use ($context) {

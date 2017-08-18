@@ -7,7 +7,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-class FieldsOnCorrectType
+class FieldsOnCorrectType extends AbstractValidationRule
 {
     static function undefinedFieldMessage($field, $type, array $suggestedTypes = [])
     {
@@ -29,7 +29,7 @@ class FieldsOnCorrectType
         return $message;
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::FIELD => function(FieldNode $node) use ($context) {

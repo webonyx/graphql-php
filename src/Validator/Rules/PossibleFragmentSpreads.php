@@ -16,7 +16,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Validator\ValidationContext;
 use GraphQL\Utils\TypeInfo;
 
-class PossibleFragmentSpreads
+class PossibleFragmentSpreads extends AbstractValidationRule
 {
     static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)
     {
@@ -28,7 +28,7 @@ class PossibleFragmentSpreads
         return "Fragment cannot be spread here as objects of type \"$parentType\" can never be of type \"$fragType\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::INLINE_FRAGMENT => function(InlineFragmentNode $node) use ($context) {

@@ -1,11 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: Vladimir
- * Date: 11.07.2015
- * Time: 18:54
- */
-
 namespace GraphQL\Validator\Rules;
 
 
@@ -18,7 +11,7 @@ use GraphQL\Language\Visitor;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-class NoFragmentCycles
+class NoFragmentCycles extends AbstractValidationRule
 {
     static function cycleErrorMessage($fragName, array $spreadNames = [])
     {
@@ -32,7 +25,7 @@ class NoFragmentCycles
 
     public $spreadPathIndexByName;
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         // Tracks already visited fragments to maintain O(N) and to ensure that cycles
         // are not redundantly reported.

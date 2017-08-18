@@ -12,7 +12,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-class ProvidedNonNullArguments
+class ProvidedNonNullArguments extends AbstractValidationRule
 {
     static function missingFieldArgMessage($fieldName, $argName, $type)
     {
@@ -24,7 +24,7 @@ class ProvidedNonNullArguments
         return "Directive \"@$directiveName\" argument \"$argName\" of type \"$type\" is required but not provided.";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
             NodeKind::FIELD => [
