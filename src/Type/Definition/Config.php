@@ -8,6 +8,7 @@ use GraphQL\Utils\Utils;
 /**
  * Class Config
  * @package GraphQL\Type\Definition
+ * @deprecated See https://github.com/webonyx/graphql-php/issues/148 for alternatives
  */
 class Config
 {
@@ -43,7 +44,10 @@ class Config
     private static $allowCustomOptions = true;
 
     /**
+     *
      * Disables config validation
+     *
+     * @deprecated See https://github.com/webonyx/graphql-php/issues/148 for alternatives
      */
     public static function disableValidation()
     {
@@ -53,6 +57,8 @@ class Config
     /**
      * Enable deep config validation (disabled by default because it creates significant performance overhead).
      * Useful only at development to catch type definition errors quickly.
+     *
+     * @deprecated See https://github.com/webonyx/graphql-php/issues/148 for alternatives
      */
     public static function enableValidation($allowCustomOptions = true)
     {

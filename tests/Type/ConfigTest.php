@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Type\Definition\Config;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -14,12 +15,13 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        \PHPUnit_Framework_Error_Deprecated::$enabled = false;
+        Warning::suppress(Warning::CONFIG_DEPRECATION_WARNING);
     }
 
     public static function tearDownAfterClass()
     {
         Config::disableValidation();
+        Warning::enable(Warning::CONFIG_DEPRECATION_WARNING);
     }
 
     public function testToggling()
