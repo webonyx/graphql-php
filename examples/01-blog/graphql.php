@@ -9,16 +9,17 @@ use \GraphQL\Examples\Blog\Data\DataSource;
 use \GraphQL\Type\Schema;
 use \GraphQL\GraphQL;
 use \GraphQL\Error\FormattedError;
+use \GraphQL\Error\Debug;
 
 // Disable default PHP error reporting - we have better one for debug mode (see bellow)
 ini_set('display_errors', 0);
 
+$debug = false;
 if (!empty($_GET['debug'])) {
-    // Catch custom errors (to report them in query results if debugging is enabled)
-    $phpErrors = [];
     set_error_handler(function($severity, $message, $file, $line) use (&$phpErrors) {
-        $phpErrors[] = new ErrorException($message, 0, $severity, $file, $line);
+        throw new ErrorException($message, 0, $severity, $file, $line);
     });
+    $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
 }
 
 try {
@@ -49,30 +50,21 @@ try {
         'query' => Types::query()
     ]);
 
-    $result = GraphQL::execute(
+    $result = GraphQL::executeQuery(
         $schema,
         $data['query'],
         null,
         $appContext,
         (array) $data['variables']
     );
-
-    // Add reported PHP errors to result (if any)
-    if (!empty($_GET['debug']) && !empty($phpErrors)) {
-        $result['extensions']['phpErrors'] = array_map(
-            ['GraphQL\Error\FormattedError', 'createFromPHPError'],
-            $phpErrors
-        );
-    }
+    $output = $result->toArray($debug);
     $httpStatus = 200;
 } catch (\Exception $error) {
     $httpStatus = 500;
-    if (!empty($_GET['debug'])) {
-        $result['extensions']['exception'] = FormattedError::createFromException($error);
-    } else {
-        $result['errors'] = [FormattedError::create('Unexpected Error')];
-    }
+    $output['errors'] = [
+        FormattedError::createFromException($error, $debug)
+    ];
 }
 
 header('Content-Type: application/json', true, $httpStatus);
-echo json_encode($result);
+echo json_encode($output);

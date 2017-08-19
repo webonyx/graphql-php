@@ -7,7 +7,7 @@ require_once __DIR__ . '/../../vendor/autoload.php';
 
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\GraphQL;
 
 try {
@@ -20,7 +20,7 @@ try {
                     'message' => ['type' => Type::string()],
                 ],
                 'resolve' => function ($root, $args) {
-                    return $root['prefix'].$args['message'];
+                    return $root['prefix'] . $args['message'];
                 }
             ],
         ],
@@ -42,6 +42,8 @@ try {
         ],
     ]);
 
+    // See docs on schema options:
+    // http://webonyx.github.io/graphql-php/type-system/schema/#configuration-options
     $schema = new Schema([
         'query' => $queryType,
         'mutation' => $mutationType,
@@ -53,14 +55,15 @@ try {
     $variableValues = isset($input['variables']) ? $input['variables'] : null;
 
     $rootValue = ['prefix' => 'You said: '];
-    $result = GraphQL::execute($schema, $query, $rootValue, null, $variableValues);
+    $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
+    $output = $result->toArray();
 } catch (\Exception $e) {
-    $result = [
+    $output = [
         'error' => [
             'message' => $e->getMessage()
         ]
     ];
 }
 header('Content-Type: application/json; charset=UTF-8');
-echo json_encode($result);
+echo json_encode($output);
 
