@@ -21,7 +21,7 @@ DocumentValidator::addRule($rule);
 
 GraphQL::executeQuery(/*...*/);
 ```
-This will set the rule globally. Alternatively you can provide validation rules [per execution](executing-queries/#custom-validation-rules).
+This will set the rule globally. Alternatively you can provide validation rules [per execution](executing-queries.md#custom-validation-rules).
 
 To customize field score add **complexity** function to field definition:
 ```php
@@ -67,14 +67,19 @@ DocumentValidator::addRule($rule);
 GraphQL::executeQuery(/*...*/);
 ```
 
-This will set the rule globally. Alternatively you can provide validation rules [per execution](executing-queries/#custom-validation-rules).
+This will set the rule globally. Alternatively you can provide validation rules [per execution](executing-queries.md#custom-validation-rules).
 
 # Disabling Introspection
+[Introspection](http://graphql.org/learn/introspection/) is a mechanism for fetching schema structure.
+It is used by tools like GraphiQL for autocompletion, query validation, etc.
 
-This is a PHP port of [graphql-disable-introspection](https://github.com/helfer/graphql-disable-introspection).
-It is a separate validation rule which prohibits queries that contain **__type** or **__schema** fields. 
+Introspection is enabled by default. It means that anybody can get full description of your schema by 
+sending special query containing meta fields **__type** and **__schema** .
 
-Introspection is enabled by default. To disable it, add following validation rule:
+If you are not planning to expose your API to general public, it makes sense to disable this feature.
+
+GraphQL PHP provides you separate validation rule which prohibits queries that contain 
+**__type** or **__schema** fields. To disable introspection, add following rule:
 
 ```php
 <?php
@@ -86,4 +91,4 @@ DocumentValidator::addRule(new DisableIntrospection());
 
 GraphQL::executeQuery(/*...*/);
 ```
-This will set the rule globally. Alternatively you can provide validation rules [per execution](executing-queries/#custom-validation-rules).
+This will set the rule globally. Alternatively you can provide validation rules [per execution](executing-queries.md#custom-validation-rules).

@@ -2,7 +2,7 @@
 namespace GraphQL\Executor\Promise;
 
 /**
- * Provides a means for integration of async PHP platforms ([related docs](data-fetching/#async-php))
+ * Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php))
  */
 interface PromiseAdapter
 {

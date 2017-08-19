@@ -2,7 +2,7 @@
 namespace GraphQL\Error;
 
 /**
- * This interface is used for [default error formatting](error-handling/).
+ * This interface is used for [default error formatting](error-handling.md).
  *
  * Only errors implementing this interface (and returning true from `isClientSafe()`)
  * will be formatted with original error message.

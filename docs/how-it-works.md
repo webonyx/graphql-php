@@ -22,10 +22,13 @@ There are 3 types of errors in GraphQL:
 Obviously when **Syntax** or **Validation** error is detected - process is interrupted and query is not 
 executed.
 
+Execution process never throws exceptions. Instead all errors are caught and collected in 
+execution result.
+
 GraphQL is forgiving to **Execution** errors which occur in resolvers of nullable fields. 
 If such field throws or returns unexpected value the value of the field in response will be simply 
 replaced with `null` and error entry will be registered.
 
-If exception is thrown in non-null field - error bubbles up to first nullable field. This nullable field is  
-replaced with `null` and error entry is added to response. If all fields up to the root are non-null - 
-**data** entry will be removed from response and only **errors** key will be presented.
+If exception is thrown in non-null field - error bubbles up to first nullable field. This nullable 
+field is replaced with `null` and error entry is added to response. If all fields up to the root are 
+non-null - **data** entry will be removed from response and only **errors** key will be presented.

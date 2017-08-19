@@ -1,7 +1,7 @@
 # Errors in GraphQL
 
 Query execution process never throws exceptions. Instead all errors are caught and collected in 
-[execution result](executing-queries/#execution-result).
+[execution result](executing-queries.md#execution-result).
 
 Later `$result->toArray()` automatically converts these errors to array using default 
 error formatting. But you can apply [custom error filtering and formatting](#custom-error-filtering-and-formatting)
@@ -144,7 +144,7 @@ $result = GraphQL::executeQuery(/* $args */)
     ->toArray();
 ```
 
-Note that when you pass [debug flags](#debugging-tools) to `$result->toArray` your custom formatter will still be 
+Note that when you pass [debug flags](#debugging-tools) to `toArray()` your custom formatter will still be 
 decorated with same debugging information mentioned above.
 
 # Schema Errors

@@ -58,4 +58,4 @@ If resolver of non-null field returns `null`, **graphql-php** will add an error 
 result and exclude whole object from output (error will bubble to first nullable parent 
 field which will be set to `null`).
 
-Read section on [Data Fetching](#) for details.
+Read section on [Data Fetching](../data-fetching.md) for details.

@@ -9,7 +9,7 @@ use GraphQL\Utils\Utils;
 /**
  * Schema configuration class.
  * Could be passed directly to schema constructor. List of options accepted by **create** method is
- * [described in docs](type-system/schema/#configuration-options).
+ * [described in docs](type-system/schema.md#configuration-options).
  *
  * Usage example:
  *

@@ -20,7 +20,7 @@ use Psr\Http\Message\StreamInterface;
  *     ]);
  *     $server->handleRequest();
  *
- * Or using [ServerConfig](reference/#graphqlserverserverconfig) instance:
+ * Or using [ServerConfig](reference.md#graphqlserverserverconfig) instance:
  *
  *     $config = GraphQL\Server\ServerConfig::create()
  *         ->setSchema($mySchema)
@@ -29,7 +29,7 @@ use Psr\Http\Message\StreamInterface;
  *     $server = new GraphQL\Server\StandardServer($config);
  *     $server->handleRequest();
  *
- * See [dedicated section in docs](executing-queries/#using-server) for details.
+ * See [dedicated section in docs](executing-queries.md#using-server) for details.
  *
  */
 class StandardServer

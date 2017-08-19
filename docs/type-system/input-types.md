@@ -1,5 +1,5 @@
 # About Input and Output Types
-GraphQL receives data from clients via [Field Arguments](object-types/#field-arguments).
+GraphQL receives data from clients via [Field Arguments](object-types.md#field-arguments).
 
 Both - fields and arguments require **type** option in definition. But expected value of this option
 is different for fields and arguments, as in GraphQL argument is conceptually input while field is conceptually 
@@ -7,16 +7,16 @@ output.
 
 Consequentially all types in GraphQL are of two categories: **input** and **output**.
 
-* **Output** types (or field types) are: [Scalar](scalar-types/), [Enum](enum-types/), [Object](object-types/), 
-[Interface](interfaces/), [Union](unions/)
+* **Output** types (or field types) are: [Scalar](scalar-types.md), [Enum](enum-types.md), [Object](object-types.md), 
+[Interface](interfaces.md), [Union](unions.md)
 
-* **Input** types (or argument types) are: [Scalar](scalar-types/), [Enum](enum-types/), InputObject
+* **Input** types (or argument types) are: [Scalar](scalar-types.md), [Enum](enum-types.md), InputObject
 
-Obviously [NonNull and List](lists-and-nonnulls/) types belong to both categories depending on their 
+Obviously [NonNull and List](lists-and-nonnulls.md) types belong to both categories depending on their 
 inner type.
 
-Until now all examples of field **arguments** in this documentation were of [Scalar](scalar-types/) or 
-[Enum](enum-types/) types. But you can also easily pass complex objects. 
+Until now all examples of field **arguments** in this documentation were of [Scalar](scalar-types.md) or 
+[Enum](enum-types.md) types. But you can also easily pass complex objects. 
 
 This is particularly valuable in the case of mutations, where input data might be rather complex.
 
@@ -63,7 +63,7 @@ Every field is an array with following entries:
 Option | Type | Notes
 ------ | ---- | -----
 name | `string` | **Required.** Name of the input field. When not set - inferred from **fields** array key
-type | `Type` | **Required.** Instance of one of [Input Types](input-types/) (`Scalar`, `Enum`, `InputObjectType` + any combination of those with `NonNull` and `List` modifiers)
+type | `Type` | **Required.** Instance of one of [Input Types](input-types.md) (`Scalar`, `Enum`, `InputObjectType` + any combination of those with `NonNull` and `List` modifiers)
 description | `string` | Plain-text description of this input field for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 defaultValue | `scalar` | Default value of this input field
 

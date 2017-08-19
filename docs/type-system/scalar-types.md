@@ -13,7 +13,7 @@ Type::boolean(); // Boolean type
 Type::id();      // ID type
 ```
 Those methods return instances of `GraphQL\Type\Definition\ScalarType` (actually one of it subclasses).
-Use them directly in type definitions, or wrap in your [TypeRegistry](/type-system/#type-registry) 
+Use them directly in type definitions, or wrap in your [TypeRegistry](index.md#type-registry) 
 (if you use one).
 
 # Writing Custom Scalar Types

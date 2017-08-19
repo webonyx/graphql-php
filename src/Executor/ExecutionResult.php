@@ -5,7 +5,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 
 /**
- * Returned after [query execution](executing-queries/).
+ * Returned after [query execution](executing-queries.md).
  * Represents both - result of successful execution and of a failed one
  * (with errors collected in `errors` prop)
  *

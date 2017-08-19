@@ -4,7 +4,7 @@ plain files or in-memory data structures.
 
 In order to convert GraphQL query to PHP array **graphql-php** traverses query fields (using depth-first algorithm) and 
 runs special **resolve** function on each field. This **resolve** function is provided by you as a part of 
-[field definition](type-system/object-types/#field-configuration-options) or [query execution call](executing-queries/#overview).
+[field definition](type-system/object-types.md#field-configuration-options) or [query execution call](executing-queries.md#overview).
 
 Result returned by **resolve** function is directly included in response (for scalars and enums)
 or passed down to nested fields (for objects).
@@ -117,11 +117,11 @@ function defaultFieldResolver($source, $args, $context, ResolveInfo $info)
 As you see it returns value by key (for arrays) or property (for objects). 
 If value is not set - it returns **null**.
 
-To override the default resolver, pass it as an argument of [executeQuery](executing-queries) call.
+To override the default resolver, pass it as an argument of [executeQuery](executing-queries.md) call.
 
 # Default Field Resolver per Type
 Sometimes it might be convenient to set default field resolver per type. You can do so by providing
-[resolveField option in type config](type-system/object-types/#configuration-options). For example:
+[resolveField option in type config](type-system/object-types.md#configuration-options). For example:
 
 ```php
 $userType = new ObjectType([

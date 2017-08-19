@@ -23,7 +23,7 @@ $searchResultType = new UnionType([
 ```
 
 This example uses **inline** style for Union definition, but you can also use  
-[inheritance](/type-system/#type-definition-styles).
+[inheritance or type language](index.md#type-definition-styles).
 
 # Configuration options
 Constructor of UnionType accepts an array. Below is a full list of allowed options:

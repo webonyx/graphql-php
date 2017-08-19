@@ -16,7 +16,7 @@ use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 
 /**
- * Schema Definition (see [related docs](type-system/schema/))
+ * Schema Definition (see [related docs](type-system/schema.md))
  *
  * A Schema is created by supplying the root types of each type of operation:
  * query, mutation (optional) and subscription (optional). A schema definition is

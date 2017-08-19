@@ -50,7 +50,7 @@ class VisitorOperation
  *     ]);
  *
  * Alternatively to providing enter() and leave() functions, a visitor can
- * instead provide functions named the same as the [kinds of AST nodes](reference/#graphqllanguageastnodekind),
+ * instead provide functions named the same as the [kinds of AST nodes](reference.md#graphqllanguageastnodekind),
  * or enter/leave visitors at a named key, leading to four permutations of
  * visitor API:
  *

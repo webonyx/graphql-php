@@ -9,7 +9,7 @@ use GraphQL\Utils\Utils;
 /**
  * Server configuration class.
  * Could be passed directly to server constructor. List of options accepted by **create** method is
- * [described in docs](executing-queries/#server-configuration-options).
+ * [described in docs](executing-queries.md#server-configuration-options).
  *
  * Usage example:
  *

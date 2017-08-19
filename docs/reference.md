@@ -1,6 +1,6 @@
 # GraphQL\GraphQL
 This is the primary facade for fulfilling GraphQL operations.
-See [related documentation](executing-queries/).
+See [related documentation](executing-queries.md).
 
 **Class Methods:** 
 ```php
@@ -251,7 +251,7 @@ static function getNamedType($type)
 # GraphQL\Type\SchemaConfig
 Schema configuration class.
 Could be passed directly to schema constructor. List of options accepted by **create** method is
-[described in docs](type-system/schema/#configuration-options).
+[described in docs](type-system/schema.md#configuration-options).
 
 Usage example:
 
@@ -376,7 +376,7 @@ function getDirectives()
 function getTypeLoader()
 ```
 # GraphQL\Type\Schema
-Schema Definition (see [related docs](type-system/schema/))
+Schema Definition (see [related docs](type-system/schema.md))
 
 A Schema is created by supplying the root types of each type of operation:
 query, mutation (optional) and subscription (optional). A schema definition is
@@ -531,7 +531,7 @@ function getDirective($name)
 function assertValid()
 ```
 # GraphQL\Language\Parser
-Parses string containing GraphQL query or [type definition](type-system/type-language/) to Abstract Syntax Tree.
+Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
 
 **Class Methods:** 
 ```php
@@ -649,7 +649,7 @@ visit function.
     ]);
 
 Alternatively to providing enter() and leave() functions, a visitor can
-instead provide functions named the same as the [kinds of AST nodes](reference/#graphqllanguageastnodekind),
+instead provide functions named the same as the [kinds of AST nodes](reference.md#graphqllanguageastnodekind),
 or enter/leave visitors at a named key, leading to four permutations of
 visitor API:
 
@@ -854,7 +854,7 @@ static function promiseToExecute(
 )
 ```
 # GraphQL\Executor\ExecutionResult
-Returned after [query execution](executing-queries/).
+Returned after [query execution](executing-queries.md).
 Represents both - result of successful execution and of a failed one
 (with errors collected in `errors` prop)
 
@@ -950,7 +950,7 @@ function setErrorsHandler(callable $handler)
 function toArray($debug = false)
 ```
 # GraphQL\Executor\Promise\PromiseAdapter
-Provides a means for integration of async PHP platforms ([related docs](data-fetching/#async-php))
+Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php))
 
 **Interface Methods:** 
 ```php
@@ -1044,7 +1044,7 @@ function all(array $promisesOrValues)
 ```
 # GraphQL\Type\Definition\ResolveInfo
 Structure containing information useful for field resolution process.
-Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching/).
+Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
 
 **Class Props:** 
 ```php
@@ -1178,9 +1178,9 @@ A list of specific validation rules may be provided. If not provided, the
 default list of rules defined by the GraphQL specification will be used.
 
 Each validation rule is an instance of GraphQL\Validator\Rules\AbstractValidationRule
-which returns a visitor (see the [GraphQL\Language\Visitor API](reference/#graphqllanguagevisitor)).
+which returns a visitor (see the [GraphQL\Language\Visitor API](reference.md#graphqllanguagevisitor)).
 
-Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference/#graphqlerrorerror),
+Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference.md#graphqlerrorerror),
 or array of such instances when invalid.
 
 Optionally a custom TypeInfo instance may be provided. If not provided, one
@@ -1248,7 +1248,7 @@ GraphQL document and/or execution result that correspond to the Error.
 When the error was caused by an exception thrown in resolver, original exception
 is available via `getPrevious()`.
 
-Also read related docs on [error handling](error-handling/)
+Also read related docs on [error handling](error-handling.md)
 
 Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
 are available in addition to those listed below.
@@ -1347,7 +1347,7 @@ static function suppress($suppress = false)
 static function enable($enable = false)
 ```
 # GraphQL\Error\ClientAware
-This interface is used for [default error formatting](error-handling/).
+This interface is used for [default error formatting](error-handling.md).
 
 Only errors implementing this interface (and returning true from `isClientSafe()`)
 will be formatted with original error message.
@@ -1377,7 +1377,7 @@ function isClientSafe()
 function getCategory()
 ```
 # GraphQL\Error\Debug
-Collection of flags for [error debugging](error-handling/#debugging-tools).
+Collection of flags for [error debugging](error-handling.md#debugging-tools).
 
 **Class Constants:** 
 ```php
@@ -1387,7 +1387,7 @@ const RETHROW_INTERNAL_EXCEPTIONS = 4;
 ```
 
 # GraphQL\Error\FormattedError
-This class is used for [default error formatting](error-handling/).
+This class is used for [default error formatting](error-handling.md).
 It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
 and provides tools for error debugging.
 
@@ -1443,7 +1443,7 @@ Usage Example:
     ]);
     $server->handleRequest();
 
-Or using [ServerConfig](reference/#graphqlserverserverconfig) instance:
+Or using [ServerConfig](reference.md#graphqlserverserverconfig) instance:
 
     $config = GraphQL\Server\ServerConfig::create()
         ->setSchema($mySchema)
@@ -1452,9 +1452,23 @@ Or using [ServerConfig](reference/#graphqlserverserverconfig) instance:
     $server = new GraphQL\Server\StandardServer($config);
     $server->handleRequest();
 
-See [dedicated section in docs](executing-queries/#using-server) for details.
+See [dedicated section in docs](executing-queries.md#using-server) for details.
 
 **Class Methods:** 
+```php
+/**
+ * Converts and exception to error and sends spec-compliant HTTP 500 error.
+ * Useful when an exception is thrown somewhere outside of server execution context
+ * (e.g. during schema instantiation).
+ *
+ * @api
+ * @param \Throwable $error
+ * @param bool $debug
+ * @param bool $exitWhenDone
+ */
+static function send500Error($error, $debug = false, $exitWhenDone = false)
+```
+
 ```php
 /**
  * Creates new instance of a standard GraphQL HTTP server
@@ -1547,7 +1561,7 @@ function getHelper()
 # GraphQL\Server\ServerConfig
 Server configuration class.
 Could be passed directly to server constructor. List of options accepted by **create** method is
-[described in docs](executing-queries/#server-configuration-options).
+[described in docs](executing-queries.md#server-configuration-options).
 
 Usage example:
 

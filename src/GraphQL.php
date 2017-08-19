@@ -18,7 +18,7 @@ use GraphQL\Validator\Rules\QueryComplexity;
 
 /**
  * This is the primary facade for fulfilling GraphQL operations.
- * See [related documentation](executing-queries/).
+ * See [related documentation](executing-queries.md).
  */
 class GraphQL
 {

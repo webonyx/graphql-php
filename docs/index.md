@@ -19,29 +19,32 @@ All of them equally apply to this PHP implementation.
 
 # About graphql-php
 
-**graphql-php** is a feature-complete implementation of GraphQL specification in PHP (5.4+, 7.0+). 
+**graphql-php** is a feature-complete implementation of GraphQL specification in PHP (5.5+, 7.0+). 
 It was originally inspired by [reference JavaScript implementation](https://github.com/graphql/graphql-js) 
 published by Facebook.
 
 This library is a thin wrapper around your existing data layer and business logic. 
 It doesn't dictate how these layers are implemented or which storage engines 
-are used. Instead it provides tools for creating rich API for your existing app. 
+are used. Instead it provides tools for creating rich API for your existing app.
+ 
+Library features include:
 
-These tools include:
+ - Primitives to express your app as a [Type System](type-system/index.md)
+ - Validation and introspection of this Type System (for compatibility with tools like [GraphiQL](complementary-tools.md#tools))
+ - Parsing, validating and [executing GraphQL queries](executing-queries.md) against this Type System
+ - Rich [error reporting](error-handling.md), including query validation and execution errors
+ - Optional tools for [parsing GraphQL Type language](type-system/type-language.md)
+ - Tools for [batching requests](data-fetching.md/#solving-n1-problem) to backend storage
+ - [Async PHP platforms support](data-fetching.md/#async-php) via promises
+ - [Standard HTTP server](executing-queries.md/#using-server)
 
- - Primitives to express your app as a Type System
- - Tools for validation and introspection of this Type System (for compatibility with tools like [GraphiQL](complementary-tools/#tools))
- - Tools for parsing, validating and executing GraphQL queries against this Type System
- - Rich error reporting, including query validation and execution errors
- - Optional tools for parsing GraphQL Schema Definition language
-
-Also several [complementary tools](complementary-tools/) are available which provide integrations with 
+Also several [complementary tools](complementary-tools.md) are available which provide integrations with 
 existing PHP frameworks, add support for Relay, etc.
 
 ## Current Status
 First version of this library (v0.1) was released on August 10th 2015.
 
-Current version (v0.9) supports all features described by GraphQL specification 
+Current version (v0.10) supports all features described by GraphQL specification 
 (including April 2016 add-ons) as well as some experimental features like 
 Schema Language parser.
 
@@ -49,6 +52,3 @@ Ready for real-world usage.
 
 ## Github
 Project source code is [hosted on GitHub](https://github.com/webonyx/graphql-php).
-
-## Framework Integrations
-Read the section about [Complementary tools](complementary-tools/).

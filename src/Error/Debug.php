@@ -2,7 +2,7 @@
 namespace GraphQL\Error;
 
 /**
- * Collection of flags for [error debugging](error-handling/#debugging-tools).
+ * Collection of flags for [error debugging](error-handling.md#debugging-tools).
  */
 class Debug
 {

@@ -58,9 +58,9 @@ use GraphQL\Validator\Rules\VariablesInAllowedPosition;
  * default list of rules defined by the GraphQL specification will be used.
  *
  * Each validation rule is an instance of GraphQL\Validator\Rules\AbstractValidationRule
- * which returns a visitor (see the [GraphQL\Language\Visitor API](reference/#graphqllanguagevisitor)).
+ * which returns a visitor (see the [GraphQL\Language\Visitor API](reference.md#graphqllanguagevisitor)).
  *
- * Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference/#graphqlerrorerror),
+ * Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference.md#graphqlerrorerror),
  * or array of such instances when invalid.
  *
  * Optionally a custom TypeInfo instance may be provided. If not provided, one

@@ -34,7 +34,7 @@ $schema = BuildSchema::build($contents);
 By default such schema is created without any resolvers. As a result it doesn't support **Interfaces** and **Unions**
 because it is impossible to resolve actual implementations during execution.
 
-Also we have to rely on [default field resolver](/data-fetching/#default-field-resolver) and **root value** in 
+Also we have to rely on [default field resolver](../data-fetching.md#default-field-resolver) and **root value** in 
 order to execute query against this schema.
 
 # Defining resolvers
@@ -42,8 +42,8 @@ In order to enable **Interfaces**, **Unions** and custom field resolvers you can
 **type config decorator** to schema builder. 
 
 It accepts default type config produced by builder and is expected to add missing options like 
-[`resolveType`](/type-system/interfaces/#configuration-options) for interface types or 
-[`resolveField`](/type-system/object-types/#configuration-options) for object types.
+[`resolveType`](interfaces.md#configuration-options) for interface types or 
+[`resolveField`](object-types.md#configuration-options) for object types.
 
 ```php
 <?php
@@ -60,7 +60,7 @@ $schema = BuildSchema::build($contents, $typeConfigDecorator);
 ```
 
 # Performance considerations
-Method `BuildSchema::build()` produces a [lazy schema](/type-system/schema/#lazy-loading-of-types)
+Method `BuildSchema::build()` produces a [lazy schema](schema.md#lazy-loading-of-types)
 automatically, so it works efficiently even with very large schemas.
 
 But parsing type definition file on each request is suboptimal, so it is recommended to cache 

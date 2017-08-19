@@ -7,7 +7,7 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\Utils;
 
 /**
- * This class is used for [default error formatting](error-handling/).
+ * This class is used for [default error formatting](error-handling.md).
  * It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
  * and provides tools for error debugging.
  */

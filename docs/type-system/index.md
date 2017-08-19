@@ -1,11 +1,11 @@
 # Type System
-To start using GraphQL you are expected to implement a type hierarchy and expose it as [Schema](type-system/schema/). 
+To start using GraphQL you are expected to implement a type hierarchy and expose it as [Schema](schema.md). 
 
 In **graphql-php** `type` is an instance of internal class from 
 `GraphQL\Type\Definition` namespace: `ScalarType`, `ObjectType`, `InterfaceType`, 
 `UnionType`, `InputObjectType` (or one of it's subclasses).
 
-But most of the types in your schema will be [object types](/type-system/object-types/).
+But most of the types in your schema will be [object types](object-types.md).
 
 # Type Definition Styles
 Several styles of type definitions are supported depending on your preferences.
@@ -50,7 +50,7 @@ class MyType extends ObjectType
 }
 ```
 
-Using [GraphQL Type language](graphql.org/learn/schema/#type-language):
+Using [GraphQL Type language](http://graphql.org/learn/schema/#type-language):
 
 ```graphql
 schema {
@@ -68,7 +68,7 @@ input HelloInput {
 }
 ```
 
-[Read more](/type-system/type-language/) about it in a dedicated docs section.
+[Read more](type-language.md) about it in a dedicated docs section.
 
 # Type Registry
 Every type must be presented in Schema by single instance (**graphql-php** 

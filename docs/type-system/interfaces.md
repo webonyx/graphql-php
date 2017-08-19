@@ -32,7 +32,7 @@ $character = new InterfaceType([
 ]);
 ```
 This example uses **inline** style for Interface definition, but you can also use  
-[inheritance](/type-system/#type-definition-styles).
+[inheritance](index.md#type-definition-styles).
 
 # Configuration options
 Constructor of InterfaceType accepts an array. Below is a full list of allowed options:
@@ -40,7 +40,7 @@ Constructor of InterfaceType accepts an array. Below is a full list of allowed o
 Option | Type | Notes
 ------ | ---- | -----
 name | `string` | **Required.** Unique name of this interface type within Schema
-fields | `array` | **Required.** List of fields required to be defined by interface implementors. Same as [Fields for Object Type](#)
+fields | `array` | **Required.** List of fields required to be defined by interface implementors. Same as [Fields for Object Type](object-types.md#field-configuration-options)
 description | `string` | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 resolveType | `callback` returning instance of `ObjectType` | **function($value, $context, GraphQL\Type\Definition\ResolveInfo $info)** Any `callable` that receives `$value` from resolver of the parent field and returns concrete interface implementor for that `$value`.
 
@@ -113,7 +113,7 @@ be resolved:
 **resolve** option to field definition in Interface itself.
 
 2. If field resolution varies from implementor to implementor - you can specify **resolveField** 
-option in [Object Type config](/type-system/object-types/#configuration-options) and handle field 
+option in [Object Type config](object-types.md#configuration-options) and handle field 
 resolutions there 
 (Note: **resolve** option in field definition has precedence over **resolveField** option in object type definition)
 

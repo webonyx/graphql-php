@@ -57,7 +57,7 @@ $blogStory = new ObjectType([
 ]);
 ```
 This example uses **inline** style for Object Type definitions, but you can also use  
-[inheritance](/type-system/#type-definition-styles).
+[inheritance or type language](index.md#type-definition-styles).
 
 
 # Configuration options
@@ -66,21 +66,22 @@ Object type constructor expects configuration array. Below is a full list of ava
 Option       | Type     | Notes
 ------------ | -------- | -----
 name         | `string` | **Required.** Unique name of this object type within Schema
-fields       | `array` or `callback` returning `array` | **Required**. Array describing object fields. See [Fields](#field-definitions) section below for expected structure of each array entry. See also section on [Circular types](#) for explanation of when to use callback for this option.
+fields       | `array` or `callable` returning `array` | **Required**. Array describing object fields. See [Fields](#field-definitions) section below for expected structure of each array entry. See also section on [Circular types](#recurring-and-circular-types) for explanation of when to use callable for this option.
 description  | `string` | Plain-text description of this type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
-interfaces   | `array` or `callback` returning `array` | List of interfaces implemented by this type. See [Interface Types](/type-system/interface-types) for details. See also section on [Circular types](#) for explanation of when to use callback for this option.
-isTypeOf     | `callback` returning `boolean` | **function($value, $context, GraphQL\Type\Definition\ResolveInfo $info)** Expected to return `true` if `$value` qualifies for this type (see section about [Abstract Type Resolution](#) for explanation).
-resolveField | `callback` returning `mixed` | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** Given the `$value` of this type it is expected to return value for field defined in `$info->fieldName`. Good place to define type-specific strategy for field resolution. See section on [Data Fetching](#) for details.
+interfaces   | `array` or `callable` returning `array` | List of interfaces implemented by this type. See [Interface Types](interfaces.md) for details. See also section on [Circular types](#recurring-and-circular-types) for explanation of when to use callable for this option.
+isTypeOf     | `callable` returning `boolean` | **function($value, $context, GraphQL\Type\Definition\ResolveInfo $info)** Expected to return `true` if `$value` qualifies for this type (see section about [Abstract Type Resolution](interfaces.md#interface-role-in-data-fetching) for explanation).
+resolveField | `callable` returning `mixed` | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** Given the `$value` of this type it is expected to return value for field defined in `$info->fieldName`. Good place to define type-specific strategy for field resolution. See section on [Data Fetching](../data-fetching.md) for details.
 
 # Field configuration options
 Below is a full list of available field configuration options:
 
 Option | Type | Notes
 ------ | ---- | -----
-name | `string` | **Required.** Name of the field. When not set - inferred from **fields** array key (read about [shorthand field definition](#) below)
-type | `Type` | **Required.** Instance of internal or custom type. Note: type must be represented by single instance within schema (see also [Type Registry](#))
+name | `string` | **Required.** Name of the field. When not set - inferred from **fields** array key (read about [shorthand field definition](#shorthand-field-definitions) below)
+type | `Type` | **Required.** Instance of internal or custom type. Note: type must be represented by single instance within schema (see also [Type Registry](index.md#type-registry))
 args | `array` | Array of possible type arguments. Each entry is expected to be an array with keys: **name**, **type**, **description**, **defaultValue**. See [Field Arguments](#field-arguments) section below.
-resolve | `callback` | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** Given the `$value` of this type it is expected to return value for current field. See section on [Data Fetching](#) for details
+resolve | `callable` | **function($value, $args, $context, GraphQL\Type\Definition\ResolveInfo $info)** Given the `$value` of this type it is expected to return value for current field. See section on [Data Fetching](../data-fetching.md) for details
+complexity | `callable` | **function($childrenComplexity, $args)** Used to restrict query complexity. Feature is disabled by default, read section about [Security](../security.md#query-complexity-analysis) to use it.
 description | `string` | Plain-text description of this field for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 deprecationReason | `string` | Text describing why this field is deprecated. When not empty - field will not be returned by introspection queries (unless forced)
 
@@ -91,7 +92,7 @@ Each argument is an array with following options:
 Option | Type | Notes
 ------ | ---- | -----
 name | `string` | **Required.** Name of the argument. When not set - inferred from **args** array key
-type | `Type` | **Required.** Instance of one of [Input Types](input-types/) (`scalar`, `enum`, `InputObjectType` + any combination of those with `nonNull` and `listOf` modifiers)
+type | `Type` | **Required.** Instance of one of [Input Types](input-types.md) (`scalar`, `enum`, `InputObjectType` + any combination of those with `nonNull` and `listOf` modifiers)
 description | `string` | Plain-text description of this argument for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 defaultValue | `scalar` | Default value for this argument
 
@@ -145,7 +146,7 @@ $userType = new ObjectType([
 ]);
 ```
 
-Same example for [inheritance style of type definitions](#) using [TypeRegistry](#):
+Same example for [inheritance style of type definitions](index.md#type-definition-styles) using [TypeRegistry](index.md#type-registry):
 ```php
 <?php
 namespace MyApp;
@@ -192,10 +193,10 @@ class MyTypes
 
 # Field Resolution
 Field resolution is the primary mechanism in **graphql-php** for returning actual data for your fields.
-It is implemented using `resolveField` callback in type definition or `resolve`
-callback in field definition (which has precedence).
+It is implemented using `resolveField` callable in type definition or `resolve`
+callable in field definition (which has precedence).
 
-Read section on [Data Fetching]() for complete description of this process.
+Read section on [Data Fetching](../data-fetching.md) for complete description of this process.
 
 # Custom Metadata
 All types in **graphql-php** accept configuration array. In some cases you may be interested in 

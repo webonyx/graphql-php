@@ -44,7 +44,7 @@ use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Error\SyntaxError;
 
 /**
- * Parses string containing GraphQL query or [type definition](type-system/type-language/) to Abstract Syntax Tree.
+ * Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
  */
 class Parser
 {

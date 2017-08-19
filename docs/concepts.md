@@ -3,7 +3,8 @@ GraphQL is data-centric. On the very top level it is built around three major co
 **Schema**, **Query** and **Mutation**.
  
 You are expected to express your application as **Schema** (aka Type System) and expose it
-with single [HTTP endpoint](http-endpoint/). Application clients (e.g. web or mobile clients) send **Queries** 
+with single HTTP endpoint (e.g. using our [standard server](executing-queries.md#using-server)). 
+Application clients (e.g. web or mobile clients) send **Queries** 
 to this endpoint to request structured data and **Mutations** to perform changes (usually with HTTP POST method).
  
 ## Queries
@@ -34,9 +35,9 @@ It was designed to mirror the structure of expected response:
 }
 ```
 **graphql-php** runtime parses Queries, makes sure that they are valid for given Type System 
-and executes using [data fetching tools](type-system/object-types/#data-fetching) provided by you 
+and executes using [data fetching tools](data-fetching.md) provided by you 
 as a part of integration. Queries are supposed to be idempotent.
- 
+
 ## Mutations
 Mutations use advanced features of the very same query language (like arguments and variables)  
 and have only semantic difference from Queries:
@@ -135,4 +136,4 @@ $blogPostType = new ObjectType([
 # Further Reading
 To get deeper understanding of GraphQL concepts - [read the docs on official GraphQL website](http://graphql.org/learn/)
 
-To get started with **graphql-php** - continue to next section ["Getting Started"](getting-started/)
+To get started with **graphql-php** - continue to next section ["Getting Started"](getting-started.md)

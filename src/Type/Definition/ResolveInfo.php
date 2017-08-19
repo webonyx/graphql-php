@@ -13,7 +13,7 @@ use GraphQL\Utils\Utils;
 
 /**
  * Structure containing information useful for field resolution process.
- * Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching/).
+ * Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
  */
 class ResolveInfo
 {

@@ -14,7 +14,7 @@ use GraphQL\Utils\Utils;
  * When the error was caused by an exception thrown in resolver, original exception
  * is available via `getPrevious()`.
  *
- * Also read related docs on [error handling](error-handling/)
+ * Also read related docs on [error handling](error-handling.md)
  *
  * Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
  * are available in addition to those listed below.

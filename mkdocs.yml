@@ -2,6 +2,7 @@ site_name: graphql-php
 pages:
 - About: index.md
 - Getting Started: getting-started.md
+- Complementary Tools: complementary-tools.md
 - Type Definitions:
   - Introduction: type-system/index.md
   - Object Types: type-system/object-types.md
@@ -22,5 +23,4 @@ pages:
 # - Performance tips: performance.md
 - How it works: how-it-works.md
 - Class Reference: reference.md
-- Complementary Tools: complementary-tools.md
 theme: readthedocs

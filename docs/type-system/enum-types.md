@@ -3,7 +3,7 @@ Enumeration types are a special kind of scalar that is restricted to a particula
 of allowed values. 
 
 In **graphql-php** enum type is an instance of `GraphQL\Type\Definition\EnumType` 
-(or one of it subclasses) which accepts configuration array in constructor:
+which accepts configuration array in constructor:
 
 ```php
 use GraphQL\Type\Definition\EnumType;
@@ -29,14 +29,14 @@ $episodeEnum = new EnumType([
 ```
 
 This example uses **inline** style for Enum Type definition, but you can also use
-[inheritance](/type-system/#type-definition-styles).
+[inheritance or type language](index.md#type-definition-styles).
 
 # Configuration options
 Enum Type constructor accepts array with following options:
 
 Option | Type | Notes
 ------ | ---- | -----
-name | `string` | **Required.** Name of the type. When not set - inferred from array key (read about [shorthand field definition](#) below)
+name | `string` | **Required.** Name of the type. When not set - inferred from array key (read about [shorthand field definition](#shorthand-definitions) below)
 description | `string` | Plain-text description of the type for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 values | `array` | List of enumerated items, see below for expected structure of each entry
 
@@ -44,7 +44,7 @@ Each entry of **values** array in turn accepts following options:
 
 Option | Type | Notes
 ------ | ---- | -----
-name | `string` | **Required.** Name of the item. When not set - inferred from array key (read about [shorthand field definition](#) below)
+name | `string` | **Required.** Name of the item. When not set - inferred from array key (read about [shorthand field definition](#shorthand-definitions) below)
 value | `mixed` | Internal representation of enum item in your application (could be any value, including complex objects or callbacks)
 description | `string` | Plain-text description of enum value for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 deprecationReason | `string` | Text describing why this enum value is deprecated. When not empty - item will not be returned by introspection queries (unless forced)
