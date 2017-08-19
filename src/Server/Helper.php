@@ -401,8 +401,17 @@ class Helper
     private function doSendResponse($result, $exitWhenDone)
     {
         $httpStatus = $this->resolveHttpStatus($result);
-        $body = json_encode($result);
+        $this->emitResponse($result, $httpStatus, $exitWhenDone);
+    }
 
+    /**
+     * @param array|\JsonSerializable $jsonSerializable
+     * @param int $httpStatus
+     * @param bool $exitWhenDone
+     */
+    public function emitResponse($jsonSerializable, $httpStatus, $exitWhenDone)
+    {
+        $body = json_encode($jsonSerializable);
         header('Content-Type: application/json', true, $httpStatus);
         echo $body;
 

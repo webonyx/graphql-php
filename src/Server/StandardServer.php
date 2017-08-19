@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Server;
 
+use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
@@ -42,6 +43,27 @@ class StandardServer
      * @var Helper
      */
     private $helper;
+
+    /**
+     * Converts and exception to error and sends spec-compliant HTTP 500 error.
+     * Useful when an exception is thrown somewhere outside of server execution context
+     * (e.g. during schema instantiation).
+     *
+     * @api
+     * @param \Throwable $error
+     * @param bool $debug
+     * @param bool $exitWhenDone
+     */
+    public static function send500Error($error, $debug = false, $exitWhenDone = false)
+    {
+        $response = [
+            'errors' => [
+                FormattedError::createFromException($error, $debug)
+            ]
+        ];
+        $helper = new Helper();
+        $helper->emitResponse($response, 500, $exitWhenDone);
+    }
 
     /**
      * Creates new instance of a standard GraphQL HTTP server
