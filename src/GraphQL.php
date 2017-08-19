@@ -13,26 +13,34 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\DocumentValidator;
+use GraphQL\Validator\Rules\AbstractValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
 
+/**
+ * This is the primary facade for fulfilling GraphQL operations.
+ * See [related documentation](executing-queries/).
+ */
 class GraphQL
 {
     /**
-     * This is the primary entry point function for fulfilling GraphQL operations
-     * by parsing, validating, and executing a GraphQL document along side a
-     * GraphQL schema.
+     * Executes graphql query.
      *
      * More sophisticated GraphQL servers, such as those which persist queries,
      * may wish to separate the validation and execution phases to a static time
      * tooling step, and a server runtime step.
      *
+     * Available options:
+     *
      * schema:
      *    The GraphQL type system to use when validating and executing a query.
-     * requestString:
+     * source:
      *    A GraphQL language formatted string representing the requested operation.
      * rootValue:
      *    The value provided as the first argument to resolver functions on the top
      *    level type (e.g. the query object type).
+     * context:
+     *    The value provided as the third argument to all resolvers.
+     *    Use this to pass current session, user data, etc
      * variableValues:
      *    A mapping of variable name to runtime value to use for all variables
      *    defined in the requestString.
@@ -49,6 +57,7 @@ class GraphQL
      *    Empty array would allow to skip query validation (may be convenient for persisted
      *    queries which are validated before persisting and assumed valid during execution)
      *
+     * @api
      * @param \GraphQL\Type\Schema $schema
      * @param string|DocumentNode $source
      * @param mixed $rootValue
@@ -80,8 +89,10 @@ class GraphQL
     }
 
     /**
-     * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise
+     * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
+     * Useful for Async PHP platforms.
      *
+     * @api
      * @param PromiseAdapter $promiseAdapter
      * @param \GraphQL\Type\Schema $schema
      * @param string|DocumentNode $source
@@ -230,6 +241,7 @@ class GraphQL
     /**
      * Returns directives defined in GraphQL spec
      *
+     * @api
      * @return Directive[]
      */
     public static function getStandardDirectives()
@@ -240,6 +252,7 @@ class GraphQL
     /**
      * Returns types defined in GraphQL spec
      *
+     * @api
      * @return Type[]
      */
     public static function getStandardTypes()
@@ -248,7 +261,10 @@ class GraphQL
     }
 
     /**
-     * @return array
+     * Returns standard validation rules implementing GraphQL spec
+     *
+     * @api
+     * @return AbstractValidationRule[]
      */
     public static function getStandardValidationRules()
     {

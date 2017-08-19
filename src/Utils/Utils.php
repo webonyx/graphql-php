@@ -35,7 +35,7 @@ class Utils
                 $cls = get_class($obj);
                 Warning::warn(
                     "Trying to set non-existing property '$key' on class '$cls'",
-                    Warning::ASSIGN_WARNING
+                    Warning::WARNING_ASSIGN
                 );
             }
             $obj->{$key} = $value;
@@ -437,7 +437,7 @@ class Utils
                 'Name "'.$name.'" must not begin with "__", which is reserved by ' .
                 'GraphQL introspection. In a future release of graphql this will ' .
                 'become an exception',
-                Warning::NAME_WARNING
+                Warning::WARNING_NAME
             );
         }
 

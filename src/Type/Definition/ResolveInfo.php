@@ -12,12 +12,15 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 /**
- * Class ResolveInfo
- * @package GraphQL\Type\Definition
+ * Structure containing information useful for field resolution process.
+ * Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching/).
  */
 class ResolveInfo
 {
     /**
+     * The name of the field being resolved
+     *
+     * @api
      * @var string
      */
     public $fieldName;
@@ -29,47 +32,74 @@ class ResolveInfo
     public $fieldASTs;
 
     /**
+     * AST of all nodes referencing this field in the query.
+     *
+     * @api
      * @var FieldNode[]
      */
     public $fieldNodes;
 
     /**
+     * Expected return type of the field being resolved
+     *
+     * @api
      * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
      */
     public $returnType;
 
     /**
-     * @var ObjectType|InterfaceType|UnionType
+     * Parent type of the field being resolved
+     *
+     * @api
+     * @var ObjectType
      */
     public $parentType;
 
     /**
+     * Path to this field from the very root value
+     *
+     * @api
      * @var array
      */
     public $path;
 
     /**
+     * Instance of a schema used for execution
+     *
+     * @api
      * @var Schema
      */
     public $schema;
 
     /**
+     * AST of all fragments defined in query
+     *
+     * @api
      * @var FragmentDefinitionNode[]
      */
     public $fragments;
 
     /**
+     * Root value passed to query execution
+     *
+     * @api
      * @var mixed
      */
     public $rootValue;
 
     /**
+     * AST of operation definition node (query, mutation)
+     *
+     * @api
      * @var OperationDefinitionNode
      */
     public $operation;
 
     /**
-     * @var array<variableName, mixed>
+     * Array of variables passed to query execution
+     *
+     * @api
+     * @var array
      */
     public $variableValues;
 
@@ -107,6 +137,10 @@ class ResolveInfo
      *     ]
      * ]
      *
+     * Warning: this method it is a naive implementation which does not take into account
+     * conditional typed fragments. So use it with care for fields of interface and union types.
+     *
+     * @api
      * @param int $depth How many levels to include in output
      * @return array
      */

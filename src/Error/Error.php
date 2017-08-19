@@ -6,13 +6,18 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Utils\Utils;
 
 /**
- * Class Error
- * A GraphQLError describes an Error found during the parse, validate, or
+ * Describes an Error found during the parse, validate, or
  * execute phases of performing a GraphQL operation. In addition to a message
  * and stack trace, it also includes information about the locations in a
  * GraphQL document and/or execution result that correspond to the Error.
  *
- * @package GraphQL
+ * When the error was caused by an exception thrown in resolver, original exception
+ * is available via `getPrevious()`.
+ *
+ * Also read related docs on [error handling](error-handling/)
+ *
+ * Class extends standard PHP `\Exception`, so all standard methods of base `\Exception` class
+ * are available in addition to those listed below.
  */
 class Error extends \Exception implements \JsonSerializable, ClientAware
 {
@@ -27,13 +32,6 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     public $message;
 
     /**
-     * An array of [ line => x, column => y] locations within the source GraphQL document
-     * which correspond to this error.
-     *
-     * Errors during validation often contain multiple locations, for example to
-     * point out two things with the same name. Errors during execution include a
-     * single location, the field which produced the error.
-     *
      * @var SourceLocation[]
      */
     private $locations;
@@ -219,6 +217,17 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     }
 
     /**
+     * An array of locations within the source GraphQL document which correspond to this error.
+     *
+     * Each entry has information about `line` and `column` within source GraphQL document:
+     * $location->line;
+     * $location->column;
+     *
+     * Errors during validation often contain multiple locations, for example to
+     * point out to field mentioned in multiple fragments. Errors during execution include a
+     * single location, the field which produced the error.
+     *
+     * @api
      * @return SourceLocation[]
      */
     public function getLocations()
@@ -240,9 +249,10 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     }
 
     /**
-     * Returns an array describing the JSON-path into the execution response which
-     * corresponds to this error. Only included for errors during execution.
+     * Returns an array describing the path from the root value to the field which produced this error.
+     * Only included for execution errors.
      *
+     * @api
      * @return array|null
      */
     public function getPath()

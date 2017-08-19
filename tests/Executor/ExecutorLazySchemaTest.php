@@ -122,11 +122,11 @@ class ExecutorLazySchemaTest extends \PHPUnit_Framework_TestCase
             ],
         ]);
 
-        Warning::suppress(Warning::FULL_SCHEMA_SCAN_WARNING);
+        Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
         $this->assertEquals($expected, $result);
 
-        Warning::enable(Warning::FULL_SCHEMA_SCAN_WARNING);
+        Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
         $this->assertEquals(1, count($result->errors));
         $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $result->errors[0]->getPrevious());

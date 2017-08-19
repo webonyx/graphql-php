@@ -16,29 +16,24 @@ use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 
 /**
- * Schema Definition
+ * Schema Definition (see [related docs](type-system/schema/))
  *
  * A Schema is created by supplying the root types of each type of operation:
  * query, mutation (optional) and subscription (optional). A schema definition is
- * then supplied to the validator and executor.
- *
- * Example:
+ * then supplied to the validator and executor. Usage Example:
  *
  *     $schema = new GraphQL\Type\Schema([
  *       'query' => $MyAppQueryRootType,
  *       'mutation' => $MyAppMutationRootType,
  *     ]);
  *
- * Note: If an array of `directives` are provided to GraphQL\Schema, that will be
- * the exact list of directives represented and allowed. If `directives` is not
- * provided then a default set of the specified directives (e.g. @include and
- * @skip) will be used. If you wish to provide *additional* directives to these
- * specified directives, you must explicitly declare them. Example:
+ * Or using Schema Config instance:
  *
- *     $mySchema = new GraphQL\Schema([
- *       ...
- *       'directives' => array_merge(GraphQL::getInternalDirectives(), [ $myCustomDirective ]),
- *     ])
+ *     $config = GraphQL\Type\SchemaConfig::create()
+ *         ->setQuery($MyAppQueryRootType)
+ *         ->setMutation($MyAppMutationRootType);
+ *
+ *     $schema = new GraphQL\Type\Schema($config);
  *
  * @package GraphQL
  */
@@ -71,9 +66,10 @@ class Schema
     /**
      * Schema constructor.
      *
+     * @api
      * @param array|SchemaConfig $config
      */
-    public function __construct($config = null)
+    public function __construct($config)
     {
         if (func_num_args() > 1 || $config instanceof Type) {
             trigger_error(
@@ -131,6 +127,7 @@ class Schema
     /**
      * Returns schema query type
      *
+     * @api
      * @return ObjectType
      */
     public function getQueryType()
@@ -141,6 +138,7 @@ class Schema
     /**
      * Returns schema mutation type
      *
+     * @api
      * @return ObjectType|null
      */
     public function getMutationType()
@@ -151,6 +149,7 @@ class Schema
     /**
      * Returns schema subscription
      *
+     * @api
      * @return ObjectType|null
      */
     public function getSubscriptionType()
@@ -159,6 +158,7 @@ class Schema
     }
 
     /**
+     * @api
      * @return SchemaConfig
      */
     public function getConfig()
@@ -172,6 +172,7 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
+     * @api
      * @return Type[]
      */
     public function getTypeMap()
@@ -186,6 +187,7 @@ class Schema
     /**
      * Returns type by it's name
      *
+     * @api
      * @param string $name
      * @return Type
      */
@@ -248,6 +250,7 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
+     * @api
      * @param AbstractType $abstractType
      * @return ObjectType[]
      */
@@ -311,6 +314,7 @@ class Schema
      * Returns true if object type is concrete type of given abstract type
      * (implementation for interfaces and members of union type for unions)
      *
+     * @api
      * @param AbstractType $abstractType
      * @param ObjectType $possibleType
      * @return bool
@@ -328,16 +332,18 @@ class Schema
     /**
      * Returns a list of directives supported by this schema
      *
+     * @api
      * @return Directive[]
      */
     public function getDirectives()
     {
-        return $this->config->directives ?: GraphQL::getInternalDirectives();
+        return $this->config->directives ?: GraphQL::getStandardDirectives();
     }
 
     /**
      * Returns instance of directive by name
      *
+     * @api
      * @param $name
      * @return Directive
      */
@@ -367,6 +373,7 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
+     * @api
      * @throws InvariantViolation
      */
     public function assertValid()

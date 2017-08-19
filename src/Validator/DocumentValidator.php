@@ -48,6 +48,24 @@ use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
+/**
+ * Implements the "Validation" section of the spec.
+ *
+ * Validation runs synchronously, returning an array of encountered errors, or
+ * an empty array if no errors were encountered and the document is valid.
+ *
+ * A list of specific validation rules may be provided. If not provided, the
+ * default list of rules defined by the GraphQL specification will be used.
+ *
+ * Each validation rule is an instance of GraphQL\Validator\Rules\AbstractValidationRule
+ * which returns a visitor (see the [GraphQL\Language\Visitor API](reference/#graphqllanguagevisitor)).
+ *
+ * Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference/#graphqlerrorerror),
+ * or array of such instances when invalid.
+ *
+ * Optionally a custom TypeInfo instance may be provided. If not provided, one
+ * will be created from the provided schema.
+ */
 class DocumentValidator
 {
     private static $rules = [];
@@ -59,9 +77,36 @@ class DocumentValidator
     private static $initRules = false;
 
     /**
-     * Returns all validation rules
+     * Primary method for query validation. See class description for details.
      *
-     * @return callable[]
+     * @api
+     * @param Schema $schema
+     * @param DocumentNode $ast
+     * @param AbstractValidationRule[]|null $rules
+     * @param TypeInfo|null $typeInfo
+     * @return Error[]
+     */
+    public static function validate(
+        Schema $schema,
+        DocumentNode $ast,
+        array $rules = null,
+        TypeInfo $typeInfo = null
+    )
+    {
+        if (null === $rules) {
+            $rules = static::allRules();
+        }
+        $typeInfo = $typeInfo ?: new TypeInfo($schema);
+        $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules);
+        return $errors;
+    }
+
+
+    /**
+     * Returns all global validation rules.
+     *
+     * @api
+     * @return AbstractValidationRule[]
      */
     public static function allRules()
     {
@@ -128,8 +173,12 @@ class DocumentValidator
     }
 
     /**
-     * Returns validation rule
+     * Returns global validation rule by name. Standard rules are named by class name, so
+     * example usage for such rules:
      *
+     * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
+     *
+     * @api
      * @param string $name
      * @return AbstractValidationRule
      */
@@ -146,50 +195,14 @@ class DocumentValidator
     }
 
     /**
-     * Add rule to list of default validation rules
+     * Add rule to list of global validation rules
      *
+     * @api
      * @param AbstractValidationRule $rule
      */
     public static function addRule(AbstractValidationRule $rule)
     {
         self::$rules[$rule->getName()] = $rule;
-    }
-
-    /**
-     * Implements the "Validation" section of the spec.
-     *
-     * Validation runs synchronously, returning an array of encountered errors, or
-     * an empty array if no errors were encountered and the document is valid.
-     *
-     * A list of specific validation rules may be provided. If not provided, the
-     * default list of rules defined by the GraphQL specification will be used.
-     *
-     * Each validation rules is a function which returns a visitor
-     * (see the GraphQL\Language\Visitor API). Visitor methods are expected to return
-     * GraphQL\Error\Error, or arrays of GraphQL\Error\Error when invalid.
-     *
-     * Optionally a custom TypeInfo instance may be provided. If not provided, one
-     * will be created from the provided schema.
-     *
-     * @param Schema $schema
-     * @param DocumentNode $ast
-     * @param array|null $rules
-     * @param TypeInfo|null $typeInfo
-     * @return Error[]
-     */
-    public static function validate(
-        Schema $schema,
-        DocumentNode $ast,
-        array $rules = null,
-        TypeInfo $typeInfo = null
-    )
-    {
-        if (null === $rules) {
-            $rules = static::allRules();
-        }
-        $typeInfo = $typeInfo ?: new TypeInfo($schema);
-        $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules);
-        return $errors;
     }
 
     public static function isError($value)

@@ -2,29 +2,37 @@
 namespace GraphQL\Server;
 
 /**
- * Class QueryParams
- * Represents all available parsed query parameters
- *
- * @package GraphQL\Server
+ * Structure representing parsed HTTP parameters for GraphQL operation
  */
 class OperationParams
 {
     /**
-     * @var string
-     */
-    public $query;
-
-    /**
+     * Id of the query (when using persistent queries).
+     *
+     * Valid aliases (case-insensitive):
+     * - id
+     * - queryId
+     * - documentId
+     *
+     * @api
      * @var string
      */
     public $queryId;
 
     /**
+     * @api
+     * @var string
+     */
+    public $query;
+
+    /**
+     * @api
      * @var string
      */
     public $operation;
 
     /**
+     * @api
      * @var array
      */
     public $variables;
@@ -42,10 +50,10 @@ class OperationParams
     /**
      * Creates an instance from given array
      *
+     * @api
      * @param array $params
      * @param bool $readonly
-     *
-     * @return static
+     * @return OperationParams
      */
     public static function create(array $params, $readonly = false)
     {
@@ -80,6 +88,7 @@ class OperationParams
     }
 
     /**
+     * @api
      * @param string $key
      * @return mixed
      */
@@ -89,6 +98,10 @@ class OperationParams
     }
 
     /**
+     * Indicates that operation is executed in read-only context
+     * (e.g. via HTTP GET request)
+     *
+     * @api
      * @return bool
      */
     public function isReadOnly()

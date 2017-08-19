@@ -7,23 +7,36 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\Utils;
 
 /**
- * Class FormattedError
- * 
- * @package GraphQL\Error
+ * This class is used for [default error formatting](error-handling/).
+ * It converts PHP exceptions to [spec-compliant errors](https://facebook.github.io/graphql/#sec-Errors)
+ * and provides tools for error debugging.
  */
 class FormattedError
 {
     private static $internalErrorMessage = 'Internal server error';
 
+    /**
+     * Set default error message for internal errors formatted using createFormattedError().
+     * This value can be overridden by passing 3rd argument to `createFormattedError()`.
+     *
+     * @api
+     * @param string $msg
+     */
     public static function setInternalErrorMessage($msg)
     {
         self::$internalErrorMessage = $msg;
     }
 
     /**
-     * Standard GraphQL error formatter. Converts any exception to GraphQL error
-     * conforming to GraphQL spec
+     * Standard GraphQL error formatter. Converts any exception to array
+     * conforming to GraphQL spec.
      *
+     * This method only exposes exception message when exception implements ClientAware interface
+     * (or when debug flags are passed).
+     *
+     * For a list of available debug flags see GraphQL\Error\Debug constants.
+     *
+     * @api
      * @param \Throwable $e
      * @param bool|int $debug
      * @param string $internalErrorMessage
@@ -73,6 +86,9 @@ class FormattedError
     }
 
     /**
+     * Decorates spec-compliant $formattedError with debug entries according to $debug flags
+     * (see GraphQL\Error\Debug for available flags)
+     *
      * @param array $formattedError
      * @param \Throwable $e
      * @param bool $debug
@@ -148,8 +164,9 @@ class FormattedError
     }
 
     /**
-     * Converts error trace to serializable array
+     * Returns error trace as serializable array
      *
+     * @api
      * @param \Throwable $error
      * @return array
      */

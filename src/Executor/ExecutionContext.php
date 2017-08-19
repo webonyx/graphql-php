@@ -11,6 +11,8 @@ use GraphQL\Type\Schema;
  *
  * Namely, schema of the type system that is currently executing,
  * and the fragments defined in the query document
+ *
+ * @internal
  */
 class ExecutionContext
 {

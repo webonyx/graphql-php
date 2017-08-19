@@ -1,15 +1,11 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-/*
-NonNullType
-ListOfType
- */
 interface WrappingType
 {
     /**
      * @param bool $recurse
-     * @return Type
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
      */
     public function getWrappedType($recurse = false);
 }

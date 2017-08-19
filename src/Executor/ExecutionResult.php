@@ -4,19 +4,40 @@ namespace GraphQL\Executor;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 
+/**
+ * Returned after [query execution](executing-queries/).
+ * Represents both - result of successful execution and of a failed one
+ * (with errors collected in `errors` prop)
+ *
+ * Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
+ * serializable array using `toArray()`
+ */
 class ExecutionResult implements \JsonSerializable
 {
     /**
+     * Data collected from resolvers during query execution
+     *
+     * @api
      * @var array
      */
     public $data;
 
     /**
-     * @var Error[]
+     * Errors registered during query execution.
+     *
+     * If an error was caused by exception thrown in resolver, $error->getPrevious() would
+     * contain original exception.
+     *
+     * @api
+     * @var \GraphQL\Error\Error[]
      */
     public $errors;
     
     /**
+     * User-defined serializable array of extensions included in serialized result.
+     * Conforms to
+     *
+     * @api
      * @var array
      */
     public $extensions;
@@ -56,6 +77,7 @@ class ExecutionResult implements \JsonSerializable
      *    // ... other keys
      * );
      *
+     * @api
      * @param callable $errorFormatter
      * @return $this
      */
@@ -75,6 +97,7 @@ class ExecutionResult implements \JsonSerializable
      *     return array_map($formatter, $errors);
      * }
      *
+     * @api
      * @param callable $handler
      * @return $this
      */
@@ -85,11 +108,16 @@ class ExecutionResult implements \JsonSerializable
     }
 
     /**
-     * Converts GraphQL result to array using provided errors handler and formatter.
+     * Converts GraphQL query result to spec-compliant serializable array using provided
+     * errors handler and formatter.
      *
-     * Default error formatter is GraphQL\Error\FormattedError::createFromException
-     * Default error handler will simply return all errors formatted. No errors are filtered.
+     * If debug argument is passed, output of error formatter is enriched which debugging information
+     * ("debugMessage", "trace" keys depending on flags).
      *
+     * $debug argument must be either bool (only adds "debugMessage" to result) or sum of flags from
+     * GraphQL\Error\Debug
+     *
+     * @api
      * @param bool|int $debug
      * @return array
      */

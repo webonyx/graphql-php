@@ -10,12 +10,26 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 
 /**
- * Class StandardServer
+ * GraphQL server compatible with both: [express-graphql](https://github.com/graphql/express-graphql)
+ * and [Apollo Server](https://github.com/apollographql/graphql-server).
+ * Usage Example:
  *
- * GraphQL server compatible with both:
- * https://github.com/graphql/express-graphql and https://github.com/apollographql/graphql-server
+ *     $server = new StandardServer([
+ *       'schema' => $mySchema
+ *     ]);
+ *     $server->handleRequest();
  *
- * @package GraphQL\Server
+ * Or using [ServerConfig](reference/#graphqlserverserverconfig) instance:
+ *
+ *     $config = GraphQL\Server\ServerConfig::create()
+ *         ->setSchema($mySchema)
+ *         ->setContext($myContext);
+ *
+ *     $server = new GraphQL\Server\StandardServer($config);
+ *     $server->handleRequest();
+ *
+ * See [dedicated section in docs](executing-queries/#using-server) for details.
+ *
  */
 class StandardServer
 {
@@ -30,8 +44,9 @@ class StandardServer
     private $helper;
 
     /**
-     * Standard GraphQL HTTP server implementation
+     * Creates new instance of a standard GraphQL HTTP server
      *
+     * @api
      * @param ServerConfig|array $config
      */
     public function __construct($config)
@@ -46,22 +61,36 @@ class StandardServer
     }
 
     /**
-     * Executes GraphQL operation with given server configuration and returns execution result
-     * (or promise when promise adapter is different from SyncPromiseAdapter)
+     * Parses HTTP request, executes and emits response (using standard PHP `header` function and `echo`)
      *
-     * @param ServerRequestInterface $request
-     * @return ExecutionResult|ExecutionResult[]|Promise
+     * By default (when $parsedBody is not set) it uses PHP globals to parse a request.
+     * It is possible to implement request parsing elsewhere (e.g. using framework Request instance)
+     * and then pass it to the server.
+     *
+     * See `executeRequest()` if you prefer to emit response yourself
+     * (e.g. using Response object of some framework)
+     *
+     * @api
+     * @param OperationParams|OperationParams[] $parsedBody
+     * @param bool $exitWhenDone
      */
-    public function executePsrRequest(ServerRequestInterface $request)
+    public function handleRequest($parsedBody = null, $exitWhenDone = false)
     {
-        $parsedBody = $this->helper->parsePsrRequest($request);
-        return $this->executeRequest($parsedBody);
+        $result = $this->executeRequest($parsedBody);
+        $this->helper->sendResponse($result, $exitWhenDone);
     }
 
     /**
-     * Executes GraphQL operation with given server configuration and returns execution result
-     * (or promise when promise adapter is different from SyncPromiseAdapter)
+     * Executes GraphQL operation and returns execution result
+     * (or promise when promise adapter is different from SyncPromiseAdapter).
      *
+     * By default (when $parsedBody is not set) it uses PHP globals to parse a request.
+     * It is possible to implement request parsing elsewhere (e.g. using framework Request instance)
+     * and then pass it to the server.
+     *
+     * PSR-7 compatible method executePsrRequest() does exactly this.
+     *
+     * @api
      * @param OperationParams|OperationParams[] $parsedBody
      * @return ExecutionResult|ExecutionResult[]|Promise
      * @throws InvariantViolation
@@ -79,7 +108,13 @@ class StandardServer
         }
     }
 
-   /**
+    /**
+     * Executes PSR-7 request and fulfills PSR-7 response.
+     *
+     * See `executePsrRequest()` if you prefer to create response yourself
+     * (e.g. using specific JsonResponse instance of some framework).
+     *
+     * @api
      * @param ServerRequestInterface $request
      * @param ResponseInterface $response
      * @param StreamInterface $writableBodyStream
@@ -96,12 +131,28 @@ class StandardServer
     }
 
     /**
-     * @param OperationParams|OperationParams[] $parsedBody
-     * @param bool $exitWhenDone
+     * Executes GraphQL operation and returns execution result
+     * (or promise when promise adapter is different from SyncPromiseAdapter)
+     *
+     * @api
+     * @param ServerRequestInterface $request
+     * @return ExecutionResult|ExecutionResult[]|Promise
      */
-    public function handleRequest($parsedBody = null, $exitWhenDone = false)
+    public function executePsrRequest(ServerRequestInterface $request)
     {
-        $result = $this->executeRequest($parsedBody);
-        $this->helper->sendResponse($result, $exitWhenDone);
+        $parsedBody = $this->helper->parsePsrRequest($request);
+        return $this->executeRequest($parsedBody);
+    }
+
+    /**
+     * Returns an instance of Server helper, which contains most of the actual logic for
+     * parsing / validating / executing request (which could be re-used by other server implementations)
+     *
+     * @api
+     * @return Helper
+     */
+    public function getHelper()
+    {
+        return $this->helper;
     }
 }

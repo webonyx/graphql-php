@@ -98,7 +98,7 @@ class TypeInfo
             Warning::warnOnce(
                 'One of the schema types is not a valid type definition instance. '.
                 'Try running $schema->assertValid() to find out the cause of this warning.',
-                Warning::NOT_A_TYPE
+                Warning::WARNING_NOT_A_TYPE
             );
             return $typeMap;
         }

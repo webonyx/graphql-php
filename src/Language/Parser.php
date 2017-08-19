@@ -1,8 +1,6 @@
 <?php
 namespace GraphQL\Language;
 
-// language/parser.js
-
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -45,9 +43,15 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Error\SyntaxError;
 
+/**
+ * Parses string containing GraphQL query or [type definition](type-system/type-language/) to Abstract Syntax Tree.
+ */
 class Parser
 {
     /**
+     * Given a GraphQL source, parses it into a `GraphQL\Language\AST\DocumentNode`.
+     * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
+     *
      * Available options:
      *
      * noLocation: boolean,
@@ -55,6 +59,7 @@ class Parser
      * in the source that they correspond to. This configuration flag
      * disables that behavior for performance or testing.)
      *
+     * @api
      * @param Source|string $source
      * @param array $options
      * @return DocumentNode
@@ -66,17 +71,17 @@ class Parser
         return $parser->parseDocument();
     }
 
-
     /**
      * Given a string containing a GraphQL value (ex. `[42]`), parse the AST for
      * that value.
-     * Throws GraphQL\Error\SyntaxError if a syntax error is encountered.
+     * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Values directly and
      * in isolation of complete GraphQL documents.
      *
-     * Consider providing the results to the utility function: GraphQL\Utils\AST::valueFromAST().
+     * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
      *
+     * @api
      * @param Source|string $source
      * @param array $options
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode
@@ -94,13 +99,14 @@ class Parser
     /**
      * Given a string containing a GraphQL Type (ex. `[Int!]`), parse the AST for
      * that type.
-     * Throws GraphQL\Error\SyntaxError if a syntax error is encountered.
+     * Throws `GraphQL\Error\SyntaxError` if a syntax error is encountered.
      *
      * This is useful within tools that operate upon GraphQL Types directly and
      * in isolation of complete GraphQL documents.
      *
-     * Consider providing the results to the utility function: GraphQL\Utils\AST::typeFromAST().
+     * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
      *
+     * @api
      * @param Source|string $source
      * @param array $options
      * @return ListTypeNode|NameNode|NonNullTypeNode

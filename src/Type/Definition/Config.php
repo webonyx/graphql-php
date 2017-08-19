@@ -65,7 +65,7 @@ class Config
         Warning::warnOnce(
             'GraphQL\Type\Defintion\Config is deprecated and will be removed in the next version. ' .
             'See https://github.com/webonyx/graphql-php/issues/148 for alternatives',
-            Warning::CONFIG_DEPRECATION_WARNING,
+            Warning::WARNING_CONFIG_DEPRECATION,
             E_USER_DEPRECATED
         );
 
@@ -143,7 +143,7 @@ class Config
             if (!self::$allowCustomOptions) {
                 Warning::warnOnce(
                     sprintf('Error in "%s" type definition: Non-standard keys "%s" ' . $suffix, $typeName, implode(', ', $unexpectedKeys)),
-                    Warning::CONFIG_WARNING
+                    Warning::WARNING_CONFIG
                 );
             }
             $map = array_intersect_key($map, $definitions);

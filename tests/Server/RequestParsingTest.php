@@ -175,7 +175,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         } catch (InvariantViolation $e) {
             // Expecting parsing exception to be thrown somewhere else:
             $this->assertEquals(
-                'PSR request is expected to provide parsed body for "application/json" requests but got null',
+                'PSR-7 request is expected to provide parsed body for "application/json" requests but got null',
                 $e->getMessage()
             );
         }

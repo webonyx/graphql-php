@@ -31,23 +31,7 @@ use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 
 /**
- * Terminology
- *
- * "Definitions" are the generic name for top-level statements in the document.
- * Examples of this include:
- * 1) Operations (such as a query)
- * 2) Fragments
- *
- * "Operations" are a generic name for requests in the document.
- * Examples of this include:
- * 1) query,
- * 2) mutation
- *
- * "Selections" are the statements that can appear legally and at
- * single level of the query. These include:
- * 1) field references e.g "a"
- * 2) fragment "spreads" e.g. "...c"
- * 3) inline fragment "spreads" e.g. "...on Type { a }"
+ * Implements the "Evaluating requests" section of the GraphQL specification.
  */
 class Executor
 {
@@ -88,8 +72,12 @@ class Executor
     }
 
     /**
-     * Executes DocumentNode against given schema
+     * Executes DocumentNode against given $schema.
      *
+     * Always returns ExecutionResult and never throws. All errors which occur during operation
+     * execution are collected in `$result->errors`.
+     *
+     * @api
      * @param Schema $schema
      * @param DocumentNode $ast
      * @param $rootValue
@@ -134,9 +122,12 @@ class Executor
     }
 
     /**
-     * Executes DocumentNode against given $schema using given $promiseAdapter for deferred resolvers.
-     * Returns promise which is always fullfilled with instance of ExecutionResult
+     * Same as executeQuery(), but requires promise adapter and returns a promise which is always
+     * fulfilled with an instance of ExecutionResult and never rejected.
      *
+     * Useful for async PHP platforms.
+     *
+     * @api
      * @param PromiseAdapter $promiseAdapter
      * @param Schema $schema
      * @param DocumentNode $ast
@@ -1083,7 +1074,7 @@ class Executor
                     'for value: ' . Utils::printSafe($result) . '. Switching to slow resolution method using `isTypeOf` ' .
                     'of all possible implementations. It requires full schema scan and degrades query performance significantly. '.
                     ' Make sure your `resolveType` always returns valid implementation or throws.',
-                    Warning::FULL_SCHEMA_SCAN_WARNING
+                    Warning::WARNING_FULL_SCHEMA_SCAN
                 );
             }
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);

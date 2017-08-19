@@ -15,44 +15,95 @@ class VisitorOperation
     public $removeNode;
 }
 
+/**
+ * Utility for efficient AST traversal and modification.
+ *
+ * `visit()` will walk through an AST using a depth first traversal, calling
+ * the visitor's enter function at each node in the traversal, and calling the
+ * leave function after visiting that node and all of it's child nodes.
+ *
+ * By returning different values from the enter and leave functions, the
+ * behavior of the visitor can be altered, including skipping over a sub-tree of
+ * the AST (by returning false), editing the AST by returning a value or null
+ * to remove the value, or to stop the whole traversal by returning BREAK.
+ *
+ * When using `visit()` to edit an AST, the original AST will not be modified, and
+ * a new version of the AST with the changes applied will be returned from the
+ * visit function.
+ *
+ *     $editedAST = Visitor::visit($ast, [
+ *       'enter' => function ($node, $key, $parent, $path, $ancestors) {
+ *         // return
+ *         //   null: no action
+ *         //   Visitor::skipNode(): skip visiting this node
+ *         //   Visitor::stop(): stop visiting altogether
+ *         //   Visitor::removeNode(): delete this node
+ *         //   any value: replace this node with the returned value
+ *       },
+ *       'leave' => function ($node, $key, $parent, $path, $ancestors) {
+ *         // return
+ *         //   null: no action
+ *         //   Visitor::stop(): stop visiting altogether
+ *         //   Visitor::removeNode(): delete this node
+ *         //   any value: replace this node with the returned value
+ *       }
+ *     ]);
+ *
+ * Alternatively to providing enter() and leave() functions, a visitor can
+ * instead provide functions named the same as the [kinds of AST nodes](reference/#graphqllanguageastnodekind),
+ * or enter/leave visitors at a named key, leading to four permutations of
+ * visitor API:
+ *
+ * 1) Named visitors triggered when entering a node a specific kind.
+ *
+ *     Visitor::visit($ast, [
+ *       'Kind' => function ($node) {
+ *         // enter the "Kind" node
+ *       }
+ *     ]);
+ *
+ * 2) Named visitors that trigger upon entering and leaving a node of
+ *    a specific kind.
+ *
+ *     Visitor::visit($ast, [
+ *       'Kind' => [
+ *         'enter' => function ($node) {
+ *           // enter the "Kind" node
+ *         }
+ *         'leave' => function ($node) {
+ *           // leave the "Kind" node
+ *         }
+ *       ]
+ *     ]);
+ *
+ * 3) Generic visitors that trigger upon entering and leaving any node.
+ *
+ *     Visitor::visit($ast, [
+ *       'enter' => function ($node) {
+ *         // enter any node
+ *       },
+ *       'leave' => function ($node) {
+ *         // leave any node
+ *       }
+ *     ]);
+ *
+ * 4) Parallel visitors for entering and leaving nodes of a specific kind.
+ *
+ *     Visitor::visit($ast, [
+ *       'enter' => [
+ *         'Kind' => function($node) {
+ *           // enter the "Kind" node
+ *         }
+ *       },
+ *       'leave' => [
+ *         'Kind' => function ($node) {
+ *           // leave the "Kind" node
+ *         }
+ *       ]
+ *     ]);
+ */
 class Visitor
 {
-    /**
-     * Returns marker for visitor break
-     *
-     * @return VisitorOperation
-     */
-    public static function stop()
-    {
-        $r = new VisitorOperation();
-        $r->doBreak = true;
-        return $r;
-    }
-
-    /**
-     * Returns marker for skipping current node
-     *
-     * @return VisitorOperation
-     */
-    public static function skipNode()
-    {
-        $r = new VisitorOperation();
-        $r->doContinue = true;
-        return $r;
-    }
-
-    /**
-     * Returns marker for removing a node
-     *
-     * @return VisitorOperation
-     */
-    public static function removeNode()
-    {
-        $r = new VisitorOperation();
-        $r->removeNode = true;
-        return $r;
-    }
-
     public static $visitorKeys = [
         NodeKind::NAME => [],
         NodeKind::DOCUMENT => ['definitions'],
@@ -96,90 +147,9 @@ class Visitor
     ];
 
     /**
-     * visit() will walk through an AST using a depth first traversal, calling
-     * the visitor's enter function at each node in the traversal, and calling the
-     * leave function after visiting that node and all of it's child nodes.
+     * Visit the AST (see class description for details)
      *
-     * By returning different values from the enter and leave functions, the
-     * behavior of the visitor can be altered, including skipping over a sub-tree of
-     * the AST (by returning false), editing the AST by returning a value or null
-     * to remove the value, or to stop the whole traversal by returning BREAK.
-     *
-     * When using visit() to edit an AST, the original AST will not be modified, and
-     * a new version of the AST with the changes applied will be returned from the
-     * visit function.
-     *
-     *     $editedAST = Visitor::visit($ast, [
-     *       'enter' => function ($node, $key, $parent, $path, $ancestors) {
-     *         // return
-     *         //   null: no action
-     *         //   Visitor::skipNode(): skip visiting this node
-     *         //   Visitor::stop(): stop visiting altogether
-     *         //   Visitor::removeNode(): delete this node
-     *         //   any value: replace this node with the returned value
-     *       },
-     *       'leave' => function ($node, $key, $parent, $path, $ancestors) {
-     *         // return
-     *         //   null: no action
-     *         //   Visitor::stop(): stop visiting altogether
-     *         //   Visitor::removeNode(): delete this node
-     *         //   any value: replace this node with the returned value
-     *       }
-     *     ]);
-     *
-     * Alternatively to providing enter() and leave() functions, a visitor can
-     * instead provide functions named the same as the kinds of AST nodes, or
-     * enter/leave visitors at a named key, leading to four permutations of
-     * visitor API:
-     *
-     * 1) Named visitors triggered when entering a node a specific kind.
-     *
-     *     Visitor::visit($ast, [
-     *       'Kind' => function ($node) {
-     *         // enter the "Kind" node
-     *       }
-     *     ]);
-     *
-     * 2) Named visitors that trigger upon entering and leaving a node of
-     *    a specific kind.
-     *
-     *     Visitor::visit($ast, [
-     *       'Kind' => [
-     *         'enter' => function ($node) {
-     *           // enter the "Kind" node
-     *         }
-     *         'leave' => function ($node) {
-     *           // leave the "Kind" node
-     *         }
-     *       ]
-     *     ]);
-     *
-     * 3) Generic visitors that trigger upon entering and leaving any node.
-     *
-     *     Visitor::visit($ast, [
-     *       'enter' => function ($node) {
-     *         // enter any node
-     *       },
-     *       'leave' => function ($node) {
-     *         // leave any node
-     *       }
-     *     ]);
-     *
-     * 4) Parallel visitors for entering and leaving nodes of a specific kind.
-     *
-     *     Visitor::visit($ast, [
-     *       'enter' => [
-     *         'Kind' => function($node) {
-     *           // enter the "Kind" node
-     *         }
-     *       },
-     *       'leave' => [
-     *         'Kind' => function ($node) {
-     *           // leave the "Kind" node
-     *         }
-     *       ]
-     *     ]);
-     *
+     * @api
      * @param Node $root
      * @param array $visitor
      * @param array $keyMap
@@ -333,6 +303,45 @@ class Visitor
         }
 
         return $newRoot;
+    }
+
+    /**
+     * Returns marker for visitor break
+     *
+     * @api
+     * @return VisitorOperation
+     */
+    public static function stop()
+    {
+        $r = new VisitorOperation();
+        $r->doBreak = true;
+        return $r;
+    }
+
+    /**
+     * Returns marker for skipping current node
+     *
+     * @api
+     * @return VisitorOperation
+     */
+    public static function skipNode()
+    {
+        $r = new VisitorOperation();
+        $r->doContinue = true;
+        return $r;
+    }
+
+    /**
+     * Returns marker for removing a node
+     *
+     * @api
+     * @return VisitorOperation
+     */
+    public static function removeNode()
+    {
+        $r = new VisitorOperation();
+        $r->removeNode = true;
+        return $r;
     }
 
     /**

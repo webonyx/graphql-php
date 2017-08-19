@@ -15,13 +15,13 @@ class ConfigTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp()
     {
-        Warning::suppress(Warning::CONFIG_DEPRECATION_WARNING);
+        Warning::suppress(Warning::WARNING_CONFIG_DEPRECATION);
     }
 
     public static function tearDownAfterClass()
     {
         Config::disableValidation();
-        Warning::enable(Warning::CONFIG_DEPRECATION_WARNING);
+        Warning::enable(Warning::WARNING_CONFIG_DEPRECATION);
     }
 
     public function testToggling()

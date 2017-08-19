@@ -11,7 +11,7 @@ use GraphQL\Utils\Utils;
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
     /**
-     * @var callable|Type
+     * @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
      */
     private $ofType;
 
@@ -40,8 +40,8 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
 
     /**
      * @param bool $recurse
-     * @return mixed
-     * @throws \Exception
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
+     * @throws InvariantViolation
      */
     public function getWrappedType($recurse = false)
     {

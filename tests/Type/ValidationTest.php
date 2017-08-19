@@ -122,13 +122,13 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->notInputTypes[] = $this->String;
 
-        Warning::suppress(Warning::NOT_A_TYPE);
+        Warning::suppress(Warning::WARNING_NOT_A_TYPE);
     }
 
     public function tearDown()
     {
         parent::tearDown();
-        Warning::enable(Warning::NOT_A_TYPE);
+        Warning::enable(Warning::WARNING_NOT_A_TYPE);
     }
 
     public function testRejectsTypesWithoutNames()

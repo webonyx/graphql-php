@@ -7,10 +7,18 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 
 /**
- * Class Config
- * Note: properties are marked as public for performance reasons. They should be considered read-only.
+ * Schema configuration class.
+ * Could be passed directly to schema constructor. List of options accepted by **create** method is
+ * [described in docs](type-system/schema/#configuration-options).
  *
- * @package GraphQL
+ * Usage example:
+ *
+ *     $config = SchemaConfig::create()
+ *         ->setQuery($myQueryType)
+ *         ->setTypeLoader($myTypeLoader);
+ *
+ *     $schema = new Schema($config);
+ *
  */
 class SchemaConfig
 {
@@ -46,7 +54,9 @@ class SchemaConfig
 
     /**
      * Converts an array of options to instance of SchemaConfig
+     * (or just returns empty config when array is not passed).
      *
+     * @api
      * @param array $options
      * @return SchemaConfig
      */
@@ -128,14 +138,7 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType
-     */
-    public function getQuery()
-    {
-        return $this->query;
-    }
-
-    /**
+     * @api
      * @param ObjectType $query
      * @return SchemaConfig
      */
@@ -146,14 +149,7 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType
-     */
-    public function getMutation()
-    {
-        return $this->mutation;
-    }
-
-    /**
+     * @api
      * @param ObjectType $mutation
      * @return SchemaConfig
      */
@@ -164,14 +160,7 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType
-     */
-    public function getSubscription()
-    {
-        return $this->subscription;
-    }
-
-    /**
+     * @api
      * @param ObjectType $subscription
      * @return SchemaConfig
      */
@@ -182,14 +171,7 @@ class SchemaConfig
     }
 
     /**
-     * @return Type[]
-     */
-    public function getTypes()
-    {
-        return $this->types ?: [];
-    }
-
-    /**
+     * @api
      * @param Type[]|callable $types
      * @return SchemaConfig
      */
@@ -200,14 +182,7 @@ class SchemaConfig
     }
 
     /**
-     * @return Directive[]
-     */
-    public function getDirectives()
-    {
-        return $this->directives ?: [];
-    }
-
-    /**
+     * @api
      * @param Directive[] $directives
      * @return SchemaConfig
      */
@@ -218,14 +193,7 @@ class SchemaConfig
     }
 
     /**
-     * @return callable
-     */
-    public function getTypeLoader()
-    {
-        return $this->typeLoader;
-    }
-
-    /**
+     * @api
      * @param callable $typeLoader
      * @return SchemaConfig
      */
@@ -233,5 +201,59 @@ class SchemaConfig
     {
         $this->typeLoader = $typeLoader;
         return $this;
+    }
+
+    /**
+     * @api
+     * @return ObjectType
+     */
+    public function getQuery()
+    {
+        return $this->query;
+    }
+
+    /**
+     * @api
+     * @return ObjectType
+     */
+    public function getMutation()
+    {
+        return $this->mutation;
+    }
+
+    /**
+     * @api
+     * @return ObjectType
+     */
+    public function getSubscription()
+    {
+        return $this->subscription;
+    }
+
+    /**
+     * @api
+     * @return Type[]
+     */
+    public function getTypes()
+    {
+        return $this->types ?: [];
+    }
+
+    /**
+     * @api
+     * @return Directive[]
+     */
+    public function getDirectives()
+    {
+        return $this->directives ?: [];
+    }
+
+    /**
+     * @api
+     * @return callable
+     */
+    public function getTypeLoader()
+    {
+        return $this->typeLoader;
     }
 }

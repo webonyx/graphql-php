@@ -11,7 +11,7 @@ use GraphQL\Utils\Utils;
 class ListOfType extends Type implements WrappingType, OutputType, InputType
 {
     /**
-     * @var callable|Type
+     * @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
      */
     public $ofType;
 
@@ -40,7 +40,7 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
 
     /**
      * @param bool $recurse
-     * @return mixed
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
      */
     public function getWrappedType($recurse = false)
     {
