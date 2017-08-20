@@ -79,7 +79,8 @@ class StandardServer
         if (!$config instanceof ServerConfig) {
             throw new InvariantViolation("Expecting valid server config, but got " . Utils::printSafe($config));
         }
-        return new static($config);
+        $this->config = $config;
+        $this->helper = new Helper();
     }
 
     /**
