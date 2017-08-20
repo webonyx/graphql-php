@@ -14,11 +14,15 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\Directive;
 
 /**
- * Class SchemaPrinter
- * @package GraphQL\Utils
+ * Given an instance of Schema, prints it in GraphQL type language.
  */
 class SchemaPrinter
 {
+    /**
+     * @api
+     * @param Schema $schema
+     * @return string
+     */
     public static function doPrint(Schema $schema)
     {
         return self::printFilteredSchema($schema, function($n) {
@@ -26,6 +30,11 @@ class SchemaPrinter
         }, 'self::isDefinedType');
     }
 
+    /**
+     * @api
+     * @param Schema $schema
+     * @return string
+     */
     public static function printIntrosepctionSchema(Schema $schema)
     {
         return self::printFilteredSchema($schema, [__CLASS__, 'isSpecDirective'], [__CLASS__, 'isIntrospectionType']);

@@ -1,6 +1,9 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+/**
+ * List of available directive locations
+ */
 class DirectiveLocation
 {
     const IFACE = 'INTERFACE';

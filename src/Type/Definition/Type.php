@@ -70,7 +70,7 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
-     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType $wrappedType
+     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
      * @return ListOfType
      */
     public static function listOf($wrappedType)
@@ -80,7 +80,7 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
-     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType $wrappedType
+     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $wrappedType
      * @return NonNull
      */
     public static function nonNull($wrappedType)

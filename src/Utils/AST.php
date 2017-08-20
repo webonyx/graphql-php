@@ -35,8 +35,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 /**
- * Class AST
- * @package GraphQL\Utils
+ * Various utilities dealing with AST
  */
 class AST
 {
@@ -59,8 +58,9 @@ class AST
      * Will produce instance of `ListValueNode` where `values` prop is a lazily-evaluated `NodeList`
      * returning instances of `StringValueNode` on access.
      *
-     * This is a reverse operation for $node->toArray(true)
+     * This is a reverse operation for AST::toArray($node)
      *
+     * @api
      * @param array $node
      * @return Node
      */
@@ -98,6 +98,7 @@ class AST
     /**
      * Convert AST node to serializable array
      *
+     * @api
      * @param Node $node
      * @return array
      */
@@ -124,6 +125,7 @@ class AST
      * | Mixed         | Enum Value           |
      * | null          | NullValue            |
      *
+     * @api
      * @param $value
      * @param InputType $type
      * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
@@ -267,8 +269,9 @@ class AST
      * | String               | String        |
      * | Int / Float          | Int / Float   |
      * | Enum Value           | Mixed         |
-     * | Null Value           | stdClass      | instance of NullValue::getNullValue()
+     * | Null Value           | null          |
      *
+     * @api
      * @param $valueNode
      * @param InputType $type
      * @param null $variables
@@ -396,6 +399,9 @@ class AST
     }
 
     /**
+     * Returns type definition for given AST Type node
+     *
+     * @api
      * @param Schema $schema
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      * @return Type
@@ -430,6 +436,9 @@ class AST
     }
 
     /**
+     * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
+     *
+     * @api
      * @param DocumentNode $document
      * @param string $operationName
      * @return bool

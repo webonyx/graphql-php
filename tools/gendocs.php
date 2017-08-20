@@ -8,6 +8,8 @@ $outputFile = __DIR__  . '/../docs/reference.md';
 $entries = [
     \GraphQL\GraphQL::class,
     \GraphQL\Type\Definition\Type::class,
+    \GraphQL\Type\Definition\ResolveInfo::class,
+    \GraphQL\Type\Definition\DirectiveLocation::class => ['constants' => true],
     \GraphQL\Type\SchemaConfig::class,
     \GraphQL\Type\Schema::class,
     \GraphQL\Language\Parser::class,
@@ -17,7 +19,6 @@ $entries = [
     \GraphQL\Executor\Executor::class,
     \GraphQL\Executor\ExecutionResult::class,
     \GraphQL\Executor\Promise\PromiseAdapter::class,
-    \GraphQL\Type\Definition\ResolveInfo::class,
     \GraphQL\Validator\DocumentValidator::class,
     \GraphQL\Error\Error::class => ['constants' => true, 'methods' => true, 'props' => true],
     \GraphQL\Error\Warning::class => ['constants' => true, 'methods' => true],
@@ -27,7 +28,10 @@ $entries = [
     \GraphQL\Server\StandardServer::class,
     \GraphQL\Server\ServerConfig::class,
     \GraphQL\Server\Helper::class,
-    \GraphQL\Server\OperationParams::class
+    \GraphQL\Server\OperationParams::class,
+    \GraphQL\Utils\BuildSchema::class,
+    \GraphQL\Utils\AST::class,
+    \GraphQL\Utils\SchemaPrinter::class
 ];
 
 function renderClassMethod(ReflectionMethod $method) {

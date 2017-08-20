@@ -33,8 +33,8 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 
 /**
- * Class BuildSchema
- * @package GraphQL\Utils
+ * Build instance of `GraphQL\Type\Schema` out of type language definition (string or parsed AST)
+ * See [section in docs](type-system/type-language.md) for details.
  */
 class BuildSchema
 {
@@ -72,9 +72,10 @@ class BuildSchema
      * If no schema definition is provided, then it will look for types named Query
      * and Mutation.
      *
-     * Given that AST it constructs a GraphQLSchema. The resulting schema
+     * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
      *
+     * @api
      * @param DocumentNode $ast
      * @param callable $typeConfigDecorator
      * @return Schema
@@ -608,6 +609,7 @@ class BuildSchema
      * A helper function to build a GraphQLSchema directly from a source
      * document.
      * 
+     * @api
      * @param DocumentNode|Source|string $source
      * @param callable $typeConfigDecorator
      * @return Schema
