@@ -85,7 +85,6 @@ class Executor
      * @param array|\ArrayAccess $variableValues
      * @param null $operationName
      * @param callable $fieldResolver
-     * @param PromiseAdapter $promiseAdapter
      *
      * @return ExecutionResult|Promise
      */
@@ -96,22 +95,14 @@ class Executor
         $contextValue = null,
         $variableValues = null,
         $operationName = null,
-        callable $fieldResolver = null,
-        PromiseAdapter $promiseAdapter = null
+        callable $fieldResolver = null
     )
     {
-        $promiseAdapter = $promiseAdapter ?: self::getPromiseAdapter();
+        // TODO: deprecate (just always use SyncAdapter here) and have `promiseToExecute()` for other cases
+        $promiseAdapter = self::getPromiseAdapter();
 
-        $result = self::promiseToExecute(
-            $promiseAdapter,
-            $schema,
-            $ast,
-            $rootValue,
-            $contextValue,
-            $variableValues,
-            $operationName,
-            $fieldResolver
-        );
+        $result = self::promiseToExecute($promiseAdapter, $schema, $ast, $rootValue, $contextValue,
+            $variableValues, $operationName, $fieldResolver);
 
         // Wait for promised results when using sync promises
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -122,7 +113,7 @@ class Executor
     }
 
     /**
-     * Same as executeQuery(), but requires promise adapter and returns a promise which is always
+     * Same as execute(), but requires promise adapter and returns a promise which is always
      * fulfilled with an instance of ExecutionResult and never rejected.
      *
      * Useful for async PHP platforms.
@@ -150,22 +141,14 @@ class Executor
     )
     {
         try {
-            $exeContext = self::buildExecutionContext(
-                $schema,
-                $ast,
-                $rootValue,
-                $contextValue,
-                $variableValues,
-                $operationName,
-                $fieldResolver,
-                $promiseAdapter
-            );
+            $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $contextValue, $variableValues,
+                $operationName, $fieldResolver, $promiseAdapter);
         } catch (Error $e) {
             return $promiseAdapter->createFulfilled(new ExecutionResult(null, [$e]));
         }
 
         $executor = new self($exeContext);
-        return $executor->executeQuery();
+        return $executor->doExecute();
     }
 
     /**
@@ -291,7 +274,7 @@ class Executor
     /**
      * @return Promise
      */
-    private function executeQuery()
+    private function doExecute()
     {
         // Return a Promise that will eventually resolve to the data described by
         // The "Response" section of the GraphQL specification.
