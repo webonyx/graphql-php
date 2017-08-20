@@ -359,7 +359,8 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(
             InvariantViolation::class,
-            'Schema must contain unique named types but contains multiple types named "String".'
+            'Schema must contain unique named types but contains multiple types named "String" '.
+            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
         );
         new Schema(['query' => $QueryType]);
     }
@@ -389,7 +390,8 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(
             InvariantViolation::class,
-            'Schema must contain unique named types but contains multiple types named "SameName".'
+            'Schema must contain unique named types but contains multiple types named "SameName" '.
+            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
         );
 
         new Schema([ 'query' => $QueryType ]);
@@ -427,7 +429,8 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(
             InvariantViolation::class,
-            'Schema must contain unique named types but contains multiple types named "BadObject".'
+            'Schema must contain unique named types but contains multiple types named "BadObject" '.
+            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
         );
 
         new Schema([

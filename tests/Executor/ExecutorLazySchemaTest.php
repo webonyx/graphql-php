@@ -185,7 +185,8 @@ class ExecutorLazySchemaTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             'Schema must contain unique named types but contains multiple types named "Test". '.
-            'Make sure that type loader returns the same instance as defined in Query.test',
+            'Make sure that type loader returns the same instance as defined in Query.test '.
+            '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
             $result->errors[0]->getMessage()
         );
         $this->assertInstanceOf(

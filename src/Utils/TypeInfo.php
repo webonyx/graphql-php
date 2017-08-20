@@ -106,7 +106,8 @@ class TypeInfo
         if (!empty($typeMap[$type->name])) {
             Utils::invariant(
                 $typeMap[$type->name] === $type,
-                "Schema must contain unique named types but contains multiple types named \"$type\"."
+                "Schema must contain unique named types but contains multiple types named \"$type\" ".
+                "(see http://webonyx.github.io/graphql-php/type-system/#type-registry)."
             );
             return $typeMap;
         }

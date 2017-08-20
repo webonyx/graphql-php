@@ -945,7 +945,9 @@ class Executor
                 $hint = "Make sure that type loader returns the same instance as defined in {$info->parentType}.{$info->fieldName}";
             }
             throw new InvariantViolation(
-                "Schema must contain unique named types but contains multiple types named \"$returnType\". $hint"
+                "Schema must contain unique named types but contains multiple types named \"$returnType\". ".
+                "$hint ".
+                "(see http://webonyx.github.io/graphql-php/type-system/#type-registry)."
             );
         }
 
@@ -1136,7 +1138,8 @@ class Executor
             throw new InvariantViolation(
                 "Schema must contain unique named types but contains multiple types named \"$runtimeType\". ".
                 "Make sure that `resolveType` function of abstract type \"{$returnType}\" returns the same ".
-                "type instance as referenced anywhere else within the schema."
+                "type instance as referenced anywhere else within the schema " .
+                "(see http://webonyx.github.io/graphql-php/type-system/#type-registry)."
             );
         }
 
