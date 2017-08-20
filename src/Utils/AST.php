@@ -45,7 +45,7 @@ class AST
      * For example:
      *
      * ```php
-     * Node::fromArray([
+     * AST::fromArray([
      *     'kind' => 'ListValue',
      *     'values' => [
      *         ['kind' => 'StringValue', 'value' => 'my str'],
