@@ -91,6 +91,23 @@ directives  | `Directive[]` | A full list of [directives](directives.md) support
 types     | `ObjectType[]` | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often it happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete use-case.
 typeLoader     | `callable` | **function($name)** Expected to return type instance given the name. Must always return the same instance if called multiple times. See section below on lazy type loading.
 
+# Using config class
+If you prefer fluid interface for config with auto-completion in IDE and static time validation, 
+use [`GraphQL\Type\SchemaConfig`](../reference.md#graphqltypeschemaconfig) instead of an array:
+
+```php
+<?php
+use GraphQL\Type\SchemaConfig;
+use GraphQL\Type\Schema;
+
+$config = SchemaConfig::create()
+    ->setQuery($myQueryType)
+    ->setTypeLoader($myTypeLoader);
+
+$schema = new Schema($config);
+```
+
+
 # Lazy loading of types
 By default, the schema will scan all of your type, field and argument definitions to serve GraphQL queries. 
 It may cause performance overhead when there are many types in the schema. 
