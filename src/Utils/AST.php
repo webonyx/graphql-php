@@ -5,14 +5,16 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumValueNode;
-use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\ListValueNode;
+use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectFieldNode;
@@ -38,6 +40,72 @@ use GraphQL\Utils\Utils;
  */
 class AST
 {
+    /**
+     * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
+     *
+     * For example:
+     *
+     * ```php
+     * Node::fromArray([
+     *     'kind' => 'ListValue',
+     *     'values' => [
+     *         ['kind' => 'StringValue', 'value' => 'my str'],
+     *         ['kind' => 'StringValue', 'value' => 'my other str']
+     *     ],
+     *     'loc' => ['start' => 21, 'end' => 25]
+     * ]);
+     * ```
+     *
+     * Will produce instance of `ListValueNode` where `values` prop is a lazily-evaluated `NodeList`
+     * returning instances of `StringValueNode` on access.
+     *
+     * This is a reverse operation for $node->toArray(true)
+     *
+     * @param array $node
+     * @return Node
+     */
+    public static function fromArray(array $node)
+    {
+        if (!isset($node['kind']) || !isset(NodeKind::$classMap[$node['kind']])) {
+            throw new InvariantViolation("Unexpected node structure: " . Utils::printSafeJson($node));
+        }
+
+        $kind = isset($node['kind']) ? $node['kind'] : null;
+        $class = NodeKind::$classMap[$kind];
+        $instance = new $class([]);
+
+        if (isset($node['loc'], $node['loc']['start'], $node['loc']['end'])) {
+            $instance->loc = Location::create($node['loc']['start'], $node['loc']['end']);
+        }
+
+
+        foreach ($node as $key => $value) {
+            if ('loc' === $key || 'kind' === $key) {
+                continue ;
+            }
+            if (is_array($value)) {
+                if (isset($value[0]) || empty($value)) {
+                    $value = new NodeList($value);
+                } else {
+                    $value = self::fromArray($value);
+                }
+            }
+            $instance->{$key} = $value;
+        }
+        return $instance;
+    }
+
+    /**
+     * Convert AST node to serializable array
+     *
+     * @param Node $node
+     * @return array
+     */
+    public static function toArray(Node $node)
+    {
+        return $node->toArray(true);
+    }
+
     /**
      * Produces a GraphQL Value AST given a PHP value.
      *

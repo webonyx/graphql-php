@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Language\AST;
 
+use GraphQL\Utils\AST;
+
 /**
  * Class NodeList
  *
@@ -49,7 +51,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
         $item = $this->nodes[$offset];
 
         if (is_array($item) && isset($item['kind'])) {
-            $this->nodes[$offset] = $item = Node::fromArray($item);
+            $this->nodes[$offset] = $item = AST::fromArray($item);
         }
 
         return $item;
@@ -62,7 +64,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     public function offsetSet($offset, $value)
     {
         if (is_array($value) && isset($value['kind'])) {
-            $value = Node::fromArray($value);
+            $value = AST::fromArray($value);
         }
         $this->nodes[$offset] = $value;
     }

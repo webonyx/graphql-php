@@ -5,6 +5,7 @@ use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Parser;
+use GraphQL\Utils\AST;
 
 class SerializationTest extends \PHPUnit_Framework_TestCase
 {
@@ -20,7 +21,7 @@ class SerializationTest extends \PHPUnit_Framework_TestCase
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $serializedAst = json_decode(file_get_contents(__DIR__ . '/kitchen-sink.ast'), true);
-        $actualAst = Node::fromArray($serializedAst);
+        $actualAst = AST::fromArray($serializedAst);
         $parsedAst = Parser::parse($kitchenSink);
         $this->assertNodesAreEqual($parsedAst, $actualAst);
     }
