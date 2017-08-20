@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.10.1
+- Fixed infinite loop in the server (see #153)
+
 ## v0.10.0
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
 
