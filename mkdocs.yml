@@ -11,7 +11,7 @@ pages:
   - Lists and Non-Null: type-system/lists-and-nonnulls.md
   - Interfaces: type-system/interfaces.md
   - Unions: type-system/unions.md
-  - Input Types: type-system/input-types.md
+  - Mutations and Input Types: type-system/input-types.md
   - Directives: type-system/directives.md
   - Schema: type-system/schema.md
   - Using Type Language: type-system/type-language.md

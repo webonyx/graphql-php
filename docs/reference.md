@@ -171,7 +171,7 @@ static function float()
 ```php
 /**
  * @api
- * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType $wrappedType
+ * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
  * @return ListOfType
  */
 static function listOf($wrappedType)
@@ -180,7 +180,7 @@ static function listOf($wrappedType)
 ```php
 /**
  * @api
- * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType $wrappedType
+ * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $wrappedType
  * @return NonNull
  */
 static function nonNull($wrappedType)
@@ -248,6 +248,157 @@ static function getNullableType($type)
  */
 static function getNamedType($type)
 ```
+# GraphQL\Type\Definition\ResolveInfo
+Structure containing information useful for field resolution process.
+Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
+
+**Class Props:** 
+```php
+/**
+ * The name of the field being resolved
+ *
+ * @api
+ * @var string
+ */
+public $fieldName;
+
+/**
+ * AST of all nodes referencing this field in the query.
+ *
+ * @api
+ * @var FieldNode[]
+ */
+public $fieldNodes;
+
+/**
+ * Expected return type of the field being resolved
+ *
+ * @api
+ * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
+ */
+public $returnType;
+
+/**
+ * Parent type of the field being resolved
+ *
+ * @api
+ * @var ObjectType
+ */
+public $parentType;
+
+/**
+ * Path to this field from the very root value
+ *
+ * @api
+ * @var array
+ */
+public $path;
+
+/**
+ * Instance of a schema used for execution
+ *
+ * @api
+ * @var Schema
+ */
+public $schema;
+
+/**
+ * AST of all fragments defined in query
+ *
+ * @api
+ * @var FragmentDefinitionNode[]
+ */
+public $fragments;
+
+/**
+ * Root value passed to query execution
+ *
+ * @api
+ * @var mixed
+ */
+public $rootValue;
+
+/**
+ * AST of operation definition node (query, mutation)
+ *
+ * @api
+ * @var OperationDefinitionNode
+ */
+public $operation;
+
+/**
+ * Array of variables passed to query execution
+ *
+ * @api
+ * @var array
+ */
+public $variableValues;
+```
+
+**Class Methods:** 
+```php
+/**
+ * Helper method that returns names of all fields selected in query for
+ * $this->fieldName up to $depth levels
+ *
+ * Example:
+ * query MyQuery{
+ * {
+ *   root {
+ *     id,
+ *     nested {
+ *      nested1
+ *      nested2 {
+ *        nested3
+ *      }
+ *     }
+ *   }
+ * }
+ *
+ * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1,
+ * method will return:
+ * [
+ *     'id' => true,
+ *     'nested' => [
+ *         nested1 => true,
+ *         nested2 => true
+ *     ]
+ * ]
+ *
+ * Warning: this method it is a naive implementation which does not take into account
+ * conditional typed fragments. So use it with care for fields of interface and union types.
+ *
+ * @api
+ * @param int $depth How many levels to include in output
+ * @return array
+ */
+function getFieldSelection($depth = 0)
+```
+# GraphQL\Type\Definition\DirectiveLocation
+List of available directive locations
+
+**Class Constants:** 
+```php
+const IFACE = "INTERFACE";
+const SUBSCRIPTION = "SUBSCRIPTION";
+const FRAGMENT_SPREAD = "FRAGMENT_SPREAD";
+const QUERY = "QUERY";
+const MUTATION = "MUTATION";
+const FRAGMENT_DEFINITION = "FRAGMENT_DEFINITION";
+const INPUT_OBJECT = "INPUT_OBJECT";
+const INLINE_FRAGMENT = "INLINE_FRAGMENT";
+const UNION = "UNION";
+const SCALAR = "SCALAR";
+const FIELD_DEFINITION = "FIELD_DEFINITION";
+const ARGUMENT_DEFINITION = "ARGUMENT_DEFINITION";
+const ENUM = "ENUM";
+const OBJECT = "OBJECT";
+const ENUM_VALUE = "ENUM_VALUE";
+const FIELD = "FIELD";
+const SCHEMA = "SCHEMA";
+const INPUT_FIELD_DEFINITION = "INPUT_FIELD_DEFINITION";
+```
+
 # GraphQL\Type\SchemaConfig
 Schema configuration class.
 Could be passed directly to schema constructor. List of options accepted by **create** method is
@@ -808,7 +959,6 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * @param array|\ArrayAccess $variableValues
  * @param null $operationName
  * @param callable $fieldResolver
- * @param PromiseAdapter $promiseAdapter
  *
  * @return ExecutionResult|Promise
  */
@@ -819,14 +969,13 @@ static function execute(
     $contextValue = null,
     $variableValues = null,
     $operationName = null,
-    callable $fieldResolver = null,
-    GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter = null
+    callable $fieldResolver = null
 )
 ```
 
 ```php
 /**
- * Same as executeQuery(), but requires promise adapter and returns a promise which is always
+ * Same as execute(), but requires promise adapter and returns a promise which is always
  * fulfilled with an instance of ExecutionResult and never rejected.
  *
  * Useful for async PHP platforms.
@@ -1041,132 +1190,6 @@ function createRejected($reason)
  * @return Promise
  */
 function all(array $promisesOrValues)
-```
-# GraphQL\Type\Definition\ResolveInfo
-Structure containing information useful for field resolution process.
-Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
-
-**Class Props:** 
-```php
-/**
- * The name of the field being resolved
- *
- * @api
- * @var string
- */
-public $fieldName;
-
-/**
- * AST of all nodes referencing this field in the query.
- *
- * @api
- * @var FieldNode[]
- */
-public $fieldNodes;
-
-/**
- * Expected return type of the field being resolved
- *
- * @api
- * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
- */
-public $returnType;
-
-/**
- * Parent type of the field being resolved
- *
- * @api
- * @var ObjectType
- */
-public $parentType;
-
-/**
- * Path to this field from the very root value
- *
- * @api
- * @var array
- */
-public $path;
-
-/**
- * Instance of a schema used for execution
- *
- * @api
- * @var Schema
- */
-public $schema;
-
-/**
- * AST of all fragments defined in query
- *
- * @api
- * @var FragmentDefinitionNode[]
- */
-public $fragments;
-
-/**
- * Root value passed to query execution
- *
- * @api
- * @var mixed
- */
-public $rootValue;
-
-/**
- * AST of operation definition node (query, mutation)
- *
- * @api
- * @var OperationDefinitionNode
- */
-public $operation;
-
-/**
- * Array of variables passed to query execution
- *
- * @api
- * @var array
- */
-public $variableValues;
-```
-
-**Class Methods:** 
-```php
-/**
- * Helper method that returns names of all fields selected in query for
- * $this->fieldName up to $depth levels
- *
- * Example:
- * query MyQuery{
- * {
- *   root {
- *     id,
- *     nested {
- *      nested1
- *      nested2 {
- *        nested3
- *      }
- *     }
- *   }
- * }
- *
- * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1,
- * method will return:
- * [
- *     'id' => true,
- *     'nested' => [
- *         nested1 => true,
- *         nested2 => true
- *     ]
- * ]
- *
- * Warning: this method it is a naive implementation which does not take into account
- * conditional typed fragments. So use it with care for fields of interface and union types.
- *
- * @api
- * @param int $depth How many levels to include in output
- * @return array
- */
-function getFieldSelection($depth = 0)
 ```
 # GraphQL\Validator\DocumentValidator
 Implements the "Validation" section of the spec.
@@ -1887,4 +1910,187 @@ function getOriginalInput($key)
  * @return bool
  */
 function isReadOnly()
+```
+# GraphQL\Utils\BuildSchema
+Build instance of `GraphQL\Type\Schema` out of type language definition (string or parsed AST)
+See [section in docs](type-system/type-language.md) for details.
+
+**Class Methods:** 
+```php
+/**
+ * This takes the ast of a schema document produced by the parse function in
+ * GraphQL\Language\Parser.
+ *
+ * If no schema definition is provided, then it will look for types named Query
+ * and Mutation.
+ *
+ * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
+ * has no resolve methods, so execution will use default resolvers.
+ *
+ * @api
+ * @param DocumentNode $ast
+ * @param callable $typeConfigDecorator
+ * @return Schema
+ * @throws Error
+ */
+static function buildAST(GraphQL\Language\AST\DocumentNode $ast, callable $typeConfigDecorator = null)
+```
+
+```php
+/**
+ * A helper function to build a GraphQLSchema directly from a source
+ * document.
+ *
+ * @api
+ * @param DocumentNode|Source|string $source
+ * @param callable $typeConfigDecorator
+ * @return Schema
+ */
+static function build($source, callable $typeConfigDecorator = null)
+```
+# GraphQL\Utils\AST
+Various utilities dealing with AST
+
+**Class Methods:** 
+```php
+/**
+ * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
+ *
+ * For example:
+ *
+ * ```php
+ * Node::fromArray([
+ *     'kind' => 'ListValue',
+ *     'values' => [
+ *         ['kind' => 'StringValue', 'value' => 'my str'],
+ *         ['kind' => 'StringValue', 'value' => 'my other str']
+ *     ],
+ *     'loc' => ['start' => 21, 'end' => 25]
+ * ]);
+ * ```
+ *
+ * Will produce instance of `ListValueNode` where `values` prop is a lazily-evaluated `NodeList`
+ * returning instances of `StringValueNode` on access.
+ *
+ * This is a reverse operation for AST::toArray($node)
+ *
+ * @api
+ * @param array $node
+ * @return Node
+ */
+static function fromArray(array $node)
+```
+
+```php
+/**
+ * Convert AST node to serializable array
+ *
+ * @api
+ * @param Node $node
+ * @return array
+ */
+static function toArray(GraphQL\Language\AST\Node $node)
+```
+
+```php
+/**
+ * Produces a GraphQL Value AST given a PHP value.
+ *
+ * Optionally, a GraphQL type may be provided, which will be used to
+ * disambiguate between value primitives.
+ *
+ * | PHP Value     | GraphQL Value        |
+ * | ------------- | -------------------- |
+ * | Object        | Input Object         |
+ * | Assoc Array   | Input Object         |
+ * | Array         | List                 |
+ * | Boolean       | Boolean              |
+ * | String        | String / Enum Value  |
+ * | Int           | Int                  |
+ * | Float         | Int / Float          |
+ * | Mixed         | Enum Value           |
+ * | null          | NullValue            |
+ *
+ * @api
+ * @param $value
+ * @param InputType $type
+ * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
+ */
+static function astFromValue($value, GraphQL\Type\Definition\InputType $type)
+```
+
+```php
+/**
+ * Produces a PHP value given a GraphQL Value AST.
+ *
+ * A GraphQL type must be provided, which will be used to interpret different
+ * GraphQL Value literals.
+ *
+ * Returns `null` when the value could not be validly coerced according to
+ * the provided type.
+ *
+ * | GraphQL Value        | PHP Value     |
+ * | -------------------- | ------------- |
+ * | Input Object         | Assoc Array   |
+ * | List                 | Array         |
+ * | Boolean              | Boolean       |
+ * | String               | String        |
+ * | Int / Float          | Int / Float   |
+ * | Enum Value           | Mixed         |
+ * | Null Value           | null          |
+ *
+ * @api
+ * @param $valueNode
+ * @param InputType $type
+ * @param null $variables
+ * @return array|null|\stdClass
+ * @throws \Exception
+ */
+static function valueFromAST($valueNode, GraphQL\Type\Definition\InputType $type, $variables = null)
+```
+
+```php
+/**
+ * Returns type definition for given AST Type node
+ *
+ * @api
+ * @param Schema $schema
+ * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+ * @return Type
+ * @throws InvariantViolation
+ */
+static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
+```
+
+```php
+/**
+ * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
+ *
+ * @api
+ * @param DocumentNode $document
+ * @param string $operationName
+ * @return bool
+ */
+static function getOperation(GraphQL\Language\AST\DocumentNode $document, $operationName = null)
+```
+# GraphQL\Utils\SchemaPrinter
+Given an instance of Schema, prints it in GraphQL type language.
+
+**Class Methods:** 
+```php
+/**
+ * @api
+ * @param Schema $schema
+ * @return string
+ */
+static function doPrint(GraphQL\Type\Schema $schema)
+```
+
+```php
+/**
+ * @api
+ * @param Schema $schema
+ * @return string
+ */
+static function printIntrosepctionSchema(GraphQL\Type\Schema $schema)
 ```

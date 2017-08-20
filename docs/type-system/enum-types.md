@@ -6,6 +6,7 @@ In **graphql-php** enum type is an instance of `GraphQL\Type\Definition\EnumType
 which accepts configuration array in constructor:
 
 ```php
+<?php
 use GraphQL\Type\Definition\EnumType;
 
 $episodeEnum = new EnumType([
@@ -28,11 +29,11 @@ $episodeEnum = new EnumType([
 ]);
 ```
 
-This example uses **inline** style for Enum Type definition, but you can also use
+This example uses an **inline** style for Enum Type definition, but you can also use
 [inheritance or type language](index.md#type-definition-styles).
 
 # Configuration options
-Enum Type constructor accepts array with following options:
+Enum Type constructor accepts an array with following options:
 
 Option | Type | Notes
 ------ | ---- | -----
@@ -55,6 +56,9 @@ If internal representation of enumerated item is the same as item name, then you
 following shorthand for definition:
 
 ```php
+<?php
+use GraphQL\Type\Definition\EnumType;
+
 $episodeEnum = new EnumType([
     'name' => 'Episode',
     'description' => 'One of the films in the Star Wars Trilogy',
@@ -64,6 +68,9 @@ $episodeEnum = new EnumType([
 
 which is equivalent of:
 ```php
+<?php
+use GraphQL\Type\Definition\EnumType;
+
 $episodeEnum = new EnumType([
     'name' => 'Episode',
     'description' => 'One of the films in the Star Wars Trilogy',
@@ -75,9 +82,12 @@ $episodeEnum = new EnumType([
 ]);
 ```
 
-which is in turn equivalent of full form:
+which is in turn equivalent of the full form:
 
 ```php
+<?php
+use GraphQL\Type\Definition\EnumType;
+
 $episodeEnum = new EnumType([
     'name' => 'Episode',
     'description' => 'One of the films in the Star Wars Trilogy',
@@ -90,11 +100,12 @@ $episodeEnum = new EnumType([
 ```
 
 # Field Resolution
-When object field is of Enum Type, field resolver is expected to return internal 
+When object field is of Enum Type, field resolver is expected to return an internal 
 representation of corresponding Enum item (**value** in config). **graphql-php** will 
 then serialize this **value** to **name** to include in response:
 
 ```php
+<?php
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 
@@ -127,14 +138,18 @@ $heroType = new ObjectType([
             }
         ]
     ]
-])
+]);
 ```
 
-Reverse is true when enum is used as input type (e.g. as field argument). 
+The Reverse is true when the enum is used as input type (e.g. as field argument). 
 GraphQL will treat enum input as **name** and convert it into **value** before passing to your app.
 
 For example, given object type definition:
 ```php
+<?php
+use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\ObjectType;
+
 $heroType = new ObjectType([
     'name' => 'Hero',
     'fields' => [
@@ -142,17 +157,17 @@ $heroType = new ObjectType([
             'type' => Type::boolean(),
             'args' => [
                 'episode' => Type::nonNull($enumType)
-            ]
+            ],
             'resolve' => function($_value, $args) {
                 return $args['episode'] === 5 ? true : false; 
             }
         ]
     ]
-])
+]);
 ```
 
 Then following query:
-```
+```graphql
 fragment on Hero {
     appearsInNewHope: appearsIn(NEWHOPE)
     appearsInEmpire: appearsIn(EMPIRE)

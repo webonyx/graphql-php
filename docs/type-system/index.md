@@ -1,9 +1,10 @@
 # Type System
 To start using GraphQL you are expected to implement a type hierarchy and expose it as [Schema](schema.md). 
 
-In **graphql-php** `type` is an instance of internal class from 
-`GraphQL\Type\Definition` namespace: `ScalarType`, `ObjectType`, `InterfaceType`, 
-`UnionType`, `InputObjectType` (or one of it's subclasses).
+In graphql-php **type** is an instance of internal class from 
+`GraphQL\Type\Definition` namespace: [`ObjectType`](object-types.md), 
+[`InterfaceType`](interfaces.md), [`UnionType`](unions.md), [`InputObjectType`](input-types.md), 
+[`ScalarType`](scalar-types.md), [`EnumType`](enum-types.md) (or one of subclasses).
 
 But most of the types in your schema will be [object types](object-types.md).
 
@@ -68,16 +69,16 @@ input HelloInput {
 }
 ```
 
-[Read more](type-language.md) about it in a dedicated docs section.
+Read more about type language definitions in a [dedicated docs section](type-language.md).
 
 # Type Registry
-Every type must be presented in Schema by single instance (**graphql-php** 
-throws when it discovers several instances with the same `name` in schema).
+Every type must be presented in Schema by a single instance (**graphql-php** 
+throws when it discovers several instances with the same **name** in the schema).
 
 Therefore if you define your type as separate PHP class you must ensure that only one 
-instance of that class is added to schema.
+instance of that class is added to the schema.
 
-Typical way to do this is to create registry of your types:
+The typical way to do this is to create a registry of your types:
 
 ```php
 <?php
@@ -118,8 +119,9 @@ class MyAType extends ObjectType
     }
 }
 ```
-Obviously you can automate this registry as you wish to reduce boilerplate or even 
+Obviously, you can automate this registry as you wish to reduce boilerplate or even 
 introduce Dependency Injection Container if your types have other dependencies.
 
-Alternatively all methods of registry could be static if you prefer - then there is no need
-to pass it in constructor - instead just use use `TypeRegistry::myAType()` in your type definitions.
+Alternatively, all methods of the registry could be static - then there is no need
+to pass it in constructor - instead just use use **TypeRegistry::myAType()** in your 
+type definitions.

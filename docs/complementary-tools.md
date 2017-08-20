@@ -11,3 +11,4 @@
 - [ChromeiQL](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij)
   or [GraphiQL Feen](https://chrome.google.com/webstore/detail/graphiql-feen/mcbfdonlkfpbfdpimkjilhdneikhfklp) -
   GraphiQL as Google Chrome extension
+- [DataLoader PHP](https://github.com/overblog/dataloader-php) - as a ready implementation for [deferred resolvers](data-fetching.md#solving-n1-problem)

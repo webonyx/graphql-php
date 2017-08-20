@@ -6,14 +6,14 @@
 
 # About GraphQL
 
-GraphQL is a modern way to build HTTP APIs consumed by web and mobile clients.
+GraphQL is a modern way to build HTTP APIs consumed by the web and mobile clients.
 It is intended to be a replacement for REST and SOAP APIs (even for **existing applications**).
 
 GraphQL itself is a [specification](https://github.com/facebook/graphql) designed by Facebook
 engineers. Various implementations of this specification were written 
-[for different languages and environments](http://graphql.org/code/).
+[in different languages and environments](http://graphql.org/code/).
 
-Great overview of GraphQL features and benefits is presented on [official website](http://graphql.org/). 
+Great overview of GraphQL features and benefits is presented on [the official website](http://graphql.org/). 
 All of them equally apply to this PHP implementation. 
 
 
@@ -25,7 +25,7 @@ published by Facebook.
 
 This library is a thin wrapper around your existing data layer and business logic. 
 It doesn't dictate how these layers are implemented or which storage engines 
-are used. Instead it provides tools for creating rich API for your existing app.
+are used. Instead, it provides tools for creating rich API for your existing app.
  
 Library features include:
 
@@ -38,15 +38,16 @@ Library features include:
  - [Async PHP platforms support](data-fetching.md/#async-php) via promises
  - [Standard HTTP server](executing-queries.md/#using-server)
 
-Also several [complementary tools](complementary-tools.md) are available which provide integrations with 
+Also, several [complementary tools](complementary-tools.md) are available which provide integrations with 
 existing PHP frameworks, add support for Relay, etc.
 
 ## Current Status
-First version of this library (v0.1) was released on August 10th 2015.
+The first version of this library (v0.1) was released on August 10th 2015.
 
-Current version (v0.10) supports all features described by GraphQL specification 
+The current version (v0.10) supports all features described by GraphQL specification 
 (including April 2016 add-ons) as well as some experimental features like 
-Schema Language parser.
+[Schema Language parser](type-system/type-language.md) and 
+[Schema printer](reference.md#graphqlutilsschemaprinter).
 
 Ready for real-world usage. 
 

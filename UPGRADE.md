@@ -146,6 +146,8 @@ It requires promise adapter in it's first argument and always returns a `Promise
 Old methods `GraphQL::execute` and `GraphQL::executeAndReturnResult` still work in backwards-compatible manner, 
 but they are deprecated and will be removed eventually.
 
+Same applies to Executor: use `Executor::promiseToExecute()` vs `Executor::execute()`.
+
 ## Upgrade v0.7.x > v0.8.x
 All of those changes apply to those who extends various parts of this library.
 If you only use the library and don't try to extend it - everything should work without breaks.

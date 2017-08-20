@@ -1,11 +1,12 @@
 # Schema Definition
-Schema is a container of your type hierarchy, which accepts root types in constructor and provides
+The schema is a container of your type hierarchy, which accepts root types in a constructor and provides
 methods for receiving information about your types to internal GrahpQL tools.
 
 In **graphql-php** schema is an instance of [`GraphQL\Type\Schema`](../reference.md#graphqltypeschema) 
-which accepts configuration array in constructor:
+which accepts configuration array in a constructor:
 
 ```php
+<?php
 use GraphQL\Type\Schema;
 
 $schema = new Schema([
@@ -16,18 +17,18 @@ $schema = new Schema([
 See possible constructor options [below](#configuration-options).
 
 # Query and Mutation types
-Schema consists of two root types:
+The schema consists of two root types:
  
-* `Query` type is a surface of your read API
-* `Mutation` type (optional) exposes write API by declaring all possible mutations in your app. 
+* **Query** type is a surface of your read API
+* **Mutation** type (optional) exposes write API by declaring all possible mutations in your app. 
 
 Query and Mutation types are regular [object types](object-types.md) containing root-level fields 
 of your API:
 
 ```php
+<?php
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Schema;
 
 $queryType = new ObjectType([
     'name' => 'Query',
@@ -37,7 +38,7 @@ $queryType = new ObjectType([
             'resolve' => function() {
                 return 'Hello World!';
             }
-        ]
+        ],
         'hero' => [
             'type' => $characterInterface,
             'args' => [
@@ -55,8 +56,8 @@ $queryType = new ObjectType([
 $mutationType = new ObjectType([
     'name' => 'Mutation',
     'fields' => [
-        'createReviewForEpisode' => [
-            'type' => $createReviewForEpisodeMutation,
+        'createReview' => [
+            'type' => $createReviewOutput,
             'args' => [
                 'episode' => $episodeEnum,
                 'review' => $reviewInputObject
@@ -69,13 +70,13 @@ $mutationType = new ObjectType([
 ]);
 ```
 
-Keep in mind that other than the special meaning of declaring surface area of your API, 
+Keep in mind that other than the special meaning of declaring a surface area of your API, 
 those types are the same as any other [object type](object-types.md), and their fields work 
 exactly the same way.
 
 **Mutation** type is also just a regular object type. The difference is in semantics. 
 Field names of Mutation type are usually verbs and they almost always have arguments - quite often 
-with complex input values (see [Input Types](input-types.md) for details).
+with complex input values (see [Mutations and Input Types](input-types.md) for details).
 
 # Configuration Options
 Schema constructor expects an instance of [`GraphQL\Type\SchemaConfig`](../reference.md#graphqltypeschemaconfig) 
@@ -86,14 +87,15 @@ Option       | Type     | Notes
 query        | `ObjectType` | **Required.** Object type (usually named "Query") containing root-level fields of your read API
 mutation     | `ObjectType` | Object type (usually named "Mutation") containing root-level fields of your write API
 subscription     | `ObjectType` | Reserved for future subscriptions implementation. Currently presented for compatibility with introspection query of **graphql-js**, used by various clients (like Relay or GraphiQL)
-directives  | `Directive[]` | Full list of [directives](directives.md) supported by your schema. By default contains built-in `@skip` and `@include` directives.<br><br> If you pass your own directives and still want to use built-in directives - add them explicitly. For example: `array_merge(GraphQL::getStandardDirectives(), [$myCustomDirective]`
-types     | `ObjectType[]` | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often it happens when object type is never referenced in fields directly, but is still a part of schema because it implements an interface which resolves to this object type in it's `resolveType` callback. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete use-case.
+directives  | `Directive[]` | A full list of [directives](directives.md) supported by your schema. By default, contains built-in **@skip** and **@include** directives.<br><br> If you pass your own directives and still want to use built-in directives - add them explicitly. For example:<br><br> *array_merge(GraphQL::getStandardDirectives(), [$myCustomDirective]);*
+types     | `ObjectType[]` | List of object types which cannot be detected by **graphql-php** during static schema analysis.<br><br>Most often it happens when the object type is never referenced in fields directly but is still a part of a schema because it implements an interface which resolves to this object type in its **resolveType** callable. <br><br> Note that you are not required to pass all of your types here - it is simply a workaround for concrete use-case.
+typeLoader     | `callable` | **function($name)** Expected to return type instance given the name. Must always return the same instance if called multiple times. See section below on lazy type loading.
 
 # Lazy loading of types
-By default a schema will scan all of your type and field definitions to serve GraphQL queries. 
-It may cause performance overhead when there are many types in a schema. 
+By default, the schema will scan all of your type, field and argument definitions to serve GraphQL queries. 
+It may cause performance overhead when there are many types in the schema. 
 
-In this case it is recommended to pass **typeLoader** option to schema constructor and define all 
+In this case, it is recommended to pass **typeLoader** option to schema constructor and define all 
 of your object **fields** as callbacks.
 
 Type loading concept is very similar to PHP class loading, but keep in mind that **typeLoader** must
@@ -101,9 +103,13 @@ always return the same instance of a type.
 
 Usage example:
 ```php
+<?php
+use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Schema;
+
 class Types
 {
-    private $registry = [];
+    private $types = [];
 
     public function get($name)
     {
@@ -143,13 +149,13 @@ $schema = new Schema([
 
 
 # Schema Validation
-By default schema is created with only shallow validation of type and field definitions  
+By default, the schema is created with only shallow validation of type and field definitions  
 (because validation requires full schema scan and is very costly on bigger schemas).
 
-But there is a special method `$schema->assertValid()` which throws `GraphQL\Error\InvariantViolation` 
-exception when it encounters any error, like:
+But there is a special method **assertValid()** on schema instance which throws 
+`GraphQL\Error\InvariantViolation` exception when it encounters any error, like:
 
-- Invalid types used for fields / arguments
+- Invalid types used for fields/arguments
 - Missing interface implementations
 - Invalid interface implementations
 - Other schema errors...
@@ -159,11 +165,11 @@ Don't call it in web requests in production.
 
 Usage example:
 ```php
-$schema = new GraphQL\Type\Schema([
-    'query' => $myQueryType
-]);
-
+<?php
 try {
+    $schema = new GraphQL\Type\Schema([
+        'query' => $myQueryType
+    ]);
     $schema->assertValid();
 } catch (GraphQL\Error\InvariantViolation $e) {
     echo $e->getMessage();
