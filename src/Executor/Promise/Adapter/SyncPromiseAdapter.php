@@ -128,6 +128,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function wait(Promise $promise)
     {
+        $this->beforeWait($promise);
         $dfdQueue = Deferred::getQueue();
         $promiseQueue = SyncPromise::getQueue();
 
@@ -137,6 +138,7 @@ class SyncPromiseAdapter implements PromiseAdapter
         ) {
             Deferred::runQueue();
             SyncPromise::runQueue();
+            $this->onWait($promise);
         }
 
         /** @var SyncPromise $syncPromise */
@@ -149,5 +151,23 @@ class SyncPromiseAdapter implements PromiseAdapter
         }
 
         throw new InvariantViolation("Could not resolve promise");
+    }
+
+    /**
+     * Execute just before starting to run promise completion
+     *
+     * @param Promise $promise
+     */
+    protected function beforeWait(Promise $promise)
+    {
+    }
+
+    /**
+     * Execute while running promise completion
+     *
+     * @param Promise $promise
+     */
+    protected function onWait(Promise $promise)
+    {
     }
 }
