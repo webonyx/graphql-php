@@ -4,10 +4,8 @@
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
 [![License](https://poser.pugx.org/webonyx/graphql-php/license)](https://packagist.org/packages/webonyx/graphql-php)
 
-This is a PHP port of GraphQL reference implementation based on the [specification](https://github.com/facebook/graphql)
-and the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
-
-This implementation follows JavaScript version as close as possible until GraphQL itself stabilizes.
+This is a PHP implementation of the GraphQL [specification](https://github.com/facebook/graphql)
+based on the [reference implementation in JavaScript](https://github.com/graphql/graphql-js).
 
 ## Installation
 Via composer:
@@ -18,6 +16,9 @@ composer require webonyx/graphql-php
 ## Documentation
 Full documentation is available on the [Documentation site](http://webonyx.github.io/graphql-php/) as well 
 as in the [docs](docs/) folder of the distribution.
+
+If you don't know what GraphQL is, visit this [official website](http://graphql.org) 
+by the Facebook engineering team.
 
 ## Examples
 There are several ready examples in the [examples](examples/) folder of the distribution with specific 
