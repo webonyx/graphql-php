@@ -16,18 +16,18 @@ composer require webonyx/graphql-php
 ```
 
 ## Documentation
-Full documentation is available on [Documentation site](http://webonyx.github.io/graphql-php/) as well 
-as in [docs](docs/) folder of the distribution.
+Full documentation is available on the [Documentation site](http://webonyx.github.io/graphql-php/) as well 
+as in the [docs](docs/) folder of the distribution.
 
 ## Examples
-There are several ready examples in [examples](examples/) folder of the distribution with specific 
+There are several ready examples in the [examples](examples/) folder of the distribution with specific 
 README file per example.
 
 ## Contribute
 Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute.
 
-## Old README
-Here is a [link to Old README.md](https://github.com/webonyx/graphql-php/blob/v0.9.14/README.md). 
+## Old README.md
+Here is a [link to the old README.md](https://github.com/webonyx/graphql-php/blob/v0.9.14/README.md). 
 
-Keep in mind though that it relates to the version 0.9.x. It may contain outdated information for 
+Keep in mind that it relates to the version 0.9.x. It may contain outdated information for 
 newer versions (even though we try to preserve backwards compatibility).
