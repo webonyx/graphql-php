@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.10.2
+- StandardServer improvement: do not raise an error when variables are passed as empty string (see #156)
+
 #### v0.10.1
 - Fixed infinite loop in the server (see #153)
 
