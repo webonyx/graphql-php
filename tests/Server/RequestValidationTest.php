@@ -99,6 +99,26 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/156
+     */
+    public function testIgnoresNullAndEmptyStringVariables()
+    {
+        $query = '{my q}';
+        $parsedBody = OperationParams::create([
+            'query' => $query,
+            'variables' => null
+        ]);
+        $this->assertValid($parsedBody);
+
+        $variables = "";
+        $parsedBody = OperationParams::create([
+            'query' => $query,
+            'variables' => $variables
+        ]);
+        $this->assertValid($parsedBody);
+    }
+
     public function testFailsWhenVariablesParameterIsNotObject()
     {
         $parsedBody = OperationParams::create([
