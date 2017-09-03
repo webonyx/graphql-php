@@ -203,8 +203,11 @@ class Error extends \Exception implements \JsonSerializable
     {
         $arr = [
             'message' => $this->getMessage(),
-            'code' => $this->getCode(),
         ];
+
+        if ($this->getCode() !== 0) {
+            $arr['code'] = $this->getCode();
+        }
 
         $locations = Utils::map($this->getLocations(), function(SourceLocation $loc) {
             return $loc->toSerializableArray();
