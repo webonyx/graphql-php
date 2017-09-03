@@ -40,6 +40,7 @@ class FormattedError
     {
         return [
             'message' => $e->getMessage(),
+            'code' => $e->getCode(),
             'severity' => $e->getSeverity(),
             'trace' => self::toSafeTrace($e->getTrace())
         ];
@@ -53,6 +54,7 @@ class FormattedError
     {
         return [
             'message' => $e->getMessage(),
+            'code' => $e->getCode(),
             'trace' => self::toSafeTrace($e->getTrace())
         ];
     }

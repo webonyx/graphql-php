@@ -82,15 +82,18 @@ class Error extends \Exception implements \JsonSerializable
 
         if ($error instanceof self) {
             $message = $error->getMessage();
+            $code = $error->getCode();
             $originalError = $error;
             $nodes = $error->nodes ?: $nodes;
             $source = $error->source;
             $positions = $error->positions;
         } else if ($error instanceof \Exception) {
             $message = $error->getMessage();
+            $code = $error->getCode();
             $originalError = $error;
         } else if ($error instanceof \Error) {
             $message = $error->getMessage();
+            $code = $error->getCode();
             $originalError = $error;
         } else {
             $message = (string) $error;
@@ -102,7 +105,8 @@ class Error extends \Exception implements \JsonSerializable
             $source,
             $positions,
             $path,
-            $originalError
+            $originalError,
+            $code
         );
     }
 
@@ -124,9 +128,9 @@ class Error extends \Exception implements \JsonSerializable
      * @param array|null $path
      * @param \Exception|\Error $previous
      */
-    public function __construct($message, $nodes = null, Source $source = null, $positions = null, $path = null, $previous = null)
+    public function __construct($message, $nodes = null, Source $source = null, $positions = null, $path = null, $previous = null, $code = null)
     {
-        parent::__construct($message, 0, $previous);
+        parent::__construct($message, $code ?: 0, $previous);
 
         if ($nodes instanceof \Traversable) {
             $nodes = iterator_to_array($nodes);
@@ -199,6 +203,7 @@ class Error extends \Exception implements \JsonSerializable
     {
         $arr = [
             'message' => $this->getMessage(),
+            'code' => $this->getCode(),
         ];
 
         $locations = Utils::map($this->getLocations(), function(SourceLocation $loc) {
