@@ -81,6 +81,15 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it serializes to include message
+     */
+    public function testSerializesToIncludeMessageAndCode()
+    {
+        $e = new Error('msg', null, null, null, null, null, 1000);
+        $this->assertEquals(['message' => 'msg', 'code' => 1000], $e->toSerializableArray());
+    }
+
+    /**
      * @it serializes to include message and locations
      */
     public function testSerializesToIncludeMessageAndLocations()
