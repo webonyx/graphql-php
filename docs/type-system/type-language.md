@@ -1,4 +1,5 @@
 # Defining your schema
+Since 0.9.0
 
 [Type language](http://graphql.org/learn/schema/#type-language) is a convenient way to define your schema,
 especially with IDE autocompletion and syntax validation.
@@ -39,6 +40,8 @@ Also, we have to rely on [default field resolver](../data-fetching.md#default-fi
 order to execute a query against this schema.
 
 # Defining resolvers
+Since 0.10.0
+
 In order to enable **Interfaces**, **Unions** and custom field resolvers you can pass the second argument: 
 **type config decorator** to schema builder. 
 
@@ -61,6 +64,8 @@ $schema = BuildSchema::build($contents, $typeConfigDecorator);
 ```
 
 # Performance considerations
+Since 0.10.0
+
 Method **build()** produces a [lazy schema](schema.md#lazy-loading-of-types)
 automatically, so it works efficiently even with very large schemas.
 

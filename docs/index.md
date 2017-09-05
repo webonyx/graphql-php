@@ -34,9 +34,9 @@ Library features include:
  - Parsing, validating and [executing GraphQL queries](executing-queries.md) against this Type System
  - Rich [error reporting](error-handling.md), including query validation and execution errors
  - Optional tools for [parsing GraphQL Type language](type-system/type-language.md)
- - Tools for [batching requests](data-fetching.md/#solving-n1-problem) to backend storage
- - [Async PHP platforms support](data-fetching.md/#async-php) via promises
- - [Standard HTTP server](executing-queries.md/#using-server)
+ - Tools for [batching requests](data-fetching.md#solving-n1-problem) to backend storage
+ - [Async PHP platforms support](data-fetching.md#async-php) via promises
+ - [Standard HTTP server](executing-queries.md#using-server)
 
 Also, several [complementary tools](complementary-tools.md) are available which provide integrations with 
 existing PHP frameworks, add support for Relay, etc.
