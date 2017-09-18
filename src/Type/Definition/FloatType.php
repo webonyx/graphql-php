@@ -32,7 +32,16 @@ values as specified by
      */
     public function serialize($value)
     {
-        return $this->coerceFloat($value, false);
+        if (is_numeric($value) || $value === true || $value === false) {
+            return (float) $value;
+        }
+
+        if ($value === '') {
+            $err = 'Float cannot represent non numeric value: (empty string)';
+        } else {
+            $err = sprintf('Float cannot represent non numeric value: %s', Utils::printSafe($value));
+        }
+        throw new InvariantViolation($err);
     }
 
     /**
@@ -41,29 +50,7 @@ values as specified by
      */
     public function parseValue($value)
     {
-        return $this->coerceFloat($value, true);
-    }
-
-    /**
-     * @param mixed $value
-     * @param bool $isInput
-     * @return float|null
-     */
-    private function coerceFloat($value, $isInput)
-    {
-        if (is_numeric($value) || $value === true || $value === false) {
-            return (float) $value;
-        }
-
-        if ($value === '') {
-            $err = 'Float cannot represent non numeric value: (empty string)';
-        } else {
-            $err = sprintf(
-                'Float cannot represent non numeric value: %s',
-                $isInput ? Utils::printSafeJson($value) : Utils::printSafe($value)
-            );
-        }
-        throw ($isInput ? new Error($err) : new InvariantViolation($err));
+        return (is_numeric($value) && !is_string($value)) ? (float) $value : null;
     }
 
     /**

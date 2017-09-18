@@ -248,7 +248,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $rootValue = [ 'root' => 'val' ];
 
-        Executor::execute($schema, $ast, $rootValue, null, [ 'var' => 123 ]);
+        Executor::execute($schema, $ast, $rootValue, null, [ 'var' => '123' ]);
 
         $this->assertEquals([
             'fieldName',

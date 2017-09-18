@@ -34,7 +34,7 @@ class BooleanType extends ScalarType
      */
     public function parseValue($value)
     {
-        return !!$value;
+        return is_bool($value) ? $value : null;
     }
 
     /**
