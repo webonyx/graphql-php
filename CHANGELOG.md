@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.11.0
+This release brings little changes, but there are two reasons why it is released as major version:
+
+1. To follow reference implementation versions (it matches 0.11.x series of graphql-js)
+2. It may break existing applications because scalar input coercion rules are stricter now:<br>
+<br>
+In previous versions sloppy client input could leak through with unexpected results. 
+For example string `"false"` accidentally sent in variables was converted to boolean `true` 
+and passed to field arguments. In new version such input will produce an error 
+(which is a spec-compliant behavior).
+
+Improvements: 
+- Stricter input coercion (see #171)
+- Types built with `BuildSchema` now have reference to ast node with corresponding AST definition (in $astNode property)
+- Account for query offset for errors (e.g. when query is stored in `.graphql` file)
+
 #### v0.10.2
 - StandardServer improvement: do not raise an error when variables are passed as empty string (see #156)
 
