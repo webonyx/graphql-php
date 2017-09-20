@@ -52,19 +52,10 @@ represent free-form human-readable text.';
      */
     public function parseValue($value)
     {
-        if ($value === true) {
-            return 'true';
-        }
-        if ($value === false) {
-            return 'false';
-        }
-        if ($value === null) {
-            return 'null';
-        }
         if (!is_scalar($value)) {
             throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
         }
-        return (string) $value;
+        return is_string($value) ? $value : null;
     }
 
     /**

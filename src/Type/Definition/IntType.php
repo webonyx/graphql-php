@@ -38,39 +38,16 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     public function serialize($value)
     {
-        return $this->coerceInt($value, false);
-    }
-
-    /**
-     * @param mixed $value
-     * @return int|null
-     */
-    public function parseValue($value)
-    {
-        return $this->coerceInt($value, true);
-    }
-
-    /**
-     * @param $value
-     * @param bool $isInput
-     * @return int|null
-     */
-    private function coerceInt($value, $isInput)
-    {
-        $errClass = $isInput ? Error::class : InvariantViolation::class;
-
         if ($value === '') {
-            throw new $errClass(
-                'Int cannot represent non 32-bit signed integer value: (empty string)'
-            );
+            throw new InvariantViolation('Int cannot represent non 32-bit signed integer value: (empty string)');
         }
         if (false === $value || true === $value) {
             return (int) $value;
         }
         if (!is_numeric($value) || $value > self::MAX_INT || $value < self::MIN_INT) {
-            throw new $errClass(sprintf(
+            throw new InvariantViolation(sprintf(
                 'Int cannot represent non 32-bit signed integer value: %s',
-                $isInput ? Utils::printSafeJson($value) : Utils::printSafe($value)
+                Utils::printSafe($value)
             ));
         }
         $num = (float) $value;
@@ -82,13 +59,22 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             // Additionally account for scientific notation (i.e. 1e3), because (float)'1e3' is 1000, but (int)'1e3' is 1
             $trimmed = floor($num);
             if ($trimmed !== $num) {
-                throw new $errClass(sprintf(
+                throw new InvariantViolation(sprintf(
                     'Int cannot represent non-integer value: %s',
-                    $isInput ? Utils::printSafeJson($value) : Utils::printSafe($value)
+                    Utils::printSafe($value)
                 ));
             }
         }
         return (int) $value;
+    }
+
+    /**
+     * @param mixed $value
+     * @return int|null
+     */
+    public function parseValue($value)
+    {
+        return (is_int($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) ? $value : null;
     }
 
     /**

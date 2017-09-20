@@ -55,19 +55,10 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function parseValue($value)
     {
-        if ($value === true) {
-            return 'true';
-        }
-        if ($value === false) {
-            return 'false';
-        }
-        if ($value === null) {
-            return 'null';
-        }
         if (!is_scalar($value)) {
             throw new Error("ID type cannot represent non scalar value: " . Utils::printSafeJson($value));
         }
-        return (string) $value;
+        return (is_string($value) || is_int($value)) ? (string) $value : null;
     }
 
     /**
