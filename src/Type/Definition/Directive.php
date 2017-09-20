@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Language\AST\DirectiveDefinitionNode;
+
 /**
  * Class Directive
  * @package GraphQL\Type\Definition
@@ -158,6 +160,16 @@ class Directive
     public $args;
 
     /**
+     * @var DirectiveDefinitionNode|null
+     */
+    public $astNode;
+
+    /**
+     * @var array
+     */
+    public $config;
+
+    /**
      * Directive constructor.
      * @param array $config
      */
@@ -166,5 +178,6 @@ class Directive
         foreach ($config as $key => $value) {
             $this->{$key} = $value;
         }
+        $this->config = $config;
     }
 }

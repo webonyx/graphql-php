@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 /**
@@ -24,13 +25,15 @@ use GraphQL\Utils\Utils;
 abstract class ScalarType extends Type implements OutputType, InputType, LeafType
 {
     /**
-     * ScalarType constructor.
+     * @var ScalarTypeDefinitionNode|null
      */
-    public function __construct()
+    public $astNode;
+
+    function __construct(array $config = [])
     {
-        if (!isset($this->name)) {
-            $this->name = $this->tryInferName();
-        }
+        $this->name = isset($config['name']) ? $config['name'] : $this->tryInferName();
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
+        $this->config = $config;
 
         Utils::assertValidName($this->name);
     }

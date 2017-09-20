@@ -10,22 +10,6 @@ use GraphQL\Utils\Utils;
 class CustomScalarType extends ScalarType
 {
     /**
-     * @var array
-     */
-    public $config;
-
-    /**
-     * CustomScalarType constructor.
-     * @param array $config
-     */
-    function __construct(array $config)
-    {
-        $this->name = $config['name'];
-        $this->config = $config;
-        parent::__construct();
-    }
-
-    /**
      * @param mixed $value
      * @return mixed
      */

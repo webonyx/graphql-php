@@ -2,6 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Utils\MixedStore;
 use GraphQL\Utils\Utils;
@@ -12,6 +13,11 @@ use GraphQL\Utils\Utils;
  */
 class EnumType extends Type implements InputType, OutputType, LeafType
 {
+    /**
+     * @var EnumTypeDefinitionNode|null
+     */
+    public $astNode;
+
     /**
      * @var EnumValueDefinition[]
      */
@@ -26,11 +32,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType
      * @var \ArrayObject<string, EnumValueDefinition>
      */
     private $nameLookup;
-
-    /**
-     * @var array
-     */
-    public $config;
 
     public function __construct($config)
     {
@@ -53,6 +54,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
     }
 
@@ -91,7 +93,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
     /**
      * @param $name
-     * @return mixed|null
+     * @return EnumValueDefinition|null
      */
     public function getValue($name)
     {

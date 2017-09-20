@@ -2,6 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 /**
@@ -11,6 +12,11 @@ use GraphQL\Utils\Utils;
 class UnionType extends Type implements AbstractType, OutputType, CompositeType
 {
     /**
+     * @var UnionTypeDefinitionNode
+     */
+    public $astNode;
+
+    /**
      * @var ObjectType[]
      */
     private $types;
@@ -19,11 +25,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
      * @var ObjectType[]
      */
     private $possibleTypeNames;
-
-    /**
-     * @var array
-     */
-    public $config;
 
     /**
      * UnionType constructor.
@@ -51,6 +52,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
          */
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
     }
 

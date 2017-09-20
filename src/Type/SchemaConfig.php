@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type;
 
+use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -51,6 +52,11 @@ class SchemaConfig
      * @var callable
      */
     public $typeLoader;
+
+    /**
+     * @var SchemaDefinitionNode
+     */
+    public $astNode;
 
     /**
      * Converts an array of options to instance of SchemaConfig
@@ -132,9 +138,36 @@ class SchemaConfig
                 );
                 $config->setTypeLoader($options['typeLoader']);
             }
+
+            if (isset($options['astNode'])) {
+                Utils::invariant(
+                    $options['astNode'] instanceof SchemaDefinitionNode,
+                    'Schema astNode must be an instance of SchemaDefinitionNode but got: %s',
+                    Utils::printSafe($options['typeLoader'])
+                );
+                $config->setAstNode($options['astNode']);
+            }
         }
 
         return $config;
+    }
+
+    /**
+     * @return SchemaDefinitionNode
+     */
+    public function getAstNode()
+    {
+        return $this->astNode;
+    }
+
+    /**
+     * @param SchemaDefinitionNode $astNode
+     * @return SchemaConfig
+     */
+    public function setAstNode(SchemaDefinitionNode $astNode)
+    {
+        $this->astNode = $astNode;
+        return $this;
     }
 
     /**

@@ -2,6 +2,8 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Utils\Utils;
 
 
@@ -9,7 +11,6 @@ use GraphQL\Utils\Utils;
  * Class FieldArgument
  *
  * @package GraphQL\Type\Definition
- * @todo Rename to ArgumentNode as it is also applicable to directives, not only fields
  */
 class FieldArgument
 {
@@ -27,6 +28,11 @@ class FieldArgument
      * @var string|null
      */
     public $description;
+
+    /**
+     * @var InputValueDefinitionNode|null
+     */
+    public $astNode;
 
     /**
      * @var array
@@ -79,6 +85,9 @@ class FieldArgument
                     break;
                 case 'description':
                     $this->description = $value;
+                    break;
+                case 'astNode':
+                    $this->astNode = $value;
                     break;
             }
         }

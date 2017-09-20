@@ -3,6 +3,7 @@ namespace GraphQL\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\AbstractType;
@@ -355,6 +356,14 @@ class Schema
             }
         }
         return null;
+    }
+
+    /**
+     * @return SchemaDefinitionNode
+     */
+    public function getAstNode()
+    {
+        return $this->config->getAstNode();
     }
 
     /**

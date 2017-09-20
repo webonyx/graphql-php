@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Language\AST\InputValueDefinitionNode;
 
 /**
  * Class InputObjectField
@@ -26,6 +27,11 @@ class InputObjectField
      * @var callback|InputType
      */
     public $type;
+
+    /**
+     * @var InputValueDefinitionNode|null
+     */
+    public $astNode;
 
     /**
      * @var array

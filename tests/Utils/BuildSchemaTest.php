@@ -8,6 +8,9 @@ use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\Parser;
+use GraphQL\Language\Printer;
+use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 
@@ -588,26 +591,19 @@ type Query {
         $ast = Parser::parse($body);
         $schema = BuildSchema::buildAST($ast);
 
-        $this->assertEquals($schema->getType('MyEnum')->getValues(), [
-            new EnumValueDefinition([
-                'name' => 'VALUE',
-                'description' => '',
-                'deprecationReason' => null,
-                'value' => 'VALUE'
-            ]),
-            new EnumValueDefinition([
-                'name' => 'OLD_VALUE',
-                'description' => '',
-                'deprecationReason' => 'No longer supported',
-                'value' => 'OLD_VALUE'
-            ]),
-            new EnumValueDefinition([
-                'name' => 'OTHER_VALUE',
-                'description' => '',
-                'deprecationReason' => 'Terrible reasons',
-                'value' => 'OTHER_VALUE'
-            ])
-        ]);
+        /** @var EnumType $myEnum */
+        $myEnum = $schema->getType('MyEnum');
+
+        $value = $myEnum->getValue('VALUE');
+        $this->assertFalse($value->isDeprecated());
+
+        $oldValue = $myEnum->getValue('OLD_VALUE');
+        $this->assertTrue($oldValue->isDeprecated());
+        $this->assertEquals('No longer supported', $oldValue->deprecationReason);
+
+        $otherValue = $myEnum->getValue('OTHER_VALUE');
+        $this->assertTrue($otherValue->isDeprecated());
+        $this->assertEquals('Terrible reasons', $otherValue->deprecationReason);
 
         $rootFields = $schema->getType('Query')->getFields();
         $this->assertEquals($rootFields['field1']->isDeprecated(), true);
@@ -615,6 +611,73 @@ type Query {
 
         $this->assertEquals($rootFields['field2']->isDeprecated(), true);
         $this->assertEquals($rootFields['field2']->deprecationReason, 'Because I said so');
+    }
+
+    /**
+     * @it Correctly assign AST nodes
+     */
+    public function testCorrectlyAssignASTNodes()
+    {
+
+        $schema = BuildSchema::build('
+      schema {
+        query: Query
+      }
+
+      type Query {
+        testField(testArg: TestInput): TestUnion
+      }
+
+      input TestInput {
+        testInputField: TestEnum
+      }
+
+      enum TestEnum {
+        TEST_VALUE
+      }
+
+      union TestUnion = TestType
+
+      interface TestInterface {
+        interfaceField: String
+      }
+
+      type TestType implements TestInterface {
+        interfaceField: String
+      }
+
+      directive @test(arg: Int) on FIELD
+    ');
+        /** @var ObjectType $query */
+        $query = $schema->getType('Query');
+        $testInput = $schema->getType('TestInput');
+        $testEnum = $schema->getType('TestEnum');
+        $testUnion = $schema->getType('TestUnion');
+        $testInterface = $schema->getType('TestInterface');
+        $testType = $schema->getType('TestType');
+        $testDirective = $schema->getDirective('test');
+
+        $restoredIDL = SchemaPrinter::doPrint(BuildSchema::build(
+            Printer::doPrint($schema->getAstNode()) . "\n" .
+            Printer::doPrint($query->astNode) . "\n" .
+            Printer::doPrint($testInput->astNode) . "\n" .
+            Printer::doPrint($testEnum->astNode) . "\n" .
+            Printer::doPrint($testUnion->astNode) . "\n" .
+            Printer::doPrint($testInterface->astNode) . "\n" .
+            Printer::doPrint($testType->astNode) . "\n" .
+            Printer::doPrint($testDirective->astNode)
+        ));
+
+        $this->assertEquals($restoredIDL, SchemaPrinter::doPrint($schema));
+
+        $testField = $query->getField('testField');
+        $this->assertEquals('testField(testArg: TestInput): TestUnion', Printer::doPrint($testField->astNode));
+        $this->assertEquals('testArg: TestInput', Printer::doPrint($testField->args[0]->astNode));
+        $this->assertEquals('testInputField: TestEnum', Printer::doPrint($testInput->getField('testInputField')->astNode));
+        $this->assertEquals('TEST_VALUE', Printer::doPrint($testEnum->getValue('TEST_VALUE')->astNode));
+        $this->assertEquals('interfaceField: String', Printer::doPrint($testInterface->getField('interfaceField')->astNode));
+        $this->assertEquals('interfaceField: String', Printer::doPrint($testType->getField('interfaceField')->astNode));
+        $this->assertEquals('arg: Int', Printer::doPrint($testDirective->args[0]->astNode));
     }
 
     // Describe: Failures
@@ -973,7 +1036,7 @@ interface Hello {
         $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
         $this->assertInstanceOf(\Closure::class, $defaultConfig['interfaces']);
         $this->assertArrayHasKey('description', $defaultConfig);
-        $this->assertCount(4, $defaultConfig);
+        $this->assertCount(5, $defaultConfig);
         $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
         $this->assertEquals('My description of Query', $schema->getType('Query')->description);
 
@@ -985,12 +1048,12 @@ interface Hello {
             'description' => '',
             'deprecationReason' => ''
         ];
-        $this->assertEquals([
+        $this->assertArraySubset([
             'RED' => $enumValue,
             'GREEN' => $enumValue,
             'BLUE' => $enumValue,
         ], $defaultConfig['values']);
-        $this->assertCount(3, $defaultConfig);
+        $this->assertCount(4, $defaultConfig); // 3 + astNode
         $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
         $this->assertEquals('My description of Color', $schema->getType('Color')->description);
 
@@ -1000,7 +1063,7 @@ interface Hello {
         $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
         $this->assertInstanceOf(\Closure::class, $defaultConfig['resolveType']);
         $this->assertArrayHasKey('description', $defaultConfig);
-        $this->assertCount(4, $defaultConfig);
+        $this->assertCount(5, $defaultConfig);
         $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
         $this->assertEquals('My description of Hello', $schema->getType('Hello')->description);
     }

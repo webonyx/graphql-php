@@ -2,6 +2,8 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\TypeExtensionDefinitionNode;
 use GraphQL\Utils\Utils;
 
 
@@ -63,11 +65,14 @@ class ObjectType extends Type implements OutputType, CompositeType
     private $interfaceMap;
 
     /**
-     * Keeping reference of config for late bindings and custom app-level metadata
-     *
-     * @var array
+     * @var ObjectTypeDefinitionNode|null
      */
-    public $config;
+    public $astNode;
+
+    /**
+     * @var TypeExtensionDefinitionNode[]
+     */
+    public $extensionASTNodes;
 
     /**
      * @var callable
@@ -106,6 +111,8 @@ class ObjectType extends Type implements OutputType, CompositeType
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
+        $this->extensionASTNodes = isset($config['extensionASTNodes']) ? $config['extensionASTNodes'] : [];
         $this->config = $config;
     }
 

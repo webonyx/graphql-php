@@ -2,6 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 /**
@@ -16,14 +17,9 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     private $fields;
 
     /**
-     * @var mixed|null
+     * @var InterfaceTypeDefinitionNode|null
      */
-    public $description;
-
-    /**
-     * @var array
-     */
-    public $config;
+    public $astNode;
 
     /**
      * InterfaceType constructor.
@@ -49,6 +45,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
     }
 

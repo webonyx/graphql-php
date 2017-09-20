@@ -2,6 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 /**
@@ -16,9 +17,9 @@ class InputObjectType extends Type implements InputType
     private $fields;
 
     /**
-     * @var array
+     * @var InputObjectTypeDefinitionNode|null
      */
-    public $config;
+    public $astNode;
 
     /**
      * InputObjectType constructor.
@@ -45,6 +46,7 @@ class InputObjectType extends Type implements InputType
 
         $this->config = $config;
         $this->name = $config['name'];
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->description = isset($config['description']) ? $config['description'] : null;
     }
 

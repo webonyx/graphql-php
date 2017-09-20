@@ -247,13 +247,14 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
             'description' => null,
             'deprecationReason' => 'Just because',
             'value' => 'foo',
+            'astNode' => null
         ], (array) $value);
 
         $this->assertEquals(true, $value->isDeprecated());
     }
 
     /**
-     * @it defines an enum type with a value of `null`
+     * @it defines an enum type with a value of `null` and `undefined`
      */
     public function testDefinesAnEnumTypeWithAValueOfNullAndUndefined()
     {
@@ -271,12 +272,14 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 'description' => null,
                 'deprecationReason' => null,
                 'value' => null,
+                'astNode' => null,
             ],
             [
                 'name' => 'UNDEFINED',
                 'description' => null,
                 'deprecationReason' => null,
                 'value' => null,
+                'astNode' => null,
             ],
         ];
 

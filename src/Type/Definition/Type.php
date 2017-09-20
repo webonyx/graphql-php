@@ -2,7 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Utils\Utils;
+use GraphQL\Language\AST\TypeDefinitionNode;
 
 /**
  * Registry of standard GraphQL types
@@ -201,6 +201,16 @@ abstract class Type implements \JsonSerializable
      * @var string|null
      */
     public $description;
+
+    /**
+     * @var TypeDefinitionNode|null
+     */
+    public $astNode;
+
+    /**
+     * @var array
+     */
+    public $config;
 
     /**
      * @return null|string

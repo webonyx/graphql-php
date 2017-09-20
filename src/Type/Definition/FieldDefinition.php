@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 /**
@@ -47,6 +49,11 @@ class FieldDefinition
      * @var string|null
      */
     public $deprecationReason;
+
+    /**
+     * @var FieldDefinitionNode|null
+     */
+    public $astNode;
 
     /**
      * Original field definition config
@@ -185,6 +192,7 @@ class FieldDefinition
 
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->deprecationReason = isset($config['deprecationReason']) ? $config['deprecationReason'] : null;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
 
         $this->config = $config;
 

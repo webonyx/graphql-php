@@ -241,6 +241,7 @@ class BuildSchema
                 return $this->typeDefNamed($name);
             },
             'directives' => $directives,
+            'astNode' => $schemaDef,
             'types' => function() {
                 $types = [];
                 foreach ($this->nodeMap as $name => $def) {
@@ -264,6 +265,7 @@ class BuildSchema
                 return $node->value;
             }),
             'args' => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
+            'astNode' => $directiveNode
         ]);
     }
 
@@ -428,7 +430,8 @@ class BuildSchema
             },
             'interfaces' => function() use ($def) {
                 return $this->makeImplementedInterfaces($def);
-            }
+            },
+            'astNode' => $def
         ];
     }
 
@@ -444,7 +447,8 @@ class BuildSchema
                     'type' => $this->produceOutputType($field->type),
                     'description' => $this->getDescription($field),
                     'args' => $this->makeInputValues($field->arguments),
-                    'deprecationReason' => $this->getDeprecationReason($field)
+                    'deprecationReason' => $this->getDeprecationReason($field),
+                    'astNode' => $field
                 ];
             }
         );
@@ -472,7 +476,8 @@ class BuildSchema
                 $config = [
                     'name' => $value->name->value,
                     'type' => $type,
-                    'description' => $this->getDescription($value)
+                    'description' => $this->getDescription($value),
+                    'astNode' => $value
                 ];
                 if (isset($value->defaultValue)) {
                     $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
@@ -491,6 +496,7 @@ class BuildSchema
             'fields' => function() use ($def) {
                 return $this->makeFieldDefMap($def);
             },
+            'astNode' => $def,
             'resolveType' => function() {
                 $this->cannotExecuteSchema();
             }
@@ -502,6 +508,7 @@ class BuildSchema
         return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
+            'astNode' => $def,
             'values' => Utils::keyValMap(
                 $def->values,
                 function($enumValue) {
@@ -510,7 +517,8 @@ class BuildSchema
                 function($enumValue) {
                     return [
                         'description' => $this->getDescription($enumValue),
-                        'deprecationReason' => $this->getDeprecationReason($enumValue)
+                        'deprecationReason' => $this->getDeprecationReason($enumValue),
+                        'astNode' => $enumValue
                     ];
                 }
             )
@@ -525,6 +533,7 @@ class BuildSchema
             'types' => Utils::map($def->types, function($typeNode) {
                 return $this->produceObjectType($typeNode);
             }),
+            'astNode' => $def,
             'resolveType' => [$this, 'cannotExecuteSchema']
         ];
     }
@@ -534,6 +543,7 @@ class BuildSchema
         return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
+            'astNode' => $def,
             'serialize' => function() {
                 return false;
             },
@@ -555,7 +565,8 @@ class BuildSchema
         return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeInputValues($def->fields); }
+            'fields' => function() use ($def) { return $this->makeInputValues($def->fields); },
+            'astNode' => $def,
         ];
     }
 
