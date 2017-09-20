@@ -3,12 +3,10 @@ namespace GraphQL\Tests\Executor;
 
 require_once __DIR__ . '/TestClasses.php';
 
-use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
-use GraphQL\Language\SourceLocation;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -465,6 +463,47 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
             ]]
         ];
         $this->assertEquals($expected, Executor::execute($this->schema(), $ast)->toArray());
+    }
+
+    /**
+     * @it reports error for array passed into string input
+     */
+    public function testReportsErrorForArrayPassedIntoStringInput()
+    {
+
+        $doc = '
+        query SetsNonNullable($value: String!) {
+          fieldWithNonNullableStringInput(input: $value)
+        }
+        ';
+        $ast = Parser::parse($doc);
+        $variables = ['value' => [1, 2, 3]];
+
+        $expected = [
+            'errors' => [[
+                'message' =>
+                    'Variable "$value" got invalid value [1,2,3].' . "\n" .
+                    'Expected type "String", found array(3).',
+                'category' => 'graphql',
+                'locations' => [
+                    ['line' => 2, 'column' => 31]
+                ]
+            ]]
+        ];
+
+        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, null, null, $variables)->toArray());
+    }
+
+    /**
+     * @it serializing an array via GraphQLString throws TypeError
+     */
+    public function testSerializingAnArrayViaGraphQLStringThrowsTypeError()
+    {
+        $this->setExpectedException(
+            InvariantViolation::class,
+            'String cannot represent non scalar value: array(3)'
+        );
+        Type::string()->serialize([1, 2, 3]);
     }
 
     /**

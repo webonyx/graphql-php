@@ -280,7 +280,7 @@ class Values
                 // a non-null value.
                 $parseResult = $type->parseValue($value);
                 if (null === $parseResult && !$type->isValidValue($value)) {
-                    $v = Utils::printSafe($value);
+                    $v = Utils::printSafeJson($value);
                     return [
                         "Expected type \"{$type->name}\", found $v."
                     ];
@@ -288,12 +288,12 @@ class Values
                 return [];
             } catch (\Exception $e) {
                 return [
-                    "Expected type \"{$type->name}\", found " . Utils::printSafe($value) . ': ' .
+                    "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
                     $e->getMessage()
                 ];
             } catch (\Throwable $e) {
                 return [
-                    "Expected type \"{$type->name}\", found " . Utils::printSafe($value) . ': ' .
+                    "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
                     $e->getMessage()
                 ];
             }
