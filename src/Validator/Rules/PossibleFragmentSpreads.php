@@ -5,7 +5,6 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\AbstractType;
@@ -35,7 +34,9 @@ class PossibleFragmentSpreads extends AbstractValidationRule
                 $fragType = $context->getType();
                 $parentType = $context->getParentType();
 
-                if ($fragType && $parentType && !$this->doTypesOverlap($context->getSchema(), $fragType, $parentType)) {
+                if ($fragType instanceof CompositeType &&
+                    $parentType instanceof CompositeType &&
+                    !$this->doTypesOverlap($context->getSchema(), $fragType, $parentType)) {
                     $context->reportError(new Error(
                         self::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
                         [$node]
