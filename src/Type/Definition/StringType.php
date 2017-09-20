@@ -52,9 +52,6 @@ represent free-form human-readable text.';
      */
     public function parseValue($value)
     {
-        if (!is_scalar($value)) {
-            throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
-        }
         return is_string($value) ? $value : null;
     }
 
