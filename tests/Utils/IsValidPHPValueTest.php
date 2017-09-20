@@ -9,29 +9,43 @@ class IsValidPHPValueTest extends \PHPUnit_Framework_TestCase
 {
     public function testValidIntValue()
     {
-        // returns no error for int input
-        $result = Values::isValidPHPValue('1', Type::int());
+        // returns no error for positive int value
+        $result = Values::isValidPHPValue(1, Type::int());
         $this->expectNoErrors($result);
 
-        // returns no error for negative int input:
-        $result = Values::isValidPHPValue('-1', Type::int());
+        // returns no error for negative int value
+        $result = Values::isValidPHPValue(-1, Type::int());
         $this->expectNoErrors($result);
 
-        // returns no error for exponent input:
-        $result = Values::isValidPHPValue('1e3', Type::int());
-        $this->expectNoErrors($result);
-        $result = Values::isValidPHPValue('0e3', Type::int());
-        $this->expectNoErrors($result);
-
-        // returns no error for null value:
+        // returns no error for null value
         $result = Values::isValidPHPValue(null, Type::int());
         $this->expectNoErrors($result);
+
+        // returns a single error for positive int string value
+        $result = Values::isValidPHPValue('1', Type::int());
+        $this->expectErrorResult($result, 1);
+
+        // returns a single error for negative int string value
+        $result = Values::isValidPHPValue('-1', Type::int());
+        $this->expectErrorResult($result, 1);
+
+        // returns errors for exponential int string value
+        $result = Values::isValidPHPValue('1e3', Type::int());
+        $this->expectErrorResult($result, 1);
+        $result = Values::isValidPHPValue('0e3', Type::int());
+        $this->expectErrorResult($result, 1);
 
         // returns a single error for empty value
         $result = Values::isValidPHPValue('', Type::int());
         $this->expectErrorResult($result, 1);
 
-        // returns error for float input as int
+        // returns error for float value
+        $result = Values::isValidPHPValue(1.5, Type::int());
+        $this->expectErrorResult($result, 1);
+        $result = Values::isValidPHPValue(1e3, Type::int());
+        $this->expectErrorResult($result, 1);
+
+        // returns error for float string value
         $result = Values::isValidPHPValue('1.5', Type::int());
         $this->expectErrorResult($result, 1);
 
@@ -46,23 +60,51 @@ class IsValidPHPValueTest extends \PHPUnit_Framework_TestCase
 
     public function testValidFloatValue()
     {
-        // returns no error for int input
-        $result = Values::isValidPHPValue('1', Type::float());
+        // returns no error for positive float value
+        $result = Values::isValidPHPValue(1.2, Type::float());
         $this->expectNoErrors($result);
 
-        // returns no error for exponent input
-        $result = Values::isValidPHPValue('1e3', Type::float());
-        $this->expectNoErrors($result);
-        $result = Values::isValidPHPValue('0e3', Type::float());
+        // returns no error for exponential float value
+        $result = Values::isValidPHPValue(1e3, Type::float());
         $this->expectNoErrors($result);
 
-        // returns no error for float input
-        $result = Values::isValidPHPValue('1.5', Type::float());
+        // returns no error for negative float value
+        $result = Values::isValidPHPValue(-1.2, Type::float());
+        $this->expectNoErrors($result);
+
+        // returns no error for a positive int value
+        $result = Values::isValidPHPValue(1, Type::float());
+        $this->expectNoErrors($result);
+
+        // returns no errors for a negative int value
+        $result = Values::isValidPHPValue(-1, Type::float());
         $this->expectNoErrors($result);
 
         // returns no error for null value:
         $result = Values::isValidPHPValue(null, Type::float());
         $this->expectNoErrors($result);
+
+        // returns error for positive float string value
+        $result = Values::isValidPHPValue('1.2', Type::float());
+        $this->expectErrorResult($result, 1);
+
+        // returns error for negative float string value
+        $result = Values::isValidPHPValue('-1.2', Type::float());
+        $this->expectErrorResult($result, 1);
+
+        // returns error for a positive int string value
+        $result = Values::isValidPHPValue('1', Type::float());
+        $this->expectErrorResult($result, 1);
+
+        // returns errors for a negative int string value
+        $result = Values::isValidPHPValue('-1', Type::float());
+        $this->expectErrorResult($result, 1);
+
+        // returns error for exponent input
+        $result = Values::isValidPHPValue('1e3', Type::float());
+        $this->expectErrorResult($result, 1);
+        $result = Values::isValidPHPValue('0e3', Type::float());
+        $this->expectErrorResult($result, 1);
 
         // returns a single error for empty value
         $result = Values::isValidPHPValue('', Type::float());
