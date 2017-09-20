@@ -10,7 +10,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 
-class ValuesTest extends \PHPUnit_Framework_Testcase {
+class ValuesTest extends \PHPUnit_Framework_TestCase {
 
   public function testGetIDVariableValues()
   {
