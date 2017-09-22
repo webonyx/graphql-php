@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Type;
 
 require_once __DIR__ . '/TestClasses.php';
 
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -713,5 +714,21 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
         $otherCustom = new OtherCustom();
         $this->assertEquals('OtherCustom', $otherCustom->name);
     }
-}
 
+    public function testAllowsOverridingInternalTypes()
+    {
+        $idType = new CustomScalarType([
+            'name' => 'ID',
+            'serialize' => function() {},
+            'parseValue' => function() {},
+            'parseLiteral' => function() {}
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType(['name' => 'Query', 'fields' => []]),
+            'types' => [$idType]
+        ]);
+
+        $this->assertSame($idType, $schema->getType('ID'));
+    }
+}

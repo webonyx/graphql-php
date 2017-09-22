@@ -43,8 +43,31 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                             'types' =>
                                 array (
                                     array (
+                                        'kind' => 'OBJECT',
+                                        'name' => 'QueryRoot',
+                                        'inputFields' => NULL,
+                                        'interfaces' =>
+                                            array (
+                                            ),
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                        'fields' => array (
+                                            array (
+                                                'name' => 'a',
+                                                'args' => array(),
+                                                'type' => array(
+                                                    'kind' => 'SCALAR',
+                                                    'name' => 'String',
+                                                    'ofType' => null
+                                                ),
+                                                'isDeprecated' => false,
+                                                'deprecationReason' => null,
+                                            )
+                                        )
+                                    ),
+                                    array (
                                         'kind' => 'SCALAR',
-                                        'name' => 'ID',
+                                        'name' => 'String',
                                         'fields' => NULL,
                                         'inputFields' => NULL,
                                         'interfaces' => NULL,
@@ -53,7 +76,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                     ),
                                     array (
                                         'kind' => 'SCALAR',
-                                        'name' => 'String',
+                                        'name' => 'ID',
                                         'fields' => NULL,
                                         'inputFields' => NULL,
                                         'interfaces' => NULL,
@@ -974,29 +997,6 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                     ),
                                             ),
                                         'possibleTypes' => NULL,
-                                    ),
-                                    array (
-                                        'kind' => 'OBJECT',
-                                        'name' => 'QueryRoot',
-                                        'inputFields' => NULL,
-                                        'interfaces' =>
-                                            array (
-                                            ),
-                                        'enumValues' => NULL,
-                                        'possibleTypes' => NULL,
-                                        'fields' => array (
-                                            array (
-                                                'name' => 'a',
-                                                'args' => array(),
-                                                'type' => array(
-                                                    'kind' => 'SCALAR',
-                                                    'name' => 'String',
-                                                    'ofType' => null
-                                                ),
-                                                'isDeprecated' => false,
-                                                'deprecationReason' => null,
-                                            )
-                                        )
                                     ),
                                 ),
                             'directives' =>
