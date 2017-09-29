@@ -82,7 +82,7 @@ $cacheFilename = 'cached_schema.php';
 
 if (!file_exists($cacheFilename)) {
     $document = Parser::parse(file_get_contents('./schema.graphql'));
-    file_put_contents($cacheFilename, "<?php\nreturn " . var_export($document->toArray(), true));
+    file_put_contents($cacheFilename, "<?php\nreturn " . var_export(AST::toArray($document), true));
 } else {
     $document = AST::fromArray(require $cacheFilename); // fromArray() is a lazy operation as well
 }
