@@ -3,19 +3,15 @@ namespace GraphQL\Tests\Utils;
 
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
-use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
-use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
-
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\EnumValueDefinition;
 
 class BuildSchemaTest extends \PHPUnit_Framework_TestCase
 {
@@ -1118,5 +1114,45 @@ type World implements Hello {
         $this->assertArrayHasKey('Color', $types);
         $this->assertArrayHasKey('Hello', $types);
         $this->assertArrayHasKey('World', $types);
+    }
+
+    public function testScalarDescription()
+    {
+        $schemaDef = '
+# An ISO-8601 encoded UTC date string.
+scalar Date
+
+type Query {
+    now: Date
+    test: String
+}
+';
+        $q = '
+{
+  __type(name: "Date") {
+    name
+    description
+  }
+  strType: __type(name: "String") {
+    name
+    description
+  }
+}
+';
+        $schema = BuildSchema::build($schemaDef);
+        $result = GraphQL::executeQuery($schema, $q)->toArray();
+        $expected = ['data' => [
+            '__type' => [
+                'name' => 'Date',
+                'description' => 'An ISO-8601 encoded UTC date string.'
+            ],
+            'strType' => [
+                'name' => 'String',
+                'description' => 'The `String` scalar type represents textual data, represented as UTF-8' . "\n" .
+                    'character sequences. The String type is most often used by GraphQL to'. "\n" .
+                    'represent free-form human-readable text.'
+            ]
+        ]];
+        $this->assertEquals($expected, $result);
     }
 }

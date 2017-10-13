@@ -32,6 +32,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     function __construct(array $config = [])
     {
         $this->name = isset($config['name']) ? $config['name'] : $this->tryInferName();
+        $this->description = isset($config['description']) ? $config['description'] : $this->description;
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
 
