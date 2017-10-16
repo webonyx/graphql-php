@@ -151,8 +151,8 @@ $myErrorHandler = function(array $errors, callable $formatter) {
 
 $result = GraphQL::executeQuery(/* $args */)
     ->setErrorFormatter($myErrorFormatter)
-    ->setErrorHandler($myErrorHandler)
-    ->toArray();
+    ->setErrorsHandler($myErrorHandler)
+    ->toArray(); 
 ```
 
 Note that when you pass [debug flags](#debugging-tools) to **toArray()** your custom formatter will still be 
