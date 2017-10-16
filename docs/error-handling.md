@@ -151,7 +151,7 @@ $myErrorHandler = function(array $errors, callable $formatter) {
 
 $result = GraphQL::executeQuery(/* $args */)
     ->setErrorFormatter($myErrorFormatter)
-    ->setErrorHandler($myErrorHandler)
+    ->setErrorsHandler($myErrorHandler)
     ->toArray();
 ```
 
