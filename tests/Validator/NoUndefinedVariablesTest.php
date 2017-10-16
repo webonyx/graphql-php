@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 
@@ -9,6 +9,9 @@ class NoUndefinedVariablesTest extends TestCase
 {
     // Validate: No undefined variables
 
+    /**
+     * @it all variables defined
+     */
     public function testAllVariablesDefined()
     {
         $this->expectPassesRule(new NoUndefinedVariables(), '
@@ -18,6 +21,9 @@ class NoUndefinedVariablesTest extends TestCase
         ');
     }
 
+    /**
+     * @it all variables deeply defined
+     */
     public function testAllVariablesDeeplyDefined()
     {
         $this->expectPassesRule(new NoUndefinedVariables, '
@@ -31,6 +37,9 @@ class NoUndefinedVariablesTest extends TestCase
         ');
     }
 
+    /**
+     * @it all variables deeply in inline fragments defined
+     */
     public function testAllVariablesDeeplyInInlineFragmentsDefined()
     {
         $this->expectPassesRule(new NoUndefinedVariables, '
@@ -48,6 +57,9 @@ class NoUndefinedVariablesTest extends TestCase
         ');
     }
 
+    /**
+     * @it all variables in fragments deeply defined
+     */
     public function testAllVariablesInFragmentsDeeplyDefined()
     {
         $this->expectPassesRule(new NoUndefinedVariables, '
@@ -70,6 +82,9 @@ class NoUndefinedVariablesTest extends TestCase
         ');
     }
 
+    /**
+     * @it variable within single fragment defined in multiple operations
+     */
     public function testVariableWithinSingleFragmentDefinedInMultipleOperations()
     {
         // variable within single fragment defined in multiple operations
@@ -86,6 +101,9 @@ class NoUndefinedVariablesTest extends TestCase
         ');
     }
 
+    /**
+     * @it variable within fragments defined in operations
+     */
     public function testVariableWithinFragmentsDefinedInOperations()
     {
         $this->expectPassesRule(new NoUndefinedVariables, '
@@ -104,6 +122,9 @@ class NoUndefinedVariablesTest extends TestCase
         ');
     }
 
+    /**
+     * @it variable within recursive fragment defined
+     */
     public function testVariableWithinRecursiveFragmentDefined()
     {
         $this->expectPassesRule(new NoUndefinedVariables, '
@@ -118,6 +139,9 @@ class NoUndefinedVariablesTest extends TestCase
         ');
     }
 
+    /**
+     * @it variable not defined
+     */
     public function testVariableNotDefined()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -125,10 +149,13 @@ class NoUndefinedVariablesTest extends TestCase
         field(a: $a, b: $b, c: $c, d: $d)
       }
         ', [
-            $this->undefVar('d', 3, 39)
+            $this->undefVar('d', 3, 39, 'Foo', 2, 7)
         ]);
     }
 
+    /**
+     * @it variable not defined by un-named query
+     */
     public function testVariableNotDefinedByUnNamedQuery()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -136,10 +163,13 @@ class NoUndefinedVariablesTest extends TestCase
         field(a: $a)
       }
         ', [
-            $this->undefVar('a', 3, 18)
+            $this->undefVar('a', 3, 18, '', 2, 7)
         ]);
     }
 
+    /**
+     * @it multiple variables not defined
+     */
     public function testMultipleVariablesNotDefined()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -147,11 +177,14 @@ class NoUndefinedVariablesTest extends TestCase
         field(a: $a, b: $b, c: $c)
       }
         ', [
-            $this->undefVar('a', 3, 18),
-            $this->undefVar('c', 3, 32)
+            $this->undefVar('a', 3, 18, 'Foo', 2, 7),
+            $this->undefVar('c', 3, 32, 'Foo', 2, 7)
         ]);
     }
 
+    /**
+     * @it variable in fragment not defined by un-named query
+     */
     public function testVariableInFragmentNotDefinedByUnNamedQuery()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -162,10 +195,13 @@ class NoUndefinedVariablesTest extends TestCase
         field(a: $a)
       }
         ', [
-            $this->undefVar('a', 6, 18)
+            $this->undefVar('a', 6, 18, '', 2, 7)
         ]);
     }
 
+    /**
+     * @it variable in fragment not defined by operation
+     */
     public function testVariableInFragmentNotDefinedByOperation()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -186,10 +222,13 @@ class NoUndefinedVariablesTest extends TestCase
         field(c: $c)
       }
         ', [
-            $this->undefVarByOp('c', 16, 18, 'Foo', 2, 7)
+            $this->undefVar('c', 16, 18, 'Foo', 2, 7)
         ]);
     }
 
+    /**
+     * @it multiple variables in fragments not defined
+     */
     public function testMultipleVariablesInFragmentsNotDefined()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -210,11 +249,14 @@ class NoUndefinedVariablesTest extends TestCase
         field(c: $c)
       }
         ', [
-            $this->undefVarByOp('a', 6, 18, 'Foo', 2, 7),
-            $this->undefVarByOp('c', 16, 18, 'Foo', 2, 7)
+            $this->undefVar('a', 6, 18, 'Foo', 2, 7),
+            $this->undefVar('c', 16, 18, 'Foo', 2, 7)
         ]);
     }
 
+    /**
+     * @it single variable in fragment not defined by multiple operations
+     */
     public function testSingleVariableInFragmentNotDefinedByMultipleOperations()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -228,11 +270,14 @@ class NoUndefinedVariablesTest extends TestCase
         field(a: $a, b: $b)
       }
         ', [
-            $this->undefVarByOp('b', 9, 25, 'Foo', 2, 7),
-            $this->undefVarByOp('b', 9, 25, 'Bar', 5, 7)
+            $this->undefVar('b', 9, 25, 'Foo', 2, 7),
+            $this->undefVar('b', 9, 25, 'Bar', 5, 7)
         ]);
     }
 
+    /**
+     * @it variables in fragment not defined by multiple operations
+     */
     public function testVariablesInFragmentNotDefinedByMultipleOperations()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -246,11 +291,14 @@ class NoUndefinedVariablesTest extends TestCase
         field(a: $a, b: $b)
       }
         ', [
-            $this->undefVarByOp('a', 9, 18, 'Foo', 2, 7),
-            $this->undefVarByOp('b', 9, 25, 'Bar', 5, 7)
+            $this->undefVar('a', 9, 18, 'Foo', 2, 7),
+            $this->undefVar('b', 9, 25, 'Bar', 5, 7)
         ]);
     }
 
+    /**
+     * @it variable in fragment used by other operation
+     */
     public function testVariableInFragmentUsedByOtherOperation()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -267,11 +315,14 @@ class NoUndefinedVariablesTest extends TestCase
         field(b: $b)
       }
         ', [
-            $this->undefVarByOp('a', 9, 18, 'Foo', 2, 7),
-            $this->undefVarByOp('b', 12, 18, 'Bar', 5, 7)
+            $this->undefVar('a', 9, 18, 'Foo', 2, 7),
+            $this->undefVar('b', 12, 18, 'Bar', 5, 7)
         ]);
     }
 
+    /**
+     * @it multiple undefined variables produce multiple errors
+     */
     public function testMultipleUndefinedVariablesProduceMultipleErrors()
     {
         $this->expectFailsRule(new NoUndefinedVariables, '
@@ -290,29 +341,27 @@ class NoUndefinedVariablesTest extends TestCase
         field2(c: $c)
       }
     ', [
-            $this->undefVarByOp('a', 9, 19, 'Foo', 2, 7),
-            $this->undefVarByOp('c', 14, 19, 'Foo', 2, 7),
-            $this->undefVarByOp('a', 11, 19, 'Foo', 2, 7),
-            $this->undefVarByOp('b', 9, 26, 'Bar', 5, 7),
-            $this->undefVarByOp('c', 14, 19, 'Bar', 5, 7),
-            $this->undefVarByOp('b', 11, 26, 'Bar', 5, 7),
+            $this->undefVar('a', 9, 19, 'Foo', 2, 7),
+            $this->undefVar('a', 11, 19, 'Foo', 2, 7),
+            $this->undefVar('c', 14, 19, 'Foo', 2, 7),
+            $this->undefVar('b', 9, 26, 'Bar', 5, 7),
+            $this->undefVar('b', 11, 26, 'Bar', 5, 7),
+            $this->undefVar('c', 14, 19, 'Bar', 5, 7),
         ]);
     }
 
 
-    private function undefVar($varName, $line, $column)
+    private function undefVar($varName, $line, $column, $opName = null, $l2 = null, $c2 = null)
     {
-        return FormattedError::create(
-            NoUndefinedVariables::undefinedVarMessage($varName),
-            [new SourceLocation($line, $column)]
-        );
-    }
+        $locs = [new SourceLocation($line, $column)];
 
-    private function undefVarByOp($varName, $l1, $c1, $opName, $l2, $c2)
-    {
+        if ($l2 && $c2) {
+            $locs[] = new SourceLocation($l2, $c2);
+        }
+
         return FormattedError::create(
-            NoUndefinedVariables::undefinedVarByOpMessage($varName, $opName),
-            [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
+            NoUndefinedVariables::undefinedVarMessage($varName, $opName),
+            $locs
         );
     }
 }

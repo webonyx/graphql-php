@@ -1,8 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-interface InputType
-{
 /*
 export type GraphQLInputType =
   GraphQLScalarType |
@@ -11,4 +9,6 @@ export type GraphQLInputType =
   GraphQLList |
   GraphQLNonNull;
  */
+interface InputType
+{
 }

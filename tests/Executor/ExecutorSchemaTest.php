@@ -3,14 +3,17 @@ namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
-use GraphQL\Schema;
-use GraphQL\Type\Definition\Config;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
 class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
 {
     // Execute: Handles execution with a complex schema
+
+    /**
+     * @it executes using a schema
+     */
     public function testExecutesUsingASchema()
     {
         $BlogArticle = null;
@@ -25,20 +28,20 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
 
         $BlogAuthor = new ObjectType([
             'name' => 'Author',
-            'fields' => [
-                'id' => ['type' => Type::string()],
-                'name' => ['type' => Type::string()],
-                'pic' => [
-                    'args' => ['width' => ['type' => Type::int()], 'height' => ['type' => Type::int()]],
-                    'type' => $BlogImage,
-                    'resolve' => function ($obj, $args) {
-                        return $obj['pic']($args['width'], $args['height']);
-                    }
-                ],
-                'recentArticle' => ['type' => function () use (&$BlogArticle) {
-                    return $BlogArticle;
-                }]
-            ]
+            'fields' => function() use (&$BlogArticle, &$BlogImage) {
+                return [
+                    'id' => ['type' => Type::string()],
+                    'name' => ['type' => Type::string()],
+                    'pic' => [
+                        'args' => ['width' => ['type' => Type::int()], 'height' => ['type' => Type::int()]],
+                        'type' => $BlogImage,
+                        'resolve' => function ($obj, $args) {
+                            return $obj['pic']($args['width'], $args['height']);
+                        }
+                    ],
+                    'recentArticle' => $BlogArticle
+                ];
+            }
         ]);
 
         $BlogArticle = new ObjectType([
@@ -83,7 +86,7 @@ class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $BlogSchema = new Schema($BlogQuery);
+        $BlogSchema = new Schema(['query' => $BlogQuery]);
 
 
         $request = '

@@ -61,7 +61,7 @@ class QueryDepthTest extends AbstractQuerySecurityTest
 
     public function testComplexityIntrospectionQuery()
     {
-        $this->assertIntrospectionQuery(7);
+        $this->assertIntrospectionQuery(11);
     }
 
     public function testIntrospectionTypeMetaFieldQuery()

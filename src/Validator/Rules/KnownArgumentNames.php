@@ -1,15 +1,13 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
-use GraphQL\Error;
-use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\Node;
-use GraphQL\Utils;
-use GraphQL\Validator\Messages;
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-class KnownArgumentNames
+class KnownArgumentNames extends AbstractValidationRule
 {
     public static function unknownArgMessage($argName, $fieldName, $type)
     {
@@ -21,12 +19,12 @@ class KnownArgumentNames
         return "Unknown argument \"$argName\" on directive \"@$directiveName\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
-            Node::ARGUMENT => function(Argument $node, $key, $parent, $path, $ancestors) use ($context) {
+            NodeKind::ARGUMENT => function(ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
                 $argumentOf = $ancestors[count($ancestors) - 1];
-                if ($argumentOf->kind === Node::FIELD) {
+                if ($argumentOf->kind === NodeKind::FIELD) {
                     $fieldDef = $context->getFieldDef();
 
                     if ($fieldDef) {
@@ -40,13 +38,13 @@ class KnownArgumentNames
                         if (!$fieldArgDef) {
                             $parentType = $context->getParentType();
                             Utils::invariant($parentType);
-                            return new Error(
+                            $context->reportError(new Error(
                                 self::unknownArgMessage($node->name->value, $fieldDef->name, $parentType->name),
                                 [$node]
-                            );
+                            ));
                         }
                     }
-                } else if ($argumentOf->kind === Node::DIRECTIVE) {
+                } else if ($argumentOf->kind === NodeKind::DIRECTIVE) {
                     $directive = $context->getDirective();
                     if ($directive) {
                         $directiveArgDef = null;
@@ -57,10 +55,10 @@ class KnownArgumentNames
                             }
                         }
                         if (!$directiveArgDef) {
-                            return new Error(
+                            $context->reportError(new Error(
                                 self::unknownDirectiveArgMessage($node->name->value, $directive->name),
                                 [$node]
-                            );
+                            ));
                         }
                     }
                 }

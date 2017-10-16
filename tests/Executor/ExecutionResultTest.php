@@ -9,17 +9,17 @@ class ExecutionResultTest extends \PHPUnit_Framework_TestCase
     {
         $executionResult = new ExecutionResult();
 
-        $this->assertEquals(['data' => null], $executionResult->toArray());
+        $this->assertEquals([], $executionResult->toArray());
     }
 
     public function testToArrayExtensions()
     {
         $executionResult = new ExecutionResult(null, [], ['foo' => 'bar']);
 
-        $this->assertEquals(['data' => null, 'extensions' => ['foo' => 'bar']], $executionResult->toArray());
+        $this->assertEquals(['extensions' => ['foo' => 'bar']], $executionResult->toArray());
 
         $executionResult->extensions = ['bar' => 'foo'];
 
-        $this->assertEquals(['data' => null, 'extensions' => ['bar' => 'foo']], $executionResult->toArray());
+        $this->assertEquals(['extensions' => ['bar' => 'foo']], $executionResult->toArray());
     }
 }

@@ -8,7 +8,10 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
 {
     // Star Wars Introspection Tests
     // Basic Introspection
-    // it('Allows querying the schema for types')
+
+    /**
+     * @it Allows querying the schema for types
+     */
     public function testAllowsQueryingTheSchemaForTypes()
     {
         $query = '
@@ -26,27 +29,30 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                     ['name' => 'Query'],
                     ['name' => 'Episode'],
                     ['name' => 'Character'],
-                    ['name' => 'Human'],
                     ['name' => 'String'],
+                    ['name' => 'Human'],
                     ['name' => 'Droid'],
+                    ['name' => 'ID'],
+                    ['name' => 'Float'],
+                    ['name' => 'Int'],
+                    ['name' => 'Boolean'],
                     ['name' => '__Schema'],
                     ['name' => '__Type'],
                     ['name' => '__TypeKind'],
-                    ['name' => 'Boolean'],
                     ['name' => '__Field'],
                     ['name' => '__InputValue'],
                     ['name' => '__EnumValue'],
                     ['name' => '__Directive'],
-                    ['name' => 'ID'],
-                    ['name' => 'Float'],
-                    ['name' => 'Int']
+                    ['name' => '__DirectiveLocation'],
                 ]
             ]
         ];
         $this->assertValidQuery($query, $expected);
     }
 
-    // it('Allows querying the schema for query type')
+    /**
+     * @it Allows querying the schema for query type
+     */
     public function testAllowsQueryingTheSchemaForQueryType()
     {
         $query = '
@@ -68,7 +74,9 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // it('Allows querying the schema for a specific type')
+    /**
+     * @it Allows querying the schema for a specific type
+     */
     public function testAllowsQueryingTheSchemaForASpecificType()
     {
         $query = '
@@ -86,7 +94,9 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // it('Allows querying the schema for an object kind')
+    /**
+     * @it Allows querying the schema for an object kind
+     */
     public function testAllowsQueryingForAnObjectKind()
     {
         $query = '
@@ -106,7 +116,9 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // it('Allows querying the schema for an interface kind')
+    /**
+     * @it Allows querying the schema for an interface kind
+     */
     public function testAllowsQueryingForInterfaceKind()
     {
         $query = '
@@ -126,7 +138,9 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // it('Allows querying the schema for object fields')
+    /**
+     * @it Allows querying the schema for object fields
+     */
     public function testAllowsQueryingForObjectFields()
     {
         $query = '
@@ -176,6 +190,13 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                         ]
                     ],
                     [
+                        'name' => 'secretBackstory',
+                        'type' => [
+                            'name' => 'String',
+                            'kind' => 'SCALAR'
+                        ]
+                    ],
+                    [
                         'name' => 'primaryFunction',
                         'type' => [
                             'name' => 'String',
@@ -188,7 +209,9 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // it('Allows querying the schema for nested object fields')
+    /**
+     * @it Allows querying the schema for nested object fields
+     */
     public function testAllowsQueryingTheSchemaForNestedObjectFields()
     {
         $query = '
@@ -255,6 +278,14 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                         ]
                     ],
                     [
+                        'name' => 'secretBackstory',
+                        'type' => [
+                            'name' => 'String',
+                            'kind' => 'SCALAR',
+                            'ofType' => null
+                        ]
+                    ],
+                    [
                         'name' => 'primaryFunction',
                         'type' => [
                             'name' => 'String',
@@ -268,6 +299,9 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
+    /**
+     * @it Allows querying the schema for field args
+     */
     public function testAllowsQueryingTheSchemaForFieldArgs()
     {
         $query = '
@@ -359,7 +393,9 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
         $this->assertValidQuery($query, $expected);
     }
 
-    // it('Allows querying the schema for documentation')
+    /**
+     * @it Allows querying the schema for documentation
+     */
     public function testAllowsQueryingTheSchemaForDocumentation()
     {
         $query = '

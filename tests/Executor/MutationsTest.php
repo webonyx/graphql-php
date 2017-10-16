@@ -1,8 +1,10 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Deferred;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -12,6 +14,10 @@ use GraphQL\Type\Definition\Type;
 class MutationsTest extends \PHPUnit_Framework_TestCase
 {
     // Execute: Handles mutation execution ordering
+
+    /**
+     * @it evaluates mutations serially
+     */
     public function testEvaluatesMutationsSerially()
     {
         $doc = 'mutation M {
@@ -32,7 +38,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
       }
     }';
         $ast = Parser::parse($doc);
-        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6), null, 'M');
+        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
         $expected = [
             'data' => [
                 'first' => [
@@ -55,6 +61,9 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, $mutationResult->toArray());
     }
 
+    /**
+     * @it evaluates mutations correctly in the presense of a failed mutation
+     */
     public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation()
     {
         $doc = 'mutation M {
@@ -78,7 +87,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
       }
     }';
         $ast = Parser::parse($doc);
-        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6), null, 'M');
+        $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
         $expected = [
             'data' => [
                 'first' => [
@@ -97,17 +106,17 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 'sixth' => null,
             ],
             'errors' => [
-                FormattedError::create(
-                    'Cannot change the number',
-                    [new SourceLocation(8, 7)]
-                ),
-                FormattedError::create(
-                    'Cannot change the number',
-                    [new SourceLocation(17, 7)]
-                )
+                [
+                    'debugMessage' => 'Cannot change the number',
+                    'locations' => [['line' => 8, 'column' => 7]]
+                ],
+                [
+                    'debugMessage' => 'Cannot change the number',
+                    'locations' => [['line' => 17, 'column' => 7]]
+                ]
             ]
         ];
-        $this->assertEquals($expected, $mutationResult->toArray());
+        $this->assertArraySubset($expected, $mutationResult->toArray(true));
     }
 
     private function schema()
@@ -118,14 +127,14 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
             ],
             'name' => 'NumberHolder',
         ]);
-        $schema = new Schema(
-            new ObjectType([
+        $schema = new Schema([
+            'query' => new ObjectType([
                 'fields' => [
                     'numberHolder' => ['type' => $numberHolderType],
                 ],
                 'name' => 'Query',
             ]),
-            new ObjectType([
+            'mutation' => new ObjectType([
                 'fields' => [
                     'immediatelyChangeTheNumber' => [
                         'type' => $numberHolderType,
@@ -158,7 +167,7 @@ class MutationsTest extends \PHPUnit_Framework_TestCase
                 ],
                 'name' => 'Mutation',
             ])
-        );
+        ]);
         return $schema;
     }
 }
@@ -193,12 +202,14 @@ class Root {
 
     /**
      * @param $newNumber
-     * @return NumberHolder
+     *
+     * @return Deferred
      */
     public function promiseToChangeTheNumber($newNumber)
     {
-        // No promises
-        return $this->immediatelyChangeTheNumber($newNumber);
+        return new Deferred(function () use ($newNumber) {
+            return $this->immediatelyChangeTheNumber($newNumber);
+        });
     }
 
     /**
@@ -210,11 +221,12 @@ class Root {
     }
 
     /**
-     * @throws \Exception
+     * @return Deferred
      */
     public function promiseAndFailToChangeTheNumber()
     {
-        // No promises
-        throw new \Exception("Cannot change the number");
+        return new Deferred(function () {
+            throw new \Exception("Cannot change the number");
+        });
     }
 }

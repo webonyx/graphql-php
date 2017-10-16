@@ -1,0 +1,1280 @@
+{
+    "kind": "Document",
+    "loc": {
+        "start": 0,
+        "end": 1087
+    },
+    "definitions": [
+        {
+            "kind": "OperationDefinition",
+            "loc": {
+                "start": 288,
+                "end": 645
+            },
+            "name": {
+                "kind": "Name",
+                "loc": {
+                    "start": 294,
+                    "end": 303
+                },
+                "value": "queryName"
+            },
+            "operation": "query",
+            "variableDefinitions": [
+                {
+                    "kind": "VariableDefinition",
+                    "loc": {
+                        "start": 304,
+                        "end": 321
+                    },
+                    "variable": {
+                        "kind": "Variable",
+                        "loc": {
+                            "start": 304,
+                            "end": 308
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 305,
+                                "end": 308
+                            },
+                            "value": "foo"
+                        }
+                    },
+                    "type": {
+                        "kind": "NamedType",
+                        "loc": {
+                            "start": 310,
+                            "end": 321
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 310,
+                                "end": 321
+                            },
+                            "value": "ComplexType"
+                        }
+                    },
+                    "defaultValue": null
+                },
+                {
+                    "kind": "VariableDefinition",
+                    "loc": {
+                        "start": 323,
+                        "end": 343
+                    },
+                    "variable": {
+                        "kind": "Variable",
+                        "loc": {
+                            "start": 323,
+                            "end": 328
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 324,
+                                "end": 328
+                            },
+                            "value": "site"
+                        }
+                    },
+                    "type": {
+                        "kind": "NamedType",
+                        "loc": {
+                            "start": 330,
+                            "end": 334
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 330,
+                                "end": 334
+                            },
+                            "value": "Site"
+                        }
+                    },
+                    "defaultValue": {
+                        "kind": "EnumValue",
+                        "loc": {
+                            "start": 337,
+                            "end": 343
+                        },
+                        "value": "MOBILE"
+                    }
+                }
+            ],
+            "directives": [],
+            "selectionSet": {
+                "kind": "SelectionSet",
+                "loc": {
+                    "start": 345,
+                    "end": 645
+                },
+                "selections": [
+                    {
+                        "kind": "Field",
+                        "loc": {
+                            "start": 349,
+                            "end": 643
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 363,
+                                "end": 367
+                            },
+                            "value": "node"
+                        },
+                        "alias": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 349,
+                                "end": 361
+                            },
+                            "value": "whoever123is"
+                        },
+                        "arguments": [
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 368,
+                                    "end": 382
+                                },
+                                "value": {
+                                    "kind": "ListValue",
+                                    "loc": {
+                                        "start": 372,
+                                        "end": 382
+                                    },
+                                    "values": [
+                                        {
+                                            "kind": "IntValue",
+                                            "loc": {
+                                                "start": 373,
+                                                "end": 376
+                                            },
+                                            "value": "123"
+                                        },
+                                        {
+                                            "kind": "IntValue",
+                                            "loc": {
+                                                "start": 378,
+                                                "end": 381
+                                            },
+                                            "value": "456"
+                                        }
+                                    ]
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 368,
+                                        "end": 370
+                                    },
+                                    "value": "id"
+                                }
+                            }
+                        ],
+                        "directives": [],
+                        "selectionSet": {
+                            "kind": "SelectionSet",
+                            "loc": {
+                                "start": 384,
+                                "end": 643
+                            },
+                            "selections": [
+                                {
+                                    "kind": "Field",
+                                    "loc": {
+                                        "start": 390,
+                                        "end": 392
+                                    },
+                                    "name": {
+                                        "kind": "Name",
+                                        "loc": {
+                                            "start": 390,
+                                            "end": 392
+                                        },
+                                        "value": "id"
+                                    },
+                                    "alias": null,
+                                    "arguments": [],
+                                    "directives": [],
+                                    "selectionSet": null
+                                },
+                                {
+                                    "kind": "InlineFragment",
+                                    "loc": {
+                                        "start": 399,
+                                        "end": 569
+                                    },
+                                    "typeCondition": {
+                                        "kind": "NamedType",
+                                        "loc": {
+                                            "start": 406,
+                                            "end": 410
+                                        },
+                                        "name": {
+                                            "kind": "Name",
+                                            "loc": {
+                                                "start": 406,
+                                                "end": 410
+                                            },
+                                            "value": "User"
+                                        }
+                                    },
+                                    "directives": [
+                                        {
+                                            "kind": "Directive",
+                                            "loc": {
+                                                "start": 411,
+                                                "end": 417
+                                            },
+                                            "name": {
+                                                "kind": "Name",
+                                                "loc": {
+                                                    "start": 412,
+                                                    "end": 417
+                                                },
+                                                "value": "defer"
+                                            },
+                                            "arguments": []
+                                        }
+                                    ],
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "loc": {
+                                            "start": 418,
+                                            "end": 569
+                                        },
+                                        "selections": [
+                                            {
+                                                "kind": "Field",
+                                                "loc": {
+                                                    "start": 426,
+                                                    "end": 563
+                                                },
+                                                "name": {
+                                                    "kind": "Name",
+                                                    "loc": {
+                                                        "start": 426,
+                                                        "end": 432
+                                                    },
+                                                    "value": "field2"
+                                                },
+                                                "alias": null,
+                                                "arguments": [],
+                                                "directives": [],
+                                                "selectionSet": {
+                                                    "kind": "SelectionSet",
+                                                    "loc": {
+                                                        "start": 433,
+                                                        "end": 563
+                                                    },
+                                                    "selections": [
+                                                        {
+                                                            "kind": "Field",
+                                                            "loc": {
+                                                                "start": 443,
+                                                                "end": 445
+                                                            },
+                                                            "name": {
+                                                                "kind": "Name",
+                                                                "loc": {
+                                                                    "start": 443,
+                                                                    "end": 445
+                                                                },
+                                                                "value": "id"
+                                                            },
+                                                            "alias": null,
+                                                            "arguments": [],
+                                                            "directives": [],
+                                                            "selectionSet": null
+                                                        },
+                                                        {
+                                                            "kind": "Field",
+                                                            "loc": {
+                                                                "start": 456,
+                                                                "end": 555
+                                                            },
+                                                            "name": {
+                                                                "kind": "Name",
+                                                                "loc": {
+                                                                    "start": 463,
+                                                                    "end": 469
+                                                                },
+                                                                "value": "field1"
+                                                            },
+                                                            "alias": {
+                                                                "kind": "Name",
+                                                                "loc": {
+                                                                    "start": 456,
+                                                                    "end": 461
+                                                                },
+                                                                "value": "alias"
+                                                            },
+                                                            "arguments": [
+                                                                {
+                                                                    "kind": "Argument",
+                                                                    "loc": {
+                                                                        "start": 470,
+                                                                        "end": 478
+                                                                    },
+                                                                    "value": {
+                                                                        "kind": "IntValue",
+                                                                        "loc": {
+                                                                            "start": 476,
+                                                                            "end": 478
+                                                                        },
+                                                                        "value": "10"
+                                                                    },
+                                                                    "name": {
+                                                                        "kind": "Name",
+                                                                        "loc": {
+                                                                            "start": 470,
+                                                                            "end": 475
+                                                                        },
+                                                                        "value": "first"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    "kind": "Argument",
+                                                                    "loc": {
+                                                                        "start": 480,
+                                                                        "end": 490
+                                                                    },
+                                                                    "value": {
+                                                                        "kind": "Variable",
+                                                                        "loc": {
+                                                                            "start": 486,
+                                                                            "end": 490
+                                                                        },
+                                                                        "name": {
+                                                                            "kind": "Name",
+                                                                            "loc": {
+                                                                                "start": 487,
+                                                                                "end": 490
+                                                                            },
+                                                                            "value": "foo"
+                                                                        }
+                                                                    },
+                                                                    "name": {
+                                                                        "kind": "Name",
+                                                                        "loc": {
+                                                                            "start": 480,
+                                                                            "end": 485
+                                                                        },
+                                                                        "value": "after"
+                                                                    }
+                                                                }
+                                                            ],
+                                                            "directives": [
+                                                                {
+                                                                    "kind": "Directive",
+                                                                    "loc": {
+                                                                        "start": 493,
+                                                                        "end": 511
+                                                                    },
+                                                                    "name": {
+                                                                        "kind": "Name",
+                                                                        "loc": {
+                                                                            "start": 494,
+                                                                            "end": 501
+                                                                        },
+                                                                        "value": "include"
+                                                                    },
+                                                                    "arguments": [
+                                                                        {
+                                                                            "kind": "Argument",
+                                                                            "loc": {
+                                                                                "start": 502,
+                                                                                "end": 510
+                                                                            },
+                                                                            "value": {
+                                                                                "kind": "Variable",
+                                                                                "loc": {
+                                                                                    "start": 506,
+                                                                                    "end": 510
+                                                                                },
+                                                                                "name": {
+                                                                                    "kind": "Name",
+                                                                                    "loc": {
+                                                                                        "start": 507,
+                                                                                        "end": 510
+                                                                                    },
+                                                                                    "value": "foo"
+                                                                                }
+                                                                            },
+                                                                            "name": {
+                                                                                "kind": "Name",
+                                                                                "loc": {
+                                                                                    "start": 502,
+                                                                                    "end": 504
+                                                                                },
+                                                                                "value": "if"
+                                                                            }
+                                                                        }
+                                                                    ]
+                                                                }
+                                                            ],
+                                                            "selectionSet": {
+                                                                "kind": "SelectionSet",
+                                                                "loc": {
+                                                                    "start": 512,
+                                                                    "end": 555
+                                                                },
+                                                                "selections": [
+                                                                    {
+                                                                        "kind": "Field",
+                                                                        "loc": {
+                                                                            "start": 524,
+                                                                            "end": 526
+                                                                        },
+                                                                        "name": {
+                                                                            "kind": "Name",
+                                                                            "loc": {
+                                                                                "start": 524,
+                                                                                "end": 526
+                                                                            },
+                                                                            "value": "id"
+                                                                        },
+                                                                        "alias": null,
+                                                                        "arguments": [],
+                                                                        "directives": [],
+                                                                        "selectionSet": null
+                                                                    },
+                                                                    {
+                                                                        "kind": "FragmentSpread",
+                                                                        "loc": {
+                                                                            "start": 538,
+                                                                            "end": 545
+                                                                        },
+                                                                        "name": {
+                                                                            "kind": "Name",
+                                                                            "loc": {
+                                                                                "start": 541,
+                                                                                "end": 545
+                                                                            },
+                                                                            "value": "frag"
+                                                                        },
+                                                                        "directives": []
+                                                                    }
+                                                                ]
+                                                            }
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "kind": "InlineFragment",
+                                    "loc": {
+                                        "start": 574,
+                                        "end": 614
+                                    },
+                                    "typeCondition": null,
+                                    "directives": [
+                                        {
+                                            "kind": "Directive",
+                                            "loc": {
+                                                "start": 578,
+                                                "end": 597
+                                            },
+                                            "name": {
+                                                "kind": "Name",
+                                                "loc": {
+                                                    "start": 579,
+                                                    "end": 583
+                                                },
+                                                "value": "skip"
+                                            },
+                                            "arguments": [
+                                                {
+                                                    "kind": "Argument",
+                                                    "loc": {
+                                                        "start": 584,
+                                                        "end": 596
+                                                    },
+                                                    "value": {
+                                                        "kind": "Variable",
+                                                        "loc": {
+                                                            "start": 592,
+                                                            "end": 596
+                                                        },
+                                                        "name": {
+                                                            "kind": "Name",
+                                                            "loc": {
+                                                                "start": 593,
+                                                                "end": 596
+                                                            },
+                                                            "value": "foo"
+                                                        }
+                                                    },
+                                                    "name": {
+                                                        "kind": "Name",
+                                                        "loc": {
+                                                            "start": 584,
+                                                            "end": 590
+                                                        },
+                                                        "value": "unless"
+                                                    }
+                                                }
+                                            ]
+                                        }
+                                    ],
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "loc": {
+                                            "start": 598,
+                                            "end": 614
+                                        },
+                                        "selections": [
+                                            {
+                                                "kind": "Field",
+                                                "loc": {
+                                                    "start": 606,
+                                                    "end": 608
+                                                },
+                                                "name": {
+                                                    "kind": "Name",
+                                                    "loc": {
+                                                        "start": 606,
+                                                        "end": 608
+                                                    },
+                                                    "value": "id"
+                                                },
+                                                "alias": null,
+                                                "arguments": [],
+                                                "directives": [],
+                                                "selectionSet": null
+                                            }
+                                        ]
+                                    }
+                                },
+                                {
+                                    "kind": "InlineFragment",
+                                    "loc": {
+                                        "start": 619,
+                                        "end": 639
+                                    },
+                                    "typeCondition": null,
+                                    "directives": [],
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "loc": {
+                                            "start": 623,
+                                            "end": 639
+                                        },
+                                        "selections": [
+                                            {
+                                                "kind": "Field",
+                                                "loc": {
+                                                    "start": 631,
+                                                    "end": 633
+                                                },
+                                                "name": {
+                                                    "kind": "Name",
+                                                    "loc": {
+                                                        "start": 631,
+                                                        "end": 633
+                                                    },
+                                                    "value": "id"
+                                                },
+                                                "alias": null,
+                                                "arguments": [],
+                                                "directives": [],
+                                                "selectionSet": null
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "OperationDefinition",
+            "loc": {
+                "start": 647,
+                "end": 728
+            },
+            "name": {
+                "kind": "Name",
+                "loc": {
+                    "start": 656,
+                    "end": 665
+                },
+                "value": "likeStory"
+            },
+            "operation": "mutation",
+            "variableDefinitions": [],
+            "directives": [],
+            "selectionSet": {
+                "kind": "SelectionSet",
+                "loc": {
+                    "start": 666,
+                    "end": 728
+                },
+                "selections": [
+                    {
+                        "kind": "Field",
+                        "loc": {
+                            "start": 670,
+                            "end": 726
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 670,
+                                "end": 674
+                            },
+                            "value": "like"
+                        },
+                        "alias": null,
+                        "arguments": [
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 675,
+                                    "end": 685
+                                },
+                                "value": {
+                                    "kind": "IntValue",
+                                    "loc": {
+                                        "start": 682,
+                                        "end": 685
+                                    },
+                                    "value": "123"
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 675,
+                                        "end": 680
+                                    },
+                                    "value": "story"
+                                }
+                            }
+                        ],
+                        "directives": [
+                            {
+                                "kind": "Directive",
+                                "loc": {
+                                    "start": 687,
+                                    "end": 693
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 688,
+                                        "end": 693
+                                    },
+                                    "value": "defer"
+                                },
+                                "arguments": []
+                            }
+                        ],
+                        "selectionSet": {
+                            "kind": "SelectionSet",
+                            "loc": {
+                                "start": 694,
+                                "end": 726
+                            },
+                            "selections": [
+                                {
+                                    "kind": "Field",
+                                    "loc": {
+                                        "start": 700,
+                                        "end": 722
+                                    },
+                                    "name": {
+                                        "kind": "Name",
+                                        "loc": {
+                                            "start": 700,
+                                            "end": 705
+                                        },
+                                        "value": "story"
+                                    },
+                                    "alias": null,
+                                    "arguments": [],
+                                    "directives": [],
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "loc": {
+                                            "start": 706,
+                                            "end": 722
+                                        },
+                                        "selections": [
+                                            {
+                                                "kind": "Field",
+                                                "loc": {
+                                                    "start": 714,
+                                                    "end": 716
+                                                },
+                                                "name": {
+                                                    "kind": "Name",
+                                                    "loc": {
+                                                        "start": 714,
+                                                        "end": 716
+                                                    },
+                                                    "value": "id"
+                                                },
+                                                "alias": null,
+                                                "arguments": [],
+                                                "directives": [],
+                                                "selectionSet": null
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "OperationDefinition",
+            "loc": {
+                "start": 730,
+                "end": 940
+            },
+            "name": {
+                "kind": "Name",
+                "loc": {
+                    "start": 743,
+                    "end": 764
+                },
+                "value": "StoryLikeSubscription"
+            },
+            "operation": "subscription",
+            "variableDefinitions": [
+                {
+                    "kind": "VariableDefinition",
+                    "loc": {
+                        "start": 765,
+                        "end": 796
+                    },
+                    "variable": {
+                        "kind": "Variable",
+                        "loc": {
+                            "start": 765,
+                            "end": 771
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 766,
+                                "end": 771
+                            },
+                            "value": "input"
+                        }
+                    },
+                    "type": {
+                        "kind": "NamedType",
+                        "loc": {
+                            "start": 773,
+                            "end": 796
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 773,
+                                "end": 796
+                            },
+                            "value": "StoryLikeSubscribeInput"
+                        }
+                    },
+                    "defaultValue": null
+                }
+            ],
+            "directives": [],
+            "selectionSet": {
+                "kind": "SelectionSet",
+                "loc": {
+                    "start": 798,
+                    "end": 940
+                },
+                "selections": [
+                    {
+                        "kind": "Field",
+                        "loc": {
+                            "start": 802,
+                            "end": 938
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 802,
+                                "end": 820
+                            },
+                            "value": "storyLikeSubscribe"
+                        },
+                        "alias": null,
+                        "arguments": [
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 821,
+                                    "end": 834
+                                },
+                                "value": {
+                                    "kind": "Variable",
+                                    "loc": {
+                                        "start": 828,
+                                        "end": 834
+                                    },
+                                    "name": {
+                                        "kind": "Name",
+                                        "loc": {
+                                            "start": 829,
+                                            "end": 834
+                                        },
+                                        "value": "input"
+                                    }
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 821,
+                                        "end": 826
+                                    },
+                                    "value": "input"
+                                }
+                            }
+                        ],
+                        "directives": [],
+                        "selectionSet": {
+                            "kind": "SelectionSet",
+                            "loc": {
+                                "start": 836,
+                                "end": 938
+                            },
+                            "selections": [
+                                {
+                                    "kind": "Field",
+                                    "loc": {
+                                        "start": 842,
+                                        "end": 934
+                                    },
+                                    "name": {
+                                        "kind": "Name",
+                                        "loc": {
+                                            "start": 842,
+                                            "end": 847
+                                        },
+                                        "value": "story"
+                                    },
+                                    "alias": null,
+                                    "arguments": [],
+                                    "directives": [],
+                                    "selectionSet": {
+                                        "kind": "SelectionSet",
+                                        "loc": {
+                                            "start": 848,
+                                            "end": 934
+                                        },
+                                        "selections": [
+                                            {
+                                                "kind": "Field",
+                                                "loc": {
+                                                    "start": 856,
+                                                    "end": 886
+                                                },
+                                                "name": {
+                                                    "kind": "Name",
+                                                    "loc": {
+                                                        "start": 856,
+                                                        "end": 862
+                                                    },
+                                                    "value": "likers"
+                                                },
+                                                "alias": null,
+                                                "arguments": [],
+                                                "directives": [],
+                                                "selectionSet": {
+                                                    "kind": "SelectionSet",
+                                                    "loc": {
+                                                        "start": 863,
+                                                        "end": 886
+                                                    },
+                                                    "selections": [
+                                                        {
+                                                            "kind": "Field",
+                                                            "loc": {
+                                                                "start": 873,
+                                                                "end": 878
+                                                            },
+                                                            "name": {
+                                                                "kind": "Name",
+                                                                "loc": {
+                                                                    "start": 873,
+                                                                    "end": 878
+                                                                },
+                                                                "value": "count"
+                                                            },
+                                                            "alias": null,
+                                                            "arguments": [],
+                                                            "directives": [],
+                                                            "selectionSet": null
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                "kind": "Field",
+                                                "loc": {
+                                                    "start": 893,
+                                                    "end": 928
+                                                },
+                                                "name": {
+                                                    "kind": "Name",
+                                                    "loc": {
+                                                        "start": 893,
+                                                        "end": 905
+                                                    },
+                                                    "value": "likeSentence"
+                                                },
+                                                "alias": null,
+                                                "arguments": [],
+                                                "directives": [],
+                                                "selectionSet": {
+                                                    "kind": "SelectionSet",
+                                                    "loc": {
+                                                        "start": 906,
+                                                        "end": 928
+                                                    },
+                                                    "selections": [
+                                                        {
+                                                            "kind": "Field",
+                                                            "loc": {
+                                                                "start": 916,
+                                                                "end": 920
+                                                            },
+                                                            "name": {
+                                                                "kind": "Name",
+                                                                "loc": {
+                                                                    "start": 916,
+                                                                    "end": 920
+                                                                },
+                                                                "value": "text"
+                                                            },
+                                                            "alias": null,
+                                                            "arguments": [],
+                                                            "directives": [],
+                                                            "selectionSet": null
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "FragmentDefinition",
+            "loc": {
+                "start": 942,
+                "end": 1018
+            },
+            "name": {
+                "kind": "Name",
+                "loc": {
+                    "start": 951,
+                    "end": 955
+                },
+                "value": "frag"
+            },
+            "typeCondition": {
+                "kind": "NamedType",
+                "loc": {
+                    "start": 959,
+                    "end": 965
+                },
+                "name": {
+                    "kind": "Name",
+                    "loc": {
+                        "start": 959,
+                        "end": 965
+                    },
+                    "value": "Friend"
+                }
+            },
+            "directives": [],
+            "selectionSet": {
+                "kind": "SelectionSet",
+                "loc": {
+                    "start": 966,
+                    "end": 1018
+                },
+                "selections": [
+                    {
+                        "kind": "Field",
+                        "loc": {
+                            "start": 970,
+                            "end": 1016
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 970,
+                                "end": 973
+                            },
+                            "value": "foo"
+                        },
+                        "alias": null,
+                        "arguments": [
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 974,
+                                    "end": 985
+                                },
+                                "value": {
+                                    "kind": "Variable",
+                                    "loc": {
+                                        "start": 980,
+                                        "end": 985
+                                    },
+                                    "name": {
+                                        "kind": "Name",
+                                        "loc": {
+                                            "start": 981,
+                                            "end": 985
+                                        },
+                                        "value": "size"
+                                    }
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 974,
+                                        "end": 978
+                                    },
+                                    "value": "size"
+                                }
+                            },
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 987,
+                                    "end": 994
+                                },
+                                "value": {
+                                    "kind": "Variable",
+                                    "loc": {
+                                        "start": 992,
+                                        "end": 994
+                                    },
+                                    "name": {
+                                        "kind": "Name",
+                                        "loc": {
+                                            "start": 993,
+                                            "end": 994
+                                        },
+                                        "value": "b"
+                                    }
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 987,
+                                        "end": 990
+                                    },
+                                    "value": "bar"
+                                }
+                            },
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 996,
+                                    "end": 1015
+                                },
+                                "value": {
+                                    "kind": "ObjectValue",
+                                    "loc": {
+                                        "start": 1001,
+                                        "end": 1015
+                                    },
+                                    "fields": [
+                                        {
+                                            "kind": "ObjectField",
+                                            "loc": {
+                                                "start": 1002,
+                                                "end": 1014
+                                            },
+                                            "name": {
+                                                "kind": "Name",
+                                                "loc": {
+                                                    "start": 1002,
+                                                    "end": 1005
+                                                },
+                                                "value": "key"
+                                            },
+                                            "value": {
+                                                "kind": "StringValue",
+                                                "loc": {
+                                                    "start": 1007,
+                                                    "end": 1014
+                                                },
+                                                "value": "value"
+                                            }
+                                        }
+                                    ]
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 996,
+                                        "end": 999
+                                    },
+                                    "value": "obj"
+                                }
+                            }
+                        ],
+                        "directives": [],
+                        "selectionSet": null
+                    }
+                ]
+            }
+        },
+        {
+            "kind": "OperationDefinition",
+            "loc": {
+                "start": 1020,
+                "end": 1086
+            },
+            "name": null,
+            "operation": "query",
+            "variableDefinitions": null,
+            "directives": [],
+            "selectionSet": {
+                "kind": "SelectionSet",
+                "loc": {
+                    "start": 1020,
+                    "end": 1086
+                },
+                "selections": [
+                    {
+                        "kind": "Field",
+                        "loc": {
+                            "start": 1024,
+                            "end": 1075
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 1024,
+                                "end": 1031
+                            },
+                            "value": "unnamed"
+                        },
+                        "alias": null,
+                        "arguments": [
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 1032,
+                                    "end": 1044
+                                },
+                                "value": {
+                                    "kind": "BooleanValue",
+                                    "loc": {
+                                        "start": 1040,
+                                        "end": 1044
+                                    },
+                                    "value": true
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 1032,
+                                        "end": 1038
+                                    },
+                                    "value": "truthy"
+                                }
+                            },
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 1046,
+                                    "end": 1059
+                                },
+                                "value": {
+                                    "kind": "BooleanValue",
+                                    "loc": {
+                                        "start": 1054,
+                                        "end": 1059
+                                    },
+                                    "value": false
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 1046,
+                                        "end": 1052
+                                    },
+                                    "value": "falsey"
+                                }
+                            },
+                            {
+                                "kind": "Argument",
+                                "loc": {
+                                    "start": 1061,
+                                    "end": 1074
+                                },
+                                "value": {
+                                    "kind": "NullValue",
+                                    "loc": {
+                                        "start": 1070,
+                                        "end": 1074
+                                    }
+                                },
+                                "name": {
+                                    "kind": "Name",
+                                    "loc": {
+                                        "start": 1061,
+                                        "end": 1068
+                                    },
+                                    "value": "nullish"
+                                }
+                            }
+                        ],
+                        "directives": [],
+                        "selectionSet": null
+                    },
+                    {
+                        "kind": "Field",
+                        "loc": {
+                            "start": 1079,
+                            "end": 1084
+                        },
+                        "name": {
+                            "kind": "Name",
+                            "loc": {
+                                "start": 1079,
+                                "end": 1084
+                            },
+                            "value": "query"
+                        },
+                        "alias": null,
+                        "arguments": [],
+                        "directives": [],
+                        "selectionSet": null
+                    }
+                ]
+            }
+        }
+    ]
+}

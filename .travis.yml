@@ -1,15 +1,34 @@
 language: php
 
+# Required for HHVM, see https://github.com/travis-ci/travis-ci/issues/7712
+dist: trusty
+
 php:
-    - 5.4
     - 5.5
     - 5.6
     - 7.0
-    - nightly
+    - 7.1
     - hhvm
+    - nightly
+
+matrix:
+    allow_failures:
+        - php: nightly
+
+cache:
+    directories:
+        - $HOME/.composer/cache
+
+before_install:
+    - if [[ "$TRAVIS_PHP_VERSION" != "5.6" && "$TRAVIS_PHP_VERSION" != "hhvm" ]]; then phpenv config-rm xdebug.ini || true; fi
+    - composer selfupdate
 
 install:
-    - composer install --prefer-dist
+    - composer install --dev --prefer-dist
+    - composer require react/promise:2.*
+    - composer require psr/http-message:1.*
 
-script:
-    - ./bin/phpunit tests/
+script: if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then bin/phpunit --coverage-clover build/logs/clover.xml --group default,ReactPromise; else bin/phpunit --group default,ReactPromise; fi
+
+after_success:
+    - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then composer require "satooshi/php-coveralls:^1.0" && travis_retry php bin/coveralls -v; fi

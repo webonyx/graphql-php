@@ -17,6 +17,12 @@ query queryName($foo: ComplexType, $site: Site = MOBILE) {
         }
       }
     }
+    ... @skip(unless: $foo) {
+      id
+    }
+    ... {
+      id
+    }
   }
 }
 
@@ -28,11 +34,24 @@ mutation likeStory {
   }
 }
 
+subscription StoryLikeSubscription($input: StoryLikeSubscribeInput) {
+  storyLikeSubscribe(input: $input) {
+    story {
+      likers {
+        count
+      }
+      likeSentence {
+        text
+      }
+    }
+  }
+}
+
 fragment frag on Friend {
   foo(size: $size, bar: $b, obj: {key: "value"})
 }
 
 {
-  unnamed(truthy: true, falsey: false),
+  unnamed(truthy: true, falsey: false, nullish: null),
   query
 }

@@ -3,12 +3,14 @@ namespace GraphQL\Tests\Executor;
 
 require_once __DIR__ . '/TestClasses.php';
 
+use GraphQL\Error\Warning;
 use GraphQL\Executor\Executor;
+use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
-use GraphQL\Schema;
-use GraphQL\Type\Definition\Config;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 
@@ -79,7 +81,10 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             }
         ]);
 
-        $this->schema = new Schema($PersonType);
+        $this->schema = new Schema([
+            'query' => $PersonType,
+            'types' => [ $PetType ]
+        ]);
 
         $this->garfield = new Cat('Garfield', false);
         $this->odie = new Dog('Odie', true);
@@ -89,6 +94,10 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
     }
 
     // Execute: Union and intersection types
+
+    /**
+     * @it can introspect on union and intersection types
+     */
     public function testCanIntrospectOnUnionAndIntersectionTypes()
     {
 
@@ -125,9 +134,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
                     ],
                     'interfaces' => null,
                     'possibleTypes' => [
+                        ['name' => 'Person'],
                         ['name' => 'Dog'],
-                        ['name' => 'Cat'],
-                        ['name' => 'Person']
+                        ['name' => 'Cat']
                     ],
                     'enumValues' => null,
                     'inputFields' => null
@@ -149,6 +158,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, Executor::execute($this->schema, $ast)->toArray());
     }
 
+    /**
+     * @it executes using union types
+     */
     public function testExecutesUsingUnionTypes()
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
@@ -178,6 +190,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
+    /**
+     * @it executes union types with inline fragments
+     */
     public function testExecutesUnionTypesWithInlineFragments()
     {
         // This is the valid version of the query in the above test.
@@ -212,6 +227,9 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
+    /**
+     * @it executes using interface types
+     */
     public function testExecutesUsingInterfaceTypes()
     {
         // NOTE: This is an *invalid* query, but it should be an *executable* query.
@@ -238,9 +256,14 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
+        Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
     }
 
+    /**
+     * @it executes interface types with inline fragments
+     */
     public function testExecutesInterfaceTypesWithInlineFragments()
     {
         // This is the valid version of the query in the above test.
@@ -271,9 +294,14 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
+        Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
     }
 
+    /**
+     * @it allows fragment conditions to be abstract types
+     */
     public function testAllowsFragmentConditionsToBeAbstractTypes()
     {
         $ast = Parser::parse('
@@ -323,6 +351,59 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
             ]
         ];
 
+        Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
+    }
+
+    /**
+     * @it gets execution info in resolver
+     */
+    public function testGetsExecutionInfoInResolver()
+    {
+        $encounteredContext = null;
+        $encounteredSchema = null;
+        $encounteredRootValue = null;
+        $PersonType2 = null;
+
+        $NamedType2 = new InterfaceType([
+            'name' => 'Named',
+            'fields' => [
+                'name' => ['type' => Type::string()]
+            ],
+            'resolveType' => function ($obj, $context, ResolveInfo $info) use (&$encounteredContext, &$encounteredSchema, &$encounteredRootValue, &$PersonType2) {
+                $encounteredContext = $context;
+                $encounteredSchema = $info->schema;
+                $encounteredRootValue = $info->rootValue;
+                return $PersonType2;
+            }
+        ]);
+
+        $PersonType2 = new ObjectType([
+            'name' => 'Person',
+            'interfaces' => [$NamedType2],
+            'fields' => [
+                'name' => ['type' => Type::string()],
+                'friends' => ['type' => Type::listOf($NamedType2)],
+            ],
+        ]);
+
+        $schema2 = new Schema([
+            'query' => $PersonType2
+        ]);
+
+        $john2 = new Person('John', [], [$this->liz]);
+
+        $context = ['authToken' => '123abc'];
+
+        $ast = Parser::parse('{ name, friends { name } }');
+
+        $this->assertEquals(
+            ['data' => ['name' => 'John', 'friends' => [['name' => 'Liz']]]],
+            GraphQL::execute($schema2, $ast, $john2, $context)
+        );
+        $this->assertSame($context, $encounteredContext);
+        $this->assertSame($schema2, $encounteredSchema);
+        $this->assertSame($john2, $encounteredRootValue);
     }
 }

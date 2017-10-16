@@ -1,8 +1,17 @@
 <?php
 namespace GraphQL\Validator;
-use GraphQL\Schema;
-use GraphQL\Language\AST\Document;
-use GraphQL\Language\AST\FragmentDefinition;
+
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\HasSelectionSet;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\VariableNode;
+use GraphQL\Language\Visitor;
+use \SplObjectStorage;
+use GraphQL\Error\Error;
+use GraphQL\Type\Schema;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -21,28 +30,81 @@ class ValidationContext
     /**
      * @var Schema
      */
-    private $_schema;
+    private $schema;
 
     /**
-     * @var Document
+     * @var DocumentNode
      */
-    private $_ast;
+    private $ast;
 
     /**
      * @var TypeInfo
      */
-    private $_typeInfo;
+    private $typeInfo;
 
     /**
-     * @var array<string, FragmentDefinition>
+     * @var Error[]
      */
-    private $_fragments;
+    private $errors;
 
-    function __construct(Schema $schema, Document $ast, TypeInfo $typeInfo)
+    /**
+     * @var FragmentDefinitionNode[]
+     */
+    private $fragments;
+
+    /**
+     * @var SplObjectStorage
+     */
+    private $fragmentSpreads;
+
+    /**
+     * @var SplObjectStorage
+     */
+    private $recursivelyReferencedFragments;
+
+    /**
+     * @var SplObjectStorage
+     */
+    private $variableUsages;
+
+    /**
+     * @var SplObjectStorage
+     */
+    private $recursiveVariableUsages;
+
+    /**
+     * ValidationContext constructor.
+     *
+     * @param Schema $schema
+     * @param DocumentNode $ast
+     * @param TypeInfo $typeInfo
+     */
+    function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
-        $this->_schema = $schema;
-        $this->_ast = $ast;
-        $this->_typeInfo = $typeInfo;
+        $this->schema = $schema;
+        $this->ast = $ast;
+        $this->typeInfo = $typeInfo;
+        $this->errors = [];
+        $this->fragmentSpreads = new SplObjectStorage();
+        $this->recursivelyReferencedFragments = new SplObjectStorage();
+        $this->variableUsages = new SplObjectStorage();
+        $this->recursiveVariableUsages = new SplObjectStorage();
+    }
+
+    /**
+     * @param Error $error
+     */
+    function reportError(Error $error)
+    {
+        $this->errors[] = $error;
+    }
+
+    /**
+     * @return Error[]
+     */
+    function getErrors()
+    {
+        return $this->errors;
     }
 
     /**
@@ -50,34 +112,141 @@ class ValidationContext
      */
     function getSchema()
     {
-        return $this->_schema;
+        return $this->schema;
     }
 
     /**
-     * @return Document
+     * @return DocumentNode
      */
     function getDocument()
     {
-        return $this->_ast;
+        return $this->ast;
     }
 
     /**
      * @param $name
-     * @return FragmentDefinition|null
+     * @return FragmentDefinitionNode|null
      */
     function getFragment($name)
     {
-        $fragments = $this->_fragments;
+        $fragments = $this->fragments;
         if (!$fragments) {
-            $this->_fragments = $fragments =
-                array_reduce($this->getDocument()->definitions, function($frags, $statement) {
-                    if ($statement->kind === Node::FRAGMENT_DEFINITION) {
-                        $frags[$statement->name->value] = $statement;
-                    }
-                    return $frags;
-                }, []);
+            $fragments = [];
+            foreach ($this->getDocument()->definitions as $statement) {
+                if ($statement->kind === NodeKind::FRAGMENT_DEFINITION) {
+                    $fragments[$statement->name->value] = $statement;
+                }
+            }
+            $this->fragments = $fragments;
         }
         return isset($fragments[$name]) ? $fragments[$name] : null;
+    }
+
+    /**
+     * @param HasSelectionSet $node
+     * @return FragmentSpreadNode[]
+     */
+    function getFragmentSpreads(HasSelectionSet $node)
+    {
+        $spreads = isset($this->fragmentSpreads[$node]) ? $this->fragmentSpreads[$node] : null;
+        if (!$spreads) {
+            $spreads = [];
+            $setsToVisit = [$node->selectionSet];
+            while (!empty($setsToVisit)) {
+                $set = array_pop($setsToVisit);
+
+                for ($i = 0; $i < count($set->selections); $i++) {
+                    $selection = $set->selections[$i];
+                    if ($selection->kind === NodeKind::FRAGMENT_SPREAD) {
+                        $spreads[] = $selection;
+                    } else if ($selection->selectionSet) {
+                        $setsToVisit[] = $selection->selectionSet;
+                    }
+                }
+            }
+            $this->fragmentSpreads[$node] = $spreads;
+        }
+        return $spreads;
+    }
+
+    /**
+     * @param OperationDefinitionNode $operation
+     * @return FragmentDefinitionNode[]
+     */
+    function getRecursivelyReferencedFragments(OperationDefinitionNode $operation)
+    {
+        $fragments = isset($this->recursivelyReferencedFragments[$operation]) ? $this->recursivelyReferencedFragments[$operation] : null;
+
+        if (!$fragments) {
+            $fragments = [];
+            $collectedNames = [];
+            $nodesToVisit = [$operation];
+            while (!empty($nodesToVisit)) {
+                $node = array_pop($nodesToVisit);
+                $spreads = $this->getFragmentSpreads($node);
+                for ($i = 0; $i < count($spreads); $i++) {
+                    $fragName = $spreads[$i]->name->value;
+
+                    if (empty($collectedNames[$fragName])) {
+                        $collectedNames[$fragName] = true;
+                        $fragment = $this->getFragment($fragName);
+                        if ($fragment) {
+                            $fragments[] = $fragment;
+                            $nodesToVisit[] = $fragment;
+                        }
+                    }
+                }
+            }
+            $this->recursivelyReferencedFragments[$operation] = $fragments;
+        }
+        return $fragments;
+    }
+
+    /**
+     * @param HasSelectionSet $node
+     * @return array List of ['node' => VariableNode, 'type' => ?InputObjectType]
+     */
+    function getVariableUsages(HasSelectionSet $node)
+    {
+        $usages = isset($this->variableUsages[$node]) ? $this->variableUsages[$node] : null;
+
+        if (!$usages) {
+            $newUsages = [];
+            $typeInfo = new TypeInfo($this->schema);
+            Visitor::visit($node, Visitor::visitWithTypeInfo($typeInfo, [
+                NodeKind::VARIABLE_DEFINITION => function () {
+                    return false;
+                },
+                NodeKind::VARIABLE => function (VariableNode $variable) use (&$newUsages, $typeInfo) {
+                    $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
+                }
+            ]));
+            $usages = $newUsages;
+            $this->variableUsages[$node] = $usages;
+        }
+        return $usages;
+    }
+
+    /**
+     * @param OperationDefinitionNode $operation
+     * @return array List of ['node' => VariableNode, 'type' => ?InputObjectType]
+     */
+    function getRecursiveVariableUsages(OperationDefinitionNode $operation)
+    {
+        $usages = isset($this->recursiveVariableUsages[$operation]) ? $this->recursiveVariableUsages[$operation] : null;
+
+        if (!$usages) {
+            $usages = $this->getVariableUsages($operation);
+            $fragments = $this->getRecursivelyReferencedFragments($operation);
+
+            $tmp = [$usages];
+            for ($i = 0; $i < count($fragments); $i++) {
+                $tmp[] = $this->getVariableUsages($fragments[$i]);
+            }
+            $usages = call_user_func_array('array_merge', $tmp);
+            $this->recursiveVariableUsages[$operation] = $usages;
+        }
+        return $usages;
     }
 
     /**
@@ -87,7 +256,7 @@ class ValidationContext
      */
     function getType()
     {
-        return $this->_typeInfo->getType();
+        return $this->typeInfo->getType();
     }
 
     /**
@@ -95,7 +264,7 @@ class ValidationContext
      */
     function getParentType()
     {
-        return $this->_typeInfo->getParentType();
+        return $this->typeInfo->getParentType();
     }
 
     /**
@@ -103,7 +272,7 @@ class ValidationContext
      */
     function getInputType()
     {
-        return $this->_typeInfo->getInputType();
+        return $this->typeInfo->getInputType();
     }
 
     /**
@@ -111,16 +280,16 @@ class ValidationContext
      */
     function getFieldDef()
     {
-        return $this->_typeInfo->getFieldDef();
+        return $this->typeInfo->getFieldDef();
     }
 
     function getDirective()
     {
-        return $this->_typeInfo->getDirective();
+        return $this->typeInfo->getDirective();
     }
 
     function getArgument()
     {
-        return $this->_typeInfo->getArgument();
+        return $this->typeInfo->getArgument();
     }
 }

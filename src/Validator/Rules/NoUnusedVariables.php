@@ -1,61 +1,55 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
-use GraphQL\Error;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\Visitor;
-use GraphQL\Validator\Messages;
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Validator\ValidationContext;
 
-class NoUnusedVariables
+class NoUnusedVariables extends AbstractValidationRule
 {
-    static function unusedVariableMessage($varName)
+    static function unusedVariableMessage($varName, $opName = null)
     {
-        return "Variable \"$$varName\" is never used.";
+        return $opName
+            ? "Variable \"$$varName\" is never used in operation \"$opName\"."
+            : "Variable \"$$varName\" is never used.";
     }
 
-    public function __invoke(ValidationContext $context)
+    public $variableDefs;
+
+    public function getVisitor(ValidationContext $context)
     {
-        $visitedFragmentNames = new \stdClass();
-        $variableDefs = [];
-        $variableNameUsed = new \stdClass();
+        $this->variableDefs = [];
 
         return [
-            // Visit FragmentDefinition after visiting FragmentSpread
-            'visitSpreadFragments' => true,
-            Node::OPERATION_DEFINITION => [
-                'enter' => function() use (&$visitedFragmentNames, &$variableDefs, &$variableNameUsed) {
-                    $visitedFragmentNames = new \stdClass();
-                    $variableDefs = [];
-                    $variableNameUsed = new \stdClass();
+            NodeKind::OPERATION_DEFINITION => [
+                'enter' => function() {
+                    $this->variableDefs = [];
                 },
-                'leave' => function() use (&$visitedFragmentNames, &$variableDefs, &$variableNameUsed) {
-                    $errors = [];
-                    foreach ($variableDefs as $def) {
-                        if (empty($variableNameUsed->{$def->variable->name->value})) {
-                            $errors[] = new Error(
-                                self::unusedVariableMessage($def->variable->name->value),
-                                [$def]
-                            );
+                'leave' => function(OperationDefinitionNode $operation) use ($context) {
+                    $variableNameUsed = [];
+                    $usages = $context->getRecursiveVariableUsages($operation);
+                    $opName = $operation->name ? $operation->name->value : null;
+
+                    foreach ($usages as $usage) {
+                        $node = $usage['node'];
+                        $variableNameUsed[$node->name->value] = true;
+                    }
+
+                    foreach ($this->variableDefs as $variableDef) {
+                        $variableName = $variableDef->variable->name->value;
+
+                        if (empty($variableNameUsed[$variableName])) {
+                            $context->reportError(new Error(
+                                self::unusedVariableMessage($variableName, $opName),
+                                [$variableDef]
+                            ));
                         }
                     }
-                    return !empty($errors) ? $errors : null;
                 }
             ],
-            Node::VARIABLE_DEFINITION => function($def) use (&$variableDefs) {
-                $variableDefs[] = $def;
-                return Visitor::skipNode();
-            },
-            Node::VARIABLE => function($variable) use (&$variableNameUsed) {
-                $variableNameUsed->{$variable->name->value} = true;
-            },
-            Node::FRAGMENT_SPREAD => function($spreadAST) use (&$visitedFragmentNames) {
-                // Only visit fragments of a particular name once per operation
-                if (!empty($visitedFragmentNames->{$spreadAST->name->value})) {
-                    return Visitor::skipNode();
-                }
-                $visitedFragmentNames->{$spreadAST->name->value} = true;
+            NodeKind::VARIABLE_DEFINITION => function($def) {
+                $this->variableDefs[] = $def;
             }
         ];
     }

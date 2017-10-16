@@ -1,37 +1,38 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
-use GraphQL\Error;
-use GraphQL\Language\AST\Argument;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\Node;
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\NonNull;
-use GraphQL\Utils;
 use GraphQL\Validator\DocumentValidator;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\ValidationContext;
 
-class ArgumentsOfCorrectType
+class ArgumentsOfCorrectType extends AbstractValidationRule
 {
-    static function badValueMessage($argName, $type, $value)
+    static function badValueMessage($argName, $type, $value, $verboseErrors = [])
     {
-        return "Argument \"$argName\" expected type \"$type\" but got: $value.";
+        $message = $verboseErrors ? ("\n" . implode("\n", $verboseErrors)) : '';
+        return "Argument \"$argName\" has invalid value $value.$message";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
-            Node::ARGUMENT => function(Argument $argAST) use ($context) {
+            NodeKind::ARGUMENT => function(ArgumentNode $argNode) use ($context) {
                 $argDef = $context->getArgument();
-                if ($argDef && !DocumentValidator::isValidLiteralValue($argAST->value, $argDef->getType())) {
-                    return new Error(
-                        self::badValueMessage($argAST->name->value, $argDef->getType(), Printer::doPrint($argAST->value)),
-                        [$argAST->value]
-                    );
+                if ($argDef) {
+                    $errors = DocumentValidator::isValidLiteralValue($argDef->getType(), $argNode->value);
+
+                    if (!empty($errors)) {
+                        $context->reportError(new Error(
+                            self::badValueMessage($argNode->name->value, $argDef->getType(), Printer::doPrint($argNode->value), $errors),
+                            [$argNode->value]
+                        ));
+                    }
                 }
+                return Visitor::skipNode();
             }
         ];
     }

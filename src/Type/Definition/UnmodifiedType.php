@@ -1,9 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-
-interface UnmodifiedType
-{
 /*
 export type GraphQLUnmodifiedType =
 GraphQLScalarType |
@@ -13,4 +10,6 @@ GraphQLUnionType |
 GraphQLEnumType |
 GraphQLInputObjectType;
 */
+interface UnmodifiedType
+{
 }

@@ -1,16 +1,10 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
-use GraphQL\Error;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
-use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\Variable;
-use GraphQL\Language\AST\VariableDefinition;
-use GraphQL\Language\Visitor;
-use GraphQL\Validator\Messages;
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
 
 /**
@@ -21,64 +15,45 @@ use GraphQL\Validator\ValidationContext;
  *
  * @package GraphQL\Validator\Rules
  */
-class NoUndefinedVariables
+class NoUndefinedVariables extends AbstractValidationRule
 {
-    static function undefinedVarMessage($varName)
+    static function undefinedVarMessage($varName, $opName = null)
     {
-        return "Variable \"$$varName\" is not defined.";
+        return $opName
+            ? "Variable \"$$varName\" is not defined by operation \"$opName\"."
+            : "Variable \"$$varName\" is not defined.";
     }
 
-    static function undefinedVarByOpMessage($varName, $opName)
+    public function getVisitor(ValidationContext $context)
     {
-        return "Variable \"$$varName\" is not defined by operation \"$opName\".";
-    }
-
-    public function __invoke(ValidationContext $context)
-    {
-        $operation = null;
-        $visitedFragmentNames = [];
-        $definedVariableNames = [];
+        $variableNameDefined = [];
 
         return [
-            // Visit FragmentDefinition after visiting FragmentSpread
-            'visitSpreadFragments' => true,
+            NodeKind::OPERATION_DEFINITION => [
+                'enter' => function() use (&$variableNameDefined) {
+                    $variableNameDefined = [];
+                },
+                'leave' => function(OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
+                    $usages = $context->getRecursiveVariableUsages($operation);
 
-            Node::OPERATION_DEFINITION => function(OperationDefinition $node, $key, $parent, $path, $ancestors) use (&$operation, &$visitedFragmentNames, &$definedVariableNames) {
-                $operation = $node;
-                $visitedFragmentNames = [];
-                $definedVariableNames = [];
-            },
-            Node::VARIABLE_DEFINITION => function(VariableDefinition $def) use (&$definedVariableNames) {
-                $definedVariableNames[$def->variable->name->value] = true;
-            },
-            Node::VARIABLE => function(Variable $variable, $key, $parent, $path, $ancestors) use (&$definedVariableNames, &$visitedFragmentNames, &$operation) {
-                $varName = $variable->name->value;
-                if (empty($definedVariableNames[$varName])) {
-                    $withinFragment = false;
-                    foreach ($ancestors as $ancestor) {
-                        if ($ancestor instanceof FragmentDefinition) {
-                            $withinFragment = true;
-                            break;
+                    foreach ($usages as $usage) {
+                        $node = $usage['node'];
+                        $varName = $node->name->value;
+
+                        if (empty($variableNameDefined[$varName])) {
+                            $context->reportError(new Error(
+                                self::undefinedVarMessage(
+                                    $varName,
+                                    $operation->name ? $operation->name->value : null
+                                ),
+                                [ $node, $operation ]
+                            ));
                         }
                     }
-                    if ($withinFragment && $operation && $operation->name) {
-                        return new Error(
-                            self::undefinedVarByOpMessage($varName, $operation->name->value),
-                            [$variable, $operation]
-                        );
-                    }
-                    return new Error(
-                        self::undefinedVarMessage($varName),
-                        [$variable]
-                    );
                 }
-            },
-            Node::FRAGMENT_SPREAD => function(FragmentSpread $spreadAST) use (&$visitedFragmentNames) {
-                // Only visit fragments of a particular name once per operation
-                if (!empty($visitedFragmentNames[$spreadAST->name->value])) {
-                    return Visitor::skipNode();
-                }
-                $visitedFragmentNames[$spreadAST->name->value] = true;
+            ],
+            NodeKind::VARIABLE_DEFINITION => function(VariableDefinitionNode $def) use (&$variableNameDefined) {
+                $variableNameDefined[$def->variable->name->value] = true;
             }
         ];
     }

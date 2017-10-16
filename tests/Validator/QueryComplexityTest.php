@@ -1,7 +1,13 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\Parser;
+use GraphQL\Validator\DocumentValidator;
+use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
+use GraphQL\Validator\ValidationContext;
 
 class QueryComplexityTest extends AbstractQuerySecurityTest
 {
@@ -86,9 +92,57 @@ class QueryComplexityTest extends AbstractQuerySecurityTest
         $this->assertDocumentValidators($query, 3, 4);
     }
 
+    public function testQueryWithEnabledIncludeDirectives()
+    {
+        $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withDogs' => true]);
+
+        $this->assertDocumentValidators($query, 3, 4);
+    }
+
+    public function testQueryWithDisabledIncludeDirectives()
+    {
+        $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withDogs' => false]);
+
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
+    public function testQueryWithEnabledSkipDirectives()
+    {
+        $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if:$withoutDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withoutDogs' => true]);
+
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
+    public function testQueryWithDisabledSkipDirectives()
+    {
+        $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if:$withoutDogs) { name } } }';
+
+        $this->getRule()->setRawVariableValues(['withoutDogs' => false]);
+
+        $this->assertDocumentValidators($query, 3, 4);
+    }
+
+    public function testQueryWithMultipleDirectives()
+    {
+        $query = 'query MyQuery($withDogs: Boolean!, $withoutDogName: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name @skip(if:$withoutDogName) } } }';
+
+        $this->getRule()->setRawVariableValues([
+            'withDogs' => true,
+            'withoutDogName' => true
+        ]);
+
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
     public function testComplexityIntrospectionQuery()
     {
-        $this->assertIntrospectionQuery(109);
+        $this->assertIntrospectionQuery(181);
     }
 
     public function testIntrospectionTypeMetaFieldQuery()
@@ -99,6 +153,38 @@ class QueryComplexityTest extends AbstractQuerySecurityTest
     public function testTypeNameMetaFieldQuery()
     {
         $this->assertTypeNameMetaFieldQuery(3);
+    }
+
+    public function testSkippedWhenThereAreOtherValidationErrors()
+    {
+        $query = 'query MyQuery { human(name: INVALID_VALUE) { dogs {name} } }';
+
+        $reportedError = new Error("OtherValidatorError");
+        $otherRule = new CustomValidationRule('otherRule', function(ValidationContext $context) use ($reportedError) {
+            return [
+                NodeKind::OPERATION_DEFINITION => [
+                    'leave' => function() use ($context, $reportedError) {
+                        $context->reportError($reportedError);
+                    }
+                ]
+            ];
+        });
+
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [$otherRule, $this->getRule(1)]
+        );
+
+        $this->assertEquals(1, count($errors));
+        $this->assertSame($reportedError, $errors[0]);
+
+        $this->setExpectedException('GraphQL\Error\Error');
+        DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [$this->getRule(1)]
+        );
     }
 
     private function assertDocumentValidators($query, $queryComplexity, $startComplexity)

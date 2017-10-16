@@ -17,12 +17,24 @@
         </testsuite>
     </testsuites>
 
+    <groups>
+        <exclude>
+            <group>ReactPromise</group>
+        </exclude>
+    </groups>
+
     <filter>
         <whitelist>
-            <directory>./</directory>
+            <directory suffix=".php">./src</directory>
             <exclude>
+                <directory>./bin</directory>
+                <directory>./docs</directory>
+                <directory>./build</directory>
                 <directory>./tests</directory>
                 <directory>./vendor</directory>
+                <directory>./examples</directory>
+                <directory>./benchmarks</directory>
+                <file>./src/deprecated.php</file>
             </exclude>
         </whitelist>
     </filter>

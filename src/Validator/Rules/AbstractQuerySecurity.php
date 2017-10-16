@@ -2,26 +2,29 @@
 
 namespace GraphQL\Validator\Rules;
 
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
-use GraphQL\Language\AST\InlineFragment;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\SelectionSet;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
-abstract class AbstractQuerySecurity
+abstract class AbstractQuerySecurity extends AbstractValidationRule
 {
     const DISABLED = 0;
 
-    /** @var FragmentDefinition[] */
+    /**
+     * @var FragmentDefinitionNode[]
+     */
     private $fragments = [];
 
     /**
-     * @return \GraphQL\Language\AST\FragmentDefinition[]
+     * @return \GraphQL\Language\AST\FragmentDefinitionNode[]
      */
     protected function getFragments()
     {
@@ -46,13 +49,13 @@ abstract class AbstractQuerySecurity
         // Importantly this does not include inline fragments.
         $definitions = $context->getDocument()->definitions;
         foreach ($definitions as $node) {
-            if ($node instanceof FragmentDefinition) {
+            if ($node instanceof FragmentDefinitionNode) {
                 $this->fragments[$node->name->value] = $node;
             }
         }
     }
 
-    protected function getFragment(FragmentSpread $fragmentSpread)
+    protected function getFragment(FragmentSpreadNode $fragmentSpread)
     {
         $spreadName = $fragmentSpread->name->value;
         $fragments = $this->getFragments();
@@ -80,25 +83,25 @@ abstract class AbstractQuerySecurity
      * time we do not know what object type will be used, so we unconditionally
      * spread in all fragments.
      *
-     * @see GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
+     * @see \GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged
      *
      * @param ValidationContext $context
      * @param Type|null         $parentType
-     * @param SelectionSet      $selectionSet
+     * @param SelectionSetNode      $selectionSet
      * @param \ArrayObject      $visitedFragmentNames
      * @param \ArrayObject      $astAndDefs
      *
      * @return \ArrayObject
      */
-    protected function collectFieldASTsAndDefs(ValidationContext $context, $parentType, SelectionSet $selectionSet, \ArrayObject $visitedFragmentNames = null, \ArrayObject $astAndDefs = null)
+    protected function collectFieldASTsAndDefs(ValidationContext $context, $parentType, SelectionSetNode $selectionSet, \ArrayObject $visitedFragmentNames = null, \ArrayObject $astAndDefs = null)
     {
         $_visitedFragmentNames = $visitedFragmentNames ?: new \ArrayObject();
         $_astAndDefs = $astAndDefs ?: new \ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
             switch ($selection->kind) {
-                case Node::FIELD:
-                    /* @var Field $selection */
+                case NodeKind::FIELD:
+                    /* @var FieldNode $selection */
                     $fieldName = $selection->name->value;
                     $fieldDef = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
@@ -124,8 +127,8 @@ abstract class AbstractQuerySecurity
                     // create field context
                     $_astAndDefs[$responseName][] = [$selection, $fieldDef];
                     break;
-                case Node::INLINE_FRAGMENT:
-                    /* @var InlineFragment $selection */
+                case NodeKind::INLINE_FRAGMENT:
+                    /* @var InlineFragmentNode $selection */
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         TypeInfo::typeFromAST($context->getSchema(), $selection->typeCondition),
@@ -134,8 +137,8 @@ abstract class AbstractQuerySecurity
                         $_astAndDefs
                     );
                     break;
-                case Node::FRAGMENT_SPREAD:
-                    /* @var FragmentSpread $selection */
+                case NodeKind::FRAGMENT_SPREAD:
+                    /* @var FragmentSpreadNode $selection */
                     $fragName = $selection->name->value;
 
                     if (empty($_visitedFragmentNames[$fragName])) {
@@ -159,7 +162,7 @@ abstract class AbstractQuerySecurity
         return $_astAndDefs;
     }
 
-    protected function getFieldName(Field $node)
+    protected function getFieldName(FieldNode $node)
     {
         $fieldName = $node->name->value;
         $responseName = $node->alias ? $node->alias->value : $fieldName;

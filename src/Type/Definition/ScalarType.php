@@ -1,7 +1,8 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Utils\Utils;
 
 /**
  * Scalar Type Definition
@@ -12,24 +13,53 @@ use GraphQL\Utils;
  *
  * Example:
  *
- *     var OddType = new GraphQLScalarType({
- *       name: 'Odd',
- *       serialize(value) {
- *         return value % 2 === 1 ? value : null;
- *       }
- *     });
- *
+ * class OddType extends ScalarType
+ * {
+ *     public $name = 'Odd',
+ *     public function serialize($value)
+ *     {
+ *         return $value % 2 === 1 ? $value : null;
+ *     }
+ * }
  */
-abstract class ScalarType extends Type implements OutputType, InputType
+abstract class ScalarType extends Type implements OutputType, InputType, LeafType
 {
-    protected function __construct()
+    /**
+     * @var ScalarTypeDefinitionNode|null
+     */
+    public $astNode;
+
+    function __construct(array $config = [])
     {
-        Utils::invariant($this->name, 'Type must be named.');
+        $this->name = isset($config['name']) ? $config['name'] : $this->tryInferName();
+        $this->description = isset($config['description']) ? $config['description'] : $this->description;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
+        $this->config = $config;
+
+        Utils::assertValidName($this->name);
     }
 
-    abstract public function serialize($value);
+    /**
+     * Determines if an internal value is valid for this type.
+     * Equivalent to checking for if the parsedValue is nullish.
+     *
+     * @param $value
+     * @return bool
+     */
+    public function isValidValue($value)
+    {
+        return null !== $this->parseValue($value);
+    }
 
-    abstract public function parseValue($value);
-
-    abstract public function parseLiteral(/* GraphQL\Language\AST\Value */$valueAST);
+    /**
+     * Determines if an internal value is valid for this type.
+     * Equivalent to checking for if the parsedLiteral is nullish.
+     *
+     * @param $valueNode
+     * @return bool
+     */
+    public function isValidLiteral($valueNode)
+    {
+        return null !== $this->parseLiteral($valueNode);
+    }
 }

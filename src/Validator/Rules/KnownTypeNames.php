@@ -2,30 +2,34 @@
 namespace GraphQL\Validator\Rules;
 
 
-use GraphQL\Error;
-use GraphQL\Language\AST\Name;
-use GraphQL\Language\AST\NamedType;
-use GraphQL\Language\AST\Node;
-use GraphQL\Validator\Messages;
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\NamedTypeNode;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 
-class KnownTypeNames
+class KnownTypeNames extends AbstractValidationRule
 {
     static function unknownTypeMessage($type)
     {
         return "Unknown type \"$type\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
+        $skip = function() {return Visitor::skipNode();};
+
         return [
-            Node::NAMED_TYPE => function(NamedType $node, $key) use ($context) {
-                if ($key === 'type' || $key === 'typeCondition') {
-                    $typeName = $node->name->value;
-                    $type = $context->getSchema()->getType($typeName);
-                    if (!$type) {
-                        return new Error(self::unknownTypeMessage($typeName), [$node]);
-                    }
+            NodeKind::OBJECT_TYPE_DEFINITION => $skip,
+            NodeKind::INTERFACE_TYPE_DEFINITION => $skip,
+            NodeKind::UNION_TYPE_DEFINITION => $skip,
+            NodeKind::INPUT_OBJECT_TYPE_DEFINITION => $skip,
+
+            NodeKind::NAMED_TYPE => function(NamedTypeNode $node, $key) use ($context) {
+                $typeName = $node->name->value;
+                $type = $context->getSchema()->getType($typeName);
+                if (!$type) {
+                    $context->reportError(new Error(self::unknownTypeMessage($typeName), [$node]));
                 }
             }
         ];

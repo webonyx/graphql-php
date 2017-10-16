@@ -1,13 +1,17 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 
 class PossibleFragmentSpreadsTest extends TestCase
 {
     // Validate: Possible fragment spreads
+
+    /**
+     * @it of the same object
+     */
     public function testOfTheSameObject()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads(), '
@@ -16,6 +20,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it of the same object with inline fragment
+     */
     public function testOfTheSameObjectWithInlineFragment()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -23,6 +30,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it object into an implemented interface
+     */
     public function testObjectIntoAnImplementedInterface()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -31,6 +41,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it object into containing union
+     */
     public function testObjectIntoContainingUnion()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -39,6 +52,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it union into contained object
+     */
     public function testUnionIntoContainedObject()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -47,6 +63,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it union into overlapping interface
+     */
     public function testUnionIntoOverlappingInterface()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -55,6 +74,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it union into overlapping union
+     */
     public function testUnionIntoOverlappingUnion()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -63,6 +85,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it interface into implemented object
+     */
     public function testInterfaceIntoImplementedObject()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -71,6 +96,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it interface into overlapping interface
+     */
     public function testInterfaceIntoOverlappingInterface()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -79,6 +107,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it interface into overlapping interface in inline fragment
+     */
     public function testInterfaceIntoOverlappingInterfaceInInlineFragment()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -86,6 +117,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it interface into overlapping union
+     */
     public function testInterfaceIntoOverlappingUnion()
     {
         $this->expectPassesRule(new PossibleFragmentSpreads, '
@@ -94,6 +128,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         ');
     }
 
+    /**
+     * @it different object into object
+     */
     public function testDifferentObjectIntoObject()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '
@@ -104,6 +141,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         );
     }
 
+    /**
+     * @it different object into object in inline fragment
+     */
     public function testDifferentObjectIntoObjectInInlineFragment()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '
@@ -115,6 +155,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         );
     }
 
+    /**
+     * @it object into not implementing interface
+     */
     public function testObjectIntoNotImplementingInterface()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '
@@ -125,6 +168,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         );
     }
 
+    /**
+     * @it object into not containing union
+     */
     public function testObjectIntoNotContainingUnion()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '
@@ -135,6 +181,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         );
     }
 
+    /**
+     * @it union into not contained object
+     */
     public function testUnionIntoNotContainedObject()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '
@@ -145,6 +194,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         );
     }
 
+    /**
+     * @it union into non overlapping interface
+     */
     public function testUnionIntoNonOverlappingInterface()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '
@@ -155,6 +207,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         );
     }
 
+    /**
+     * @it union into non overlapping union
+     */
     public function testUnionIntoNonOverlappingUnion()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '
@@ -165,6 +220,9 @@ class PossibleFragmentSpreadsTest extends TestCase
         );
     }
 
+    /**
+     * @it interface into non implementing object
+     */
     public function testInterfaceIntoNonImplementingObject()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '
@@ -175,29 +233,40 @@ class PossibleFragmentSpreadsTest extends TestCase
         );
     }
 
+    /**
+     * @it interface into non overlapping interface
+     */
     public function testInterfaceIntoNonOverlappingInterface()
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        // Ideally this should fail, but our new lazy schema doesn't scan through all types and fields
+        // So we don't have enough knowledge to check interface intersection and always allow this to pass:
+
+        $this->expectPassesRule(new PossibleFragmentSpreads, '
       fragment invalidInterfaceWithinInterface on Pet {
         ...intelligentFragment
       }
       fragment intelligentFragment on Intelligent { iq }
-        ',
-            [$this->error('intelligentFragment', 'Pet', 'Intelligent', 3, 9)]
-        );
+        ');
     }
 
+    /**
+     * @it interface into non overlapping interface in inline fragment
+     */
     public function testInterfaceIntoNonOverlappingInterfaceInInlineFragment()
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        // Ideally this should fail, but our new lazy schema doesn't scan through all types and fields
+        // So we don't have enough knowledge to check interface intersection and always allow this to pass:
+
+        $this->expectPassesRule(new PossibleFragmentSpreads, '
       fragment invalidInterfaceWithinInterfaceAnon on Pet {
         ...on Intelligent { iq }
       }
-        ',
-            [$this->errorAnon('Pet', 'Intelligent', 3, 9)]
-        );
+        ');
     }
 
+    /**
+     * @it interface into non overlapping union
+     */
     public function testInterfaceIntoNonOverlappingUnion()
     {
         $this->expectFailsRule(new PossibleFragmentSpreads, '

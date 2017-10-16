@@ -1,18 +1,16 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
-use GraphQL\Error;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\InlineFragment;
-use GraphQL\Language\AST\Node;
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Printer;
-use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Validator\Messages;
+use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
 
-class FragmentsOnCompositeTypes
+class FragmentsOnCompositeTypes extends AbstractValidationRule
 {
     static function inlineFragmentOnNonCompositeErrorMessage($type)
     {
@@ -24,27 +22,28 @@ class FragmentsOnCompositeTypes
         return "Fragment \"$fragName\" cannot condition on non composite type \"$type\".";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
-            Node::INLINE_FRAGMENT => function(InlineFragment $node) use ($context) {
-                $type = $context->getType();
-
-                if ($type && !Type::isCompositeType($type)) {
-                    return new Error(
-                        self::inlineFragmentOnNonCompositeErrorMessage($type),
-                        [$node->typeCondition]
-                    );
+            NodeKind::INLINE_FRAGMENT => function(InlineFragmentNode $node) use ($context) {
+                if ($node->typeCondition) {
+                    $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
+                    if ($type && !Type::isCompositeType($type)) {
+                        $context->reportError(new Error(
+                            static::inlineFragmentOnNonCompositeErrorMessage($type),
+                            [$node->typeCondition]
+                        ));
+                    }
                 }
             },
-            Node::FRAGMENT_DEFINITION => function(FragmentDefinition $node) use ($context) {
-                $type = $context->getType();
+            NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) use ($context) {
+                $type = TypeInfo::typeFromAST($context->getSchema(), $node->typeCondition);
 
                 if ($type && !Type::isCompositeType($type)) {
-                    return new Error(
-                        self::fragmentOnNonCompositeErrorMessage($node->name->value, Printer::doPrint($node->typeCondition)),
+                    $context->reportError(new Error(
+                        static::fragmentOnNonCompositeErrorMessage($node->name->value, Printer::doPrint($node->typeCondition)),
                         [$node->typeCondition]
-                    );
+                    ));
                 }
             }
         ];

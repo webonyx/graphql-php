@@ -1,9 +1,11 @@
 <?php
+
 namespace GraphQL\Tests\Executor;
 
-use GraphQL\Error;
+use GraphQL\Deferred;
+use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -12,376 +14,677 @@ use GraphQL\Type\Definition\Type;
 
 class ListsTest extends \PHPUnit_Framework_TestCase
 {
-    // Execute: Handles list nullability
+    // Describe: Execute: Handles list nullability
 
-    public function testHandlesListsWhenTheyReturnNonNullValues()
+    /**
+     * @describe [T]
+     */
+    public function testHandlesNullableListsWithArray()
     {
-        $doc = '
-      query Q {
-        nest {
-          list,
-        }
-      }
-        ';
+        // Contains values
+        $this->checkHandlesNullableLists(
+            [ 1, 2 ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
 
-        $ast = Parser::parse($doc);
-        $expected = ['data' => ['nest' => ['list' => [1,2]]]];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
+        // Contains null
+        $this->checkHandlesNullableLists(
+            [ 1, null, 2 ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
+        );
+
+        // Returns null
+        $this->checkHandlesNullableLists(
+            null,
+            [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
+        );
     }
 
-    public function testHandlesListsOfNonNullsWhenTheyReturnNonNullValues()
+    /**
+     * @describe [T]
+     */
+    public function testHandlesNullableListsWithPromiseArray()
     {
-        $doc = '
-      query Q {
-        nest {
-          listOfNonNull,
-        }
-      }
-        ';
+        // Contains values
+        $this->checkHandlesNullableLists(
+            new Deferred(function() {
+                return [1,2];
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
 
-        $ast = Parser::parse($doc);
+        // Contains null
+        $this->checkHandlesNullableLists(
+            new Deferred(function() {
+                return [1, null, 2];
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
+        );
 
-        $expected = [
-            'data' => [
-                'nest' => [
-                    'listOfNonNull' => [1, 2],
+        // Returns null
+        $this->checkHandlesNullableLists(
+            new Deferred(function() {
+                return null;
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
+        );
+
+        // Rejected
+        $this->checkHandlesNullableLists(
+            function () {
+                return new Deferred(function () {
+                    throw new UserError('bad');
+                });
+            },
+            [
+                'data' => ['nest' => ['test' => null]],
+                'errors' => [
+                    [
+                        'message' => 'bad',
+                        'locations' => [['line' => 1, 'column' => 10]],
+                        'path' => ['nest', 'test']
+                    ]
                 ]
             ]
-        ];
-
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
+        );
     }
 
-    public function testHandlesNonNullListsOfWhenTheyReturnNonNullValues()
+    /**
+     * @describe [T]
+     */
+    public function testHandlesNullableListsWithArrayPromise()
     {
-        $doc = '
-      query Q {
-        nest {
-          nonNullList,
-        }
-      }
-        ';
+        // Contains values
+        $this->checkHandlesNullableLists(
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
 
-        $ast = Parser::parse($doc);
+        // Contains null
+        $this->checkHandlesNullableLists(
+            [
+                new Deferred(function() {return 1;}),
+                new Deferred(function() {return null;}),
+                new Deferred(function() {return 2;})
+            ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
+        );
 
-        $expected = [
-            'data' => [
-                'nest' => [
-                    'nonNullList' => [1, 2],
+        // Returns null
+        $this->checkHandlesNullableLists(
+            new Deferred(function() {
+                return null;
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
+        );
+
+        // Contains reject
+        $this->checkHandlesNullableLists(
+            function () {
+                return [
+                    new Deferred(function() {
+                        return 1;
+                    }),
+                    new Deferred(function() {
+                        throw new UserError('bad');
+                    }),
+                    new Deferred(function() {
+                        return 2;
+                    })
+                ];
+            },
+            [
+                'data' => ['nest' => ['test' => [1, null, 2]]],
+                'errors' => [
+                    [
+                        'message' => 'bad',
+                        'locations' => [['line' => 1, 'column' => 10]],
+                        'path' => ['nest', 'test', 1]
+                    ]
                 ]
             ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
+        );
     }
 
-    public function testHandlesNonNullListsOfNonNullsWhenTheyReturnNonNullValues()
+    /**
+     * @describe [T]!
+     */
+    public function testHandlesNonNullableListsWithArray()
     {
-        $doc = '
-      query Q {
-        nest {
-          nonNullListOfNonNull,
-        }
-      }
-        ';
+        // Contains values
+        $this->checkHandlesNonNullableLists(
+            [ 1, 2 ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
 
-        $ast = Parser::parse($doc);
+        // Contains null
+        $this->checkHandlesNonNullableLists(
+            [ 1, null, 2 ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
+        );
 
-        $expected = [
-            'data' => [
-                'nest' => [
-                    'nonNullListOfNonNull' => [1, 2],
-                ]
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
-    }
-
-    public function testHandlesListsWhenTheyReturnNullAsAValue()
-    {
-        $doc = '
-      query Q {
-        nest {
-          listContainsNull,
-        }
-      }
-        ';
-
-        $ast = Parser::parse($doc);
-
-        $expected = [
-            'data' => [
-                'nest' => [
-                    'listContainsNull' => [1, null, 2],
-                ]
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
-    }
-
-    public function testHandlesListsOfNonNullsWhenTheyReturnNullAsAValue()
-    {
-        $doc = '
-      query Q {
-        nest {
-          listOfNonNullContainsNull,
-        }
-      }
-        ';
-
-        $ast = Parser::parse($doc);
-
-        $expected = [
-            'data' => [
-                'nest' => [
-                    'listOfNonNullContainsNull' => null
+        // Returns null
+        $this->checkHandlesNonNullableLists(
+            null,
+            [
+                'data' => [ 'nest' => null ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10]]
+                    ]
                 ]
             ],
-            'errors' => [
-                FormattedError::create(
-                    'Cannot return null for non-nullable type.',
-                    [new SourceLocation(4, 11)]
-                )
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
+            true
+        );
     }
 
-    public function testHandlesNonNullListsOfWhenTheyReturnNullAsAValue()
+    /**
+     * @describe [T]!
+     */
+    public function testHandlesNonNullableListsWithPromiseArray()
     {
-        $doc = '
-      query Q {
-        nest {
-          nonNullListContainsNull,
-        }
-      }
-        ';
+        // Contains values
+        $this->checkHandlesNonNullableLists(
+            new Deferred(function() {
+                return [1,2];
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
 
-        $ast = Parser::parse($doc);
-        $expected = [
-            'data' => [
-                'nest' => ['nonNullListContainsNull' => [1, null, 2]]
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
-    }
+        // Contains null
+        $this->checkHandlesNonNullableLists(
+            new Deferred(function() {
+                return [1, null, 2];
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
+        );
 
-    public function testHandlesNonNullListsOfNonNullsWhenTheyReturnNullAsAValue()
-    {
-        $doc = '
-      query Q {
-        nest {
-          nonNullListOfNonNullContainsNull,
-        }
-      }
-        ';
-
-        $ast = Parser::parse($doc);
-
-        $expected = [
-            'data' => [
-                'nest' => null
+        // Returns null
+        $this->checkHandlesNonNullableLists(
+            null,
+            [
+                'data' => [ 'nest' => null ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10]]
+                    ]
+                ]
             ],
-            'errors' => [
-                FormattedError::create(
-                    'Cannot return null for non-nullable type.',
-                    [new SourceLocation(4, 11)]
-                )
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
-    }
+            true
+        );
 
-    public function testHandlesListsWhenTheyReturnNull()
-    {
-        $doc = '
-      query Q {
-        nest {
-          listReturnsNull,
-        }
-      }
-        ';
-
-        $ast = Parser::parse($doc);
-
-        $expected = [
-            'data' => [
-                'nest' => [
-                    'listReturnsNull' => null
+        // Rejected
+        $this->checkHandlesNonNullableLists(
+            function () {
+                return new Deferred(function() {
+                    throw new UserError('bad');
+                });
+            },
+            [
+                'data' => ['nest' => null],
+                'errors' => [
+                    [
+                        'message' => 'bad',
+                        'locations' => [['line' => 1, 'column' => 10]],
+                        'path' => ['nest', 'test']
+                    ]
                 ]
             ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
+        );
     }
 
-    public function testHandlesListsOfNonNullsWhenTheyReturnNull()
+    /**
+     * @describe [T]!
+     */
+    public function testHandlesNonNullableListsWithArrayPromise()
     {
-        $doc = '
-      query Q {
-        nest {
-          listOfNonNullReturnsNull,
-        }
-      }
-        ';
+        // Contains values
+        $this->checkHandlesNonNullableLists(
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+            ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
 
-        $ast = Parser::parse($doc);
+        // Contains null
+        $this->checkHandlesNonNullableLists(
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return null;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+            ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, null, 2 ] ] ] ]
+        );
 
-        $expected = [
-            'data' => [
-                'nest' => [
-                    'listOfNonNullReturnsNull' => null
+        // Contains reject
+        $this->checkHandlesNonNullableLists(
+            function () {
+                return [
+                    new Deferred(function() {
+                        return 1;
+                    }),
+                    new Deferred(function() {
+                        throw new UserError('bad');
+                    }),
+                    new Deferred(function() {
+                        return 2;
+                    })
+                ];
+            },
+            [
+                'data' => ['nest' => ['test' => [1, null, 2]]],
+                'errors' => [
+                    [
+                        'message' => 'bad',
+                        'locations' => [['line' => 1, 'column' => 10]],
+                        'path' => ['nest', 'test', 1]
+                    ]
                 ]
             ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
+        );
     }
 
-    public function testHandlesNonNullListsOfWhenTheyReturnNull()
+    /**
+     * @describe [T!]
+     */
+    public function testHandlesListOfNonNullsWithArray()
     {
-        $doc = '
-      query Q {
-        nest {
-          nonNullListReturnsNull,
-        }
-      }
-        ';
+        // Contains values
+        $this->checkHandlesListOfNonNulls(
+            [ 1, 2 ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
 
-        $ast = Parser::parse($doc);
-
-        $expected = [
-            'data' => [
-                'nest' => null,
+        // Contains null
+        $this->checkHandlesListOfNonNulls(
+            [ 1, null, 2 ],
+            [
+                'data' => [ 'nest' => [ 'test' => null ] ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [ ['line' => 1, 'column' => 10] ]
+                    ]
+                ]
             ],
-            'errors' => [
-                FormattedError::create(
-                    'Cannot return null for non-nullable type.',
-                    [new SourceLocation(4, 11)]
-                )
-            ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
+            true
+        );
+
+        // Returns null
+        $this->checkHandlesListOfNonNulls(
+            null,
+            [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
+        );
     }
 
-    public function testHandlesNonNullListsOfNonNullsWhenTheyReturnNull()
+    /**
+     * @describe [T!]
+     */
+    public function testHandlesListOfNonNullsWithPromiseArray()
     {
-        $doc = '
-      query Q {
-        nest {
-          nonNullListOfNonNullReturnsNull,
-        }
-      }
-        ';
+        // Contains values
+        $this->checkHandlesListOfNonNulls(
+            new Deferred(function() {
+                return [1, 2];
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
 
-        $ast = Parser::parse($doc);
-
-        $expected = [
-            'data' => [
-                'nest' => null
+        // Contains null
+        $this->checkHandlesListOfNonNulls(
+            new Deferred(function() {
+                return [1, null, 2];
+            }),
+            [
+                'data' => [ 'nest' => [ 'test' => null ] ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10]]
+                    ]
+                ]
             ],
-            'errors' => [
-                FormattedError::create(
-                    'Cannot return null for non-nullable type.',
-                    [new SourceLocation(4, 11)]
-                )
+            true
+        );
+
+        // Returns null
+        $this->checkHandlesListOfNonNulls(
+            new Deferred(function() {
+                return null;
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
+        );
+
+        // Rejected
+        $this->checkHandlesListOfNonNulls(
+            function () {
+                return new Deferred(function() {
+                    throw new UserError('bad');
+                });
+            },
+            [
+                'data' => ['nest' => ['test' => null]],
+                'errors' => [
+                    [
+                        'message' => 'bad',
+                        'locations' => [['line' => 1, 'column' => 10]],
+                        'path' => ['nest', 'test']
+                    ]
+                ]
             ]
-        ];
-        $this->assertEquals($expected, Executor::execute($this->schema(), $ast, $this->data(), [], 'Q')->toArray());
+        );
     }
 
-
-
-    private function schema()
+    /**
+     * @describe [T]!
+     */
+    public function testHandlesListOfNonNullsWithArrayPromise()
     {
+        // Contains values
+        $this->checkHandlesListOfNonNulls(
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+            ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
+
+        // Contains null
+        $this->checkHandlesListOfNonNulls(
+            [
+                new Deferred(function() {return 1;}),
+                new Deferred(function() {return null;}),
+                new Deferred(function() {return 2;})
+            ],
+            [ 'data' => [ 'nest' => [ 'test' => null ] ] ]
+        );
+
+        // Contains reject
+        $this->checkHandlesListOfNonNulls(
+            function () {
+                return [
+                    new Deferred(function() {
+                        return 1;
+                    }),
+                    new Deferred(function() {
+                        throw new UserError('bad');
+                    }),
+                    new Deferred(function() {
+                        return 2;
+                    })
+                ];
+            },
+            [
+                'data' => ['nest' => ['test' => null]],
+                'errors' => [
+                    [
+                        'message' => 'bad',
+                        'locations' => [['line' => 1, 'column' => 10]],
+                        'path' => ['nest', 'test', 1]
+                    ]
+                ]
+            ]
+        );
+    }
+
+    /**
+     * @describe [T!]!
+     */
+    public function testHandlesNonNullListOfNonNullsWithArray()
+    {
+        // Contains values
+        $this->checkHandlesNonNullListOfNonNulls(
+            [ 1, 2 ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
+
+
+        // Contains null
+        $this->checkHandlesNonNullListOfNonNulls(
+            [ 1, null, 2 ],
+            [
+                'data' => [ 'nest' => null ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10 ]]
+                    ]
+                ]
+            ],
+            true
+        );
+
+        // Returns null
+        $this->checkHandlesNonNullListOfNonNulls(
+            null,
+            [
+                'data' => [ 'nest' => null ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [ ['line' => 1, 'column' => 10] ]
+                    ]
+                ]
+            ],
+            true
+        );
+    }
+
+    /**
+     * @describe [T!]!
+     */
+    public function testHandlesNonNullListOfNonNullsWithPromiseArray()
+    {
+        // Contains values
+        $this->checkHandlesNonNullListOfNonNulls(
+            new Deferred(function() {
+                return [1, 2];
+            }),
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
+
+        // Contains null
+        $this->checkHandlesNonNullListOfNonNulls(
+            new Deferred(function() {
+                return [1, null, 2];
+            }),
+            [
+                'data' => [ 'nest' => null ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [ ['line' => 1, 'column' => 10] ]
+                    ]
+                ]
+            ],
+            true
+        );
+
+        // Returns null
+        $this->checkHandlesNonNullListOfNonNulls(
+            new Deferred(function() {
+                return null;
+            }),
+            [
+                'data' => [ 'nest' => null ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [ ['line' => 1, 'column' => 10] ]
+                    ]
+                ]
+            ],
+            true
+        );
+
+        // Rejected
+        $this->checkHandlesNonNullListOfNonNulls(
+            function () {
+                return new Deferred(function() {
+                    throw new UserError('bad');
+                });
+            },
+            [
+                'data' => ['nest' => null ],
+                'errors' => [
+                    [
+                        'message' => 'bad',
+                        'locations' => [['line' => 1, 'column' => 10]],
+                        'path' => ['nest', 'test']
+                    ]
+                ]
+            ]
+        );
+    }
+
+    /**
+     * @describe [T!]!
+     */
+    public function testHandlesNonNullListOfNonNullsWithArrayPromise()
+    {
+        // Contains values
+        $this->checkHandlesNonNullListOfNonNulls(
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+
+            ],
+            [ 'data' => [ 'nest' => [ 'test' => [ 1, 2 ] ] ] ]
+        );
+
+        // Contains null
+        $this->checkHandlesNonNullListOfNonNulls(
+            [
+                new Deferred(function() {
+                    return 1;
+                }),
+                new Deferred(function() {
+                    return null;
+                }),
+                new Deferred(function() {
+                    return 2;
+                })
+            ],
+            [
+                'data' => [ 'nest' => null ],
+                'errors' => [
+                    [
+                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'locations' => [['line' => 1, 'column' => 10]]
+                    ]
+                ]
+            ],
+            true
+        );
+
+        // Contains reject
+        $this->checkHandlesNonNullListOfNonNulls(
+            function () {
+                return [
+                    new Deferred(function() {
+                        return 1;
+                    }),
+                    new Deferred(function() {
+                        throw new UserError('bad');
+                    }),
+                    new Deferred(function() {
+                        return 2;
+                    })
+                ];
+            },
+            [
+                'data' => ['nest' => null ],
+                'errors' => [
+                    [
+                        'message' => 'bad',
+                        'locations' => [['line' => 1, 'column' => 10]],
+                        'path' => ['nest', 'test']
+                    ]
+                ]
+            ]
+        );
+    }
+
+    private function checkHandlesNullableLists($testData, $expected)
+    {
+        $testType = Type::listOf(Type::int());
+        $this->check($testType, $testData, $expected);
+    }
+
+    private function checkHandlesNonNullableLists($testData, $expected, $debug = false)
+    {
+        $testType = Type::nonNull(Type::listOf(Type::int()));
+        $this->check($testType, $testData, $expected, $debug);
+    }
+
+    private function checkHandlesListOfNonNulls($testData, $expected, $debug = false)
+    {
+        $testType = Type::listOf(Type::nonNull(Type::int()));
+        $this->check($testType, $testData, $expected, $debug);
+    }
+
+    public function checkHandlesNonNullListOfNonNulls($testData, $expected, $debug = false)
+    {
+        $testType = Type::nonNull(Type::listOf(Type::nonNull(Type::int())));
+        $this->check($testType, $testData, $expected, $debug);
+    }
+
+    private function check($testType, $testData, $expected, $debug = false)
+    {
+        $data = ['test' => $testData];
+        $dataType = null;
+
         $dataType = new ObjectType([
             'name' => 'DataType',
-            'fields' => [
-                'list' => [
-                    'type' => Type::listOf(Type::int())
-                ],
-                'listOfNonNull' => [
-                    'type' => Type::listOf(Type::nonNull(Type::int()))
-                ],
-                'nonNullList' => [
-                    'type' => Type::nonNull(Type::listOf(Type::int()))
-                ],
-                'nonNullListOfNonNull' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::int())))
-                ],
-                'listContainsNull' => [
-                    'type' => Type::listOf(Type::int())
-                ],
-                'listOfNonNullContainsNull' => [
-                    'type' => Type::listOf(Type::nonNull(Type::int())),
-                ],
-                'nonNullListContainsNull' => [
-                    'type' => Type::nonNull(Type::listOf(Type::int()))
-                ],
-                'nonNullListOfNonNullContainsNull' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::int())))
-                ],
-                'listReturnsNull' => [
-                    'type' => Type::listOf(Type::int())
-                ],
-                'listOfNonNullReturnsNull' => [
-                    'type' => Type::listOf(Type::nonNull(Type::int()))
-                ],
-                'nonNullListReturnsNull' => [
-                    'type' => Type::nonNull(Type::listOf(Type::int()))
-                ],
-                'nonNullListOfNonNullReturnsNull' => [
-                    'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::int())))
-                ],
-                'nest' => ['type' => function () use (&$dataType) {
-                    return $dataType;
-                }]
-            ]
+            'fields' => function () use (&$testType, &$dataType, $data) {
+                return [
+                    'test' => [
+                        'type' => $testType
+                    ],
+                    'nest' => [
+                        'type' => $dataType,
+                        'resolve' => function () use ($data) {
+                            return $data;
+                        }
+                    ]
+                ];
+            }
         ]);
 
-        $schema = new Schema($dataType);
-        return $schema;
-    }
+        $schema = new Schema([
+            'query' => $dataType
+        ]);
 
-    private function data()
-    {
-        return [
-            'list' => function () {
-                return [1, 2];
-            },
-            'listOfNonNull' => function () {
-                return [1, 2];
-            },
-            'nonNullList' => function () {
-                return [1, 2];
-            },
-            'nonNullListOfNonNull' => function () {
-                return [1, 2];
-            },
-            'listContainsNull' => function () {
-                return [1, null, 2];
-            },
-            'listOfNonNullContainsNull' => function () {
-                return [1, null, 2];
-            },
-            'nonNullListContainsNull' => function () {
-                return [1, null, 2];
-            },
-            'nonNullListOfNonNullContainsNull' => function () {
-                return [1, null, 2];
-            },
-            'listReturnsNull' => function () {
-                return null;
-            },
-            'listOfNonNullReturnsNull' => function () {
-                return null;
-            },
-            'nonNullListReturnsNull' => function () {
-                return null;
-            },
-            'nonNullListOfNonNullReturnsNull' => function () {
-                return null;
-            },
-            'nest' => function () {
-                return self::data();
-            }
-        ];
+        $ast = Parser::parse('{ nest { test } }');
+
+        $result = Executor::execute($schema, $ast, $data);
+        $this->assertArraySubset($expected, $result->toArray($debug));
     }
 }

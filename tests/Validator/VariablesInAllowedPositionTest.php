@@ -1,15 +1,17 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Validator\Messages;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
 class VariablesInAllowedPositionTest extends TestCase
 {
     // Validate: Variables are in allowed positions
 
+    /**
+     * @it Boolean => Boolean
+     */
     public function testBooleanXBoolean()
     {
         // Boolean => Boolean
@@ -23,6 +25,9 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it Boolean => Boolean within fragment
+     */
     public function testBooleanXBooleanWithinFragment()
     {
         // Boolean => Boolean within fragment
@@ -51,6 +56,9 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it Boolean! => Boolean
+     */
     public function testBooleanNonNullXBoolean()
     {
         // Boolean! => Boolean
@@ -64,6 +72,9 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it Boolean! => Boolean within fragment
+     */
     public function testBooleanNonNullXBooleanWithinFragment()
     {
         // Boolean! => Boolean within fragment
@@ -81,6 +92,9 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it Int => Int! with default
+     */
     public function testIntXIntNonNullWithDefault()
     {
         // Int => Int! with default
@@ -94,9 +108,11 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it [String] => [String]
+     */
     public function testListOfStringXListOfString()
     {
-        // [String] => [String]
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($stringListVar: [String])
       {
@@ -107,9 +123,11 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it [String!] => [String]
+     */
     public function testListOfStringNonNullXListOfString()
     {
-        // [String!] => [String]
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($stringListVar: [String!])
       {
@@ -120,9 +138,11 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it String => [String] in item position
+     */
     public function testStringXListOfStringInItemPosition()
     {
-        // String => [String] in item position
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($stringVar: String)
       {
@@ -133,9 +153,11 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it String! => [String] in item position
+     */
     public function testStringNonNullXListOfStringInItemPosition()
     {
-        // String! => [String] in item position
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($stringVar: String!)
       {
@@ -146,9 +168,11 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it ComplexInput => ComplexInput
+     */
     public function testComplexInputXComplexInput()
     {
-        // ComplexInput => ComplexInput
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($complexVar: ComplexInput)
       {
@@ -159,9 +183,11 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it ComplexInput => ComplexInput in field position
+     */
     public function testComplexInputXComplexInputInFieldPosition()
     {
-        // ComplexInput => ComplexInput in field position
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($boolVar: Boolean = false)
       {
@@ -172,9 +198,11 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it Boolean! => Boolean! in directive
+     */
     public function testBooleanNonNullXBooleanNonNullInDirective()
     {
-        // Boolean! => Boolean! in directive
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($boolVar: Boolean!)
       {
@@ -183,9 +211,11 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it Boolean => Boolean! in directive with default
+     */
     public function testBooleanXBooleanNonNullInDirectiveWithDefault()
     {
-        // Boolean => Boolean! in directive with default
         $this->expectPassesRule(new VariablesInAllowedPosition, '
       query Query($boolVar: Boolean = false)
       {
@@ -194,46 +224,51 @@ class VariablesInAllowedPositionTest extends TestCase
         ');
     }
 
+    /**
+     * @it Int => Int!
+     */
     public function testIntXIntNonNull()
     {
-        // Int => Int!
         $this->expectFailsRule(new VariablesInAllowedPosition, '
-      query Query($intArg: Int)
-      {
+      query Query($intArg: Int) {
         complicatedArgs {
           nonNullIntArgField(nonNullIntArg: $intArg)
         }
       }
         ', [
             FormattedError::create(
-                Messages::badVarPosMessage('intArg', 'Int', 'Int!'),
-                [new SourceLocation(5, 45)]
+                VariablesInAllowedPosition::badVarPosMessage('intArg', 'Int', 'Int!'),
+                [new SourceLocation(2, 19), new SourceLocation(4, 45)]
             )
         ]);
     }
 
+    /**
+     * @it Int => Int! within fragment
+     */
     public function testIntXIntNonNullWithinFragment()
     {
-        // Int => Int! within fragment
         $this->expectFailsRule(new VariablesInAllowedPosition, '
       fragment nonNullIntArgFieldFrag on ComplicatedArgs {
         nonNullIntArgField(nonNullIntArg: $intArg)
       }
 
-      query Query($intArg: Int)
-      {
+      query Query($intArg: Int) {
         complicatedArgs {
           ...nonNullIntArgFieldFrag
         }
       }
         ', [
             FormattedError::create(
-                Messages::badVarPosMessage('intArg', 'Int', 'Int!'),
-                [new SourceLocation(3, 43)]
+                VariablesInAllowedPosition::badVarPosMessage('intArg', 'Int', 'Int!'),
+                [new SourceLocation(6, 19), new SourceLocation(3, 43)]
             )
         ]);
     }
 
+    /**
+     * @it Int => Int! within nested fragment
+     */
     public function testIntXIntNonNullWithinNestedFragment()
     {
         // Int => Int! within nested fragment
@@ -254,76 +289,81 @@ class VariablesInAllowedPositionTest extends TestCase
       }
         ', [
             FormattedError::create(
-                Messages::badVarPosMessage('intArg', 'Int', 'Int!'),
-                [new SourceLocation(7,43)]
+                VariablesInAllowedPosition::badVarPosMessage('intArg', 'Int', 'Int!'),
+                [new SourceLocation(10, 19), new SourceLocation(7,43)]
             )
         ]);
     }
 
+    /**
+     * @it String over Boolean
+     */
     public function testStringOverBoolean()
     {
-        // String over Boolean
         $this->expectFailsRule(new VariablesInAllowedPosition, '
-      query Query($stringVar: String)
-      {
+      query Query($stringVar: String) {
         complicatedArgs {
           booleanArgField(booleanArg: $stringVar)
         }
       }
         ', [
             FormattedError::create(
-                Messages::badVarPosMessage('stringVar', 'String', 'Boolean'),
-                [new SourceLocation(5,39)]
+                VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', 'Boolean'),
+                [new SourceLocation(2,19), new SourceLocation(4,39)]
             )
         ]);
     }
 
+    /**
+     * @it String => [String]
+     */
     public function testStringXListOfString()
     {
-        // String => [String]
         $this->expectFailsRule(new VariablesInAllowedPosition, '
-      query Query($stringVar: String)
-      {
+      query Query($stringVar: String) {
         complicatedArgs {
           stringListArgField(stringListArg: $stringVar)
         }
       }
         ', [
             FormattedError::create(
-                Messages::badVarPosMessage('stringVar', 'String', '[String]'),
-                [new SourceLocation(5,45)]
+                VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', '[String]'),
+                [new SourceLocation(2, 19), new SourceLocation(4,45)]
             )
         ]);
     }
 
+    /**
+     * @it Boolean => Boolean! in directive
+     */
     public function testBooleanXBooleanNonNullInDirective()
     {
-        // Boolean => Boolean! in directive
         $this->expectFailsRule(new VariablesInAllowedPosition, '
-      query Query($boolVar: Boolean)
-      {
+      query Query($boolVar: Boolean) {
         dog @include(if: $boolVar)
       }
         ', [
             FormattedError::create(
-                Messages::badVarPosMessage('boolVar', 'Boolean', 'Boolean!'),
-                [new SourceLocation(4,26)]
+                VariablesInAllowedPosition::badVarPosMessage('boolVar', 'Boolean', 'Boolean!'),
+                [new SourceLocation(2, 19), new SourceLocation(3,26)]
             )
         ]);
     }
 
+    /**
+     * @it String => Boolean! in directive
+     */
     public function testStringXBooleanNonNullInDirective()
     {
         // String => Boolean! in directive
         $this->expectFailsRule(new VariablesInAllowedPosition, '
-      query Query($stringVar: String)
-      {
+      query Query($stringVar: String) {
         dog @include(if: $stringVar)
       }
         ', [
             FormattedError::create(
-                Messages::badVarPosMessage('stringVar', 'String', 'Boolean!'),
-                [new SourceLocation(4,26)]
+                VariablesInAllowedPosition::badVarPosMessage('stringVar', 'String', 'Boolean!'),
+                [new SourceLocation(2, 19), new SourceLocation(3,26)]
             )
         ]);
     }

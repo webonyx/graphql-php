@@ -1,75 +1,34 @@
 <?php
 namespace GraphQL\Language\AST;
 
-use GraphQL\Utils;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Utils\Utils;
 
 abstract class Node
 {
-    // constants from language/kinds.js:
-
-    const NAME = 'Name';
-
-    // Document
-
-    const DOCUMENT = 'Document';
-    const OPERATION_DEFINITION = 'OperationDefinition';
-    const VARIABLE_DEFINITION = 'VariableDefinition';
-    const VARIABLE = 'Variable';
-    const SELECTION_SET = 'SelectionSet';
-    const FIELD = 'Field';
-    const ARGUMENT = 'Argument';
-
-    // Fragments
-
-    const FRAGMENT_SPREAD = 'FragmentSpread';
-    const INLINE_FRAGMENT = 'InlineFragment';
-    const FRAGMENT_DEFINITION = 'FragmentDefinition';
-
-    // Values
-
-    const INT = 'IntValue';
-    const FLOAT = 'FloatValue';
-    const STRING = 'StringValue';
-    const BOOLEAN = 'BooleanValue';
-    const ENUM = 'EnumValue';
-    const LST = 'ListValue';
-    const OBJECT = 'ObjectValue';
-    const OBJECT_FIELD = 'ObjectField';
-
-    // Directives
-
-    const DIRECTIVE = 'Directive';
-
-    // Types
-
-    const NAMED_TYPE = 'NamedType';
-    const LIST_TYPE = 'ListType';
-    const NON_NULL_TYPE = 'NonNullType';
-
-    
     /**
-        type Node = Name
-    | Document
-    | OperationDefinition
-    | VariableDefinition
-    | Variable
-    | SelectionSet
-    | Field
-    | Argument
-    | FragmentSpread
-    | InlineFragment
-    | FragmentDefinition
-    | IntValue
-    | FloatValue
-    | StringValue
-    | BooleanValue
-    | EnumValue
-    | ListValue
-    | ObjectValue
-    | ObjectField
-    | Directive
-    | ListType
-    | NonNullType
+      type Node = NameNode
+    | DocumentNode
+    | OperationDefinitionNode
+    | VariableDefinitionNode
+    | VariableNode
+    | SelectionSetNode
+    | FieldNode
+    | ArgumentNode
+    | FragmentSpreadNode
+    | InlineFragmentNode
+    | FragmentDefinitionNode
+    | IntValueNode
+    | FloatValueNode
+    | StringValueNode
+    | BooleanValueNode
+    | EnumValueNode
+    | ListValueNode
+    | ObjectValueNode
+    | ObjectFieldNode
+    | DirectiveNode
+    | ListTypeNode
+    | NonNullTypeNode
      */
 
     public $kind;
@@ -84,25 +43,34 @@ abstract class Node
      */
     public function __construct(array $vars)
     {
-        Utils::assign($this, $vars);
+        if (!empty($vars)) {
+            Utils::assign($this, $vars);
+        }
     }
 
+    /**
+     * @return $this
+     */
     public function cloneDeep()
     {
-        return $this->_cloneValue($this);
+        return $this->cloneValue($this);
     }
 
-    private function _cloneValue($value)
+    /**
+     * @param $value
+     * @return array|Node
+     */
+    private function cloneValue($value)
     {
         if (is_array($value)) {
             $cloned = [];
             foreach ($value as $key => $arrValue) {
-                $cloned[$key] = $this->_cloneValue($arrValue);
+                $cloned[$key] = $this->cloneValue($arrValue);
             }
         } else if ($value instanceof Node) {
             $cloned = clone $value;
             foreach (get_object_vars($cloned) as $prop => $propValue) {
-                $cloned->{$prop} = $this->_cloneValue($propValue);
+                $cloned->{$prop} = $this->cloneValue($propValue);
             }
         } else {
             $cloned = $value;
@@ -116,6 +84,63 @@ abstract class Node
      */
     public function __toString()
     {
-        return json_encode($this);
+        $tmp = $this->toArray(true);
+        return json_encode($tmp);
+    }
+
+    /**
+     * @param bool $recursive
+     * @return array
+     */
+    public function toArray($recursive = false)
+    {
+        if ($recursive) {
+            return $this->recursiveToArray($this);
+        } else {
+            $tmp = (array) $this;
+
+            $tmp['loc'] = [
+                'start' => $this->loc->start,
+                'end' => $this->loc->end
+            ];
+
+            return $tmp;
+        }
+    }
+
+    /**
+     * @param Node $node
+     * @return array
+     */
+    private function recursiveToArray(Node $node)
+    {
+        $result = [
+            'kind' => $node->kind,
+            'loc' => [
+                'start' => $node->loc->start,
+                'end' => $node->loc->end
+            ]
+        ];
+
+        foreach (get_object_vars($node) as $prop => $propValue) {
+            if (isset($result[$prop]))
+                continue;
+
+            if (is_array($propValue) || $propValue instanceof NodeList) {
+                $tmp = [];
+                foreach ($propValue as $tmp1) {
+                    $tmp[] = $tmp1 instanceof Node ? $this->recursiveToArray($tmp1) : (array) $tmp1;
+                }
+            } else if ($propValue instanceof Node) {
+                $tmp = $this->recursiveToArray($propValue);
+            } else if (is_scalar($propValue) || null === $propValue) {
+                $tmp = $propValue;
+            } else {
+                $tmp = null;
+            }
+
+            $result[$prop] = $tmp;
+        }
+        return $result;
     }
 }

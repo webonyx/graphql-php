@@ -1,14 +1,18 @@
 <?php
 namespace GraphQL\Utils;
 
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\ListType;
-use GraphQL\Language\AST\Name;
-use GraphQL\Language\AST\NamedType;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\ListTypeNode;
+use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NonNullType;
-use GraphQL\Schema;
+use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NonNullTypeNode;
+use GraphQL\Type\Schema;
+use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -19,30 +23,117 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
-use GraphQL\Utils;
 
+/**
+ * Class TypeInfo
+ * @package GraphQL\Utils
+ */
 class TypeInfo
 {
     /**
-     * @param Schema $schema
-     * @param $inputTypeAst
-     * @return ListOfType|NonNull|Name
-     * @throws \Exception
+     * @deprecated moved to GraphQL\Utils\TypeComparators
      */
-    public static function typeFromAST(Schema $schema, $inputTypeAst)
+    public static function isEqualType(Type $typeA, Type $typeB)
     {
-        if ($inputTypeAst instanceof ListType) {
-            $innerType = self::typeFromAST($schema, $inputTypeAst->type);
-            return $innerType ? new ListOfType($innerType) : null;
+        return TypeComparators::isEqualType($typeA, $typeB);
+    }
+
+    /**
+     * @deprecated moved to GraphQL\Utils\TypeComparators
+     */
+    static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
+    {
+        return TypeComparators::isTypeSubTypeOf($schema, $maybeSubType, $superType);
+    }
+
+    /**
+     * @deprecated moved to GraphQL\Utils\TypeComparators
+     */
+    static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB)
+    {
+        return TypeComparators::doTypesOverlap($schema, $typeA, $typeB);
+    }
+
+    /**
+     * @param Schema $schema
+     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+     * @return Type
+     * @throws InvariantViolation
+     */
+    public static function typeFromAST(Schema $schema, $inputTypeNode)
+    {
+        return AST::typeFromAST($schema, $inputTypeNode);
+    }
+
+    /**
+     * Given root type scans through all fields to find nested types. Returns array where keys are for type name
+     * and value contains corresponding type instance.
+     *
+     * Example output:
+     * [
+     *     'String' => $instanceOfStringType,
+     *     'MyType' => $instanceOfMyType,
+     *     ...
+     * ]
+     *
+     * @param Type $type
+     * @param array|null $typeMap
+     * @return array
+     */
+    public static function extractTypes($type, array $typeMap = null)
+    {
+        if (!$typeMap) {
+            $typeMap = [];
         }
-        if ($inputTypeAst instanceof NonNullType) {
-            $innerType = self::typeFromAST($schema, $inputTypeAst->type);
-            return $innerType ? new NonNull($innerType) : null;
+        if (!$type) {
+            return $typeMap;
         }
 
-        Utils::invariant($inputTypeAst->kind === Node::NAMED_TYPE, 'Must be a named type');
-        return $schema->getType($inputTypeAst->name->value);
+        if ($type instanceof WrappingType) {
+            return self::extractTypes($type->getWrappedType(true), $typeMap);
+        }
+        if (!$type instanceof Type) {
+            Warning::warnOnce(
+                'One of the schema types is not a valid type definition instance. '.
+                'Try running $schema->assertValid() to find out the cause of this warning.',
+                Warning::WARNING_NOT_A_TYPE
+            );
+            return $typeMap;
+        }
+
+        if (!empty($typeMap[$type->name])) {
+            Utils::invariant(
+                $typeMap[$type->name] === $type,
+                "Schema must contain unique named types but contains multiple types named \"$type\" ".
+                "(see http://webonyx.github.io/graphql-php/type-system/#type-registry)."
+            );
+            return $typeMap;
+        }
+        $typeMap[$type->name] = $type;
+
+        $nestedTypes = [];
+
+        if ($type instanceof UnionType) {
+            $nestedTypes = $type->getTypes();
+        }
+        if ($type instanceof ObjectType) {
+            $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
+        }
+        if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {
+            foreach ((array) $type->getFields() as $fieldName => $field) {
+                if (!empty($field->args)) {
+                    $fieldArgTypes = array_map(function(FieldArgument $arg) { return $arg->getType(); }, $field->args);
+                    $nestedTypes = array_merge($nestedTypes, $fieldArgTypes);
+                }
+                $nestedTypes[] = $field->getType();
+            }
+        }
+        foreach ($nestedTypes as $type) {
+            $typeMap = self::extractTypes($type, $typeMap);
+        }
+        return $typeMap;
     }
 
     /**
@@ -52,9 +143,9 @@ class TypeInfo
      *
      * @return FieldDefinition
      */
-    static private function _getFieldDef(Schema $schema, Type $parentType, Field $fieldAST)
+    static private function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode)
     {
-        $name = $fieldAST->name->value;
+        $name = $fieldNode->name->value;
         $schemaMeta = Introspection::schemaMetaFieldDef();
         if ($name === $schemaMeta->name && $schema->getQueryType() === $parentType) {
             return $schemaMeta;
@@ -65,11 +156,7 @@ class TypeInfo
             return $typeMeta;
         }
         $typeNameMeta = Introspection::typeNameMetaFieldDef();
-        if ($name === $typeNameMeta->name &&
-            ($parentType instanceof ObjectType ||
-            $parentType instanceof InterfaceType ||
-            $parentType instanceof UnionType)
-        ) {
+        if ($name === $typeNameMeta->name && $parentType instanceof CompositeType) {
             return $typeNameMeta;
         }
         if ($parentType instanceof ObjectType ||
@@ -84,45 +171,54 @@ class TypeInfo
     /**
      * @var Schema
      */
-    private $_schema;
+    private $schema;
 
     /**
      * @var \SplStack<OutputType>
      */
-    private $_typeStack;
+    private $typeStack;
 
     /**
      * @var \SplStack<CompositeType>
      */
-    private $_parentTypeStack;
+    private $parentTypeStack;
 
     /**
      * @var \SplStack<InputType>
      */
-    private $_inputTypeStack;
+    private $inputTypeStack;
 
     /**
      * @var \SplStack<FieldDefinition>
      */
-    private $_fieldDefStack;
+    private $fieldDefStack;
 
     /**
      * @var Directive
      */
-    private $_directive;
+    private $directive;
 
     /**
      * @var FieldArgument
      */
-    private $_argument;
+    private $argument;
 
+    /**
+     * @var mixed
+     */
+    private $enumValue;
+
+    /**
+     * TypeInfo constructor.
+     * @param Schema $schema
+     */
     public function __construct(Schema $schema)
     {
-        $this->_schema = $schema;
-        $this->_typeStack = [];
-        $this->_parentTypeStack = [];
-        $this->_inputTypeStack = [];
-        $this->_fieldDefStack = [];
+        $this->schema = $schema;
+        $this->typeStack = [];
+        $this->parentTypeStack = [];
+        $this->inputTypeStack = [];
+        $this->fieldDefStack = [];
     }
 
     /**
@@ -130,8 +226,8 @@ class TypeInfo
      */
     function getType()
     {
-        if (!empty($this->_typeStack)) {
-            return $this->_typeStack[count($this->_typeStack) - 1];
+        if (!empty($this->typeStack)) {
+            return $this->typeStack[count($this->typeStack) - 1];
         }
         return null;
     }
@@ -141,8 +237,8 @@ class TypeInfo
      */
     function getParentType()
     {
-        if (!empty($this->_parentTypeStack)) {
-            return $this->_parentTypeStack[count($this->_parentTypeStack) - 1];
+        if (!empty($this->parentTypeStack)) {
+            return $this->parentTypeStack[count($this->parentTypeStack) - 1];
         }
         return null;
     }
@@ -152,8 +248,8 @@ class TypeInfo
      */
     function getInputType()
     {
-        if (!empty($this->_inputTypeStack)) {
-            return $this->_inputTypeStack[count($this->_inputTypeStack) - 1];
+        if (!empty($this->inputTypeStack)) {
+            return $this->inputTypeStack[count($this->inputTypeStack) - 1];
         }
         return null;
     }
@@ -163,8 +259,8 @@ class TypeInfo
      */
     function getFieldDef()
     {
-        if (!empty($this->_fieldDefStack)) {
-            return $this->_fieldDefStack[count($this->_fieldDefStack) - 1];
+        if (!empty($this->fieldDefStack)) {
+            return $this->fieldDefStack[count($this->fieldDefStack) - 1];
         }
         return null;
     }
@@ -174,7 +270,7 @@ class TypeInfo
      */
     function getDirective()
     {
-        return $this->_directive;
+        return $this->directive;
     }
 
     /**
@@ -182,59 +278,69 @@ class TypeInfo
      */
     function getArgument()
     {
-        return $this->_argument;
+        return $this->argument;
     }
 
+    /**
+     * @return mixed
+     */
+    function getEnumValue()
+    {
+        return $this->enumValue;
+    }
+
+    /**
+     * @param Node $node
+     */
     function enter(Node $node)
     {
-        $schema = $this->_schema;
+        $schema = $this->schema;
 
         switch ($node->kind) {
-            case Node::SELECTION_SET:
+            case NodeKind::SELECTION_SET:
                 $namedType = Type::getNamedType($this->getType());
-                $compositeType = null;
-                if (Type::isCompositeType($namedType)) {
-                    // isCompositeType is a type refining predicate, so this is safe.
-                    $compositeType = $namedType;
-                }
-                array_push($this->_parentTypeStack, $compositeType);
+                $this->parentTypeStack[] = Type::isCompositeType($namedType) ? $namedType : null;
                 break;
 
-            case Node::DIRECTIVE:
-                $this->_directive = $schema->getDirective($node->name->value);
-                break;
-
-            case Node::FIELD:
+            case NodeKind::FIELD:
                 $parentType = $this->getParentType();
                 $fieldDef = null;
                 if ($parentType) {
-                    $fieldDef = self::_getFieldDef($schema, $parentType, $node);
+                    $fieldDef = self::getFieldDefinition($schema, $parentType, $node);
                 }
-                array_push($this->_fieldDefStack, $fieldDef);
-                array_push($this->_typeStack, $fieldDef ? $fieldDef->getType() : null);
+                $this->fieldDefStack[] = $fieldDef; // push
+                $this->typeStack[] = $fieldDef ? $fieldDef->getType() : null; // push
                 break;
 
-            case Node::OPERATION_DEFINITION:
+            case NodeKind::DIRECTIVE:
+                $this->directive = $schema->getDirective($node->name->value);
+                break;
+
+            case NodeKind::OPERATION_DEFINITION:
                 $type = null;
                 if ($node->operation === 'query') {
                     $type = $schema->getQueryType();
                 } else if ($node->operation === 'mutation') {
                     $type = $schema->getMutationType();
+                } else if ($node->operation === 'subscription') {
+                    $type = $schema->getSubscriptionType();
                 }
-                array_push($this->_typeStack, $type);
+                $this->typeStack[] = $type; // push
                 break;
 
-            case Node::INLINE_FRAGMENT:
-            case Node::FRAGMENT_DEFINITION:
-                $type = self::typeFromAST($schema, $node->typeCondition);
-                array_push($this->_typeStack, $type);
+            case NodeKind::INLINE_FRAGMENT:
+            case NodeKind::FRAGMENT_DEFINITION:
+                $typeConditionNode = $node->typeCondition;
+                $outputType = $typeConditionNode ? self::typeFromAST($schema, $typeConditionNode) : $this->getType();
+                $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null; // push
                 break;
 
-            case Node::VARIABLE_DEFINITION:
-                array_push($this->_inputTypeStack, self::typeFromAST($schema, $node->type));
+            case NodeKind::VARIABLE_DEFINITION:
+                $inputType = self::typeFromAST($schema, $node->type);
+                $this->inputTypeStack[] = Type::isInputType($inputType) ? $inputType : null; // push
                 break;
 
-            case Node::ARGUMENT:
+            case NodeKind::ARGUMENT:
                 $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
                 $argDef = $argType = null;
                 if ($fieldOrDirective) {
@@ -243,19 +349,16 @@ class TypeInfo
                         $argType = $argDef->getType();
                     }
                 }
-                $this->_argument = $argDef;
-                array_push($this->_inputTypeStack, $argType);
+                $this->argument = $argDef;
+                $this->inputTypeStack[] = $argType; // push
                 break;
 
-            case Node::LST:
+            case NodeKind::LST:
                 $listType = Type::getNullableType($this->getInputType());
-                array_push(
-                    $this->_inputTypeStack,
-                    $listType instanceof ListOfType ? $listType->getWrappedType() : null
-                );
+                $this->inputTypeStack[] = ($listType instanceof ListOfType ? $listType->getWrappedType() : null); // push
                 break;
 
-            case Node::OBJECT_FIELD:
+            case NodeKind::OBJECT_FIELD:
                 $objectType = Type::getNamedType($this->getInputType());
                 $fieldType = null;
                 if ($objectType instanceof InputObjectType) {
@@ -263,42 +366,57 @@ class TypeInfo
                     $inputField = isset($tmp[$node->name->value]) ? $tmp[$node->name->value] : null;
                     $fieldType = $inputField ? $inputField->getType() : null;
                 }
-                array_push($this->_inputTypeStack, $fieldType);
-            break;
+                $this->inputTypeStack[] = $fieldType;
+                break;
+
+            case NodeKind::ENUM:
+                $enumType = Type::getNamedType($this->getInputType());
+                $enumValue = null;
+                if ($enumType instanceof EnumType) {
+                    $enumValue = $enumType->getValue($node->value);
+                }
+                $this->enumValue = $enumValue;
+                break;
         }
     }
 
+    /**
+     * @param Node $node
+     */
     function leave(Node $node)
     {
         switch ($node->kind) {
-            case Node::SELECTION_SET:
-                array_pop($this->_parentTypeStack);
+            case NodeKind::SELECTION_SET:
+                array_pop($this->parentTypeStack);
                 break;
 
-            case Node::FIELD:
-                array_pop($this->_fieldDefStack);
-                array_pop($this->_typeStack);
+            case NodeKind::FIELD:
+                array_pop($this->fieldDefStack);
+                array_pop($this->typeStack);
                 break;
 
-            case Node::DIRECTIVE:
-                $this->_directive = null;
+            case NodeKind::DIRECTIVE:
+                $this->directive = null;
                 break;
 
-            case Node::OPERATION_DEFINITION:
-            case Node::INLINE_FRAGMENT:
-            case Node::FRAGMENT_DEFINITION:
-                array_pop($this->_typeStack);
+            case NodeKind::OPERATION_DEFINITION:
+            case NodeKind::INLINE_FRAGMENT:
+            case NodeKind::FRAGMENT_DEFINITION:
+                array_pop($this->typeStack);
                 break;
-            case Node::VARIABLE_DEFINITION:
-                array_pop($this->_inputTypeStack);
+            case NodeKind::VARIABLE_DEFINITION:
+                array_pop($this->inputTypeStack);
                 break;
-            case Node::ARGUMENT:
-                $this->_argument = null;
-                array_pop($this->_inputTypeStack);
+            case NodeKind::ARGUMENT:
+                $this->argument = null;
+                array_pop($this->inputTypeStack);
                 break;
-            case Node::LST:
-            case Node::OBJECT_FIELD:
-                array_pop($this->_inputTypeStack);
+            case NodeKind::LST:
+            case NodeKind::OBJECT_FIELD:
+                array_pop($this->inputTypeStack);
+                break;
+            case NodeKind::ENUM:
+                $this->enumValue = null;
                 break;
         }
     }

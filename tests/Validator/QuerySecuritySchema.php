@@ -24,7 +24,9 @@ class QuerySecuritySchema
             return self::$schema;
         }
 
-        self::$schema = new Schema(static::buildQueryRootType());
+        self::$schema = new Schema([
+            'query' => static::buildQueryRootType()
+        ]);
 
         return self::$schema;
     }
@@ -57,24 +59,24 @@ class QuerySecuritySchema
         self::$humanType = new ObjectType(
             [
                 'name' => 'Human',
-                'fields' => [
-                    'firstName' => ['type' => Type::nonNull(Type::string())],
-                    'dogs' => [
-                        'type' => function () {
-                            return Type::nonNull(
+                'fields' => function() {
+                    return [
+                        'firstName' => ['type' => Type::nonNull(Type::string())],
+                        'dogs' => [
+                            'type' => Type::nonNull(
                                 Type::listOf(
                                     Type::nonNull(self::buildDogType())
                                 )
-                            );
-                        },
-                        'complexity' => function ($childrenComplexity, $args) {
-                            $complexity = isset($args['name']) ? 1 : 10;
+                            ),
+                            'complexity' => function ($childrenComplexity, $args) {
+                                $complexity = isset($args['name']) ? 1 : 10;
 
-                            return $childrenComplexity + $complexity;
-                        },
-                        'args' => ['name' => ['type' => Type::string()]],
-                    ],
-                ],
+                                return $childrenComplexity + $complexity;
+                            },
+                            'args' => ['name' => ['type' => Type::string()]],
+                        ],
+                    ];
+                },
             ]
         );
 

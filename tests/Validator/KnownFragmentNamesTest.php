@@ -2,13 +2,16 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\KnownFragmentNames;
-use GraphQL\FormattedError;
+use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 
 class KnownFragmentNamesTest extends TestCase
 {
     // Validate: Known fragment names
 
+    /**
+     * @it known fragment names are valid
+     */
     public function testKnownFragmentNamesAreValid()
     {
         $this->expectPassesRule(new KnownFragmentNames, '
@@ -33,6 +36,9 @@ class KnownFragmentNamesTest extends TestCase
         ');
     }
 
+    /**
+     * @it unknown fragment names are invalid
+     */
     public function testUnknownFragmentNamesAreInvalid()
     {
         $this->expectFailsRule(new KnownFragmentNames, '

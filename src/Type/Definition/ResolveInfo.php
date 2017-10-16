@@ -1,72 +1,118 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\FragmentDefinition;
-use GraphQL\Language\AST\FragmentSpread;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\Selection;
-use GraphQL\Language\AST\SelectionSet;
-use GraphQL\Schema;
-use GraphQL\Utils;
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Type\Schema;
+use GraphQL\Utils\Utils;
 
+/**
+ * Structure containing information useful for field resolution process.
+ * Passed as 3rd argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
+ */
 class ResolveInfo
 {
     /**
+     * The name of the field being resolved
+     *
+     * @api
      * @var string
      */
     public $fieldName;
 
     /**
-     * @var Field[]
+     * @var FieldNode[]
+     * @deprecated as of 8.0 (Renamed to $fieldNodes)
      */
     public $fieldASTs;
 
     /**
-     * @var OutputType
+     * AST of all nodes referencing this field in the query.
+     *
+     * @api
+     * @var FieldNode[]
+     */
+    public $fieldNodes;
+
+    /**
+     * Expected return type of the field being resolved
+     *
+     * @api
+     * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
      */
     public $returnType;
 
     /**
-     * @var Type|CompositeType
+     * Parent type of the field being resolved
+     *
+     * @api
+     * @var ObjectType
      */
     public $parentType;
 
     /**
+     * Path to this field from the very root value
+     *
+     * @api
+     * @var array
+     */
+    public $path;
+
+    /**
+     * Instance of a schema used for execution
+     *
+     * @api
      * @var Schema
      */
     public $schema;
 
     /**
-     * @var array<fragmentName, FragmentDefinition>
+     * AST of all fragments defined in query
+     *
+     * @api
+     * @var FragmentDefinitionNode[]
      */
     public $fragments;
 
     /**
+     * Root value passed to query execution
+     *
+     * @api
      * @var mixed
      */
     public $rootValue;
 
     /**
-     * @var OperationDefinition
+     * AST of operation definition node (query, mutation)
+     *
+     * @api
+     * @var OperationDefinitionNode
      */
     public $operation;
 
     /**
-     * @var array<variableName, mixed>
+     * Array of variables passed to query execution
+     *
+     * @api
+     * @var array
      */
     public $variableValues;
 
     public function __construct(array $values)
     {
         Utils::assign($this, $values);
+        $this->fieldASTs = $this->fieldNodes;
     }
 
     /**
-     * Helper method that returns names of all fields selected in query for $this->fieldName up to $depth levels
+     * Helper method that returns names of all fields selected in query for
+     * $this->fieldName up to $depth levels
      *
-     *
-     * query AppHomeRoute{viewer{id,..._0c28183ce}} fragment _0c28183ce on Viewer{id,profile{firstName,id,locations{id}}}
      * Example:
      * query MyQuery{
      * {
@@ -81,7 +127,8 @@ class ResolveInfo
      *   }
      * }
      *
-     * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1, method will return:
+     * Given this ResolveInfo instance is a part of "root" field resolution, and $depth === 1,
+     * method will return:
      * [
      *     'id' => true,
      *     'nested' => [
@@ -90,35 +137,55 @@ class ResolveInfo
      *     ]
      * ]
      *
+     * Warning: this method it is a naive implementation which does not take into account
+     * conditional typed fragments. So use it with care for fields of interface and union types.
+     *
+     * @api
      * @param int $depth How many levels to include in output
      * @return array
      */
     public function getFieldSelection($depth = 0)
     {
-        /** @var Field $fieldAST */
-        $fieldAST = $this->fieldASTs[0];
-        return $this->foldSelectionSet($fieldAST->selectionSet, $depth);
+        $fields = [];
+
+        /** @var FieldNode $fieldNode */
+        foreach ($this->fieldNodes as $fieldNode) {
+            $fields = array_merge_recursive($fields, $this->foldSelectionSet($fieldNode->selectionSet, $depth));
+        }
+
+        return $fields;
     }
 
-    private function foldSelectionSet(SelectionSet $selectionSet, $descend)
+    private function foldSelectionSet(SelectionSetNode $selectionSet, $descend)
     {
         $fields = [];
 
-        foreach ($selectionSet->selections as $selectionAST) {
-            if ($selectionAST instanceof Field) {
-                $fields[$selectionAST->name->value] = $descend > 0 && !empty($selectionAST->selectionSet)
-                    ? $this->foldSelectionSet($selectionAST->selectionSet, $descend - 1)
+        foreach ($selectionSet->selections as $selectionNode) {
+            if ($selectionNode instanceof FieldNode) {
+                $fields[$selectionNode->name->value] = $descend > 0 && !empty($selectionNode->selectionSet)
+                    ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     : true;
-            } else if ($selectionAST instanceof FragmentSpread) {
-                $spreadName = $selectionAST->name->value;
+            } else if ($selectionNode instanceof FragmentSpreadNode) {
+                $spreadName = $selectionNode->name->value;
                 if (isset($this->fragments[$spreadName])) {
-                    /** @var FragmentDefinition $fragment */
+                    /** @var FragmentDefinitionNode $fragment */
                     $fragment = $this->fragments[$spreadName];
-                    $fields += $this->foldSelectionSet($fragment->selectionSet, $descend);
+                    $fields = array_merge_recursive($this->foldSelectionSet($fragment->selectionSet, $descend), $fields);
                 }
+            } else if ($selectionNode instanceof InlineFragmentNode) {
+                $fields = array_merge_recursive($this->foldSelectionSet($selectionNode->selectionSet, $descend), $fields);
             }
         }
 
         return $fields;
+    }
+
+    public function __get($name)
+    {
+        if ('fieldASTs' === $name) {
+            trigger_error('Property ' . __CLASS__ . '->fieldASTs was renamed to ' . __CLASS__ . '->fieldNodes', E_USER_DEPRECATED);
+            return $this->fieldNodes;
+        }
+        throw new InvariantViolation("Undefined property '$name' in class " . __CLASS__);
     }
 }

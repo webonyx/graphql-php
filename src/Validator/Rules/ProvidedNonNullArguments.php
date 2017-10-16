@@ -2,16 +2,17 @@
 namespace GraphQL\Validator\Rules;
 
 
-use GraphQL\Error;
-use GraphQL\Language\AST\Directive;
-use GraphQL\Language\AST\Field;
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\NonNull;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 
-class ProvidedNonNullArguments
+class ProvidedNonNullArguments extends AbstractValidationRule
 {
     static function missingFieldArgMessage($fieldName, $argName, $type)
     {
@@ -23,62 +24,53 @@ class ProvidedNonNullArguments
         return "Directive \"@$directiveName\" argument \"$argName\" of type \"$type\" is required but not provided.";
     }
 
-    public function __invoke(ValidationContext $context)
+    public function getVisitor(ValidationContext $context)
     {
         return [
-            Node::FIELD => [
-                'leave' => function(Field $fieldAST) use ($context) {
+            NodeKind::FIELD => [
+                'leave' => function(FieldNode $fieldNode) use ($context) {
                     $fieldDef = $context->getFieldDef();
 
                     if (!$fieldDef) {
                         return Visitor::skipNode();
                     }
-                    $errors = [];
-                    $argASTs = $fieldAST->arguments ?: [];
+                    $argNodes = $fieldNode->arguments ?: [];
 
-                    $argASTMap = [];
-                    foreach ($argASTs as $argAST) {
-                        $argASTMap[$argAST->name->value] = $argASTs;
+                    $argNodeMap = [];
+                    foreach ($argNodes as $argNode) {
+                        $argNodeMap[$argNode->name->value] = $argNodes;
                     }
                     foreach ($fieldDef->args as $argDef) {
-                        $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
-                        if (!$argAST && $argDef->getType() instanceof NonNull) {
-                            $errors[] = new Error(
-                                self::missingFieldArgMessage($fieldAST->name->value, $argDef->name, $argDef->getType()),
-                                [$fieldAST]
-                            );
+                        $argNode = isset($argNodeMap[$argDef->name]) ? $argNodeMap[$argDef->name] : null;
+                        if (!$argNode && $argDef->getType() instanceof NonNull) {
+                            $context->reportError(new Error(
+                                self::missingFieldArgMessage($fieldNode->name->value, $argDef->name, $argDef->getType()),
+                                [$fieldNode]
+                            ));
                         }
-                    }
-
-                    if (!empty($errors)) {
-                        return $errors;
                     }
                 }
             ],
-            Node::DIRECTIVE => [
-                'leave' => function(Directive $directiveAST) use ($context) {
+            NodeKind::DIRECTIVE => [
+                'leave' => function(DirectiveNode $directiveNode) use ($context) {
                     $directiveDef = $context->getDirective();
                     if (!$directiveDef) {
                         return Visitor::skipNode();
                     }
-                    $errors = [];
-                    $argASTs = $directiveAST->arguments ?: [];
-                    $argASTMap = [];
-                    foreach ($argASTs as $argAST) {
-                        $argASTMap[$argAST->name->value] = $argASTs;
+                    $argNodes = $directiveNode->arguments ?: [];
+                    $argNodeMap = [];
+                    foreach ($argNodes as $argNode) {
+                        $argNodeMap[$argNode->name->value] = $argNodes;
                     }
 
                     foreach ($directiveDef->args as $argDef) {
-                        $argAST = isset($argASTMap[$argDef->name]) ? $argASTMap[$argDef->name] : null;
-                        if (!$argAST && $argDef->getType() instanceof NonNull) {
-                            $errors[] = new Error(
-                                self::missingDirectiveArgMessage($directiveAST->name->value, $argDef->name, $argDef->getType()),
-                                [$directiveAST]
-                            );
+                        $argNode = isset($argNodeMap[$argDef->name]) ? $argNodeMap[$argDef->name] : null;
+                        if (!$argNode && $argDef->getType() instanceof NonNull) {
+                            $context->reportError(new Error(
+                                self::missingDirectiveArgMessage($directiveNode->name->value, $argDef->name, $argDef->getType()),
+                                [$directiveNode]
+                            ));
                         }
-                    }
-                    if (!empty($errors)) {
-                        return $errors;
                     }
                 }
             ]

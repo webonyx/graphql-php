@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 
 /**
@@ -31,7 +32,7 @@ use GraphQL\Type\Definition\Type;
  *   appearsIn: [Episode]
  * }
  *
- * type Human : Character {
+ * type Human implements Character {
  *   id: String!
  *   name: String
  *   friends: [Character]
@@ -39,7 +40,7 @@ use GraphQL\Type\Definition\Type;
  *   homePlanet: String
  * }
  *
- * type Droid : Character {
+ * type Droid implements Character {
  *   id: String!
  *   name: String
  *   friends: [Character]
@@ -102,36 +103,32 @@ class StarWarsSchema
         $characterInterface = new InterfaceType([
             'name' => 'Character',
             'description' => 'A character in the Star Wars Trilogy',
-            'fields' => [
-                'id' => [
-                    'type' => Type::nonNull(Type::string()),
-                    'description' => 'The id of the character.',
-                ],
-                'name' => [
-                    'type' => Type::string(),
-                    'description' => 'The name of the character.'
-                ],
-                'friends' => [
-                    'type' => function () use (&$characterInterface) {
-                        return Type::listOf($characterInterface);
-                    },
-                    'description' => 'The friends of the character, or an empty list if they have none.',
-                ],
-                'appearsIn' => [
-                    'type' => Type::listOf($episodeEnum),
-                    'description' => 'Which movies they appear in.'
-                ]
-            ],
+            'fields' => function() use (&$characterInterface, $episodeEnum) {
+                return [
+                    'id' => [
+                        'type' => Type::nonNull(Type::string()),
+                        'description' => 'The id of the character.',
+                    ],
+                    'name' => [
+                        'type' => Type::string(),
+                        'description' => 'The name of the character.'
+                    ],
+                    'friends' => [
+                        'type' => Type::listOf($characterInterface),
+                        'description' => 'The friends of the character, or an empty list if they have none.',
+                    ],
+                    'appearsIn' => [
+                        'type' => Type::listOf($episodeEnum),
+                        'description' => 'Which movies they appear in.'
+                    ],
+                    'secretBackstory' => [
+                        'type' => Type::string(),
+                        'description' => 'All secrets about their past.',
+                    ],
+                ];
+            },
             'resolveType' => function ($obj) use (&$humanType, &$droidType) {
-                $humans = StarWarsData::humans();
-                $droids = StarWarsData::droids();
-                if (isset($humans[$obj['id']])) {
-                    return $humanType;
-                }
-                if (isset($droids[$obj['id']])) {
-                    return $droidType;
-                }
-                return null;
+                return StarWarsData::getHuman($obj['id']) ? $humanType : $droidType;
             },
         ]);
 
@@ -139,11 +136,12 @@ class StarWarsSchema
          * We define our human type, which implements the character interface.
          *
          * This implements the following type system shorthand:
-         *   type Human : Character {
+         *   type Human implements Character {
          *     id: String!
          *     name: String
          *     friends: [Character]
          *     appearsIn: [Episode]
+         *     secretBackstory: String
          *   }
          */
         $humanType = new ObjectType([
@@ -161,8 +159,18 @@ class StarWarsSchema
                 'friends' => [
                     'type' => Type::listOf($characterInterface),
                     'description' => 'The friends of the human, or an empty list if they have none.',
-                    'resolve' => function ($human) {
-                        return StarWarsData::getFriends($human);
+                    'resolve' => function ($human, $args, $context, ResolveInfo $info) {
+                        $fieldSelection = $info->getFieldSelection();
+                        $fieldSelection['id'] = true;
+
+                        $friends = array_map(
+                            function($friend) use ($fieldSelection) {
+                                return array_intersect_key($friend, $fieldSelection);
+                            },
+                            StarWarsData::getFriends($human)
+                        );
+
+                        return $friends;
                     },
                 ],
                 'appearsIn' => [
@@ -173,6 +181,14 @@ class StarWarsSchema
                     'type' => Type::string(),
                     'description' => 'The home planet of the human, or null if unknown.'
                 ],
+                'secretBackstory' => [
+                    'type' => Type::string(),
+                    'description' => 'Where are they from and how they came to be who they are.',
+                    'resolve' => function() {
+                        // This is to demonstrate error reporting
+                        throw new \Exception('secretBackstory is secret.');
+                    },
+                ],
             ],
             'interfaces' => [$characterInterface]
         ]);
@@ -181,11 +197,12 @@ class StarWarsSchema
          * The other type of character in Star Wars is a droid.
          *
          * This implements the following type system shorthand:
-         *   type Droid : Character {
+         *   type Droid implements Character {
          *     id: String!
          *     name: String
          *     friends: [Character]
          *     appearsIn: [Episode]
+         *     secretBackstory: String
          *     primaryFunction: String
          *   }
          */
@@ -211,6 +228,14 @@ class StarWarsSchema
                 'appearsIn' => [
                     'type' => Type::listOf($episodeEnum),
                     'description' => 'Which movies they appear in.'
+                ],
+                'secretBackstory' => [
+                    'type' => Type::string(),
+                    'description' => 'Construction date and the name of the designer.',
+                    'resolve' => function() {
+                        // This is to demonstrate error reporting
+                        throw new \Exception('secretBackstory is secret.');
+                    },
                 ],
                 'primaryFunction' => [
                     'type' => Type::string(),
@@ -280,6 +305,6 @@ class StarWarsSchema
             ]
         ]);
 
-        return new Schema($queryType);
+        return new Schema(['query' => $queryType]);
     }
 }

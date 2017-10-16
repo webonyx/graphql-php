@@ -1,8 +1,11 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\GraphQL;
+use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
 use GraphQL\Schema;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -14,12 +17,10 @@ use GraphQL\Validator\DocumentValidator;
 
 abstract class TestCase extends \PHPUnit_Framework_TestCase
 {
-    public $humanType;
-
     /**
      * @return Schema
      */
-    protected function getDefaultSchema()
+    public static function getDefaultSchema()
     {
         $FurColor = null;
 
@@ -43,12 +44,24 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ],
         ]);
 
+        $Canine = new InterfaceType([
+            'name' => 'Canine',
+            'fields' => function() {
+                return [
+                    'name' => [
+                        'type' => Type::string(),
+                        'args' => ['surname' => ['type' => Type::boolean()]]
+                    ]
+                ];
+            }
+        ]);
+
         $DogCommand = new EnumType([
             'name' => 'DogCommand',
             'values' => [
                 'SIT' => ['value' => 0],
                 'HEEL' => ['value' => 1],
-                'DOWN' => ['value' => 3]
+                'DOWN' => ['value' => 2]
             ]
         ]);
 
@@ -76,22 +89,24 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                     'args' => ['x' => ['type' => Type::int()], 'y' => ['type' => Type::int()]]
                 ]
             ],
-            'interfaces' => [$Being, $Pet]
+            'interfaces' => [$Being, $Pet, $Canine]
         ]);
 
         $Cat = new ObjectType([
             'name' => 'Cat',
             'isTypeOf' => function() {return true;},
-            'fields' => [
-                'name' => [
-                    'type' => Type::string(),
-                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
-                ],
-                'nickname' => ['type' => Type::string()],
-                'meows' => ['type' => Type::boolean()],
-                'meowVolume' => ['type' => Type::int()],
-                'furColor' => ['type' => function() use (&$FurColor) {return $FurColor;}]
-            ],
+            'fields' => function() use (&$FurColor) {
+                return [
+                    'name' => [
+                        'type' => Type::string(),
+                        'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                    ],
+                    'nickname' => ['type' => Type::string()],
+                    'meows' => ['type' => Type::boolean()],
+                    'meowVolume' => ['type' => Type::int()],
+                    'furColor' => $FurColor
+                ];
+            },
             'interfaces' => [$Being, $Pet]
         ]);
 
@@ -111,19 +126,22 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $Human = $this->humanType = new ObjectType([
+        $Human = null;
+        $Human = new ObjectType([
             'name' => 'Human',
             'isTypeOf' => function() {return true;},
             'interfaces' => [$Being, $Intelligent],
-            'fields' => [
-                'name' => [
-                    'type' => Type::string(),
-                    'args' => ['surname' => ['type' => Type::boolean()]]
-                ],
-                'pets' => ['type' => Type::listOf($Pet)],
-                'relatives' => ['type' => function() {return Type::listOf($this->humanType); }],
-                'iq' => ['type' => Type::int()]
-            ]
+            'fields' => function() use (&$Human, $Pet) {
+                return [
+                    'name' => [
+                        'type' => Type::string(),
+                        'args' => ['surname' => ['type' => Type::boolean()]]
+                    ],
+                    'pets' => ['type' => Type::listOf($Pet)],
+                    'relatives' => ['type' => Type::listOf($Human)],
+                    'iq' => ['type' => Type::int()]
+                ];
+            }
         ]);
 
         $Alien = new ObjectType([
@@ -165,6 +183,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                 'BLACK' => [ 'value' => 1 ],
                 'TAN' => [ 'value' => 2 ],
                 'SPOTTED' => [ 'value' => 3 ],
+                'NO_FUR' => [ 'value' => null ],
             ],
         ]);
 
@@ -277,7 +296,15 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $defaultSchema = new Schema($queryRoot);
+        $defaultSchema = new Schema([
+            'query' => $queryRoot,
+            'directives' => array_merge(GraphQL::getInternalDirectives(), [
+                new Directive([
+                    'name' => 'operationOnly',
+                    'locations' => [ 'QUERY' ],
+                ])
+            ])
+        ]);
         return $defaultSchema;
     }
 
@@ -295,7 +322,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
 
         $this->assertNotEmpty($errors, 'GraphQL should not validate');
-        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error', 'formatError'], $errors));
+        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));
 
         return $errors;
     }
@@ -322,11 +349,11 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
     function expectPassesCompleteValidation($queryString)
     {
-        $this->expectValid($this->getDefaultSchema(), $this->getAllRules(), $queryString);
+        $this->expectValid($this->getDefaultSchema(), DocumentValidator::allRules(), $queryString);
     }
 
     function expectFailsCompleteValidation($queryString, $errors)
     {
-        $this->expectInvalid($this->getDefaultSchema(), $this->getAllRules(), $queryString, $errors);
+        $this->expectInvalid($this->getDefaultSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }
 }

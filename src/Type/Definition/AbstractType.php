@@ -1,27 +1,20 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-
-interface AbstractType
-{
 /*
 export type GraphQLAbstractType =
 GraphQLInterfaceType |
 GraphQLUnionType;
 */
+interface AbstractType
+{
     /**
-     * @return array<ObjectType>
+     * Resolves concrete ObjectType for given object value
+     *
+     * @param $objectValue
+     * @param $context
+     * @param ResolveInfo $info
+     * @return mixed
      */
-    public function getPossibleTypes();
-
-    /**
-     * @return ObjectType
-     */
-    public function getObjectType($value, ResolveInfo $info);
-
-    /**
-     * @param Type $type
-     * @return bool
-     */
-    public function isPossibleType(Type $type);
+    public function resolveType($objectValue, $context, ResolveInfo $info);
 }

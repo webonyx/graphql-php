@@ -1,15 +1,18 @@
 <?php
 namespace GraphQL\Executor;
 
-use GraphQL\Error;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Schema;
+use GraphQL\Error\Error;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Type\Schema;
 
 /**
  * Data that must be available at all points during query execution.
  *
  * Namely, schema of the type system that is currently executing,
  * and the fragments defined in the query document
+ *
+ * @internal
  */
 class ExecutionContext
 {
@@ -19,17 +22,22 @@ class ExecutionContext
     public $schema;
 
     /**
-     * @var array<string, FragmentDefinition>
+     * @var FragmentDefinitionNode[]
      */
     public $fragments;
 
     /**
-     * @var
+     * @var mixed
      */
     public $rootValue;
 
     /**
-     * @var OperationDefinition
+     * @var mixed
+     */
+    public $contextValue;
+
+    /**
+     * @var OperationDefinitionNode
      */
     public $operation;
 
@@ -39,23 +47,36 @@ class ExecutionContext
     public $variableValues;
 
     /**
-     * @var array
+     * @var callable
      */
-    public $errors;
+    public $fieldResolver;
 
     /**
      * @var array
      */
-    public $memoized = [];
+    public $errors;
 
-    public function __construct($schema, $fragments, $root, $operation, $variables, $errors)
+    public function __construct(
+        $schema,
+        $fragments,
+        $root,
+        $contextValue,
+        $operation,
+        $variables,
+        $errors,
+        $fieldResolver,
+        $promiseAdapter
+    )
     {
         $this->schema = $schema;
         $this->fragments = $fragments;
         $this->rootValue = $root;
+        $this->contextValue = $contextValue;
         $this->operation = $operation;
         $this->variableValues = $variables;
         $this->errors = $errors ?: [];
+        $this->fieldResolver = $fieldResolver;
+        $this->promises = $promiseAdapter;
     }
 
     public function addError(Error $error)

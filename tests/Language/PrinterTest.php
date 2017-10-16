@@ -1,20 +1,23 @@
 <?php
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Language\AST\Document;
-use GraphQL\Language\AST\EnumValue;
-use GraphQL\Language\AST\Field;
-use GraphQL\Language\AST\Name;
-use GraphQL\Language\AST\OperationDefinition;
-use GraphQL\Language\AST\SelectionSet;
-use GraphQL\Language\AST\StringValue;
-use GraphQL\Language\AST\Variable;
-use GraphQL\Language\AST\VariableDefinition;
+use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\EnumValueNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Language\AST\VariableNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 
 class PrinterTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @it does not alter ast
+     */
     public function testDoesntAlterAST()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
@@ -27,12 +30,18 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($astCopy, $ast);
     }
 
+    /**
+     * @it prints minimal ast
+     */
     public function testPrintsMinimalAst()
     {
-        $ast = new Field(['name' => new Name(['value' => 'foo'])]);
+        $ast = new FieldNode(['name' => new NameNode(['value' => 'foo'])]);
         $this->assertEquals('foo', Printer::doPrint($ast));
     }
 
+    /**
+     * @it produces helpful error messages
+     */
     public function testProducesHelpfulErrorMessages()
     {
         $badAst1 = new \ArrayObject(array('random' => 'Data'));
@@ -44,69 +53,52 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testX()
+    /**
+     * @it correctly prints non-query operations without name
+     */
+    public function testCorrectlyPrintsOpsWithoutName()
     {
-        $queryStr = <<<'EOT'
-query queryName($foo: ComplexType, $site: Site = MOBILE) {
-  whoever123is {
-    id
-  }
+        $queryAstShorthanded = Parser::parse('query { id, name }');
+
+        $expected = '{
+  id
+  name
 }
+';
+        $this->assertEquals($expected, Printer::doPrint($queryAstShorthanded));
 
-EOT;
-;
-        $ast = Parser::parse($queryStr, ['noLocation' => true]);
-/*
-        $expectedAst = new Document(array(
-            'definitions' => [
-                new OperationDefinition(array(
-                    'operation' => 'query',
-                    'name' => new Name([
-                        'value' => 'queryName'
-                    ]),
-                    'variableDefinitions' => [
-                        new VariableDefinition([
-                            'variable' => new Variable([
-                                'name' => new Name(['value' => 'foo'])
-                            ]),
-                            'type' => new Name(['value' => 'ComplexType'])
-                        ]),
-                        new VariableDefinition([
-                            'variable' => new Variable([
-                                'name' => new Name(['value' => 'site'])
-                            ]),
-                            'type' => new Name(['value' => 'Site']),
-                            'defaultValue' => new EnumValue(['value' => 'MOBILE'])
-                        ])
-                    ],
-                    'directives' => [],
-                    'selectionSet' => new SelectionSet([
-                        'selections' => [
-                            new Field([
-                                'name' => new Name(['value' => 'whoever123is']),
-                                'arguments' => [],
-                                'directives' => [],
-                                'selectionSet' => new SelectionSet([
-                                    'selections' => [
-                                        new Field([
-                                            'name' => new Name(['value' => 'id']),
-                                            'arguments' => [],
-                                            'directives' => []
-                                        ])
-                                    ]
-                                ])
-                            ])
-                        ]
-                    ])
-                ))
-            ]
-        ));*/
+        $mutationAst = Parser::parse('mutation { id, name }');
+        $expected = 'mutation {
+  id
+  name
+}
+';
+        $this->assertEquals($expected, Printer::doPrint($mutationAst));
 
-        // $this->assertEquals($expectedAst, $ast);
-        $this->assertEquals($queryStr, Printer::doPrint($ast));
+        $queryAstWithArtifacts = Parser::parse(
+            'query ($foo: TestType) @testDirective { id, name }'
+        );
+        $expected = 'query ($foo: TestType) @testDirective {
+  id
+  name
+}
+';
+        $this->assertEquals($expected, Printer::doPrint($queryAstWithArtifacts));
 
+        $mutationAstWithArtifacts = Parser::parse(
+            'mutation ($foo: TestType) @testDirective { id, name }'
+        );
+        $expected = 'mutation ($foo: TestType) @testDirective {
+  id
+  name
+}
+';
+        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
+    /**
+     * @it prints kitchen sink
+     */
     public function testPrintsKitchenSink()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
@@ -117,15 +109,21 @@ EOT;
         $expected = <<<'EOT'
 query queryName($foo: ComplexType, $site: Site = MOBILE) {
   whoever123is: node(id: [123, 456]) {
-    id,
+    id
     ... on User @defer {
       field2 {
-        id,
+        id
         alias: field1(first: 10, after: $foo) @include(if: $foo) {
-          id,
+          id
           ...frag
         }
       }
+    }
+    ... @skip(unless: $foo) {
+      id
+    }
+    ... {
+      id
     }
   }
 }
@@ -138,12 +136,25 @@ mutation likeStory {
   }
 }
 
+subscription StoryLikeSubscription($input: StoryLikeSubscribeInput) {
+  storyLikeSubscribe(input: $input) {
+    story {
+      likers {
+        count
+      }
+      likeSentence {
+        text
+      }
+    }
+  }
+}
+
 fragment frag on Friend {
   foo(size: $size, bar: $b, obj: {key: "value"})
 }
 
 {
-  unnamed(truthy: true, falsey: false),
+  unnamed(truthy: true, falsey: false, nullish: null)
   query
 }
 

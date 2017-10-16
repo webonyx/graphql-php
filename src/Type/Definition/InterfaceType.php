@@ -1,81 +1,25 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Utils\Utils;
 
-use GraphQL\Utils;
-
+/**
+ * Class InterfaceType
+ * @package GraphQL\Type\Definition
+ */
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType
 {
     /**
-     * @var array<string,FieldDefinition>
+     * @var FieldDefinition[]
      */
-    private $_fields;
-
-    public $description;
+    private $fields;
 
     /**
-     * @var array<GraphQLObjectType>
+     * @var InterfaceTypeDefinitionNode|null
      */
-    private $_implementations = [];
-
-    /**
-     * @var \Closure[]
-     */
-    private static $_lazyLoadImplementations = [];
-
-    /**
-     * @var {[typeName: string]: boolean}
-     */
-    private $_possibleTypeNames;
-
-    /**
-     * @var callback
-     */
-    private $_resolveTypeFn;
-
-    /**
-     * @var array
-     */
-    public $config;
-
-    /**
-     * Queue the update of the interfaces to know about this implementation.
-     * This is an rare and unfortunate use of mutation in the type definition
-     * implementations, but avoids an expensive "getPossibleTypes"
-     * implementation for Interface types.
-     *
-     * @param ObjectType $impl
-     */
-    public static function addImplementationToInterfaces(ObjectType $impl)
-    {
-        self::$_lazyLoadImplementations[] = function() use ($impl) {
-            /** @var self $interface */
-            foreach ($impl->getInterfaces() as $interface) {
-                $interface->addImplementation($impl);
-            }
-        };
-    }
-
-    /**
-     * Process ImplementationToInterfaces Queue
-     */
-    public static function loadImplementationToInterfaces()
-    {
-        foreach (self::$_lazyLoadImplementations as $lazyLoadImplementation) {
-            $lazyLoadImplementation();
-        }
-        self::$_lazyLoadImplementations = [];
-    }
-
-    /**
-     * Add a implemented object type to interface
-     *
-     * @param ObjectType $impl
-     */
-    protected function addImplementation(ObjectType $impl)
-    {
-        $this->_implementations[] = $impl;
-    }
+    public $astNode;
 
     /**
      * InterfaceType constructor.
@@ -83,34 +27,38 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public function __construct(array $config)
     {
+        if (!isset($config['name'])) {
+            $config['name'] = $this->tryInferName();
+        }
+
+        Utils::assertValidName($config['name']);
+
         Config::validate($config, [
-            'name' => Config::STRING,
+            'name' => Config::NAME,
             'fields' => Config::arrayOf(
                 FieldDefinition::getDefinition(),
-                Config::KEY_AS_NAME | Config::MAYBE_THUNK
+                Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE
             ),
-            'resolveType' => Config::CALLBACK, // function($value, ResolveInfo $info) => ObjectType
+            'resolveType' => Config::CALLBACK, // function($value, $context, ResolveInfo $info) => ObjectType
             'description' => Config::STRING
         ]);
 
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->_resolveTypeFn = isset($config['resolveType']) ? $config['resolveType'] : null;
+        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
     }
 
     /**
-     * @return array<FieldDefinition>
+     * @return FieldDefinition[]
      */
     public function getFields()
     {
-        if (null === $this->_fields) {
-            $this->_fields = [];
+        if (null === $this->fields) {
             $fields = isset($this->config['fields']) ? $this->config['fields'] : [];
-            $fields = is_callable($fields) ? call_user_func($fields) : $fields;
-            $this->_fields = FieldDefinition::createMap($fields);
+            $this->fields = FieldDefinition::defineFieldMap($this, $fields);
         }
-        return $this->_fields;
+        return $this->fields;
     }
 
     /**
@@ -120,51 +68,54 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      */
     public function getField($name)
     {
-        if (null === $this->_fields) {
+        if (null === $this->fields) {
             $this->getFields();
         }
-        Utils::invariant(isset($this->_fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
-        return $this->_fields[$name];
+        Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
+        return $this->fields[$name];
     }
 
     /**
-     * Returns possible types, loads implementations if they were not loaded previously
+     * Resolves concrete ObjectType for given object value
      *
-     * @return array<GraphQLObjectType>
-     */
-    public function getPossibleTypes()
-    {
-        if (self::$_lazyLoadImplementations) {
-            self::loadImplementationToInterfaces();
-        }
-        return $this->_implementations;
-    }
-
-    /**
-     * @param Type $type
-     * @return bool
-     */
-    public function isPossibleType(Type $type)
-    {
-        $possibleTypeNames = $this->_possibleTypeNames;
-        if (null === $possibleTypeNames) {
-            $this->_possibleTypeNames = $possibleTypeNames = array_reduce($this->getPossibleTypes(), function(&$map, Type $possibleType) {
-                $map[$possibleType->name] = true;
-                return $map;
-            }, []);
-        }
-        return !empty($possibleTypeNames[$type->name]);
-    }
-
-    /**
-     * @param $value
+     * @param $objectValue
+     * @param $context
      * @param ResolveInfo $info
-     * @return Type|null
-     * @throws \Exception
+     * @return callable|null
      */
-    public function getObjectType($value, ResolveInfo $info)
+    public function resolveType($objectValue, $context, ResolveInfo $info)
     {
-        $resolver = $this->_resolveTypeFn;
-        return $resolver ? call_user_func($resolver, $value, $info) : Type::getTypeOf($value, $info, $this);
+        if (isset($this->config['resolveType'])) {
+            $fn = $this->config['resolveType'];
+            return $fn($objectValue, $context, $info);
+        }
+        return null;
+    }
+
+    /**
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        parent::assertValid();
+
+        $fields = $this->getFields();
+
+        Utils::invariant(
+            !isset($this->config['resolveType']) || is_callable($this->config['resolveType']),
+            "{$this->name} must provide \"resolveType\" as a function."
+        );
+
+        Utils::invariant(
+            !empty($fields),
+            "{$this->name} fields must not be empty"
+        );
+
+        foreach ($fields as $field) {
+            $field->assertValid($this);
+            foreach ($field->args as $arg) {
+                $arg->assertValid($field, $this);
+            }
+        }
     }
 }
