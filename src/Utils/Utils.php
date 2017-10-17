@@ -474,23 +474,6 @@ class Utils
             }
         };
     }
-    
-    /**
-     * @param $traversable
-     * @param callable $valueFn function($value, $key) => $newValue
-     * @return array
-     * @throws \Exception
-     */
-    public static function mapValues($traversable, callable $valueFn) {
-        self::invariant(is_array($traversable) || $traversable instanceof \Traversable, __METHOD__ . ' expects array or Traversable');
-
-        $map = [];
-        foreach ($traversable as $key => $value) {
-            $newValue = $valueFn($value, $key);
-            $map[$key] = $newValue;
-        }
-        return $map;
-    }
 
     public static function getTypeKindLiteral($value) {
         if(empty(self::$kinds)) {
