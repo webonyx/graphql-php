@@ -80,6 +80,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType
                         }
                     } else if (is_int($name) && is_string($value)) {
                         $value = ['name' => $value, 'value' => $value];
+                    } else if (is_int($name) && is_int($value)) {
+                        $value = ['name' => $value, 'value' => $value];                        
                     } else {
                         throw new InvariantViolation("{$this->name} values must be an array with value names as keys.");
                     }
