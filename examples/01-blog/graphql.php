@@ -35,13 +35,7 @@ try {
     // Parse incoming query and variables
     if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
         $raw = file_get_contents('php://input') ?: '';
-        $data = json_decode($raw, true);
-        // $data += will cause 'Unsupported operand types' Fatal error on `null`
-        // check if decoded data is an array (or stdobject) - not null
-        // if any kind of data is present we don't want to lose it
-        if ($data === null) {
-            $data = [];
-        }
+        $data = json_decode($raw, true) ?: [];
     } else {
         $data = $_REQUEST;
     }
