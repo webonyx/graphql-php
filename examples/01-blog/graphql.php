@@ -40,8 +40,6 @@ try {
         $data = $_REQUEST;
     }
     
-
-    
     $data += ['query' => null, 'variables' => null];
 
     if (null === $data['query']) {
