@@ -35,10 +35,11 @@ try {
     // Parse incoming query and variables
     if (isset($_SERVER['CONTENT_TYPE']) && strpos($_SERVER['CONTENT_TYPE'], 'application/json') !== false) {
         $raw = file_get_contents('php://input') ?: '';
-        $data = json_decode($raw, true);
+        $data = json_decode($raw, true) ?: [];
     } else {
         $data = $_REQUEST;
     }
+    
     $data += ['query' => null, 'variables' => null];
 
     if (null === $data['query']) {
