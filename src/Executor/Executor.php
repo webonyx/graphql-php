@@ -192,6 +192,7 @@ class Executor
         }
 
         $errors = [];
+        $extensions = [];
         $fragments = [];
         $operation = null;
 
@@ -242,7 +243,8 @@ class Executor
             $variableValues,
             $errors,
             $fieldResolver ?: self::$defaultFieldResolver,
-            $promiseAdapter ?: self::getPromiseAdapter()
+            $promiseAdapter ?: self::getPromiseAdapter(),
+            $extensions
         );
         return $exeContext;
     }
@@ -295,7 +297,7 @@ class Executor
                 return null;
             })
             ->then(function ($data) {
-                return new ExecutionResult((array) $data, $this->exeContext->errors);
+                return new ExecutionResult((array) $data, $this->exeContext->errors, $this->exeContext->extensions);
             });
     }
 
@@ -686,6 +688,7 @@ class Executor
             'rootValue' => $exeContext->rootValue,
             'operation' => $exeContext->operation,
             'variableValues' => $exeContext->variableValues,
+            'executionContext' => $exeContext,
         ]);
 
 

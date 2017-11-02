@@ -262,6 +262,7 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
             'rootValue',
             'operation',
             'variableValues',
+            'executionContext',
         ], array_keys((array) $info));
 
         $this->assertEquals('test', $info->fieldName);

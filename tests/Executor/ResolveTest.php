@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 
 require_once __DIR__ . '/TestClasses.php';
@@ -112,6 +113,86 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             ['data' => ['test' => '["Source!",{"aStr":"String!","aInt":-123}]']],
             GraphQL::execute($schema, '{ test(aInt: -123, aStr: "String!") }', 'Source!')
+        );
+    }
+
+    /**
+     * @it Correctly serializes extensions from resolveInfo.
+     */
+    public function testAddingExtensionsWithinResolver()
+    {
+        $schema = $this->buildSchema([
+            'type' => Type::string(),
+            'args' => [
+                'aStr' => ['type' => Type::string()],
+                'aInt' => ['type' => Type::int()],
+            ],
+            'resolve' => function ($source, $args, $context, ResolveInfo $resolveInfo) {
+                $resolveInfo->setExtension('cache-control', ['path' => $resolveInfo->path, 'cache' => 'none']);
+                return json_encode([$source, $args]);
+            }
+        ]);
+
+        $this->assertEquals(
+            ['data' => ['test' => '[null,[]]'], 'extensions' => ['cache-control' => ['path' => ['test'], 'cache' => 'none']]],
+            GraphQL::execute($schema, '{ test }')
+        );
+    }
+
+    /**
+     * @it Correctly returns null when attempting to retrieve an extension that has not been set.
+     */
+    public function testRetrievingUnsetExtensionReturnsNull()
+    {
+        $schema = $this->buildSchema([
+            'type' => Type::string(),
+            'args' => [
+                'aStr' => ['type' => Type::string()],
+                'aInt' => ['type' => Type::int()],
+            ],
+            'resolve' => function ($source, $args, $context, ResolveInfo $resolveInfo) {
+                $this->assertEquals(null, $resolveInfo->getExtension('cache-control'));
+                return json_encode([$source, $args]);
+            }
+        ]);
+
+        GraphQL::execute($schema, '{ test }');
+    }
+
+    /**
+     * @it Correctly enables coordination of setting extensions between resolvers.
+     */
+    public function testSetExtensionsAreRetrievable()
+    {
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'a' => [
+                        'type' => Type::string(),
+                        'resolve' => function ($source, $args, $context, ResolveInfo $resolveInfo) {
+                            $actualCost = $resolveInfo->getExtension('queryCost') ?: 0;
+                            $actualCost += 10;
+                            $resolveInfo->setExtension('queryCost', $actualCost);
+                            return 'foo';
+                        }
+                    ],
+                    'b' => [
+                        'type' => Type::string(),
+                        'resolve' => function ($source, $args, $context, ResolveInfo $resolveInfo) {
+                            $actualCost = $resolveInfo->getExtension('queryCost') ?: 0;
+                            $actualCost += 10;
+                            $resolveInfo->setExtension('queryCost', $actualCost);
+                            return 'bar';
+                        }
+                    ]
+                ]
+            ])
+        ]);
+
+        $this->assertEquals(
+            ['data' => ['a' => 'foo', 'b' => 'bar'], 'extensions' => ['queryCost' => 20]],
+            GraphQL::execute($schema, '{ a, b }')
         );
     }
 }
