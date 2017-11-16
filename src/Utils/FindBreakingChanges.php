@@ -245,61 +245,41 @@ class FindBreakingChanges
     }
 
     /**
-     * @param $oldSchema
-     * @param $newSchema
+     * @param Schema $oldSchema
+     * @param Schema $newSchema
      *
      * @return array
      */
-    private static function findFieldsThatChangedTypeOnObjectOrInterfaceTypes(
-        $oldSchema, $newSchema
-    )
+    private static function findFieldsThatChangedTypeOnObjectOrInterfaceTypes(Schema $oldSchema, Schema $newSchema)
     {
-        /*const oldTypeMap = oldSchema.getTypeMap();
-        const newTypeMap = newSchema.getTypeMap();
+        $oldTypeMap = $oldSchema->getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
 
-        const breakingFieldChanges = [];
-        Object.keys(oldTypeMap).forEach(typeName => {
-          const oldType = oldTypeMap[typeName];
-          const newType = newTypeMap[typeName];
-          if (
-              !(oldType instanceof GraphQLObjectType ||
-                oldType instanceof GraphQLInterfaceType) ||
-              !(newType instanceof oldType.constructor)
-          ) {
-            return;
-          }
-
-          const oldTypeFieldsDef = oldType.getFields();
-          const newTypeFieldsDef = newType.getFields();
-          Object.keys(oldTypeFieldsDef).forEach(fieldName => {
-            // Check if the field is missing on the type in the new schema.
-            if (!(fieldName in newTypeFieldsDef)) {
-              breakingFieldChanges.push({
-                type: BreakingChangeType.FIELD_REMOVED,
-                description: `${typeName}.${fieldName} was removed.`,
-              });
-            } else {
-              const oldFieldType = oldTypeFieldsDef[fieldName].type;
-              const newFieldType = newTypeFieldsDef[fieldName].type;
-              const isSafe =
-              isChangeSafeForObjectOrInterfaceField(oldFieldType, newFieldType);
-              if (!isSafe) {
-                const oldFieldTypeString = isNamedType(oldFieldType) ?
-                    oldFieldType.name :
-                    oldFieldType.toString();
-                const newFieldTypeString = isNamedType(newFieldType) ?
-                    newFieldType.name :
-                    newFieldType.toString();
-                breakingFieldChanges.push({
-                  type: BreakingChangeType.FIELD_CHANGED_KIND,
-                  description: `${typeName}.${fieldName} changed type from ` +
-                               `${oldFieldTypeString} to ${newFieldTypeString}.`,
-                });
-              }
+        $breakingFieldChanges = [];
+        foreach ($oldTypeMap as $typeName => $oldType) {
+            $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
+            if (!($oldType instanceof ObjectType || $oldType instanceof InterfaceType) || !($newType instanceof $oldType)) {
+                continue;
             }
-          });
-        });
-        return breakingFieldChanges;*/
+            $oldTypeFieldsDef = $oldType->getFields();
+            $newTypeFieldsDef = $newType->getFields();
+            foreach ($oldTypeFieldsDef as $fieldName => $fieldDefinition) {
+                if (!isset($newTypeFieldsDef[$fieldName])) {
+                    $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_REMOVED, 'description' => "${typeName}->${fieldName} was removed."];
+                } else {
+                    $oldFieldType = $oldTypeFieldsDef[$fieldName]->getType();
+                    $newfieldType = $newTypeFieldsDef[$fieldName]->getType();
+                    $isSafe = self::isChangeSafeForObjectOrInterfaceField($oldFieldType, $newfieldType);
+                    if (!$isSafe) {
+
+                        $oldFieldTypeString = self::isNamedType($oldFieldType) ? $oldFieldType->name : $oldFieldType;
+                        $newFieldTypeString = self::isNamedType($newfieldType) ? $newfieldType->name : $newfieldType;
+                        $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}"];
+                    }
+                }
+            }
+        }
+        return $breakingFieldChanges;
     }
 
     /**
@@ -312,65 +292,40 @@ class FindBreakingChanges
         Schema $oldSchema, Schema $newSchema
     )
     {
-        /*  const oldTypeMap = oldSchema.getTypeMap();
-          const newTypeMap = newSchema.getTypeMap();
+        $oldTypeMap = $oldSchema->getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
 
-          const breakingFieldChanges = [];
-          Object.keys(oldTypeMap).forEach(typeName => {
-            const oldType = oldTypeMap[typeName];
-            const newType = newTypeMap[typeName];
-            if (
-                !(oldType instanceof GraphQLInputObjectType) ||
-                !(newType instanceof GraphQLInputObjectType)
-            ) {
-              return;
+        $breakingFieldChanges = [];
+        foreach ($oldTypeMap as $typeName => $oldType) {
+            $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
+            if (!($oldType instanceof InputObjectType) || !($newType instanceof InputObjectType)) {
+                continue;
             }
-
-            const oldTypeFieldsDef = oldType.getFields();
-            const newTypeFieldsDef = newType.getFields();
-            Object.keys(oldTypeFieldsDef).forEach(fieldName => {
-              // Check if the field is missing on the type in the new schema.
-              if (!(fieldName in newTypeFieldsDef)) {
-                breakingFieldChanges.push({
-                  type: BreakingChangeType.FIELD_REMOVED,
-                  description: `${typeName}.${fieldName} was removed.`,
-                });
-              } else {
-                const oldFieldType = oldTypeFieldsDef[fieldName].type;
-                const newFieldType = newTypeFieldsDef[fieldName].type;
-
-                const isSafe =
-                isChangeSafeForInputObjectFieldOrFieldArg(oldFieldType, newFieldType);
-                if (!isSafe) {
-                  const oldFieldTypeString = isNamedType(oldFieldType) ?
-                      oldFieldType.name :
-                      oldFieldType.toString();
-                  const newFieldTypeString = isNamedType(newFieldType) ?
-                      newFieldType.name :
-                      newFieldType.toString();
-                  breakingFieldChanges.push({
-                    type: BreakingChangeType.FIELD_CHANGED_KIND,
-                    description: `${typeName}.${fieldName} changed type from ` +
-                                 `${oldFieldTypeString} to ${newFieldTypeString}.`,
-                  });
+            $oldTypeFieldsDef = $oldType->getFields();
+            $newTypeFieldsDef = $newType->getFields();
+            foreach ($oldTypeFieldsDef as $fieldName => $fieldDefinition) {
+                if (!isset($newTypeFieldsDef[$fieldName])) {
+                    $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_REMOVED, 'description' => "${typeName}->${fieldName} was removed."];
+                } else {
+                    $oldFieldType = $oldTypeFieldsDef[$fieldName]->getType();
+                    $newfieldType = $newTypeFieldsDef[$fieldName]->getType();
+                    $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg($oldFieldType, $newfieldType);
+                    if (!$isSafe) {
+                        $oldFieldTypeString = self::isNamedType($oldFieldType) ? $oldFieldType->name : $oldFieldType;
+                        $newFieldTypeString = self::isNamedType($newfieldType) ? $newfieldType->name : $newfieldType;
+                        $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}"];
+                    }
                 }
-              }
-            });
-            // Check if a non-null field was added to the input object type
-            Object.keys(newTypeFieldsDef).forEach(fieldName => {
-              if (
-              !(fieldName in oldTypeFieldsDef) &&
-                newTypeFieldsDef[fieldName].type instanceof GraphQLNonNull
-              ) {
-                breakingFieldChanges.push({
-                  type: BreakingChangeType.NON_NULL_INPUT_FIELD_ADDED,
-                  description: `A non-null field ${fieldName} on ` +
-                               `input type ${newType.name} was added.`,
-                });
-              }
-            });
-          });
-          return breakingFieldChanges;*/
+            }
+            foreach ($newTypeFieldsDef as $fieldName => $fieldDef) {
+                if (!isset($oldTypeFieldsDef[$fieldName]) && $fieldDef->getType() instanceof NonNull) {
+                    $newTypeName = $newType->name;
+                    $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED, 'description' => "A non-null field ${fieldName} on input type ${$newTypeName} was added"];
+                }
+            }
+        }
+        return $breakingFieldChanges;
+
     }
 
     private static function isChangeSafeForObjectOrInterfaceField(
