@@ -96,15 +96,6 @@ class FindBreakingChanges
             }
         }
 
-        /*Object.keys(oldTypeMap).forEach(typeName => {
-          if (!newTypeMap[typeName]) {
-            breakingChanges.push({
-              type: BreakingChangeType.TYPE_REMOVED,
-              description: `${typeName} was removed.`,
-            });
-          }
-        });*/
-
         return $breakingChanges;
     }
 
@@ -134,22 +125,6 @@ class FindBreakingChanges
                 ];
             }
         }
-
-        /*
-        Object.keys(oldTypeMap).forEach(typeName => {
-          if (!newTypeMap[typeName]) {
-            return;
-          }
-          const oldType = oldTypeMap[typeName];
-          const newType = newTypeMap[typeName];
-          if (!(oldType instanceof newType.constructor)) {
-            breakingChanges.push({
-              type: BreakingChangeType.TYPE_CHANGED_KIND,
-              description: `${typeName} changed from ` +
-                           `${typeKindName(oldType)} to ${typeKindName(newType)}.`
-            });
-          }
-        });*/
 
         return $breakingChanges;
     }
@@ -231,82 +206,6 @@ class FindBreakingChanges
         }
 
         return ['breakingChanges' => $breakingChanges, 'dangerousChanges' => $dangerousChanges];
-        /*
-         Object.keys(oldTypeMap).forEach(typeName => {
-           const oldType = oldTypeMap[typeName];
-           const newType = newTypeMap[typeName];
-           if (
-               !(oldType instanceof GraphQLObjectType ||
-                 oldType instanceof GraphQLInterfaceType) ||
-               !(newType instanceof oldType.constructor)
-           ) {
-             return;
-           }
-
-           const oldTypeFields: GraphQLFieldMap<*, *> = oldType.getFields();
-           const newTypeFields: GraphQLFieldMap<*, *> = newType.getFields();
-
-           Object.keys(oldTypeFields).forEach(fieldName => {
-             if (!newTypeFields[fieldName]) {
-               return;
-             }
-
-             oldTypeFields[fieldName].args.forEach(oldArgDef => {
-               const newArgs = newTypeFields[fieldName].args;
-               const newArgDef = newArgs.find(
-                       arg => arg.name === oldArgDef.name
-               );
-
-               // Arg not present
-               if (!newArgDef) {
-                 breakingChanges.push({
-                   type: BreakingChangeType.ARG_REMOVED,
-                   description: `${oldType.name}.${fieldName} arg ` +
-                                `${oldArgDef.name} was removed`,
-                 });
-               } else {
-                 const isSafe = isChangeSafeForInputObjectFieldOrFieldArg(
-                     oldArgDef.type,
-                     newArgDef.type,
-                 );
-                 if (!isSafe) {
-                   breakingChanges.push({
-                     type: BreakingChangeType.ARG_CHANGED_KIND,
-                     description: `${oldType.name}.${fieldName} arg ` +
-                                  `${oldArgDef.name} has changed type from ` +
-                                  `${oldArgDef.type.toString()} to ${newArgDef.type.toString()}`,
-                   });
-                 } else if (oldArgDef.defaultValue !== undefined &&
-                            oldArgDef.defaultValue !== newArgDef.defaultValue) {
-                   dangerousChanges.push({
-                     type: DangerousChangeType.ARG_DEFAULT_VALUE_CHANGE,
-                     description: `${oldType.name}.${fieldName} arg ` +
-                                  `${oldArgDef.name} has changed defaultValue`,
-                   });
-                 }
-               }
-             });
-             // Check if a non-null arg was added to the field
-             newTypeFields[fieldName].args.forEach(newArgDef => {
-               const oldArgs = oldTypeFields[fieldName].args;
-               const oldArgDef = oldArgs.find(
-                       arg => arg.name === newArgDef.name
-               );
-               if (!oldArgDef && newArgDef.type instanceof GraphQLNonNull) {
-                 breakingChanges.push({
-                   type: BreakingChangeType.NON_NULL_ARG_ADDED,
-                   description: `A non-null arg ${newArgDef.name} on ` +
-                                `${newType.name}.${fieldName} was added`,
-                 });
-               }
-             });
-           });
-         });
-
-         return {
-           breakingChanges,
-           dangerousChanges,
-         };*/
     }
 
     /**
@@ -319,7 +218,7 @@ class FindBreakingChanges
     {
         if ($type instanceof ScalarType) {
             return 'a Scalar type';
-        } elseif($type instanceof ObjectType) {
+        } elseif ($type instanceof ObjectType) {
             return 'an Object type';
         } elseif ($type instanceof InterfaceType) {
             return 'an Interface type';
@@ -344,12 +243,18 @@ class FindBreakingChanges
         Schema $oldSchema, Schema $newSchema
     )
     {
-        /*return [
-          ...findFieldsThatChangedTypeOnObjectOrInterfaceTypes(oldSchema, newSchema),
-          ...findFieldsThatChangedTypeOnInputObjectTypes(oldSchema, newSchema),
-        ];*/
+        return array_merge(
+            self::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema),
+            self::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)
+        );
     }
 
+    /**
+     * @param $oldSchema
+     * @param $newSchema
+     *
+     * @return array
+     */
     private static function findFieldsThatChangedTypeOnObjectOrInterfaceTypes(
         $oldSchema, $newSchema
     )
@@ -402,6 +307,12 @@ class FindBreakingChanges
         return breakingFieldChanges;*/
     }
 
+    /**
+     * @param Schema $oldSchema
+     * @param Schema $newSchema
+     *
+     * @return array
+     */
     public static function findFieldsThatChangedTypeOnInputObjectTypes(
         Schema $oldSchema, Schema $newSchema
     )
@@ -493,81 +404,30 @@ class FindBreakingChanges
         }
 
         return false;
-        /*if (isNamedType(oldType)) {
-          return (
-                   // if they're both named types, see if their names are equivalent
-                     isNamedType(newType) && oldType.name === newType.name
-                 ) ||
-                 (
-                   // moving from nullable to non-null of the same underlying type is safe
-                     newType instanceof GraphQLNonNull &&
-                     isChangeSafeForObjectOrInterfaceField(
-                         oldType,
-                         newType.ofType,
-              )
-                 );
-        } else if (oldType instanceof GraphQLList) {
-          return (
-                   // if they're both lists, make sure the underlying types are compatible
-                     newType instanceof GraphQLList &&
-                     isChangeSafeForObjectOrInterfaceField(
-                         oldType.ofType,
-                         newType.ofType,
-              )
-                 ) ||
-                 (
-                   // moving from nullable to non-null of the same underlying type is safe
-                     newType instanceof GraphQLNonNull &&
-                     isChangeSafeForObjectOrInterfaceField(
-                         oldType,
-                         newType.ofType,
-              )
-                 );
-        } else if (oldType instanceof GraphQLNonNull) {
-          // if they're both non-null, make sure the underlying types are compatible
-          return newType instanceof GraphQLNonNull &&
-                 isChangeSafeForObjectOrInterfaceField(
-                     oldType.ofType,
-                     newType.ofType,
-            );
-        }
-        return false;*/
     }
 
+    /**
+     * @param Type $oldType
+     * @param Schema $newSchema
+     *
+     * @return bool
+     */
     private static function isChangeSafeForInputObjectFieldOrFieldArg(
-        Schema $oldSchema, Schema $newSchema
+        Type $oldType, Type $newType
     )
     {
-        /* if (isNamedType(oldType)) {
-           // if they're both named types, see if their names are equivalent
-           return isNamedType(newType) && oldType.name === newType.name;
-         } else if (oldType instanceof GraphQLList) {
-           // if they're both lists, make sure the underlying types are compatible
-           return newType instanceof GraphQLList &&
-                  isChangeSafeForInputObjectFieldOrFieldArg(
-                      oldType.ofType,
-                      newType.ofType,
-             );
-         } else if (oldType instanceof GraphQLNonNull) {
-           return (
-                    // if they're both non-null, make sure the underlying types are
-                    // compatible
-                      newType instanceof GraphQLNonNull &&
-                      isChangeSafeForInputObjectFieldOrFieldArg(
-                          oldType.ofType,
-                          newType.ofType,
-               )
-                  ) ||
-                  (
-                    // moving from non-null to nullable of the same underlying type is safe
-                      !(newType instanceof GraphQLNonNull) &&
-                      isChangeSafeForInputObjectFieldOrFieldArg(
-                          oldType.ofType,
-                          newType,
-               )
-                  );
-         }
-         return false;*/
+        if (self::isNamedType($oldType)) {
+            return self::isNamedType($newType) && $oldType->name === $newType->name;
+        } elseif ($oldType instanceof ListOfType) {
+            return $newType instanceof ListOfType && self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType->getWrappedType());
+        } elseif ($oldType instanceof NonNull) {
+            return (
+                    $newType instanceof NonNull && self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType->getWrappedType())
+                ) || (
+                    !($newType instanceof NonNull) && self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType)
+                );
+        }
+        return false;
     }
 
     /**
@@ -578,31 +438,27 @@ class FindBreakingChanges
         Schema $oldSchema, Schema $newSchema
     )
     {
-        /*  const oldTypeMap = oldSchema.getTypeMap();
-          const newTypeMap = newSchema.getTypeMap();
+        $oldTypeMap = $oldSchema->getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
 
-          const typesRemovedFromUnion = [];
-          Object.keys(oldTypeMap).forEach(typeName => {
-            const oldType = oldTypeMap[typeName];
-            const newType = newTypeMap[typeName];
-            if (!(oldType instanceof GraphQLUnionType) ||
-                !(newType instanceof GraphQLUnionType)) {
-              return;
+        $typesRemovedFromUnion = [];
+        foreach ($oldTypeMap as $typeName => $oldType) {
+            $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
+            if (!($oldType instanceof UnionType) || !($newType instanceof UnionType)) {
+                continue;
             }
-            const typeNamesInNewUnion = Object.create(null);
-            newType.getTypes().forEach(type => {
-              typeNamesInNewUnion[type.name] = true;
-            });
-            oldType.getTypes().forEach(type => {
-              if (!typeNamesInNewUnion[type.name]) {
-                typesRemovedFromUnion.push({
-                  type: BreakingChangeType.TYPE_REMOVED_FROM_UNION,
-                  description: `${type.name} was removed from union type ${typeName}.`
-                });
-              }
-            });
-          });
-          return typesRemovedFromUnion;*/
+            $typeNamesInNewUnion = [];
+            foreach ($newType->getTypes() as $type) {
+                $typeNamesInNewUnion[$type->name] = true;
+            }
+            foreach ($oldType->getTypes() as $type) {
+                if (!isset($typeNamesInNewUnion[$type->name])) {
+                    $missingTypeName = $type->name;
+                    $typesRemovedFromUnion[] = ['type' => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION, 'description' => "${missingTypeName} was removed from union type ${typeName}"];
+                }
+            }
+        }
+        return $typesRemovedFromUnion;
     }
 
     /**
