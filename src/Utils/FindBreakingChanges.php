@@ -467,31 +467,29 @@ class FindBreakingChanges
         Schema $oldSchema, Schema $newSchema
     )
     {
-        /* const oldTypeMap = oldSchema.getTypeMap();
-         const newTypeMap = newSchema.getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
 
-         const typesAddedToUnion = [];
-         Object.keys(newTypeMap).forEach(typeName => {
-           const oldType = oldTypeMap[typeName];
-           const newType = newTypeMap[typeName];
-           if (!(oldType instanceof GraphQLUnionType) ||
-               !(newType instanceof GraphQLUnionType)) {
-             return;
-           }
-           const typeNamesInOldUnion = Object.create(null);
-           oldType.getTypes().forEach(type => {
-             typeNamesInOldUnion[type.name] = true;
-           });
-           newType.getTypes().forEach(type => {
-             if (!typeNamesInOldUnion[type.name]) {
-               typesAddedToUnion.push({
-                 type: DangerousChangeType.TYPE_ADDED_TO_UNION,
-                 description: `${type.name} was added to union type ${typeName}.`
-               });
-             }
-           });
-         });
-         return typesAddedToUnion;*/
+        $typesAddedToUnion = [];
+
+        foreach ($newTypeMap as $typeName => $oldType) {
+            $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
+            if (!($oldType instanceof UnionType) || !($newType instanceof UnionType)) {
+                continue;
+            }
+
+            $typeNamesInOldUnion = [];
+            foreach ($oldType->getTypes() as $type) {
+                $typeNamesInOldUnion[$type->name] = true;
+            }
+            foreach ($newType->getTypes() as $type) {
+                if (!isset($typeNamesInOldUnion[$type->name])) {
+                    $addedTypeName = $type->name;
+                    $typesRemovedFromUnion[] = ['type' => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION, 'description' => "${addedTypeName} was removed to union type ${typeName}"];
+                }
+            }
+        }
+
+        return $typesAddedToUnion;
     }
 
     /**
@@ -502,31 +500,29 @@ class FindBreakingChanges
         Schema $oldSchema, Schema $newSchema
     )
     {
-        /* const oldTypeMap = oldSchema.getTypeMap();
-         const newTypeMap = newSchema.getTypeMap();
+        $oldTypeMap = $oldSchema->getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
 
-         const valuesRemovedFromEnums = [];
-         Object.keys(oldTypeMap).forEach(typeName => {
-           const oldType = oldTypeMap[typeName];
-           const newType = newTypeMap[typeName];
-           if (!(oldType instanceof GraphQLEnumType) ||
-               !(newType instanceof GraphQLEnumType)) {
-             return;
-           }
-           const valuesInNewEnum = Object.create(null);
-           newType.getValues().forEach(value => {
-             valuesInNewEnum[value.name] = true;
-           });
-           oldType.getValues().forEach(value => {
-             if (!valuesInNewEnum[value.name]) {
-               valuesRemovedFromEnums.push({
-                 type: BreakingChangeType.VALUE_REMOVED_FROM_ENUM,
-                 description: `${value.name} was removed from enum type ${typeName}.`
-               });
-             }
-           });
-         });
-         return valuesRemovedFromEnums;*/
+        $valuesRemovedFromEnums = [];
+
+        foreach ($oldTypeMap as $typeName => $oldType) {
+            $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
+            if (!($oldType instanceof EnumType) || !($newType instanceof EnumType)) {
+                continue;
+            }
+            $valuesInNewEnum = [];
+            foreach ($newType->getValues() as $value) {
+                $valuesInNewEnum[$value->name] = true;
+            }
+            foreach ($oldType->getValues() as $value) {
+                if (!isset($valuesInNewEnum[$value->name])) {
+                    $valueName = $value->name;
+                    $valuesRemovedFromEnums[] = ['type' => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM, 'description' => "${valueName} was removed from enum type ${typeName}"];
+                }
+            }
+        }
+
+        return $valuesRemovedFromEnums;
     }
 
     /**
@@ -537,65 +533,58 @@ class FindBreakingChanges
         Schema $oldSchema, Schema $newSchema
     )
     {
-        /* const oldTypeMap = oldSchema.getTypeMap();
-         const newTypeMap = newSchema.getTypeMap();
+        $oldTypeMap = $oldSchema->getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
 
-         const valuesAddedToEnums = [];
-         Object.keys(oldTypeMap).forEach(typeName => {
-           const oldType = oldTypeMap[typeName];
-           const newType = newTypeMap[typeName];
-           if (!(oldType instanceof GraphQLEnumType) ||
-               !(newType instanceof GraphQLEnumType)) {
-             return;
-           }
+        $valuesAddedToEnums = [];
+        foreach ($oldTypeMap as $typeName => $oldType) {
+            $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
+            if (!($oldType instanceof EnumType) || !($newType instanceof EnumType)) {
+                continue;
+            }
+            $valuesInOldEnum = [];
+            foreach ($oldType->getValues() as $value) {
+                $valuesInOldEnum[$value->name] = true;
+            }
+            foreach ($newType->getValues() as $value) {
+                if (!isset($valuesInOldEnum[$value->name])) {
+                    $valueName = $value->name;
+                    $valuesAddedToEnums[] = ['type' => self::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM, 'description' => "${valueName} was added to enum type ${typeName}"];
+                }
+            }
+        }
 
-           const valuesInOldEnum = Object.create(null);
-           oldType.getValues().forEach(value => {
-             valuesInOldEnum[value.name] = true;
-           });
-           newType.getValues().forEach(value => {
-             if (!valuesInOldEnum[value.name]) {
-               valuesAddedToEnums.push({
-                 type: DangerousChangeType.VALUE_ADDED_TO_ENUM,
-                 description: `${value.name} was added to enum type ${typeName}.`
-               });
-             }
-           });
-         });
-         return valuesAddedToEnums;*/
+        return $valuesAddedToEnums;
     }
 
     public static function findInterfacesRemovedFromObjectTypes(
         Schema $oldSchema, Schema $newSchema
     )
     {
-        /* const oldTypeMap = oldSchema.getTypeMap();
-         const newTypeMap = newSchema.getTypeMap();
-         const breakingChanges = [];
+        $oldTypeMap = $oldSchema->getTypeMap();
+        $newTypeMap = $newSchema->getTypeMap();
 
-         Object.keys(oldTypeMap).forEach(typeName => {
-           const oldType = oldTypeMap[typeName];
-           const newType = newTypeMap[typeName];
-           if (
-               !(oldType instanceof GraphQLObjectType) ||
-               !(newType instanceof GraphQLObjectType)
-           ) {
-             return;
-           }
+        $breakingChanges = [];
+        foreach ($oldTypeMap as $typeName => $oldType) {
+            $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
+            if (!($oldType instanceof ObjectType) || !($newType instanceof ObjectType)) {
+                continue;
+            }
 
-           const oldInterfaces = oldType.getInterfaces();
-           const newInterfaces = newType.getInterfaces();
-           oldInterfaces.forEach(oldInterface => {
-             if (!newInterfaces.some(int => int.name === oldInterface.name)) {
-               breakingChanges.push({
-                 type: BreakingChangeType.INTERFACE_REMOVED_FROM_OBJECT,
-                 description: `${typeName} no longer implements interface ` +
-                              `${oldInterface.name}.`
-               });
-             }
-           });
-         });
-         return breakingChanges;*/
+            $oldInterfaces = $oldType->getInterfaces();
+            $newInterfaces = $newType->getInterfaces();
+            foreach ($oldInterfaces as $oldInterface) {
+                if (!Utils::find($newInterfaces, function (InterfaceType $interface) use ($oldInterface) {
+                    return $interface->name === $oldInterface->name;
+                })) {
+                    $oldInterfaceName = $oldInterface->name;
+                    $breakingChanges[] = ['type' => self::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                        'description' => "${typeName} no longer implements interface ${oldInterfaceName}"
+                    ];
+                }
+            }
+        }
+        return $breakingChanges;
     }
 
     /**
