@@ -129,6 +129,8 @@ class FindBreakingChanges
      * breaking or dangerous changes in the newSchema related to arguments
      * (such as removal or change of type of an argument, or a change in an
      * argument's default value).
+     *
+     * @return array
      */
     public function findArgChanges(
         Schema $oldSchema, Schema $newSchema
@@ -233,6 +235,8 @@ class FindBreakingChanges
      * changes in the newSchema related to the fields on a type. This includes if
      * a field has been removed from a type, if a field has changed type, or if
      * a non-null field is added to an input type.
+     *
+     * @return array
      */
     public static function findFieldsThatChangedType(
         Schema $oldSchema, Schema $newSchema
@@ -383,6 +387,8 @@ class FindBreakingChanges
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing types from a union type.
+     *
+     * @return array
      */
     public static function findTypesRemovedFromUnions(
         Schema $oldSchema, Schema $newSchema
@@ -414,6 +420,8 @@ class FindBreakingChanges
     /**
      * Given two schemas, returns an Array containing descriptions of any dangerous
      * changes in the newSchema related to adding types to a union type.
+     *
+     * @return array
      */
     public static function findTypesAddedToUnions(
         Schema $oldSchema, Schema $newSchema
@@ -447,6 +455,8 @@ class FindBreakingChanges
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing values from an enum type.
+     *
+     * @return array
      */
     public static function findValuesRemovedFromEnums(
         Schema $oldSchema, Schema $newSchema
@@ -511,6 +521,12 @@ class FindBreakingChanges
         return $valuesAddedToEnums;
     }
 
+    /**
+     * @param Schema $oldSchema
+     * @param Schema $newSchema
+     *
+     * @return array
+     */
     public static function findInterfacesRemovedFromObjectTypes(
         Schema $oldSchema, Schema $newSchema
     )
