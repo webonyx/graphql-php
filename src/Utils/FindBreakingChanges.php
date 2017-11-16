@@ -41,16 +41,12 @@ class FindBreakingChanges
      *
      * @return array
      */
-    public function findDangerousChanges(
-        Schema $oldSchema, Schema $newSchema
-    )
+    public function findDangerousChanges(Schema $oldSchema, Schema $newSchema)
     {
-        return [
-            /*   ...findArgChanges(oldSchema, newSchema).dangerousChanges,
-               ...findValuesAddedToEnums(oldSchema, newSchema),
-               ...findTypesAddedToUnions(oldSchema, newSchema)
-             */
-        ];
+        return array_merge(self::findArgChanges($oldSchema, $newSchema)['dangerousChanges'],
+            self::findValuesAddedToEnums($oldSchema, $newSchema),
+            self::findTypesAddedToUnions($oldSchema, $newSchema)
+        );
     }
 
     /**
@@ -59,25 +55,24 @@ class FindBreakingChanges
      *
      * @return array
      */
-    public function findBreakingChanges(
-        $oldSchema, $newSchema
-    )
+    public function findBreakingChanges(Schema $oldSchema, Schema $newSchema)
     {
-        return [
-            /*...findRemovedTypes(oldSchema, newSchema),
-            ...findTypesThatChangedKind(oldSchema, newSchema),
-            ...findFieldsThatChangedType(oldSchema, newSchema),
-            ...findTypesRemovedFromUnions(oldSchema, newSchema),
-            ...findValuesRemovedFromEnums(oldSchema, newSchema),
-            ...findArgChanges(oldSchema, newSchema).breakingChanges,
-            ...findInterfacesRemovedFromObjectTypes(oldSchema, newSchema),
-         */
-        ];
+        return array_merge(
+            self::findRemovedTypes($oldSchema, $newSchema),
+            self::findTypesThatChangedKind($oldSchema, $newSchema),
+            self::findFieldsThatChangedType($oldSchema, $newSchema),
+            self::findTypesRemovedFromUnions($oldSchema, $newSchema),
+            self::findValuesRemovedFromEnums($oldSchema, $newSchema),
+            self::findArgChanges($oldSchema, $newSchema)['breakingChanges'],
+            self::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
+        );
     }
 
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to removing an entire type.
+     *
+     * @return array
      */
     public function findRemovedTypes(
         Schema $oldSchema, Schema $newSchema
@@ -100,6 +95,8 @@ class FindBreakingChanges
     /**
      * Given two schemas, returns an Array containing descriptions of any breaking
      * changes in the newSchema related to changing the type of a type.
+     *
+     * @return array
      */
     public function findTypesThatChangedKind(
         Schema $oldSchema, Schema $newSchema
@@ -528,6 +525,8 @@ class FindBreakingChanges
     /**
      * Given two schemas, returns an Array containing descriptions of any dangerous
      * changes in the newSchema related to adding values to an enum type.
+     *
+     * @return array
      */
     public static function findValuesAddedToEnums(
         Schema $oldSchema, Schema $newSchema
