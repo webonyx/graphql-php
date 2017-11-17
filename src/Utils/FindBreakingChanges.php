@@ -479,7 +479,7 @@ class FindBreakingChanges
             foreach ($oldType->getValues() as $value) {
                 if (!isset($valuesInNewEnum[$value->name])) {
                     $valueName = $value->name;
-                    $valuesRemovedFromEnums[] = ['type' => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM, 'description' => "${valueName} was removed from enum type ${typeName}"];
+                    $valuesRemovedFromEnums[] = ['type' => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM, 'description' => "${valueName} was removed from enum type ${typeName}."];
                 }
             }
         }

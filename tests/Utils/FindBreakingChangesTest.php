@@ -5,6 +5,7 @@
 
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -543,6 +544,52 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                 'description' => 'Type2 was removed from union type UnionType1.'
             ],
             FindBreakingChanges::findTypesRemovedFromUnions($oldSchema, $newSchema)[0]
+        );
+    }
+
+    public function testDetectsValuesRemovedFromEnum()
+    {
+        $oldEnumType = new EnumType([
+            'name' => 'EnumType1',
+            'values' => [
+                'VALUE0' => 0,
+                'VALUE1' => 1,
+                'VALUE2' => 2
+            ]
+        ]);
+        $newEnumType = new EnumType([
+            'name' => 'EnumType1',
+            'values' => [
+                'VALUE0' => 0,
+                'VALUE2' => 1,
+                'VALUE3' => 2
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldEnumType
+                ]
+            ])
+        ]);
+
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newEnumType
+                ]
+            ])
+        ]);
+
+        $this->assertEquals(
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
+                'description' => 'VALUE1 was removed from enum type EnumType1.'
+            ],
+            FindBreakingChanges::findValuesRemovedFromEnums($oldSchema, $newSchema)[0]
         );
     }
 }
