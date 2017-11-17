@@ -116,7 +116,7 @@ class FindBreakingChanges
                 $newTypeKindName = self::typeKindName($newTypeDefinition);
                 $breakingChanges[] = [
                     'type' => self::BREAKING_CHANGE_TYPE_CHANGED,
-                    'description' => "${$typeName} changed from ${oldTypeKindName} to ${newTypeKindName}."
+                    'description' => "${typeName} changed from ${oldTypeKindName} to ${newTypeKindName}."
                 ];
             }
         }
