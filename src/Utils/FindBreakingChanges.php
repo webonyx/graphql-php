@@ -324,7 +324,7 @@ class FindBreakingChanges
             foreach ($newTypeFieldsDef as $fieldName => $fieldDef) {
                 if (!isset($oldTypeFieldsDef[$fieldName]) && $fieldDef->getType() instanceof NonNull) {
                     $newTypeName = $newType->name;
-                    $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED, 'description' => "A non-null field ${fieldName} on input type ${$newTypeName} was added"];
+                    $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED, 'description' => "A non-null field ${fieldName} on input type ${newTypeName} was added."];
                 }
             }
         }

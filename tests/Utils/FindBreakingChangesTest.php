@@ -428,4 +428,49 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema));
     }
+
+    public function testDetectsNonNullFieldAddedToInputType()
+    {
+        $oldInputType = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $newInputType = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => Type::string(),
+                'requiredField' => Type::nonNull(Type::int()),
+                'optionalField' => Type::boolean()
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldInputType
+                ]
+            ])
+        ]);
+
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newInputType
+                ]
+            ])
+        ]);
+
+        $this->assertEquals(
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED,
+                'description' => 'A non-null field requiredField on input type InputType1 was added.'
+            ],
+            FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema)[0]
+        );
+    }
 }
