@@ -85,7 +85,7 @@ class FindBreakingChanges
         foreach ($oldTypeMap as $typeName => $typeDefinition) {
             if (!isset($newTypeMap[$typeName])) {
                 $breakingChanges[] =
-                    ['type' => self::BREAKING_CHANGE_TYPE_REMOVED, 'description' => "${$typeName} was removed."];
+                    ['type' => self::BREAKING_CHANGE_TYPE_REMOVED, 'description' => "${typeName} was removed."];
             }
         }
 
