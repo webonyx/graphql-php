@@ -175,7 +175,7 @@ class FindBreakingChanges
                             $newArgType = $newArgDef->getType();
                             $breakingChanges[] = [
                                 'type' => self::BREAKING_CHANGE_ARG_CHANGED,
-                                'description' => "${oldTypeName}->${fieldName} arg ${oldArgName} has changed type from ${oldArgType} to ${newArgType}"
+                                'description' => "${oldTypeName}->${fieldName} arg ${oldArgName} has changed type from ${oldArgType} to ${newArgType}."
                             ];
                         } elseif ($oldArgDef->defaultValueExists() && $oldArgDef->defaultValue !== $newArgDef->defaultValue) {
                             $dangerousChanges[] = []; // TODO
@@ -278,7 +278,7 @@ class FindBreakingChanges
 
                         $oldFieldTypeString = self::isNamedType($oldFieldType) ? $oldFieldType->name : $oldFieldType;
                         $newFieldTypeString = self::isNamedType($newfieldType) ? $newfieldType->name : $newfieldType;
-                        $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}"];
+                        $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}."];
                     }
                 }
             }
