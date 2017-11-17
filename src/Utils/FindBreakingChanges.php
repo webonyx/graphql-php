@@ -164,9 +164,10 @@ class FindBreakingChanges
                     }
                     );
                     if (!$newArgDef) {
+                        $argName = $oldArgDef->name;
                         $breakingChanges[] = [
                             'type' => self::BREAKING_CHANGE_ARG_REMOVED,
-                            'description' => "${$oldTypeName}->${$fieldName} arg ${oldArgName} was removed"
+                            'description' => "${oldTypeName}->${fieldName} arg ${argName} was removed"
                         ];
                     } else {
                         $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg($oldArgDef->getType(), $newArgDef->getType());

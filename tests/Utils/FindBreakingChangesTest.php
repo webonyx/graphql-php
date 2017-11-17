@@ -592,4 +592,97 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             FindBreakingChanges::findValuesRemovedFromEnums($oldSchema, $newSchema)[0]
         );
     }
+
+    public function testDetectsRemovalOfFieldArgument()
+    {
+
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'name' => Type::string()
+                    ]
+                ]
+            ]
+        ]);
+
+
+        $inputType = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $oldInterfaceType = new InterfaceType([
+            'name' => 'Interface1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => Type::boolean(),
+                        'objectArg' => $inputType
+                    ]
+                ]
+            ]
+        ]);
+
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => []
+                ]
+            ]
+        ]);
+
+        $newInterfaceType = new InterfaceType([
+            'name' => 'Interface1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldType,
+                    'type2' => $oldInterfaceType
+                ],
+                'types' => [$oldType, $oldInterfaceType]
+            ])
+        ]);
+
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newType,
+                    'type2' => $newInterfaceType
+                ],
+                'types' => [$newType, $newInterfaceType]
+            ])
+        ]);
+
+        $expectedChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
+                'description' => 'Type1->field1 arg name was removed',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
+                'description' => 'Interface1->field1 arg arg1 was removed',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
+                'description' => 'Interface1->field1 arg objectArg was removed',
+            ]
+        ];
+
+        $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+    }
 }
