@@ -317,7 +317,7 @@ class FindBreakingChanges
                     if (!$isSafe) {
                         $oldFieldTypeString = self::isNamedType($oldFieldType) ? $oldFieldType->name : $oldFieldType;
                         $newFieldTypeString = self::isNamedType($newfieldType) ? $newfieldType->name : $newfieldType;
-                        $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}"];
+                        $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}."];
                     }
                 }
             }
