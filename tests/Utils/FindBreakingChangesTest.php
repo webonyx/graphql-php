@@ -473,4 +473,76 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema)[0]
         );
     }
+
+    public function testDetectsIfTypeWasRemovedFromUnion()
+    {
+        $type1 = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $type1a = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $type2 = new ObjectType([
+            'name' => 'Type2',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $type3 = new ObjectType([
+            'name' => 'Type3',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $oldUnionType = new UnionType([
+            'name' => 'UnionType1',
+            'types' => [$type1, $type2],
+            'resolveType' => function () {
+            }
+        ]);
+
+
+        $newUnionType = new UnionType([
+            'name' => 'UnionType1',
+            'types' => [$type1a, $type3],
+            'resolveType' => function () {
+            }
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldUnionType
+                ]
+            ])
+        ]);
+
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newUnionType
+                ]
+            ])
+        ]);
+
+        $this->assertEquals(
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
+                'description' => 'Type2 was removed from union type UnionType1.'
+            ],
+            FindBreakingChanges::findTypesRemovedFromUnions($oldSchema, $newSchema)[0]
+        );
+    }
 }

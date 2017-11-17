@@ -410,7 +410,7 @@ class FindBreakingChanges
             foreach ($oldType->getTypes() as $type) {
                 if (!isset($typeNamesInNewUnion[$type->name])) {
                     $missingTypeName = $type->name;
-                    $typesRemovedFromUnion[] = ['type' => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION, 'description' => "${missingTypeName} was removed from union type ${typeName}"];
+                    $typesRemovedFromUnion[] = ['type' => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION, 'description' => "${missingTypeName} was removed from union type ${typeName}."];
                 }
             }
         }
