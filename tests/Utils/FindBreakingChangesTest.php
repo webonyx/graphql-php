@@ -685,4 +685,8 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
+
+    public function testDetectsFieldArgumentTypeChange() {
+
+    }
 }

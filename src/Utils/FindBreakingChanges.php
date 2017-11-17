@@ -195,7 +195,7 @@ class FindBreakingChanges
                             $newTypeName = $newTypeDefinition->name;
                             $breakingChanges[] = [
                                 'type' => self::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
-                                'description' => "A non-null arg ${$newArgName} on ${newTypeName}->${fieldName} was added."
+                                'description' => "A non-null arg ${newArgName} on ${newTypeName}->${fieldName} was added."
                             ];
                         }
                     }
