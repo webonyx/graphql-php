@@ -156,7 +156,7 @@ class FindBreakingChanges
                     continue;
                 }
 
-                foreach ($fieldDefinition->args as $oldArgName => $oldArgDef) {
+                foreach ($fieldDefinition->args as $oldArgDef) {
                     $newArgs = $newTypeFields[$fieldName]->args;
                     $newArgDef = Utils::find(
                         $newArgs, function ($arg) use ($oldArgDef) {
@@ -174,6 +174,7 @@ class FindBreakingChanges
                         if (!$isSafe) {
                             $oldArgType = $oldArgDef->getType();
                             $newArgType = $newArgDef->getType();
+                            $oldArgName = $oldArgDef->name;
                             $breakingChanges[] = [
                                 'type' => self::BREAKING_CHANGE_ARG_CHANGED,
                                 'description' => "${oldTypeName}->${fieldName} arg ${oldArgName} has changed type from ${oldArgType} to ${newArgType}."

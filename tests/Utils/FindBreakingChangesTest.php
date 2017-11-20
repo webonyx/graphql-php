@@ -686,7 +686,130 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
-    public function testDetectsFieldArgumentTypeChange() {
+    public function testDetectsFieldArgumentTypeChange()
+    {
 
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => Type::string(),
+                        'arg2' => Type::string(),
+                        'arg3' => Type::listOf(Type::string()),
+                        'arg4' => Type::string(),
+                        'arg5' => Type::nonNull(Type::string()),
+                        'arg6' => Type::nonNull(Type::string()),
+                        'arg7' => Type::nonNull(Type::listOf(Type::int())),
+                        'arg8' => Type::int(),
+                        'arg9' => Type::listOf(Type::int()),
+                        'arg10' => Type::listOf(Type::nonNull(Type::int())),
+                        'arg11' => Type::listOf(Type::int()),
+                        'arg12' => Type::listOf(Type::listOf(Type::int())),
+                        'arg13' => Type::nonNull(Type::int()),
+                        'arg14' => Type::listOf(Type::nonNull(Type::listOf(Type::int()))),
+                        'arg15' => Type::listOf(Type::nonNull(Type::listOf(Type::int())))
+                    ]
+                ]
+            ]
+        ]);
+
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => Type::int(),
+                        'arg2' => Type::listOf(Type::string()),
+                        'arg3' => Type::string(),
+                        'arg4' => Type::nonNull(Type::string()),
+                        'arg5' => Type::int(),
+                        'arg6' => Type::nonNull(Type::int()),
+                        'arg7' => Type::listOf(Type::int()),
+                        'arg8' => Type::nonNull(Type::listOf(Type::int())),
+                        'arg9' => Type::listOf(Type::nonNull(Type::int())),
+                        'arg10' => Type::listOf(Type::int()),
+                        'arg11' => Type::listOf(Type::listOf(Type::int())),
+                        'arg12' => Type::listOf(Type::int()),
+                        'arg13' => Type::nonNull(Type::listOf(Type::int())),
+                        'arg14' => Type::listOf(Type::listOf(Type::int())),
+                        'arg15' => Type::listOf(Type::nonNull(Type::listOf(Type::nonNull(Type::int()))))
+                    ]
+                ]
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldType
+                ]
+            ])
+        ]);
+
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newType
+                ]
+            ])
+        ]);
+
+        $expectedChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg1 has changed type from String to Int.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg2 has changed type from String to [String].'
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg3 has changed type from [String] to String.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg4 has changed type from String to String!.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg5 has changed type from String! to Int.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg6 has changed type from String! to Int!.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg8 has changed type from Int to [Int]!.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg9 has changed type from [Int] to [Int!].',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg11 has changed type from [Int] to [[Int]].',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg12 has changed type from [[Int]] to [Int].',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg13 has changed type from Int! to [Int]!.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
+                'description' => 'Type1->field1 arg arg15 has changed type from [[Int]!] to [[Int!]!].',
+            ],
+        ];
+
+        $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 }
