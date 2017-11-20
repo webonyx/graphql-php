@@ -812,4 +812,53 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
+
+    public function testDetectsAdditionOfFieldArg()
+    {
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => Type::string()
+                    ]]
+            ]
+        ]);
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => Type::string(),
+                        'newRequiredArg' => Type::nonNull(Type::string()),
+                        'newOptionalArg' => Type::int()
+                    ]]
+            ]
+        ]);
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldType,
+                ]
+            ])
+        ]);
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newType
+                ]
+            ])
+        ]);
+
+        $this->assertEquals(
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
+                'description' => 'A non-null arg newRequiredArg on Type1->field1 was added.'
+            ],
+            FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges'][0]);
+    }
 }

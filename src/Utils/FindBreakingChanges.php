@@ -184,7 +184,7 @@ class FindBreakingChanges
                         }
                     }
                     // Check if a non-null arg was added to the field
-                    foreach ($newTypeFields[$fieldName]->args as $newArgName => $newArgDef) {
+                    foreach ($newTypeFields[$fieldName]->args as $newArgDef) {
                         $oldArgs = $oldTypeFields[$fieldName]->args;
                         $oldArgDef = Utils::find(
                             $oldArgs, function ($arg) use ($newArgDef) {
@@ -194,6 +194,7 @@ class FindBreakingChanges
 
                         if (!$oldArgDef && $newArgDef->getType() instanceof NonNull) {
                             $newTypeName = $newTypeDefinition->name;
+                            $newArgName = $newArgDef->name;
                             $breakingChanges[] = [
                                 'type' => self::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
                                 'description' => "A non-null arg ${newArgName} on ${newTypeName}->${fieldName} was added."
