@@ -2,7 +2,6 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Executor\ExecutionContext;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -104,14 +103,6 @@ class ResolveInfo
      */
     public $variableValues;
 
-    /**
-     * Reference to the execution context so we can set extensions.
-     *
-     * @api
-     * @var ExecutionContext
-     */
-    public $executionContext;
-
     public function __construct(array $values)
     {
         Utils::assign($this, $values);
@@ -187,16 +178,6 @@ class ResolveInfo
         }
 
         return $fields;
-    }
-
-    public function setExtension($key, $value)
-    {
-        $this->executionContext->setExtension($key, $value);
-    }
-
-    public function getExtension($key)
-    {
-        return $this->executionContext->getExtension($key);
     }
 
     public function __get($name)

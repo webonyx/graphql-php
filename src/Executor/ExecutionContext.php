@@ -56,11 +56,6 @@ class ExecutionContext
      */
     public $errors;
 
-    /**
-     * @var array
-     */
-    public $extensions;
-
     public function __construct(
         $schema,
         $fragments,
@@ -70,8 +65,7 @@ class ExecutionContext
         $variables,
         $errors,
         $fieldResolver,
-        $promiseAdapter,
-        $extensions
+        $promiseAdapter
     )
     {
         $this->schema = $schema;
@@ -83,27 +77,11 @@ class ExecutionContext
         $this->errors = $errors ?: [];
         $this->fieldResolver = $fieldResolver;
         $this->promises = $promiseAdapter;
-        $this->extensions = $extensions ?: [];
     }
 
     public function addError(Error $error)
     {
         $this->errors[] = $error;
         return $this;
-    }
-
-    public function setExtension($key, $value)
-    {
-        $this->extensions[$key] = $value;
-        return $this;
-    }
-
-    public function getExtension($key)
-    {
-        if(array_key_exists($key, $this->extensions))
-        {
-          return $this->extensions[$key];
-        }
-        return null;
     }
 }

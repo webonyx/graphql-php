@@ -1,11 +1,13 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\ExtendableContext;
 use GraphQL\GraphQL;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\ExtendableContextTrait;
 
 require_once __DIR__ . '/TestClasses.php';
 
@@ -23,6 +25,11 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
                 ]
             ])
         ]);
+    }
+
+    private function buildExtendableContainer()
+    {
+      return new class implements ExtendableContext { use ExtendableContextTrait; };
     }
 
     /**
@@ -127,15 +134,15 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
                 'aStr' => ['type' => Type::string()],
                 'aInt' => ['type' => Type::int()],
             ],
-            'resolve' => function ($source, $args, $context, ResolveInfo $resolveInfo) {
-                $resolveInfo->setExtension('cache-control', ['path' => $resolveInfo->path, 'cache' => 'none']);
+            'resolve' => function ($source, $args, ExtendableContext $context, ResolveInfo $resolveInfo) {
+                $context->setExtension('cache-control', ['path' => $resolveInfo->path, 'cache' => 'none']);
                 return json_encode([$source, $args]);
             }
         ]);
 
         $this->assertEquals(
             ['data' => ['test' => '[null,[]]'], 'extensions' => ['cache-control' => ['path' => ['test'], 'cache' => 'none']]],
-            GraphQL::execute($schema, '{ test }')
+            GraphQL::execute($schema, '{ test }', null, $this->buildExtendableContainer())
         );
     }
 
@@ -150,13 +157,13 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
                 'aStr' => ['type' => Type::string()],
                 'aInt' => ['type' => Type::int()],
             ],
-            'resolve' => function ($source, $args, $context, ResolveInfo $resolveInfo) {
-                $this->assertEquals(null, $resolveInfo->getExtension('cache-control'));
+            'resolve' => function ($source, $args, ExtendableContext $context) {
+                $this->assertEquals(null, $context->getExtension('cache-control'));
                 return json_encode([$source, $args]);
             }
         ]);
 
-        GraphQL::execute($schema, '{ test }');
+        GraphQL::execute($schema, '{ test }', null, $this->buildExtendableContainer());
     }
 
     /**
@@ -170,19 +177,19 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
                 'fields' => [
                     'a' => [
                         'type' => Type::string(),
-                        'resolve' => function ($source, $args, $context, ResolveInfo $resolveInfo) {
-                            $actualCost = $resolveInfo->getExtension('queryCost') ?: 0;
+                        'resolve' => function ($source, $args, ExtendableContext $context) {
+                            $actualCost = $context->getExtension('queryCost') ?: 0;
                             $actualCost += 10;
-                            $resolveInfo->setExtension('queryCost', $actualCost);
+                            $context->setExtension('queryCost', $actualCost);
                             return 'foo';
                         }
                     ],
                     'b' => [
                         'type' => Type::string(),
-                        'resolve' => function ($source, $args, $context, ResolveInfo $resolveInfo) {
-                            $actualCost = $resolveInfo->getExtension('queryCost') ?: 0;
+                        'resolve' => function ($source, $args, $context) {
+                            $actualCost = $context->getExtension('queryCost') ?: 0;
                             $actualCost += 10;
-                            $resolveInfo->setExtension('queryCost', $actualCost);
+                            $context->setExtension('queryCost', $actualCost);
                             return 'bar';
                         }
                     ]
@@ -192,7 +199,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             ['data' => ['a' => 'foo', 'b' => 'bar'], 'extensions' => ['queryCost' => 20]],
-            GraphQL::execute($schema, '{ a, b }')
+            GraphQL::execute($schema, '{ a, b }', null, $this->buildExtendableContainer())
         );
     }
 }

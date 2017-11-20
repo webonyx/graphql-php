@@ -6,6 +6,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
+use GraphQL\ExtendableContext;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
@@ -192,7 +193,6 @@ class Executor
         }
 
         $errors = [];
-        $extensions = [];
         $fragments = [];
         $operation = null;
 
@@ -243,8 +243,7 @@ class Executor
             $variableValues,
             $errors,
             $fieldResolver ?: self::$defaultFieldResolver,
-            $promiseAdapter ?: self::getPromiseAdapter(),
-            $extensions
+            $promiseAdapter ?: self::getPromiseAdapter()
         );
         return $exeContext;
     }
@@ -297,7 +296,7 @@ class Executor
                 return null;
             })
             ->then(function ($data) {
-                return new ExecutionResult((array) $data, $this->exeContext->errors, $this->exeContext->extensions);
+                return new ExecutionResult((array) $data, $this->exeContext->errors, $this->exeContext->contextValue instanceof ExtendableContext? $this->exeContext->contextValue->getExtensions() : []);
             });
     }
 
@@ -688,7 +687,6 @@ class Executor
             'rootValue' => $exeContext->rootValue,
             'operation' => $exeContext->operation,
             'variableValues' => $exeContext->variableValues,
-            'executionContext' => $exeContext,
         ]);
 
 
