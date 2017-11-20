@@ -922,4 +922,48 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
+
+    public function testArgsThatMoveAwayFromNonNull() {
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => Type::nonNull(Type::string()),
+                    ]
+                ]
+            ]
+        ]);
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => Type::string()
+                    ]
+                ]
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldType,
+                ]
+            ])
+        ]);
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newType
+                ]
+            ])
+        ]);
+
+        $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+    }
 }
