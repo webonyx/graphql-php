@@ -861,4 +861,65 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ],
             FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges'][0]);
     }
+
+    public function testDoesNotFlagArgsWithSameTypeSignature() {
+        $inputType1a = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $inputType1b = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::int(),
+                    'args' => [
+                        'arg1' => Type::nonNull(Type::int()),
+                        'arg2' => $inputType1a
+                    ]
+                ]
+            ]
+        ]);
+
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::int(),
+                    'args' => [
+                        'arg1' => Type::nonNull(Type::int()),
+                        'arg2' => $inputType1b
+                    ]
+                ]
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldType,
+                ]
+            ])
+        ]);
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newType
+                ]
+            ])
+        ]);
+
+        $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+    }
 }
