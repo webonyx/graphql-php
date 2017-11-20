@@ -27,11 +27,6 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    private function buildExtendableContainer()
-    {
-      return new class implements ExtendableContext { use ExtendableContextTrait; };
-    }
-
     /**
      * @it default function accesses properties
      */
@@ -142,7 +137,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             ['data' => ['test' => '[null,[]]'], 'extensions' => ['cache-control' => ['path' => ['test'], 'cache' => 'none']]],
-            GraphQL::execute($schema, '{ test }', null, $this->buildExtendableContainer())
+            GraphQL::execute($schema, '{ test }', null, new ExtendableContextImplementation())
         );
     }
 
@@ -163,7 +158,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
             }
         ]);
 
-        GraphQL::execute($schema, '{ test }', null, $this->buildExtendableContainer());
+        GraphQL::execute($schema, '{ test }', null, new ExtendableContextImplementation());
     }
 
     /**
@@ -186,7 +181,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
                     ],
                     'b' => [
                         'type' => Type::string(),
-                        'resolve' => function ($source, $args, $context) {
+                        'resolve' => function ($source, $args, ExtendableContext $context) {
                             $actualCost = $context->getExtension('queryCost') ?: 0;
                             $actualCost += 10;
                             $context->setExtension('queryCost', $actualCost);
@@ -199,7 +194,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             ['data' => ['a' => 'foo', 'b' => 'bar'], 'extensions' => ['queryCost' => 20]],
-            GraphQL::execute($schema, '{ a, b }', null, $this->buildExtendableContainer())
+            GraphQL::execute($schema, '{ a, b }', null, new ExtendableContextImplementation())
         );
     }
 }

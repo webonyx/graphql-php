@@ -1,7 +1,9 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\ExtendableContext;
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Utils\ExtendableContextTrait;
 
 class Dog
 {
@@ -111,4 +113,9 @@ class Adder
             return $this->num + $args['addend1'] + $context['addend2'];
         };
     }
+}
+
+class ExtendableContextImplementation implements ExtendableContext
+{
+    use ExtendableContextTrait;
 }
