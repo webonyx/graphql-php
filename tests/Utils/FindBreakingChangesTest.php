@@ -862,7 +862,8 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges'][0]);
     }
 
-    public function testDoesNotFlagArgsWithSameTypeSignature() {
+    public function testDoesNotFlagArgsWithSameTypeSignature()
+    {
         $inputType1a = new InputObjectType([
             'name' => 'InputType1',
             'fields' => [
@@ -923,7 +924,8 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
-    public function testArgsThatMoveAwayFromNonNull() {
+    public function testArgsThatMoveAwayFromNonNull()
+    {
         $oldType = new ObjectType([
             'name' => 'Type1',
             'fields' => [
@@ -965,5 +967,54 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+    }
+
+    public function testDetectsRemovalOfInterfaces()
+    {
+        $interface1 = new InterfaceType([
+            'name' => 'Interface1',
+            'fields' => [
+                'field1' => Type::string()
+            ],
+            'resolveType' => function () {
+            }
+        ]);
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'interfaces' => [$interface1],
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $oldType,
+                ]
+            ])
+        ]);
+        $newSchema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'root',
+                'fields' => [
+                    'type1' => $newType
+                ]
+            ])
+        ]);
+
+        $this->assertEquals(
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                'description' => 'Type1 no longer implements interface Interface1.'
+            ],
+            FindBreakingChanges::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)[0]);
     }
 }

@@ -552,7 +552,7 @@ class FindBreakingChanges
                 })) {
                     $oldInterfaceName = $oldInterface->name;
                     $breakingChanges[] = ['type' => self::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
-                        'description' => "${typeName} no longer implements interface ${oldInterfaceName}"
+                        'description' => "${typeName} no longer implements interface ${oldInterfaceName}."
                     ];
                 }
             }
