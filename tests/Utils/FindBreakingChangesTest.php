@@ -22,7 +22,7 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->queryType = new ObjectType([
-            'name' => 'Type1',
+            'name' => 'Query',
             'fields' => [
                 'field1' => [
                     'type' => Type::string()
@@ -1227,5 +1227,62 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findBreakingChanges($oldSchema, $newSchema));
+    }
+
+    // findDangerousChanges tests below here
+
+    public function testFindDangerousArgChanges()
+    {
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'name' => [
+                            'type' => Type::string(),
+                            'defaultValue' => 'test'
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'name' => [
+                            'type' => Type::string(),
+                            'defaultValue' => 'Testertest'
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $oldType
+            ]
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $newType
+            ]
+        ]);
+
+        $this->assertEquals(
+            [
+                    'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE,
+                    'description' => 'Type1->field1 arg name has changed defaultValue'
+            ],
+            FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['dangerousChanges'][0]
+        );
     }
 }

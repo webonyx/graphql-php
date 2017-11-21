@@ -171,16 +171,19 @@ class FindBreakingChanges
                         ];
                     } else {
                         $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg($oldArgDef->getType(), $newArgDef->getType());
+                        $oldArgType = $oldArgDef->getType();
+                        $oldArgName = $oldArgDef->name;
                         if (!$isSafe) {
-                            $oldArgType = $oldArgDef->getType();
                             $newArgType = $newArgDef->getType();
-                            $oldArgName = $oldArgDef->name;
                             $breakingChanges[] = [
                                 'type' => self::BREAKING_CHANGE_ARG_CHANGED,
                                 'description' => "${oldTypeName}->${fieldName} arg ${oldArgName} has changed type from ${oldArgType} to ${newArgType}."
                             ];
                         } elseif ($oldArgDef->defaultValueExists() && $oldArgDef->defaultValue !== $newArgDef->defaultValue) {
-                            $dangerousChanges[] = []; // TODO
+                            $dangerousChanges[] = [
+                                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE,
+                                'description' => "${oldTypeName}->${fieldName} arg ${oldArgName} has changed defaultValue"
+                            ];
                         }
                     }
                     // Check if a non-null arg was added to the field
