@@ -1326,4 +1326,63 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             FindBreakingChanges::findValuesAddedToEnums($oldSchema, $newSchema)[0]
         );
     }
+
+    public function testDetectsAdditionsToUnionType() {
+        $type1 = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $type1a = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $type2 = new ObjectType([
+            'name' => 'Type2',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $oldUnionType = new UnionType([
+            'name' => 'UnionType1',
+            'types' => [$type1],
+            'resolveType' => function () {
+            }
+        ]);
+
+        $newUnionType = new UnionType([
+            'name' => 'UnionType1',
+            'types' => [$type1a, $type2],
+            'resolveType' => function () {
+            }
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $oldUnionType
+            ]
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $newUnionType
+            ]
+        ]);
+
+        $this->assertEquals(
+            [
+               'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+               'description' => 'Type2 was added to union type UnionType1'
+            ],
+            FindBreakingChanges::findTypesAddedToUnions($oldSchema, $newSchema)[0]
+        );
+    }
 }

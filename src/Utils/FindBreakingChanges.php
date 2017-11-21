@@ -433,12 +433,13 @@ class FindBreakingChanges
         Schema $oldSchema, Schema $newSchema
     )
     {
+        $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
 
         $typesAddedToUnion = [];
 
-        foreach ($newTypeMap as $typeName => $oldType) {
-            $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
+        foreach ($newTypeMap as $typeName => $newType) {
+            $oldType = isset($oldTypeMap[$typeName]) ? $oldTypeMap[$typeName] : null;
             if (!($oldType instanceof UnionType) || !($newType instanceof UnionType)) {
                 continue;
             }
@@ -450,7 +451,7 @@ class FindBreakingChanges
             foreach ($newType->getTypes() as $type) {
                 if (!isset($typeNamesInOldUnion[$type->name])) {
                     $addedTypeName = $type->name;
-                    $typesRemovedFromUnion[] = ['type' => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION, 'description' => "${addedTypeName} was removed to union type ${typeName}"];
+                    $typesAddedToUnion[] = ['type' => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION, 'description' => "${addedTypeName} was added to union type ${typeName}"];
                 }
             }
         }
