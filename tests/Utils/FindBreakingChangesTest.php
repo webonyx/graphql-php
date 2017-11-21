@@ -1327,7 +1327,8 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    public function testDetectsAdditionsToUnionType() {
+    public function testDetectsAdditionsToUnionType()
+    {
         $type1 = new ObjectType([
             'name' => 'Type1',
             'fields' => [
@@ -1379,10 +1380,122 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             [
-               'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
-               'description' => 'Type2 was added to union type UnionType1'
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                'description' => 'Type2 was added to union type UnionType1'
             ],
             FindBreakingChanges::findTypesAddedToUnions($oldSchema, $newSchema)[0]
         );
+    }
+
+    public function testFindsAllDangerousChanges()
+    {
+        $enumThatGainsAValueOld = new EnumType([
+            'name' => 'EnumType1',
+            'values' => [
+                'VALUE0' => 0,
+                'VALUE1' => 1,
+            ]
+        ]);
+        $enumThatGainsAValueNew = new EnumType([
+            'name' => 'EnumType1',
+            'values' => [
+                'VALUE0' => 0,
+                'VALUE1' => 1,
+                'VALUE2' => 2
+            ]
+        ]);
+
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'name' => [
+                            'type' => Type::string(),
+                            'defaultValue' => 'test'
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'name' => [
+                            'type' => Type::string(),
+                            'defaultValue' => 'Testertest'
+                        ]
+                    ]
+                ]
+            ]
+        ]);
+
+        $typeInUnion1 = new ObjectType([
+            'name' => 'TypeInUnion1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $typeInUnion2 = new ObjectType([
+            'name' => 'TypeInUnion2',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+
+        $unionTypeThatGainsATypeOld = new UnionType([
+            'name' => 'UnionType1',
+            'types' => [$typeInUnion1],
+            'resolveType' => function () {
+            }
+        ]);
+
+        $unionTypeThatGainsATypeNew = new UnionType([
+            'name' => 'UnionType1',
+            'types' => [$typeInUnion1, $typeInUnion2],
+            'resolveType' => function () {
+            }
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $oldType,
+                $enumThatGainsAValueOld,
+                $unionTypeThatGainsATypeOld
+            ]
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $newType,
+                $enumThatGainsAValueNew,
+                $unionTypeThatGainsATypeNew
+            ]
+        ]);
+
+        $expectedDangerousChanges = [
+            [
+                'description' => 'Type1->field1 arg name has changed defaultValue',
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE
+            ],
+            [
+                'description' => 'VALUE2 was added to enum type EnumType1',
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM
+            ],
+            [
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                'description' => 'TypeInUnion2 was added to union type UnionType1',
+            ]
+        ];
+
+        $this->assertEquals($expectedDangerousChanges, FindBreakingChanges::findDangerousChanges($oldSchema, $newSchema));
     }
 }
