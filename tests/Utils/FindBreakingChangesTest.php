@@ -1279,10 +1279,51 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             [
-                    'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE,
-                    'description' => 'Type1->field1 arg name has changed defaultValue'
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE,
+                'description' => 'Type1->field1 arg name has changed defaultValue'
             ],
             FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['dangerousChanges'][0]
+        );
+    }
+
+    public function testDetectsEnumValueAdditions()
+    {
+        $oldEnumType = new EnumType([
+            'name' => 'EnumType1',
+            'values' => [
+                'VALUE0' => 0,
+                'VALUE1' => 1,
+            ]
+        ]);
+        $newEnumType = new EnumType([
+            'name' => 'EnumType1',
+            'values' => [
+                'VALUE0' => 0,
+                'VALUE1' => 1,
+                'VALUE2' => 2
+            ]
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $oldEnumType
+            ]
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $newEnumType
+            ]
+        ]);
+
+        $this->assertEquals(
+            [
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
+                'description' => 'VALUE2 was added to enum type EnumType1'
+            ],
+            FindBreakingChanges::findValuesAddedToEnums($oldSchema, $newSchema)[0]
         );
     }
 }
