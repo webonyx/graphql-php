@@ -47,15 +47,17 @@ class StandardServerTest extends TestCase
             'query' => '{f1}'
         ]);
 
-        $request = $this->preparePsrRequest('application/json', $body);
-
         $expected = [
             'data' => [
                 'f1' => 'f1'
             ]
         ];
 
-        $this->assertPsrRequestEquals($expected, $request);
+        $preParsedRequest = $this->preparePsrRequest('application/json', $body, true);
+        $this->assertPsrRequestEquals($expected, $preParsedRequest);
+
+        $notPreParsedRequest = $this->preparePsrRequest('application/json', $body, false);
+        $this->assertPsrRequestEquals($expected, $notPreParsedRequest);
     }
 
     private function executePsrRequest($psrRequest)
@@ -73,21 +75,20 @@ class StandardServerTest extends TestCase
         return $result;
     }
 
-    private function preparePsrRequest($contentType, $content, $method = 'POST')
+    private function preparePsrRequest($contentType, $content, $preParseBody)
     {
         $psrRequestBody = new PsrStreamStub();
         $psrRequestBody->content = $content;
 
         $psrRequest = new PsrRequestStub();
         $psrRequest->headers['content-type'] = [$contentType];
-        $psrRequest->method = $method;
+        $psrRequest->method = 'POST';
         $psrRequest->body = $psrRequestBody;
 
-        if ($contentType === 'application/json') {
+        if ($preParseBody && $contentType === 'application/json') {
             $parsedBody = json_decode($content, true);
-            $parsedBody = $parsedBody === false ? null : $parsedBody;
         } else {
-            $parsedBody = null;
+            $parsedBody = [];
         }
 
         $psrRequest->parsedBody = $parsedBody;
