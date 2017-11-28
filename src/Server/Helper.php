@@ -499,6 +499,10 @@ class Helper
                         Utils::printSafeJson($bodyParams)
                     );
                 }
+
+                if (empty($bodyParams)) {
+                    $bodyParams = json_decode($request->getBody(), true);
+                }
             } else {
                 $bodyParams = $request->getParsedBody();
 
