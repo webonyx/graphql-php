@@ -493,15 +493,20 @@ class Helper
                     );
                 }
 
+                // Try parsing ourselves if PSR-7 implementation doesn't parse JSON automatically
+                if (is_array($bodyParams) && empty($bodyParams)) {
+                    $bodyParams = json_decode($request->getBody(), true);
+
+                    if (json_last_error()) {
+                        throw new RequestError("Could not parse JSON: " . json_last_error_msg());
+                    }
+                }
+
                 if (!is_array($bodyParams)) {
                     throw new RequestError(
                         "GraphQL Server expects JSON object or array, but got " .
                         Utils::printSafeJson($bodyParams)
                     );
-                }
-
-                if (empty($bodyParams)) {
-                    $bodyParams = json_decode($request->getBody(), true);
                 }
             } else {
                 $bodyParams = $request->getParsedBody();
