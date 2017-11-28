@@ -1,5 +1,8 @@
 # Changelog
 
+#### v0.11.4
+- findBreakingChanges utility (see #199)
+
 #### v0.11.3
 - StandardServer: Support non pre-parsed PSR-7 request body (see #202)
 
