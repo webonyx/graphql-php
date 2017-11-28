@@ -1,5 +1,11 @@
 # Changelog
 
+#### v0.11.3
+- StandardServer: Support non pre-parsed PSR-7 request body (see #202)
+
+#### v0.11.2
+- Bugfix: provide descriptions to custom scalars (see #181)
+
 #### v0.11.1
 - Ability to override internal types via `types` option of the schema (see #174).
 
