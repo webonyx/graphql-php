@@ -2,7 +2,6 @@
 namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldDefinitionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Utils\Utils;
 
 /**
@@ -186,9 +185,14 @@ class FieldDefinition
     {
         $this->name = $config['name'];
         $this->type = $config['type'];
-        $this->resolveFn = isset($config['resolve']) ? $config['resolve'] : null;
+
+	    // with lazy loading we might need to take resolveFn and args from the type
+	    $this->resolveFn = isset($config['resolve']) ? $config['resolve'] : $this->getPropertyFromType('resolve');
+
+	    $args = isset($config['args']) ? $config['args'] : $this->getPropertyFromType('args');
+	    $this->args = is_array($args) ? FieldArgument::createMap($args) : [];
+
         $this->mapFn = isset($config['map']) ? $config['map'] : null;
-        $this->args = isset($config['args']) ? FieldArgument::createMap($config['args']) : [];
 
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->deprecationReason = isset($config['deprecationReason']) ? $config['deprecationReason'] : null;
@@ -198,6 +202,22 @@ class FieldDefinition
 
         $this->complexityFn = isset($config['complexity']) ? $config['complexity'] : static::DEFAULT_COMPLEXITY_FN;
     }
+
+	/**
+	 * return the value of field definition property from the field type.
+	 * This is useful with lazy loading, when we don't define the field completely,
+	 * but denote only the type of field
+	 *
+	 * @param $propertyName
+	 * @return null|mixed
+	 */
+	private function getPropertyFromType($propertyName) {
+		if ($this->type instanceof Type) {
+			return isset($this->type->config[$propertyName]) ? $this->type->config[$propertyName] : null;
+		}
+
+		return null;
+	}
 
     /**
      * @param $name
