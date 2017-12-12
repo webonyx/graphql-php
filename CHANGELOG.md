@@ -1,4 +1,6 @@
 # Changelog
+#### v0.11.5
+- Allow objects with __toString in IDType
 
 #### v0.11.4
 - findBreakingChanges utility (see #199)
