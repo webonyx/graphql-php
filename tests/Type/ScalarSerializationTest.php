@@ -178,4 +178,25 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
 
         // TODO: how should it behave on '0'?
     }
+
+    public function testSerializesOutputID()
+    {
+        $idType = Type::id();
+
+        $this->assertSame('string', $idType->serialize('string'));
+        $this->assertSame('', $idType->serialize(''));
+        $this->assertSame('1', $idType->serialize('1'));
+        $this->assertSame('1', $idType->serialize(1));
+        $this->assertSame('0', $idType->serialize(0));
+        $this->assertSame('true', $idType->serialize(true));
+        $this->assertSame('false', $idType->serialize(false));
+        $this->assertSame('2', $idType->serialize(new ObjectIdStub(2)));
+
+        try {
+            $idType->serialize(new \stdClass());
+            $this->fail('Expected exception was not thrown');
+        } catch (InvariantViolation $e) {
+            $this->assertEquals('ID type cannot represent non scalar value: instance of stdClass', $e->getMessage());
+        }
+    }
 }

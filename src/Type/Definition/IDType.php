@@ -43,7 +43,7 @@ When expected as an input type, any string (such as `"4"`) or integer
         if ($value === null) {
             return 'null';
         }
-        if (!is_scalar($value)) {
+        if (!is_scalar($value) && (!is_object($value) || !method_exists($value, '__toString'))) {
             throw new InvariantViolation("ID type cannot represent non scalar value: " . Utils::printSafe($value));
         }
         return (string) $value;
