@@ -10,13 +10,16 @@ class ObjectTypeConfig extends Config
     use FieldsConfigTrait;
 
     /**
-     * @param callable $interfaces
+     * @param InterfaceType[] $interfaces
      *
      * @return $this
      */
-    public function interfaces(callable $interfaces)
+    public function interfaces(array $interfaces)
     {
-        $this->addConfig('interfaces', $interfaces, false);
+        $this->addConfig('interfaces', [], false);
+        foreach ($interfaces as $interface) {
+            $this->addInterface($interface);
+        }
 
         return $this;
     }
@@ -30,18 +33,19 @@ class ObjectTypeConfig extends Config
     {
         if ($fields instanceof FieldsConfig) {
             $this->addConfig('fields', $fields->build(), false);
-        } else {
+        } elseif ($fields) {
             $this->addConfig('fields', $fields, false);
         }
+
         return $this;
     }
 
     /**
-     * @param InterfaceType|callable $interface
+     * @param InterfaceType $interface
      *
      * @return $this
      */
-    public function addInterface($interface)
+    public function addInterface(InterfaceType $interface)
     {
         $this->addConfig('interfaces', $interface);
 

@@ -28,14 +28,24 @@ trait FieldsConfigTrait
     {
         $fieldConfig = FieldConfig::create()
             ->name($name)
-            ->type($type)
-            ->resolve($resolve)
-            ->description($description);
+            ->type($type);
+
+        if (null !== $resolve) {
+            $fieldConfig->resolve($resolve);
+        }
+
+        if (null !== $description) {
+            $fieldConfig->description($description);
+        }
 
         if (null !== $args) {
             $fieldConfig->addArgs($args);
         }
-        $fieldConfig->complexity($complexity);
+
+        if (null !== $complexity) {
+            $fieldConfig->complexity($complexity);
+        }
+
         if (null !== $deprecationReason) {
             $fieldConfig->deprecationReason($deprecationReason);
         }

@@ -4,7 +4,6 @@ namespace GraphQL\Type\Builder;
 
 abstract class Config
 {
-
     /**
      * @var array
      */
@@ -16,7 +15,7 @@ abstract class Config
     }
 
     /**
-     * @return self
+     * @return static
      */
     public static function create()
     {
