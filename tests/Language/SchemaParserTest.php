@@ -557,11 +557,8 @@ type Hello {
     public function testUnionFailsWithNoTypes()
     {
         $body = 'union Hello = |';
-        try {
-            Parser::parse($body);
-        } catch (SyntaxError $e) {
-            $this->assertContains('Syntax Error GraphQL (1:16) Expected Name, found <EOF>', $e->getMessage());
-        }
+        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:16) Expected Name, found <EOF>', '/') . '/');
+        Parser::parse($body);
     }
 
     /**
@@ -570,11 +567,8 @@ type Hello {
     public function testUnionFailsWithLeadingDoublePipe()
     {
         $body = 'union Hello = || Wo | Rld';
-        try {
-            Parser::parse($body);
-        } catch (SyntaxError $e) {
-            $this->assertContains('Syntax Error GraphQL (1:16) Expected Name, found |', $e->getMessage());
-        }
+        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:16) Expected Name, found |', '/') . '/');
+        Parser::parse($body);
     }
 
     /**
@@ -583,11 +577,8 @@ type Hello {
     public function testUnionFailsWithDoublePipe()
     {
         $body = 'union Hello = Wo || Rld';
-        try {
-            Parser::parse($body);
-        } catch (SyntaxError $e) {
-            $this->assertContains('Syntax Error GraphQL (1:19) Expected Name, found |', $e->getMessage());
-        }
+        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:19) Expected Name, found |', '/') . '/');
+        Parser::parse($body);
     }
 
     /**
@@ -596,11 +587,8 @@ type Hello {
     public function testUnionFailsWithTrailingPipe()
     {
         $body = 'union Hello = | Wo | Rld |';
-        try {
-            Parser::parse($body);
-        } catch (SyntaxError $e) {
-            $this->assertContains('Syntax Error GraphQL (1:27) Expected Name, found <EOF>', $e->getMessage());
-        }
+        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:27) Expected Name, found <EOF>', '/') . '/');
+        Parser::parse($body);
     }
 
     /**

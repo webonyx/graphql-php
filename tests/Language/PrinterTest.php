@@ -44,13 +44,9 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testProducesHelpfulErrorMessages()
     {
-        $badAst1 = new \ArrayObject(array('random' => 'Data'));
-        try {
-            Printer::doPrint($badAst1);
-            $this->fail('Expected exception not thrown');
-        } catch (\Exception $e) {
-            $this->assertEquals('Invalid AST Node: {"random":"Data"}', $e->getMessage());
-        }
+        $badAst1 = new \ArrayObject(['random' => 'Data']);
+        $this->setExpectedException(\Exception::class, 'Invalid AST Node: {"random":"Data"}');
+        Printer::doPrint($badAst1);
     }
 
     /**

@@ -10,13 +10,7 @@ class UtilsTest extends \PHPUnit_Framework_TestCase
         $object = new \stdClass();
         $object->requiredKey = 'value';
 
-        try {
-            Utils::assign($object, [], ['requiredKey']);
-            $this->fail('Expected exception not thrown');
-        } catch (\InvalidArgumentException $e) {
-            $this->assertEquals(
-                "Key requiredKey is expected to be set and not to be null",
-                $e->getMessage());
-        }
+        $this->setExpectedException(\InvalidArgumentException::class, 'Key requiredKey is expected to be set and not to be null');
+        Utils::assign($object, [], ['requiredKey']);
     }
 }
