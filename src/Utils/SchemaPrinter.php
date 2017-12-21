@@ -66,7 +66,8 @@ class SchemaPrinter
             $typename === Type::BOOLEAN ||
             $typename === Type::INT ||
             $typename === Type::FLOAT ||
-            $typename === Type::ID
+            $typename === Type::ID ||
+            $typename === Type::FILE
         );
     }
 
@@ -112,7 +113,7 @@ class SchemaPrinter
 
         return "schema {\n" . implode("\n", $operationTypes) . "\n}";
     }
-    
+
     /**
      * GraphQL schema define root types for each type of operation. These types are
      * the same as any other type and can be named in any manner, however there is
@@ -182,7 +183,7 @@ class SchemaPrinter
 
     private static function printInterface(InterfaceType $type)
     {
-        return self::printDescription($type) . 
+        return self::printDescription($type) .
             "interface {$type->name} {\n" .
                 self::printFields($type) . "\n" .
             "}";
@@ -213,7 +214,7 @@ class SchemaPrinter
     private static function printInputObject(InputObjectType $type)
     {
         $fields = array_values($type->getFields());
-        return self::printDescription($type) . 
+        return self::printDescription($type) .
             "input {$type->name} {\n" .
                 implode("\n", array_map(function($f, $i) {
                     return self::printDescription($f, '  ', !$i) . '  ' . self::printInputValue($f);

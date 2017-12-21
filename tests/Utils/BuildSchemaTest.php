@@ -35,7 +35,7 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
                 str: String
             }
         '));
-        
+
         $result = GraphQL::execute($schema, '{ str }', ['str' => 123]);
         $this->assertEquals($result['data'], ['str' => 123]);
     }
@@ -80,6 +80,7 @@ type HelloScalars {
   float: Float
   id: ID
   bool: Boolean
+  file: File
 }
 ';
         $output = $this->cycleOutput($body);

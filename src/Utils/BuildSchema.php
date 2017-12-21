@@ -41,7 +41,7 @@ class BuildSchema
     /**
      * @param Type $innerType
      * @param TypeNode $inputTypeNode
-     * @return Type 
+     * @return Type
      */
     private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
     {
@@ -99,7 +99,7 @@ class BuildSchema
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->loadedTypeDefs = [];
     }
-    
+
     public function buildSchema()
     {
         $schemaDef = null;
@@ -194,6 +194,7 @@ class BuildSchema
             'Int' => Type::int(),
             'Float' => Type::float(),
             'Boolean' => Type::boolean(),
+            'File' => Type::file(),
             'ID' => Type::id(),
             '__Schema' => Introspection::_schema(),
             '__Directive' => Introspection::_directive(),
@@ -619,7 +620,7 @@ class BuildSchema
     /**
      * A helper function to build a GraphQLSchema directly from a source
      * document.
-     * 
+     *
      * @api
      * @param DocumentNode|Source|string $source
      * @param callable $typeConfigDecorator

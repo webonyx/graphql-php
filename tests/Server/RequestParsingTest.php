@@ -360,7 +360,6 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
             $psrRequest->body = $psrRequestBody;
         } else {
             $psrRequest->parsedBody = $content;
-
         }
 
         $helper = new Helper();

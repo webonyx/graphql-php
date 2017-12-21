@@ -36,6 +36,7 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
                     ['name' => 'Float'],
                     ['name' => 'Int'],
                     ['name' => 'Boolean'],
+                    ['name' => 'File'],
                     ['name' => '__Schema'],
                     ['name' => '__Type'],
                     ['name' => '__TypeKind'],
