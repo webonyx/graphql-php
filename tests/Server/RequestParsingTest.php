@@ -181,6 +181,20 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testFailsParsingNonPreParsedPsrRequest()
+    {
+        try {
+            $this->parsePsrRequest('application/json', json_encode([]));
+            $this->fail('Expected exception not thrown');
+        } catch (InvariantViolation $e) {
+            // Expecting parsing exception to be thrown somewhere else:
+            $this->assertEquals(
+                'PSR-7 request is expected to provide parsed body for "application/json" requests but got empty array',
+                $e->getMessage()
+            );
+        }
+    }
+
     // There is no equivalent for psr request, because it should throw
 
     public function testFailsParsingNonArrayOrObjectJsonRequest()
@@ -242,15 +256,19 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
 
     public function testFailsOnMethodsOtherThanPostOrGet()
     {
+        $body = [
+            'query' => '{my query}',
+        ];
+
         try {
-            $this->parseRawRequest('application/json', json_encode([]), "PUT");
+            $this->parseRawRequest('application/json', json_encode($body), "PUT");
             $this->fail('Expected exception not thrown');
         } catch (RequestError $e) {
             $this->assertEquals('HTTP Method "PUT" is not supported', $e->getMessage());
         }
 
         try {
-            $this->parsePsrRequest('application/json', json_encode([]), "PUT");
+            $this->parsePsrRequest('application/json', json_encode($body), "PUT");
             $this->fail('Expected exception not thrown');
         } catch (RequestError $e) {
             $this->assertEquals('HTTP Method "PUT" is not supported', $e->getMessage());
