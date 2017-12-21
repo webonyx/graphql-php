@@ -482,34 +482,22 @@ class Helper
                 throw new RequestError('Missing "Content-Type" header');
             }
 
-            if (stripos('application/graphql', $contentType[0]) !== false) {
+            $contentType = $contentType[0];
+            if (stripos($contentType, 'application/graphql') !== false) {
                 $bodyParams = ['query' => $request->getBody()->getContents()];
-            } else if (stripos('application/json', $contentType[0]) !== false) {
+            } elseif (stripos($contentType, 'application/json') !== false) {
                 $bodyParams = $request->getParsedBody();
 
-                if (null === $bodyParams) {
-                    throw new InvariantViolation(
-                        "PSR-7 request is expected to provide parsed body for \"application/json\" requests but got null"
-                    );
-                }
-
-                if (!is_array($bodyParams)) {
-                    throw new RequestError(
-                        "GraphQL Server expects JSON object or array, but got " .
-                        Utils::printSafeJson($bodyParams)
-                    );
-                }
-
-                if (empty($bodyParams)) {
-                    throw new InvariantViolation(
-                        "PSR-7 request is expected to provide parsed body for \"application/json\" requests but got empty array"
-                    );
-                }
+                $this->validateParsedBody($bodyParams);
+            } elseif (stripos($contentType, 'multipart/form-data') !== false) {
+                $bodyParams = $request->getParsedBody();
+                $this->validateParsedBody($bodyParams);
+                $bodyParams = $this->parseUploadedFiles($request, $bodyParams);
             } else {
                 $bodyParams = $request->getParsedBody();
 
                 if (!is_array($bodyParams)) {
-                    throw new RequestError("Unexpected content type: " . Utils::printSafeJson($contentType[0]));
+                    throw new RequestError("Unexpected content type: " . Utils::printSafeJson($contentType));
                 }
             }
         }
@@ -552,5 +540,66 @@ class Helper
             ->withStatus($httpStatus)
             ->withHeader('Content-Type', 'application/json')
             ->withBody($writableBodyStream);
+    }
+
+    /**
+     * Inject uploaded files defined in the 'map' key into the 'variables' key
+     *
+     * @param ServerRequestInterface $request
+     * @param array $bodyParams
+     *
+     * @return array
+     */
+    private function parseUploadedFiles(ServerRequestInterface $request, array $bodyParams)
+    {
+        if (!isset($bodyParams['map'])) {
+            return $bodyParams;
+        }
+
+        $map = json_decode($bodyParams['map'], true);
+        $result = json_decode($bodyParams['operations'], true);
+        $result['operation'] = $result['operationName'];
+        unset($result['operationName']);
+
+        foreach ($map as $fileKey => $locations) {
+            foreach ($locations as $location) {
+                $items = &$result;
+                foreach (explode('.', $location) as $key) {
+                    if (!isset($items[$key]) || !is_array($items[$key])) {
+                        $items[$key] = [];
+                    }
+                    $items = &$items[$key];
+                }
+
+                $items = $request->getUploadedFiles()[$fileKey];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param $bodyParams
+     */
+    private function validateParsedBody($bodyParams)
+    {
+        if (null === $bodyParams) {
+            throw new InvariantViolation(
+                "PSR-7 request is expected to provide parsed body for \"application/json\" requests but got null"
+            );
+        }
+
+        if (!is_array($bodyParams)) {
+            throw new RequestError(
+                "GraphQL Server expects JSON object or array, but got " .
+                Utils::printSafeJson($bodyParams)
+            );
+        }
+
+        if (empty($bodyParams)) {
+            throw new InvariantViolation(
+                "PSR-7 request is expected to provide parsed body for \"application/json\" requests but got empty array"
+            );
+        }
     }
 }
