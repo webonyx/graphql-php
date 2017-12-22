@@ -283,7 +283,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
             'String' => Type::string(),
             'Float' => Type::float(),
             'Int' => Type::int(),
-            'Boolean' => Type::boolean()
+            'Boolean' => Type::boolean(),
+            'File' => Type::file(),
         ];
         $this->assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
 
@@ -295,6 +296,7 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
                 'Float' => 1,
                 'Int' => 1,
                 'Boolean' => 1,
+                'File' => 1,
             ],
             'possibleTypeMap' => []
         ];
@@ -344,7 +346,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
             'PostCommentMutation' => $this->postCommentMutation,
             'Float' => Type::float(),
             'Int' => Type::int(),
-            'Boolean' => Type::boolean()
+            'Boolean' => Type::boolean(),
+            'File' => Type::file()
         ];
 
         $this->assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
@@ -369,7 +372,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
                 'PostCommentMutation' => 1,
                 'Float' => 1,
                 'Int' => 1,
-                'Boolean' => 1
+                'Boolean' => 1,
+                'File' => 1
             ],
             'possibleTypeMap' => [
                 'Node' => [
@@ -424,7 +428,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
             'Float' => Type::float(),
             'ID' => Type::id(),
             'Int' => Type::int(),
-            'Boolean' => Type::boolean()
+            'Boolean' => Type::boolean(),
+            'File' => Type::file()
         ];
         $this->assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
 
@@ -442,7 +447,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
                 'Float' => 1,
                 'ID' => 1,
                 'Int' => 1,
-                'Boolean' => 1
+                'Boolean' => 1,
+                'File' => 1,
             ],
             'possibleTypeMap' => [
                 'Node' => [

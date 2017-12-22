@@ -24,6 +24,11 @@ class PsrRequestStub implements ServerRequestInterface
     public $parsedBody;
 
     /**
+     * @var array
+     */
+    public  $uploadedFiles = [];
+
+    /**
      * Retrieves the HTTP protocol version as a string.
      *
      * The string MUST contain only the HTTP version number (e.g., "1.1", "1.0").
@@ -457,7 +462,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getUploadedFiles()
     {
-        throw new \Exception("Not implemented");
+        return $this->uploadedFiles;
     }
 
     /**

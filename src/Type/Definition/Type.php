@@ -17,6 +17,7 @@ abstract class Type implements \JsonSerializable
     const BOOLEAN = 'Boolean';
     const FLOAT = 'Float';
     const ID = 'ID';
+    const FILE = 'File';
 
     /**
      * @var array
@@ -70,6 +71,15 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
+     * @return FileType
+     */
+    public static function file()
+    {
+        return self::getInternalType(self::FILE);
+    }
+
+    /**
+     * @api
      * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
      * @return ListOfType
      */
@@ -90,7 +100,7 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @param $name
-     * @return array|IDType|StringType|FloatType|IntType|BooleanType
+     * @return array|IDType|StringType|FloatType|IntType|BooleanType|FileType
      */
     private static function getInternalType($name = null)
     {
@@ -100,7 +110,8 @@ abstract class Type implements \JsonSerializable
                 self::STRING => new StringType(),
                 self::FLOAT => new FloatType(),
                 self::INT => new IntType(),
-                self::BOOLEAN => new BooleanType()
+                self::BOOLEAN => new BooleanType(),
+                self::FILE => new FileType()
             ];
         }
         return $name ? self::$internalTypes[$name] : self::$internalTypes;

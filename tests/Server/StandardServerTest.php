@@ -43,9 +43,9 @@ class StandardServerTest extends TestCase
 
     public function testSimplePsrRequestExecution()
     {
-        $body = json_encode([
+        $body = [
             'query' => '{f1}'
-        ]);
+        ];
 
         $expected = [
             'data' => [
@@ -53,11 +53,8 @@ class StandardServerTest extends TestCase
             ]
         ];
 
-        $preParsedRequest = $this->preparePsrRequest('application/json', $body, true);
-        $this->assertPsrRequestEquals($expected, $preParsedRequest);
-
-        $notPreParsedRequest = $this->preparePsrRequest('application/json', $body, false);
-        $this->assertPsrRequestEquals($expected, $notPreParsedRequest);
+        $request = $this->preparePsrRequest('application/json', $body);
+        $this->assertPsrRequestEquals($expected, $request);
     }
 
     private function executePsrRequest($psrRequest)
@@ -75,22 +72,11 @@ class StandardServerTest extends TestCase
         return $result;
     }
 
-    private function preparePsrRequest($contentType, $content, $preParseBody)
+    private function preparePsrRequest($contentType, $parsedBody)
     {
-        $psrRequestBody = new PsrStreamStub();
-        $psrRequestBody->content = $content;
-
         $psrRequest = new PsrRequestStub();
         $psrRequest->headers['content-type'] = [$contentType];
         $psrRequest->method = 'POST';
-        $psrRequest->body = $psrRequestBody;
-
-        if ($preParseBody && $contentType === 'application/json') {
-            $parsedBody = json_decode($content, true);
-        } else {
-            $parsedBody = [];
-        }
-
         $psrRequest->parsedBody = $parsedBody;
         return $psrRequest;
     }

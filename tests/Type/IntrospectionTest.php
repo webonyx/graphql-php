@@ -111,6 +111,15 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                         'possibleTypes' => NULL,
                                     ),
                                     array (
+                                        'kind' => 'SCALAR',
+                                        'name' => 'File',
+                                        'fields' => NULL,
+                                        'inputFields' => NULL,
+                                        'interfaces' => NULL,
+                                        'enumValues' => NULL,
+                                        'possibleTypes' => NULL,
+                                    ),
+                                    array (
                                         'kind' => 'OBJECT',
                                         'name' => '__Schema',
                                         'fields' =>
@@ -994,6 +1003,72 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
                                                         'name' => 'INLINE_FRAGMENT',
                                                         'isDeprecated' => false,
                                                         'deprecationReason' => null
+                                                    ),
+                                                7 =>
+                                                    array (
+                                                        'name' => 'SCHEMA',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                8 =>
+                                                    array (
+                                                        'name' => 'SCALAR',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                9 =>
+                                                    array (
+                                                        'name' => 'OBJECT',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                10 =>
+                                                    array (
+                                                        'name' => 'FIELD_DEFINITION',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                11 =>
+                                                    array (
+                                                        'name' => 'ARGUMENT_DEFINITION',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                12 =>
+                                                    array (
+                                                        'name' => 'INTERFACE',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                13 =>
+                                                    array (
+                                                        'name' => 'UNION',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                14 =>
+                                                    array (
+                                                        'name' => 'ENUM',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                15 =>
+                                                    array (
+                                                        'name' => 'ENUM_VALUE',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                16 =>
+                                                    array (
+                                                        'name' => 'INPUT_OBJECT',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
+                                                    ),
+                                                17 =>
+                                                    array (
+                                                        'name' => 'INPUT_FIELD_DEFINITION',
+                                                        'isDeprecated' => false,
+                                                        'deprecationReason' => NULL,
                                                     ),
                                             ),
                                         'possibleTypes' => NULL,

@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Tests\Server;
 
 use GraphQL\Error\Error;
@@ -8,9 +9,53 @@ use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
 use GraphQL\Tests\Server\Psr7\PsrRequestStub;
 use GraphQL\Tests\Server\Psr7\PsrStreamStub;
+use GraphQL\Tests\Server\Psr7\PsrUploadedFileStub;
 
 class RequestParsingTest extends \PHPUnit_Framework_TestCase
 {
+
+    public function testParsesMultipartRequest()
+    {
+        $query = '{my query}';
+        $variables = [
+            'test' => 1,
+            'test2' => 2,
+            'uploads' => [
+                0 => null,
+                1 => null,
+            ],
+        ];
+        $operation = 'op';
+
+        $body = [
+            'operations' => json_encode([
+                'query' => $query,
+                'variables' => $variables,
+                'operationName' => $operation,
+            ]),
+            'map' => json_encode([
+                1 => ['variables.uploads.0'],
+                2 => ['variables.uploads.1'],
+            ]),
+        ];
+
+        $file1 = new PsrUploadedFileStub('image.jpg', 'image/jpeg');
+        $file2 = new PsrUploadedFileStub('foo.txt', 'text/plain');
+        $files = [
+            1 => $file1,
+            2 => $file2,
+        ];
+
+        $parsedBody = $this->parsePsrRequest('multipart/form-data; boundary=----WebKitFormBoundarySl4GaqVa1r8GtAbn', $body, 'POST', $files);
+
+        $variables['uploads'] = [
+            0 => $file1,
+            1 => $file2,
+        ];
+        $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, 'uploaded files should get injected into variables');
+        $this->assertFalse($parsedBody->isReadOnly());
+    }
+
     public function testParsesGraphqlRequest()
     {
         $query = '{my query}';
@@ -82,7 +127,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         ];
         $parsed = [
             'raw' => $this->parseRawRequest('application/json', json_encode($body)),
-            'psr' => $this->parsePsrRequest('application/json', json_encode($body))
+            'psr' => $this->parsePsrRequest('application/json', $body)
         ];
         foreach ($parsed as $method => $parsedBody) {
             $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
@@ -103,7 +148,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         ];
         $parsed = [
             'raw' => $this->parseRawRequest('application/json', json_encode($body)),
-            'psr' => $this->parsePsrRequest('application/json', json_encode($body))
+            'psr' => $this->parsePsrRequest('application/json', $body)
         ];
         foreach ($parsed as $method => $parsedBody) {
             $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
@@ -124,7 +169,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         ];
         $parsed = [
             'raw' => $this->parseRawRequest('application/json', json_encode($body)),
-            'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
+            'psr' => $this->parsePsrRequest('application/json', $body)
         ];
         foreach ($parsed as $method => $parsedBody) {
             $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
@@ -148,7 +193,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         ];
         $parsed = [
             'raw' => $this->parseRawRequest('application/json', json_encode($body)),
-            'psr' => $this->parsePsrRequest('application/json', json_encode($body))
+            'psr' => $this->parsePsrRequest('application/json', $body)
         ];
         foreach ($parsed as $method => $parsedBody) {
             $this->assertInternalType('array', $parsedBody, $method);
@@ -170,7 +215,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         }
 
         try {
-            $this->parsePsrRequest('application/json', $body);
+            $this->parsePsrRequest('application/json', null);
             $this->fail('Expected exception not thrown');
         } catch (InvariantViolation $e) {
             // Expecting parsing exception to be thrown somewhere else:
@@ -181,14 +226,28 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testFailsParsingNonPreParsedPsrRequest()
+    {
+        try {
+            $this->parsePsrRequest('application/json', []);
+            $this->fail('Expected exception not thrown');
+        } catch (InvariantViolation $e) {
+            // Expecting parsing exception to be thrown somewhere else:
+            $this->assertEquals(
+                'PSR-7 request is expected to provide parsed body for "application/json" requests but got empty array',
+                $e->getMessage()
+            );
+        }
+    }
+
     // There is no equivalent for psr request, because it should throw
 
     public function testFailsParsingNonArrayOrObjectJsonRequest()
     {
-        $body = '"str"';
+        $body = 'str';
 
         try {
-            $this->parseRawRequest('application/json', $body);
+            $this->parseRawRequest('application/json', json_encode($body));
             $this->fail('Expected exception not thrown');
         } catch (RequestError $e) {
             $this->assertEquals('GraphQL Server expects JSON object or array, but got "str"', $e->getMessage());
@@ -242,15 +301,19 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
 
     public function testFailsOnMethodsOtherThanPostOrGet()
     {
+        $body = [
+            'query' => '{my query}',
+        ];
+
         try {
-            $this->parseRawRequest('application/json', json_encode([]), "PUT");
+            $this->parseRawRequest('application/json', json_encode($body), "PUT");
             $this->fail('Expected exception not thrown');
         } catch (RequestError $e) {
             $this->assertEquals('HTTP Method "PUT" is not supported', $e->getMessage());
         }
 
         try {
-            $this->parsePsrRequest('application/json', json_encode([]), "PUT");
+            $this->parsePsrRequest('application/json', $body, "PUT");
             $this->fail('Expected exception not thrown');
         } catch (RequestError $e) {
             $this->assertEquals('HTTP Method "PUT" is not supported', $e->getMessage());
@@ -270,36 +333,34 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $_SERVER['REQUEST_METHOD'] = $method;
 
         $helper = new Helper();
-        return $helper->parseHttpRequest(function() use ($content) {
+
+        return $helper->parseHttpRequest(function () use ($content) {
             return $content;
         });
     }
 
     /**
      * @param string $contentType
-     * @param string $content
-     * @param $method
+     * @param array|string $content
+     * @param string $method
+     * @param array $files
      *
      * @return OperationParams|OperationParams[]
      */
-    private function parsePsrRequest($contentType, $content, $method = 'POST')
+    private function parsePsrRequest($contentType, $content, $method = 'POST', array $files = [])
     {
-        $psrRequestBody = new PsrStreamStub();
-        $psrRequestBody->content = $content;
-
         $psrRequest = new PsrRequestStub();
         $psrRequest->headers['content-type'] = [$contentType];
         $psrRequest->method = $method;
-        $psrRequest->body = $psrRequestBody;
+        $psrRequest->uploadedFiles = $files;
 
-        if ($contentType === 'application/json') {
-            $parsedBody = json_decode($content, true);
-            $parsedBody = $parsedBody === false ? null : $parsedBody;
+        if ($contentType === 'application/graphql') {
+            $psrRequestBody = new PsrStreamStub();
+            $psrRequestBody->content = $content;
+            $psrRequest->body = $psrRequestBody;
         } else {
-            $parsedBody = null;
+            $psrRequest->parsedBody = $content;
         }
-
-        $psrRequest->parsedBody = $parsedBody;
 
         $helper = new Helper();
         return $helper->parsePsrRequest($psrRequest);
