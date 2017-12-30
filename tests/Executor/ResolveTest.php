@@ -135,9 +135,12 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
             }
         ]);
 
+        $executionResult = GraphQL::executeQuery($schema, '{ test }', null, new ExtendableContextImplementation())
+            ->setExtensionsHandler([ExtendableContextTrait::class, 'handler']);
+
         $this->assertEquals(
             ['data' => ['test' => '[null,[]]'], 'extensions' => ['cache-control' => ['path' => ['test'], 'cache' => 'none']]],
-            GraphQL::execute($schema, '{ test }', null, new ExtendableContextImplementation())
+            $executionResult->toArray()
         );
     }
 
@@ -158,7 +161,9 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
             }
         ]);
 
-        GraphQL::execute($schema, '{ test }', null, new ExtendableContextImplementation());
+        GraphQL::executeQuery($schema, '{ test }', null, new ExtendableContextImplementation())
+            ->setExtensionsHandler([ExtendableContextTrait::class, 'handler'])
+            ->toArray();
     }
 
     /**
@@ -192,9 +197,12 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
             ])
         ]);
 
+        $executionResult = GraphQL::executeQuery($schema, '{ a, b }', null, new ExtendableContextImplementation())
+            ->setExtensionsHandler([ExtendableContextTrait::class, 'handler']);
+
         $this->assertEquals(
             ['data' => ['a' => 'foo', 'b' => 'bar'], 'extensions' => ['queryCost' => 20]],
-            GraphQL::execute($schema, '{ a, b }', null, new ExtendableContextImplementation())
+            $executionResult->toArray()
         );
     }
 }

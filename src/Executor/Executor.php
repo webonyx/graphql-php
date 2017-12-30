@@ -6,7 +6,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
-use GraphQL\ExtendableContext;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
@@ -296,7 +295,8 @@ class Executor
                 return null;
             })
             ->then(function ($data) {
-                return new ExecutionResult((array) $data, $this->exeContext->errors, $this->exeContext->contextValue instanceof ExtendableContext? $this->exeContext->contextValue->getExtensions() : []);
+                return (new ExecutionResult((array) $data, $this->exeContext->errors))
+                    ->setContextValue($this->exeContext->contextValue);
             });
     }
 

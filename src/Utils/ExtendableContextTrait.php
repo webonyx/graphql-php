@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Utils;
 
+use GraphQL\ExtendableContext;
+
 trait ExtendableContextTrait
 {
   private $extensions = [];
@@ -22,5 +24,10 @@ trait ExtendableContextTrait
   public function setExtension($name, $value)
   {
     $this->extensions[$name] = $value;
+  }
+
+  public static function handler($extensions, $contextValue)
+  {
+    return $contextValue instanceof ExtendableContext ? $contextValue->getExtensions() : $extensions;
   }
 }
