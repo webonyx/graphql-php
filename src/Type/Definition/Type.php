@@ -136,6 +136,12 @@ abstract class Type implements \JsonSerializable
         return $nakedType instanceof OutputType;
     }
 
+    public static function isNamedType($type)
+    {
+        $nakedType = self::getNamedType($type);
+        return $nakedType instanceof OutputType || $nakedType instanceof InputType;
+    }
+    
     /**
      * @api
      * @param $type

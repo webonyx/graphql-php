@@ -69,6 +69,8 @@ class Helper
                         Utils::printSafeJson($bodyParams)
                     );
                 }
+            } else if (stripos($contentType, 'multipart/form-data') !== false) {
+                $bodyParams = $_POST;
             } else if (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
                 $bodyParams = $_POST;
             } else if (null === $contentType) {

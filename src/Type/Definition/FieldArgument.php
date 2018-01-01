@@ -57,7 +57,10 @@ class FieldArgument
     {
         $map = [];
         foreach ($config as $name => $argConfig) {
-            if (!is_array($argConfig)) {
+            if($argConfig instanceof self){
+                $map[] = $argConfig;
+                continue;
+            }elseif (!is_array($argConfig)) {
                 $argConfig = ['type' => $argConfig];
             }
             $map[] = new self($argConfig + ['name' => $name]);
