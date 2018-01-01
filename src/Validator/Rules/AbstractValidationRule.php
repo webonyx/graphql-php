@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-use GraphQL\Error\Error;
 use GraphQL\Validator\ValidationContext;
 
 abstract class AbstractValidationRule
@@ -19,8 +18,11 @@ abstract class AbstractValidationRule
     }
 
     /**
+     * Returns structure suitable for GraphQL\Language\Visitor
+     *
+     * @see \GraphQL\Language\Visitor
      * @param ValidationContext $context
-     * @return Error[]
+     * @return array
      */
     abstract public function getVisitor(ValidationContext $context);
 }
