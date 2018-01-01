@@ -1600,19 +1600,14 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         $type->assertValid();
     }
 
-    /**
-     * @it rejects an Enum type with incorrectly named values
-     */
-    public function testRejectsAnEnumTypeWithIncorrectlyNamedValues()
+    public function invalidEnumValueName()
     {
-        $this->assertInvalidEnumValueName(
-            '#value',
-            'SomeEnum has value with invalid name: "#value" (Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.)'
-        );
-
-        $this->assertInvalidEnumValueName('true', 'SomeEnum: "true" can not be used as an Enum value.');
-        $this->assertInvalidEnumValueName('false', 'SomeEnum: "false" can not be used as an Enum value.');
-        $this->assertInvalidEnumValueName('null', 'SomeEnum: "null" can not be used as an Enum value.');
+        return [
+            ['#value', 'SomeEnum has value with invalid name: "#value" (Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.)'],
+            ['true', 'SomeEnum: "true" can not be used as an Enum value.'],
+            ['false', 'SomeEnum: "false" can not be used as an Enum value.'],
+            ['null', 'SomeEnum: "null" can not be used as an Enum value.'],
+        ];
     }
 
     public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum()
@@ -1640,16 +1635,16 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    private function assertInvalidEnumValueName($name, $expectedMessage)
+    /**
+     * @it rejects an Enum type with incorrectly named values
+     * @dataProvider invalidEnumValueName
+     */
+    public function testRejectsAnEnumTypeWithIncorrectlyNamedValues($name, $expectedMessage)
     {
         $enum = $this->enumValue($name);
 
-        try {
-            $enum->assertValid();
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals($expectedMessage, $e->getMessage());
-        }
+        $this->setExpectedException(InvariantViolation::class, $expectedMessage);
+        $enum->assertValid();
     }
 
     // DESCRIBE: Type System: Object fields must have output types
@@ -1898,15 +1893,8 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $schema = $this->schemaWithArgOfType(null);
 
-        try {
-            $schema->assertValid();
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'BadObject.badField(badArg): argument type must be Input Type but got: null',
-                $e->getMessage()
-            );
-        }
+        $this->setExpectedException(InvariantViolation::class, 'BadObject.badField(badArg): argument type must be Input Type but got: null');
+        $schema->assertValid();
     }
 
     /**

@@ -526,8 +526,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($eager->resolvePossibleTypes($this->mention), $lazy->resolvePossibleTypes($this->mention));
     }
 
-    public function testLazyThrowsOnInvalidLoadedType()
-    {
+    private function createLazy(){
+
         $descriptor = [
             'version' => '1.0',
             'typeMap' => [
@@ -557,37 +557,29 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
         $value = $lazy->resolveType('null');
         $this->assertEquals(null, $value);
 
-        try {
-            $lazy->resolveType('int');
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                "Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer",
-                $e->getMessage()
-            );
+        return $lazy;
+    }
 
-        }
+    public function testLazyThrowsOnInvalidLoadedType()
+    {
+        $lazy = $this->createLazy();
+        $this->setExpectedException(InvariantViolation::class, "Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer");
+        $lazy->resolveType('int');
+    }
 
-        try {
-            $tmp = new InterfaceType(['name' => 'a', 'fields' => []]);
-            $lazy->resolvePossibleTypes($tmp);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Lazy Type Resolution Error: Implementation null of interface a is expected to be instance of ObjectType, but got NULL',
-                $e->getMessage()
-            );
-        }
+    public function testLazyThrowsOnInvalidLoadedPossibleType()
+    {
+        $tmp = new InterfaceType(['name' => 'a', 'fields' => []]);
+        $lazy = $this->createLazy();
+        $this->setExpectedException(InvariantViolation::class, 'Lazy Type Resolution Error: Implementation null of interface a is expected to be instance of ObjectType, but got NULL');
+        $lazy->resolvePossibleTypes($tmp);
+    }
 
-        try {
-            $tmp = new InterfaceType(['name' => 'b', 'fields' => []]);
-            $lazy->resolvePossibleTypes($tmp);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer',
-                $e->getMessage()
-            );
-        }
+    public function testLazyThrowsOnInvalidLoadedPossibleTypeWithInteger()
+    {
+        $tmp = new InterfaceType(['name' => 'b', 'fields' => []]);
+        $lazy = $this->createLazy();
+        $this->setExpectedException(InvariantViolation::class, 'Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer');
+        $lazy->resolvePossibleTypes($tmp);
     }
 }

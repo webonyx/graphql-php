@@ -40,12 +40,8 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
         $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
 
-        try {
-            $this->promises->convertThenable('');
-            $this->fail('Expected exception no thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals('Expected instance of GraphQL\Deferred, got (empty string)', $e->getMessage());
-        }
+        $this->setExpectedException(InvariantViolation::class, 'Expected instance of GraphQL\Deferred, got (empty string)');
+        $this->promises->convertThenable('');
     }
 
     public function testThen()

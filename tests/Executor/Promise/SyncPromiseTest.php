@@ -33,7 +33,7 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider getFulfilledPromiseResolveData
      */
-    public function testFulfilledPromise(
+    public function testFulfilledPromiseCannotChangeValue(
         $resolvedValue,
         $onFulfilled,
         $expectedNextValue,
@@ -47,19 +47,47 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $promise->resolve($resolvedValue);
         $this->assertEquals(SyncPromise::FULFILLED, $promise->state);
 
-        try {
-            $promise->resolve($resolvedValue . '-other-value');
-            $this->fail('Expected exception not thrown');
-        } catch (\Exception $e) {
-            $this->assertEquals('Cannot change value of fulfilled promise', $e->getMessage());
-        }
+        $this->setExpectedException(\Exception::class, 'Cannot change value of fulfilled promise');
+        $promise->resolve($resolvedValue . '-other-value');
+    }
 
-        try {
-            $promise->reject(new \Exception('anything'));
-            $this->fail('Expected exception not thrown');
-        } catch (\Exception $e) {
-            $this->assertEquals('Cannot reject fulfilled promise', $e->getMessage());
-        }
+    /**
+     * @dataProvider getFulfilledPromiseResolveData
+     */
+    public function testFulfilledPromiseCannotBeRejected(
+        $resolvedValue,
+        $onFulfilled,
+        $expectedNextValue,
+        $expectedNextReason,
+        $expectedNextState
+    )
+    {
+        $promise = new SyncPromise();
+        $this->assertEquals(SyncPromise::PENDING, $promise->state);
+
+        $promise->resolve($resolvedValue);
+        $this->assertEquals(SyncPromise::FULFILLED, $promise->state);
+
+        $this->setExpectedException(\Exception::class, 'Cannot reject fulfilled promise');
+        $promise->reject(new \Exception('anything'));
+    }
+
+    /**
+     * @dataProvider getFulfilledPromiseResolveData
+     */
+    public function testFulfilledPromise(
+        $resolvedValue,
+        $onFulfilled,
+        $expectedNextValue,
+        $expectedNextReason,
+        $expectedNextState
+    )
+    {
+        $promise = new SyncPromise();
+        $this->assertEquals(SyncPromise::PENDING, $promise->state);
+
+        $promise->resolve($resolvedValue);
+        $this->assertEquals(SyncPromise::FULFILLED, $promise->state);
 
         $nextPromise = $promise->then(null, function() {});
         $this->assertSame($promise, $nextPromise);
@@ -115,6 +143,49 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
             [new \Exception('test-reason-4'), $onRejectedThrowsSameReason, null, 'test-reason-4', SyncPromise::REJECTED],
             [new \Exception('test-reason-5'), $onRejectedThrowsOtherReason, null, 'onRejected throws other!', SyncPromise::REJECTED],
         ];
+    }
+
+    /**
+     * @dataProvider getRejectedPromiseData
+     */
+    public function testRejectedPromiseCannotChangeReason(
+        $rejectedReason,
+        $onRejected,
+        $expectedNextValue,
+        $expectedNextReason,
+        $expectedNextState
+    )
+    {
+        $promise = new SyncPromise();
+        $this->assertEquals(SyncPromise::PENDING, $promise->state);
+
+        $promise->reject($rejectedReason);
+        $this->assertEquals(SyncPromise::REJECTED, $promise->state);
+
+        $this->setExpectedException(\Exception::class, 'Cannot change rejection reason');
+        $promise->reject(new \Exception('other-reason'));
+
+    }
+
+    /**
+     * @dataProvider getRejectedPromiseData
+     */
+    public function testRejectedPromiseCannotBeResolved(
+        $rejectedReason,
+        $onRejected,
+        $expectedNextValue,
+        $expectedNextReason,
+        $expectedNextState
+    )
+    {
+        $promise = new SyncPromise();
+        $this->assertEquals(SyncPromise::PENDING, $promise->state);
+
+        $promise->reject($rejectedReason);
+        $this->assertEquals(SyncPromise::REJECTED, $promise->state);
+
+        $this->setExpectedException(\Exception::class, 'Cannot resolve rejected promise');
+        $promise->resolve('anything');
     }
 
     /**
