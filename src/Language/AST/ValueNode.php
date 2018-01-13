@@ -3,6 +3,7 @@ namespace GraphQL\Language\AST;
 
 /**
 export type ValueNode = VariableNode
+| NullValueNode
 | IntValueNode
 | FloatValueNode
 | StringValueNode

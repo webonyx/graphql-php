@@ -56,8 +56,7 @@
                             },
                             "value": "ComplexType"
                         }
-                    },
-                    "defaultValue": null
+                    }
                 },
                 {
                     "kind": "VariableDefinition",
@@ -199,10 +198,8 @@
                                         },
                                         "value": "id"
                                     },
-                                    "alias": null,
                                     "arguments": [],
-                                    "directives": [],
-                                    "selectionSet": null
+                                    "directives": []
                                 },
                                 {
                                     "kind": "InlineFragment",
@@ -264,7 +261,6 @@
                                                     },
                                                     "value": "field2"
                                                 },
-                                                "alias": null,
                                                 "arguments": [],
                                                 "directives": [],
                                                 "selectionSet": {
@@ -288,10 +284,8 @@
                                                                 },
                                                                 "value": "id"
                                                             },
-                                                            "alias": null,
                                                             "arguments": [],
-                                                            "directives": [],
-                                                            "selectionSet": null
+                                                            "directives": []
                                                         },
                                                         {
                                                             "kind": "Field",
@@ -440,10 +434,8 @@
                                                                             },
                                                                             "value": "id"
                                                                         },
-                                                                        "alias": null,
                                                                         "arguments": [],
-                                                                        "directives": [],
-                                                                        "selectionSet": null
+                                                                        "directives": []
                                                                     },
                                                                     {
                                                                         "kind": "FragmentSpread",
@@ -476,7 +468,6 @@
                                         "start": 574,
                                         "end": 614
                                     },
-                                    "typeCondition": null,
                                     "directives": [
                                         {
                                             "kind": "Directive",
@@ -547,10 +538,8 @@
                                                     },
                                                     "value": "id"
                                                 },
-                                                "alias": null,
                                                 "arguments": [],
-                                                "directives": [],
-                                                "selectionSet": null
+                                                "directives": []
                                             }
                                         ]
                                     }
@@ -561,7 +550,6 @@
                                         "start": 619,
                                         "end": 639
                                     },
-                                    "typeCondition": null,
                                     "directives": [],
                                     "selectionSet": {
                                         "kind": "SelectionSet",
@@ -584,10 +572,8 @@
                                                     },
                                                     "value": "id"
                                                 },
-                                                "alias": null,
                                                 "arguments": [],
-                                                "directives": [],
-                                                "selectionSet": null
+                                                "directives": []
                                             }
                                         ]
                                     }
@@ -636,7 +622,6 @@
                             },
                             "value": "like"
                         },
-                        "alias": null,
                         "arguments": [
                             {
                                 "kind": "Argument",
@@ -701,7 +686,6 @@
                                         },
                                         "value": "story"
                                     },
-                                    "alias": null,
                                     "arguments": [],
                                     "directives": [],
                                     "selectionSet": {
@@ -725,10 +709,8 @@
                                                     },
                                                     "value": "id"
                                                 },
-                                                "alias": null,
                                                 "arguments": [],
-                                                "directives": [],
-                                                "selectionSet": null
+                                                "directives": []
                                             }
                                         ]
                                     }
@@ -790,8 +772,7 @@
                             },
                             "value": "StoryLikeSubscribeInput"
                         }
-                    },
-                    "defaultValue": null
+                    }
                 }
             ],
             "directives": [],
@@ -816,7 +797,6 @@
                             },
                             "value": "storyLikeSubscribe"
                         },
-                        "alias": null,
                         "arguments": [
                             {
                                 "kind": "Argument",
@@ -871,7 +851,6 @@
                                         },
                                         "value": "story"
                                     },
-                                    "alias": null,
                                     "arguments": [],
                                     "directives": [],
                                     "selectionSet": {
@@ -895,7 +874,6 @@
                                                     },
                                                     "value": "likers"
                                                 },
-                                                "alias": null,
                                                 "arguments": [],
                                                 "directives": [],
                                                 "selectionSet": {
@@ -919,10 +897,8 @@
                                                                 },
                                                                 "value": "count"
                                                             },
-                                                            "alias": null,
                                                             "arguments": [],
-                                                            "directives": [],
-                                                            "selectionSet": null
+                                                            "directives": []
                                                         }
                                                     ]
                                                 }
@@ -941,7 +917,6 @@
                                                     },
                                                     "value": "likeSentence"
                                                 },
-                                                "alias": null,
                                                 "arguments": [],
                                                 "directives": [],
                                                 "selectionSet": {
@@ -965,10 +940,8 @@
                                                                 },
                                                                 "value": "text"
                                                             },
-                                                            "alias": null,
                                                             "arguments": [],
-                                                            "directives": [],
-                                                            "selectionSet": null
+                                                            "directives": []
                                                         }
                                                     ]
                                                 }
@@ -1033,7 +1006,6 @@
                             },
                             "value": "foo"
                         },
-                        "alias": null,
                         "arguments": [
                             {
                                 "kind": "Argument",
@@ -1143,8 +1115,7 @@
                                 }
                             }
                         ],
-                        "directives": [],
-                        "selectionSet": null
+                        "directives": []
                     }
                 ]
             }
@@ -1155,9 +1126,7 @@
                 "start": 1020,
                 "end": 1086
             },
-            "name": null,
             "operation": "query",
-            "variableDefinitions": null,
             "directives": [],
             "selectionSet": {
                 "kind": "SelectionSet",
@@ -1180,7 +1149,6 @@
                             },
                             "value": "unnamed"
                         },
-                        "alias": null,
                         "arguments": [
                             {
                                 "kind": "Argument",
@@ -1251,8 +1219,7 @@
                                 }
                             }
                         ],
-                        "directives": [],
-                        "selectionSet": null
+                        "directives": []
                     },
                     {
                         "kind": "Field",
@@ -1268,10 +1235,8 @@
                             },
                             "value": "query"
                         },
-                        "alias": null,
                         "arguments": [],
-                        "directives": [],
-                        "selectionSet": null
+                        "directives": []
                     }
                 ]
             }
