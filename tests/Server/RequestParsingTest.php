@@ -177,12 +177,12 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     public function testFailsParsingNonPreParsedPsrRequest()
     {
         try {
-            $this->parsePsrRequest('application/json', json_encode([]));
+            $this->parsePsrRequest('application/json', json_encode(null));
             $this->fail('Expected exception not thrown');
         } catch (InvariantViolation $e) {
             // Expecting parsing exception to be thrown somewhere else:
             $this->assertEquals(
-                'PSR-7 request is expected to provide parsed body for "application/json" requests but got empty array',
+                'PSR-7 request is expected to provide parsed body for "application/json" requests but got null',
                 $e->getMessage()
             );
         }

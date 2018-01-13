@@ -499,12 +499,6 @@ class Helper
                         Utils::printSafeJson($bodyParams)
                     );
                 }
-
-                if (empty($bodyParams)) {
-                    throw new InvariantViolation(
-                        "PSR-7 request is expected to provide parsed body for \"application/json\" requests but got empty array"
-                    );
-                }
             } else {
                 $bodyParams = $request->getParsedBody();
 
