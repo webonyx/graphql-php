@@ -5,6 +5,7 @@
 - [Symfony Bundle](https://github.com/overblog/GraphQLBundle) by Overblog
 - Define types with Doctrine ORM annotations ([for PHP7.1](https://github.com/Ecodev/graphql-doctrine), for [earlier PHP versions](https://github.com/rahuljayaraman/doctrine-graphql))
 - Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Zend Expressive](http://zendframework.github.io/zend-expressive/)) via [Standard Server](executing-queries.md/#using-server)
+- [PSR 15 compliant middleware](https://github.com/phps-cans/psr7-middleware-graphql) for the Standard Server (experimental)
 
 # Tools
 - [GraphiQL](https://github.com/graphql/graphiql) - An in-browser IDE for exploring GraphQL

@@ -18,65 +18,57 @@ use GraphQL\Utils\Utils;
 
 class ParserTest extends \PHPUnit_Framework_TestCase
 {
-    /**
-     * @it asserts that a source to parse was provided
-     */
-    public function testAssertsThatASourceToParseWasProvided()
+    public function testAssertsThatASourceToParseIsNotNull()
     {
-        try {
-            Parser::parse(null);
-            $this->fail('Expected exception was not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals('GraphQL query body is expected to be string, but got NULL', $e->getMessage());
-        }
+        $this->setExpectedException(InvariantViolation::class, 'GraphQL query body is expected to be string, but got NULL');
+        Parser::parse(null);
+    }
 
-        try {
-            Parser::parse(['a' => 'b']);
-            $this->fail('Expected exception was not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals('GraphQL query body is expected to be string, but got array', $e->getMessage());
-        }
+    public function testAssertsThatASourceToParseIsNotArray()
+    {
+        $this->setExpectedException(InvariantViolation::class, 'GraphQL query body is expected to be string, but got array');
+        Parser::parse(['a' => 'b']);
+    }
 
-        try {
-            Parser::parse(new \stdClass());
-            $this->fail('Expected exception was not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals('GraphQL query body is expected to be string, but got stdClass', $e->getMessage());
-        }
+    public function testAssertsThatASourceToParseIsNotObject()
+    {
+        $this->setExpectedException(InvariantViolation::class, 'GraphQL query body is expected to be string, but got stdClass');
+        Parser::parse(new \stdClass());
+    }
+
+    public function parseProvidesUsefulErrors()
+    {
+        return [
+            ['{', "Syntax Error GraphQL (1:2) Expected Name, found <EOF>\n\n1: {\n    ^\n", [1], [new SourceLocation(1, 2)]],
+            ['{ ...MissingOn }
+fragment MissingOn Type
+', "Syntax Error GraphQL (2:20) Expected \"on\", found Name \"Type\"\n\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",],
+            ['{ field: {} }', "Syntax Error GraphQL (1:10) Expected Name, found {\n\n1: { field: {} }\n            ^\n"],
+            ['notanoperation Foo { field }', "Syntax Error GraphQL (1:1) Unexpected Name \"notanoperation\"\n\n1: notanoperation Foo { field }\n   ^\n"],
+            ['...', "Syntax Error GraphQL (1:1) Unexpected ...\n\n1: ...\n   ^\n"],
+        ];
     }
 
     /**
+     * @dataProvider parseProvidesUsefulErrors
      * @it parse provides useful errors
      */
-    public function testParseProvidesUsefulErrors()
+    public function testParseProvidesUsefulErrors($str, $expectedMessage, $expectedPositions = null, $expectedLocations = null)
     {
-        $run = function($num, $str, $expectedMessage, $expectedPositions = null, $expectedLocations = null) {
-            try {
-                Parser::parse($str);
-                $this->fail('Expected exception not thrown in example: ' . $num);
-            } catch (SyntaxError $e) {
-                $this->assertEquals($expectedMessage, $e->getMessage(), "Test case $num failed");
+        try {
+            Parser::parse($str);
+            $this->fail('Expected exception not thrown');
+        } catch (SyntaxError $e) {
+            $this->assertEquals($expectedMessage, $e->getMessage());
 
-                if ($expectedPositions) {
-                    $this->assertEquals($expectedPositions, $e->getPositions());
-                }
-                if ($expectedLocations) {
-                    $this->assertEquals($expectedLocations, $e->getLocations());
-                }
+            if ($expectedPositions) {
+                $this->assertEquals($expectedPositions, $e->getPositions());
             }
-        };
 
-        $run(0, '{', "Syntax Error GraphQL (1:2) Expected Name, found <EOF>\n\n1: {\n    ^\n", [1], [new SourceLocation(1,2)]);
-        $run(1,
-'{ ...MissingOn }
-fragment MissingOn Type
-',
-"Syntax Error GraphQL (2:20) Expected \"on\", found Name \"Type\"\n\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n"
-);
-
-        $run(2, '{ field: {} }', "Syntax Error GraphQL (1:10) Expected Name, found {\n\n1: { field: {} }\n            ^\n");
-        $run(3, 'notanoperation Foo { field }', "Syntax Error GraphQL (1:1) Unexpected Name \"notanoperation\"\n\n1: notanoperation Foo { field }\n   ^\n");
-        $run(4, '...', "Syntax Error GraphQL (1:1) Unexpected ...\n\n1: ...\n   ^\n");
+            if ($expectedLocations) {
+                $this->assertEquals($expectedLocations, $e->getLocations());
+            }
+        }
     }
 
     /**
@@ -84,12 +76,8 @@ fragment MissingOn Type
      */
     public function testParseProvidesUsefulErrorWhenUsingSource()
     {
-        try {
-            Parser::parse(new Source('query', 'MyQuery.graphql'));
-            $this->fail('Expected exception not thrown');
-        } catch (SyntaxError $e) {
-            $this->assertEquals("Syntax Error MyQuery.graphql (1:6) Expected {, found <EOF>\n\n1: query\n        ^\n", $e->getMessage());
-        }
+        $this->setExpectedException(SyntaxError::class, "Syntax Error MyQuery.graphql (1:6) Expected {, found <EOF>\n\n1: query\n        ^\n");
+        Parser::parse(new Source('query', 'MyQuery.graphql'));
     }
 
     /**
@@ -106,15 +94,8 @@ fragment MissingOn Type
      */
     public function testParsesConstantDefaultValues()
     {
-        try {
-            Parser::parse('query Foo($x: Complex = { a: { b: [ $var ] } }) { field }');
-            $this->fail('Expected exception not thrown');
-        } catch (SyntaxError $e) {
-            $this->assertEquals(
-                "Syntax Error GraphQL (1:37) Unexpected $\n\n" . '1: query Foo($x: Complex = { a: { b: [ $var ] } }) { field }' . "\n                                       ^\n",
-                $e->getMessage()
-            );
-        }
+        $this->setExpectedException(SyntaxError::class, "Syntax Error GraphQL (1:37) Unexpected $\n\n" . '1: query Foo($x: Complex = { a: { b: [ $var ] } }) { field }' . "\n                                       ^\n");
+        Parser::parse('query Foo($x: Complex = { a: { b: [ $var ] } }) { field }');
     }
 
     /**

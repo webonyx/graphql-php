@@ -4,6 +4,7 @@ namespace GraphQL\Tests;
 use GraphQL\Error\Debug;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Schema;
@@ -38,197 +39,227 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(500, $server->getUnexpectedErrorStatus());
         $this->assertEquals(DocumentValidator::allRules(), $server->getValidationRules());
 
-        try {
-            $server->getSchema();
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals('Schema query must be Object Type but got: NULL', $e->getMessage());
-        }
+        $this->setExpectedException(InvariantViolation::class, 'Schema query must be Object Type but got: NULL');
+        $server->getSchema();
+    }
+
+    public function testCannotUseSetQueryTypeAndSetSchema()
+    {
+        $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Schema on Server: Query Type is already set ' .
+            '(GraphQL\Server::setQueryType is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setQueryType($queryType)
+            ->setSchema($schema);
+    }
+
+    public function testCannotUseSetMutationTypeAndSetSchema()
+    {
+        $mutationType = $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Schema on Server: Mutation Type is already set ' .
+            '(GraphQL\Server::setMutationType is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setMutationType($mutationType)
+            ->setSchema($schema);
+    }
+
+    public function testCannotUseSetSubscriptionTypeAndSetSchema()
+    {
+        $subscriptionType = $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Schema on Server: Subscription Type is already set ' .
+            '(GraphQL\Server::setSubscriptionType is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setSubscriptionType($subscriptionType)
+            ->setSchema($schema);
+    }
+
+    public function testCannotUseSetDirectivesAndSetSchema()
+    {
+        $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Schema on Server: Directives are already set ' .
+            '(GraphQL\Server::setDirectives is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setDirectives(Directive::getInternalDirectives())
+            ->setSchema($schema);
+    }
+
+    public function testCannotUseAddTypesAndSetSchema()
+    {
+        $mutationType = $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Schema on Server: Additional types are already set ' .
+            '(GraphQL\Server::addTypes is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->addTypes([$queryType, $mutationType])
+            ->setSchema($schema);
+    }
+
+    public function testCannotUseSetTypeResolutionStrategyAndSetSchema()
+    {
+        $mutationType = $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Schema on Server: Type Resolution Strategy is already set ' .
+            '(GraphQL\Server::setTypeResolutionStrategy is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setTypeResolutionStrategy(new EagerResolution([$queryType, $mutationType]))
+            ->setSchema($schema);
+    }
+
+    public function testCannotUseSetSchemaAndSetQueryType()
+    {
+        $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Query Type on Server: Schema is already set ' .
+            '(GraphQL\Server::setQueryType is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setSchema($schema)
+            ->setQueryType($queryType);
+    }
+
+    public function testCannotUseSetSchemaAndSetMutationType()
+    {
+        $mutationType = $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Mutation Type on Server: Schema is already set ' .
+            '(GraphQL\Server::setMutationType is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setSchema($schema)
+            ->setMutationType($mutationType);
+    }
+
+    public function testCannotUseSetSchemaAndSetSubscriptionType()
+    {
+        $subscriptionType = $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Subscription Type on Server: Schema is already set ' .
+            '(GraphQL\Server::setSubscriptionType is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setSchema($schema)
+            ->setSubscriptionType($subscriptionType);
+    }
+
+    public function testCannotUseSetSchemaAndSetDirectives()
+    {
+        $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Directives on Server: Schema is already set ' .
+            '(GraphQL\Server::setDirectives is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setSchema($schema)
+            ->setDirectives([]);
+
+    }
+
+    public function testCannotUseSetSchemaAndAddTypes()
+    {
+        $mutationType = $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Types on Server: Schema is already set ' .
+            '(GraphQL\Server::addTypes is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setSchema($schema)
+            ->addTypes([$queryType, $mutationType]);
+    }
+
+    public function testCanUseSetSchemaAndAddEmptyTypes()
+    {
+        $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        // But empty types should work (as they don't change anything):
+        Server::create()
+            ->setSchema($schema)
+            ->addTypes([]);
+    }
+
+    public function testCannotUseSetSchemaAndSetTypeResolutionStrategy()
+    {
+        $mutationType = $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Type Resolution Strategy on Server: Schema is already set ' .
+            '(GraphQL\Server::setTypeResolutionStrategy is mutually exclusive with GraphQL\Server::setSchema)');
+        Server::create()
+            ->setSchema($schema)
+            ->setTypeResolutionStrategy(new EagerResolution([$queryType, $mutationType]));
+
+    }
+
+    public function testCannotUseSetSchemaAndSetSchema()
+    {
+        $queryType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
+        $schema = new Schema([
+            'query' => $queryType,
+        ]);
+
+        $this->setExpectedException(InvariantViolation::class,
+            'Cannot set Schema on Server: Different schema is already set');
+        Server::create()
+            ->setSchema($schema)
+            ->setSchema(new Schema(['query' => $queryType]));
+        $this->fail('Expected exception not thrown');
     }
 
     public function testSchemaDefinition()
     {
         $mutationType = $queryType = $subscriptionType = new ObjectType(['name' => 'A', 'fields' => ['a' => Type::string()]]);
-
         $schema = new Schema([
-            'query' => $queryType
+            'query' => $queryType,
         ]);
 
-        try {
-            Server::create()
-                ->setQueryType($queryType)
-                ->setSchema($schema);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Schema on Server: Query Type is already set '.
-                '(GraphQL\Server::setQueryType is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setMutationType($mutationType)
-                ->setSchema($schema);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Schema on Server: Mutation Type is already set '.
-                '(GraphQL\Server::setMutationType is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setSubscriptionType($subscriptionType)
-                ->setSchema($schema);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Schema on Server: Subscription Type is already set '.
-                '(GraphQL\Server::setSubscriptionType is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setDirectives(Directive::getInternalDirectives())
-                ->setSchema($schema);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Schema on Server: Directives are already set '.
-                '(GraphQL\Server::setDirectives is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->addTypes([$queryType, $mutationType])
-                ->setSchema($schema);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Schema on Server: Additional types are already set '.
-                '(GraphQL\Server::addTypes is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-
-        try {
-            Server::create()
-                ->setTypeResolutionStrategy(new EagerResolution([$queryType, $mutationType]))
-                ->setSchema($schema);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Schema on Server: Type Resolution Strategy is already set '.
-                '(GraphQL\Server::setTypeResolutionStrategy is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setSchema($schema)
-                ->setQueryType($queryType);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Query Type on Server: Schema is already set '.
-                '(GraphQL\Server::setQueryType is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setSchema($schema)
-                ->setMutationType($mutationType);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Mutation Type on Server: Schema is already set '.
-                '(GraphQL\Server::setMutationType is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setSchema($schema)
-                ->setSubscriptionType($subscriptionType);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Subscription Type on Server: Schema is already set '.
-                '(GraphQL\Server::setSubscriptionType is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setSchema($schema)
-                ->setDirectives([]);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Directives on Server: Schema is already set '.
-                '(GraphQL\Server::setDirectives is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setSchema($schema)
-                ->addTypes([$queryType, $mutationType]);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Types on Server: Schema is already set '.
-                '(GraphQL\Server::addTypes is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-        // But empty types should work (as they don't change anything):
-        Server::create()
-            ->setSchema($schema)
-            ->addTypes([]);
-
-        try {
-            Server::create()
-                ->setSchema($schema)
-                ->setTypeResolutionStrategy(new EagerResolution([$queryType, $mutationType]));
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Type Resolution Strategy on Server: Schema is already set '.
-                '(GraphQL\Server::setTypeResolutionStrategy is mutually exclusive with GraphQL\Server::setSchema)',
-                $e->getMessage()
-            );
-        }
-
-        try {
-            Server::create()
-                ->setSchema($schema)
-                ->setSchema(new Schema(['query' => $queryType]));
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set Schema on Server: Different schema is already set',
-                $e->getMessage()
-            );
-        }
-
-
-        // This should not throw:
         $server = Server::create()
             ->setSchema($schema);
 
@@ -273,12 +304,9 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $ast = $server->parse('{q}');
         $this->assertInstanceOf('GraphQL\Language\AST\DocumentNode', $ast);
 
-        try {
-            $server->parse('{q');
-            $this->fail('Expected exception not thrown');
-        } catch (\GraphQL\Error\SyntaxError $e) {
-            $this->assertContains('{q', $e->getMessage());
-        }
+        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('{q', '/') . '/');
+        $server->parse('{q');
+        $this->fail('Expected exception not thrown');
     }
 
     public function testValidate()
@@ -292,16 +320,9 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $errors);
         $this->assertNotEmpty($errors);
 
-        try {
-            $server = Server::create();
-            $server->validate($ast);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot validate, schema contains errors: Schema query must be Object Type but got: NULL',
-                $e->getMessage()
-            );
-        }
+        $this->setExpectedException(InvariantViolation::class, 'Cannot validate, schema contains errors: Schema query must be Object Type but got: NULL');
+        $server = Server::create();
+        $server->validate($ast);
     }
 
     public function testPromiseAdapter()
@@ -315,15 +336,8 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $this->assertSame($adapter1, $server->getPromiseAdapter());
         $server->setPromiseAdapter($adapter1);
 
-        try {
-            $server->setPromiseAdapter($adapter2);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            $this->assertEquals(
-                'Cannot set promise adapter: Different adapter is already set',
-                $e->getMessage()
-            );
-        }
+        $this->setExpectedException(InvariantViolation::class, 'Cannot set promise adapter: Different adapter is already set');
+        $server->setPromiseAdapter($adapter2);
     }
 
     public function testValidationRules()

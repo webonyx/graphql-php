@@ -1,3 +1,39 @@
+## Upgrade v0.10.x > dev-master
+
+### Possibly Breaking: AST to array serialization excludes nulls
+Most users won't be affected. It *may* affect you only if you do your own manipulations 
+with exported AST. 
+
+Example of json-serialized AST before the change:
+```json
+{
+    "kind": "Field",
+    "loc": null,
+    "name": {
+        "kind": "Name",
+        "loc": null,
+        "value": "id"
+    },
+    "alias": null,
+    "arguments": [],
+    "directives": [],
+    "selectionSet": null
+}
+```
+After the change:
+```json
+{
+    "kind": "Field",
+    "name": {
+        "kind": "Name",
+        "value": "id"
+    },
+    "arguments": [],
+    "directives": []
+}
+```
+
+
 ## Upgrade v0.8.x, v0.9.x > v0.10.x
 
 ### Breaking: changed minimum PHP version from 5.4 to 5.5

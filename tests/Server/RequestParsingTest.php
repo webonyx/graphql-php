@@ -158,27 +158,20 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    public function testFailsParsingInvalidRawJsonRequest()
+    public function testFailsParsingInvalidRawJsonRequestRaw()
     {
         $body = 'not really{} a json';
 
-        try {
+        $this->setExpectedException(RequestError::class, 'Could not parse JSON: Syntax error');
             $this->parseRawRequest('application/json', $body);
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('Could not parse JSON: Syntax error', $e->getMessage());
         }
 
-        try {
+    public function testFailsParsingInvalidRawJsonRequestPsr()
+    {
+        $body = 'not really{} a json';
+
+        $this->setExpectedException(InvariantViolation::class, 'PSR-7 request is expected to provide parsed body for "application/json" requests but got null');
             $this->parsePsrRequest('application/json', $body);
-            $this->fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            // Expecting parsing exception to be thrown somewhere else:
-            $this->assertEquals(
-                'PSR-7 request is expected to provide parsed body for "application/json" requests but got null',
-                $e->getMessage()
-            );
-        }
     }
 
     public function testFailsParsingNonPreParsedPsrRequest()
@@ -197,82 +190,62 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
 
     // There is no equivalent for psr request, because it should throw
 
-    public function testFailsParsingNonArrayOrObjectJsonRequest()
+    public function testFailsParsingNonArrayOrObjectJsonRequestRaw()
     {
         $body = '"str"';
 
-        try {
+        $this->setExpectedException(RequestError::class, 'GraphQL Server expects JSON object or array, but got "str"');
             $this->parseRawRequest('application/json', $body);
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('GraphQL Server expects JSON object or array, but got "str"', $e->getMessage());
         }
 
-        try {
+    public function testFailsParsingNonArrayOrObjectJsonRequestPsr()
+    {
+        $body = '"str"';
+
+        $this->setExpectedException(RequestError::class, 'GraphQL Server expects JSON object or array, but got "str"');
             $this->parsePsrRequest('application/json', $body);
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('GraphQL Server expects JSON object or array, but got "str"', $e->getMessage());
         }
 
-    }
-
-    public function testFailsParsingInvalidContentType()
+    public function testFailsParsingInvalidContentTypeRaw()
     {
         $contentType = 'not-supported-content-type';
         $body = 'test';
 
-        try {
+        $this->setExpectedException(RequestError::class, 'Unexpected content type: "not-supported-content-type"');
+        $this->parseRawRequest($contentType, $body);
+    }
+
+    public function testFailsParsingInvalidContentTypePsr()
+    {
+        $contentType = 'not-supported-content-type';
+        $body = 'test';
+
+        $this->setExpectedException(RequestError::class, 'Unexpected content type: "not-supported-content-type"');
             $this->parseRawRequest($contentType, $body);
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('Unexpected content type: "not-supported-content-type"', $e->getMessage());
         }
 
-        try {
-            $this->parsePsrRequest($contentType, $body);
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('Unexpected content type: "not-supported-content-type"', $e->getMessage());
-        }
-    }
-
-    public function testFailsWithMissingContentType()
+    public function testFailsWithMissingContentTypeRaw()
     {
-        try {
+        $this->setExpectedException(RequestError::class, 'Missing "Content-Type" header');
             $this->parseRawRequest(null, 'test');
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('Missing "Content-Type" header', $e->getMessage());
         }
 
-        try {
+    public function testFailsWithMissingContentTypePsr()
+    {
+        $this->setExpectedException(RequestError::class, 'Missing "Content-Type" header');
             $this->parsePsrRequest(null, 'test');
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('Missing "Content-Type" header', $e->getMessage());
-        }
     }
 
-    public function testFailsOnMethodsOtherThanPostOrGet()
+    public function testFailsOnMethodsOtherThanPostOrGetRaw()
     {
-        $body = [
-            'query' => '{my query}',
-        ];
+        $this->setExpectedException(RequestError::class, 'HTTP Method "PUT" is not supported');
+        $this->parseRawRequest('application/json', json_encode([]), "PUT");
+    }
 
-        try {
-            $this->parseRawRequest('application/json', json_encode($body), "PUT");
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('HTTP Method "PUT" is not supported', $e->getMessage());
-        }
-
-        try {
-            $this->parsePsrRequest('application/json', json_encode($body), "PUT");
-            $this->fail('Expected exception not thrown');
-        } catch (RequestError $e) {
-            $this->assertEquals('HTTP Method "PUT" is not supported', $e->getMessage());
-        }
+    public function testFailsOnMethodsOtherThanPostOrGetPsr()
+    {
+        $this->setExpectedException(RequestError::class, 'HTTP Method "PUT" is not supported');
+        $this->parsePsrRequest('application/json', json_encode([]), "PUT");
     }
 
     /**
