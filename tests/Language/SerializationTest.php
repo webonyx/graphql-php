@@ -26,6 +26,23 @@ class SerializationTest extends \PHPUnit_Framework_TestCase
         $this->assertNodesAreEqual($parsedAst, $actualAst);
     }
 
+    public function testSerializeSupportsNoLocationOption()
+    {
+        $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
+        $ast = Parser::parse($kitchenSink, ['noLocation' => true]);
+        $expectedAst = json_decode(file_get_contents(__DIR__ . '/kitchen-sink-noloc.ast'), true);
+        $this->assertEquals($expectedAst, $ast->toArray(true));
+    }
+
+    public function testUnserializeSupportsNoLocationOption()
+    {
+        $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
+        $serializedAst = json_decode(file_get_contents(__DIR__ . '/kitchen-sink-noloc.ast'), true);
+        $actualAst = AST::fromArray($serializedAst);
+        $parsedAst = Parser::parse($kitchenSink, ['noLocation' => true]);
+        $this->assertNodesAreEqual($parsedAst, $actualAst);
+    }
+
     /**
      * Compares two nodes by actually iterating over all NodeLists, properly comparing locations (ignoring tokens), etc
      *
