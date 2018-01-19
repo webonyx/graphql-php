@@ -2,7 +2,7 @@
   "name":              "webonyx/graphql-php",
   "description":       "A PHP port of GraphQL reference implementation",
   "type":              "library",
-  "license":           "BSD",
+  "license":           "MIT",
   "homepage":          "https://github.com/webonyx/graphql-php",
   "keywords":          [
     "graphql",
