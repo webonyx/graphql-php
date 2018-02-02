@@ -152,7 +152,8 @@ class GraphQL
                     $context,
                     $variableValues,
                     $operationName,
-                    $fieldResolver
+                    $fieldResolver,
+                    $validationRules
                 );
             }
         } catch (Error $e) {
@@ -171,6 +172,9 @@ class GraphQL
      * @param mixed $contextValue
      * @param array|null $variableValues
      * @param string|null $operationName
+     * @param callable $fieldResolver
+     * @param array $validationRules
+     *
      * @return Promise|array
      */
     public static function execute(
@@ -179,7 +183,9 @@ class GraphQL
         $rootValue = null,
         $contextValue = null,
         $variableValues = null,
-        $operationName = null
+        $operationName = null,
+        callable $fieldResolver = null,
+        array $validationRules = null
     )
     {
         $result = self::promiseToExecute(
@@ -189,7 +195,9 @@ class GraphQL
             $rootValue,
             $contextValue,
             $variableValues,
-            $operationName
+            $operationName,
+            $fieldResolver,
+            $validationRules
         );
 
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -211,6 +219,8 @@ class GraphQL
      * @param mixed $contextValue
      * @param array|null $variableValues
      * @param string|null $operationName
+     * @param callable $fieldResolver
+     * @param array $validationRules
      *
      * @return ExecutionResult|Promise
      */
@@ -220,7 +230,9 @@ class GraphQL
         $rootValue = null,
         $contextValue = null,
         $variableValues = null,
-        $operationName = null
+        $operationName = null,
+        callable $fieldResolver = null,
+        array $validationRules = null
     )
     {
         $result = self::promiseToExecute(
@@ -230,7 +242,9 @@ class GraphQL
             $rootValue,
             $contextValue,
             $variableValues,
-            $operationName
+            $operationName,
+            $fieldResolver,
+            $validationRules
         );
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
             $result = $promiseAdapter->wait($result);
