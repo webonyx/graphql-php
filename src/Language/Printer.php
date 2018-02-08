@@ -307,12 +307,14 @@ class Printer
      */
     public function block($array)
     {
-        return $array && $this->length($array) ? $this->indent("{\n" . $this->join($array, "\n")) . "\n}" : '{}';
+        return ($array && $this->length($array))
+            ? "{\n" . $this->indent($this->join($array, "\n")) . "\n}"
+            : '{}';
     }
 
     public function indent($maybeString)
     {
-        return $maybeString ? str_replace("\n", "\n  ", $maybeString) : '';
+        return $maybeString ? '  ' . str_replace("\n", "\n  ", $maybeString) : '';
     }
 
     public function manyList($start, $list, $separator, $end)
@@ -344,12 +346,9 @@ class Printer
      * a single-line, adding a leading blank line would strip that whitespace.
      */
     private function printBlockString($value, $isDescription) {
+        $escaped = str_replace('"""', '\\"""', $value);
         return (($value[0] === ' ' || $value[0] === "\t") && strpos($value, "\n") === false)
-            ? ('"""' . str_replace('"""', '\\"""', $value) . '"""')
-            : (
-                $isDescription
-                    ? ("\"\"\"\n" . str_replace('"""', '\\"""', $value) . "\n\"\"\"")
-                    : ($this->indent("\"\"\"\n" . str_replace('"""', '\\"""', $value)) . "\n\"\"\"")
-                );
+            ? ('"""' . preg_replace('/"$/', "\"\n", $escaped) . '"""')
+            : ("\"\"\"\n" . ($isDescription ? $escaped : $this->indent($escaped)) . "\n\"\"\"");
     }
 }

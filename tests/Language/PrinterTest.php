@@ -106,7 +106,7 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
 ';
     $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
-        
+
     /**
      * @it correctly prints block strings with a first line indentation
      */
@@ -126,6 +126,25 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
         first
       line
     indentation
+  """)
+}
+';
+      $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+    }
+
+    /**
+     * @it correctly prints single-line with leading space and quotation
+     */
+    public function testCorrectlyPrintsSingleLineStringsWithLeadingSpaceAndQuotation()
+    {
+        $mutationAstWithArtifacts = Parser::parse(
+            '{
+  field(arg: """    space-led value "quoted string"
+  """)
+}'
+          );
+          $expected = '{
+  field(arg: """    space-led value "quoted string"
   """)
 }
 ';
