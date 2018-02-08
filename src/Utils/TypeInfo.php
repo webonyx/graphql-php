@@ -331,7 +331,7 @@ class TypeInfo
             case NodeKind::INLINE_FRAGMENT:
             case NodeKind::FRAGMENT_DEFINITION:
                 $typeConditionNode = $node->typeCondition;
-                $outputType = $typeConditionNode ? self::typeFromAST($schema, $typeConditionNode) : $this->getType();
+                $outputType = $typeConditionNode ? self::typeFromAST($schema, $typeConditionNode) : Type::getNamedType($this->getType());
                 $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null; // push
                 break;
 
