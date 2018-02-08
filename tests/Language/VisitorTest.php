@@ -1127,7 +1127,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $typeInfo = new TypeInfo(TestCase::getDefaultSchema());
 
-        $ast = Parser::parse('{ human(id: 4) { name, pets { name }, unknown } }');
+        $ast = Parser::parse('{ human(id: 4) { name, pets { ... { name } }, unknown } }');
         Visitor::visit($ast, Visitor::visitWithTypeInfo($typeInfo, [
             'enter' => function ($node) use ($typeInfo, &$visited) {
                 $parentType = $typeInfo->getParentType();
@@ -1179,10 +1179,14 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             ['enter', 'Name', 'pets', 'Human', '[Pet]', null],
             ['leave', 'Name', 'pets', 'Human', '[Pet]', null],
             ['enter', 'SelectionSet', null, 'Pet', '[Pet]', null],
+            ['enter', 'InlineFragment', null, 'Pet', 'Pet', null],
+            ['enter', 'SelectionSet', null, 'Pet', 'Pet', null],
             ['enter', 'Field', null, 'Pet', 'String', null],
             ['enter', 'Name', 'name', 'Pet', 'String', null],
             ['leave', 'Name', 'name', 'Pet', 'String', null],
             ['leave', 'Field', null, 'Pet', 'String', null],
+            ['leave', 'SelectionSet', null, 'Pet', 'Pet', null],
+            ['leave', 'InlineFragment', null, 'Pet', 'Pet', null],
             ['leave', 'SelectionSet', null, 'Pet', '[Pet]', null],
             ['leave', 'Field', null, 'Human', '[Pet]', null],
             ['enter', 'Field', null, 'Human', null, null],
