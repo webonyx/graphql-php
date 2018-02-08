@@ -655,9 +655,11 @@ class Parser
                     'loc' => $this->loc($token)
                 ]);
             case Token::STRING:
+            case Token::BLOCK_STRING:
                 $this->lexer->advance();
                 return new StringValueNode([
                     'value' => $token->value,
+                    'block' => $token->kind === Token::BLOCK_STRING,
                     'loc' => $this->loc($token)
                 ]);
             case Token::NAME:

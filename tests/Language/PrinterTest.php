@@ -93,6 +93,46 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it correctly prints single-line block strings with leading space
+     */
+    public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace()
+    {
+        $mutationAstWithArtifacts = Parser::parse(
+          '{ field(arg: """    space-led value""") }'
+        );
+        $expected = '{
+  field(arg: """    space-led value""")
+}
+';
+    $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+    }
+        
+    /**
+     * @it correctly prints block strings with a first line indentation
+     */
+    public function testCorrectlyPrintsBlockStringsWithAFirstLineIndentation()
+    {
+        $mutationAstWithArtifacts = Parser::parse(
+            '{
+  field(arg: """
+        first
+      line
+    indentation
+  """)
+}'
+          );
+          $expected = '{
+  field(arg: """
+        first
+      line
+    indentation
+  """)
+}
+';
+      $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+    }
+
+    /**
      * @it prints kitchen sink
      */
     public function testPrintsKitchenSink()
@@ -146,7 +186,9 @@ subscription StoryLikeSubscription($input: StoryLikeSubscribeInput) {
 }
 
 fragment frag on Friend {
-  foo(size: $size, bar: $b, obj: {key: "value"})
+  foo(size: $size, bar: $b, obj: {key: "value", block: """
+    block string uses \"""
+  """})
 }
 
 {
