@@ -58,6 +58,14 @@ class Parser
      * (By default, the parser creates AST nodes that know the location
      * in the source that they correspond to. This configuration flag
      * disables that behavior for performance or testing.)
+     * 
+     * allowLegacySDLImplementsInterfaces: boolean,
+     * (If enabled, the parser will parse implemented interfaces with no `&`
+     * character between each interface. Otherwise, the parser will follow the
+     * current specification.
+     * 
+     * This option is provided to ease adoption of the final SDL specification
+     * and will be removed in a future major release.)
      *
      * @api
      * @param Source|string $source
@@ -966,9 +974,19 @@ class Parser
         $types = [];
         if ($this->lexer->token->value === 'implements') {
             $this->lexer->advance();
+            // Optional leading ampersand
+            $this->skip(Token::AMP);
             do {
                 $types[] = $this->parseNamedType();
-            } while ($this->peek(Token::NAME));
+            } while (
+                $this->skip(Token::AMP) ||
+                // Legacy support for the SDL?
+                (
+                    isset($this->lexer->options['allowLegacySDLImplementsInterfaces']) &&
+                    $this->peek(Token::NAME)
+                )
+                
+            );
         }
         return $types;
     }
