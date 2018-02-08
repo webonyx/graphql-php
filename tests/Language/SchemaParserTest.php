@@ -165,7 +165,7 @@ type Hello {
      */
     public function testSimpleTypeInheritingMultipleInterfaces()
     {
-        $body = 'type Hello implements Wo, rld { }';
+        $body = 'type Hello implements Wo & rld { field: String }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $doc = Parser::parse($body);
 
@@ -177,15 +177,58 @@ type Hello {
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'interfaces' => [
                         $this->typeNode('Wo', $loc(22,24)),
-                        $this->typeNode('rld', $loc(26,29))
+                        $this->typeNode('rld', $loc(27,30)),
                     ],
                     'directives' => [],
-                    'fields' => [],
-                    'loc' => $loc(0, 33),
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(33,38)),
+                            $this->typeNode('String', $loc(40,46)),
+                            $loc(33,46)
+                        ),
+                    ],
+                    'loc' => $loc(0, 48),
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0, 33)
+            'loc' => $loc(0, 48)
+        ];
+
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it Simple type inheriting multiple interfaces with leading ampersand
+     */
+    public function testSimpleTypeInheritingMultipleInterfacesWithLeadingAmpersand()
+    {
+        $body = 'type Hello implements & Wo & rld { field: String }';
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $doc = Parser::parse($body);
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
+                    'name' => $this->nameNode('Hello', $loc(5, 10)),
+                    'interfaces' => [
+                        $this->typeNode('Wo', $loc(24,26)),
+                        $this->typeNode('rld', $loc(29,32)),
+                    ],
+                    'directives' => [],
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(35,40)),
+                            $this->typeNode('String', $loc(42,48)),
+                            $loc(35,48)
+                        ),
+                    ],
+                    'loc' => $loc(0, 50),
+                    'description' => null
+                ]
+            ],
+            'loc' => $loc(0, 50)
         ];
 
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
@@ -703,6 +746,31 @@ type Hello {
             'loc' => $loc(0, 149)
         ];
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it Option: allowLegacySDLImplementsInterfaces
+     */
+    public function testOptionAllowLegacySDLImplementationsInterfaces()
+    {
+        $body = 'type Hello implements Wo rld { field: String }';
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $thrown = false;
+        try {
+            Parser::parse($body);
+        } catch (SyntaxError $e) {
+            $thrown = true;
+        }
+
+        $this->assertTrue($thrown, 'Parsing old SDL should throw without legacy option');
+
+        $doc = Parser::parse($body, ['allowLegacySDLImplementsInterfaces' => true]);
+        $expected = [
+            $this->typeNode('Wo', $loc(22,24)),
+            $this->typeNode('rld', $loc(25,28)),
+        ];
+
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc)['definitions'][0]['interfaces']);
     }
 
     private function typeNode($name, $loc)

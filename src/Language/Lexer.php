@@ -150,6 +150,8 @@ class Lexer
                 return $this->readComment($line, $col, $prev);
             case 36: // $
                 return new Token(Token::DOLLAR, $position, $position + 1, $line, $col, $prev);
+            case 38: // &
+                return new Token(Token::AMP, $position, $position + 1, $line, $col, $prev);
             case 40: // (
                 return new Token(Token::PAREN_L, $position, $position + 1, $line, $col, $prev);
             case 41: // )
