@@ -140,7 +140,7 @@ class Printer
                 },
                 NodeKind::STRING => function(StringValueNode $node) {
                     if ($node->block) {
-                       return "\"\"\"\n" . str_replace('"""', '\\"""', $node->value) . "\n\"\"\"";
+                       return $this->printBlockString($node->value);
                     }
                     return json_encode($node->value);
                 },
@@ -309,5 +309,16 @@ class Printer
                 )
             )
             : '';
+    }
+
+    /**
+     * Print a block string in the indented block form by adding a leading and
+     * trailing blank line. However, if a block string starts with whitespace and is
+     * a single-line, adding a leading blank line would strip that whitespace.
+     */
+    private function printBlockString($value) {
+        return ($value[0] === ' ' || $value[0] === "\t") && strpos($value, "\n") === false
+            ? '"""' . str_replace('"""', '\\"""', $value) . '"""'
+            : $this->indent("\"\"\"\n" . str_replace('"""', '\\"""', $value)) . "\n\"\"\"";
     }
 }
