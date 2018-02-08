@@ -1127,6 +1127,7 @@
                 "end": 1086
             },
             "operation": "query",
+            "variableDefinitions": [],
             "directives": [],
             "selectionSet": {
                 "kind": "SelectionSet",

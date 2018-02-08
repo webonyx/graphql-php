@@ -276,7 +276,7 @@ fragment $fragmentName on Type {
                     'loc' => $loc(0, 40),
                     'operation' => 'query',
                     'name' => null,
-                    'variableDefinitions' => null,
+                    'variableDefinitions' => [],
                     'directives' => [],
                     'selectionSet' => [
                         'kind' => NodeKind::SELECTION_SET,
@@ -333,6 +333,81 @@ fragment $fragmentName on Type {
                                                 'kind' => NodeKind::NAME,
                                                 'loc' => $loc(30, 34),
                                                 'value' => 'name'
+                                            ],
+                                            'arguments' => [],
+                                            'directives' => [],
+                                            'selectionSet' => null
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $this->nodeToArray($result));
+    }
+
+    /**
+     * @it creates ast from nameless query without variables
+     */
+    public function testParseCreatesAstFromNamelessQueryWithoutVariables()
+    {
+        $source = new Source('query {
+  node {
+    id
+  }
+}
+');
+        $result = Parser::parse($source);
+
+        $loc = function($start, $end) use ($source) {
+            return [
+                'start' => $start,
+                'end' => $end
+            ];
+        };
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'loc' => $loc(0, 30),
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OPERATION_DEFINITION,
+                    'loc' => $loc(0, 29),
+                    'operation' => 'query',
+                    'name' => null,
+                    'variableDefinitions' => [],
+                    'directives' => [],
+                    'selectionSet' => [
+                        'kind' => NodeKind::SELECTION_SET,
+                        'loc' => $loc(6, 29),
+                        'selections' => [
+                            [
+                                'kind' => NodeKind::FIELD,
+                                'loc' => $loc(10, 27),
+                                'alias' => null,
+                                'name' => [
+                                    'kind' => NodeKind::NAME,
+                                    'loc' => $loc(10, 14),
+                                    'value' => 'node'
+                                ],
+                                'arguments' => [],
+                                'directives' => [],
+                                'selectionSet' => [
+                                    'kind' => NodeKind::SELECTION_SET,
+                                    'loc' => $loc(15, 27),
+                                    'selections' => [
+                                        [
+                                            'kind' => NodeKind::FIELD,
+                                            'loc' => $loc(21, 23),
+                                            'alias' => null,
+                                            'name' => [
+                                                'kind' => NodeKind::NAME,
+                                                'loc' => $loc(21, 23),
+                                                'value' => 'id'
                                             ],
                                             'arguments' => [],
                                             'directives' => [],

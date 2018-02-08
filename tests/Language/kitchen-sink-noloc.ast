@@ -575,6 +575,7 @@
         {
             "kind": "OperationDefinition",
             "operation": "query",
+            "variableDefinitions": [],
             "directives": [],
             "selectionSet": {
                 "kind": "SelectionSet",
