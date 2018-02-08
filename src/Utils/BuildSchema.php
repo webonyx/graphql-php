@@ -41,7 +41,7 @@ class BuildSchema
     /**
      * @param Type $innerType
      * @param TypeNode $inputTypeNode
-     * @return Type 
+     * @return Type
      */
     private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
     {
@@ -75,15 +75,21 @@ class BuildSchema
      * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
      *
+     * Accepts options as a third argument:
+     *
+     *    - commentDescriptions:
+     *        Provide true to use preceding comments as the description.
+     *
+     *
      * @api
      * @param DocumentNode $ast
      * @param callable $typeConfigDecorator
      * @return Schema
      * @throws Error
      */
-    public static function buildAST(DocumentNode $ast, callable $typeConfigDecorator = null)
+    public static function buildAST(DocumentNode $ast, callable $typeConfigDecorator = null, array $options = [])
     {
-        $builder = new self($ast, $typeConfigDecorator);
+        $builder = new self($ast, $typeConfigDecorator, $options);
         return $builder->buildSchema();
     }
 
@@ -92,14 +98,16 @@ class BuildSchema
     private $nodeMap;
     private $typeConfigDecorator;
     private $loadedTypeDefs;
+    private $options;
 
-    public function __construct(DocumentNode $ast, callable $typeConfigDecorator = null)
+    public function __construct(DocumentNode $ast, callable $typeConfigDecorator = null, array $options = [])
     {
         $this->ast = $ast;
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->loadedTypeDefs = [];
+        $this->options = $options;
     }
-    
+
     public function buildSchema()
     {
         $schemaDef = null;
@@ -584,17 +592,28 @@ class BuildSchema
     }
 
     /**
-     * Given an ast node, returns its string description based on a contiguous
-     * block full-line of comments preceding it.
+     * Given an ast node, returns its string description.
      */
     public function getDescription($node)
+    {
+        if ($node->description) {
+            return $node->description->value;
+        }
+        if (isset($this->options['commentDescriptions'])) {
+            $rawValue = $this->getLeadingCommentBlock($node);
+            if ($rawValue !== null) {
+                return BlockString::value("\n" . $rawValue);
+            }
+        }
+    }
+
+    public function getLeadingCommentBlock($node)
     {
         $loc = $node->loc;
         if (!$loc || !$loc->startToken) {
             return ;
         }
         $comments = [];
-        $minSpaces = null;
         $token = $loc->startToken->prev;
         while (
             $token &&
@@ -604,22 +623,17 @@ class BuildSchema
             $token->line !== $token->prev->line
         ) {
             $value = $token->value;
-            $spaces = $this->leadingSpaces($value);
-            if ($minSpaces === null || $spaces < $minSpaces) {
-                $minSpaces = $spaces;
-            }
             $comments[] = $value;
             $token = $token->prev;
         }
-        return implode("\n", array_map(function($comment) use ($minSpaces) {
-            return mb_substr(str_replace("\n", '', $comment), $minSpaces);
-        }, array_reverse($comments)));
+
+        return implode("\n", array_reverse($comments));
     }
 
     /**
      * A helper function to build a GraphQLSchema directly from a source
      * document.
-     * 
+     *
      * @api
      * @param DocumentNode|Source|string $source
      * @param callable $typeConfigDecorator
@@ -629,12 +643,6 @@ class BuildSchema
     {
         $doc = $source instanceof DocumentNode ? $source : Parser::parse($source);
         return self::buildAST($doc, $typeConfigDecorator);
-    }
-
-    // Count the number of spaces on the starting side of a string.
-    private function leadingSpaces($str)
-    {
-        return strlen($str) - strlen(ltrim($str));
     }
 
     public function cannotExecuteSchema()

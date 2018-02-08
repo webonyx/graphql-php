@@ -9,4 +9,9 @@ class StringValueNode extends Node implements ValueNode
      * @var string
      */
     public $value;
+
+    /**
+     * @var boolean|null
+     */
+    public $block;
 }

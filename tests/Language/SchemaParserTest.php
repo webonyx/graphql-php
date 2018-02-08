@@ -46,6 +46,93 @@ type Hello {
     }
 
     /**
+     * @it parses type with description string
+     */
+    public function testParsesTypeWithDescriptionString()
+    {
+        $body = '
+"Description"
+type Hello {
+  world: String
+}';
+        $doc = Parser::parse($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
+                    'name' => $this->nameNode('Hello', $loc(20, 25)),
+                    'interfaces' => [],
+                    'directives' => [],
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('world', $loc(30, 35)),
+                            $this->typeNode('String', $loc(37, 43)),
+                            $loc(30, 43)
+                        )
+                    ],
+                    'loc' => $loc(1, 45),
+                    'description' => [
+                        'kind' => NodeKind::STRING,
+                        'value' => 'Description',
+                        'loc' => $loc(1, 14),
+                        'block' => false
+                    ]
+                ]
+            ],
+            'loc' => $loc(0, 45)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it parses type with description multi-linestring
+     */
+    public function testParsesTypeWithDescriptionMultiLineString()
+    {
+        $body = '
+"""
+Description
+"""
+# Even with comments between them
+type Hello {
+  world: String
+}';
+        $doc = Parser::parse($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
+                    'name' => $this->nameNode('Hello', $loc(60, 65)),
+                    'interfaces' => [],
+                    'directives' => [],
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('world', $loc(70, 75)),
+                            $this->typeNode('String', $loc(77, 83)),
+                            $loc(70, 83)
+                        )
+                    ],
+                    'loc' => $loc(1, 85),
+                    'description' => [
+                        'kind' => NodeKind::STRING,
+                        'value' => 'Description',
+                        'loc' => $loc(1, 20),
+                        'block' => true
+                    ]
+                ]
+            ],
+            'loc' => $loc(0, 85)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
      * @it Simple extension
      */
     public function testSimpleExtension()
@@ -85,6 +172,20 @@ extend type Hello {
             'loc' => $loc(0, 39)
         ];
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it Extension do not include descriptions
+     * @expectedException \GraphQL\Error\SyntaxError
+     * @expectedExceptionMessage Syntax Error GraphQL (2:1)
+     */
+    public function testExtensionDoNotIncludeDescriptions() {
+        $body = '
+"Description"
+extend type Hello {
+    world: String
+}';
+        Parser::parse($body);
     }
 
     /**
@@ -662,47 +763,6 @@ input Hello {
 }';
         $this->setExpectedException('GraphQL\Error\SyntaxError');
         Parser::parse($body);
-    }
-
-    /**
-     * @it Simple type
-     */
-    public function testSimpleTypeDescriptionInComments()
-    {
-        $body = '
-# This is a simple type description.
-# It is multiline *and includes formatting*.
-type Hello {
-  # And this is a field description
-  world: String
-}';
-        $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
-
-        $fieldNode = $this->fieldNode(
-            $this->nameNode('world', $loc(134, 139)),
-            $this->typeNode('String', $loc(141, 147)),
-            $loc(134, 147)
-        );
-        $fieldNode['description'] = " And this is a field description\n";
-        $expected = [
-            'kind' => NodeKind::DOCUMENT,
-            'definitions' => [
-                [
-                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
-                    'name' => $this->nameNode('Hello', $loc(88, 93)),
-                    'interfaces' => [],
-                    'directives' => [],
-                    'fields' => [
-                        $fieldNode
-                    ],
-                    'loc' => $loc(83, 149),
-                    'description' => " This is a simple type description.\n It is multiline *and includes formatting*.\n"
-                ]
-            ],
-            'loc' => $loc(0, 149)
-        ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     private function typeNode($name, $loc)

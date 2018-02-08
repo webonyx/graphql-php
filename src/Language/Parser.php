@@ -340,7 +340,7 @@ class Parser
                 case 'fragment':
                     return $this->parseFragmentDefinition();
 
-                // Note: the Type System IDL is an experimental non-spec addition.
+                // Note: The schema definition language is an experimental addition.
                 case 'schema':
                 case 'scalar':
                 case 'type':
@@ -352,6 +352,11 @@ class Parser
                 case 'directive':
                     return $this->parseTypeSystemDefinition();
             }
+        }
+
+        // Note: The schema definition language is an experimental addition.
+        if ($this->peekDescription()) {
+            return $this->parseTypeSystemDefinition();
         }
 
         throw $this->unexpected();
@@ -655,11 +660,8 @@ class Parser
                     'loc' => $this->loc($token)
                 ]);
             case Token::STRING:
-                $this->lexer->advance();
-                return new StringValueNode([
-                    'value' => $token->value,
-                    'loc' => $this->loc($token)
-                ]);
+            case Token::BLOCK_STRING:
+                return $this->parseStringLiteral();
             case Token::NAME:
                 if ($token->value === 'true' || $token->value === 'false') {
                     $this->lexer->advance();
@@ -688,6 +690,20 @@ class Parser
                 break;
         }
         throw $this->unexpected();
+    }
+
+    /**
+     * @return StringValueNode
+     */
+    function parseStringLiteral() {
+        $token = $this->lexer->token;
+        $this->lexer->advance();
+
+        return new StringValueNode([
+            'value' => $token->value,
+            'block' => $token->kind === Token::BLOCK_STRING,
+            'loc' => $this->loc($token)
+        ]);
     }
 
     /**
@@ -850,8 +866,13 @@ class Parser
      */
     function parseTypeSystemDefinition()
     {
-        if ($this->peek(Token::NAME)) {
-            switch ($this->lexer->token->value) {
+        // Many definitions begin with a description and require a lookahead.
+        $keywordToken = $this->peekDescription()
+            ? $this->lexer->lookahead()
+            : $this->lexer->token;
+
+        if ($keywordToken->kind === Token::NAME) {
+            switch ($keywordToken->value) {
                 case 'schema': return $this->parseSchemaDefinition();
                 case 'scalar': return $this->parseScalarTypeDefinition();
                 case 'type': return $this->parseObjectTypeDefinition();
@@ -865,6 +886,22 @@ class Parser
         }
 
         throw $this->unexpected();
+    }
+
+    /**
+     * @return bool
+     */
+    function peekDescription() {
+        return $this->peek(Token::STRING) || $this->peek(Token::BLOCK_STRING);
+    }
+
+    /**
+     * @return StringValueNode|null
+     */
+    function parseDescription() {
+        if ($this->peekDescription()) {
+            return $this->parseStringLiteral();
+        }
     }
 
     /**
@@ -914,11 +951,10 @@ class Parser
     function parseScalarTypeDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('scalar');
         $name = $this->parseName();
         $directives = $this->parseDirectives();
-
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
 
         return new ScalarTypeDefinitionNode([
             'name' => $name,
@@ -935,6 +971,7 @@ class Parser
     function parseObjectTypeDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('type');
         $name = $this->parseName();
         $interfaces = $this->parseImplementsInterfaces();
@@ -945,8 +982,6 @@ class Parser
             [$this, 'parseFieldDefinition'],
             Token::BRACE_R
         );
-
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
 
         return new ObjectTypeDefinitionNode([
             'name' => $name,
@@ -980,13 +1015,12 @@ class Parser
     function parseFieldDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $name = $this->parseName();
         $args = $this->parseArgumentDefs();
         $this->expect(Token::COLON);
         $type = $this->parseTypeReference();
         $directives = $this->parseDirectives();
-
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
 
         return new FieldDefinitionNode([
             'name' => $name,
@@ -1016,6 +1050,7 @@ class Parser
     function parseInputValueDef()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $name = $this->parseName();
         $this->expect(Token::COLON);
         $type = $this->parseTypeReference();
@@ -1024,7 +1059,6 @@ class Parser
             $defaultValue = $this->parseConstValue();
         }
         $directives = $this->parseDirectives();
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
         return new InputValueDefinitionNode([
             'name' => $name,
             'type' => $type,
@@ -1042,6 +1076,7 @@ class Parser
     function parseInterfaceTypeDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('interface');
         $name = $this->parseName();
         $directives = $this->parseDirectives();
@@ -1050,8 +1085,6 @@ class Parser
             [$this, 'parseFieldDefinition'],
             Token::BRACE_R
         );
-
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
 
         return new InterfaceTypeDefinitionNode([
             'name' => $name,
@@ -1069,13 +1102,12 @@ class Parser
     function parseUnionTypeDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('union');
         $name = $this->parseName();
         $directives = $this->parseDirectives();
         $this->expect(Token::EQUALS);
         $types = $this->parseUnionMembers();
-
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
 
         return new UnionTypeDefinitionNode([
             'name' => $name,
@@ -1112,6 +1144,7 @@ class Parser
     function parseEnumTypeDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('enum');
         $name = $this->parseName();
         $directives = $this->parseDirectives();
@@ -1120,8 +1153,6 @@ class Parser
             [$this, 'parseEnumValueDefinition'],
             Token::BRACE_R
         );
-
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
 
         return new EnumTypeDefinitionNode([
             'name' => $name,
@@ -1138,10 +1169,9 @@ class Parser
     function parseEnumValueDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $name = $this->parseName();
         $directives = $this->parseDirectives();
-
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
 
         return new EnumValueDefinitionNode([
             'name' => $name,
@@ -1158,6 +1188,7 @@ class Parser
     function parseInputObjectTypeDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('input');
         $name = $this->parseName();
         $directives = $this->parseDirectives();
@@ -1166,8 +1197,6 @@ class Parser
             [$this, 'parseInputValueDef'],
             Token::BRACE_R
         );
-
-        $description = $this->getDescriptionFromAdjacentCommentTokens($start);
 
         return new InputObjectTypeDefinitionNode([
             'name' => $name,
@@ -1204,6 +1233,7 @@ class Parser
     function parseDirectiveDefinition()
     {
         $start = $this->lexer->token;
+        $description = $this->parseDescription();
         $this->expectKeyword('directive');
         $this->expect(Token::AT);
         $name = $this->parseName();
@@ -1215,7 +1245,8 @@ class Parser
             'name' => $name,
             'arguments' => $args,
             'locations' => $locations,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
+            'description' => $description
         ]);
     }
 
@@ -1231,29 +1262,5 @@ class Parser
             $locations[] = $this->parseName();
         } while ($this->skip(Token::PIPE));
         return $locations;
-    }
-
-    /**
-     * @param Token $nameToken
-     * @return null|string
-     */
-    private function getDescriptionFromAdjacentCommentTokens(Token $nameToken)
-    {
-        $description = null;
-
-        $currentToken = $nameToken;
-        $previousToken = $currentToken->prev;
-
-        while ($previousToken->kind == Token::COMMENT
-            && ($previousToken->line + 1) == $currentToken->line
-        ) {
-            $description = $previousToken->value . $description;
-
-            // walk the tokens backwards until no longer adjacent comments
-            $currentToken = $previousToken;
-            $previousToken = $currentToken->prev;
-        }
-
-        return $description;
     }
 }

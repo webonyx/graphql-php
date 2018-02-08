@@ -27,6 +27,7 @@ class Token
     const INT = 'Int';
     const FLOAT = 'Float';
     const STRING = 'String';
+    const BLOCK_STRING = 'BlockString';
     const COMMENT = 'Comment';
 
     /**
@@ -57,6 +58,7 @@ class Token
         $description[self::INT] = 'Int';
         $description[self::FLOAT] = 'Float';
         $description[self::STRING] = 'String';
+        $description[self::BLOCK_STRING] = 'BlockString';
         $description[self::COMMENT] = 'Comment';
 
         return $description[$kind];
