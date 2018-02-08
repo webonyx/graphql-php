@@ -409,7 +409,6 @@ class Parser
         switch ($operationToken->value) {
             case 'query': return 'query';
             case 'mutation': return 'mutation';
-            // Note: subscription is an experimental non-spec addition.
             case 'subscription': return 'subscription';
         }
 
