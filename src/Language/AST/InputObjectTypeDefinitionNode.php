@@ -24,7 +24,7 @@ class InputObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
     public $fields;
 
     /**
-     * @var string
+     * @var StringValueNode|null
      */
     public $description;
 }

@@ -133,17 +133,17 @@ class Visitor
 
         NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
         NodeKind::OPERATION_TYPE_DEFINITION => ['type'],
-        NodeKind::SCALAR_TYPE_DEFINITION => ['name', 'directives'],
-        NodeKind::OBJECT_TYPE_DEFINITION => ['name', 'interfaces', 'directives', 'fields'],
-        NodeKind::FIELD_DEFINITION => ['name', 'arguments', 'type', 'directives'],
-        NodeKind::INPUT_VALUE_DEFINITION => ['name', 'type', 'defaultValue', 'directives'],
-        NodeKind::INTERFACE_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
-        NodeKind::UNION_TYPE_DEFINITION => [ 'name', 'directives', 'types' ],
-        NodeKind::ENUM_TYPE_DEFINITION => [ 'name', 'directives', 'values' ],
-        NodeKind::ENUM_VALUE_DEFINITION => [ 'name', 'directives' ],
-        NodeKind::INPUT_OBJECT_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
+        NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'],
+        NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'],
+        NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'],
+        NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'],
+        NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'],
+        NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'],
+        NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'],
+        NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'],
+        NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'],
         NodeKind::TYPE_EXTENSION_DEFINITION => [ 'definition' ],
-        NodeKind::DIRECTIVE_DEFINITION => [ 'name', 'arguments', 'locations' ]
+        NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations']
     ];
 
     /**

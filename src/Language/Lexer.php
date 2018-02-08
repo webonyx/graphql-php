@@ -92,13 +92,18 @@ class Lexer
      */
     public function advance()
     {
-        $token = $this->lastToken = $this->token;
+        $this->lastToken = $this->token;
+        $token = $this->token = $this->lookahead();
+        return $token;
+    }
 
+    public function lookahead()
+    {
+        $token = $this->token;
         if ($token->kind !== Token::EOF) {
             do {
-                $token = $token->next = $this->readToken($token);
+                $token = $token->next ?: ($token->next = $this->readToken($token));
             } while ($token->kind === Token::COMMENT);
-            $this->token = $token;
         }
         return $token;
     }

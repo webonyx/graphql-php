@@ -24,7 +24,7 @@ class UnionTypeDefinitionNode extends Node implements TypeDefinitionNode
     public $types = [];
 
     /**
-     * @var string
+     * @var StringValueNode|null
      */
     public $description;
 }
