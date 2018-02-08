@@ -295,7 +295,8 @@ class Executor
                 return null;
             })
             ->then(function ($data) {
-                return new ExecutionResult((array) $data, $this->exeContext->errors);
+                return (new ExecutionResult((array) $data, $this->exeContext->errors))
+                    ->setContextValue($this->exeContext->contextValue);
             });
     }
 

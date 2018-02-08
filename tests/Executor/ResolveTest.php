@@ -1,10 +1,13 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\ExtendableContext;
 use GraphQL\GraphQL;
 use GraphQL\Schema;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\ExtendableContextTrait;
 
 require_once __DIR__ . '/TestClasses.php';
 
@@ -112,6 +115,94 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(
             ['data' => ['test' => '["Source!",{"aStr":"String!","aInt":-123}]']],
             GraphQL::execute($schema, '{ test(aInt: -123, aStr: "String!") }', 'Source!')
+        );
+    }
+
+    /**
+     * @it Correctly serializes extensions from resolveInfo.
+     */
+    public function testAddingExtensionsWithinResolver()
+    {
+        $schema = $this->buildSchema([
+            'type' => Type::string(),
+            'args' => [
+                'aStr' => ['type' => Type::string()],
+                'aInt' => ['type' => Type::int()],
+            ],
+            'resolve' => function ($source, $args, ExtendableContext $context, ResolveInfo $resolveInfo) {
+                $context->setExtension('cache-control', ['path' => $resolveInfo->path, 'cache' => 'none']);
+                return json_encode([$source, $args]);
+            }
+        ]);
+
+        $executionResult = GraphQL::executeQuery($schema, '{ test }', null, new ExtendableContextImplementation())
+            ->setExtensionsHandler([ExtendableContextTrait::class, 'handler']);
+
+        $this->assertEquals(
+            ['data' => ['test' => '[null,[]]'], 'extensions' => ['cache-control' => ['path' => ['test'], 'cache' => 'none']]],
+            $executionResult->toArray()
+        );
+    }
+
+    /**
+     * @it Correctly returns null when attempting to retrieve an extension that has not been set.
+     */
+    public function testRetrievingUnsetExtensionReturnsNull()
+    {
+        $schema = $this->buildSchema([
+            'type' => Type::string(),
+            'args' => [
+                'aStr' => ['type' => Type::string()],
+                'aInt' => ['type' => Type::int()],
+            ],
+            'resolve' => function ($source, $args, ExtendableContext $context) {
+                $this->assertEquals(null, $context->getExtension('cache-control'));
+                return json_encode([$source, $args]);
+            }
+        ]);
+
+        GraphQL::executeQuery($schema, '{ test }', null, new ExtendableContextImplementation())
+            ->setExtensionsHandler([ExtendableContextTrait::class, 'handler'])
+            ->toArray();
+    }
+
+    /**
+     * @it Correctly enables coordination of setting extensions between resolvers.
+     */
+    public function testSetExtensionsAreRetrievable()
+    {
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'a' => [
+                        'type' => Type::string(),
+                        'resolve' => function ($source, $args, ExtendableContext $context) {
+                            $actualCost = $context->getExtension('queryCost') ?: 0;
+                            $actualCost += 10;
+                            $context->setExtension('queryCost', $actualCost);
+                            return 'foo';
+                        }
+                    ],
+                    'b' => [
+                        'type' => Type::string(),
+                        'resolve' => function ($source, $args, ExtendableContext $context) {
+                            $actualCost = $context->getExtension('queryCost') ?: 0;
+                            $actualCost += 10;
+                            $context->setExtension('queryCost', $actualCost);
+                            return 'bar';
+                        }
+                    ]
+                ]
+            ])
+        ]);
+
+        $executionResult = GraphQL::executeQuery($schema, '{ a, b }', null, new ExtendableContextImplementation())
+            ->setExtensionsHandler([ExtendableContextTrait::class, 'handler']);
+
+        $this->assertEquals(
+            ['data' => ['a' => 'foo', 'b' => 'bar'], 'extensions' => ['queryCost' => 20]],
+            $executionResult->toArray()
         );
     }
 }

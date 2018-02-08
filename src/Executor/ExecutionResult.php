@@ -53,6 +53,16 @@ class ExecutionResult implements \JsonSerializable
     private $errorsHandler;
 
     /**
+     * @var callable
+     */
+    private $extensionsHandler;
+
+    /**
+     * @var mixed
+     */
+    private $contextValue;
+
+    /**
      * @param array $data
      * @param array $errors
      * @param array $extensions
@@ -62,6 +72,32 @@ class ExecutionResult implements \JsonSerializable
         $this->data = $data;
         $this->errors = $errors;
         $this->extensions = $extensions;
+    }
+
+    public function setContextValue($contextValue)
+    {
+        $this->contextValue = $contextValue;
+        return $this;
+    }
+
+    /**
+     * Define custom logic for extensions handling.
+     *
+     * Expected handler signature is: function (array $extensions, $contextValue = null): array
+     *
+     * Default handler is:
+     * function (array $extensions, $contextValue = null) {
+     *     return (array) $extensions;
+     * }
+     *
+     * @api
+     * @param callable $extensionsHandler
+     * @return $this
+     */
+    public function setExtensionsHandler(callable $extensionsHandler)
+    {
+        $this->extensionsHandler = $extensionsHandler;
+        return $this;
     }
 
     /**
@@ -138,9 +174,15 @@ class ExecutionResult implements \JsonSerializable
         if (null !== $this->data) {
             $result['data'] = $this->data;
         }
-        
-        if (!empty($this->extensions)) {
-            $result['extensions'] = (array) $this->extensions;
+
+        $extensionsHandler = $this->extensionsHandler ?: function(array $extensions, $contextValue) {
+            return (array) $extensions;
+        };
+
+        $result['extensions'] = $extensionsHandler($this->extensions, $this->contextValue);
+
+        if (empty($result['extensions'])) {
+            unset($result['extensions']);
         }
 
         return $result;
