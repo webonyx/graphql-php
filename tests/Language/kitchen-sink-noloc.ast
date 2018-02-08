@@ -556,7 +556,20 @@
                                             },
                                             "value": {
                                                 "kind": "StringValue",
-                                                "value": "value"
+                                                "value": "value",
+                                                "block": false
+                                            }
+                                        },
+                                        {
+                                            "kind": "ObjectField",
+                                            "name": {
+                                                "kind": "Name",
+                                                "value": "block"
+                                            },
+                                            "value": {
+                                                "kind": "StringValue",
+                                                "value": "block string uses \"\"\"",
+                                                "block": true
                                             }
                                         }
                                     ]
