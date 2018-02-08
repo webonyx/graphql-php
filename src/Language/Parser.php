@@ -370,7 +370,7 @@ class Parser
             return new OperationDefinitionNode([
                 'operation' => 'query',
                 'name' => null,
-                'variableDefinitions' => null,
+                'variableDefinitions' => new NodeList([]),
                 'directives' => new NodeList([]),
                 'selectionSet' => $this->parseSelectionSet(),
                 'loc' => $this->loc($start)
