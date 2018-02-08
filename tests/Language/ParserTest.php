@@ -497,7 +497,8 @@ fragment $fragmentName on Type {
                 [
                     'kind' => NodeKind::STRING,
                     'loc' => ['start' => 5, 'end' => 10],
-                    'value' => 'abc'
+                    'value' => 'abc',
+                    'block' => false
                 ]
             ]
         ], $this->nodeToArray(Parser::parseValue('[123 "abc"]')));

@@ -2,7 +2,7 @@
     "kind": "Document",
     "loc": {
         "start": 0,
-        "end": 1087
+        "end": 1136
     },
     "definitions": [
         {
@@ -959,7 +959,7 @@
             "kind": "FragmentDefinition",
             "loc": {
                 "start": 942,
-                "end": 1018
+                "end": 1067
             },
             "name": {
                 "kind": "Name",
@@ -989,14 +989,14 @@
                 "kind": "SelectionSet",
                 "loc": {
                     "start": 966,
-                    "end": 1018
+                    "end": 1067
                 },
                 "selections": [
                     {
                         "kind": "Field",
                         "loc": {
                             "start": 970,
-                            "end": 1016
+                            "end": 1065
                         },
                         "name": {
                             "kind": "Name",
@@ -1071,13 +1071,13 @@
                                 "kind": "Argument",
                                 "loc": {
                                     "start": 996,
-                                    "end": 1015
+                                    "end": 1064
                                 },
                                 "value": {
                                     "kind": "ObjectValue",
                                     "loc": {
                                         "start": 1001,
-                                        "end": 1015
+                                        "end": 1064
                                     },
                                     "fields": [
                                         {
@@ -1100,7 +1100,32 @@
                                                     "start": 1007,
                                                     "end": 1014
                                                 },
-                                                "value": "value"
+                                                "value": "value",
+                                                "block": false
+                                            }
+                                        },
+                                        {
+                                            "kind": "ObjectField",
+                                            "loc": {
+                                                "start": 1016,
+                                                "end": 1063
+                                            },
+                                            "name": {
+                                                "kind": "Name",
+                                                "loc": {
+                                                    "start": 1016,
+                                                    "end": 1021
+                                                },
+                                                "value": "block"
+                                            },
+                                            "value": {
+                                                "kind": "StringValue",
+                                                "loc": {
+                                                    "start": 1023,
+                                                    "end": 1063
+                                                },
+                                                "value": "block string uses \"\"\"",
+                                                "block": true
                                             }
                                         }
                                     ]
@@ -1123,8 +1148,8 @@
         {
             "kind": "OperationDefinition",
             "loc": {
-                "start": 1020,
-                "end": 1086
+                "start": 1069,
+                "end": 1135
             },
             "operation": "query",
             "variableDefinitions": [],
@@ -1132,21 +1157,21 @@
             "selectionSet": {
                 "kind": "SelectionSet",
                 "loc": {
-                    "start": 1020,
-                    "end": 1086
+                    "start": 1069,
+                    "end": 1135
                 },
                 "selections": [
                     {
                         "kind": "Field",
                         "loc": {
-                            "start": 1024,
-                            "end": 1075
+                            "start": 1073,
+                            "end": 1124
                         },
                         "name": {
                             "kind": "Name",
                             "loc": {
-                                "start": 1024,
-                                "end": 1031
+                                "start": 1073,
+                                "end": 1080
                             },
                             "value": "unnamed"
                         },
@@ -1154,22 +1179,22 @@
                             {
                                 "kind": "Argument",
                                 "loc": {
-                                    "start": 1032,
-                                    "end": 1044
+                                    "start": 1081,
+                                    "end": 1093
                                 },
                                 "value": {
                                     "kind": "BooleanValue",
                                     "loc": {
-                                        "start": 1040,
-                                        "end": 1044
+                                        "start": 1089,
+                                        "end": 1093
                                     },
                                     "value": true
                                 },
                                 "name": {
                                     "kind": "Name",
                                     "loc": {
-                                        "start": 1032,
-                                        "end": 1038
+                                        "start": 1081,
+                                        "end": 1087
                                     },
                                     "value": "truthy"
                                 }
@@ -1177,22 +1202,22 @@
                             {
                                 "kind": "Argument",
                                 "loc": {
-                                    "start": 1046,
-                                    "end": 1059
+                                    "start": 1095,
+                                    "end": 1108
                                 },
                                 "value": {
                                     "kind": "BooleanValue",
                                     "loc": {
-                                        "start": 1054,
-                                        "end": 1059
+                                        "start": 1103,
+                                        "end": 1108
                                     },
                                     "value": false
                                 },
                                 "name": {
                                     "kind": "Name",
                                     "loc": {
-                                        "start": 1046,
-                                        "end": 1052
+                                        "start": 1095,
+                                        "end": 1101
                                     },
                                     "value": "falsey"
                                 }
@@ -1200,21 +1225,21 @@
                             {
                                 "kind": "Argument",
                                 "loc": {
-                                    "start": 1061,
-                                    "end": 1074
+                                    "start": 1110,
+                                    "end": 1123
                                 },
                                 "value": {
                                     "kind": "NullValue",
                                     "loc": {
-                                        "start": 1070,
-                                        "end": 1074
+                                        "start": 1119,
+                                        "end": 1123
                                     }
                                 },
                                 "name": {
                                     "kind": "Name",
                                     "loc": {
-                                        "start": 1061,
-                                        "end": 1068
+                                        "start": 1110,
+                                        "end": 1117
                                     },
                                     "value": "nullish"
                                 }
@@ -1225,14 +1250,14 @@
                     {
                         "kind": "Field",
                         "loc": {
-                            "start": 1079,
-                            "end": 1084
+                            "start": 1128,
+                            "end": 1133
                         },
                         "name": {
                             "kind": "Name",
                             "loc": {
-                                "start": 1079,
-                                "end": 1084
+                                "start": 1128,
+                                "end": 1133
                             },
                             "value": "query"
                         },

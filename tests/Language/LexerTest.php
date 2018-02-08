@@ -223,7 +223,101 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         ], (array) $this->lexOne('"\u1234\u5678\u90AB\uCDEF"'));
     }
 
-    public function reportsUsefulErrors() {
+    /**
+     * @it lexes block strings
+     */
+    public function testLexesBlockString()
+    {
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 12,
+            'value' => 'simple'
+        ], (array) $this->lexOne('"""simple"""'));
+
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 19,
+            'value' => ' white space '
+        ], (array) $this->lexOne('""" white space """'));
+
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 22,
+            'value' => 'contains " quote'
+        ], (array) $this->lexOne('"""contains " quote"""'));
+
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 31,
+            'value' => 'contains """ triplequote'
+        ], (array) $this->lexOne('"""contains \\""" triplequote"""'));
+
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 16,
+            'value' => "multi\nline"
+        ], (array) $this->lexOne("\"\"\"multi\nline\"\"\""));
+
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 28,
+            'value' => "multi\nline\nnormalized"
+        ], (array) $this->lexOne("\"\"\"multi\rline\r\nnormalized\"\"\""));
+
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 32,
+            'value' => 'unescaped \\n\\r\\b\\t\\f\\u1234'
+        ], (array) $this->lexOne('"""unescaped \\n\\r\\b\\t\\f\\u1234"""'));
+
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 19,
+            'value' => 'slashes \\\\ \\/'
+        ], (array) $this->lexOne('"""slashes \\\\ \\/"""'));
+
+        $this->assertArraySubset([
+            'kind' => Token::BLOCK_STRING,
+            'start' => 0,
+            'end' => 68,
+            'value' => "spans\n  multiple\n    lines"
+        ], (array) $this->lexOne("\"\"\"
+
+        spans
+          multiple
+            lines
+
+        \"\"\""));
+    }
+
+    public function reportsUsefulBlockStringErrors() {
+        return [
+            ['"""', "Syntax Error GraphQL (1:4) Unterminated string.\n\n1: \"\"\"\n      ^\n"],
+            ['"""no end quote', "Syntax Error GraphQL (1:16) Unterminated string.\n\n1: \"\"\"no end quote\n                  ^\n"],
+            ['"""contains unescaped ' . json_decode('"\u0007"') . ' control char"""', "Syntax Error GraphQL (1:23) Invalid character within String: \"\\u0007\""],
+            ['"""null-byte is not ' . json_decode('"\u0000"') . ' end of file"""', "Syntax Error GraphQL (1:21) Invalid character within String: \"\\u0000\""],
+        ];
+    }
+
+    /**
+     * @dataProvider reportsUsefulBlockStringErrors
+     * @it lex reports useful block string errors
+     */
+    public function testReportsUsefulBlockStringErrors($str, $expectedMessage)
+    {
+        $this->setExpectedException(SyntaxError::class, $expectedMessage);
+        $this->lexOne($str);
+    }
+
+    public function reportsUsefulStringErrors() {
         return [
             ['"', "Syntax Error GraphQL (1:2) Unterminated string.\n\n1: \"\n    ^\n"],
             ['"no end quote', "Syntax Error GraphQL (1:14) Unterminated string.\n\n1: \"no end quote\n                ^\n"],
@@ -243,10 +337,10 @@ class LexerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider reportsUsefulErrors
+     * @dataProvider reportsUsefulStringErrors
      * @it lex reports useful string errors
      */
-    public function testReportsUsefulErrors($str, $expectedMessage)
+    public function testLexReportsUsefulStringErrors($str, $expectedMessage)
     {
         $this->setExpectedException(SyntaxError::class, $expectedMessage);
         $this->lexOne($str);

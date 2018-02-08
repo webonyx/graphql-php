@@ -139,6 +139,9 @@ class Printer
                     return $node->value;
                 },
                 NodeKind::STRING => function(StringValueNode $node) {
+                    if ($node->block) {
+                       return "\"\"\"\n" . str_replace('"""', '\\"""', $node->value) . "\n\"\"\"";
+                    }
                     return json_encode($node->value);
                 },
                 NodeKind::BOOLEAN => function(BooleanValueNode $node) {
