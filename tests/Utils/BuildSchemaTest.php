@@ -17,11 +17,11 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
 {
     // Describe: Schema Builder
 
-    private function cycleOutput($body)
+    private function cycleOutput($body, $options = [])
     {
         $ast = Parser::parse($body);
-        $schema = BuildSchema::buildAST($ast);
-        return "\n" . SchemaPrinter::doPrint($schema);
+        $schema = BuildSchema::buildAST($ast, null, $options);
+        return "\n" . SchemaPrinter::doPrint($schema, $options);
     }
 
     /**
@@ -35,7 +35,7 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
                 str: String
             }
         '));
-        
+
         $result = GraphQL::execute($schema, '{ str }', ['str' => 123]);
         $this->assertEquals($result['data'], ['str' => 123]);
     }
@@ -111,6 +111,42 @@ type Hello {
      */
     public function testSupportsDescriptions()
     {
+      $body = '
+schema {
+  query: Hello
+}
+
+"""This is a directive"""
+directive @foo(
+  """It has an argument"""
+  arg: Int
+) on FIELD
+
+"""With an enum"""
+enum Color {
+  RED
+
+  """Not a creative color"""
+  GREEN
+  BLUE
+}
+
+"""What a great type"""
+type Hello {
+  """And a field to boot"""
+  str: String
+}
+';
+
+        $output = $this->cycleOutput($body);
+        $this->assertEquals($body, $output);
+    }
+
+    /**
+     * @it Supports descriptions
+     */
+    public function testSupportsOptionForCommentDescriptions()
+    {
         $body = '
 schema {
   query: Hello
@@ -137,7 +173,7 @@ type Hello {
   str: String
 }
 ';
-        $output = $this->cycleOutput($body);
+        $output = $this->cycleOutput($body, [ 'commentDescriptions' => true ]);
         $this->assertEquals($body, $output);
     }
 
@@ -1114,45 +1150,5 @@ type World implements Hello {
         $this->assertArrayHasKey('Color', $types);
         $this->assertArrayHasKey('Hello', $types);
         $this->assertArrayHasKey('World', $types);
-    }
-
-    public function testScalarDescription()
-    {
-        $schemaDef = '
-# An ISO-8601 encoded UTC date string.
-scalar Date
-
-type Query {
-    now: Date
-    test: String
-}
-';
-        $q = '
-{
-  __type(name: "Date") {
-    name
-    description
-  }
-  strType: __type(name: "String") {
-    name
-    description
-  }
-}
-';
-        $schema = BuildSchema::build($schemaDef);
-        $result = GraphQL::executeQuery($schema, $q)->toArray();
-        $expected = ['data' => [
-            '__type' => [
-                'name' => 'Date',
-                'description' => 'An ISO-8601 encoded UTC date string.'
-            ],
-            'strType' => [
-                'name' => 'String',
-                'description' => 'The `String` scalar type represents textual data, represented as UTF-8' . "\n" .
-                    'character sequences. The String type is most often used by GraphQL to'. "\n" .
-                    'represent free-form human-readable text.'
-            ]
-        ]];
-        $this->assertEquals($expected, $result);
     }
 }

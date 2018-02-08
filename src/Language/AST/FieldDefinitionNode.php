@@ -29,7 +29,7 @@ class FieldDefinitionNode extends Node
     public $directives;
 
     /**
-     * @var string
+     * @var StringValueNode|null
      */
     public $description;
 }

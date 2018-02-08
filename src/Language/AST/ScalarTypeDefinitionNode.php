@@ -19,7 +19,7 @@ class ScalarTypeDefinitionNode extends Node implements TypeDefinitionNode
     public $directives;
 
     /**
-     * @var string
+     * @var StringValueNode|null
      */
     public $description;
 }

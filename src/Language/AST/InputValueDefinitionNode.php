@@ -29,7 +29,7 @@ class InputValueDefinitionNode extends Node
     public $directives;
 
     /**
-     * @var string
+     * @var StringValueNode|null
      */
     public $description;
 }
