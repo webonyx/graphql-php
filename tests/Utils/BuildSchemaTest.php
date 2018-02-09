@@ -36,8 +36,8 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
             }
         '));
 
-        $result = GraphQL::execute($schema, '{ str }', ['str' => 123]);
-        $this->assertEquals($result['data'], ['str' => 123]);
+        $result = GraphQL::executeQuery($schema, '{ str }', ['str' => 123]);
+        $this->assertEquals(['str' => 123], $result->toArray(true)['data']);
     }
 
     /**
@@ -52,7 +52,7 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
             }
         ");
 
-        $result = GraphQL::execute(
+        $result = GraphQL::executeQuery(
             $schema,
             '{ add(x: 34, y: 55) }',
             [
@@ -61,7 +61,7 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
                 }
             ]
         );
-        $this->assertEquals($result, ['data' => ['add' => 89]]);
+        $this->assertEquals(['data' => ['add' => 89]], $result->toArray(true));
     }
 
     /**
@@ -445,6 +445,135 @@ type WorldTwo {
 ';
         $output = $this->cycleOutput($body);
         $this->assertEquals($output, $body);
+    }
+
+    /**
+     * @it Specifying Union type using __typename
+     */
+    public function testSpecifyingUnionTypeUsingTypename()
+    {
+        $schema = BuildSchema::buildAST(Parser::parse('
+            schema {
+              query: Root
+            }
+            
+            type Root {
+              fruits: [Fruit]
+            }
+            
+            union Fruit = Apple | Banana
+            
+            type Apple {
+              color: String
+            }
+            
+            type Banana {
+              length: Int
+            }
+        '));
+        $query = '
+            {
+              fruits {
+                ... on Apple {
+                  color
+                }
+                ... on Banana {
+                  length
+                }
+              }
+            }
+        ';
+        $root = [
+            'fruits' => [
+                [
+                    'color' => 'green',
+                    '__typename' => 'Apple',
+                ],
+                [
+                    'length' => 5,
+                    '__typename' => 'Banana',
+                ]
+            ]
+        ];
+        $expected = [
+            'data' => [
+                'fruits' => [
+                    ['color' => 'green'],
+                    ['length' => 5],
+                ]
+            ]
+        ];
+
+        $result = GraphQL::executeQuery($schema, $query, $root);
+        $this->assertEquals($expected, $result->toArray(true));
+    }
+
+    /**
+     * @it Specifying Interface type using __typename
+     */
+    public function testSpecifyingInterfaceUsingTypename()
+    {
+        $schema = BuildSchema::buildAST(Parser::parse('
+            schema {
+              query: Root
+            }
+            
+            type Root {
+              characters: [Character]
+            }
+            
+            interface Character {
+              name: String!
+            }
+            
+            type Human implements Character {
+              name: String!
+              totalCredits: Int
+            }
+            
+            type Droid implements Character {
+              name: String!
+              primaryFunction: String
+            }
+        '));
+        $query = '
+            {
+              characters {
+                name
+                ... on Human {
+                  totalCredits
+                }
+                ... on Droid {
+                  primaryFunction
+                }
+              }
+            }
+        ';
+        $root = [
+            'characters' => [
+                [
+                    'name' => 'Han Solo',
+                    'totalCredits' => 10,
+                    '__typename' => 'Human',
+                ],
+                [
+                    'name' => 'R2-D2',
+                    'primaryFunction' => 'Astromech',
+                    '__typename' => 'Droid',
+                ]
+            ]
+        ];
+        $expected = [
+            'data' => [
+                'characters' => [
+                    ['name' => 'Han Solo', 'totalCredits' => 10],
+                    ['name' => 'R2-D2', 'primaryFunction' => 'Astromech'],
+                ]
+            ]
+        ];
+
+        $result = GraphQL::executeQuery($schema, $query, $root);
+        $this->assertEquals($expected, $result->toArray(true));
     }
 
     /**
@@ -1093,9 +1222,8 @@ interface Hello {
         $this->assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         $this->assertEquals('Hello', $defaultConfig['name']);
         $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
-        $this->assertInstanceOf(\Closure::class, $defaultConfig['resolveType']);
         $this->assertArrayHasKey('description', $defaultConfig);
-        $this->assertCount(5, $defaultConfig);
+        $this->assertCount(4, $defaultConfig);
         $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
         $this->assertEquals('My description of Hello', $schema->getType('Hello')->description);
     }

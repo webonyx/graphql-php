@@ -158,15 +158,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
                 "{$this->name} can include {$objType->name} type only once."
             );
             $includedTypeNames[$objType->name] = true;
-            if (!isset($this->config['resolveType'])) {
-                Utils::invariant(
-                    isset($objType->config['isTypeOf']) && is_callable($objType->config['isTypeOf']),
-                    "Union type \"{$this->name}\" does not provide a \"resolveType\" " .
-                    "function and possible type \"{$objType->name}\" does not provide an " .
-                    '"isTypeOf" function. There is no way to resolve this possible type ' .
-                    'during execution.'
-                );
-            }
         }
     }
 }

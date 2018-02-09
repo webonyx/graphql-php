@@ -1,8 +1,4 @@
 <?php
-/**
- * FindBreakingChanges tests
- */
-
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Type\Definition\EnumType;
@@ -16,7 +12,6 @@ use GraphQL\Utils\FindBreakingChanges;
 
 class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 {
-
     private $queryType;
 
     public function setUp()
@@ -88,7 +83,7 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $unionType = new UnionType([
             'name' => 'Type1',
-            'types' => [new ObjectType(['name' => 'blah'])],
+            'types' => [$objectType],
         ]);
 
         $oldSchema = new Schema([
@@ -510,16 +505,12 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $oldUnionType = new UnionType([
             'name' => 'UnionType1',
             'types' => [$type1, $type2],
-            'resolveType' => function () {
-            }
         ]);
 
 
         $newUnionType = new UnionType([
             'name' => 'UnionType1',
             'types' => [$type1a, $type3],
-            'resolveType' => function () {
-            }
         ]);
 
         $oldSchema = new Schema([
@@ -978,8 +969,6 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'field1' => Type::string()
             ],
-            'resolveType' => function () {
-            }
         ]);
         $oldType = new ObjectType([
             'name' => 'Type1',
@@ -1099,15 +1088,11 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $unionTypeThatLosesATypeOld = new UnionType([
             'name' => 'UnionTypeThatLosesAType',
             'types' => [$typeInUnion1, $typeInUnion2],
-            'resolveType' => function () {
-            }
         ]);
 
         $unionTypeThatLosesATypeNew = new UnionType([
             'name' => 'UnionTypeThatLosesAType',
             'types' => [$typeInUnion1],
-            'resolveType' => function () {
-            }
         ]);
 
         $enumTypeThatLosesAValueOld = new EnumType([
@@ -1132,8 +1117,6 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'field1' => Type::string()
             ],
-            'resolveType' => function () {
-            }
         ]);
 
         $typeThatLosesInterfaceOld = new ObjectType([
@@ -1353,15 +1336,11 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $oldUnionType = new UnionType([
             'name' => 'UnionType1',
             'types' => [$type1],
-            'resolveType' => function () {
-            }
         ]);
 
         $newUnionType = new UnionType([
             'name' => 'UnionType1',
             'types' => [$type1a, $type2],
-            'resolveType' => function () {
-            }
         ]);
 
         $oldSchema = new Schema([
@@ -1452,15 +1431,11 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $unionTypeThatGainsATypeOld = new UnionType([
             'name' => 'UnionType1',
             'types' => [$typeInUnion1],
-            'resolveType' => function () {
-            }
         ]);
 
         $unionTypeThatGainsATypeNew = new UnionType([
             'name' => 'UnionType1',
             'types' => [$typeInUnion1, $typeInUnion2],
-            'resolveType' => function () {
-            }
         ]);
 
         $oldSchema = new Schema([

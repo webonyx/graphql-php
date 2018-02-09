@@ -240,15 +240,6 @@ class ObjectType extends Type implements OutputType, CompositeType
                 "{$this->name} may declare it implements {$iface->name} only once."
             );
             $implemented[$iface->name] = true;
-            if (!isset($iface->config['resolveType'])) {
-                Utils::invariant(
-                    isset($this->config['isTypeOf']),
-                    "Interface Type {$iface->name} does not provide a \"resolveType\" " .
-                    "function and implementing Type {$this->name} does not provide a " .
-                    '"isTypeOf" function. There is no way to resolve this implementing ' .
-                    'type during execution.'
-                );
-            }
         }
     }
 }

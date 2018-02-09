@@ -67,7 +67,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Dog = new ObjectType([
             'name' => 'Dog',
-            'isTypeOf' => function() {return true;},
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
@@ -94,7 +93,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Cat = new ObjectType([
             'name' => 'Cat',
-            'isTypeOf' => function() {return true;},
             'fields' => function() use (&$FurColor) {
                 return [
                     'name' => [
@@ -113,10 +111,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $CatOrDog = new UnionType([
             'name' => 'CatOrDog',
             'types' => [$Dog, $Cat],
-            'resolveType' => function($value) {
-                // not used for validation
-                return null;
-            }
         ]);
 
         $Intelligent = new InterfaceType([
@@ -129,7 +123,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $Human = null;
         $Human = new ObjectType([
             'name' => 'Human',
-            'isTypeOf' => function() {return true;},
             'interfaces' => [$Being, $Intelligent],
             'fields' => function() use (&$Human, $Pet) {
                 return [
@@ -146,7 +139,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
         $Alien = new ObjectType([
             'name' => 'Alien',
-            'isTypeOf' => function() {return true;},
             'interfaces' => [$Being, $Intelligent],
             'fields' => [
                 'iq' => ['type' => Type::int()],
@@ -161,19 +153,11 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $DogOrHuman = new UnionType([
             'name' => 'DogOrHuman',
             'types' => [$Dog, $Human],
-            'resolveType' => function() {
-                // not used for validation
-                return null;
-            }
         ]);
 
         $HumanOrAlien = new UnionType([
             'name' => 'HumanOrAlien',
             'types' => [$Human, $Alien],
-            'resolveType' => function() {
-                // not used for validation
-                return null;
-            }
         ]);
 
         $FurColor = new EnumType([

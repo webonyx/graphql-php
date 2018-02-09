@@ -216,21 +216,21 @@ class BuildSchema
         $directives = array_map([$this, 'getDirective'], $directiveDefs);
 
         // If specified directives were not explicitly declared, add them.
-        $skip = array_reduce($directives, function($hasSkip, $directive) {
+        $skip = array_reduce($directives, function ($hasSkip, $directive) {
             return $hasSkip || $directive->name == 'skip';
         });
         if (!$skip) {
             $directives[] = Directive::skipDirective();
         }
 
-        $include = array_reduce($directives, function($hasInclude, $directive) {
+        $include = array_reduce($directives, function ($hasInclude, $directive) {
             return $hasInclude || $directive->name == 'include';
         });
         if (!$include) {
             $directives[] = Directive::includeDirective();
         }
 
-        $deprecated = array_reduce($directives, function($hasDeprecated, $directive) {
+        $deprecated = array_reduce($directives, function ($hasDeprecated, $directive) {
             return $hasDeprecated || $directive->name == 'deprecated';
         });
         if (!$deprecated) {
@@ -245,12 +245,12 @@ class BuildSchema
             'subscription' => $subscriptionTypeName ?
                 $this->getObjectType($this->nodeMap[$subscriptionTypeName]) :
                 null,
-            'typeLoader' => function($name) {
+            'typeLoader' => function ($name) {
                 return $this->typeDefNamed($name);
             },
             'directives' => $directives,
             'astNode' => $schemaDef,
-            'types' => function() {
+            'types' => function () {
                 $types = [];
                 foreach ($this->nodeMap as $name => $def) {
                     if (!isset($this->loadedTypeDefs[$name])) {
@@ -269,7 +269,7 @@ class BuildSchema
         return new Directive([
             'name' => $directiveNode->name->value,
             'description' => $this->getDescription($directiveNode),
-            'locations' => Utils::map($directiveNode->locations, function($node) {
+            'locations' => Utils::map($directiveNode->locations, function ($node) {
                 return $node->value;
             }),
             'args' => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
@@ -342,7 +342,7 @@ class BuildSchema
                 $config = $fn($config, $this->nodeMap[$typeName], $this->nodeMap);
             } catch (\Exception $e) {
                 throw new Error(
-                    "Type config decorator passed to " . (static::class) . " threw an error ".
+                    "Type config decorator passed to " . (static::class) . " threw an error " .
                     "when building $typeName type: {$e->getMessage()}",
                     null,
                     null,
@@ -352,7 +352,7 @@ class BuildSchema
                 );
             } catch (\Throwable $e) {
                 throw new Error(
-                    "Type config decorator passed to " . (static::class) . " threw an error ".
+                    "Type config decorator passed to " . (static::class) . " threw an error " .
                     "when building $typeName type: {$e->getMessage()}",
                     null,
                     null,
@@ -363,7 +363,7 @@ class BuildSchema
             }
             if (!is_array($config) || isset($config[0])) {
                 throw new Error(
-                    "Type config decorator passed to " . (static::class) . " is expected to return an array, but got ".
+                    "Type config decorator passed to " . (static::class) . " is expected to return an array, but got " .
                     Utils::getVariableType($config)
                 );
             }
@@ -433,10 +433,10 @@ class BuildSchema
         return [
             'name' => $typeName,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) {
+            'fields' => function () use ($def) {
                 return $this->makeFieldDefMap($def);
             },
-            'interfaces' => function() use ($def) {
+            'interfaces' => function () use ($def) {
                 return $this->makeImplementedInterfaces($def);
             },
             'astNode' => $def
@@ -450,7 +450,7 @@ class BuildSchema
             function ($field) {
                 return $field->name->value;
             },
-            function($field) {
+            function ($field) {
                 return [
                     'type' => $this->produceOutputType($field->type),
                     'description' => $this->getDescription($field),
@@ -479,7 +479,7 @@ class BuildSchema
             function ($value) {
                 return $value->name->value;
             },
-            function($value) {
+            function ($value) {
                 $type = $this->produceInputType($value->type);
                 $config = [
                     'name' => $value->name->value,
@@ -501,13 +501,10 @@ class BuildSchema
         return [
             'name' => $typeName,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) {
+            'fields' => function () use ($def) {
                 return $this->makeFieldDefMap($def);
             },
-            'astNode' => $def,
-            'resolveType' => function() {
-                $this->cannotExecuteSchema();
-            }
+            'astNode' => $def
         ];
     }
 
@@ -519,10 +516,10 @@ class BuildSchema
             'astNode' => $def,
             'values' => Utils::keyValMap(
                 $def->values,
-                function($enumValue) {
+                function ($enumValue) {
                     return $enumValue->name->value;
                 },
-                function($enumValue) {
+                function ($enumValue) {
                     return [
                         'description' => $this->getDescription($enumValue),
                         'deprecationReason' => $this->getDeprecationReason($enumValue),
@@ -538,11 +535,10 @@ class BuildSchema
         return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'types' => Utils::map($def->types, function($typeNode) {
+            'types' => Utils::map($def->types, function ($typeNode) {
                 return $this->produceObjectType($typeNode);
             }),
-            'astNode' => $def,
-            'resolveType' => [$this, 'cannotExecuteSchema']
+            'astNode' => $def
         ];
     }
 
@@ -552,17 +548,17 @@ class BuildSchema
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
             'astNode' => $def,
-            'serialize' => function() {
+            'serialize' => function () {
                 return false;
             },
             // Note: validation calls the parse functions to determine if a
             // literal value is correct. Returning null would cause use of custom
             // scalars to always fail validation. Returning false causes them to
             // always pass validation.
-            'parseValue' => function() {
+            'parseValue' => function () {
                 return false;
             },
-            'parseLiteral' => function() {
+            'parseLiteral' => function () {
                 return false;
             }
         ];
@@ -573,7 +569,9 @@ class BuildSchema
         return [
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'fields' => function() use ($def) { return $this->makeInputValues($def->fields); },
+            'fields' => function () use ($def) {
+                return $this->makeInputValues($def->fields);
+            },
             'astNode' => $def,
         ];
     }
@@ -611,7 +609,7 @@ class BuildSchema
     {
         $loc = $node->loc;
         if (!$loc || !$loc->startToken) {
-            return ;
+            return;
         }
         $comments = [];
         $token = $loc->startToken->prev;
@@ -644,12 +642,4 @@ class BuildSchema
         $doc = $source instanceof DocumentNode ? $source : Parser::parse($source);
         return self::buildAST($doc, $typeConfigDecorator);
     }
-
-    public function cannotExecuteSchema()
-    {
-        throw new Error(
-            'Generated Schema cannot use Interface or Union types for execution.'
-        );
-    }
-
 }
