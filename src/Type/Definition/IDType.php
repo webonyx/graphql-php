@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\StringValueNode;
@@ -55,18 +54,19 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function parseValue($value)
     {
-        return (is_string($value) || is_int($value)) ? (string) $value : null;
+        return (is_string($value) || is_int($value)) ? (string) $value : Utils::undefined();
     }
 
     /**
      * @param $ast
+     * @param array|null $variables
      * @return null|string
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof StringValueNode || $ast instanceof IntValueNode) {
-            return $ast->value;
+        if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
+            return $valueNode->value;
         }
-        return null;
+        return Utils::undefined();
     }
 }

@@ -539,19 +539,9 @@ class BuildSchema
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
             'astNode' => $def,
-            'serialize' => function () {
-                return false;
+            'serialize' => function($value) {
+                return $value;
             },
-            // Note: validation calls the parse functions to determine if a
-            // literal value is correct. Returning null would cause use of custom
-            // scalars to always fail validation. Returning false causes them to
-            // always pass validation.
-            'parseValue' => function () {
-                return false;
-            },
-            'parseLiteral' => function () {
-                return false;
-            }
         ];
     }
 

@@ -2,7 +2,6 @@
 namespace GraphQL\Validator;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\NodeKind;
@@ -11,11 +10,12 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Schema;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\Rules\AbstractValidationRule;
@@ -306,17 +306,15 @@ class DocumentValidator
             return $errors;
         }
 
-        if ($type instanceof LeafType) {
-            // Scalars must parse to a non-null value
-            if (!$type->isValidLiteral($valueNode)) {
-                $printed = Printer::doPrint($valueNode);
-                return [ "Expected type \"{$type->name}\", found $printed." ];
-            }
+        Utils::invariant($type instanceof ScalarType || $type instanceof EnumType, 'Must be input type');
 
-            return [];
+        // Scalars determine if a literal values is valid.
+        if (!$type->isValidLiteral($valueNode)) {
+            $printed = Printer::doPrint($valueNode);
+            return [ "Expected type \"{$type->name}\", found $printed." ];
         }
 
-        throw new InvariantViolation('Must be input type');
+        return [];
     }
 
     /**

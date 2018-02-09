@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use \GraphQL\Language\AST\Node;
+
 /*
 export type GraphQLLeafType =
 GraphQLScalarType |
@@ -19,6 +21,8 @@ interface LeafType
     /**
      * Parses an externally provided value (query variable) to use as an input
      *
+     * In the case of an invalid value this method must return Utils::undefined()
+     *
      * @param mixed $value
      * @return mixed
      */
@@ -27,10 +31,13 @@ interface LeafType
     /**
      * Parses an externally provided literal value (hardcoded in GraphQL query) to use as an input
      *
-     * @param \GraphQL\Language\AST\Node $valueNode
+     * In the case of an invalid value this method must return Utils::undefined()
+     *
+     * @param Node $valueNode
+     * @param array|null $variables
      * @return mixed
      */
-    public function parseLiteral($valueNode);
+    public function parseLiteral($valueNode, array $variables = null);
 
     /**
      * @param string $value
@@ -39,8 +46,9 @@ interface LeafType
     public function isValidValue($value);
 
     /**
-     * @param \GraphQL\Language\AST\Node $valueNode
-     * @return mixed
+     * @param Node $valueNode
+     * @param array|null $variables
+     * @return bool
      */
-    public function isValidLiteral($valueNode);
+    public function isValidLiteral($valueNode, array $variables = null);
 }

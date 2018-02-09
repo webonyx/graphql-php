@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Utils\Utils;
@@ -77,21 +76,22 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         // Below is a fix against PHP bug where (in some combinations of OSs and versions)
         // boundary values are treated as "double" vs "integer" and failing is_int() check
         $isInt = is_int($value) || $value === self::MIN_INT || $value === self::MAX_INT;
-        return $isInt && $value <= self::MAX_INT && $value >= self::MIN_INT ? $value : null;
+        return $isInt && $value <= self::MAX_INT && $value >= self::MIN_INT ? $value : Utils::undefined();
     }
 
     /**
-     * @param $ast
+     * @param $valueNode
+     * @param array|null $variables
      * @return int|null
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof IntValueNode) {
-            $val = (int) $ast->value;
-            if ($ast->value === (string) $val && self::MIN_INT <= $val && $val <= self::MAX_INT) {
+        if ($valueNode instanceof IntValueNode) {
+            $val = (int) $valueNode->value;
+            if ($valueNode->value === (string) $val && self::MIN_INT <= $val && $val <= self::MAX_INT) {
                 return $val;
             }
         }
-        return null;
+        return Utils::undefined();
     }
 }
