@@ -13,7 +13,7 @@ use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
-use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\TypeNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
@@ -41,7 +41,7 @@ class BuildSchema
     /**
      * @param Type $innerType
      * @param TypeNode $inputTypeNode
-     * @return Type 
+     * @return Type
      */
     private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
     {
@@ -99,9 +99,10 @@ class BuildSchema
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->loadedTypeDefs = [];
     }
-    
+
     public function buildSchema()
     {
+        /** @var SchemaDefinitionNode $schemaDef */
         $schemaDef = null;
         $typeDefs = [];
         $this->nodeMap = [];
@@ -133,61 +134,13 @@ class BuildSchema
             }
         }
 
-        $queryTypeName = null;
-        $mutationTypeName = null;
-        $subscriptionTypeName = null;
-        if ($schemaDef) {
-            foreach ($schemaDef->operationTypes as $operationType) {
-                $typeName = $operationType->type->name->value;
-                if ($operationType->operation === 'query') {
-                    if ($queryTypeName) {
-                        throw new Error('Must provide only one query type in schema.');
-                    }
-                    if (!isset($this->nodeMap[$typeName])) {
-                        throw new Error(
-                            'Specified query type "' . $typeName . '" not found in document.'
-                        );
-                    }
-                    $queryTypeName = $typeName;
-                } else if ($operationType->operation === 'mutation') {
-                    if ($mutationTypeName) {
-                        throw new Error('Must provide only one mutation type in schema.');
-                    }
-                    if (!isset($this->nodeMap[$typeName])) {
-                        throw new Error(
-                            'Specified mutation type "' . $typeName . '" not found in document.'
-                        );
-                    }
-                    $mutationTypeName = $typeName;
-                } else if ($operationType->operation === 'subscription') {
-                    if ($subscriptionTypeName) {
-                        throw new Error('Must provide only one subscription type in schema.');
-                    }
-                    if (!isset($this->nodeMap[$typeName])) {
-                        throw new Error(
-                            'Specified subscription type "' . $typeName . '" not found in document.'
-                        );
-                    }
-                    $subscriptionTypeName = $typeName;
-                }
-            }
-        } else {
-            if (isset($this->nodeMap['Query'])) {
-                $queryTypeName = 'Query';
-            }
-            if (isset($this->nodeMap['Mutation'])) {
-                $mutationTypeName = 'Mutation';
-            }
-            if (isset($this->nodeMap['Subscription'])) {
-                $subscriptionTypeName = 'Subscription';
-            }
-        }
-
-        if (!$queryTypeName) {
-            throw new Error(
-                'Must provide schema definition with query type or a type named Query.'
-            );
-        }
+        $operationTypes = $schemaDef
+            ? $this->getOperationTypes($schemaDef)
+            : [
+                'query' => isset($this->nodeMap['Query']) ? 'Query' : null,
+                'mutation' => isset($this->nodeMap['Mutation']) ? 'Mutation' : null,
+                'subscription' => isset($this->nodeMap['Subscription']) ? 'Subscription' : null,
+            ];
 
         $this->innerTypeMap = [
             'String' => Type::string(),
@@ -229,13 +182,19 @@ class BuildSchema
             $directives[] = Directive::deprecatedDirective();
         }
 
+        if (!isset($operationTypes['query'])) {
+            throw new Error(
+                'Must provide schema definition with query type or a type named Query.'
+            );
+        }
+
         $schema = new Schema([
-            'query' => $this->getObjectType($this->nodeMap[$queryTypeName]),
-            'mutation' => $mutationTypeName ?
-                $this->getObjectType($this->nodeMap[$mutationTypeName]) :
+            'query' => $this->getObjectType($operationTypes['query']),
+            'mutation' => isset($operationTypes['mutation']) ?
+                $this->getObjectType($operationTypes['mutation']) :
                 null,
-            'subscription' => $subscriptionTypeName ?
-                $this->getObjectType($this->nodeMap[$subscriptionTypeName]) :
+            'subscription' => isset($operationTypes['subscription']) ?
+                $this->getObjectType($operationTypes['subscription']) :
                 null,
             'typeLoader' => function($name) {
                 return $this->typeDefNamed($name);
@@ -256,6 +215,33 @@ class BuildSchema
         return $schema;
     }
 
+    /**
+     * @param SchemaDefinitionNode $schemaDef
+     * @return array
+     * @throws Error
+     */
+    private function getOperationTypes($schemaDef)
+    {
+        $opTypes = [];
+
+        foreach ($schemaDef->operationTypes as $operationType) {
+            $typeName = $operationType->type->name->value;
+            $operation = $operationType->operation;
+
+            if (isset($opTypes[$operation])) {
+                throw new Error("Must provide only one $operation type in schema.");
+            }
+
+            if (!isset($this->nodeMap[$typeName])) {
+                throw new Error("Specified $operation type \"$typeName\" not found in document.");
+            }
+
+            $opTypes[$operation] = $typeName;
+        }
+
+        return $opTypes;
+    }
+
     private function getDirective(DirectiveDefinitionNode $directiveNode)
     {
         return new Directive([
@@ -269,9 +255,14 @@ class BuildSchema
         ]);
     }
 
-    private function getObjectType(TypeDefinitionNode $typeNode)
+    /**
+     * @param string $name
+     * @return CustomScalarType|EnumType|InputObjectType|UnionType
+     * @throws Error
+     */
+    private function getObjectType($name)
     {
-        $type = $this->typeDefNamed($typeNode->name->value);
+        $type = $this->typeDefNamed($name);
         Utils::invariant(
             $type instanceof ObjectType,
             'AST must provide object type.'
@@ -619,7 +610,7 @@ class BuildSchema
     /**
      * A helper function to build a GraphQLSchema directly from a source
      * document.
-     * 
+     *
      * @api
      * @param DocumentNode|Source|string $source
      * @param callable $typeConfigDecorator
