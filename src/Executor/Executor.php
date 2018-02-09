@@ -1053,15 +1053,6 @@ class Executor
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
 
         if (null === $runtimeType) {
-            if ($returnType instanceof InterfaceType && $info->schema->getConfig()->typeLoader) {
-                Warning::warnOnce(
-                    "GraphQL Interface Type `{$returnType->name}` returned `null` from it`s `resolveType` function ".
-                    'for value: ' . Utils::printSafe($result) . '. Switching to slow resolution method using `isTypeOf` ' .
-                    'of all possible implementations. It requires full schema scan and degrades query performance significantly. '.
-                    ' Make sure your `resolveType` always returns valid implementation or throws.',
-                    Warning::WARNING_FULL_SCHEMA_SCAN
-                );
-            }
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
         }
 
@@ -1122,9 +1113,11 @@ class Executor
 
         if (!$runtimeType instanceof ObjectType) {
             throw new InvariantViolation(
-                "Abstract type {$returnType} must resolve to an Object type at runtime " .
-                "for field {$info->parentType}.{$info->fieldName} with " .
-                'value "' . Utils::printSafe($result) . '", received "'. Utils::printSafe($runtimeType) . '".'
+                "Abstract type {$returnType} must resolve to an Object type at " .
+                "runtime for field {$info->parentType}.{$info->fieldName} with " .
+                'value "' . Utils::printSafe($result) . '", received "'. Utils::printSafe($runtimeType) . '".' .
+                'Either the ' . $returnType . ' type should provide a "resolveType" ' .
+                'function or each possible types should provide an "isTypeOf" function.'
             );
         }
 
@@ -1307,7 +1300,12 @@ class Executor
 
     /**
      * If a resolveType function is not given, then a default resolve behavior is
-     * used which tests each possible type for the abstract type by calling
+     * used which attempts two strategies:
+     *
+     * First, See if the provided value has a `__typename` field defined, if so, use
+     * that value as name of the resolved type.
+     *
+     * Otherwise, test each possible type for the abstract type by calling
      * isTypeOf for the object being coerced, returning the first type that matches.
      *
      * @param $value
@@ -1318,6 +1316,27 @@ class Executor
      */
     private function defaultTypeResolver($value, $context, ResolveInfo $info, AbstractType $abstractType)
     {
+        // First, look for `__typename`.
+        if (
+            $value !== null &&
+            is_array($value) &&
+            isset($value['__typename']) &&
+            is_string($value['__typename'])
+        ) {
+            return $value['__typename'];
+        }
+
+        if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader) {
+            Warning::warnOnce(
+                "GraphQL Interface Type `{$abstractType->name}` returned `null` from it`s `resolveType` function ".
+                'for value: ' . Utils::printSafe($value) . '. Switching to slow resolution method using `isTypeOf` ' .
+                'of all possible implementations. It requires full schema scan and degrades query performance significantly. '.
+                ' Make sure your `resolveType` always returns valid implementation or throws.',
+                Warning::WARNING_FULL_SCHEMA_SCAN
+            );
+        }
+
+        // Otherwise, test each possible type.
         $possibleTypes = $info->schema->getPossibleTypes($abstractType);
         $promisedIsTypeOfResults = [];
 

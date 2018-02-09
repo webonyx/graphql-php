@@ -41,7 +41,7 @@ class BuildSchema
     /**
      * @param Type $innerType
      * @param TypeNode $inputTypeNode
-     * @return Type 
+     * @return Type
      */
     private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
     {
@@ -99,7 +99,7 @@ class BuildSchema
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->loadedTypeDefs = [];
     }
-    
+
     public function buildSchema()
     {
         $schemaDef = null;
@@ -496,10 +496,7 @@ class BuildSchema
             'fields' => function() use ($def) {
                 return $this->makeFieldDefMap($def);
             },
-            'astNode' => $def,
-            'resolveType' => function() {
-                $this->cannotExecuteSchema();
-            }
+            'astNode' => $def
         ];
     }
 
@@ -533,8 +530,7 @@ class BuildSchema
             'types' => Utils::map($def->types, function($typeNode) {
                 return $this->produceObjectType($typeNode);
             }),
-            'astNode' => $def,
-            'resolveType' => [$this, 'cannotExecuteSchema']
+            'astNode' => $def
         ];
     }
 
@@ -619,7 +615,7 @@ class BuildSchema
     /**
      * A helper function to build a GraphQLSchema directly from a source
      * document.
-     * 
+     *
      * @api
      * @param DocumentNode|Source|string $source
      * @param callable $typeConfigDecorator
@@ -635,13 +631,6 @@ class BuildSchema
     private function leadingSpaces($str)
     {
         return strlen($str) - strlen(ltrim($str));
-    }
-
-    public function cannotExecuteSchema()
-    {
-        throw new Error(
-            'Generated Schema cannot use Interface or Union types for execution.'
-        );
     }
 
 }

@@ -795,7 +795,6 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $SomeBox = new InterfaceType([
             'name' => 'SomeBox',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
             'fields' => function() use (&$SomeBox) {
                 return [
                     'deepBox' => ['type' => $SomeBox],
@@ -837,7 +836,6 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $NonNullStringBox1 = new InterfaceType([
             'name' => 'NonNullStringBox1',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
             'fields' => [
                 'scalar' => [ 'type' => Type::nonNull(Type::string()) ]
             ]
@@ -855,7 +853,6 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $NonNullStringBox2 = new InterfaceType([
             'name' => 'NonNullStringBox2',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
             'fields' => [
                 'scalar' => ['type' => Type::nonNull(Type::string())]
             ]

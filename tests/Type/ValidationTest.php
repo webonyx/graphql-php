@@ -58,24 +58,15 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->ObjectWithIsTypeOf = new ObjectType([
             'name' => 'ObjectWithIsTypeOf',
-            'isTypeOf' => function() {
-                return true;
-            },
             'fields' => [ 'f' => [ 'type' => Type::string() ]]
         ]);
         $this->SomeUnionType = new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function() {
-                return null;
-            },
             'types' => [ $this->SomeObjectType ]
         ]);
 
         $this->SomeInterfaceType = new InterfaceType([
             'name' => 'SomeInterface',
-            'resolveType' => function() {
-                return null;
-            },
             'fields' => [ 'f' => ['type' => Type::string() ]]
         ]);
 
@@ -404,7 +395,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function() {},
             'fields' => [ 'f' => [ 'type' => Type::string() ]],
         ]);
 
@@ -736,8 +726,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterfaceType = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => ['f' => ['type' => Type::string()]]
         ]);
 
@@ -756,8 +744,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterfaceType = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => ['f' => ['type' => Type::string()]]
         ]);
 
@@ -795,14 +781,11 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $NonUniqInterface = new InterfaceType([
             'name' => 'NonUniqInterface',
-            'resolveType' => function () {
-            },
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function(){},
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
@@ -851,9 +834,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $schema = $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function () {
-                return null;
-            },
             'types' => [$this->SomeObjectType],
         ]));
         $schema->assertValid();
@@ -866,9 +846,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $schema = $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function () {
-                return null;
-            },
             'types' => function () {
                 return [$this->SomeObjectType];
             },
@@ -887,7 +864,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         );
         $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function() {return null;}
         ]));
     }
 
@@ -898,8 +874,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $schema = $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function () {
-            },
             'types' => []
         ]));
 
@@ -921,8 +895,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         );
         $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function () {
-            },
             'types' => $this->SomeObjectType
         ]));
     }
@@ -934,7 +906,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $schema = $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function(){},
             'types' => [
                 $this->SomeObjectType,
                 $this->SomeObjectType,
@@ -1193,8 +1164,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterfaceType = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => ['f' => ['type' => Type::string()]]
         ]);
 
@@ -1234,8 +1203,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterfaceType = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => ['f' => ['type' => Type::string()]]
         ]);
 
@@ -1270,32 +1237,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         $type->assertValid();
     }
 
-    /**
-     * @it rejects an Interface type not defining resolveType with implementing type not defining isTypeOf
-     */
-    public function testRejectsAnInterfaceTypeNotDefiningResolveTypeWithImplementingTypeNotDefiningIsTypeOf()
-    {
-        $InterfaceTypeWithoutResolveType = new InterfaceType([
-            'name' => 'InterfaceTypeWithoutResolveType',
-            'fields' => ['f' => ['type' => Type::string()]]
-        ]);
-
-        $schema = $this->schemaWithFieldType(new ObjectType([
-            'name' => 'SomeObject',
-            'interfaces' => [$InterfaceTypeWithoutResolveType],
-            'fields' => ['f' => ['type' => Type::string()]]
-        ]));
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Interface Type InterfaceTypeWithoutResolveType does not provide a "resolveType" function and implementing '.
-            'Type SomeObject does not provide a "isTypeOf" function. There is no way to resolve this implementing type '.
-            'during execution.'
-        );
-
-        $schema->assertValid();
-    }
-
     // DESCRIBE: Type System: Union types must be resolvable
 
     /**
@@ -1305,8 +1246,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $schema = $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function () {
-            },
             'types' => [$this->SomeObjectType],
         ]));
         $schema->assertValid();
@@ -1332,8 +1271,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $schema = $this->schemaWithFieldType(new UnionType([
             'name' => 'SomeUnion',
-            'resolveType' => function () {
-            },
             'types' => [$this->ObjectWithIsTypeOf],
         ]));
         $schema->assertValid();
@@ -1353,25 +1290,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         $this->setExpectedException(
             InvariantViolation::class,
             'SomeUnion must provide "resolveType" as a function.'
-        );
-
-        $schema->assertValid();
-    }
-
-    /**
-     * @it rejects a Union type not defining resolveType of Object types not defining isTypeOf
-     */
-    public function testRejectsAUnionTypeNotDefiningResolveTypeOfObjectTypesNotDefiningIsTypeOf()
-    {
-        $schema = $this->schemaWithFieldType(new UnionType([
-            'name' => 'SomeUnion',
-            'types' => [$this->SomeObjectType],
-        ]));
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Union type "SomeUnion" does not provide a "resolveType" function and possible type "SomeObject" '.
-            'does not provide an "isTypeOf" function. There is no way to resolve this possible type during execution.'
         );
 
         $schema->assertValid();
@@ -1747,8 +1665,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterfaceType = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => ['f' => ['type' => Type::string()]]
         ]);
 
@@ -2085,8 +2001,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -2121,8 +2035,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -2158,8 +2070,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -2195,8 +2105,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -2238,8 +2146,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -2274,8 +2180,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => ['type' => Type::string()]
             ]
@@ -2318,8 +2222,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => ['type' => $TypeA]
             ]
@@ -2350,8 +2252,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => function () use (&$AnotherInterface) {
                 return [
                     'field' => ['type' => $AnotherInterface]
@@ -2380,8 +2280,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => ['type' => $this->SomeUnionType]
             ]
@@ -2406,8 +2304,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -2445,8 +2341,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -2487,8 +2381,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => ['type' => Type::nonNull(Type::listOf(Type::string()))]
             ]
@@ -2513,8 +2405,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => ['type' => Type::listOf(Type::string())]
             ]
@@ -2545,8 +2435,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => ['type' => Type::string()]
             ]
@@ -2575,8 +2463,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => ['type' => Type::string()]
             ]
@@ -2601,8 +2487,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',
-            'resolveType' => function () {
-            },
             'fields' => [
                 'field' => ['type' => Type::nonNull(Type::string())]
             ]
@@ -2820,8 +2704,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     {
         $BadUnionType = new UnionType([
             'name' => 'BadUnion',
-            'resolveType' => function () {
-            },
             'types' => [$type],
         ]);
         return new Schema([
