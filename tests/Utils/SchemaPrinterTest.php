@@ -360,7 +360,6 @@ type Root {
     {
         $fooType = new InterfaceType([
             'name' => 'Foo',
-            'resolveType' => function() { return null; },
             'fields' => ['str' => ['type' => Type::string()]]
         ]);
 
@@ -406,13 +405,11 @@ type Root {
     {
         $fooType = new InterfaceType([
             'name' => 'Foo',
-            'resolveType' => function() { return null; },
             'fields' => ['str' => ['type' => Type::string()]]
         ]);
 
         $baazType = new InterfaceType([
             'name' => 'Baaz',
-            'resolveType' => function() { return null; },
             'fields' => ['int' => ['type' => Type::int()]]
         ]);
 
@@ -476,13 +473,11 @@ type Root {
 
         $singleUnion = new UnionType([
             'name' => 'SingleUnion',
-            'resolveType' => function() { return null; },
             'types' => [$fooType]
         ]);
 
         $multipleUnion = new UnionType([
             'name' => 'MultipleUnion',
-            'resolveType' => function() { return null; },
             'types' => [$fooType, $barType]
         ]);
 

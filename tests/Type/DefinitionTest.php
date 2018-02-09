@@ -74,10 +74,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->objectType = new ObjectType([
-            'name' => 'Object',
-            'isTypeOf' => function() {return true;}
-        ]);
+        $this->objectType = new ObjectType(['name' => 'Object']);
         $this->interfaceType = new InterfaceType(['name' => 'Interface']);
         $this->unionType = new UnionType(['name' => 'Union', 'types' => [$this->objectType]]);
         $this->enumType = new EnumType(['name' => 'Enum']);
@@ -363,7 +360,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 'f' => ['type' => Type::int()]
             ],
             'interfaces' => [$someInterface],
-            'isTypeOf' => function() {return true;}
         ]);
 
         $schema = new Schema([
@@ -391,7 +387,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 'f' => ['type' => Type::int()]
             ],
             'interfaces' => function() use (&$someInterface) { return [$someInterface]; },
-            'isTypeOf' => function() {return true;}
         ]);
 
         $someInterface = new InterfaceType([
