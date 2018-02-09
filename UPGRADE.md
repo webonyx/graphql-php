@@ -1,4 +1,49 @@
-## Upgrade v0.10.x > dev-master
+## Upgrade v0.11.x > dev-master
+
+### Breaking: Descriptions in comments are not used as descriptions by default anymore
+Descriptions now need to be inside Strings or BlockStrings in order to be picked up as
+description. If you want to keep the old behaviour you can supply the option `commentDescriptions`
+to BuildSchema::buildAST(), BuildSchema::build() or Printer::doPrint().
+
+Here is the official way now to define descriptions in the graphQL language:
+
+Old:
+
+```graphql
+# Description
+type Dog {
+  ...
+}
+```
+
+New:
+
+```graphql
+"Description"
+type Dog {
+  ...
+}
+
+"""
+Long Description
+"""
+type Dog {
+  ...
+}
+```
+
+### Breaking: Custom types need to return `Utils::undefined()` or throw on invalid value
+As null might be a valid value custom types need to return now `Utils::undefined()` or throw an
+Exception inside `parseLiteral()`, `parseValue()` and `serialize()`. 
+
+Returning null from any of these methods will now be treated as valid result.
+
+### Breaking: TypeConfigDecorator was removed from BuildSchema
+TypeConfigDecorator was used as second argument in `BuildSchema::build()` and `BuildSchema::buildAST()` to
+enable generated schemas with Unions or Interfaces to be used for resolving. This was fixed in a more
+generalised approach so that the TypeConfigDecorator is not needed anymore and can be removed.
+
+The concrete Types are now resolved based on the `__typename` field.
 
 ### Possibly Breaking: AST to array serialization excludes nulls
 Most users won't be affected. It *may* affect you only if you do your own manipulations 

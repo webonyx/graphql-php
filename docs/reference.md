@@ -1352,7 +1352,7 @@ static function setWarningHandler(callable $warningHandler = null)
  * @api
  * @param bool|int $suppress
  */
-static function suppress($suppress = false)
+static function suppress($suppress = true)
 ```
 
 ```php
@@ -1367,7 +1367,7 @@ static function suppress($suppress = false)
  * @api
  * @param bool|int $enable
  */
-static function enable($enable = false)
+static function enable($enable = true)
 ```
 # GraphQL\Error\ClientAware
 This interface is used for [default error formatting](error-handling.md).
@@ -1697,7 +1697,7 @@ function setPersistentQueryLoader(callable $persistentQueryLoader)
  * @param bool|int $set
  * @return $this
  */
-function setDebug($set = false)
+function setDebug($set = true)
 ```
 
 ```php
@@ -1927,13 +1927,19 @@ See [section in docs](type-system/type-language.md) for details.
  * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
  * has no resolve methods, so execution will use default resolvers.
  *
+ * Accepts options as a second argument:
+ *
+ *    - commentDescriptions:
+ *        Provide true to use preceding comments as the description.
+ *
+ *
  * @api
  * @param DocumentNode $ast
- * @param callable $typeConfigDecorator
+ * @param array $options
  * @return Schema
  * @throws Error
  */
-static function buildAST(GraphQL\Language\AST\DocumentNode $ast, callable $typeConfigDecorator = null)
+static function buildAST(GraphQL\Language\AST\DocumentNode $ast, array $options = [])
 ```
 
 ```php
@@ -1943,10 +1949,10 @@ static function buildAST(GraphQL\Language\AST\DocumentNode $ast, callable $typeC
  *
  * @api
  * @param DocumentNode|Source|string $source
- * @param callable $typeConfigDecorator
+ * @param array $options
  * @return Schema
  */
-static function build($source, callable $typeConfigDecorator = null)
+static function build($source, array $options = [])
 ```
 # GraphQL\Utils\AST
 Various utilities dealing with AST
@@ -2051,6 +2057,32 @@ static function valueFromAST($valueNode, GraphQL\Type\Definition\InputType $type
 
 ```php
 /**
+ * Produces a PHP value given a GraphQL Value AST.
+ *
+ * Unlike `valueFromAST()`, no type is provided. The resulting JavaScript value
+ * will reflect the provided GraphQL value AST.
+ *
+ * | GraphQL Value        | PHP Value     |
+ * | -------------------- | ------------- |
+ * | Input Object         | Assoc Array   |
+ * | List                 | Array         |
+ * | Boolean              | Boolean       |
+ * | String               | String        |
+ * | Int / Float          | Int / Float   |
+ * | Enum                 | Mixed         |
+ * | Null                 | null          |
+ *
+ * @api
+ * @param Node $valueNode
+ * @param array|null $variables
+ * @return mixed
+ * @throws \Exception
+ */
+static function valueFromASTUntyped($valueNode, array $variables = null)
+```
+
+```php
+/**
  * Returns type definition for given AST Type node
  *
  * @api
@@ -2079,11 +2111,15 @@ Given an instance of Schema, prints it in GraphQL type language.
 **Class Methods:** 
 ```php
 /**
+ * Accepts options as a second argument:
+ *
+ *    - commentDescriptions:
+ *        Provide true to use preceding comments as the description.
  * @api
  * @param Schema $schema
  * @return string
  */
-static function doPrint(GraphQL\Type\Schema $schema)
+static function doPrint(GraphQL\Type\Schema $schema, array $options = [])
 ```
 
 ```php
@@ -2092,5 +2128,5 @@ static function doPrint(GraphQL\Type\Schema $schema)
  * @param Schema $schema
  * @return string
  */
-static function printIntrosepctionSchema(GraphQL\Type\Schema $schema)
+static function printIntrosepctionSchema(GraphQL\Type\Schema $schema, array $options = [])
 ```
