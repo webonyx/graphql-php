@@ -34,20 +34,8 @@ class FindBreakingChanges
     const DANGEROUS_CHANGE_ARG_DEFAULT_VALUE = 'ARG_DEFAULT_VALUE_CHANGE';
     const DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM = 'VALUE_ADDED_TO_ENUM';
     const DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION = 'TYPE_ADDED_TO_UNION';
-
-    /**
-     * Given two schemas, returns an Array containing descriptions of all the types
-     * of potentially dangerous changes covered by the other functions down below.
-     *
-     * @return array
-     */
-    public static function findDangerousChanges(Schema $oldSchema, Schema $newSchema)
-    {
-        return array_merge(self::findArgChanges($oldSchema, $newSchema)['dangerousChanges'],
-            self::findValuesAddedToEnums($oldSchema, $newSchema),
-            self::findTypesAddedToUnions($oldSchema, $newSchema)
-        );
-    }
+    const DANGEROUS_CHANGE_NULLABLE_INPUT_FIELD_ADDED = 'NULLABLE_INPUT_FIELD_ADDED';
+    const DANGEROUS_CHANGE_NULLABLE_ARG_ADDED = 'NULLABLE_ARG_ADDED';
 
     /**
      * Given two schemas, returns an Array containing descriptions of all the types
@@ -60,11 +48,28 @@ class FindBreakingChanges
         return array_merge(
             self::findRemovedTypes($oldSchema, $newSchema),
             self::findTypesThatChangedKind($oldSchema, $newSchema),
-            self::findFieldsThatChangedType($oldSchema, $newSchema),
+            self::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema),
+            self::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges'],
             self::findTypesRemovedFromUnions($oldSchema, $newSchema),
             self::findValuesRemovedFromEnums($oldSchema, $newSchema),
             self::findArgChanges($oldSchema, $newSchema)['breakingChanges'],
             self::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
+        );
+    }
+
+    /**
+     * Given two schemas, returns an Array containing descriptions of all the types
+     * of potentially dangerous changes covered by the other functions down below.
+     *
+     * @return array
+     */
+    public static function findDangerousChanges(Schema $oldSchema, Schema $newSchema)
+    {
+        return array_merge(
+            self::findArgChanges($oldSchema, $newSchema)['dangerousChanges'],
+            self::findValuesAddedToEnums($oldSchema, $newSchema),
+            self::findTypesAddedToUnions($oldSchema, $newSchema),
+            self::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['dangerousChanges']
         );
     }
 
@@ -191,17 +196,24 @@ class FindBreakingChanges
                         $oldArgs = $oldTypeFields[$fieldName]->args;
                         $oldArgDef = Utils::find(
                             $oldArgs, function ($arg) use ($newArgDef) {
-                            return $arg->name === $newArgDef->name;
-                        }
+                                return $arg->name === $newArgDef->name;
+                            }
                         );
 
-                        if (!$oldArgDef && $newArgDef->getType() instanceof NonNull) {
+                        if (!$oldArgDef) {
                             $newTypeName = $newTypeDefinition->name;
                             $newArgName = $newArgDef->name;
-                            $breakingChanges[] = [
-                                'type' => self::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
-                                'description' => "A non-null arg ${newArgName} on ${newTypeName}->${fieldName} was added."
-                            ];
+                            if ($newArgDef->getType() instanceof NonNull) {
+                                $breakingChanges[] = [
+                                    'type' => self::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
+                                    'description' => "A non-null arg ${newArgName} on ${newTypeName}->${fieldName} was added."
+                                ];
+                            } else {
+                                $dangerousChanges[] = [
+                                    'type' => self::DANGEROUS_CHANGE_NULLABLE_ARG_ADDED,
+                                    'description' => "A nullable arg ${newArgName} on ${newTypeName}->${fieldName} was added."
+                                ];
+                            }
                         }
                     }
                 }
@@ -237,35 +249,17 @@ class FindBreakingChanges
     }
 
     /**
-     * Given two schemas, returns an Array containing descriptions of any breaking
-     * changes in the newSchema related to the fields on a type. This includes if
-     * a field has been removed from a type, if a field has changed type, or if
-     * a non-null field is added to an input type.
-     *
-     * @return array
-     */
-    public static function findFieldsThatChangedType(
-        Schema $oldSchema, Schema $newSchema
-    )
-    {
-        return array_merge(
-            self::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema),
-            self::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)
-        );
-    }
-
-    /**
      * @param Schema $oldSchema
      * @param Schema $newSchema
      *
      * @return array
      */
-    private static function findFieldsThatChangedTypeOnObjectOrInterfaceTypes(Schema $oldSchema, Schema $newSchema)
+    public static function findFieldsThatChangedTypeOnObjectOrInterfaceTypes(Schema $oldSchema, Schema $newSchema)
     {
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
 
-        $breakingFieldChanges = [];
+        $breakingChanges = [];
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
             if (!($oldType instanceof ObjectType || $oldType instanceof InterfaceType) || !($newType instanceof $oldType)) {
@@ -275,7 +269,7 @@ class FindBreakingChanges
             $newTypeFieldsDef = $newType->getFields();
             foreach ($oldTypeFieldsDef as $fieldName => $fieldDefinition) {
                 if (!isset($newTypeFieldsDef[$fieldName])) {
-                    $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_REMOVED, 'description' => "${typeName}->${fieldName} was removed."];
+                    $breakingChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_REMOVED, 'description' => "${typeName}->${fieldName} was removed."];
                 } else {
                     $oldFieldType = $oldTypeFieldsDef[$fieldName]->getType();
                     $newfieldType = $newTypeFieldsDef[$fieldName]->getType();
@@ -284,12 +278,12 @@ class FindBreakingChanges
 
                         $oldFieldTypeString = self::isNamedType($oldFieldType) ? $oldFieldType->name : $oldFieldType;
                         $newFieldTypeString = self::isNamedType($newfieldType) ? $newfieldType->name : $newfieldType;
-                        $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}."];
+                        $breakingChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}."];
                     }
                 }
             }
         }
-        return $breakingFieldChanges;
+        return $breakingChanges;
     }
 
     /**
@@ -305,7 +299,8 @@ class FindBreakingChanges
         $oldTypeMap = $oldSchema->getTypeMap();
         $newTypeMap = $newSchema->getTypeMap();
 
-        $breakingFieldChanges = [];
+        $breakingChanges = [];
+        $dangerousChanges = [];
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
             if (!($oldType instanceof InputObjectType) || !($newType instanceof InputObjectType)) {
@@ -315,7 +310,10 @@ class FindBreakingChanges
             $newTypeFieldsDef = $newType->getFields();
             foreach ($oldTypeFieldsDef as $fieldName => $fieldDefinition) {
                 if (!isset($newTypeFieldsDef[$fieldName])) {
-                    $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_REMOVED, 'description' => "${typeName}->${fieldName} was removed."];
+                    $breakingChanges[] = [
+                        'type' => self::BREAKING_CHANGE_FIELD_REMOVED,
+                        'description' => "${typeName}->${fieldName} was removed."
+                    ];
                 } else {
                     $oldFieldType = $oldTypeFieldsDef[$fieldName]->getType();
                     $newfieldType = $newTypeFieldsDef[$fieldName]->getType();
@@ -323,18 +321,32 @@ class FindBreakingChanges
                     if (!$isSafe) {
                         $oldFieldTypeString = self::isNamedType($oldFieldType) ? $oldFieldType->name : $oldFieldType;
                         $newFieldTypeString = self::isNamedType($newfieldType) ? $newfieldType->name : $newfieldType;
-                        $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}."];
+                        $breakingChanges[] = [
+                            'type' => self::BREAKING_CHANGE_FIELD_CHANGED,
+                            'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}."];
                     }
                 }
             }
+            // Check if a field was added to the input object type
             foreach ($newTypeFieldsDef as $fieldName => $fieldDef) {
-                if (!isset($oldTypeFieldsDef[$fieldName]) && $fieldDef->getType() instanceof NonNull) {
+                if (!isset($oldTypeFieldsDef[$fieldName])) {
                     $newTypeName = $newType->name;
-                    $breakingFieldChanges[] = ['type' => self::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED, 'description' => "A non-null field ${fieldName} on input type ${newTypeName} was added."];
+                    if ($fieldDef->getType() instanceof NonNull) {
+                        $breakingChanges[] = [
+                            'type' => self::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED,
+                            'description' => "A non-null field ${fieldName} on input type ${newTypeName} was added."
+                        ];
+                    } else {
+                        $dangerousChanges[] = [
+                            'type' => self::DANGEROUS_CHANGE_NULLABLE_INPUT_FIELD_ADDED,
+                            'description' => "A nullable field ${fieldName} on input type ${newTypeName} was added."
+                        ];
+                    }
                 }
             }
         }
-        return $breakingFieldChanges;
+
+        return ['breakingChanges' => $breakingChanges, 'dangerousChanges' => $dangerousChanges];
 
     }
 
