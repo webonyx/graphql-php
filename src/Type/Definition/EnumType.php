@@ -108,7 +108,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     public function serialize($value)
     {
         $lookup = $this->getValueLookup();
-        return isset($lookup[$value]) ? $lookup[$value]->name : null;
+        if (isset($lookup[$value])) {
+            return $lookup[$value]->name;
+        }
+
+        return Utils::undefined();
     }
 
     /**

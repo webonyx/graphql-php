@@ -205,15 +205,15 @@ class AST
             return new ObjectValueNode(['fields' => $fieldNodes]);
         }
 
+        Utils::invariant(
+            $type instanceof ScalarType || $type instanceof EnumType,
+            "Must provide Input Type, cannot use: " . Utils::printSafe($type)
+        );
+
         // Since value is an internally represented value, it must be serialized
         // to an externally represented value before converting into an AST.
-        if ($type instanceof LeafType) {
-            $serialized = $type->serialize($value);
-        } else {
-            throw new InvariantViolation("Must provide Input Type, cannot use: " . Utils::printSafe($type));
-        }
-
-        if (null === $serialized) {
+        $serialized = $type->serialize($value);
+        if (null === $serialized || Utils::isInvalid($serialized)) {
             return null;
         }
 

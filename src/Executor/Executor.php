@@ -1187,7 +1187,7 @@ class Executor
     {
         $serializedResult = $returnType->serialize($result);
 
-        if ($serializedResult === null) {
+        if (Utils::isInvalid($serializedResult)) {
             throw new InvariantViolation(
                 'Expected a value of type "'. Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result)
             );
