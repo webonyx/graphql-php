@@ -35,7 +35,7 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
                 str: String
             }
         '));
-        
+
         $result = GraphQL::execute($schema, '{ str }', ['str' => 123]);
         $this->assertEquals($result['data'], ['str' => 123]);
     }
@@ -465,6 +465,26 @@ schema {
 
 type Hello {
   str(int: Int = 2): String
+}
+';
+        $output = $this->cycleOutput($body);
+        $this->assertEquals($output, $body);
+    }
+
+    /**
+     * @it Custom scalar argument field with default
+     */
+    public function testCustomScalarArgumentFieldWithDefault()
+    {
+        $body = '
+schema {
+  query: Hello
+}
+
+scalar CustomScalar
+
+type Hello {
+  str(int: CustomScalar = 2): String
 }
 ';
         $output = $this->cycleOutput($body);

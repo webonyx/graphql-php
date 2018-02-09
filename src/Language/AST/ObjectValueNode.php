@@ -6,7 +6,7 @@ class ObjectValueNode extends Node implements ValueNode
     public $kind = NodeKind::OBJECT;
 
     /**
-     * @var ObjectFieldNode[]
+     * @var ObjectFieldNode[]|NodeList
      */
     public $fields;
 }

@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
@@ -52,18 +51,19 @@ represent free-form human-readable text.';
      */
     public function parseValue($value)
     {
-        return is_string($value) ? $value : null;
+        return is_string($value) ? $value : Utils::undefined();
     }
 
     /**
-     * @param $ast
+     * @param $valueNode
+     * @param array|null $variables
      * @return null|string
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof StringValueNode) {
-            return $ast->value;
+        if ($valueNode instanceof StringValueNode) {
+            return $valueNode->value;
         }
-        return null;
+        return Utils::undefined();
     }
 }

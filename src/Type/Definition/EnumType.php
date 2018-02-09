@@ -122,9 +122,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType
 
     /**
      * @param $valueNode
+     * @param array|null $variables
      * @return bool
      */
-    public function isValidLiteral($valueNode)
+    public function isValidLiteral($valueNode, array $variables = null)
     {
         return $valueNode instanceof EnumValueNode && $this->getNameLookup()->offsetExists($valueNode->value);
     }
@@ -136,14 +137,15 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     public function parseValue($value)
     {
         $lookup = $this->getNameLookup();
-        return isset($lookup[$value]) ? $lookup[$value]->value : null;
+        return isset($lookup[$value]) ? $lookup[$value]->value : Utils::undefined();
     }
 
     /**
      * @param $value
+     * @param array|null $variables
      * @return null
      */
-    public function parseLiteral($value)
+    public function parseLiteral($value, array $variables = null)
     {
         if ($value instanceof EnumValueNode) {
             $lookup = $this->getNameLookup();
