@@ -16,11 +16,22 @@ class Utils
     }
 
     /**
+     * Check if the value is invalid
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isInvalid($value)
+    {
+        return self::undefined() === $value;
+    }
+
+    /**
      * @param object $obj
      * @param array  $vars
      * @param array  $requiredKeys
      *
-     * @return array
+     * @return object
      */
     public static function assign($obj, array $vars, array $requiredKeys = [])
     {

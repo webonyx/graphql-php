@@ -41,7 +41,7 @@ class BuildSchema
     /**
      * @param Type $innerType
      * @param TypeNode $inputTypeNode
-     * @return Type 
+     * @return Type
      */
     private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
     {
@@ -99,7 +99,7 @@ class BuildSchema
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->loadedTypeDefs = [];
     }
-    
+
     public function buildSchema()
     {
         $schemaDef = null;
@@ -544,19 +544,9 @@ class BuildSchema
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
             'astNode' => $def,
-            'serialize' => function() {
-                return false;
+            'serialize' => function($value) {
+                return $value;
             },
-            // Note: validation calls the parse functions to determine if a
-            // literal value is correct. Returning null would cause use of custom
-            // scalars to always fail validation. Returning false causes them to
-            // always pass validation.
-            'parseValue' => function() {
-                return false;
-            },
-            'parseLiteral' => function() {
-                return false;
-            }
         ];
     }
 
@@ -619,7 +609,7 @@ class BuildSchema
     /**
      * A helper function to build a GraphQLSchema directly from a source
      * document.
-     * 
+     *
      * @api
      * @param DocumentNode|Source|string $source
      * @param callable $typeConfigDecorator

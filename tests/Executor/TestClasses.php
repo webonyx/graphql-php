@@ -2,6 +2,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Utils\Utils;
 
 class Dog
 {
@@ -65,15 +66,15 @@ class ComplexScalar extends ScalarType
         if ($value === 'SerializedValue') {
             return 'DeserializedValue';
         }
-        return null;
+        return Utils::undefined();
     }
 
-    public function parseLiteral($valueNode)
+    public function parseLiteral($valueNode, array $variables = null)
     {
         if ($valueNode->value === 'SerializedValue') {
             return 'DeserializedValue';
         }
-        return null;
+        return Utils::undefined();
     }
 }
 

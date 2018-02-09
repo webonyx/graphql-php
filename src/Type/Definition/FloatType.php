@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
@@ -50,18 +49,19 @@ values as specified by
      */
     public function parseValue($value)
     {
-        return (is_numeric($value) && !is_string($value)) ? (float) $value : null;
+        return (is_numeric($value) && !is_string($value)) ? (float) $value : Utils::undefined();
     }
 
     /**
-     * @param $ast
+     * @param $valueNode
+     * @param array|null $variables
      * @return float|null
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof FloatValueNode || $ast instanceof IntValueNode) {
-            return (float) $ast->value;
+        if ($valueNode instanceof FloatValueNode || $valueNode instanceof IntValueNode) {
+            return (float) $valueNode->value;
         }
-        return null;
+        return Utils::undefined();
     }
 }

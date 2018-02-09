@@ -1,9 +1,7 @@
 <?php
 namespace GraphQL\Executor;
 
-
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
@@ -15,12 +13,13 @@ use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
+use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
@@ -274,32 +273,33 @@ class Values
             return $errors;
         }
 
-        if ($type instanceof LeafType) {
-            try {
-                // Scalar/Enum input checks to ensure the type can parse the value to
-                // a non-null value.
-                $parseResult = $type->parseValue($value);
-                if (null === $parseResult && !$type->isValidValue($value)) {
-                    $v = Utils::printSafeJson($value);
-                    return [
-                        "Expected type \"{$type->name}\", found $v."
-                    ];
-                }
-                return [];
-            } catch (\Exception $e) {
+        Utils::invariant($type instanceof EnumType || $type instanceof ScalarType, 'Must be input type');
+
+
+        try {
+            // Scalar/Enum input checks to ensure the type can parse the value to
+            // a non-null value.
+
+            if (!$type->isValidValue($value)) {
+                $v = Utils::printSafeJson($value);
                 return [
-                    "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
-                    $e->getMessage()
-                ];
-            } catch (\Throwable $e) {
-                return [
-                    "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
-                    $e->getMessage()
+                    "Expected type \"{$type->name}\", found $v."
                 ];
             }
+        } catch (\Exception $e) {
+            return [
+                "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
+                $e->getMessage()
+            ];
+        } catch (\Throwable $e) {
+            return [
+                "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
+                $e->getMessage()
+            ];
         }
 
-        throw new InvariantViolation('Must be input type');
+
+        return [];
     }
 
     /**
@@ -370,16 +370,12 @@ class Values
             return $coercedObj;
         }
 
-        if ($type instanceof LeafType) {
-            $parsed = $type->parseValue($value);
-            if (null === $parsed) {
-                // null or invalid values represent a failure to parse correctly,
-                // in which case no value is returned.
-                return $undefined;
-            }
-            return $parsed;
+        Utils::invariant($type instanceof EnumType || $type instanceof ScalarType, 'Must be input type');
+
+        if ($type->isValidValue($value)) {
+            return $type->parseValue($value);
         }
 
-        throw new InvariantViolation('Must be input type');
+        return $undefined;
     }
 }
