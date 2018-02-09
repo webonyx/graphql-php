@@ -74,6 +74,11 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     protected $category;
 
     /**
+     * @var array
+     */
+    protected $extensions;
+
+    /**
      * Given an arbitrary Error, presumably thrown while attempting to execute a
      * GraphQL operation, produce a new GraphQLError aware of the location in the
      * document responsible for the original Error.
@@ -95,6 +100,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         }
 
         $source = $positions = $originalError = null;
+        $extensions = [];
 
         if ($error instanceof self) {
             $message = $error->getMessage();
@@ -102,6 +108,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
             $nodes = $error->nodes ?: $nodes;
             $source = $error->source;
             $positions = $error->positions;
+            $extensions = $error->extensions;
         } else if ($error instanceof \Exception || $error instanceof \Throwable) {
             $message = $error->getMessage();
             $originalError = $error;
@@ -115,7 +122,8 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
             $source,
             $positions,
             $path,
-            $originalError
+            $originalError,
+            $extensions
         );
     }
 
@@ -136,6 +144,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
      * @param array|null $positions
      * @param array|null $path
      * @param \Throwable $previous
+     * @param array $extensions
      */
     public function __construct(
         $message,
@@ -143,7 +152,8 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         Source $source = null,
         $positions = null,
         $path = null,
-        $previous = null
+        $previous = null,
+        array $extensions = []
     )
     {
         parent::__construct($message, 0, $previous);
@@ -156,6 +166,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         $this->source = $source;
         $this->positions = $positions;
         $this->path = $path;
+        $this->extensions = $extensions;
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
@@ -261,6 +272,14 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     }
 
     /**
+     * @return array
+     */
+    public function getExtensions()
+    {
+        return $this->extensions;
+    }
+
+    /**
      * Returns array representation of error suitable for serialization
      *
      * @deprecated Use FormattedError::createFromException() instead
@@ -271,6 +290,10 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         $arr = [
             'message' => $this->getMessage()
         ];
+
+        if ($this->getExtensions()) {
+            $arr = array_merge($this->getExtensions(), $arr);
+        }
 
         $locations = Utils::map($this->getLocations(), function(SourceLocation $loc) {
             return $loc->toSerializableArray();
