@@ -2,8 +2,8 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Language\Printer;
+use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -31,10 +31,12 @@ class SchemaPrinter
     {
         return self::printFilteredSchema(
             $schema,
-            function($n) {
-                return !self::isSpecDirective($n);
+            function($type) {
+                return !Directive::isSpecifiedDirective($type);
             },
-            'self::isDefinedType',
+            function ($type) {
+                return !Type::isBuiltInType($type);
+            },
             $options
         );
     }
@@ -48,51 +50,20 @@ class SchemaPrinter
     {
         return self::printFilteredSchema(
             $schema,
-            [__CLASS__, 'isSpecDirective'],
-            [__CLASS__, 'isIntrospectionType'],
+            [Directive::class, 'isSpecifiedDirective'],
+            [Introspection::class, 'isIntrospectionType'],
             $options
-        );
-    }
-
-    private static function isSpecDirective($directiveName)
-    {
-        return (
-            $directiveName === 'skip' ||
-            $directiveName === 'include' ||
-            $directiveName === 'deprecated'
-        );
-    }
-
-    private static function isDefinedType($typename)
-    {
-        return !self::isIntrospectionType($typename) && !self::isBuiltInScalar($typename);
-    }
-
-    private static function isIntrospectionType($typename)
-    {
-        return strpos($typename, '__') === 0;
-    }
-
-    private static function isBuiltInScalar($typename)
-    {
-        return (
-            $typename === Type::STRING ||
-            $typename === Type::BOOLEAN ||
-            $typename === Type::INT ||
-            $typename === Type::FLOAT ||
-            $typename === Type::ID
         );
     }
 
     private static function printFilteredSchema(Schema $schema, $directiveFilter, $typeFilter, $options)
     {
         $directives = array_filter($schema->getDirectives(), function($directive) use ($directiveFilter) {
-            return $directiveFilter($directive->name);
+            return $directiveFilter($directive);
         });
-        $typeMap = $schema->getTypeMap();
-        $types = array_filter(array_keys($typeMap), $typeFilter);
-        sort($types);
-        $types = array_map(function($typeName) use ($typeMap) { return $typeMap[$typeName]; }, $types);
+        $types = $schema->getTypeMap();
+        ksort($types);
+        $types = array_filter($types, $typeFilter);
 
         return implode("\n\n", array_filter(array_merge(
             [self::printSchemaDefinition($schema)],

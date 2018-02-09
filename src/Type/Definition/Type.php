@@ -2,7 +2,9 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Type\Introspection;
 
 /**
  * Registry of standard GraphQL types
@@ -22,6 +24,11 @@ abstract class Type implements \JsonSerializable
      * @var array
      */
     private static $internalTypes;
+
+    /**
+     * @var array
+     */
+    private static $builtInTypes;
 
     /**
      * @api
@@ -107,11 +114,41 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Returns all builtin scalar types
+     *
      * @return Type[]
      */
     public static function getInternalTypes()
     {
         return self::getInternalType();
+    }
+
+    /**
+     * Returns all builtin in types including base scalar and
+     * introspection types
+     *
+     * @return Type[]
+     */
+    public static function getAllBuiltInTypes()
+    {
+        if (null === self::$builtInTypes) {
+            self::$builtInTypes = array_merge(
+                Introspection::getTypes(),
+                self::getInternalTypes()
+            );
+        }
+        return self::$builtInTypes;
+    }
+
+    /**
+     * Checks if the type is a builtin type
+     *
+     * @param Type $type
+     * @return bool
+     */
+    public static function isBuiltInType(Type $type)
+    {
+        return in_array($type->name, array_keys(self::getAllBuiltInTypes()));
     }
 
     /**

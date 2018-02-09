@@ -240,6 +240,15 @@ EOD;
         ];
     }
 
+    /**
+     * @param Type $type
+     * @return bool
+     */
+    public static function isIntrospectionType(Type $type)
+    {
+        return in_array($type->name, array_keys(self::getTypes()));
+    }
+
     public static function _schema()
     {
         if (!isset(self::$map['__Schema'])) {

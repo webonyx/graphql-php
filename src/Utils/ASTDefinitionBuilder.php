@@ -61,21 +61,7 @@ class ASTDefinitionBuilder
         $this->options = $options;
         $this->resolveType = $resolveType;
 
-        $this->cache = [
-            'String' => Type::string(),
-            'Int' => Type::int(),
-            'Float' => Type::float(),
-            'Boolean' => Type::boolean(),
-            'ID' => Type::id(),
-            '__Schema' => Introspection::_schema(),
-            '__Directive' => Introspection::_directive(),
-            '__DirectiveLocation' => Introspection::_directiveLocation(),
-            '__Type' => Introspection::_type(),
-            '__Field' => Introspection::_field(),
-            '__InputValue' => Introspection::_inputValue(),
-            '__EnumValue' => Introspection::_enumValue(),
-            '__TypeKind' => Introspection::_typeKind(),
-        ];
+        $this->cache = Type::getAllBuiltInTypes();
     }
 
     /**

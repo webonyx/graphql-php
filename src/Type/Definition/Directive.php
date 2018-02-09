@@ -75,6 +75,15 @@ class Directive
     }
 
     /**
+     * @param Directive $directive
+     * @return bool
+     */
+    public static function isSpecifiedDirective(Directive $directive)
+    {
+        return in_array($directive->name, array_keys(self::getInternalDirectives()));
+    }
+
+    /**
      * @return array
      */
     public static function getInternalDirectives()
