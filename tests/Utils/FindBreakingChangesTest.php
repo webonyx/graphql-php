@@ -254,7 +254,7 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ])
         ]);
 
-        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema));
+        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema));
     }
 
 
@@ -424,7 +424,7 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ],
         ];
 
-        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema));
+        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges']);
     }
 
     public function testDetectsNonNullFieldAddedToInputType()
@@ -468,7 +468,7 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                 'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED,
                 'description' => 'A non-null field requiredField on input type InputType1 was added.'
             ],
-            FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema)[0]
+            FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges'][0]
         );
     }
 
@@ -1366,6 +1366,55 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+    /**
+     * @it should detect if a nullable field was added to an input
+     */
+    public function testShouldDetectIfANullableFieldWasAddedToAnInput()
+    {
+        $oldInputType = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+        $newInputType = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                ],
+                'field2' => [
+                    'type' => Type::int(),
+                ],
+            ],
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $oldInputType,
+            ]
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $newInputType,
+            ]
+        ]);
+
+        $expectedFieldChanges = [
+            [
+                'description' => 'A nullable field field2 on input type InputType1 was added.',
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_NULLABLE_INPUT_FIELD_ADDED
+            ],
+        ];
+
+        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['dangerousChanges']);
+    }
+
     public function testFindsAllDangerousChanges()
     {
         $enumThatGainsAValueOld = new EnumType([
@@ -1472,5 +1521,65 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ];
 
         $this->assertEquals($expectedDangerousChanges, FindBreakingChanges::findDangerousChanges($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect if a nullable field argument was added
+     */
+    public function testShouldDetectIfANullableFieldArgumentWasAdded()
+    {
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => [
+                            'type' => Type::string(),
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => [
+                            'type' => Type::string(),
+                        ],
+                        'arg2' => [
+                            'type' => Type::string(),
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $oldType,
+            ]
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [
+                $newType,
+            ]
+        ]);
+
+        $expectedFieldChanges = [
+            [
+                'description' => 'A nullable arg arg2 on Type1->field1 was added.',
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_NULLABLE_ARG_ADDED
+            ],
+        ];
+
+        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['dangerousChanges']);
     }
 }
