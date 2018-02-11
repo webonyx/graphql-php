@@ -2,86 +2,65 @@
 namespace GraphQL\Utils;
 
 /**
- * Class PairSet
- * @package GraphQL\Utils
+ * A way to keep track of pairs of things when the ordering of the pair does
+ * not matter. We do this by maintaining a sort of double adjacency sets.
  */
 class PairSet
 {
     /**
-     * @var \SplObjectStorage<any, Set<any>>
-     */
-    private $data;
-
-    /**
      * @var array
      */
-    private $wrappers = [];
+    private $data;
 
     /**
      * PairSet constructor.
      */
     public function __construct()
     {
-        $this->data = new \SplObjectStorage(); // SplObject hash instead?
+        $this->data = [];
     }
 
     /**
-     * @param $a
-     * @param $b
-     * @return null|object
+     * @param string $a
+     * @param string $b
+     * @param bool $areMutuallyExclusive
+     * @return bool
      */
-    public function has($a, $b)
+    public function has($a, $b, $areMutuallyExclusive)
     {
-        $a = $this->toObj($a);
-        $b = $this->toObj($b);
-
-        /** @var \SplObjectStorage $first */
         $first = isset($this->data[$a]) ? $this->data[$a] : null;
-        return isset($first, $first[$b]) ? $first[$b] : null;
+        $result = ($first && isset($first[$b])) ? $first[$b] : null;
+        if ($result === null) {
+            return false;
+        }
+        // areMutuallyExclusive being false is a superset of being true,
+        // hence if we want to know if this PairSet "has" these two with no
+        // exclusivity, we have to ensure it was added as such.
+        if ($areMutuallyExclusive === false) {
+            return $result === false;
+        }
+        return true;
     }
 
     /**
-     * @param $a
-     * @param $b
+     * @param string $a
+     * @param string $b
+     * @param bool $areMutuallyExclusive
      */
-    public function add($a, $b)
+    public function add($a, $b, $areMutuallyExclusive)
     {
-        $this->pairSetAdd($a, $b);
-        $this->pairSetAdd($b, $a);
+        $this->pairSetAdd($a, $b, $areMutuallyExclusive);
+        $this->pairSetAdd($b, $a, $areMutuallyExclusive);
     }
 
     /**
-     * @param $var
-     * @return mixed
+     * @param string $a
+     * @param string $b
+     * @param bool $areMutuallyExclusive
      */
-    private function toObj($var)
+    private function pairSetAdd($a, $b, $areMutuallyExclusive)
     {
-        // SplObjectStorage expects objects, so wrapping non-objects to objects
-        if (is_object($var)) {
-            return $var;
-        }
-        if (!isset($this->wrappers[$var])) {
-            $tmp = new \stdClass();
-            $tmp->_internal = $var;
-            $this->wrappers[$var] = $tmp;
-        }
-        return $this->wrappers[$var];
-    }
-
-    /**
-     * @param $a
-     * @param $b
-     */
-    private function pairSetAdd($a, $b)
-    {
-        $a = $this->toObj($a);
-        $b = $this->toObj($b);
-        $set = isset($this->data[$a]) ? $this->data[$a] : null;
-
-        if (!isset($set)) {
-            $set = new \SplObjectStorage();
-            $this->data[$a] = $set;
-        }
-        $set[$b] = true;
+        $this->data[$a] = isset($this->data[$a]) ? $this->data[$a] : [];
+        $this->data[$a][$b] = $areMutuallyExclusive;
     }
 }

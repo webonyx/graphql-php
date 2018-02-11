@@ -294,12 +294,12 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
                 [new SourceLocation(18, 9), new SourceLocation(21, 9)]
             ),
             FormattedError::create(
-                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and c are different fields'),
-                [new SourceLocation(18, 9), new SourceLocation(14, 11)]
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'c and a are different fields'),
+                [new SourceLocation(14, 11), new SourceLocation(18, 9)]
             ),
             FormattedError::create(
-                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'b and c are different fields'),
-                [new SourceLocation(21, 9), new SourceLocation(14, 11)]
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'c and b are different fields'),
+                [new SourceLocation(14, 11), new SourceLocation(21, 9)]
             )
         ]);
     }
@@ -432,6 +432,113 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         ]);
     }
 
+    /**
+     * @it reports deep conflict to nearest common ancestor in fragments
+     */
+    public function testReportsDeepConflictToNearestCommonAncestorInFragments()
+    {
+        $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
+      {
+        field {
+          ...F
+        }
+        field {
+          ...F
+        }
+      }
+      fragment F on T {
+        deepField {
+          deeperField {
+            x: a
+          }
+          deeperField {
+            x: b
+          }
+        },
+        deepField {
+          deeperField {
+            y
+          }
+        }
+      }
+        ', [
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('deeperField', [['x', 'a and b are different fields']]),
+                [
+                    new SourceLocation(12,11),
+                    new SourceLocation(13,13),
+                    new SourceLocation(15,11),
+                    new SourceLocation(16,13),
+                ]
+            )
+        ]);
+    }
+
+    /**
+     * @it reports deep conflict in nested fragments
+     */
+    public function testReportsDeepConflictInNestedFragments()
+    {
+        $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
+      {
+        field {
+          ...F
+        }
+        field {
+          ...I
+        }
+      }
+      fragment F on T {
+        x: a
+        ...G
+      }
+      fragment G on T {
+        y: c
+      }
+      fragment I on T {
+        y: d
+        ...J
+      }
+      fragment J on T {
+        x: b
+      }
+        ', [
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('field', [
+                    ['x', 'a and b are different fields'],
+                    ['y', 'c and d are different fields'],
+                ]),
+                [
+                    new SourceLocation(3,9),
+                    new SourceLocation(11,9),
+                    new SourceLocation(15,9),
+                    new SourceLocation(6,9),
+                    new SourceLocation(22,9),
+                    new SourceLocation(18,9),
+                ]
+            )
+        ]);
+    }
+
+    /**
+     * @it ignores unknown fragments
+     */
+    public function testIgnoresUnknownFragments()
+    {
+        $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
+      {
+        field {
+          ...Unknown
+          ...Known
+        }
+      }
+      fragment Known on T {
+        field
+        ...OtherUnknown
+      }
+        ');
+    }
+
     // Describe: return types must be unambiguous
 
     /**
@@ -516,6 +623,70 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
                 ),
                 [ new SourceLocation(5, 15),
                     new SourceLocation(8, 15)]
+            )
+        ]);
+    }
+
+    /**
+     * @it reports correctly when a non-exclusive follows an exclusive
+     */
+    public function testReportsCorrectlyWhenANonExclusiveFollowsAnExclusive()
+    {
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
+        {
+          someBox {
+            ... on IntBox {
+              deepBox {
+                ...X
+              }
+            }
+          }
+          someBox {
+            ... on StringBox {
+              deepBox {
+                ...Y
+              }
+            }
+          }
+          memoed: someBox {
+            ... on IntBox {
+              deepBox {
+                ...X
+              }
+            }
+          }
+          memoed: someBox {
+            ... on StringBox {
+              deepBox {
+                ...Y
+              }
+            }
+          }
+          other: someBox {
+            ...X
+          }
+          other: someBox {
+            ...Y
+          }
+        }
+        fragment X on SomeBox {
+          scalar
+        }
+        fragment Y on SomeBox {
+          scalar: unrelatedField
+        }
+        ', [
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage(
+                    'other',
+                    [['scalar', 'scalar and unrelatedField are different fields']]
+                ),
+                [
+                    new SourceLocation(31, 11),
+                    new SourceLocation(39, 11),
+                    new SourceLocation(34, 11),
+                    new SourceLocation(42, 11),
+                ]
             )
         ]);
     }
@@ -753,14 +924,14 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         }
       ', [
             FormattedError::create(
-                OverlappingFieldsCanBeMerged::fieldsConflictMessage('edges', [['node', [['id', 'id and name are different fields']]]]),
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('edges', [['node', [['id', 'name and id are different fields']]]]),
                 [
-                    new SourceLocation(14, 11),
-                    new SourceLocation(15, 13),
-                    new SourceLocation(16, 15),
                     new SourceLocation(5, 13),
                     new SourceLocation(6, 15),
                     new SourceLocation(7, 17),
+                    new SourceLocation(14, 11),
+                    new SourceLocation(15, 13),
+                    new SourceLocation(16, 15),
                 ]
             )
         ]);

@@ -124,7 +124,7 @@ class ValidationContext
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @return FragmentDefinitionNode|null
      */
     function getFragment($name)
