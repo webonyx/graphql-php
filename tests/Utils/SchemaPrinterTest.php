@@ -1,9 +1,10 @@
 <?php
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\GraphQL;
-use GraphQL\Schema;
+use GraphQL\Language\DirectiveLocation;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -40,7 +41,7 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
         $output = $this->printSingleFieldSchema([
             'type' => Type::string()
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -48,7 +49,7 @@ schema {
 type Root {
   singleField: String
 }
-');
+', $output);
     }
 
     /**
@@ -59,7 +60,7 @@ type Root {
         $output = $this->printSingleFieldSchema([
             'type' => Type::listOf(Type::string())
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -67,7 +68,7 @@ schema {
 type Root {
   singleField: [String]
 }
-');
+', $output);
     }
 
     /**
@@ -78,7 +79,7 @@ type Root {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::string())
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -86,7 +87,7 @@ schema {
 type Root {
   singleField: String!
 }
-');
+', $output);
     }
 
     /**
@@ -97,7 +98,7 @@ type Root {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::string()))
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -105,7 +106,7 @@ schema {
 type Root {
   singleField: [String]!
 }
-');
+', $output);
     }
 
     /**
@@ -116,7 +117,7 @@ type Root {
         $output = $this->printSingleFieldSchema([
             'type' => Type::listOf(Type::nonNull(Type::string()))
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -124,7 +125,7 @@ schema {
 type Root {
   singleField: [String!]
 }
-');
+', $output);
     }
 
     /**
@@ -135,7 +136,7 @@ type Root {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -143,7 +144,7 @@ schema {
 type Root {
   singleField: [String!]!
 }
-');
+', $output);
     }
 
     /**
@@ -163,7 +164,7 @@ type Root {
 
         $schema = new Schema(['query' => $root]);
         $output = $this->printForTest($schema);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -175,7 +176,7 @@ type Foo {
 type Root {
   foo: Foo
 }
-');
+', $output);
     }
 
     /**
@@ -187,7 +188,7 @@ type Root {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int()]]
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -195,7 +196,7 @@ schema {
 type Root {
   singleField(argOne: Int): String
 }
-');
+', $output);
     }
 
     /**
@@ -207,7 +208,7 @@ type Root {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]]
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -215,7 +216,7 @@ schema {
 type Root {
   singleField(argOne: Int = 2): String
 }
-');
+', $output);
     }
 
     /**
@@ -227,7 +228,7 @@ type Root {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]]
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -235,7 +236,7 @@ schema {
 type Root {
   singleField(argOne: Int = null): String
 }
-');
+', $output);
     }
 
     /**
@@ -247,7 +248,7 @@ type Root {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]]
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -255,7 +256,7 @@ schema {
 type Root {
   singleField(argOne: Int!): String
 }
-');
+', $output);
     }
 
     /**
@@ -270,7 +271,7 @@ type Root {
                 'argTwo' => ['type' => Type::string()]
             ]
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -278,7 +279,7 @@ schema {
 type Root {
   singleField(argOne: Int, argTwo: String): String
 }
-');
+', $output);
     }
 
     /**
@@ -294,7 +295,7 @@ type Root {
                 'argThree' => ['type' => Type::boolean()]
             ]
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -302,7 +303,7 @@ schema {
 type Root {
   singleField(argOne: Int = 1, argTwo: String, argThree: Boolean): String
 }
-');
+', $output);
     }
 
     /**
@@ -318,7 +319,7 @@ type Root {
                 'argThree' => ['type' => Type::boolean()]
             ]
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -326,7 +327,7 @@ schema {
 type Root {
   singleField(argOne: Int, argTwo: String = "foo", argThree: Boolean): String
 }
-');
+', $output);
     }
 
     /**
@@ -342,7 +343,7 @@ type Root {
                 'argThree' => ['type' => Type::boolean(), 'defaultValue' => false]
             ]
         ]);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -350,7 +351,7 @@ schema {
 type Root {
   singleField(argOne: Int, argTwo: String, argThree: Boolean = false): String
 }
-');
+', $output);
     }
 
     /**
@@ -379,7 +380,7 @@ type Root {
             'types' => [$barType]
         ]);
         $output = $this->printForTest($schema);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -395,7 +396,7 @@ interface Foo {
 type Root {
   bar: Bar
 }
-');
+', $output);
     }
 
     /**
@@ -432,7 +433,7 @@ type Root {
             'types' => [$barType]
         ]);
         $output = $this->printForTest($schema);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -453,7 +454,7 @@ interface Foo {
 type Root {
   bar: Bar
 }
-');
+', $output);
     }
 
     /**
@@ -491,7 +492,7 @@ type Root {
 
         $schema = new Schema(['query' => $root]);
         $output = $this->printForTest($schema);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -512,7 +513,7 @@ type Root {
 }
 
 union SingleUnion = Foo
-');
+', $output);
     }
 
     /**
@@ -537,7 +538,7 @@ union SingleUnion = Foo
 
         $schema = new Schema(['query' => $root]);
         $output = $this->printForTest($schema);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -549,7 +550,7 @@ input InputType {
 type Root {
   str(argOne: InputType): String
 }
-');
+', $output);
     }
 
     /**
@@ -573,7 +574,7 @@ type Root {
 
         $schema = new Schema(['query' => $root]);
         $output = $this->printForTest($schema);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -583,7 +584,7 @@ scalar Odd
 type Root {
   odd: Odd
 }
-');
+', $output);
     }
 
     /**
@@ -609,7 +610,7 @@ type Root {
 
         $schema = new Schema(['query' => $root]);
         $output = $this->printForTest($schema);
-        $this->assertEquals($output, '
+        $this->assertEquals('
 schema {
   query: Root
 }
@@ -623,7 +624,41 @@ enum RGB {
 type Root {
   rgb: RGB
 }
-');
+', $output);
+    }
+
+    /**
+     * @it Prints custom directives
+     */
+    public function testPrintsCustomDirectives()
+    {
+        $query = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'field' => ['type' => Type::string()],
+            ]
+        ]);
+
+        $customDirectives = new Directive([
+            'name' => 'customDirective',
+            'locations' => [
+                DirectiveLocation::FIELD
+            ]
+        ]);
+
+        $schema = new Schema([
+            'query' => $query,
+            'directives' => [$customDirectives],
+        ]);
+
+        $output = $this->printForTest($schema);
+        $this->assertEquals('
+directive @customDirective on FIELD
+
+type Query {
+  field: String
+}
+', $output);
     }
 
     /**
