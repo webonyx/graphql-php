@@ -1,15 +1,12 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\GraphQL;
-use GraphQL\Language\Lexer;
 use GraphQL\Language\Parser;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
-use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -20,7 +17,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     /**
      * @return Schema
      */
-    public static function getDefaultSchema()
+    public static function getTestSchema()
     {
         $FurColor = null;
 
@@ -276,20 +273,90 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                 'catOrDog' => ['type' => $CatOrDog],
                 'dogOrHuman' => ['type' => $DogOrHuman],
                 'humanOrAlien' => ['type' => $HumanOrAlien],
-                'complicatedArgs' => ['type' => $ComplicatedArgs]
+                'complicatedArgs' => ['type' => $ComplicatedArgs],
             ]
         ]);
 
-        $defaultSchema = new Schema([
+        $testSchema = new Schema([
             'query' => $queryRoot,
-            'directives' => array_merge(GraphQL::getInternalDirectives(), [
+            'directives' => [
+                Directive::includeDirective(),
+                Directive::skipDirective(),
                 new Directive([
-                    'name' => 'operationOnly',
-                    'locations' => [ 'QUERY' ],
-                ])
-            ])
+                    'name' => 'onQuery',
+                    'locations' => ['QUERY'],
+                ]),
+                new Directive([
+                    'name' => 'onMutation',
+                    'locations' => ['MUTATION'],
+                ]),
+                new Directive([
+                    'name' => 'onSubscription',
+                    'locations' => ['SUBSCRIPTION'],
+                ]),
+                new Directive([
+                    'name' => 'onField',
+                    'locations' => ['FIELD'],
+                ]),
+                new Directive([
+                    'name' => 'onFragmentDefinition',
+                    'locations' => ['FRAGMENT_DEFINITION'],
+                ]),
+                new Directive([
+                    'name' => 'onFragmentSpread',
+                    'locations' => ['FRAGMENT_SPREAD'],
+                ]),
+                new Directive([
+                    'name' => 'onInlineFragment',
+                    'locations' => ['INLINE_FRAGMENT'],
+                ]),
+                new Directive([
+                    'name' => 'onSchema',
+                    'locations' => ['SCHEMA'],
+                ]),
+                new Directive([
+                    'name' => 'onScalar',
+                    'locations' => ['SCALAR'],
+                ]),
+                new Directive([
+                    'name' => 'onObject',
+                    'locations' => ['OBJECT'],
+                ]),
+                new Directive([
+                    'name' => 'onFieldDefinition',
+                    'locations' => ['FIELD_DEFINITION'],
+                ]),
+                new Directive([
+                    'name' => 'onArgumentDefinition',
+                    'locations' => ['ARGUMENT_DEFINITION'],
+                ]),
+                new Directive([
+                    'name' => 'onInterface',
+                    'locations' => ['INTERFACE'],
+                ]),
+                new Directive([
+                    'name' => 'onUnion',
+                    'locations' => ['UNION'],
+                ]),
+                new Directive([
+                    'name' => 'onEnum',
+                    'locations' => ['ENUM'],
+                ]),
+                new Directive([
+                    'name' => 'onEnumValue',
+                    'locations' => ['ENUM_VALUE'],
+                ]),
+                new Directive([
+                    'name' => 'onInputObject',
+                    'locations' => ['INPUT_OBJECT'],
+                ]),
+                new Directive([
+                    'name' => 'onInputFieldDefinition',
+                    'locations' => ['INPUT_FIELD_DEFINITION'],
+                ]),
+            ],
         ]);
-        return $defaultSchema;
+        return $testSchema;
     }
 
     function expectValid($schema, $rules, $queryString)
@@ -313,12 +380,12 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
     function expectPassesRule($rule, $queryString)
     {
-        $this->expectValid($this->getDefaultSchema(), [$rule], $queryString);
+        $this->expectValid($this->getTestSchema(), [$rule], $queryString);
     }
 
     function expectFailsRule($rule, $queryString, $errors)
     {
-        return $this->expectInvalid($this->getDefaultSchema(), [$rule], $queryString, $errors);
+        return $this->expectInvalid($this->getTestSchema(), [$rule], $queryString, $errors);
     }
 
     function expectPassesRuleWithSchema($schema, $rule, $queryString)
@@ -333,11 +400,11 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
 
     function expectPassesCompleteValidation($queryString)
     {
-        $this->expectValid($this->getDefaultSchema(), DocumentValidator::allRules(), $queryString);
+        $this->expectValid($this->getTestSchema(), DocumentValidator::allRules(), $queryString);
     }
 
     function expectFailsCompleteValidation($queryString, $errors)
     {
-        $this->expectInvalid($this->getDefaultSchema(), DocumentValidator::allRules(), $queryString, $errors);
+        $this->expectInvalid($this->getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }
 }

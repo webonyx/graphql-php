@@ -1131,7 +1131,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $typeInfo = new TypeInfo(TestCase::getDefaultSchema());
+        $typeInfo = new TypeInfo(TestCase::getTestSchema());
 
         $ast = Parser::parse('{ human(id: 4) { name, pets { ... { name } }, unknown } }');
         Visitor::visit($ast, Visitor::visitWithTypeInfo($typeInfo, [
@@ -1213,7 +1213,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testMaintainsTypeInfoDuringEdit()
     {
         $visited = [];
-        $typeInfo = new TypeInfo(TestCase::getDefaultSchema());
+        $typeInfo = new TypeInfo(TestCase::getTestSchema());
 
         $ast = Parser::parse(
             '{ human(id: 4) { name, pets }, alien }'

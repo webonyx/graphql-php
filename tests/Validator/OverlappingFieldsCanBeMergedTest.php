@@ -2,13 +2,11 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
-use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UnionType;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 
 class OverlappingFieldsCanBeMergedTest extends TestCase
@@ -445,7 +443,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         // type IntBox and the interface type NonNullStringBox1. While that
         // condition does not exist in the current schema, the schema could
         // expand in the future to allow this. Thus it is invalid.
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ...on IntBox {
@@ -476,7 +474,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         // In this case `deepBox` returns `SomeBox` in the first usage, and
         // `StringBox` in the second usage. These return types are not the same!
         // however this is valid because the return *shapes* are compatible.
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
       {
         someBox {
           ... on SomeBox {
@@ -499,7 +497,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testDisallowsDifferingReturnTypesDespiteNoOverlap()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -527,7 +525,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testDisallowsDifferingReturnTypeNullabilityDespiteNoOverlap()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on NonNullStringBox1 {
@@ -555,7 +553,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testDisallowsDifferingReturnTypeListDespiteNoOverlap()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -582,7 +580,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         ]);
 
 
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -611,7 +609,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
     public function testDisallowsDifferingSubfields()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -645,7 +643,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testDisallowsDifferingDeepReturnTypesDespiteNoOverlap()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -681,7 +679,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testAllowsNonConflictingOverlapingTypes()
     {
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -700,7 +698,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testSameWrappedScalarReturnTypes()
     {
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ...on NonNullStringBox1 {
@@ -719,7 +717,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testAllowsInlineTypelessFragments()
     {
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           a
           ... {
@@ -734,7 +732,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testComparesDeepTypesIncludingList()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           connection {
             ...edgeID
@@ -773,7 +771,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testIgnoresUnknownTypes()
     {
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ...on UnknownType {
@@ -787,7 +785,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         ');
     }
 
-    private function getTestSchema()
+    private function getSchema()
     {
         $StringBox = null;
         $IntBox = null;

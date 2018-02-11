@@ -266,9 +266,9 @@ class DocumentValidator
                     }
                 }
                 return $errors;
-            } else {
-                return static::isValidLiteralValue($itemType, $valueNode);
             }
+
+            return static::isValidLiteralValue($itemType, $valueNode);
         }
 
         // Input objects check each defined field and look for undefined fields.
@@ -278,6 +278,7 @@ class DocumentValidator
             }
 
             $fields = $type->getFields();
+
             $errors = [];
 
             // Ensure every provided field is defined.

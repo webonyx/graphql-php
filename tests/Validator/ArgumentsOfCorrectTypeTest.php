@@ -615,7 +615,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
         $this->expectPassesRule(new ArgumentsOfCorrectType(), '
         {
           complicatedArgs {
-            stringListArgField(stringListArg: ["one", "two"])
+            stringListArgField(stringListArg: ["one", null, "two"])
           }
         }
         ');

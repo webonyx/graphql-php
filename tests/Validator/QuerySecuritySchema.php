@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
