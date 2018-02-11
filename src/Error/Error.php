@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Error;
 
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Utils\Utils;
@@ -139,7 +140,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
 
     /**
      * @param string $message
-     * @param array|null $nodes
+     * @param array|Node|null $nodes
      * @param Source $source
      * @param array|null $positions
      * @param array|null $path
@@ -158,8 +159,11 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     {
         parent::__construct($message, 0, $previous);
 
+        // Compute list of blame nodes.
         if ($nodes instanceof \Traversable) {
             $nodes = iterator_to_array($nodes);
+        } else if ($nodes && !is_array($nodes)) {
+            $nodes = [$nodes];
         }
 
         $this->nodes = $nodes;

@@ -38,6 +38,24 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it converts single node to positions and locations
+     */
+    public function testConvertSingleNodeToPositionsAndLocations()
+    {
+        $source = new Source('{
+      field
+    }');
+        $ast = Parser::parse($source);
+        $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
+        $e = new Error('msg', $fieldNode); // Non-array value.
+
+        $this->assertEquals([$fieldNode], $e->nodes);
+        $this->assertEquals($source, $e->getSource());
+        $this->assertEquals([8], $e->getPositions());
+        $this->assertEquals([new SourceLocation(2, 7)], $e->getLocations());
+    }
+
+    /**
      * @it converts node with loc.start === 0 to positions and locations
      */
     public function testConvertsNodeWithStart0ToPositionsAndLocations()
