@@ -204,9 +204,9 @@ class ASTDefinitionBuilder
         return [
             'type' => $this->buildOutputType($field->type),
             'description' => $this->getDescription($field),
-            'args' => $this->makeInputValues($field->arguments),
+            'args' => $field->arguments ? $this->makeInputValues($field->arguments) : null,
             'deprecationReason' => $this->getDeprecationReason($field),
-            'astNode' => $field
+            'astNode' => $field,
         ];
     }
 
