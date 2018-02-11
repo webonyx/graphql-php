@@ -28,7 +28,7 @@ class IntrospectionTest extends \PHPUnit_Framework_TestCase
             ])
         ]);
 
-        $request = Introspection::getIntrospectionQuery(false);
+        $request = Introspection::getIntrospectionQuery(['descriptions' => false]);
         $expected = array (
             'data' =>
                 array (

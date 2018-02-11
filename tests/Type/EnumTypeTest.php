@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Tests\Type;
 
-use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;

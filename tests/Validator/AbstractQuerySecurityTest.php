@@ -53,7 +53,7 @@ abstract class AbstractQuerySecurityTest extends \PHPUnit_Framework_TestCase
 
     protected function assertIntrospectionQuery($maxExpected)
     {
-        $query = Introspection::getIntrospectionQuery(true);
+        $query = Introspection::getIntrospectionQuery();
 
         $this->assertMaxValue($query, $maxExpected);
     }

@@ -37,11 +37,25 @@ class Introspection
     private static $map = [];
 
     /**
+     * Options:
+     *   - descriptions
+     *     Whether to include descriptions in the introspection result.
+     *     Default: true
+     *
+     * @param array $options
      * @return string
      */
-    public static function getIntrospectionQuery($includeDescription = true)
+    public static function getIntrospectionQuery($options = [])
     {
-        $withDescription = <<<'EOD'
+        if (is_bool($options)) {
+            trigger_error('Calling Introspection::getIntrospectionQuery(boolean) is deprecated. Please use Introspection::getIntrospectionQuery(["descriptions" => boolean]).', E_USER_DEPRECATED);
+            $descriptions = $options;
+        } else {
+            $descriptions = !array_key_exists('descriptions', $options) || $options['descriptions'] === true;
+        }
+        $descriptionField = $descriptions ? 'description' : '';
+
+        return <<<EOD
   query IntrospectionQuery {
     __schema {
       queryType { name }
@@ -52,7 +66,7 @@ class Introspection
       }
       directives {
         name
-        description
+        {$descriptionField}
         locations
         args {
           ...InputValue
@@ -64,10 +78,10 @@ class Introspection
   fragment FullType on __Type {
     kind
     name
-    description
+    {$descriptionField}
     fields(includeDeprecated: true) {
       name
-      description
+      {$descriptionField}
       args {
         ...InputValue
       }
@@ -85,7 +99,7 @@ class Introspection
     }
     enumValues(includeDeprecated: true) {
       name
-      description
+      {$descriptionField}
       isDeprecated
       deprecationReason
     }
@@ -96,7 +110,7 @@ class Introspection
 
   fragment InputValue on __InputValue {
     name
-    description
+    {$descriptionField}
     type { ...TypeRef }
     defaultValue
   }
@@ -134,95 +148,6 @@ class Introspection
     }
   }
 EOD;
-        $withoutDescription = <<<'EOD'
-  query IntrospectionQuery {
-    __schema {
-      queryType { name }
-      mutationType { name }
-      subscriptionType { name }
-      types {
-        ...FullType
-      }
-      directives {
-        name
-        locations
-        args {
-          ...InputValue
-        }
-      }
-    }
-  }
-
-  fragment FullType on __Type {
-    kind
-    name
-    fields(includeDeprecated: true) {
-      name
-      args {
-        ...InputValue
-      }
-      type {
-        ...TypeRef
-      }
-      isDeprecated
-      deprecationReason
-    }
-    inputFields {
-      ...InputValue
-    }
-    interfaces {
-      ...TypeRef
-    }
-    enumValues(includeDeprecated: true) {
-      name
-      isDeprecated
-      deprecationReason
-    }
-    possibleTypes {
-      ...TypeRef
-    }
-  }
-
-  fragment InputValue on __InputValue {
-    name
-    type { ...TypeRef }
-    defaultValue
-  }
-
-  fragment TypeRef on __Type {
-    kind
-    name
-    ofType {
-      kind
-      name
-      ofType {
-        kind
-        name
-        ofType {
-          kind
-          name
-          ofType {
-            kind
-            name
-            ofType {
-              kind
-              name
-              ofType {
-                kind
-                name
-                ofType {
-                  kind
-                  name
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-EOD;
-        return $includeDescription ? $withDescription : $withoutDescription;
     }
 
     public static function getTypes()
