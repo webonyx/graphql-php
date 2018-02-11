@@ -936,7 +936,12 @@ const UNION_TYPE_DEFINITION = "UnionTypeDefinition";
 const ENUM_TYPE_DEFINITION = "EnumTypeDefinition";
 const ENUM_VALUE_DEFINITION = "EnumValueDefinition";
 const INPUT_OBJECT_TYPE_DEFINITION = "InputObjectTypeDefinition";
+const SCALAR_TYPE_EXTENSION = "ScalarTypeExtension";
 const OBJECT_TYPE_EXTENSION = "ObjectTypeExtension";
+const INTERFACE_TYPE_EXTENSION = "InterfaceTypeExtension";
+const UNION_TYPE_EXTENSION = "UnionTypeExtension";
+const ENUM_TYPE_EXTENSION = "EnumTypeExtension";
+const INPUT_OBJECT_TYPE_EXTENSION = "InputObjectTypeExtension";
 const DIRECTIVE_DEFINITION = "DirectiveDefinition";
 ```
 

@@ -2,6 +2,7 @@
 namespace GraphQL\Validator;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\NodeKind;
@@ -309,12 +310,33 @@ class DocumentValidator
             return $errors;
         }
 
-        Utils::invariant($type instanceof ScalarType || $type instanceof EnumType, 'Must be input type');
+        if ($type instanceof EnumType) {
+            if (!$valueNode instanceof EnumValueNode || !$type->getValue($valueNode->value)) {
+                $printed = Printer::doPrint($valueNode);
+                return ["Expected type \"{$type->name}\", found $printed."];
+            }
 
-        // Scalars determine if a literal values is valid.
-        if (!$type->isValidLiteral($valueNode)) {
+            return [];
+        }
+
+        Utils::invariant($type instanceof ScalarType, 'Must be a scalar type');
+        /** @var ScalarType $type */
+
+        // Scalars determine if a literal values is valid via parseLiteral().
+        try {
+            $parseResult = $type->parseLiteral($valueNode);
+            if (Utils::isInvalid($parseResult)) {
+                $printed = Printer::doPrint($valueNode);
+                return ["Expected type \"{$type->name}\", found $printed."];
+            }
+        } catch (\Exception $error) {
             $printed = Printer::doPrint($valueNode);
-            return [ "Expected type \"{$type->name}\", found $printed." ];
+            $message = $error->getMessage();
+            return ["Expected type \"{$type->name}\", found $printed; $message"];
+        } catch (\Throwable $error) {
+            $printed = Printer::doPrint($valueNode);
+            $message = $error->getMessage();
+            return ["Expected type \"{$type->name}\", found $printed; $message"];
         }
 
         return [];

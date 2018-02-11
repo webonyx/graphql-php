@@ -38,17 +38,4 @@ interface LeafType
      * @return mixed
      */
     public function parseLiteral($valueNode, array $variables = null);
-
-    /**
-     * @param string $value
-     * @return bool
-     */
-    public function isValidValue($value);
-
-    /**
-     * @param Node $valueNode
-     * @param array|null $variables
-     * @return bool
-     */
-    public function isValidLiteral($valueNode, array $variables = null);
 }

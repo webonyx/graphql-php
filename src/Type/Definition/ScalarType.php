@@ -38,28 +38,4 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
 
         Utils::assertValidName($this->name);
     }
-
-    /**
-     * Determines if an internal value is valid for this type.
-     *
-     * @param $value
-     * @return bool
-     */
-    public function isValidValue($value)
-    {
-        return !Utils::isInvalid($this->parseValue($value));
-    }
-
-    /**
-     * Determines if an internal value is valid for this type.
-     * Equivalent to checking for if the parsedLiteral is nullish.
-     *
-     * @param $valueNode
-     * @param array|null $variables
-     * @return bool
-     */
-    public function isValidLiteral($valueNode, array $variables = null)
-    {
-        return !Utils::isInvalid($this->parseLiteral($valueNode, $variables));
-    }
 }

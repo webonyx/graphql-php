@@ -383,15 +383,37 @@ class AST
             return $coercedObj;
         }
 
-        if (!$type instanceof ScalarType && !$type instanceof EnumType) {
-            throw new InvariantViolation('Must be input type');
+        if ($type instanceof EnumType) {
+            if (!$valueNode instanceof EnumValueNode) {
+                return $undefined;
+            }
+            $enumValue = $type->getValue($valueNode->value);
+            if (!$enumValue) {
+                return $undefined;
+            }
+
+            return $enumValue->value;
         }
 
-        if ($type->isValidLiteral($valueNode, $variables)) {
-            return $type->parseLiteral($valueNode, $variables);
+        Utils::invariant($type instanceof ScalarType, 'Must be scalar type');
+        /** @var ScalarType $type */
+
+        // Scalars fulfill parsing a literal value via parseLiteral().
+        // Invalid values represent a failure to parse correctly, in which case
+        // no value is returned.
+        try {
+            $result = $type->parseLiteral($valueNode, $variables);
+        } catch (\Exception $error) {
+            return $undefined;
+        } catch (\Throwable $error) {
+            return $undefined;
         }
 
-        return $undefined;
+        if (Utils::isInvalid($result)) {
+            return $undefined;
+        }
+
+        return $result;
     }
 
     /**

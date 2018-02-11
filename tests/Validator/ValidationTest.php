@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Error\FormattedError;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 
@@ -26,16 +27,32 @@ class ValidationTest extends TestCase
           }
         ');
     }
-/*
-    public function testAllowsSettingRulesGlobally()
-    {
-        $rule = new QueryComplexity(0);
 
-        DocumentValidator::addRule($rule);
-        $instance = DocumentValidator::getRule(QueryComplexity::class);
-        $this->assertSame($rule, $instance);
+    /**
+     * @it detects bad scalar parse
+     */
+    public function testDetectsBadScalarParse()
+    {
+        $doc = '
+      query {
+        invalidArg(arg: "bad value")
+      }
+        ';
+
+        $expectedError = [
+            'message' => "Argument \"arg\" has invalid value \"bad value\".
+Expected type \"Invalid\", found \"bad value\"; Invalid scalar is always invalid: bad value",
+            'locations' => [ ['line' => 3, 'column' => 25] ]
+        ];
+
+        $this->expectInvalid(
+            $this->getTestSchema(),
+            null,
+            $doc,
+            [$expectedError]
+        );
     }
-*/
+
     public function testPassesValidationWithEmptyRules()
     {
         $query = '{invalid}';

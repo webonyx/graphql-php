@@ -273,31 +273,36 @@ class Values
             return $errors;
         }
 
-        Utils::invariant($type instanceof EnumType || $type instanceof ScalarType, 'Must be input type');
-
-
-        try {
-            // Scalar/Enum input checks to ensure the type can parse the value to
-            // a non-null value.
-
-            if (!$type->isValidValue($value)) {
-                $v = Utils::printSafeJson($value);
-                return [
-                    "Expected type \"{$type->name}\", found $v."
-                ];
+        if ($type instanceof EnumType) {
+            if (!is_string($value) || !$type->getValue($value)) {
+                $printed = Utils::printSafeJson($value);
+                return ["Expected type \"{$type->name}\", found $printed."];
             }
-        } catch (\Exception $e) {
-            return [
-                "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
-                $e->getMessage()
-            ];
-        } catch (\Throwable $e) {
-            return [
-                "Expected type \"{$type->name}\", found " . Utils::printSafeJson($value) . ': ' .
-                $e->getMessage()
-            ];
+
+            return [];
         }
 
+        Utils::invariant($type instanceof ScalarType, 'Must be a scalar type');
+        /** @var ScalarType $type */
+
+        // Scalars determine if a value is valid via parseValue().
+        try {
+            $parseResult = $type->parseValue($value);
+            if (Utils::isInvalid($parseResult)) {
+                $printed = Utils::printSafeJson($value);
+                return [
+                    "Expected type \"{$type->name}\", found $printed."
+                ];
+            }
+        } catch (\Exception $error) {
+            $printed = Utils::printSafeJson($value);
+            $message = $error->getMessage();
+            return ["Expected type \"{$type->name}\", found $printed; $message"];
+        } catch (\Throwable $error) {
+            $printed = Utils::printSafeJson($value);
+            $message = $error->getMessage();
+            return ["Expected type \"{$type->name}\", found $printed; $message"];
+        }
 
         return [];
     }
@@ -370,12 +375,34 @@ class Values
             return $coercedObj;
         }
 
-        Utils::invariant($type instanceof EnumType || $type instanceof ScalarType, 'Must be input type');
+        if ($type instanceof EnumType) {
+            if (!is_string($value) || !$type->getValue($value)) {
+                return $undefined;
+            }
 
-        if ($type->isValidValue($value)) {
-            return $type->parseValue($value);
+            $enumValue = $type->getValue($value);
+            if (!$enumValue) {
+                return $undefined;
+            }
+
+            return $enumValue->value;
         }
 
-        return $undefined;
+        Utils::invariant($type instanceof ScalarType, 'Must be a scalar type');
+        /** @var ScalarType $type */
+
+        // Scalars determine if a value is valid via parseValue().
+        try {
+            $parseResult = $type->parseValue($value);
+            if (Utils::isInvalid($parseResult)) {
+                return $undefined;
+            }
+        } catch (\Exception $error) {
+            return $undefined;
+        } catch (\Throwable $error) {
+            return $undefined;
+        }
+
+        return $parseResult;
     }
 }
