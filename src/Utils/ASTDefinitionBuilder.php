@@ -251,15 +251,17 @@ class ASTDefinitionBuilder
 
     private function makeFieldDefMap($def)
     {
-        return Utils::keyValMap(
-            $def->fields,
-            function ($field) {
-                return $field->name->value;
-            },
-            function ($field) {
-                return $this->buildField($field);
-            }
-        );
+        return $def->fields
+            ? Utils::keyValMap(
+                $def->fields,
+                function ($field) {
+                    return $field->name->value;
+                },
+                function ($field) {
+                    return $this->buildField($field);
+                }
+            )
+            : [];
     }
 
     private function makeImplementedInterfaces(ObjectTypeDefinitionNode $def)
@@ -313,20 +315,22 @@ class ASTDefinitionBuilder
         return new EnumType([
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
+            'values' => $def->values
+                ? Utils::keyValMap(
+                    $def->values,
+                    function ($enumValue) {
+                        return $enumValue->name->value;
+                    },
+                    function ($enumValue) {
+                        return [
+                            'description' => $this->getDescription($enumValue),
+                            'deprecationReason' => $this->getDeprecationReason($enumValue),
+                            'astNode' => $enumValue
+                        ];
+                    }
+                )
+                : [],
             'astNode' => $def,
-            'values' => Utils::keyValMap(
-                $def->values,
-                function ($enumValue) {
-                    return $enumValue->name->value;
-                },
-                function ($enumValue) {
-                    return [
-                        'description' => $this->getDescription($enumValue),
-                        'deprecationReason' => $this->getDeprecationReason($enumValue),
-                        'astNode' => $enumValue
-                    ];
-                }
-            )
         ]);
     }
 
@@ -335,10 +339,12 @@ class ASTDefinitionBuilder
         return new UnionType([
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
-            'types' => Utils::map($def->types, function ($typeNode) {
-                return $this->buildObjectType($typeNode);
-            }),
-            'astNode' => $def
+            'types' => $def->types
+                ? Utils::map($def->types, function ($typeNode) {
+                    return $this->buildObjectType($typeNode);
+                }):
+                [],
+            'astNode' => $def,
         ]);
     }
 
@@ -360,7 +366,9 @@ class ASTDefinitionBuilder
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
             'fields' => function () use ($def) {
-                return $this->makeInputValues($def->fields);
+                return $def->fields
+                    ? $this->makeInputValues($def->fields)
+                    : [];
             },
             'astNode' => $def,
         ]);

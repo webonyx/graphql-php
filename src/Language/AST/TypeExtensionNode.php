@@ -5,6 +5,11 @@ interface TypeExtensionNode extends TypeSystemDefinitionNode
 {
     /**
     export type TypeExtensionNode =
-      | ObjectTypeExtensionNode;
+      | ScalarTypeExtensionNode
+      | ObjectTypeExtensionNode
+      | InterfaceTypeExtensionNode
+      | UnionTypeExtensionNode
+      | EnumTypeExtensionNode
+      | InputObjectTypeExtensionNode;
      */
 }

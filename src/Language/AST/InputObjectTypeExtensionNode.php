@@ -1,12 +1,12 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class InputObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
+class InputObjectTypeExtensionNode extends Node implements TypeExtensionNode
 {
     /**
      * @var string
      */
-    public $kind = NodeKind::INPUT_OBJECT_TYPE_DEFINITION;
+    public $kind = NodeKind::INPUT_OBJECT_TYPE_EXTENSION;
 
     /**
      * @var NameNode
@@ -22,9 +22,4 @@ class InputObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
      * @var InputValueDefinitionNode[]|null
      */
     public $fields;
-
-    /**
-     * @var StringValueNode|null
-     */
-    public $description;
 }

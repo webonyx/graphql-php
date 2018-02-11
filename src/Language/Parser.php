@@ -4,11 +4,14 @@ namespace GraphQL\Language;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -33,6 +36,7 @@ use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\OperationTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
@@ -40,9 +44,11 @@ use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Language\AST\TypeSystemDefinitionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Error\SyntaxError;
+use GraphQL\Type\TypeKind;
 
 /**
  * Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
@@ -1002,7 +1008,7 @@ class Parser
         $name = $this->parseName();
         $interfaces = $this->parseImplementsInterfaces();
         $directives = $this->parseDirectives(true);
-        $fields = $this->parseFieldDefinitions();
+        $fields = $this->parseFieldsDefinition();
 
         return new ObjectTypeDefinitionNode([
             'name' => $name,
@@ -1033,13 +1039,15 @@ class Parser
      * @return FieldDefinitionNode[]|NodeList
      * @throws SyntaxError
      */
-    function parseFieldDefinitions()
+    function parseFieldsDefinition()
     {
-        return $this->many(
-            Token::BRACE_L,
-            [$this, 'parseFieldDefinition'],
-            Token::BRACE_R
-        );
+        return $this->peek(Token::BRACE_L)
+            ? $this->many(
+                Token::BRACE_L,
+                [$this, 'parseFieldDefinition'],
+                Token::BRACE_R
+            )
+            : new NodeList([]);
     }
 
     /**
@@ -1114,7 +1122,7 @@ class Parser
         $this->expectKeyword('interface');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $fields = $this->parseFieldDefinitions();
+        $fields = $this->parseFieldsDefinition();
 
         return new InterfaceTypeDefinitionNode([
             'name' => $name,
@@ -1136,8 +1144,7 @@ class Parser
         $this->expectKeyword('union');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $this->expect(Token::EQUALS);
-        $types = $this->parseUnionMembers();
+        $types = $this->parseMemberTypesDefinition();
 
         return new UnionTypeDefinitionNode([
             'name' => $name,
@@ -1149,22 +1156,23 @@ class Parser
     }
 
     /**
-     * UnionMembers :
+     * MemberTypes :
      *   - `|`? NamedType
-     *   - UnionMembers | NamedType
+     *   - MemberTypes | NamedType
      *
      * @return NamedTypeNode[]
      */
-    function parseUnionMembers()
+    function parseMemberTypesDefinition()
     {
-        // Optional leading pipe
-        $this->skip(Token::PIPE);
-        $members = [];
-
-        do {
-            $members[] = $this->parseNamedType();
-        } while ($this->skip(Token::PIPE));
-        return $members;
+        $types = [];
+        if ($this->skip(Token::EQUALS)) {
+            // Optional leading pipe
+            $this->skip(Token::PIPE);
+            do {
+                $types[] = $this->parseNamedType();
+            } while ($this->skip(Token::PIPE));
+        }
+        return $types;
     }
 
     /**
@@ -1178,11 +1186,7 @@ class Parser
         $this->expectKeyword('enum');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $values = $this->many(
-            Token::BRACE_L,
-            [$this, 'parseEnumValueDefinition'],
-            Token::BRACE_R
-        );
+        $values = $this->parseEnumValuesDefinition();
 
         return new EnumTypeDefinitionNode([
             'name' => $name,
@@ -1191,6 +1195,21 @@ class Parser
             'loc' => $this->loc($start),
             'description' => $description
         ]);
+    }
+
+    /**
+     * @return EnumValueDefinitionNode[]|NodeList
+     * @throws SyntaxError
+     */
+    function parseEnumValuesDefinition()
+    {
+        return $this->peek(Token::BRACE_L)
+            ? $this->many(
+                Token::BRACE_L,
+                [$this, 'parseEnumValueDefinition'],
+                Token::BRACE_R
+              )
+            : new NodeList([]);
     }
 
     /**
@@ -1223,11 +1242,7 @@ class Parser
         $this->expectKeyword('input');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $fields = $this->many(
-            Token::BRACE_L,
-            [$this, 'parseInputValueDef'],
-            Token::BRACE_R
-        );
+        $fields = $this->parseInputFieldsDefinition();
 
         return new InputObjectTypeDefinitionNode([
             'name' => $name,
@@ -1239,6 +1254,28 @@ class Parser
     }
 
     /**
+     * @return InputValueDefinitionNode[]|NodeList
+     * @throws SyntaxError
+     */
+    function parseInputFieldsDefinition() {
+        return $this->peek(Token::BRACE_L)
+            ? $this->many(
+                Token::BRACE_L,
+                [$this, 'parseInputValueDef'],
+                Token::BRACE_R
+            )
+            : new NodeList([]);
+    }
+
+    /**
+     * TypeExtension :
+     *   - ScalarTypeExtension
+     *   - ObjectTypeExtension
+     *   - InterfaceTypeExtension
+     *   - UnionTypeExtension
+     *   - EnumTypeExtension
+     *   - InputObjectTypeDefinition
+     *
      * @return TypeExtensionNode
      * @throws SyntaxError
      */
@@ -1248,12 +1285,43 @@ class Parser
 
         if ($keywordToken->kind === Token::NAME) {
             switch ($keywordToken->value) {
+                case 'scalar':
+                    return $this->parseScalarTypeExtension();
                 case 'type':
                     return $this->parseObjectTypeExtension();
+                case 'interface':
+                    return $this->parseInterfaceTypeExtension();
+                case 'union':
+                    return $this->parseUnionTypeExtension();
+                case 'enum':
+                    return $this->parseEnumTypeExtension();
+                case 'input':
+                    return $this->parseInputObjectTypeExtension();
             }
         }
 
         throw $this->unexpected($keywordToken);
+    }
+
+    /**
+     * @return ScalarTypeExtensionNode
+     * @throws SyntaxError
+     */
+    function parseScalarTypeExtension() {
+        $start = $this->lexer->token;
+        $this->expectKeyword('extend');
+        $this->expectKeyword('scalar');
+        $name = $this->parseName();
+        $directives = $this->parseDirectives(true);
+        if (count($directives) === 0) {
+            throw $this->unexpected();
+        }
+
+        return new ScalarTypeExtensionNode([
+            'name' => $name,
+            'directives' => $directives,
+            'loc' => $this->loc($start)
+        ]);
     }
 
     /**
@@ -1267,9 +1335,7 @@ class Parser
         $name = $this->parseName();
         $interfaces = $this->parseImplementsInterfaces();
         $directives = $this->parseDirectives(true);
-        $fields = $this->peek(Token::BRACE_L)
-            ? $this->parseFieldDefinitions()
-            : [];
+        $fields = $this->parseFieldsDefinition();
 
         if (
             count($interfaces) === 0 &&
@@ -1282,6 +1348,110 @@ class Parser
         return new ObjectTypeExtensionNode([
             'name' => $name,
             'interfaces' => $interfaces,
+            'directives' => $directives,
+            'fields' => $fields,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return InterfaceTypeExtensionNode
+     * @throws SyntaxError
+     */
+    function parseInterfaceTypeExtension() {
+        $start = $this->lexer->token;
+        $this->expectKeyword('extend');
+        $this->expectKeyword('interface');
+        $name = $this->parseName();
+        $directives = $this->parseDirectives(true);
+        $fields = $this->parseFieldsDefinition();
+        if (
+            count($directives) === 0 &&
+            count($fields) === 0
+        ) {
+            throw $this->unexpected();
+        }
+
+        return new InterfaceTypeExtensionNode([
+            'name' => $name,
+            'directives' => $directives,
+            'fields' => $fields,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return UnionTypeExtensionNode
+     * @throws SyntaxError
+     */
+    function parseUnionTypeExtension() {
+        $start = $this->lexer->token;
+        $this->expectKeyword('extend');
+        $this->expectKeyword('union');
+        $name = $this->parseName();
+        $directives = $this->parseDirectives(true);
+        $types = $this->parseMemberTypesDefinition();
+        if (
+            count($directives) === 0 &&
+            count($types) === 0
+        ) {
+            throw $this->unexpected();
+        }
+
+        return new UnionTypeExtensionNode([
+            'name' => $name,
+            'directives' => $directives,
+            'types' => $types,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return EnumTypeExtensionNode
+     * @throws SyntaxError
+     */
+    function parseEnumTypeExtension() {
+        $start = $this->lexer->token;
+        $this->expectKeyword('extend');
+        $this->expectKeyword('enum');
+        $name = $this->parseName();
+        $directives = $this->parseDirectives(true);
+        $values = $this->parseEnumValuesDefinition();
+        if (
+            count($directives) === 0 &&
+            count($values) === 0
+        ) {
+            throw $this->unexpected();
+        }
+
+        return new EnumTypeExtensionNode([
+            'name' => $name,
+            'directives' => $directives,
+            'values' => $values,
+            'loc' => $this->loc($start)
+        ]);
+    }
+
+    /**
+     * @return InputObjectTypeExtensionNode
+     * @throws SyntaxError
+     */
+    function parseInputObjectTypeExtension() {
+        $start = $this->lexer->token;
+        $this->expectKeyword('extend');
+        $this->expectKeyword('input');
+        $name = $this->parseName();
+        $directives = $this->parseDirectives(true);
+        $fields = $this->parseInputFieldsDefinition();
+        if (
+            count($directives) === 0 &&
+            count($fields) === 0
+        ) {
+            throw $this->unexpected();
+        }
+
+        return new InputObjectTypeExtensionNode([
+            'name' => $name,
             'directives' => $directives,
             'fields' => $fields,
             'loc' => $this->loc($start)

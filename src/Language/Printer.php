@@ -4,11 +4,14 @@ namespace GraphQL\Language;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -32,11 +35,13 @@ use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\OperationTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Utils\Utils;
 
@@ -246,7 +251,9 @@ class Printer
                             'union',
                             $def->name,
                             $this->join($def->directives, ' '),
-                            '= ' . $this->join($def->types, ' | ')
+                            $def->types
+                                ? '= ' . $this->join($def->types, ' | ')
+                                : ''
                         ], ' ')
                     ], "\n");
                 },
@@ -278,11 +285,52 @@ class Printer
                         ], ' ')
                     ], "\n");
                 },
+                NodeKind::SCALAR_TYPE_EXTENSION => function(ScalarTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend scalar',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                    ], ' ');
+                },
                 NodeKind::OBJECT_TYPE_EXTENSION => function(ObjectTypeExtensionNode $def) {
                     return $this->join([
                         'extend type',
                         $def->name,
                         $this->wrap('implements ', $this->join($def->interfaces, ', ')),
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields),
+                    ], ' ');
+                },
+                NodeKind::INTERFACE_TYPE_EXTENSION => function(InterfaceTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend interface',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields),
+                    ], ' ');
+                },
+                NodeKind::UNION_TYPE_EXTENSION => function(UnionTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend union',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $def->types
+                            ? '= ' . $this->join($def->types, ' | ')
+                            : ''
+                    ], ' ');
+                },
+                NodeKind::ENUM_TYPE_EXTENSION => function(EnumTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend enum',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $this->block($def->values),
+                    ], ' ');
+                },
+                NodeKind::INPUT_OBJECT_TYPE_EXTENSION => function(InputObjectTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend input',
+                        $def->name,
                         $this->join($def->directives, ' '),
                         $this->block($def->fields),
                     ], ' ');

@@ -67,20 +67,38 @@ class KnownDirectives extends AbstractValidationRule
                     case 'subscription': return DirectiveLocation::SUBSCRIPTION;
                 }
                 break;
-            case NodeKind::FIELD: return DirectiveLocation::FIELD;
-            case NodeKind::FRAGMENT_SPREAD: return DirectiveLocation::FRAGMENT_SPREAD;
-            case NodeKind::INLINE_FRAGMENT: return DirectiveLocation::INLINE_FRAGMENT;
-            case NodeKind::FRAGMENT_DEFINITION: return DirectiveLocation::FRAGMENT_DEFINITION;
-            case NodeKind::SCHEMA_DEFINITION: return DirectiveLocation::SCHEMA;
-            case NodeKind::SCALAR_TYPE_DEFINITION: return DirectiveLocation::SCALAR;
+            case NodeKind::FIELD:
+                return DirectiveLocation::FIELD;
+            case NodeKind::FRAGMENT_SPREAD:
+                return DirectiveLocation::FRAGMENT_SPREAD;
+            case NodeKind::INLINE_FRAGMENT:
+                return DirectiveLocation::INLINE_FRAGMENT;
+            case NodeKind::FRAGMENT_DEFINITION:
+                return DirectiveLocation::FRAGMENT_DEFINITION;
+            case NodeKind::SCHEMA_DEFINITION:
+                return DirectiveLocation::SCHEMA;
+            case NodeKind::SCALAR_TYPE_DEFINITION:
+            case NodeKind::SCALAR_TYPE_EXTENSION:
+                return DirectiveLocation::SCALAR;
             case NodeKind::OBJECT_TYPE_DEFINITION:
-            case NodeKind::OBJECT_TYPE_EXTENSION: return DirectiveLocation::OBJECT;
-            case NodeKind::FIELD_DEFINITION: return DirectiveLocation::FIELD_DEFINITION;
-            case NodeKind::INTERFACE_TYPE_DEFINITION: return DirectiveLocation::IFACE;
-            case NodeKind::UNION_TYPE_DEFINITION: return DirectiveLocation::UNION;
-            case NodeKind::ENUM_TYPE_DEFINITION: return DirectiveLocation::ENUM;
-            case NodeKind::ENUM_VALUE_DEFINITION: return DirectiveLocation::ENUM_VALUE;
-            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION: return DirectiveLocation::INPUT_OBJECT;
+            case NodeKind::OBJECT_TYPE_EXTENSION:
+                return DirectiveLocation::OBJECT;
+            case NodeKind::FIELD_DEFINITION:
+                return DirectiveLocation::FIELD_DEFINITION;
+            case NodeKind::INTERFACE_TYPE_DEFINITION:
+            case NodeKind::INTERFACE_TYPE_EXTENSION:
+                return DirectiveLocation::IFACE;
+            case NodeKind::UNION_TYPE_DEFINITION:
+            case NodeKind::UNION_TYPE_EXTENSION:
+                return DirectiveLocation::UNION;
+            case NodeKind::ENUM_TYPE_DEFINITION:
+            case NodeKind::ENUM_TYPE_EXTENSION:
+                return DirectiveLocation::ENUM;
+            case NodeKind::ENUM_VALUE_DEFINITION:
+                return DirectiveLocation::ENUM_VALUE;
+            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
+            case NodeKind::INPUT_OBJECT_TYPE_EXTENSION:
+                return DirectiveLocation::INPUT_OBJECT;
             case NodeKind::INPUT_VALUE_DEFINITION:
                 $parentNode = $ancestors[count($ancestors) - 3];
                 return $parentNode instanceof InputObjectTypeDefinitionNode

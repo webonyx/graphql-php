@@ -142,7 +142,14 @@ class Visitor
         NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'],
         NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'],
         NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'],
-        NodeKind::OBJECT_TYPE_EXTENSION => [ 'name', 'interfaces', 'directives', 'fields' ],
+
+        NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'],
+        NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'],
+        NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'directives', 'fields'],
+        NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'],
+        NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'],
+        NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'],
+
         NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations']
     ];
 

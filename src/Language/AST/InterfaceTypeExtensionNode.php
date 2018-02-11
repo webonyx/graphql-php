@@ -1,12 +1,12 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class InterfaceTypeDefinitionNode extends Node implements TypeDefinitionNode
+class InterfaceTypeExtensionNode extends Node implements TypeExtensionNode
 {
     /**
      * @var string
      */
-    public $kind = NodeKind::INTERFACE_TYPE_DEFINITION;
+    public $kind = NodeKind::INTERFACE_TYPE_EXTENSION;
 
     /**
      * @var NameNode
@@ -22,9 +22,4 @@ class InterfaceTypeDefinitionNode extends Node implements TypeDefinitionNode
      * @var FieldDefinitionNode[]|null
      */
     public $fields;
-
-    /**
-     * @var StringValueNode|null
-     */
-    public $description;
 }
