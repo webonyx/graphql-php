@@ -785,6 +785,19 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         ');
     }
 
+    /**
+     * @it error message contains hint for alias conflict
+     */
+    public function testErrorMessageContainsHintForAliasConflict()
+    {
+        // The error template should end with a hint for the user to try using
+        // different aliases.
+        $error = OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and b are different fields');
+        $hint = 'Use different aliases on the fields to fetch both if this was intentional.';
+
+        $this->assertStringEndsWith($hint, $error);
+    }
+
     private function getSchema()
     {
         $StringBox = null;

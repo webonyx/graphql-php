@@ -28,7 +28,7 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
     static function fieldsConflictMessage($responseName, $reason)
     {
         $reasonMessage = self::reasonMessage($reason);
-        return "Fields \"$responseName\" conflict because $reasonMessage.";
+        return "Fields \"$responseName\" conflict because $reasonMessage. Use different aliases on the fields to fetch both if this was intentional.";
     }
 
     static function reasonMessage($reason)
