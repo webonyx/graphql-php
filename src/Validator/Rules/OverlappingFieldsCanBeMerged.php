@@ -49,7 +49,7 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
      * dramatically improve the performance of this validator.
      * @var PairSet
      */
-    private $comparedFragments;
+    private $comparedFragmentPairs;
 
     /**
      * A cache for the "field map" and list of fragment names found in any given
@@ -62,7 +62,7 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
 
     public function getVisitor(ValidationContext $context)
     {
-        $this->comparedFragments = new PairSet();
+        $this->comparedFragmentPairs = new PairSet();
         $this->cachedFieldsAndFragmentNames = new \SplObjectStorage();
 
         return [
@@ -174,29 +174,34 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
             $fieldMap
         );
 
-        // (B) Then collect conflicts between these fields and those represented by
-        // each spread fragment name found.
+
         $fragmentNamesLength = count($fragmentNames);
-        for ($i = 0; $i < $fragmentNamesLength; $i++) {
-            $this->collectConflictsBetweenFieldsAndFragment(
-                $context,
-                $conflicts,
-                false,
-                $fieldMap,
-                $fragmentNames[$i]
-            );
-            // (C) Then compare this fragment with all other fragments found in this
-            // selection set to collect conflicts between fragments spread together.
-            // This compares each item in the list of fragment names to every other item
-            // in that same list (except for itself).
-            for ($j = $i + 1; $j < $fragmentNamesLength; $j++) {
-                $this->collectConflictsBetweenFragments(
+        if ($fragmentNamesLength !== 0) {
+            // (B) Then collect conflicts between these fields and those represented by
+            // each spread fragment name found.
+            $comparedFragments = [];
+            for ($i = 0; $i < $fragmentNamesLength; $i++) {
+                $this->collectConflictsBetweenFieldsAndFragment(
                     $context,
                     $conflicts,
+                    $comparedFragments,
                     false,
-                    $fragmentNames[$i],
-                    $fragmentNames[$j]
+                    $fieldMap,
+                    $fragmentNames[$i]
                 );
+                // (C) Then compare this fragment with all other fragments found in this
+                // selection set to collect conflicts between fragments spread together.
+                // This compares each item in the list of fragment names to every other item
+                // in that same list (except for itself).
+                for ($j = $i + 1; $j < $fragmentNamesLength; $j++) {
+                    $this->collectConflictsBetweenFragments(
+                        $context,
+                        $conflicts,
+                        false,
+                        $fragmentNames[$i],
+                        $fragmentNames[$j]
+                    );
+                }
             }
         }
 
@@ -209,6 +214,7 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
      *
      * @param ValidationContext $context
      * @param array $conflicts
+     * @param array $comparedFragments
      * @param bool $areMutuallyExclusive
      * @param array $fieldMap
      * @param string $fragmentName
@@ -216,10 +222,16 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
     private function collectConflictsBetweenFieldsAndFragment(
         ValidationContext $context,
         array &$conflicts,
+        array &$comparedFragments,
         $areMutuallyExclusive,
         array $fieldMap,
         $fragmentName
     ) {
+        if (isset($comparedFragments[$fragmentName])) {
+            return;
+        }
+        $comparedFragments[$fragmentName] = true;
+
         $fragment = $context->getFragment($fragmentName);
         if (!$fragment) {
             return;
@@ -229,6 +241,10 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
             $context,
             $fragment
         );
+
+        if ($fieldMap === $fieldMap2) {
+            return;
+        }
 
         // (D) First collect any conflicts between the provided collection of fields
         // and the collection of fields represented by the given fragment.
@@ -247,6 +263,7 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
             $this->collectConflictsBetweenFieldsAndFragment(
                 $context,
                 $conflicts,
+                $comparedFragments,
                 $areMutuallyExclusive,
                 $fieldMap,
                 $fragmentNames2[$i]
@@ -271,24 +288,32 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
         $fragmentName1,
         $fragmentName2
     ) {
-        $fragment1 = $context->getFragment($fragmentName1);
-        $fragment2 = $context->getFragment($fragmentName2);
-        if (!$fragment1 || !$fragment2) {
-            return;
-        }
-
         // No need to compare a fragment to itself.
-        if ($fragment1 === $fragment2) {
+        if ($fragmentName1 === $fragmentName2) {
             return;
         }
 
         // Memoize so two fragments are not compared for conflicts more than once.
         if (
-            $this->comparedFragments->has($fragmentName1, $fragmentName2, $areMutuallyExclusive)
+            $this->comparedFragmentPairs->has(
+                $fragmentName1,
+                $fragmentName2,
+                $areMutuallyExclusive
+            )
         ) {
             return;
         }
-        $this->comparedFragments->add($fragmentName1, $fragmentName2, $areMutuallyExclusive);
+        $this->comparedFragmentPairs->add(
+            $fragmentName1,
+            $fragmentName2,
+            $areMutuallyExclusive
+        );
+
+        $fragment1 = $context->getFragment($fragmentName1);
+        $fragment2 = $context->getFragment($fragmentName2);
+        if (!$fragment1 || !$fragment2) {
+            return;
+        }
 
         list($fieldMap1, $fragmentNames1) = $this->getReferencedFieldsAndFragmentNames(
             $context,
@@ -382,27 +407,35 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
         // (I) Then collect conflicts between the first collection of fields and
         // those referenced by each fragment name associated with the second.
         $fragmentNames2Length = count($fragmentNames2);
-        for ($j = 0; $j < $fragmentNames2Length; $j++) {
-            $this->collectConflictsBetweenFieldsAndFragment(
-                $context,
-                $conflicts,
-                $areMutuallyExclusive,
-                $fieldMap1,
-                $fragmentNames2[$j]
-            );
+        if ($fragmentNames2Length !== 0) {
+            $comparedFragments = [];
+            for ($j = 0; $j < $fragmentNames2Length; $j++) {
+                $this->collectConflictsBetweenFieldsAndFragment(
+                    $context,
+                    $conflicts,
+                    $comparedFragments,
+                    $areMutuallyExclusive,
+                    $fieldMap1,
+                    $fragmentNames2[$j]
+                );
+            }
         }
 
         // (I) Then collect conflicts between the second collection of fields and
         // those referenced by each fragment name associated with the first.
         $fragmentNames1Length = count($fragmentNames1);
-        for ($i = 0; $i < $fragmentNames2Length; $i++) {
-            $this->collectConflictsBetweenFieldsAndFragment(
-                $context,
-                $conflicts,
-                $areMutuallyExclusive,
-                $fieldMap2,
-                $fragmentNames1[$i]
-            );
+        if ($fragmentNames1Length !== 0) {
+            $comparedFragments = [];
+            for ($i = 0; $i < $fragmentNames2Length; $i++) {
+                $this->collectConflictsBetweenFieldsAndFragment(
+                    $context,
+                    $conflicts,
+                    $comparedFragments,
+                    $areMutuallyExclusive,
+                    $fieldMap2,
+                    $fragmentNames1[$i]
+                );
+            }
         }
 
         // (J) Also collect conflicts between any fragment names by the first and

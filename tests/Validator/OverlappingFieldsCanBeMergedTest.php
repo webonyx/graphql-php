@@ -454,7 +454,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
           deeperField {
             x: b
           }
-        },
+        }
         deepField {
           deeperField {
             y
@@ -967,6 +967,64 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         $hint = 'Use different aliases on the fields to fetch both if this was intentional.';
 
         $this->assertStringEndsWith($hint, $error);
+    }
+
+    /**
+     * @it does not infinite loop on recursive fragment
+     */
+    public function testDoesNotInfiniteLoopOnRecursiveFragment()
+    {
+        $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
+        fragment fragA on Human { name, relatives { name, ...fragA } }
+        ');
+    }
+
+    /**
+     * @it does not infinite loop on immediately recursive fragment
+     */
+    public function testDoesNotInfiniteLoopOnImmeditelyRecursiveFragment()
+    {
+        $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
+        fragment fragA on Human { name, ...fragA }
+        ');
+    }
+
+    /**
+     * @it does not infinite loop on transitively recursive fragment
+     */
+    public function testDoesNotInfiniteLoopOnTransitivelyRecursiveFragment()
+    {
+        $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
+        fragment fragA on Human { name, ...fragB }
+        fragment fragB on Human { name, ...fragC }
+        fragment fragC on Human { name, ...fragA }
+        ');
+    }
+
+    /**
+     * @it find invalid case even with immediately recursive fragment
+     */
+    public function testFindInvalidCaseEvenWithImmediatelyRecursiveFragment()
+    {
+        $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
+      fragment sameAliasesWithDifferentFieldTargets on Dob {
+        ...sameAliasesWithDifferentFieldTargets
+        fido: name
+        fido: nickname
+      }
+        ',
+            [
+                FormattedError::create(
+                    OverlappingFieldsCanBeMerged::fieldsConflictMessage(
+                        'fido',
+                        'name and nickname are different fields'
+                    ),
+                    [
+                        new SourceLocation(4, 9),
+                        new SourceLocation(5, 9),
+                    ]
+                )
+            ]);
     }
 
     private function getSchema()
