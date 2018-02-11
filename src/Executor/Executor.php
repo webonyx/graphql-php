@@ -211,11 +211,6 @@ class Executor
                 case NodeKind::FRAGMENT_DEFINITION:
                     $fragments[$definition->name->value] = $definition;
                     break;
-                default:
-                    throw new Error(
-                        "GraphQL cannot execute a request containing a {$definition->kind}.",
-                        [$definition]
-                    );
             }
         }
 

@@ -22,6 +22,7 @@ use GraphQL\Validator\Rules\AbstractValidationRule;
 use GraphQL\Validator\Rules\ArgumentsOfCorrectType;
 use GraphQL\Validator\Rules\DefaultValuesOfCorrectType;
 use GraphQL\Validator\Rules\DisableIntrospection;
+use GraphQL\Validator\Rules\ExecutableDefinitions;
 use GraphQL\Validator\Rules\FieldsOnCorrectType;
 use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 use GraphQL\Validator\Rules\KnownArgumentNames;
@@ -122,6 +123,7 @@ class DocumentValidator
     {
         if (null === self::$defaultRules) {
             self::$defaultRules = [
+                ExecutableDefinitions::class => new ExecutableDefinitions(),
                 UniqueOperationNames::class => new UniqueOperationNames(),
                 LoneAnonymousOperation::class => new LoneAnonymousOperation(),
                 KnownTypeNames::class => new KnownTypeNames(),

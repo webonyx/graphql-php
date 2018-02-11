@@ -374,28 +374,28 @@ public $variableValues;
  */
 function getFieldSelection($depth = 0)
 ```
-# GraphQL\Type\Definition\DirectiveLocation
+# GraphQL\Language\DirectiveLocation
 List of available directive locations
 
 **Class Constants:** 
 ```php
-const IFACE = "INTERFACE";
-const SUBSCRIPTION = "SUBSCRIPTION";
-const FRAGMENT_SPREAD = "FRAGMENT_SPREAD";
 const QUERY = "QUERY";
 const MUTATION = "MUTATION";
+const SUBSCRIPTION = "SUBSCRIPTION";
+const FIELD = "FIELD";
 const FRAGMENT_DEFINITION = "FRAGMENT_DEFINITION";
-const INPUT_OBJECT = "INPUT_OBJECT";
+const FRAGMENT_SPREAD = "FRAGMENT_SPREAD";
 const INLINE_FRAGMENT = "INLINE_FRAGMENT";
-const UNION = "UNION";
+const SCHEMA = "SCHEMA";
 const SCALAR = "SCALAR";
+const OBJECT = "OBJECT";
 const FIELD_DEFINITION = "FIELD_DEFINITION";
 const ARGUMENT_DEFINITION = "ARGUMENT_DEFINITION";
+const IFACE = "INTERFACE";
+const UNION = "UNION";
 const ENUM = "ENUM";
-const OBJECT = "OBJECT";
 const ENUM_VALUE = "ENUM_VALUE";
-const FIELD = "FIELD";
-const SCHEMA = "SCHEMA";
+const INPUT_OBJECT = "INPUT_OBJECT";
 const INPUT_FIELD_DEFINITION = "INPUT_FIELD_DEFINITION";
 ```
 
@@ -936,7 +936,7 @@ const UNION_TYPE_DEFINITION = "UnionTypeDefinition";
 const ENUM_TYPE_DEFINITION = "EnumTypeDefinition";
 const ENUM_VALUE_DEFINITION = "EnumValueDefinition";
 const INPUT_OBJECT_TYPE_DEFINITION = "InputObjectTypeDefinition";
-const TYPE_EXTENSION_DEFINITION = "TypeExtensionDefinition";
+const OBJECT_TYPE_EXTENSION = "ObjectTypeExtension";
 const DIRECTIVE_DEFINITION = "DirectiveDefinition";
 ```
 

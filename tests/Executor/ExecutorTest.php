@@ -965,14 +965,14 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it fails to execute a query containing a type definition
+     * @it executes ignoring invalid non-executable definitions
      */
-    public function testFailsToExecuteQueryContainingTypeDefinition()
+    public function testExecutesIgnoringInvalidNonExecutableDefinitions()
     {
         $query = Parser::parse('
       { foo }
 
-      type Query { foo: String }
+      type Query { bar: String }
     ');
 
         $schema = new Schema([
@@ -988,12 +988,9 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
         $result = Executor::execute($schema, $query);
 
         $expected = [
-            'errors' => [
-                [
-                    'message' => 'GraphQL cannot execute a request containing a ObjectTypeDefinition.',
-                    'locations' => [['line' => 4, 'column' => 7]],
-                ]
-            ]
+            'data' => [
+                'foo' => null,
+            ],
         ];
 
         $this->assertArraySubset($expected, $result->toArray());

@@ -65,7 +65,7 @@ class NodeKind
 
     // Type Extensions
 
-    const TYPE_EXTENSION_DEFINITION = 'TypeExtensionDefinition';
+    const OBJECT_TYPE_EXTENSION = 'ObjectTypeExtension';
 
     // Directive Definitions
 
@@ -127,7 +127,7 @@ class NodeKind
         NodeKind::INPUT_OBJECT_TYPE_DEFINITION =>InputObjectTypeDefinitionNode::class,
 
         // Type Extensions
-        NodeKind::TYPE_EXTENSION_DEFINITION => TypeExtensionDefinitionNode::class,
+        NodeKind::OBJECT_TYPE_EXTENSION => ObjectTypeExtensionNode::class,
 
         // Directive Definitions
         NodeKind::DIRECTIVE_DEFINITION => DirectiveDefinitionNode::class

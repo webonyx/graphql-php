@@ -1,10 +1,9 @@
 <?php
 namespace GraphQL\Type;
 
-
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
-use GraphQL\Type\Definition\DirectiveLocation;
+use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -602,7 +601,7 @@ EOD;
                         ],
                         'type' => [
                             'type' => Type::nonNull(self::_type()),
-                            'resolve' => function ($field) {
+                            'resolve' => function (FieldDefinition $field) {
                                 return $field->getType();
                             }
                         ],

@@ -9,7 +9,7 @@ $entries = [
     \GraphQL\GraphQL::class,
     \GraphQL\Type\Definition\Type::class,
     \GraphQL\Type\Definition\ResolveInfo::class,
-    \GraphQL\Type\Definition\DirectiveLocation::class => ['constants' => true],
+    \GraphQL\Language\DirectiveLocation::class => ['constants' => true],
     \GraphQL\Type\SchemaConfig::class,
     \GraphQL\Type\Schema::class,
     \GraphQL\Language\Parser::class,

@@ -3,7 +3,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
-use GraphQL\Language\AST\TypeExtensionDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
 
@@ -70,7 +70,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     public $astNode;
 
     /**
-     * @var TypeExtensionDefinitionNode[]
+     * @var ObjectTypeExtensionNode[]
      */
     public $extensionASTNodes;
 

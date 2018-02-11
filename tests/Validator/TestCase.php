@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Language\Parser;
 use GraphQL\Type\Schema;
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -259,6 +260,24 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
+        $invalidScalar = new CustomScalarType([
+            'name' => 'Invalid',
+            'serialize' => function ($value) { return $value; },
+            'parseLiteral' => function ($node) {
+                throw new \Exception('Invalid scalar is always invalid: ' . $node->value);
+            },
+            'parseValue' => function ($value) {
+                throw new \Exception('Invalid scalar is always invalid: ' . $value);
+            },
+        ]);
+
+        $anyScalar = new CustomScalarType([
+            'name' => 'Any',
+            'serialize' => function ($value) { return $value; },
+            'parseLiteral' => function ($node) { return $node; }, // Allows any value
+            'parseValue' => function ($value) { return $value; }, // Allows any value
+        ]);
+
         $queryRoot = new ObjectType([
             'name' => 'QueryRoot',
             'fields' => [
@@ -274,6 +293,14 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                 'dogOrHuman' => ['type' => $DogOrHuman],
                 'humanOrAlien' => ['type' => $HumanOrAlien],
                 'complicatedArgs' => ['type' => $ComplicatedArgs],
+                'invalidArg' => [
+                    'args' => ['arg' => ['type' => $invalidScalar]],
+                    'type' => Type::string(),
+                ],
+                'anyArg' => [
+                    'args' => ['arg' => ['type' => $anyScalar]],
+                    'type' => Type::string(),
+                ],
             ]
         ]);
 

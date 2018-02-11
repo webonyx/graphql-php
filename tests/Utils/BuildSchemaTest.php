@@ -1025,7 +1025,9 @@ schema {
   query: Hello
 }
 
-type Hello implements Bar { }
+type Hello implements Bar {
+  field: String
+}
 ';
         $doc = Parser::parse($body);
         $schema = BuildSchema::buildAST($doc);

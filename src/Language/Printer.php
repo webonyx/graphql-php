@@ -35,7 +35,7 @@ use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Language\AST\TypeExtensionDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Utils\Utils;
@@ -278,8 +278,14 @@ class Printer
                         ], ' ')
                     ], "\n");
                 },
-                NodeKind::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinitionNode $def) {
-                    return "extend {$def->definition}";
+                NodeKind::OBJECT_TYPE_EXTENSION => function(ObjectTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend type',
+                        $def->name,
+                        $this->wrap('implements ', $this->join($def->interfaces, ', ')),
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields),
+                    ], ' ');
                 },
                 NodeKind::DIRECTIVE_DEFINITION => function(DirectiveDefinitionNode $def) {
                     return $this->join([
@@ -309,7 +315,7 @@ class Printer
     {
         return ($array && $this->length($array))
             ? "{\n" . $this->indent($this->join($array, "\n")) . "\n}"
-            : '{}';
+            : '';
     }
 
     public function indent($maybeString)

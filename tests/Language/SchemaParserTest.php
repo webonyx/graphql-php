@@ -150,21 +150,16 @@ extend type Hello {
             'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeKind::TYPE_EXTENSION_DEFINITION,
-                    'definition' => [
-                        'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
-                        'name' => $this->nameNode('Hello', $loc(13, 18)),
-                        'interfaces' => [],
-                        'directives' => [],
-                        'fields' => [
-                            $this->fieldNode(
-                                $this->nameNode('world', $loc(23, 28)),
-                                $this->typeNode('String', $loc(30, 36)),
-                                $loc(23, 36)
-                            )
-                        ],
-                        'loc' => $loc(8, 38),
-                        'description' => null
+                    'kind' => NodeKind::OBJECT_TYPE_EXTENSION,
+                    'name' => $this->nameNode('Hello', $loc(13, 18)),
+                    'interfaces' => [],
+                    'directives' => [],
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('world', $loc(23, 28)),
+                            $this->typeNode('String', $loc(30, 36)),
+                            $loc(23, 36)
+                        )
                     ],
                     'loc' => $loc(1, 38)
                 ]
@@ -175,15 +170,58 @@ extend type Hello {
     }
 
     /**
+     * @it Extension without fields
+     */
+    public function testExtensionWithoutFields()
+    {
+        $body = 'extend type Hello implements Greeting';
+        $doc = Parser::parse($body);
+        $loc = function($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OBJECT_TYPE_EXTENSION,
+                    'name' => $this->nameNode('Hello', $loc(12, 17)),
+                    'interfaces' => [
+                        $this->typeNode('Greeting', $loc(29, 37)),
+                    ],
+                    'directives' => [],
+                    'fields' => [],
+                    'loc' => $loc(0, 37)
+                ]
+            ],
+            'loc' => $loc(0, 37)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
      * @it Extension do not include descriptions
      * @expectedException \GraphQL\Error\SyntaxError
-     * @expectedExceptionMessage Syntax Error GraphQL (2:1)
+     * @expectedExceptionMessage Syntax Error GraphQL (3:7)
      */
     public function testExtensionDoNotIncludeDescriptions() {
         $body = '
-"Description"
-extend type Hello {
-    world: String
+      "Description"
+      extend type Hello {
+        world: String
+      }';
+        Parser::parse($body);
+    }
+
+    /**
+     * @it Extension do not include descriptions
+     * @expectedException \GraphQL\Error\SyntaxError
+     * @expectedExceptionMessage Syntax Error GraphQL (2:14)
+     */
+    public function testExtensionDoNotIncludeDescriptions2() {
+        $body = '
+      extend "Description" type Hello {
+        world: String
+      }
 }';
         Parser::parse($body);
     }
@@ -236,7 +274,7 @@ type Hello {
      */
     public function testSimpleTypeInheritingInterface()
     {
-        $body = 'type Hello implements World { }';
+        $body = 'type Hello implements World { field: String }';
         $loc = function($start, $end) { return TestUtils::locArray($start, $end); };
         $doc = Parser::parse($body);
 
@@ -250,12 +288,18 @@ type Hello {
                         $this->typeNode('World', $loc(22, 27))
                     ],
                     'directives' => [],
-                    'fields' => [],
-                    'loc' => $loc(0,31),
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(30, 35)),
+                            $this->typeNode('String', $loc(37, 43)),
+                            $loc(30, 43)
+                        )
+                    ],
+                    'loc' => $loc(0, 45),
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0,31)
+            'loc' => $loc(0, 45)
         ];
 
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
@@ -266,7 +310,7 @@ type Hello {
      */
     public function testSimpleTypeInheritingMultipleInterfaces()
     {
-        $body = 'type Hello implements Wo, rld { }';
+        $body = 'type Hello implements Wo, rld { field: String }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $doc = Parser::parse($body);
 
@@ -281,12 +325,18 @@ type Hello {
                         $this->typeNode('rld', $loc(26,29))
                     ],
                     'directives' => [],
-                    'fields' => [],
-                    'loc' => $loc(0, 33),
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(32, 37)),
+                            $this->typeNode('String', $loc(39, 45)),
+                            $loc(32, 45)
+                        )
+                    ],
+                    'loc' => $loc(0, 47),
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0, 33)
+            'loc' => $loc(0, 47)
         ];
 
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
@@ -754,6 +804,7 @@ input Hello {
 
     /**
      * @it Simple input object with args should fail
+     * @expectedException \GraphQL\Error\SyntaxError
      */
     public function testSimpleInputObjectWithArgsShouldFail()
     {
@@ -761,7 +812,19 @@ input Hello {
 input Hello {
   world(foo: Int): String
 }';
-        $this->setExpectedException('GraphQL\Error\SyntaxError');
+        Parser::parse($body);
+    }
+
+    /**
+     * @it Directive with incorrect locations
+     * @expectedException \GraphQL\Error\SyntaxError
+     * @expectedExceptionMessage Syntax Error GraphQL (2:33) Unexpected Name "INCORRECT_LOCATION"
+     */
+    public function testDirectiveWithIncorrectLocationShouldFail()
+    {
+        $body = '
+      directive @foo on FIELD | INCORRECT_LOCATION
+';
         Parser::parse($body);
     }
 
