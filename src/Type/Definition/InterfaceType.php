@@ -3,6 +3,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
 /**
@@ -20,6 +21,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      * @var InterfaceTypeDefinitionNode|null
      */
     public $astNode;
+
+    /**
+     * @var InterfaceTypeExtensionNode[]
+     */
+    public $extensionASTNodes;
 
     /**
      * InterfaceType constructor.
@@ -46,6 +52,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
+        $this->extensionASTNodes = isset($config['extensionASTNodes']) ? $config['extensionASTNodes'] : null;
         $this->config = $config;
     }
 

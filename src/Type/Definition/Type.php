@@ -2,6 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\NamedType;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Type\Introspection;
@@ -201,6 +202,25 @@ abstract class Type implements \JsonSerializable
     public static function isAbstractType($type)
     {
         return $type instanceof AbstractType;
+    }
+
+    /**
+     * @api
+     * @param Type $type
+     * @return bool
+     */
+    public static function isType($type)
+    {
+        return (
+            $type instanceof ScalarType ||
+            $type instanceof ObjectType ||
+            $type instanceof InterfaceType ||
+            $type instanceof UnionType ||
+            $type instanceof EnumType ||
+            $type instanceof InputObjectType ||
+            $type instanceof ListType ||
+            $type instanceof NonNull
+        );
     }
 
     /**

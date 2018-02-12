@@ -235,6 +235,15 @@ static function isAbstractType($type)
 /**
  * @api
  * @param Type $type
+ * @return bool
+ */
+static function isType($type)
+```
+
+```php
+/**
+ * @api
+ * @param Type $type
  * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
  */
 static function getNullableType($type)
@@ -431,7 +440,7 @@ static function create(array $options = [])
  * @param ObjectType $query
  * @return SchemaConfig
  */
-function setQuery(GraphQL\Type\Definition\ObjectType $query)
+function setQuery($query)
 ```
 
 ```php
@@ -440,7 +449,7 @@ function setQuery(GraphQL\Type\Definition\ObjectType $query)
  * @param ObjectType $mutation
  * @return SchemaConfig
  */
-function setMutation(GraphQL\Type\Definition\ObjectType $mutation)
+function setMutation($mutation)
 ```
 
 ```php
@@ -449,7 +458,7 @@ function setMutation(GraphQL\Type\Definition\ObjectType $mutation)
  * @param ObjectType $subscription
  * @return SchemaConfig
  */
-function setSubscription(GraphQL\Type\Definition\ObjectType $subscription)
+function setSubscription($subscription)
 ```
 
 ```php
@@ -668,6 +677,18 @@ function getDirectives()
  * @return Directive
  */
 function getDirective($name)
+```
+
+```php
+/**
+ * Validates schema.
+ *
+ * This operation requires full schema scan. Do not use in production environment.
+ *
+ * @api
+ * @return InvariantViolation[]|Error[]
+ */
+function validate()
 ```
 
 ```php

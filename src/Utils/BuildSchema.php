@@ -130,20 +130,20 @@ class BuildSchema
             $directives[] = Directive::deprecatedDirective();
         }
 
-        if (!isset($operationTypes['query'])) {
-            throw new Error(
-                'Must provide schema definition with query type or a type named Query.'
-            );
-        }
+        // Note: While this could make early assertions to get the correctly
+        // typed values below, that would throw immediately while type system
+        // validation with validateSchema() will produce more actionable results.
 
         $schema = new Schema([
-            'query' => $defintionBuilder->buildObjectType($operationTypes['query']),
-            'mutation' => isset($operationTypes['mutation']) ?
-                $defintionBuilder->buildObjectType($operationTypes['mutation']) :
-                null,
-            'subscription' => isset($operationTypes['subscription']) ?
-                $defintionBuilder->buildObjectType($operationTypes['subscription']) :
-                null,
+            'query' => isset($operationTypes['query'])
+                ? $defintionBuilder->buildType($operationTypes['query'])
+                : null,
+            'mutation' => isset($operationTypes['mutation'])
+                ? $defintionBuilder->buildType($operationTypes['mutation'])
+                : null,
+            'subscription' => isset($operationTypes['subscription'])
+                ? $defintionBuilder->buildType($operationTypes['subscription'])
+                : null,
             'typeLoader' => function ($name) use ($defintionBuilder) {
                 return $defintionBuilder->buildType($name);
             },

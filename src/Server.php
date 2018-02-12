@@ -472,6 +472,7 @@ class Server
     {
         try {
             $schema = $this->getSchema();
+            $schema->assertValid();
         } catch (InvariantViolation $e) {
             throw new InvariantViolation("Cannot validate, schema contains errors: {$e->getMessage()}", null, $e);
         }

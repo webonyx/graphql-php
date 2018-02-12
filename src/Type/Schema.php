@@ -1,18 +1,16 @@
 <?php
 namespace GraphQL\Type;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\SchemaDefinitionNode;
-use GraphQL\Type\Definition\FieldArgument;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 
@@ -65,6 +63,11 @@ class Schema
     private $fullyLoaded = false;
 
     /**
+     * @var InvariantViolation[]|null
+     */
+    private $validationErrors;
+
+    /**
      * Schema constructor.
      *
      * @api
@@ -86,39 +89,52 @@ class Schema
                 'subscription' => $subscriptionType
             ];
         }
+
         if (is_array($config)) {
             $config = SchemaConfig::create($config);
         }
 
-        Utils::invariant(
-            $config instanceof SchemaConfig,
-            'Schema constructor expects instance of GraphQL\Type\SchemaConfig or an array with keys: %s; but got: %s',
-            implode(', ', [
-                'query',
-                'mutation',
-                'subscription',
-                'types',
-                'directives',
-                'typeLoader'
-            ]),
-            Utils::getVariableType($config)
-        );
-
-        Utils::invariant(
-            $config->query instanceof ObjectType,
-            "Schema query must be Object Type but got: " . Utils::getVariableType($config->query)
-        );
+        // If this schema was built from a source known to be valid, then it may be
+        // marked with assumeValid to avoid an additional type system validation.
+        if ($config->getAssumeValid()) {
+            $this->validationErrors = [];
+        } else {
+            // Otherwise check for common mistakes during construction to produce
+            // clear and early error messages.
+            Utils::invariant(
+                $config instanceof SchemaConfig,
+                'Schema constructor expects instance of GraphQL\Type\SchemaConfig or an array with keys: %s; but got: %s',
+                implode(', ', [
+                    'query',
+                    'mutation',
+                    'subscription',
+                    'types',
+                    'directives',
+                    'typeLoader'
+                ]),
+                Utils::getVariableType($config)
+            );
+            Utils::invariant(
+                !$config->types || is_array($config->types) || is_callable($config->types),
+                "\"types\" must be array or callable if provided but got: " . Utils::getVariableType($config->types)
+            );
+            Utils::invariant(
+                !$config->directives || is_array($config->directives),
+                "\"directives\" must be Array if provided but got: " . Utils::getVariableType($config->directives)
+            );
+        }
 
         $this->config = $config;
-        $this->resolvedTypes[$config->query->name] = $config->query;
-
+        if ($config->query) {
+            $this->resolvedTypes[$config->query->name] = $config->query;
+        }
         if ($config->mutation) {
             $this->resolvedTypes[$config->mutation->name] = $config->mutation;
         }
         if ($config->subscription) {
             $this->resolvedTypes[$config->subscription->name] = $config->subscription;
         }
-        if (is_array($this->config->types)) {
+        if ($this->config->types) {
             foreach ($this->resolveAdditionalTypes() as $type) {
                 if (isset($this->resolvedTypes[$type->name])) {
                     Utils::invariant(
@@ -399,44 +415,49 @@ class Schema
      * This operation requires full schema scan. Do not use in production environment.
      *
      * @api
+     * @return InvariantViolation[]|Error[]
+     */
+    public function validate() {
+        // If this Schema has already been validated, return the previous results.
+        if ($this->validationErrors !== null) {
+            return $this->validationErrors;
+        }
+        // Validate the schema, producing a list of errors.
+        $context = new SchemaValidationContext($this);
+        $context->validateRootTypes();
+        $context->validateDirectives();
+        $context->validateTypes();
+
+        // Persist the results of validation before returning to ensure validation
+        // does not run multiple times for this schema.
+        $this->validationErrors = $context->getErrors();
+
+        return $this->validationErrors;
+    }
+
+    /**
+     * Validates schema.
+     *
+     * This operation requires full schema scan. Do not use in production environment.
+     *
+     * @api
      * @throws InvariantViolation
      */
     public function assertValid()
     {
-        foreach ($this->config->getDirectives() as $index => $directive) {
-            Utils::invariant(
-                $directive instanceof Directive,
-                "Each entry of \"directives\" option of Schema config must be an instance of %s but entry at position %d is %s.",
-                Directive::class,
-                $index,
-                Utils::printSafe($directive)
-            );
+        $errors = $this->validate();
+
+        if ($errors) {
+            throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
         $internalTypes = Type::getInternalTypes() + Introspection::getTypes();
-
         foreach ($this->getTypeMap() as $name => $type) {
             if (isset($internalTypes[$name])) {
                 continue ;
             }
 
             $type->assertValid();
-
-            if ($type instanceof AbstractType) {
-                $possibleTypes = $this->getPossibleTypes($type);
-
-                Utils::invariant(
-                    !empty($possibleTypes),
-                    "Could not find possible implementing types for {$type->name} " .
-                    'in schema. Check that schema.types is defined and is an array of ' .
-                    'all possible types in the schema.'
-                );
-
-            } else if ($type instanceof ObjectType) {
-                foreach ($type->getInterfaces() as $iface) {
-                    $this->assertImplementsIntarface($type, $iface);
-                }
-            }
 
             // Make sure type loader returns the same instance as registered in other places of schema
             if ($this->config->typeLoader) {
@@ -445,76 +466,6 @@ class Schema
                     "Type loader returns different instance for {$name} than field/argument definitions. ".
                     'Make sure you always return the same instance for the same type name.'
                 );
-            }
-        }
-    }
-
-    private function assertImplementsIntarface(ObjectType $object, InterfaceType $iface)
-    {
-        $objectFieldMap = $object->getFields();
-        $ifaceFieldMap  = $iface->getFields();
-
-        // Assert each interface field is implemented.
-        foreach ($ifaceFieldMap as $fieldName => $ifaceField) {
-
-            // Assert interface field exists on object.
-            Utils::invariant(
-                isset($objectFieldMap[$fieldName]),
-                "{$iface->name} expects field \"{$fieldName}\" but {$object->name} does not provide it"
-            );
-
-            $objectField = $objectFieldMap[$fieldName];
-
-            // Assert interface field type is satisfied by object field type, by being
-            // a valid subtype. (covariant)
-            Utils::invariant(
-                TypeComparators::isTypeSubTypeOf($this, $objectField->getType(), $ifaceField->getType()),
-                "{$iface->name}.{$fieldName} expects type \"{$ifaceField->getType()}\" " .
-                "but " .
-                "{$object->name}.${fieldName} provides type \"{$objectField->getType()}\""
-            );
-
-            // Assert each interface field arg is implemented.
-            foreach ($ifaceField->args as $ifaceArg) {
-                $argName = $ifaceArg->name;
-
-                /** @var FieldArgument $objectArg */
-                $objectArg = Utils::find($objectField->args, function(FieldArgument $arg) use ($argName) {
-                    return $arg->name === $argName;
-                });
-
-                // Assert interface field arg exists on object field.
-                Utils::invariant(
-                    $objectArg,
-                    "{$iface->name}.{$fieldName} expects argument \"{$argName}\" but ".
-                    "{$object->name}.{$fieldName} does not provide it."
-                );
-
-                // Assert interface field arg type matches object field arg type.
-                // (invariant)
-                Utils::invariant(
-                    TypeComparators::isEqualType($ifaceArg->getType(), $objectArg->getType()),
-                    "{$iface->name}.{$fieldName}({$argName}:) expects type " .
-                    "\"{$ifaceArg->getType()->name}\" but " .
-                    "{$object->name}.{$fieldName}({$argName}:) provides type " .
-                    "\"{$objectArg->getType()->name}\"."
-                );
-
-                // Assert additional arguments must not be required.
-                foreach ($objectField->args as $objectArg) {
-                    $argName = $objectArg->name;
-                    $ifaceArg = Utils::find($ifaceField->args, function(FieldArgument $arg) use ($argName) {
-                        return $arg->name === $argName;
-                    });
-                    if (!$ifaceArg) {
-                        Utils::invariant(
-                            !($objectArg->getType() instanceof NonNull),
-                            "{$object->name}.{$fieldName}({$argName}:) is of required type " .
-                            "\"{$objectArg->getType()}\" but is not also provided by the " .
-                            "interface {$iface->name}.{$fieldName}."
-                        );
-                    }
-                }
             }
         }
     }

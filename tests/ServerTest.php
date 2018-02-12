@@ -39,8 +39,9 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(500, $server->getUnexpectedErrorStatus());
         $this->assertEquals(DocumentValidator::allRules(), $server->getValidationRules());
 
-        $this->setExpectedException(InvariantViolation::class, 'Schema query must be Object Type but got: NULL');
-        $server->getSchema();
+        $schema = $server->getSchema();
+        $this->setExpectedException(InvariantViolation::class, 'Query root type must be provided.');
+        $schema->assertValid();
     }
 
     public function testCannotUseSetQueryTypeAndSetSchema()
@@ -328,8 +329,8 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $this->assertInternalType('array', $errors);
         $this->assertNotEmpty($errors);
 
-        $this->setExpectedException(InvariantViolation::class, 'Cannot validate, schema contains errors: Schema query must be Object Type but got: NULL');
         $server = Server::create();
+        $this->setExpectedException(InvariantViolation::class, 'Cannot validate, schema contains errors: Query root type must be provided.');
         $server->validate($ast);
     }
 
@@ -538,15 +539,14 @@ class ServerTest extends \PHPUnit_Framework_TestCase
     {
         $mock = $this->getMockBuilder('GraphQL\Server')
             ->setMethods(['readInput', 'produceOutput'])
-            ->getMock()
-        ;
+            ->getMock();
 
         $mock->method('readInput')
             ->will($this->returnValue(json_encode(['query' => '{err}'])));
 
         $output = null;
         $mock->method('produceOutput')
-            ->will($this->returnCallback(function($a1, $a2) use (&$output) {
+            ->will($this->returnCallback(function ($a1, $a2) use (&$output) {
                 $output = func_get_args();
             }));
 
@@ -554,17 +554,35 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $mock->handleRequest();
 
         $this->assertInternalType('array', $output);
-        $this->assertArraySubset(['errors' => [['message' => 'Unexpected Error']]], $output[0]);
-        $this->assertEquals(500, $output[1]);
+        $this->assertArraySubset(['errors' => [['message' => 'Schema does not define the required query root type.']]], $output[0]);
+        $this->assertEquals(200, $output[1]);
 
         $output = null;
         $mock->setUnexpectedErrorMessage($newErr = 'Hey! Something went wrong!');
         $mock->setUnexpectedErrorStatus(501);
+        $mock->method('readInput')
+            ->will($this->throwException(new \Exception('test')));
         $mock->handleRequest();
 
         $this->assertInternalType('array', $output);
         $this->assertEquals(['errors' => [['message' => $newErr]]], $output[0]);
         $this->assertEquals(501, $output[1]);
+    }
+
+    public function testHandleRequest2()
+    {
+        $mock = $this->getMockBuilder('GraphQL\Server')
+            ->setMethods(['readInput', 'produceOutput'])
+            ->getMock();
+
+        $mock->method('readInput')
+            ->will($this->returnValue(json_encode(['query' => '{err}'])));
+
+        $output = null;
+        $mock->method('produceOutput')
+            ->will($this->returnCallback(function ($a1, $a2) use (&$output) {
+                $output = func_get_args();
+            }));
 
         $mock->setQueryType(new ObjectType([
             'name' => 'Query',

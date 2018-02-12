@@ -6,6 +6,9 @@ trigger_error(
     E_USER_DEPRECATED
 );
 
+/**
+ * @deprecated Use GraphQL\Utils\Utils
+ */
 class Utils extends \GraphQL\Utils\Utils
 {
 }

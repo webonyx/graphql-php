@@ -59,6 +59,11 @@ class SchemaConfig
     public $astNode;
 
     /**
+     * @var bool
+     */
+    public $assumeValid;
+
+    /**
      * Converts an array of options to instance of SchemaConfig
      * (or just returns empty config when array is not passed).
      *
@@ -72,47 +77,22 @@ class SchemaConfig
 
         if (!empty($options)) {
             if (isset($options['query'])) {
-                Utils::invariant(
-                    $options['query'] instanceof ObjectType,
-                    'Schema query must be Object Type if provided but got: %s',
-                    Utils::printSafe($options['query'])
-                );
                 $config->setQuery($options['query']);
             }
 
             if (isset($options['mutation'])) {
-                Utils::invariant(
-                    $options['mutation'] instanceof ObjectType,
-                    'Schema mutation must be Object Type if provided but got: %s',
-                    Utils::printSafe($options['mutation'])
-                );
                 $config->setMutation($options['mutation']);
             }
 
             if (isset($options['subscription'])) {
-                Utils::invariant(
-                    $options['subscription'] instanceof ObjectType,
-                    'Schema subscription must be Object Type if provided but got: %s',
-                    Utils::printSafe($options['subscription'])
-                );
                 $config->setSubscription($options['subscription']);
             }
 
             if (isset($options['types'])) {
-                Utils::invariant(
-                    is_array($options['types']) || is_callable($options['types']),
-                    'Schema types must be array or callable if provided but got: %s',
-                    Utils::printSafe($options['types'])
-                );
                 $config->setTypes($options['types']);
             }
 
             if (isset($options['directives'])) {
-                Utils::invariant(
-                    is_array($options['directives']),
-                    'Schema directives must be array if provided but got: %s',
-                    Utils::printSafe($options['directives'])
-                );
                 $config->setDirectives($options['directives']);
             }
 
@@ -140,12 +120,11 @@ class SchemaConfig
             }
 
             if (isset($options['astNode'])) {
-                Utils::invariant(
-                    $options['astNode'] instanceof SchemaDefinitionNode,
-                    'Schema astNode must be an instance of SchemaDefinitionNode but got: %s',
-                    Utils::printSafe($options['typeLoader'])
-                );
                 $config->setAstNode($options['astNode']);
+            }
+
+            if (isset($options['assumeValid'])) {
+                $config->setAssumeValid((bool) $options['assumeValid']);
             }
         }
 
@@ -175,7 +154,7 @@ class SchemaConfig
      * @param ObjectType $query
      * @return SchemaConfig
      */
-    public function setQuery(ObjectType $query)
+    public function setQuery($query)
     {
         $this->query = $query;
         return $this;
@@ -186,7 +165,7 @@ class SchemaConfig
      * @param ObjectType $mutation
      * @return SchemaConfig
      */
-    public function setMutation(ObjectType $mutation)
+    public function setMutation($mutation)
     {
         $this->mutation = $mutation;
         return $this;
@@ -197,7 +176,7 @@ class SchemaConfig
      * @param ObjectType $subscription
      * @return SchemaConfig
      */
-    public function setSubscription(ObjectType $subscription)
+    public function setSubscription($subscription)
     {
         $this->subscription = $subscription;
         return $this;
@@ -233,6 +212,16 @@ class SchemaConfig
     public function setTypeLoader(callable $typeLoader)
     {
         $this->typeLoader = $typeLoader;
+        return $this;
+    }
+
+    /**
+     * @param bool $assumeValid
+     * @return SchemaConfig
+     */
+    public function setAssumeValid($assumeValid)
+    {
+        $this->assumeValid = $assumeValid;
         return $this;
     }
 
@@ -288,5 +277,13 @@ class SchemaConfig
     public function getTypeLoader()
     {
         return $this->typeLoader;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getAssumeValid()
+    {
+        return $this->assumeValid;
     }
 }

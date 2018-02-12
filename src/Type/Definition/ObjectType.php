@@ -152,13 +152,13 @@ class ObjectType extends Type implements OutputType, CompositeType
             $interfaces = isset($this->config['interfaces']) ? $this->config['interfaces'] : [];
             $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
 
-            if (!is_array($interfaces)) {
+            if ($interfaces && !is_array($interfaces)) {
                 throw new InvariantViolation(
                     "{$this->name} interfaces must be an Array or a callable which returns an Array."
                 );
             }
 
-            $this->interfaces = $interfaces;
+            $this->interfaces = $interfaces ?: [];
         }
         return $this->interfaces;
     }
@@ -226,20 +226,6 @@ class ObjectType extends Type implements OutputType, CompositeType
             foreach ($field->args as $arg) {
                 $arg->assertValid($field, $this);
             }
-        }
-
-        $implemented = [];
-        foreach ($this->getInterfaces() as $iface) {
-            Utils::invariant(
-                $iface instanceof InterfaceType,
-                "{$this->name} may only implement Interface types, it cannot implement %s.",
-                Utils::printSafe($iface)
-            );
-            Utils::invariant(
-                !isset($implemented[$iface->name]),
-                "{$this->name} may declare it implements {$iface->name} only once."
-            );
-            $implemented[$iface->name] = true;
         }
     }
 }

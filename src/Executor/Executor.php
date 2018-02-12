@@ -333,7 +333,6 @@ class Executor
         }
     }
 
-
     /**
      * Extracts the root type of the operation from the schema.
      *
@@ -346,12 +345,19 @@ class Executor
     {
         switch ($operation->operation) {
             case 'query':
-                return $schema->getQueryType();
+                $queryType = $schema->getQueryType();
+                if (!$queryType) {
+                    throw new Error(
+                        'Schema does not define the required query root type.',
+                        [$operation]
+                    );
+                }
+                return $queryType;
             case 'mutation':
                 $mutationType = $schema->getMutationType();
                 if (!$mutationType) {
                     throw new Error(
-                        'Schema is not configured for mutations',
+                        'Schema is not configured for mutations.',
                         [$operation]
                     );
                 }
@@ -360,14 +366,14 @@ class Executor
                 $subscriptionType = $schema->getSubscriptionType();
                 if (!$subscriptionType) {
                     throw new Error(
-                        'Schema is not configured for subscriptions',
+                        'Schema is not configured for subscriptions.',
                         [ $operation ]
                     );
                 }
                 return $subscriptionType;
             default:
                 throw new Error(
-                    'Can only execute queries, mutations and subscriptions',
+                    'Can only execute queries, mutations and subscriptions.',
                     [$operation]
                 );
         }

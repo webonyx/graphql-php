@@ -864,21 +864,6 @@ type Query {
     // Describe: Failures
 
     /**
-     * @it Requires a schema definition or Query type
-     */
-    public function testRequiresSchemaDefinitionOrQueryType()
-    {
-        $this->setExpectedException('GraphQL\Error\Error', 'Must provide schema definition with query type or a type named Query.');
-        $body = '
-type Hello {
-  bar: Bar
-}
-';
-        $doc = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
      * @it Allows only a single schema definition
      */
     public function testAllowsOnlySingleSchemaDefinition()
@@ -891,25 +876,6 @@ schema {
 
 schema {
   query: Hello
-}
-
-type Hello {
-  bar: Bar
-}
-';
-        $doc = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @it Requires a query type
-     */
-    public function testRequiresQueryType()
-    {
-        $this->setExpectedException('GraphQL\Error\Error', 'Must provide schema definition with query type or a type named Query.');
-        $body = '
-schema {
-  mutation: Hello
 }
 
 type Hello {

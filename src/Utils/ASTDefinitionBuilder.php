@@ -266,9 +266,12 @@ class ASTDefinitionBuilder
 
     private function makeImplementedInterfaces(ObjectTypeDefinitionNode $def)
     {
-        if (isset($def->interfaces)) {
+        if ($def->interfaces) {
+            // Note: While this could make early assertions to get the correctly
+            // typed values, that would throw immediately while type system
+            // validation with validateSchema() will produce more actionable results.
             return Utils::map($def->interfaces, function ($iface) {
-                return $this->buildInterfaceType($iface);
+                return $this->buildType($iface);
             });
         }
         return null;

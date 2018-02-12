@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Type;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Type\Schema;
@@ -11,6 +12,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\Utils;
 
 class ValidationTest extends \PHPUnit_Framework_TestCase
@@ -122,6 +124,33 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         Warning::enable(Warning::WARNING_NOT_A_TYPE);
     }
 
+    /**
+     * @param InvariantViolation[]|Error[] $array
+     * @param string $message
+     * @param array|null $locations
+     */
+    private function assertContainsValidationMessage($array, $message, array $locations = null) {
+        foreach ($array as $error) {
+            if ($error->getMessage() === $message) {
+                if ($error instanceof Error) {
+                    $errorLocations = [];
+                    foreach ($error->getLocations() as $location) {
+                        $errorLocations[] = $location->toArray();
+                    }
+                    $this->assertEquals($locations, $errorLocations ?: null);
+                }
+                return;
+            }
+        }
+
+        $this->fail(
+            'Failed asserting that the array of validation messages contains ' .
+            'the message "' . $message . '"' . "\n" .
+            'Found the following messages in the array:' . "\n" .
+            join("\n", array_map(function($error) { return "\"{$error->getMessage()}\""; }, $array))
+        );
+    }
+
     public function testRejectsTypesWithoutNames()
     {
         $this->assertEachCallableThrows([
@@ -213,11 +242,22 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsASchemaWhoseQueryTypeIsAnObjectType()
     {
-        // Must not throw:
-        $schema = new Schema([
-            'query' => $this->SomeObjectType
-        ]);
-        $schema->assertValid();
+        $schema = BuildSchema::build('
+      type Query {
+        test: String
+      }
+        ');
+        $this->assertEquals([], $schema->validate());
+
+        $schemaWithDef = BuildSchema::build('
+      schema {
+        query: QueryRoot
+      }
+      type QueryRoot {
+        test: String
+      }
+    ');
+        $this->assertEquals([], $schemaWithDef->validate());
     }
 
     /**
@@ -225,17 +265,32 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsASchemaWhoseQueryAndMutationTypesAreObjectTypes()
     {
-        $mutationType = new ObjectType([
-            'name' => 'Mutation',
-            'fields' => [
-                'edit' => ['type' => Type::string()]
-            ]
-        ]);
-        $schema = new Schema([
-            'query' => $this->SomeObjectType,
-            'mutation' => $mutationType
-        ]);
-        $schema->assertValid();
+        $schema = BuildSchema::build('
+      type Query {
+        test: String
+      }
+
+      type Mutation {
+        test: String
+      }
+        ');
+        $this->assertEquals([], $schema->validate());
+
+        $schema = BuildSchema::build('
+      schema {
+        query: QueryRoot
+        mutation: MutationRoot
+      }
+
+      type QueryRoot {
+        test: String
+      }
+
+      type MutationRoot {
+        test: String
+      }
+        ');
+        $this->assertEquals([], $schema->validate());
     }
 
     /**
@@ -243,17 +298,32 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsASchemaWhoseQueryAndSubscriptionTypesAreObjectTypes()
     {
-        $subscriptionType = new ObjectType([
-            'name' => 'Subscription',
-            'fields' => [
-                'subscribe' => ['type' => Type::string()]
-            ]
-        ]);
-        $schema = new Schema([
-            'query' => $this->SomeObjectType,
-            'subscription' => $subscriptionType
-        ]);
-        $schema->assertValid();
+        $schema = BuildSchema::build('
+      type Query {
+        test: String
+      }
+
+      type Subscription {
+        test: String
+      }
+        ');
+        $this->assertEquals([], $schema->validate());
+
+        $schema = BuildSchema::build('
+      schema {
+        query: QueryRoot
+        subscription: SubscriptionRoot
+      }
+
+      type QueryRoot {
+        test: String
+      }
+
+      type SubscriptionRoot {
+        test: String
+      }
+        ');
+        $this->assertEquals([], $schema->validate());
     }
 
     /**
@@ -261,22 +331,68 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsASchemaWithoutAQueryType()
     {
-        $this->setExpectedException(InvariantViolation::class, 'Schema query must be Object Type but got: NULL');
-        new Schema([]);
+        $schema = BuildSchema::build('
+      type Mutation {
+        test: String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'Query root type must be provided.'
+        );
+
+
+        $schemaWithDef = BuildSchema::build('
+      schema {
+        mutation: MutationRoot
+      }
+
+      type MutationRoot {
+        test: String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schemaWithDef->validate(),
+            'Query root type must be provided.',
+            [['line' => 2, 'column' => 7]]
+        );
     }
 
     /**
-     * @it rejects a Schema whose query type is an input type
+     * @it rejects a Schema whose query root type is not an Object type
      */
-    public function testRejectsASchemaWhoseQueryTypeIsAnInputType()
+    public function testRejectsASchemaWhoseQueryTypeIsNotAnObjectType()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Schema query must be Object Type if provided but got: SomeInputObject'
+        $schema = BuildSchema::build('
+      input Query {
+        test: String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'Query root type must be Object type but got: Query.',
+            [['line' => 2, 'column' => 7]]
         );
-        new Schema([
-            'query' => $this->SomeInputObjectType
-        ]);
+
+
+        $schemaWithDef = BuildSchema::build('
+      schema {
+        query: SomeInputObject
+      }
+
+      input SomeInputObject {
+        test: String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schemaWithDef->validate(),
+            'Query root type must be Object type but got: SomeInputObject.',
+            [['line' => 3, 'column' => 16]]
+        );
     }
 
     /**
@@ -284,14 +400,43 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsASchemaWhoseMutationTypeIsAnInputType()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Schema mutation must be Object Type if provided but got: SomeInputObject'
+        $schema = BuildSchema::build('
+      type Query {
+        field: String
+      }
+
+      input Mutation {
+        test: String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'Mutation root type must be Object type if provided but got: Mutation.',
+            [['line' => 6, 'column' => 7]]
         );
-        new Schema([
-            'query' => $this->SomeObjectType,
-            'mutation' => $this->SomeInputObjectType
-        ]);
+
+
+        $schemaWithDef = BuildSchema::build('
+      schema {
+        query: Query
+        mutation: SomeInputObject
+      }
+
+      type Query {
+        field: String
+      }
+
+      input SomeInputObject {
+        test: String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schemaWithDef->validate(),
+            'Mutation root type must be Object type if provided but got: SomeInputObject.',
+            [['line' => 4, 'column' => 19]]
+        );
     }
 
     /**
@@ -299,14 +444,45 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsASchemaWhoseSubscriptionTypeIsAnInputType()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Schema subscription must be Object Type if provided but got: SomeInputObject'
+        $schema = BuildSchema::build('
+      type Query {
+        field: String
+      }
+
+      input Subscription {
+        test: String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'Subscription root type must be Object type if provided but got: Subscription.',
+            [['line' => 6, 'column' => 7]]
         );
-        new Schema([
-            'query' => $this->SomeObjectType,
-            'subscription' => $this->SomeInputObjectType
-        ]);
+
+
+        $schemaWithDef = BuildSchema::build('
+      schema {
+        query: Query
+        subscription: SomeInputObject
+      }
+
+      type Query {
+        field: String
+      }
+
+      input SomeInputObject {
+        test: String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schemaWithDef->validate(),
+            'Subscription root type must be Object type if provided but got: SomeInputObject.',
+            [['line' => 4, 'column' => 23]]
+        );
+
+
     }
 
     /**
@@ -319,12 +495,10 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             'directives' => ['somedirective']
         ]);
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Each entry of "directives" option of Schema config must be an instance of GraphQL\Type\Definition\Directive but entry at position 0 is "somedirective".'
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'Expected directive but got: somedirective'
         );
-
-        $schema->assertValid();
     }
 
     // DESCRIBE: Type System: A Schema must contain uniquely named types
@@ -773,39 +947,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         ]));
         $schema->assertValid();
     }
-
-    /**
-     * @it rejects an Object that declare it implements same interface more than once
-     */
-    public function testRejectsAnObjectThatDeclareItImplementsSameInterfaceMoreThanOnce()
-    {
-        $NonUniqInterface = new InterfaceType([
-            'name' => 'NonUniqInterface',
-            'fields' => ['f' => ['type' => Type::string()]],
-        ]);
-
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => ['f' => ['type' => Type::string()]],
-        ]);
-
-        $schema = $this->schemaWithFieldType(new ObjectType([
-            'name' => 'SomeObject',
-            'interfaces' => function () use ($NonUniqInterface, $AnotherInterface) {
-                return [$NonUniqInterface, $AnotherInterface, $NonUniqInterface];
-            },
-            'fields' => ['f' => ['type' => Type::string()]]
-        ]));
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeObject may declare it implements NonUniqInterface only once.'
-        );
-
-        $schema->assertValid();
-    }
-
-    // TODO: rejects an Object type with interfaces as a function returning an incorrect type
 
     /**
      * @it rejects an Object type with interfaces as a function returning an incorrect type
@@ -1654,52 +1795,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         $schema->assertValid();
     }
 
-
-
-    // DESCRIBE: Type System: Objects can only implement interfaces
-
-    /**
-     * @it accepts an Object implementing an Interface
-     */
-    public function testAcceptsAnObjectImplementingAnInterface()
-    {
-        $AnotherInterfaceType = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => ['f' => ['type' => Type::string()]]
-        ]);
-
-        $schema = $this->schemaWithObjectImplementingType($AnotherInterfaceType);
-        $schema->assertValid();
-    }
-
-    /**
-     * @it rejects an Object implementing a non-Interface type
-     */
-    public function testRejectsAnObjectImplementingANonInterfaceType()
-    {
-        $notInterfaceTypes = $this->withModifiers([
-            $this->SomeScalarType,
-            $this->SomeEnumType,
-            $this->SomeObjectType,
-            $this->SomeUnionType,
-            $this->SomeInputObjectType,
-        ]);
-        foreach ($notInterfaceTypes as $type) {
-            $schema = $this->schemaWithObjectImplementingType($type);
-
-            try {
-                $schema->assertValid();
-                $this->fail('Exepected exception not thrown for type ' . $type);
-            } catch (InvariantViolation $e) {
-                $this->assertEquals(
-                    'BadObject may only implement Interface types, it cannot implement ' . $type . '.',
-                    $e->getMessage()
-                );
-            }
-        }
-    }
-
-
     // DESCRIBE: Type System: Unions must represent Object types
 
     /**
@@ -1991,7 +2086,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-
     // DESCRIBE: Objects must adhere to Interface they implement
 
     /**
@@ -1999,33 +2093,24 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsAnObjectWhichImplementsAnInterface()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()]
-                    ]
-                ]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
+      
+      interface AnotherInterface {
+        field(input: String): String
+      }
+      
+      type AnotherObject implements AnotherInterface {
+        field(input: String): String
+      }
+        ');
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()]
-                    ]
-                ]
-            ]
-        ]);
-
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $schema->assertValid();
+        $this->assertEquals(
+            [],
+            $schema->validate()
+        );
     }
 
     /**
@@ -2033,34 +2118,25 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsAnObjectWhichImplementsAnInterfaceAlongWithMoreFields()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                    ]
-                ]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                    ]
-                ],
-                'anotherfield' => ['type' => Type::string()]
-            ]
-        ]);
+      interface AnotherInterface {
+        field(input: String): String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $schema->assertValid();
+      type AnotherObject implements AnotherInterface {
+        field(input: String): String
+        anotherField: String
+      }
+        ');
+
+       $this->assertEquals(
+           [],
+           $schema->validate()
+       );
     }
 
     /**
@@ -2068,75 +2144,24 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsAnObjectWhichImplementsAnInterfaceFieldAlongWithAdditionalOptionalArguments()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                    ]
-                ]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                        'anotherInput' => ['type' => Type::string()],
-                    ]
-                ]
-            ]
-        ]);
+      interface AnotherInterface {
+        field(input: String): String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $schema->assertValid();
-    }
+      type AnotherObject implements AnotherInterface {
+        field(input: String, anotherInput: String): String
+      }
+        ');
 
-    /**
-     * @it rejects an Object which implements an Interface field along with additional required arguments
-     */
-    public function testRejectsAnObjectWhichImplementsAnInterfaceFieldAlongWithAdditionalRequiredArguments()
-    {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                    ]
-                ]
-            ]
-        ]);
-
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                        'anotherInput' => ['type' => Type::nonNull(Type::string())],
-                    ]
-                ]
-            ]
-        ]);
-
-        $schema = $this->schemaWithFieldType($AnotherObject);
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherObject.field(anotherInput:) is of required type "String!" but is not also provided by the interface AnotherInterface.field.'
+        $this->assertEquals(
+            [],
+            $schema->validate()
         );
-
-        $schema->assertValid();
     }
 
     /**
@@ -2144,33 +2169,26 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectMissingAnInterfaceField()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                    ]
-                ]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'anotherfield' => ['type' => Type::string()]
-            ]
-        ]);
+      interface AnotherInterface {
+        field(input: String): String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
+      type AnotherObject implements AnotherInterface {
+        anotherField: String
+      }
+        ');
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherInterface expects field "field" but AnotherObject does not provide it'
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            '"AnotherInterface" expects field "field" but ' .
+            '"AnotherObject" does not provide it.',
+            [['line' => 7, 'column' => 9], ['line' => 10, 'column' => 7]]
         );
-        $schema->assertValid();
     }
 
     /**
@@ -2178,27 +2196,26 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectWithAnIncorrectlyTypedInterfaceField()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => ['type' => Type::string()]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => ['type' => $this->SomeScalarType]
-            ]
-        ]);
+      interface AnotherInterface {
+        field(input: String): String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherInterface.field expects type "String" but AnotherObject.field provides type "SomeScalar"'
+      type AnotherObject implements AnotherInterface {
+        field(input: String): Int
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field expects type "String" but ' .
+            'AnotherObject.field is type "Int".',
+            [['line' => 7, 'column' => 31], ['line' => 11, 'column' => 31]]
         );
-        $schema->assertValid();
     }
 
     /**
@@ -2206,43 +2223,29 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectWithADifferentlyTypedInterfaceField()
     {
-        $TypeA = new ObjectType([
-            'name' => 'A',
-            'fields' => [
-                'foo' => ['type' => Type::string()]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $TypeB = new ObjectType([
-            'name' => 'B',
-            'fields' => [
-                'foo' => ['type' => Type::string()]
-            ]
-        ]);
+      type A { foo: String }
+      type B { foo: String }
 
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => ['type' => $TypeA]
-            ]
-        ]);
+      interface AnotherInterface {
+        field: A
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => ['type' => $TypeB]
-            ]
-        ]);
+      type AnotherObject implements AnotherInterface {
+        field: B
+      }
+        ');
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherInterface.field expects type "A" but AnotherObject.field provides type "B"'
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field expects type "A" but ' .
+            'AnotherObject.field is type "B".',
+            [['line' => 10, 'column' => 16], ['line' => 14, 'column' => 16]]
         );
-
-        $schema->assertValid();
     }
 
     /**
@@ -2250,27 +2253,24 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsAnObjectWithASubtypedInterfaceFieldForInterface()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => function () use (&$AnotherInterface) {
-                return [
-                    'field' => ['type' => $AnotherInterface]
-                ];
-            }
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => function () use (&$AnotherObject) {
-                return [
-                    'field' => ['type' => $AnotherObject]
-                ];
-            }
-        ]);
+      interface AnotherInterface {
+        field: AnotherInterface
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $schema->assertValid();
+      type AnotherObject implements AnotherInterface {
+        field: AnotherObject
+      }
+        ');
+
+        $this->assertEquals(
+            [],
+            $schema->validate()
+        );
     }
 
     /**
@@ -2278,23 +2278,30 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsAnObjectWithASubtypedInterfaceFieldForUnion()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => ['type' => $this->SomeUnionType]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => ['type' => $this->SomeObjectType]
-            ]
-        ]);
+      type SomeObject {
+        field: String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $schema->assertValid();
+      union SomeUnionType = SomeObject
+
+      interface AnotherInterface {
+        field: SomeUnionType
+      }
+
+      type AnotherObject implements AnotherInterface {
+        field: SomeObject
+      }
+        ');
+
+        $this->assertEquals(
+            [],
+            $schema->validate()
+        );
     }
 
     /**
@@ -2302,36 +2309,26 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectMissingAnInterfaceArgument()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                    ]
-                ]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                ]
-            ]
-        ]);
+      interface AnotherInterface {
+        field(input: String): String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
+      type AnotherObject implements AnotherInterface {
+        field: String
+      }
+        ');
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherInterface.field expects argument "input" but AnotherObject.field does not provide it.'
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field expects argument "input" but ' .
+            'AnotherObject.field does not provide it.',
+            [['line' => 7, 'column' => 15], ['line' => 11, 'column' => 9]]
         );
-
-        $schema->assertValid();
     }
 
     /**
@@ -2339,39 +2336,87 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectWithAnIncorrectlyTypedInterfaceArgument()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => Type::string()],
-                    ]
-                ]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => [
-                    'type' => Type::string(),
-                    'args' => [
-                        'input' => ['type' => $this->SomeScalarType],
-                    ]
-                ]
-            ]
-        ]);
+      interface AnotherInterface {
+        field(input: String): String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
+      type AnotherObject implements AnotherInterface {
+        field(input: Int): String
+      }
+        ');
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherInterface.field(input:) expects type "String" but AnotherObject.field(input:) provides type "SomeScalar".'
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field(input:) expects type "String" but ' .
+            'AnotherObject.field(input:) is type "Int".',
+            [['line' => 7, 'column' => 22], ['line' => 11, 'column' => 22]]
         );
+    }
 
-        $schema->assertValid();
+    /**
+     * @it rejects an Object with both an incorrectly typed field and argument
+     */
+    public function testRejectsAnObjectWithBothAnIncorrectlyTypedFieldAndArgument()
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
+
+      interface AnotherInterface {
+        field(input: String): String
+      }
+
+      type AnotherObject implements AnotherInterface {
+        field(input: Int): Int
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field expects type "String" but ' .
+            'AnotherObject.field is type "Int".',
+            [['line' => 7, 'column' => 31], ['line' => 11, 'column' => 28]]
+        );
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field(input:) expects type "String" but ' .
+            'AnotherObject.field(input:) is type "Int".',
+            [['line' => 7, 'column' => 22], ['line' => 11, 'column' => 22]]
+        );
+    }
+
+    /**
+     * @it rejects an Object which implements an Interface field along with additional required arguments
+     */
+    public function testRejectsAnObjectWhichImplementsAnInterfaceFieldAlongWithAdditionalRequiredArguments()
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
+
+      interface AnotherInterface {
+        field(input: String): String
+      }
+
+      type AnotherObject implements AnotherInterface {
+        field(input: String, anotherInput: String!): String
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherObject.field(anotherInput:) is of required type ' .
+            '"String!" but is not also provided by the interface ' .
+            'AnotherInterface.field.',
+            [['line' => 11, 'column' => 44], ['line' => 7, 'column' => 9]]
+        );
     }
 
     /**
@@ -2379,23 +2424,24 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsAnObjectWithAnEquivalentlyModifiedInterfaceFieldType()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => ['type' => Type::nonNull(Type::listOf(Type::string()))]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => ['type' => Type::nonNull(Type::listOf(Type::string()))]
-            ]
-        ]);
+      interface AnotherInterface {
+        field: [String]!
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $schema->assertValid();
+      type AnotherObject implements AnotherInterface {
+        field: [String]!
+      }
+        ');
+
+        $this->assertEquals(
+            [],
+            $schema->validate()
+        );
     }
 
     /**
@@ -2403,29 +2449,26 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectWithANonListInterfaceFieldListType()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => ['type' => Type::listOf(Type::string())]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => ['type' => Type::string()]
-            ]
-        ]);
+      interface AnotherInterface {
+        field: [String]
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
+      type AnotherObject implements AnotherInterface {
+        field: String
+      }
+        ');
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherInterface.field expects type "[String]" but AnotherObject.field provides type "String"'
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field expects type "[String]" but ' .
+            'AnotherObject.field is type "String".',
+            [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]]
         );
-
-        $schema->assertValid();
     }
 
     /**
@@ -2433,27 +2476,26 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectWithAListInterfaceFieldNonListType()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => ['type' => Type::string()]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => ['type' => Type::listOf(Type::string())]
-            ]
-        ]);
+      interface AnotherInterface {
+        field: String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherInterface.field expects type "String" but AnotherObject.field provides type "[String]"'
+      type AnotherObject implements AnotherInterface {
+        field: [String]
+      }
+        ');
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field expects type "String" but ' .
+            'AnotherObject.field is type "[String]".',
+            [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]]
         );
-        $schema->assertValid();
     }
 
     /**
@@ -2461,23 +2503,24 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testAcceptsAnObjectWithASubsetNonNullInterfaceFieldType()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => ['type' => Type::string()]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => ['type' => Type::nonNull(Type::string())]
-            ]
-        ]);
+      interface AnotherInterface {
+        field: String
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
-        $schema->assertValid();
+      type AnotherObject implements AnotherInterface {
+        field: String!
+      }
+        ');
+
+        $this->assertEquals(
+            [],
+            $schema->validate()
+        );
     }
 
     /**
@@ -2485,29 +2528,26 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
      */
     public function testRejectsAnObjectWithASupersetNullableInterfaceFieldType()
     {
-        $AnotherInterface = new InterfaceType([
-            'name' => 'AnotherInterface',
-            'fields' => [
-                'field' => ['type' => Type::nonNull(Type::string())]
-            ]
-        ]);
+        $schema = BuildSchema::build('
+      type Query {
+        test: AnotherObject
+      }
 
-        $AnotherObject = new ObjectType([
-            'name' => 'AnotherObject',
-            'interfaces' => [$AnotherInterface],
-            'fields' => [
-                'field' => ['type' => Type::string()]
-            ]
-        ]);
+      interface AnotherInterface {
+        field: String!
+      }
 
-        $schema = $this->schemaWithFieldType($AnotherObject);
+      type AnotherObject implements AnotherInterface {
+        field: String
+      }
+        ');
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'AnotherInterface.field expects type "String!" but AnotherObject.field provides type "String"'
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            'AnotherInterface.field expects type "String!" but ' .
+            'AnotherObject.field is type "String".',
+            [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]]
         );
-
-        $schema->assertValid();
     }
 
     /**
@@ -2662,25 +2702,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                     'f' => ['type' => $BadResolverType]
                 ]
             ])
-        ]);
-    }
-
-    private function schemaWithObjectImplementingType($implementedType)
-    {
-        $BadObjectType = new ObjectType([
-            'name' => 'BadObject',
-            'interfaces' => [$implementedType],
-            'fields' => ['f' => ['type' => Type::string()]]
-        ]);
-
-        return new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
-                'fields' => [
-                    'f' => ['type' => $BadObjectType]
-                ]
-            ]),
-            'types' => [$BadObjectType]
         ]);
     }
 
