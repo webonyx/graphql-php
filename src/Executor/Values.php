@@ -233,6 +233,9 @@ class Values
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             if (is_array($value)) {
+                if(array_values($value) !== $value) {
+                    $value = [ $value ];
+                }
                 $tmp = [];
                 foreach ($value as $index => $item) {
                     $errors = self::isValidPHPValue($item, $itemType);
@@ -326,6 +329,10 @@ class Values
 
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
+            if(array_values($value) !== $value) {
+                $value = [ $value ];
+            }
+
             if (is_array($value) || $value instanceof \Traversable) {
                 $coercedValues = [];
                 foreach ($value as $item) {
