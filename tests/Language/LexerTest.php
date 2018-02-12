@@ -15,10 +15,11 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      */
     public function testDissallowsUncommonControlCharacters()
     {
-        $char = Utils::chr(0x0007);
-
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:1) Cannot contain the invalid character "\u0007"', '/') . '/');
-        $this->lexOne($char);
+        $this->expectSyntaxError(
+            Utils::chr(0x0007),
+            'Cannot contain the invalid character "\u0007"',
+            $this->loc(1, 1)
+        );
     }
 
     /**
@@ -107,14 +108,21 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             "    ?\n" .
             "\n";
 
-        $this->setExpectedException(SyntaxError::class,
-            'Syntax Error GraphQL (3:5) Cannot parse the unexpected character "?".' . "\n" .
-            "\n" .
-            "2: \n" .
-            "3:     ?\n" .
-            "       ^\n" .
-            "4: \n");
-        $this->lexOne($str);
+        try {
+            $this->lexOne($str);
+            $this->fail('Expected exception not thrown');
+        } catch (SyntaxError $error) {
+            $this->assertEquals(
+                'Syntax Error: Cannot parse the unexpected character "?".' . "\n" .
+                "\n" .
+                "GraphQL request (3:5)\n" .
+                "2: \n" .
+                "3:     ?\n" .
+                "       ^\n" .
+                "4: \n",
+                (string) $error
+            );
+        }
     }
 
     /**
@@ -129,34 +137,42 @@ class LexerTest extends \PHPUnit_Framework_TestCase
             "\n";
         $source = new Source($str, 'foo.js', new SourceLocation(11, 12));
 
-        $this->setExpectedException(
-            SyntaxError::class,
-            'Syntax Error foo.js (13:6) ' .
-            'Cannot parse the unexpected character "?".' . "\n" .
-            "\n" .
-            '12: ' . "\n" .
-            '13:      ?' . "\n" .
-            '         ^' . "\n" .
-            '14: ' . "\n"
-        );
-        $lexer = new Lexer($source);
-        $lexer->advance();
+        try {
+            $lexer = new Lexer($source);
+            $lexer->advance();
+            $this->fail('Expected exception not thrown');
+        } catch (SyntaxError $error) {
+            $this->assertEquals(
+                'Syntax Error: Cannot parse the unexpected character "?".' . "\n" .
+                "\n" .
+                "foo.js (13:6)\n" .
+                "12: \n" .
+                "13:      ?\n" .
+                "         ^\n" .
+                "14: \n",
+                (string) $error
+            );
+        }
     }
 
     public function testUpdatesColumnNumbersInErrorForFileContext()
     {
         $source = new Source('?', 'foo.js', new SourceLocation(1, 5));
 
-        $this->setExpectedException(
-            SyntaxError::class,
-            'Syntax Error foo.js (1:5) ' .
-            'Cannot parse the unexpected character "?".' . "\n" .
-            "\n" .
-            '1:     ?' . "\n" .
-            '       ^' . "\n"
-        );
-        $lexer = new Lexer($source);
-        $lexer->advance();
+        try {
+            $lexer = new Lexer($source);
+            $lexer->advance();
+            $this->fail('Expected exception not thrown');
+        } catch (SyntaxError $error) {
+            $this->assertEquals(
+                'Syntax Error: Cannot parse the unexpected character "?".' . "\n" .
+                "\n" .
+                "foo.js (1:5)\n" .
+                '1:     ?' . "\n" .
+                '       ^' . "\n",
+                (string) $error
+            );
+        }
     }
 
     /**
@@ -298,41 +314,22 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         \"\"\""));
     }
 
-    public function reportsUsefulBlockStringErrors() {
-        return [
-            ['"""', "Syntax Error GraphQL (1:4) Unterminated string.\n\n1: \"\"\"\n      ^\n"],
-            ['"""no end quote', "Syntax Error GraphQL (1:16) Unterminated string.\n\n1: \"\"\"no end quote\n                  ^\n"],
-            ['"""contains unescaped ' . json_decode('"\u0007"') . ' control char"""', "Syntax Error GraphQL (1:23) Invalid character within String: \"\\u0007\""],
-            ['"""null-byte is not ' . json_decode('"\u0000"') . ' end of file"""', "Syntax Error GraphQL (1:21) Invalid character within String: \"\\u0000\""],
-        ];
-    }
-
-    /**
-     * @dataProvider reportsUsefulBlockStringErrors
-     * @it lex reports useful block string errors
-     */
-    public function testReportsUsefulBlockStringErrors($str, $expectedMessage)
-    {
-        $this->setExpectedException(SyntaxError::class, $expectedMessage);
-        $this->lexOne($str);
-    }
-
     public function reportsUsefulStringErrors() {
         return [
-            ['"', "Syntax Error GraphQL (1:2) Unterminated string.\n\n1: \"\n    ^\n"],
-            ['"no end quote', "Syntax Error GraphQL (1:14) Unterminated string.\n\n1: \"no end quote\n                ^\n"],
-            ["'single quotes'", "Syntax Error GraphQL (1:1) Unexpected single quote character ('), did you mean to use a double quote (\")?\n\n1: 'single quotes'\n   ^\n"],
-            ['"contains unescaped \u0007 control char"', "Syntax Error GraphQL (1:21) Invalid character within String: \"\\u0007\"\n\n1: \"contains unescaped \\u0007 control char\"\n                       ^\n"],
-            ['"null-byte is not \u0000 end of file"', 'Syntax Error GraphQL (1:19) Invalid character within String: "\\u0000"' . "\n\n1: \"null-byte is not \\u0000 end of file\"\n                     ^\n"],
-            ['"multi' . "\n" . 'line"', "Syntax Error GraphQL (1:7) Unterminated string.\n\n1: \"multi\n         ^\n2: line\"\n"],
-            ['"multi' . "\r" . 'line"', "Syntax Error GraphQL (1:7) Unterminated string.\n\n1: \"multi\n         ^\n2: line\"\n"],
-            ['"bad \\z esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\z\n\n1: \"bad \\z esc\"\n         ^\n"],
-            ['"bad \\x esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\x\n\n1: \"bad \\x esc\"\n         ^\n"],
-            ['"bad \\u1 esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\u1 es\n\n1: \"bad \\u1 esc\"\n         ^\n"],
-            ['"bad \\u0XX1 esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\u0XX1\n\n1: \"bad \\u0XX1 esc\"\n         ^\n"],
-            ['"bad \\uXXXX esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uXXXX\n\n1: \"bad \\uXXXX esc\"\n         ^\n"],
-            ['"bad \\uFXXX esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uFXXX\n\n1: \"bad \\uFXXX esc\"\n         ^\n"],
-            ['"bad \\uXXXF esc"', "Syntax Error GraphQL (1:7) Invalid character escape sequence: \\uXXXF\n\n1: \"bad \\uXXXF esc\"\n         ^\n"],
+            ['"', "Unterminated string.", $this->loc(1, 2)],
+            ['"no end quote', "Unterminated string.", $this->loc(1, 14)],
+            ["'single quotes'", "Unexpected single quote character ('), did you mean to use a double quote (\")?", $this->loc(1, 1)],
+            ['"contains unescaped \u0007 control char"', "Invalid character within String: \"\\u0007\"", $this->loc(1, 21)],
+            ['"null-byte is not \u0000 end of file"', 'Invalid character within String: "\\u0000"', $this->loc(1, 19)],
+            ['"multi' . "\n" . 'line"', "Unterminated string.", $this->loc(1, 7)],
+            ['"multi' . "\r" . 'line"', "Unterminated string.", $this->loc(1, 7)],
+            ['"bad \\z esc"', "Invalid character escape sequence: \\z", $this->loc(1, 7)],
+            ['"bad \\x esc"', "Invalid character escape sequence: \\x", $this->loc(1, 7)],
+            ['"bad \\u1 esc"', "Invalid character escape sequence: \\u1 es", $this->loc(1, 7)],
+            ['"bad \\u0XX1 esc"', "Invalid character escape sequence: \\u0XX1", $this->loc(1, 7)],
+            ['"bad \\uXXXX esc"', "Invalid character escape sequence: \\uXXXX", $this->loc(1, 7)],
+            ['"bad \\uFXXX esc"', "Invalid character escape sequence: \\uFXXX", $this->loc(1, 7)],
+            ['"bad \\uXXXF esc"', "Invalid character escape sequence: \\uXXXF", $this->loc(1, 7)],
         ];
     }
 
@@ -340,10 +337,27 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      * @dataProvider reportsUsefulStringErrors
      * @it lex reports useful string errors
      */
-    public function testLexReportsUsefulStringErrors($str, $expectedMessage)
+    public function testLexReportsUsefulStringErrors($str, $expectedMessage, $location)
     {
-        $this->setExpectedException(SyntaxError::class, $expectedMessage);
-        $this->lexOne($str);
+        $this->expectSyntaxError($str, $expectedMessage, $location);
+    }
+
+    public function reportsUsefulBlockStringErrors() {
+        return [
+            ['"""', "Unterminated string.", $this->loc(1, 4)],
+            ['"""no end quote', "Unterminated string.", $this->loc(1, 16)],
+            ['"""contains unescaped ' . json_decode('"\u0007"') . ' control char"""', "Invalid character within String: \"\\u0007\"", $this->loc(1, 23)],
+            ['"""null-byte is not ' . json_decode('"\u0000"') . ' end of file"""', "Invalid character within String: \"\\u0000\"", $this->loc(1, 21)],
+        ];
+    }
+
+    /**
+     * @dataProvider reportsUsefulBlockStringErrors
+     * @it lex reports useful block string errors
+     */
+    public function testReportsUsefulBlockStringErrors($str, $expectedMessage, $location)
+    {
+        $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
     /**
@@ -420,15 +434,15 @@ class LexerTest extends \PHPUnit_Framework_TestCase
     public function reportsUsefulNumberErrors()
     {
         return [
-            [ '00', "Syntax Error GraphQL (1:2) Invalid number, unexpected digit after 0: \"0\"\n\n1: 00\n    ^\n"],
-            [ '+1', "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \"+\".\n\n1: +1\n   ^\n"],
-            [ '1.', "Syntax Error GraphQL (1:3) Invalid number, expected digit but got: <EOF>\n\n1: 1.\n     ^\n"],
-            [ '1.e1', "Syntax Error GraphQL (1:3) Invalid number, expected digit but got: \"e\"\n\n1: 1.e1\n     ^\n"],
-            [ '.123', "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \".\".\n\n1: .123\n   ^\n"],
-            [ '1.A', "Syntax Error GraphQL (1:3) Invalid number, expected digit but got: \"A\"\n\n1: 1.A\n     ^\n"],
-            [ '-A', "Syntax Error GraphQL (1:2) Invalid number, expected digit but got: \"A\"\n\n1: -A\n    ^\n"],
-            [ '1.0e', "Syntax Error GraphQL (1:5) Invalid number, expected digit but got: <EOF>\n\n1: 1.0e\n       ^\n"],
-            [ '1.0eA', "Syntax Error GraphQL (1:5) Invalid number, expected digit but got: \"A\"\n\n1: 1.0eA\n       ^\n"],
+            [ '00', "Invalid number, unexpected digit after 0: \"0\"", $this->loc(1, 2)],
+            [ '+1', "Cannot parse the unexpected character \"+\".", $this->loc(1, 1)],
+            [ '1.', "Invalid number, expected digit but got: <EOF>", $this->loc(1, 3)],
+            [ '1.e1', "Invalid number, expected digit but got: \"e\"", $this->loc(1, 3)],
+            [ '.123', "Cannot parse the unexpected character \".\".", $this->loc(1, 1)],
+            [ '1.A', "Invalid number, expected digit but got: \"A\"", $this->loc(1, 3)],
+            [ '-A', "Invalid number, expected digit but got: \"A\"", $this->loc(1, 2)],
+            [ '1.0e', "Invalid number, expected digit but got: <EOF>", $this->loc(1, 5)],
+            [ '1.0eA', "Invalid number, expected digit but got: \"A\"", $this->loc(1, 5)],
         ];
     }
 
@@ -436,10 +450,9 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      * @dataProvider reportsUsefulNumberErrors
      * @it lex reports useful number errors
      */
-    public function testReportsUsefulNumberErrors($str, $expectedMessage)
+    public function testReportsUsefulNumberErrors($str, $expectedMessage, $location)
     {
-        $this->setExpectedException(SyntaxError::class, $expectedMessage);
-        $this->lexOne($str);
+        $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
     /**
@@ -507,10 +520,10 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $unicode2 = json_decode('"\u200b"');
 
         return [
-            ['..', "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \".\".\n\n1: ..\n   ^\n"],
-            ['?', "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \"?\".\n\n1: ?\n   ^\n"],
-            [$unicode1, "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \"\\u203b\".\n\n1: $unicode1\n   ^\n"],
-            [$unicode2, "Syntax Error GraphQL (1:1) Cannot parse the unexpected character \"\\u200b\".\n\n1: $unicode2\n   ^\n"],
+            ['..', "Cannot parse the unexpected character \".\".", $this->loc(1, 1)],
+            ['?', "Cannot parse the unexpected character \"?\".", $this->loc(1, 1)],
+            [$unicode1, "Cannot parse the unexpected character \"\\u203b\".", $this->loc(1, 1)],
+            [$unicode2, "Cannot parse the unexpected character \"\\u200b\".", $this->loc(1, 1)],
         ];
     }
 
@@ -518,10 +531,9 @@ class LexerTest extends \PHPUnit_Framework_TestCase
      * @dataProvider reportsUsefulUnknownCharErrors
      * @it lex reports useful unknown character error
      */
-    public function testReportsUsefulUnknownCharErrors($str, $expectedMessage)
+    public function testReportsUsefulUnknownCharErrors($str, $expectedMessage, $location)
     {
-        $this->setExpectedException(SyntaxError::class, $expectedMessage);
-        $this->lexOne($str);
+        $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
     /**
@@ -533,8 +545,14 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $lexer = new Lexer(new Source($q));
         $this->assertArraySubset(['kind' => Token::NAME, 'start' => 0, 'end' => 1, 'value' => 'a'], (array) $lexer->advance());
 
-        $this->setExpectedException(SyntaxError::class, 'Syntax Error GraphQL (1:3) Invalid number, expected digit but got: "b"' . "\n\n1: a-b\n     ^\n");
-        $lexer->advance();
+        $this->setExpectedException(SyntaxError::class, 'Syntax Error: Invalid number, expected digit but got: "b"');
+        try {
+            $lexer->advance();
+            $this->fail('Expected exception not thrown');
+        } catch(SyntaxError $error) {
+            $this->assertEquals([$this->loc(1,3)], $error->getLocations());
+            throw $error;
+        }
     }
 
     /**
@@ -587,5 +605,21 @@ class LexerTest extends \PHPUnit_Framework_TestCase
     {
         $lexer = new Lexer(new Source($body));
         return $lexer->advance();
+    }
+
+    private function loc($line, $column)
+    {
+        return new SourceLocation($line, $column);
+    }
+
+    private function expectSyntaxError($text, $message, $location)
+    {
+        $this->setExpectedException(SyntaxError::class, $message);
+        try {
+            $this->lexOne($text);
+        } catch (SyntaxError $error) {
+            $this->assertEquals([$location], $error->getLocations());
+            throw $error;
+        }
     }
 }

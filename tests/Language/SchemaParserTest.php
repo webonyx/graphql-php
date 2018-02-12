@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Language;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
+use GraphQL\Language\SourceLocation;
 
 class SchemaParserTest extends \PHPUnit_Framework_TestCase
 {
@@ -199,31 +200,49 @@ extend type Hello {
     }
 
     /**
-     * @it Extension do not include descriptions
-     * @expectedException \GraphQL\Error\SyntaxError
-     * @expectedExceptionMessage Syntax Error GraphQL (3:7)
+     * @it Extension without anything throws
      */
-    public function testExtensionDoNotIncludeDescriptions() {
+    public function testExtensionWithoutAnythingThrows()
+    {
+        $this->expectSyntaxError(
+            'extend type Hello',
+            'Unexpected <EOF>',
+            $this->loc(1, 18)
+        );
+    }
+
+    /**
+     * @it Extension do not include descriptions
+     */
+    public function testExtensionDoNotIncludeDescriptions()
+    {
         $body = '
       "Description"
       extend type Hello {
         world: String
       }';
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            $body,
+            'Unexpected Name "extend"',
+            $this->loc(3, 7)
+        );
     }
 
     /**
      * @it Extension do not include descriptions
-     * @expectedException \GraphQL\Error\SyntaxError
-     * @expectedExceptionMessage Syntax Error GraphQL (2:14)
      */
-    public function testExtensionDoNotIncludeDescriptions2() {
+    public function testExtensionDoNotIncludeDescriptions2()
+    {
         $body = '
       extend "Description" type Hello {
         world: String
       }
 }';
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            $body,
+            'Unexpected String "Description"',
+            $this->loc(2, 14)
+        );
     }
 
     /**
@@ -707,9 +726,11 @@ type Hello {
      */
     public function testUnionFailsWithNoTypes()
     {
-        $body = 'union Hello = |';
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:16) Expected Name, found <EOF>', '/') . '/');
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            'union Hello = |',
+            'Expected Name, found <EOF>',
+            $this->loc(1, 16)
+        );
     }
 
     /**
@@ -717,9 +738,11 @@ type Hello {
      */
     public function testUnionFailsWithLeadingDoublePipe()
     {
-        $body = 'union Hello = || Wo | Rld';
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:16) Expected Name, found |', '/') . '/');
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            'union Hello = || Wo | Rld',
+            'Expected Name, found |',
+            $this->loc(1, 16)
+        );
     }
 
     /**
@@ -727,9 +750,11 @@ type Hello {
      */
     public function testUnionFailsWithDoublePipe()
     {
-        $body = 'union Hello = Wo || Rld';
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:19) Expected Name, found |', '/') . '/');
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            'union Hello = Wo || Rld',
+            'Expected Name, found |',
+            $this->loc(1, 19)
+        );
     }
 
     /**
@@ -737,9 +762,11 @@ type Hello {
      */
     public function testUnionFailsWithTrailingPipe()
     {
-        $body = 'union Hello = | Wo | Rld |';
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:27) Expected Name, found <EOF>', '/') . '/');
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            'union Hello = | Wo | Rld |',
+            'Expected Name, found <EOF>',
+            $this->loc(1, 27)
+        );
     }
 
     /**
@@ -804,28 +831,33 @@ input Hello {
 
     /**
      * @it Simple input object with args should fail
-     * @expectedException \GraphQL\Error\SyntaxError
      */
     public function testSimpleInputObjectWithArgsShouldFail()
     {
         $body = '
-input Hello {
-  world(foo: Int): String
-}';
-        Parser::parse($body);
+      input Hello {
+        world(foo: Int): String
+      }';
+        $this->expectSyntaxError(
+            $body,
+            'Expected :, found (',
+            $this->loc(3, 14)
+        );
     }
 
     /**
      * @it Directive with incorrect locations
-     * @expectedException \GraphQL\Error\SyntaxError
-     * @expectedExceptionMessage Syntax Error GraphQL (2:33) Unexpected Name "INCORRECT_LOCATION"
      */
     public function testDirectiveWithIncorrectLocationShouldFail()
     {
         $body = '
       directive @foo on FIELD | INCORRECT_LOCATION
 ';
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            $body,
+            'Unexpected Name "INCORRECT_LOCATION"',
+            $this->loc(2, 33)
+        );
     }
 
     private function typeNode($name, $loc)
@@ -886,5 +918,21 @@ input Hello {
             'loc' => $loc,
             'description' => null
         ];
+    }
+
+    private function loc($line, $column)
+    {
+        return new SourceLocation($line, $column);
+    }
+
+    private function expectSyntaxError($text, $message, $location)
+    {
+        $this->setExpectedException(SyntaxError::class, $message);
+        try {
+            Parser::parse($text);
+        } catch (SyntaxError $error) {
+            $this->assertEquals([$location], $error->getLocations());
+            throw $error;
+        }
     }
 }

@@ -303,10 +303,18 @@ class ServerTest extends \PHPUnit_Framework_TestCase
         $server = Server::create();
         $ast = $server->parse('{q}');
         $this->assertInstanceOf('GraphQL\Language\AST\DocumentNode', $ast);
+    }
 
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('{q', '/') . '/');
-        $server->parse('{q');
-        $this->fail('Expected exception not thrown');
+    public function testParseFailure()
+    {
+        $server = Server::create();
+        try {
+            $server->parse('{q');
+            $this->fail('Expected exception not thrown');
+        } catch (SyntaxError $error) {
+            $this->assertContains('{q', (string) $error);
+            $this->assertEquals('Syntax Error: Expected Name, found <EOF>', $error->getMessage());
+        }
     }
 
     public function testValidate()

@@ -324,4 +324,12 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     {
         return $this->toSerializableArray();
     }
+
+    /**
+     * @return string
+     */
+    public function __toString()
+    {
+        return FormattedError::printError($this);
+    }
 }

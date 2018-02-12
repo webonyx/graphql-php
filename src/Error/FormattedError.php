@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Error;
 
+use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
@@ -25,6 +26,97 @@ class FormattedError
     public static function setInternalErrorMessage($msg)
     {
         self::$internalErrorMessage = $msg;
+    }
+
+    /**
+     * Prints a GraphQLError to a string, representing useful location information
+     * about the error's position in the source.
+     *
+     * @param Error $error
+     * @return string
+     */
+    public static function printError(Error $error)
+    {
+        $source = $error->getSource();
+        $locations = $error->getLocations();
+
+        $message = $error->getMessage();
+
+        foreach($locations as $location) {
+            $message .= $source
+                ? self::highlightSourceAtLocation($source, $location)
+                : " ({$location->line}:{$location->column})";
+        }
+
+        return $message;
+    }
+
+    /**
+     * Render a helpful description of the location of the error in the GraphQL
+     * Source document.
+     *
+     * @param Source $source
+     * @param SourceLocation $location
+     * @return string
+     */
+    private static function highlightSourceAtLocation(Source $source, SourceLocation $location)
+    {
+        $line = $location->line;
+        $lineOffset = $source->locationOffset->line - 1;
+        $columnOffset = self::getColumnOffset($source, $location);
+        $contextLine = $line + $lineOffset;
+        $contextColumn = $location->column + $columnOffset;
+        $prevLineNum = (string) ($contextLine - 1);
+        $lineNum = (string) $contextLine;
+        $nextLineNum = (string) ($contextLine + 1);
+        $padLen = strlen($nextLineNum);
+        $lines = preg_split('/\r\n|[\n\r]/', $source->body);
+
+        $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
+
+        return (
+            "\n\n{$source->name} ($contextLine:$contextColumn)\n" .
+            ($line >= 2
+                ? (self::lpad($padLen, $prevLineNum) . ': ' . $lines[$line - 2] . "\n")
+                : ''
+            ) .
+            self::lpad($padLen, $lineNum) .
+            ': ' .
+            $lines[$line - 1] .
+            "\n" .
+            self::whitespace(2 + $padLen + $contextColumn - 1) .
+            "^\n" .
+            ($line < count($lines)
+                ? (self::lpad($padLen, $nextLineNum) . ': ' . $lines[$line] . "\n")
+                : ''
+            )
+        );
+    }
+
+    /**
+     * @param Source $source
+     * @param SourceLocation $location
+     * @return int
+     */
+    private static function getColumnOffset(Source $source, SourceLocation $location)
+    {
+        return $location->line === 1 ? $source->locationOffset->column - 1 : 0;
+    }
+
+    /**
+     * @param int $len
+     * @return string
+     */
+    private static function whitespace($len) {
+        return str_repeat(' ', $len);
+    }
+
+    /**
+     * @param int $len
+     * @return string
+     */
+    private static function lpad($len, $str) {
+        return self::whitespace($len - mb_strlen($str)) . $str;
     }
 
     /**

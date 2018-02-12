@@ -52,7 +52,7 @@ class QueryExecutionTest extends TestCase
         $this->assertSame(null, $result->data);
         $this->assertCount(1, $result->errors);
         $this->assertContains(
-            'Syntax Error GraphQL (1:4) Expected Name, found <EOF>',
+            'Syntax Error: Expected Name, found <EOF>',
             $result->errors[0]->getMessage()
         );
     }
