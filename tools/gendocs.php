@@ -41,7 +41,7 @@ function renderClassMethod(ReflectionMethod $method) {
 
         if ($p->isDefaultValueAvailable()) {
             $val = $p->isDefaultValueConstant() ? $p->getDefaultValueConstantName() : $p->getDefaultValue();
-            $def .= " = " . (is_array($val) ? '[]' : Utils::printSafe($val));
+            $def .= " = " . Utils::printSafeJson($val);
         }
 
         return $def;
@@ -63,7 +63,7 @@ TEMPLATE;
 }
 
 function renderConstant($value, $name) {
-    return "const $name = " . Utils::printSafe($value) . ";";
+    return "const $name = " . Utils::printSafeJson($value) . ";";
 }
 
 function renderProp(ReflectionProperty $prop) {

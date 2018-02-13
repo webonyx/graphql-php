@@ -235,7 +235,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             '{ colorEnum(fromString: "GREEN") }',
             null,
             [
-                'message' => 'Expected a value of type "Color" but received: "GREEN"',
+                'message' => 'Expected a value of type "Color" but received: GREEN',
                 'locations' => [new SourceLocation(1, 3)]
             ]
         );
@@ -325,7 +325,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             'query test($color: Color!) { colorEnum(fromEnum: $color) }',
             ['color' => 2],
-            "Variable \"\$color\" got invalid value 2.\nExpected type \"Color\", found 2."
+            'Variable "$color" got invalid value 2; Expected type Color.'
         );
     }
 
@@ -459,7 +459,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [[
-                    'debugMessage' => 'Expected a value of type "SimpleEnum" but received: "WRONG"',
+                    'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
                     'locations' => [['line' => 4, 'column' => 13]]
                 ]]
             ],

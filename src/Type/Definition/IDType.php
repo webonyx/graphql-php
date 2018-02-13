@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
@@ -43,7 +43,7 @@ When expected as an input type, any string (such as `"4"`) or integer
             return 'null';
         }
         if (!is_scalar($value) && (!is_object($value) || !method_exists($value, '__toString'))) {
-            throw new InvariantViolation("ID type cannot represent non scalar value: " . Utils::printSafe($value));
+            throw new Error("ID type cannot represent non scalar value: " . Utils::printSafe($value));
         }
         return (string) $value;
     }

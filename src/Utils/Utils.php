@@ -269,22 +269,7 @@ class Utils
             $var = (array) $var;
         }
         if (is_array($var)) {
-            $count = count($var);
-            if (!isset($var[0]) && $count > 0) {
-                $keys = [];
-                $keyCount = 0;
-                foreach ($var as $key => $value) {
-                    $keys[] = '"' . $key . '"';
-                    if ($keyCount++ > 4) {
-                        break;
-                    }
-                }
-                $keysLabel = $keyCount === 1 ? 'key' : 'keys';
-                $msg = "object with first $keysLabel: " . implode(', ', $keys);
-            } else {
-                $msg = "array($count)";
-            }
-            return $msg;
+            return json_encode($var);
         }
         if ('' === $var) {
             return '(empty string)';
@@ -296,7 +281,7 @@ class Utils
             return 'false';
         }
         if (true === $var) {
-            return 'false';
+            return 'true';
         }
         if (is_string($var)) {
             return "\"$var\"";
@@ -320,22 +305,7 @@ class Utils
             return 'instance of ' . get_class($var);
         }
         if (is_array($var)) {
-            $count = count($var);
-            if (!isset($var[0]) && $count > 0) {
-                $keys = [];
-                $keyCount = 0;
-                foreach ($var as $key => $value) {
-                    $keys[] = '"' . $key . '"';
-                    if ($keyCount++ > 4) {
-                        break;
-                    }
-                }
-                $keysLabel = $keyCount === 1 ? 'key' : 'keys';
-                $msg = "associative array($count) with first $keysLabel: " . implode(', ', $keys);
-            } else {
-                $msg = "array($count)";
-            }
-            return $msg;
+            return json_encode($var);
         }
         if ('' === $var) {
             return '(empty string)';
@@ -350,7 +320,7 @@ class Utils
             return 'true';
         }
         if (is_string($var)) {
-            return "\"$var\"";
+            return $var;
         }
         if (is_scalar($var)) {
             return (string) $var;

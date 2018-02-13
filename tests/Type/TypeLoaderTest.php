@@ -165,7 +165,7 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             InvariantViolation::class,
-            'Schema type loader must be callable if provided but got: array(0)'
+            'Schema type loader must be callable if provided but got: []'
         );
 
         new Schema([

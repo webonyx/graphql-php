@@ -1662,7 +1662,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     public function invalidEnumValueName()
     {
         return [
-            ['#value', 'SomeEnum has value with invalid name: "#value" (Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.)'],
+            ['#value', 'SomeEnum has value with invalid name: #value (Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "#value" does not.)'],
             ['true', 'SomeEnum: "true" can not be used as an Enum value.'],
             ['false', 'SomeEnum: "false" can not be used as an Enum value.'],
             ['null', 'SomeEnum: "null" can not be used as an Enum value.'],
@@ -1776,7 +1776,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->setExpectedException(
             InvariantViolation::class,
-            'BadResolver.badField field resolver must be a function if provided, but got: array(0)'
+            'BadResolver.badField field resolver must be a function if provided, but got: []'
         );
 
         $schema->assertValid();

@@ -322,7 +322,7 @@ class QueryExecutionTest extends TestCase
         $this->setExpectedException(
             InvariantViolation::class,
             'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode '.
-            'but got: associative array(1) with first key: "err"'
+            'but got: {"err":"err"}'
         );
         $this->config->setPersistentQueryLoader(function($queryId, OperationParams $params) use (&$called) {
             return ['err' => 'err'];

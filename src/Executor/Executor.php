@@ -100,9 +100,16 @@ class Executor
     {
         // TODO: deprecate (just always use SyncAdapter here) and have `promiseToExecute()` for other cases
         $promiseAdapter = self::getPromiseAdapter();
-
-        $result = self::promiseToExecute($promiseAdapter, $schema, $ast, $rootValue, $contextValue,
-            $variableValues, $operationName, $fieldResolver);
+        $result = self::promiseToExecute(
+            $promiseAdapter,
+            $schema,
+            $ast,
+            $rootValue,
+            $contextValue,
+            $variableValues,
+            $operationName,
+            $fieldResolver
+        );
 
         // Wait for promised results when using sync promises
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -140,11 +147,19 @@ class Executor
         callable $fieldResolver = null
     )
     {
-        try {
-            $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $contextValue, $variableValues,
-                $operationName, $fieldResolver, $promiseAdapter);
-        } catch (Error $e) {
-            return $promiseAdapter->createFulfilled(new ExecutionResult(null, [$e]));
+        $exeContext = self::buildExecutionContext(
+            $schema,
+            $ast,
+            $rootValue,
+            $contextValue,
+            $variableValues,
+            $operationName,
+            $fieldResolver,
+            $promiseAdapter
+        );
+
+        if (is_array($exeContext)) {
+            return $promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext));
         }
 
         $executor = new self($exeContext);
@@ -159,13 +174,12 @@ class Executor
      * @param DocumentNode $documentNode
      * @param $rootValue
      * @param $contextValue
-     * @param $rawVariableValues
+     * @param array|\Traversable $rawVariableValues
      * @param string $operationName
      * @param callable $fieldResolver
      * @param PromiseAdapter $promiseAdapter
      *
-     * @return ExecutionContext
-     * @throws Error
+     * @return ExecutionContext|Error[]
      */
     private static function buildExecutionContext(
         Schema $schema,
@@ -178,30 +192,17 @@ class Executor
         PromiseAdapter $promiseAdapter = null
     )
     {
-        if (null !== $rawVariableValues) {
-            Utils::invariant(
-                is_array($rawVariableValues) || $rawVariableValues instanceof \ArrayAccess,
-                "Variable values are expected to be array or instance of ArrayAccess, got " . Utils::getVariableType($rawVariableValues)
-            );
-        }
-        if (null !== $operationName) {
-            Utils::invariant(
-                is_string($operationName),
-                "Operation name is supposed to be string, got " . Utils::getVariableType($operationName)
-            );
-        }
-
         $errors = [];
         $fragments = [];
+        /** @var OperationDefinitionNode $operation */
         $operation = null;
+        $hasMultipleAssumedOperations = false;
 
         foreach ($documentNode->definitions as $definition) {
             switch ($definition->kind) {
                 case NodeKind::OPERATION_DEFINITION:
                     if (!$operationName && $operation) {
-                        throw new Error(
-                            'Must provide operation name if query contains multiple operations.'
-                        );
+                        $hasMultipleAssumedOperations = true;
                     }
                     if (!$operationName ||
                         (isset($definition->name) && $definition->name->value === $operationName)) {
@@ -216,19 +217,40 @@ class Executor
 
         if (!$operation) {
             if ($operationName) {
-                throw new Error("Unknown operation named \"$operationName\".");
+                $errors[] = new Error("Unknown operation named \"$operationName\".");
             } else {
-                throw new Error('Must provide an operation.');
+                $errors[] = new Error('Must provide an operation.');
+            }
+        } else if ($hasMultipleAssumedOperations) {
+            $errors[] = new Error(
+                'Must provide operation name if query contains multiple operations.'
+            );
+
+        }
+
+        $variableValues = null;
+        if ($operation) {
+            $coercedVariableValues = Values::getVariableValues(
+                $schema,
+                $operation->variableDefinitions ?: [],
+                $rawVariableValues ?: []
+            );
+
+            if ($coercedVariableValues['errors']) {
+                $errors = array_merge($errors, $coercedVariableValues['errors']);
+            } else {
+                $variableValues = $coercedVariableValues['coerced'];
             }
         }
 
-        $variableValues = Values::getVariableValues(
-            $schema,
-            $operation->variableDefinitions ?: [],
-            $rawVariableValues ?: []
-        );
+        if ($errors) {
+            return $errors;
+        }
 
-        $exeContext = new ExecutionContext(
+        Utils::invariant($operation, 'Has operation if no errors.');
+        Utils::invariant($variableValues !== null, 'Has variables if no errors.');
+
+        return new ExecutionContext(
             $schema,
             $fragments,
             $rootValue,
@@ -239,7 +261,6 @@ class Executor
             $fieldResolver ?: self::$defaultFieldResolver,
             $promiseAdapter ?: self::getPromiseAdapter()
         );
-        return $exeContext;
     }
 
     /**

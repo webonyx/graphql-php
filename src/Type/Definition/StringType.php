@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -27,6 +27,7 @@ represent free-form human-readable text.';
     /**
      * @param mixed $value
      * @return mixed|string
+     * @throws Error
      */
     public function serialize($value)
     {
@@ -40,18 +41,19 @@ represent free-form human-readable text.';
             return 'null';
         }
         if (!is_scalar($value)) {
-            throw new InvariantViolation("String cannot represent non scalar value: " . Utils::printSafe($value));
+            throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
         }
-        return (string) $value;
+        return $this->coerceString($value);
     }
 
     /**
      * @param mixed $value
      * @return string
+     * @throws Error
      */
     public function parseValue($value)
     {
-        return is_string($value) ? $value : Utils::undefined();
+        return $this->coerceString($value);
     }
 
     /**
@@ -65,5 +67,16 @@ represent free-form human-readable text.';
             return $valueNode->value;
         }
         return Utils::undefined();
+    }
+
+    private function coerceString($value) {
+        if (is_array($value)) {
+            throw new Error(
+                'String cannot represent an array value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return (string) $value;
     }
 }

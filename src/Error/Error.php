@@ -278,6 +278,14 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     }
 
     /**
+     * @return array|Node[]|null
+     */
+    public function getNodes()
+    {
+        return $this->nodes;
+    }
+
+    /**
      * Returns an array describing the path from the root value to the field which produced this error.
      * Only included for execution errors.
      *
