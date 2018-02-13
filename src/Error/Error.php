@@ -53,7 +53,10 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     public $nodes;
 
     /**
-     * The source GraphQL document corresponding to this error.
+     * The source GraphQL document for the first location of this error.
+     *
+     * Note that if this Error represents more than one node, the source may not
+     * represent nodes after the first node.
      *
      * @var Source|null
      */
@@ -250,11 +253,18 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         if (null === $this->locations) {
             $positions = $this->getPositions();
             $source = $this->getSource();
+            $nodes = $this->nodes;
 
             if ($positions && $source) {
                 $this->locations = array_map(function ($pos) use ($source) {
                     return $source->getLocation($pos);
                 }, $positions);
+            } else if ($nodes) {
+                $this->locations = array_filter(array_map(function ($node) {
+                    if ($node->loc) {
+                        return $node->loc->source->getLocation($node->loc->start);
+                    }
+                }, $nodes));
             } else {
                 $this->locations = [];
             }

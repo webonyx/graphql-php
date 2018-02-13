@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Error;
 
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
@@ -37,18 +38,27 @@ class FormattedError
      */
     public static function printError(Error $error)
     {
-        $source = $error->getSource();
-        $locations = $error->getLocations();
-
-        $message = $error->getMessage();
-
-        foreach($locations as $location) {
-            $message .= $source
-                ? self::highlightSourceAtLocation($source, $location)
-                : " ({$location->line}:{$location->column})";
+        $printedLocations = [];
+        if ($error->nodes) {
+            /** @var Node $node */
+            foreach($error->nodes as $node) {
+                if ($node->loc) {
+                    $printedLocations[] = self::highlightSourceAtLocation(
+                        $node->loc->source,
+                        $node->loc->source->getLocation($node->loc->start)
+                    );
+                }
+            }
+        } else if ($error->getSource() && $error->getLocations()) {
+            $source = $error->getSource();
+            foreach($error->getLocations() as $location) {
+                $printedLocations[] = self::highlightSourceAtLocation($source, $location);
+            }
         }
 
-        return $message;
+        return !$printedLocations
+            ? $error->getMessage()
+            : join("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
 
     /**
@@ -74,23 +84,15 @@ class FormattedError
 
         $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
 
-        return (
-            "\n\n{$source->name} ($contextLine:$contextColumn)\n" .
-            ($line >= 2
-                ? (self::lpad($padLen, $prevLineNum) . ': ' . $lines[$line - 2] . "\n")
-                : ''
-            ) .
-            self::lpad($padLen, $lineNum) .
-            ': ' .
-            $lines[$line - 1] .
-            "\n" .
-            self::whitespace(2 + $padLen + $contextColumn - 1) .
-            "^\n" .
-            ($line < count($lines)
-                ? (self::lpad($padLen, $nextLineNum) . ': ' . $lines[$line] . "\n")
-                : ''
-            )
-        );
+        $outputLines = [
+            "{$source->name} ($contextLine:$contextColumn)",
+            $line >= 2 ? (self::lpad($padLen, $prevLineNum) . ': ' . $lines[$line - 2]) : null,
+            self::lpad($padLen, $lineNum) . ': ' . $lines[$line - 1],
+            self::whitespace(2 + $padLen + $contextColumn - 1) . '^',
+            $line < count($lines)? self::lpad($padLen, $nextLineNum) . ': ' . $lines[$line] : null
+        ];
+
+        return join("\n", array_filter($outputLines));
     }
 
     /**

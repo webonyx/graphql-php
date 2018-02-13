@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Tests;
+namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\Parser;
