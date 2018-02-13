@@ -50,6 +50,20 @@ use GraphQL\Utils\Utils;
 class ObjectType extends Type implements OutputType, CompositeType
 {
     /**
+     * @param mixed $type
+     * @return self
+     */
+    public static function assertObjectType($type)
+    {
+        Utils::invariant(
+            $type instanceof self,
+            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Object type.'
+        );
+
+        return $type;
+    }
+
+    /**
      * @var FieldDefinition[]
      */
     private $fields;

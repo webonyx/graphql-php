@@ -469,15 +469,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it prohibits nesting NonNull inside NonNull
-     */
-    public function testProhibitsNonNullNesting()
-    {
-        $this->setExpectedException('\Exception');
-        new NonNull(new NonNull(Type::int()));
-    }
-
-    /**
      * @it prohibits putting non-Object types in unions
      */
     public function testProhibitsPuttingNonObjectTypesInUnions()

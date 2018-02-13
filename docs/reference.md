@@ -2115,7 +2115,7 @@ static function valueFromASTUntyped($valueNode, array $variables = null)
  * @param Schema $schema
  * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
  * @return Type
- * @throws InvariantViolation
+ * @throws \Exception
  */
 static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
 ```

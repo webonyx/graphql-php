@@ -13,6 +13,20 @@ use GraphQL\Utils\Utils;
 class InterfaceType extends Type implements AbstractType, OutputType, CompositeType
 {
     /**
+     * @param mixed $type
+     * @return self
+     */
+    public static function assertInterfaceType($type)
+    {
+        Utils::invariant(
+            $type instanceof self,
+            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Interface type.'
+        );
+
+        return $type;
+    }
+
+    /**
      * @var FieldDefinition[]
      */
     private $fields;

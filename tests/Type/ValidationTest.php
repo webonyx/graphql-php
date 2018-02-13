@@ -1975,7 +1975,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    // DESCRIBE: Type System: List must accept GraphQL types
+    // DESCRIBE: Type System: List must accept only types
 
     /**
      * @it accepts an type as item type of list
@@ -2022,7 +2022,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 $this->fail("Expected exception not thrown for: " . Utils::printSafe($type));
             } catch (InvariantViolation $e) {
                 $this->assertEquals(
-                    'Can only create List of a GraphQLType but got: ' . Utils::printSafe($type),
+                    'Expected '. Utils::printSafe($type) . ' to be a GraphQL type.',
                     $e->getMessage()
                 );
             }
@@ -2030,7 +2030,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    // DESCRIBE: Type System: NonNull must accept GraphQL types
+    // DESCRIBE: Type System: NonNull must only accept non-nullable types
 
     /**
      * @it accepts an type as nullable type of non-null
@@ -2057,8 +2057,6 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
         }
     }
 
-    // TODO: rejects a non-type as nullable type of non-null: ${type}
-
     /**
      * @it rejects a non-type as nullable type of non-null
      */
@@ -2079,7 +2077,7 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 $this->fail("Expected exception not thrown for: " . Utils::printSafe($type));
             } catch (InvariantViolation $e) {
                 $this->assertEquals(
-                    'Can only create NonNull of a Nullable GraphQLType but got: ' . Utils::printSafe($type),
+                    'Expected ' . Utils::printSafe($type) . ' to be a GraphQL nullable type.',
                     $e->getMessage()
                 );
             }

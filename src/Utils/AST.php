@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Utils;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DocumentNode;
@@ -205,51 +206,50 @@ class AST
             return new ObjectValueNode(['fields' => $fieldNodes]);
         }
 
-        Utils::invariant(
-            $type instanceof ScalarType || $type instanceof EnumType,
-            "Must provide Input Type, cannot use: " . Utils::printSafe($type)
-        );
+        if ($type instanceof ScalarType || $type instanceof EnumType) {
+            // Since value is an internally represented value, it must be serialized
+            // to an externally represented value before converting into an AST.
+            $serialized = $type->serialize($value);
+            if (null === $serialized || Utils::isInvalid($serialized)) {
+                return null;
+            }
 
-        // Since value is an internally represented value, it must be serialized
-        // to an externally represented value before converting into an AST.
-        $serialized = $type->serialize($value);
-        if (null === $serialized || Utils::isInvalid($serialized)) {
-            return null;
-        }
-
-        // Others serialize based on their corresponding PHP scalar types.
-        if (is_bool($serialized)) {
-            return new BooleanValueNode(['value' => $serialized]);
-        }
-        if (is_int($serialized)) {
-            return new IntValueNode(['value' => $serialized]);
-        }
-        if (is_float($serialized)) {
-            if ((int) $serialized == $serialized) {
+            // Others serialize based on their corresponding PHP scalar types.
+            if (is_bool($serialized)) {
+                return new BooleanValueNode(['value' => $serialized]);
+            }
+            if (is_int($serialized)) {
                 return new IntValueNode(['value' => $serialized]);
             }
-            return new FloatValueNode(['value' => $serialized]);
-        }
-        if (is_string($serialized)) {
-            // Enum types use Enum literals.
-            if ($type instanceof EnumType) {
-                return new EnumValueNode(['value' => $serialized]);
+            if (is_float($serialized)) {
+                if ((int) $serialized == $serialized) {
+                    return new IntValueNode(['value' => $serialized]);
+                }
+                return new FloatValueNode(['value' => $serialized]);
+            }
+            if (is_string($serialized)) {
+                // Enum types use Enum literals.
+                if ($type instanceof EnumType) {
+                    return new EnumValueNode(['value' => $serialized]);
+                }
+
+                // ID types can use Int literals.
+                $asInt = (int) $serialized;
+                if ($type instanceof IDType && (string) $asInt === $serialized) {
+                    return new IntValueNode(['value' => $serialized]);
+                }
+
+                // Use json_encode, which uses the same string encoding as GraphQL,
+                // then remove the quotes.
+                return new StringValueNode([
+                    'value' => substr(json_encode($serialized), 1, -1)
+                ]);
             }
 
-            // ID types can use Int literals.
-            $asInt = (int) $serialized;
-            if ($type instanceof IDType && (string) $asInt === $serialized) {
-                return new IntValueNode(['value' => $serialized]);
-            }
-
-            // Use json_encode, which uses the same string encoding as GraphQL,
-            // then remove the quotes.
-            return new StringValueNode([
-                'value' => substr(json_encode($serialized), 1, -1)
-            ]);
+            throw new InvariantViolation('Cannot convert value to AST: ' . Utils::printSafe($serialized));
         }
 
-        throw new InvariantViolation('Cannot convert value to AST: ' . Utils::printSafe($serialized));
+        throw new Error('Unknown type: ' . Utils::printSafe($type) . '.');
     }
 
     /**
@@ -395,25 +395,26 @@ class AST
             return $enumValue->value;
         }
 
-        Utils::invariant($type instanceof ScalarType, 'Must be scalar type');
-        /** @var ScalarType $type */
+        if ($type instanceof ScalarType) {
+            // Scalars fulfill parsing a literal value via parseLiteral().
+            // Invalid values represent a failure to parse correctly, in which case
+            // no value is returned.
+            try {
+                $result = $type->parseLiteral($valueNode, $variables);
+            } catch (\Exception $error) {
+                return $undefined;
+            } catch (\Throwable $error) {
+                return $undefined;
+            }
 
-        // Scalars fulfill parsing a literal value via parseLiteral().
-        // Invalid values represent a failure to parse correctly, in which case
-        // no value is returned.
-        try {
-            $result = $type->parseLiteral($valueNode, $variables);
-        } catch (\Exception $error) {
-            return $undefined;
-        } catch (\Throwable $error) {
-            return $undefined;
+            if (Utils::isInvalid($result)) {
+                return $undefined;
+            }
+
+            return $result;
         }
 
-        if (Utils::isInvalid($result)) {
-            return $undefined;
-        }
-
-        return $result;
+        throw new Error('Unknown type: ' . Utils::printSafe($type) . '.');
     }
 
     /**
@@ -473,9 +474,9 @@ class AST
                 return ($variables && isset($variables[$variableName]) && !Utils::isInvalid($variables[$variableName]))
                     ? $variables[$variableName]
                     : null;
-            default:
-                throw new InvariantViolation('Unexpected value kind: ' . $valueNode->kind);
-          }
+        }
+
+        throw new Error('Unexpected value kind: ' . $valueNode->kind . '.');
     }
 
     /**
@@ -485,7 +486,7 @@ class AST
      * @param Schema $schema
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      * @return Type
-     * @throws InvariantViolation
+     * @throws \Exception
      */
     public static function typeFromAST(Schema $schema, $inputTypeNode)
     {
@@ -497,9 +498,11 @@ class AST
             $innerType = self::typeFromAST($schema, $inputTypeNode->type);
             return $innerType ? new NonNull($innerType) : null;
         }
+        if ($inputTypeNode instanceof NamedTypeNode) {
+            return $schema->getType($inputTypeNode->name->value);
+        }
 
-        Utils::invariant($inputTypeNode && $inputTypeNode instanceof NamedTypeNode, 'Must be a named type');
-        return $schema->getType($inputTypeNode->name->value);
+        throw new Error('Unexpected type kind: ' . $inputTypeNode->kind . '.');
     }
 
     /**

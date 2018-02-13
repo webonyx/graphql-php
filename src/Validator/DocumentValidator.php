@@ -319,27 +319,28 @@ class DocumentValidator
             return [];
         }
 
-        Utils::invariant($type instanceof ScalarType, 'Must be a scalar type');
-        /** @var ScalarType $type */
-
-        // Scalars determine if a literal values is valid via parseLiteral().
-        try {
-            $parseResult = $type->parseLiteral($valueNode);
-            if (Utils::isInvalid($parseResult)) {
+        if ($type instanceof ScalarType) {
+            // Scalars determine if a literal values is valid via parseLiteral().
+            try {
+                $parseResult = $type->parseLiteral($valueNode);
+                if (Utils::isInvalid($parseResult)) {
+                    $printed = Printer::doPrint($valueNode);
+                    return ["Expected type \"{$type->name}\", found $printed."];
+                }
+            } catch (\Exception $error) {
                 $printed = Printer::doPrint($valueNode);
-                return ["Expected type \"{$type->name}\", found $printed."];
+                $message = $error->getMessage();
+                return ["Expected type \"{$type->name}\", found $printed; $message"];
+            } catch (\Throwable $error) {
+                $printed = Printer::doPrint($valueNode);
+                $message = $error->getMessage();
+                return ["Expected type \"{$type->name}\", found $printed; $message"];
             }
-        } catch (\Exception $error) {
-            $printed = Printer::doPrint($valueNode);
-            $message = $error->getMessage();
-            return ["Expected type \"{$type->name}\", found $printed; $message"];
-        } catch (\Throwable $error) {
-            $printed = Printer::doPrint($valueNode);
-            $message = $error->getMessage();
-            return ["Expected type \"{$type->name}\", found $printed; $message"];
+
+            return [];
         }
 
-        return [];
+        throw new Error('Unknown type: ' . Utils::printSafe($type) . '.');
     }
 
     /**

@@ -148,8 +148,11 @@ class FindBreakingChanges
         $dangerousChanges = [];
         foreach ($oldTypeMap as $oldTypeName => $oldTypeDefinition) {
             $newTypeDefinition = isset($newTypeMap[$oldTypeName]) ? $newTypeMap[$oldTypeName] : null;
-            if (!($oldTypeDefinition instanceof ObjectType || $oldTypeDefinition instanceof InterfaceType) ||
-                !($newTypeDefinition instanceof $oldTypeDefinition)) {
+            if (
+                !($oldTypeDefinition instanceof ObjectType || $oldTypeDefinition instanceof InterfaceType) ||
+                !($newTypeDefinition instanceof ObjectType || $newTypeDefinition instanceof InterfaceType) ||
+                !($newTypeDefinition instanceof $oldTypeDefinition)
+            ) {
                 continue;
             }
 
@@ -262,7 +265,11 @@ class FindBreakingChanges
         $breakingChanges = [];
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = isset($newTypeMap[$typeName]) ? $newTypeMap[$typeName] : null;
-            if (!($oldType instanceof ObjectType || $oldType instanceof InterfaceType) || !($newType instanceof $oldType)) {
+            if (
+                !($oldType instanceof ObjectType || $oldType instanceof InterfaceType) ||
+                !($newType instanceof ObjectType || $newType instanceof InterfaceType) ||
+                !($newType instanceof $oldType)
+            ) {
                 continue;
             }
             $oldTypeFieldsDef = $oldType->getFields();

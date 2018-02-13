@@ -75,8 +75,7 @@ class ASTDefinitionBuilder
         }
         if ($inputTypeNode->kind == NodeKind::NON_NULL_TYPE) {
             $wrappedType = $this->buildWrappedType($innerType, $inputTypeNode->type);
-            Utils::invariant(!($wrappedType instanceof NonNull), 'No nesting nonnull.');
-            return Type::nonNull($wrappedType);
+            return Type::nonNull(NonNull::assertNullableType($wrappedType));
         }
         return $innerType;
     }
@@ -159,8 +158,7 @@ class ASTDefinitionBuilder
     public function buildObjectType($typeNode)
     {
         $type = $this->buildType($typeNode);
-        Utils::invariant($type instanceof ObjectType, 'Expected Object type.' . get_class($type));
-        return $type;
+        return ObjectType::assertObjectType($type);
     }
 
     /**
@@ -171,8 +169,7 @@ class ASTDefinitionBuilder
     public function buildInterfaceType($typeNode)
     {
         $type = $this->buildType($typeNode);
-        Utils::invariant($type instanceof InterfaceType, 'Expected Interface type.');
-        return $type;
+        return InterfaceType::assertInterfaceType($type);
     }
 
     /**

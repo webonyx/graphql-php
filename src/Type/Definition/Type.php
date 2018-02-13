@@ -4,8 +4,10 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\NamedType;
+use GraphQL\Language\AST\NonNullType;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Type\Introspection;
+use GraphQL\Utils\Utils;
 
 /**
  * Registry of standard GraphQL types
@@ -218,9 +220,23 @@ abstract class Type implements \JsonSerializable
             $type instanceof UnionType ||
             $type instanceof EnumType ||
             $type instanceof InputObjectType ||
-            $type instanceof ListType ||
+            $type instanceof ListOfType ||
             $type instanceof NonNull
         );
+    }
+
+    /**
+     * @param mixed $type
+     * @return mixed
+     */
+    public static function assertType($type)
+    {
+        Utils::invariant(
+            self::isType($type),
+            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'
+        );
+
+        return $type;
     }
 
     /**

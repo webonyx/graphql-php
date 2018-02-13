@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Utils;
 
+use GraphQL\Error\Error;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
@@ -142,9 +143,11 @@ class SchemaPrinter
             return self::printUnion($type, $options);
         } else if ($type instanceof EnumType) {
             return self::printEnum($type, $options);
+        } else if ($type instanceof InputObjectType) {
+            return self::printInputObject($type, $options);
         }
-        Utils::invariant($type instanceof InputObjectType);
-        return self::printInputObject($type, $options);
+
+        throw new Error('Unknown type: ' . Utils::printSafe($type) . '.');
     }
 
     private static function printScalar(ScalarType $type, array $options)
