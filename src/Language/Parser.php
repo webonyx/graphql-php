@@ -6,6 +6,7 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\ExecutableDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
@@ -328,24 +329,18 @@ class Parser
     }
 
     /**
-     * @return OperationDefinitionNode|FragmentDefinitionNode|TypeSystemDefinitionNode
+     * @return ExecutableDefinitionNode|TypeSystemDefinitionNode
      * @throws SyntaxError
      */
     function parseDefinition()
     {
-        if ($this->peek(Token::BRACE_L)) {
-            return $this->parseOperationDefinition();
-        }
-
         if ($this->peek(Token::NAME)) {
             switch ($this->lexer->token->value) {
                 case 'query':
                 case 'mutation':
                 case 'subscription':
-                    return $this->parseOperationDefinition();
-
                 case 'fragment':
-                    return $this->parseFragmentDefinition();
+                    return $this->parseExecutableDefinition();
 
                 // Note: The schema definition language is an experimental addition.
                 case 'schema':
@@ -357,13 +352,37 @@ class Parser
                 case 'input':
                 case 'extend':
                 case 'directive':
+                    // Note: The schema definition language is an experimental addition.
                     return $this->parseTypeSystemDefinition();
             }
+        } else if ($this->peek(Token::BRACE_L)) {
+            return $this->parseExecutableDefinition();
+        } else if ($this->peekDescription()) {
+            // Note: The schema definition language is an experimental addition.
+            return $this->parseTypeSystemDefinition();
         }
 
-        // Note: The schema definition language is an experimental addition.
-        if ($this->peekDescription()) {
-            return $this->parseTypeSystemDefinition();
+        throw $this->unexpected();
+    }
+
+    /**
+     * @return ExecutableDefinitionNode
+     * @throws SyntaxError
+     */
+    function parseExecutableDefinition()
+    {
+        if ($this->peek(Token::NAME)) {
+            switch ($this->lexer->token->value) {
+                case 'query':
+                case 'mutation':
+                case 'subscription':
+                    return $this->parseOperationDefinition();
+
+                case 'fragment':
+                    return $this->parseFragmentDefinition();
+            }
+        } else if ($this->peek(Token::BRACE_L)) {
+            return $this->parseOperationDefinition();
         }
 
         throw $this->unexpected();

@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Language\AST;
 
-class OperationDefinitionNode extends Node implements DefinitionNode, HasSelectionSet
+class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, HasSelectionSet
 {
     /**
      * @var string
