@@ -173,7 +173,11 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         $this->source = $source;
         $this->positions = $positions;
         $this->path = $path;
-        $this->extensions = $extensions;
+        $this->extensions = $extensions ?: (
+            $previous && $previous instanceof self
+                ? $previous->extensions
+                : []
+        );
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
