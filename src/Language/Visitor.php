@@ -195,7 +195,7 @@ class Visitor
             $isEdited = $isLeaving && count($edits) !== 0;
 
             if ($isLeaving) {
-                $key = count($ancestors) === 0 ? $UNDEFINED : array_pop($path);
+                $key = !$ancestors ? $UNDEFINED : $path[count($path) - 1];
                 $node = $parent;
                 $parent = array_pop($ancestors);
 
@@ -292,7 +292,9 @@ class Visitor
                 $edits[] = [$key, $node];
             }
 
-            if (!$isLeaving) {
+            if ($isLeaving) {
+                array_pop($path);
+            } else {
                 $stack = [
                     'inArray' => $inArray,
                     'index' => $index,

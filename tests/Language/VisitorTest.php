@@ -18,6 +18,92 @@ use GraphQL\Utils\TypeInfo;
 
 class VisitorTest extends \PHPUnit_Framework_TestCase
 {
+    private function getNodeByPath(DocumentNode $ast, $path)
+    {
+        $result = $ast;
+        foreach ($path as $key) {
+            $resultArray = $result instanceof NodeList ? iterator_to_array($result) : $result->toArray();
+            $this->assertArrayHasKey($key, $resultArray);
+            $result = $resultArray[$key];
+        }
+        return $result;
+    }
+
+    private function checkVisitorFnArgs($ast, $args, $isEdited = false)
+    {
+        /** @var Node $node */
+        list($node, $key, $parent, $path, $ancestors) = $args;
+
+        $parentArray = $parent && !is_array($parent) ? ($parent instanceof NodeList ? iterator_to_array($parent) : $parent->toArray()) : $parent;
+
+        $this->assertInstanceOf(Node::class, $node);
+        $this->assertContains($node->kind, array_keys(NodeKind::$classMap));
+
+        $isRoot = $key === null;
+        if ($isRoot) {
+            if (!$isEdited) {
+                $this->assertEquals($ast, $node);
+            }
+            $this->assertEquals(null, $parent);
+            $this->assertEquals([], $path);
+            $this->assertEquals([], $ancestors);
+            return;
+        }
+
+        $this->assertContains(gettype($key), ['integer', 'string']);
+
+        $this->assertArrayHasKey($key, $parentArray);
+
+        $this->assertInternalType('array', $path);
+        $this->assertEquals($key, $path[count($path) - 1]);
+
+        $this->assertInternalType('array', $ancestors);
+        $this->assertCount(count($path) - 1, $ancestors);
+
+        if (!$isEdited) {
+            $this->assertEquals($node, $parentArray[$key]);
+            $this->assertEquals($node, $this->getNodeByPath($ast, $path));
+            $ancestorsLength = count($ancestors);
+            for ($i = 0; $i < $ancestorsLength; ++$i) {
+                $ancestorPath = array_slice($path, 0, $i);
+                $this->assertEquals($ancestors[$i], $this->getNodeByPath($ast, $ancestorPath));
+            }
+        }
+    }
+
+    public function testValidatesPathArgument()
+    {
+        $visited = [];
+
+        $ast = Parser::parse('{ a }', ['noLocation' => true]);
+
+        Visitor::visit($ast, [
+           'enter' => function ($node, $key, $parent, $path) use ($ast, &$visited) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
+                $visited[] = ['enter', $path];
+           },
+            'leave' => function ($node, $key, $parent, $path) use ($ast, &$visited) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
+                $visited[] = ['leave', $path];
+            },
+        ]);
+
+        $expected = [
+            ['enter', []],
+            ['enter', ['definitions', 0]],
+            ['enter', ['definitions', 0, 'selectionSet']],
+            ['enter', ['definitions', 0, 'selectionSet', 'selections', 0]],
+            ['enter', ['definitions', 0, 'selectionSet', 'selections', 0, 'name']],
+            ['leave', ['definitions', 0, 'selectionSet', 'selections', 0, 'name']],
+            ['leave', ['definitions', 0, 'selectionSet', 'selections', 0]],
+            ['leave', ['definitions', 0, 'selectionSet']],
+            ['leave', ['definitions', 0]],
+            ['leave', []],
+        ];
+
+        $this->assertEquals($expected, $visited);
+    }
+
     /**
      * @it allows editing a node both on enter and on leave
      */
@@ -28,7 +114,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $selectionSet = null;
         $editedAst = Visitor::visit($ast, [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function(OperationDefinitionNode $node) use (&$selectionSet) {
+                'enter' => function(OperationDefinitionNode $node) use (&$selectionSet, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $selectionSet = $node->selectionSet;
 
                     $newNode = clone $node;
@@ -38,7 +125,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                     $newNode->didEnter = true;
                     return $newNode;
                 },
-                'leave' => function(OperationDefinitionNode $node) use (&$selectionSet) {
+                'leave' => function(OperationDefinitionNode $node) use (&$selectionSet, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args(), true);
                     $newNode = clone $node;
                     $newNode->selectionSet = $selectionSet;
                     $newNode->didLeave = true;
@@ -66,13 +154,15 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $editedAst = Visitor::visit($ast, [
             NodeKind::DOCUMENT => [
-                'enter' => function (DocumentNode $node) {
+                'enter' => function (DocumentNode $node) use ($ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $tmp = clone $node;
                     $tmp->definitions = [];
                     $tmp->didEnter = true;
                     return $tmp;
                 },
-                'leave' => function(DocumentNode $node) use ($definitions) {
+                'leave' => function(DocumentNode $node) use ($definitions, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args(), true);
                     $tmp = clone $node;
                     $node->definitions = $definitions;
                     $node->didLeave = true;
@@ -96,7 +186,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
-            'enter' => function($node) {
+            'enter' => function($node) use ($ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::removeNode();
                 }
@@ -120,7 +211,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
-            'leave' => function($node) {
+            'leave' => function($node) use ($ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args(), true);
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::removeNode();
                 }
@@ -151,10 +243,11 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $didVisitAddedField = false;
 
-        $ast = Parser::parse('{ a { x } }');
+        $ast = Parser::parse('{ a { x } }', ['noLocation' => true]);
 
         Visitor::visit($ast, [
-            'enter' => function($node) use ($addedField, &$didVisitAddedField) {
+            'enter' => function($node) use ($addedField, &$didVisitAddedField, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args(), true);
                 if ($node instanceof FieldNode && $node->name->value === 'a') {
                     return new FieldNode([
                         'selectionSet' => new SelectionSetNode(array(
@@ -177,16 +270,18 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testAllowsSkippingASubTree()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $ast = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
 
         Visitor::visit($ast, [
-            'enter' => function(Node $node) use (&$visited) {
+            'enter' => function(Node $node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function (Node $node) use (&$visited) {
+            'leave' => function (Node $node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ]);
@@ -218,16 +313,18 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testAllowsEarlyExitWhileVisiting()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $ast = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
 
         Visitor::visit($ast, [
-            'enter' => function(Node $node) use (&$visited) {
+            'enter' => function(Node $node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
                 if ($node instanceof NameNode && $node->value === 'x') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function(Node $node) use (&$visited) {
+            'leave' => function(Node $node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ]);
@@ -258,12 +355,14 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $ast = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
         Visitor::visit($ast, [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
 
                 if ($node->kind === NodeKind::NAME && $node->value === 'x') {
@@ -296,17 +395,20 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testAllowsANamedFunctionsVisitorAPI()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }');
+        $ast = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
 
         Visitor::visit($ast, [
-            NodeKind::NAME => function(NameNode $node) use (&$visited) {
+            NodeKind::NAME => function(NameNode $node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['enter', $node->kind, $node->value];
             },
             NodeKind::SELECTION_SET => [
-                'enter' => function(SelectionSetNode $node) use (&$visited) {
+                'enter' => function(SelectionSetNode $node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['enter', $node->kind, null];
                 },
-                'leave' => function(SelectionSetNode $node) use (&$visited) {
+                'leave' => function(SelectionSetNode $node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['leave', $node->kind, null];
                 }
             ]
@@ -333,15 +435,20 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $ast = Parser::parse(
             'fragment a($v: Boolean = false) on t { f }',
-            ['experimentalFragmentVariables' => true]
+            [
+                'noLocation' => true,
+                'experimentalFragmentVariables' => true,
+            ]
         );
         $visited = [];
 
         Visitor::visit($ast, [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
             },
         ]);
@@ -390,11 +497,13 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $visited = [];
         Visitor::visit($ast, [
-            'enter' => function(Node $node, $key, $parent) use (&$visited) {
+            'enter' => function(Node $node, $key, $parent) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $r = ['enter', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
                 $visited[] = $r;
             },
-            'leave' => function(Node $node, $key, $parent) use (&$visited) {
+            'leave' => function(Node $node, $key, $parent) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $r = ['leave', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
                 $visited[] = $r;
             }
@@ -729,7 +838,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function($node) use (&$visited) {
+                'enter' => function($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = [ 'enter', $node->kind, isset($node->value) ?  $node->value : null];
 
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
@@ -737,7 +847,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                     }
                 },
 
-                'leave' => function($node) use (&$visited) {
+                'leave' => function($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
                 }
             ]
@@ -772,24 +883,28 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a { x }, b { y} }');
         Visitor::visit($ast, Visitor::visitInParallel([
         [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['no-a', 'enter', $node->kind, isset($node->value) ? $node->value : null];
                 if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'a') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = [ 'no-a', 'leave', $node->kind, isset($node->value) ? $node->value : null ];
             }
         ],
         [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['no-b', 'enter', $node->kind, isset($node->value) ? $node->value : null];
                 if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['no-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ]
@@ -842,14 +957,16 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([ [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $value = isset($node->value) ? $node->value : null;
                 $visited[] = ['enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'x') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ] ]));
@@ -881,26 +998,30 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a { y }, b { x } }');
         Visitor::visit($ast, Visitor::visitInParallel([
         [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $value = isset($node->value) ? $node->value : null;
                 $visited[] = ['break-a', 'enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'a') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = [ 'break-a', 'leave', $node->kind, isset($node->value) ? $node->value : null ];
             }
         ],
         [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $value = isset($node->value) ? $node->value : null;
                 $visited[] = ['break-b', 'enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'b') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['break-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
             }
         ],
@@ -939,10 +1060,12 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([ [
-            'enter' => function($node) use (&$visited) {
+            'enter' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
             },
-            'leave' => function($node) use (&$visited) {
+            'leave' => function($node) use (&$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $value = isset($node->value) ? $node->value : null;
                 $visited[] = ['leave', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'x') {
@@ -979,10 +1102,12 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a { y }, b { x } }');
         Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function($node) use (&$visited) {
+                'enter' => function($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['break-a', 'enter', $node->kind, isset($node->value) ? $node->value : null];
                 },
-                'leave' => function($node) use (&$visited) {
+                'leave' => function($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['break-a', 'leave', $node->kind, isset($node->value) ? $node->value : null];
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'a') {
                         return Visitor::stop();
@@ -990,10 +1115,12 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                 }
             ],
             [
-                'enter' => function($node) use (&$visited) {
+                'enter' => function($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['break-b', 'enter', $node->kind, isset($node->value) ? $node->value : null];
                 },
-                'leave' => function($node) use (&$visited) {
+                'leave' => function($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['break-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                         return Visitor::stop();
@@ -1052,17 +1179,20 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function ($node) use (&$visited) {
+                'enter' => function ($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                         return Visitor::removeNode();
                     }
                 }
             ],
             [
-                'enter' => function ($node) use (&$visited) {
+                'enter' => function ($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
                 },
-                'leave' => function ($node) use (&$visited) {
+                'leave' => function ($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args(), true);
                     $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
                 }
             ],
@@ -1116,17 +1246,20 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'leave' => function ($node) use (&$visited) {
+                'leave' => function ($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args(), true);
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                         return Visitor::removeNode();
                     }
                 }
             ],
             [
-                'enter' => function ($node) use (&$visited) {
+                'enter' => function ($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
                 },
-                'leave' => function ($node) use (&$visited) {
+                'leave' => function ($node) use (&$visited, $ast) {
+                    $this->checkVisitorFnArgs($ast, func_get_args(), true);
                     $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
                 }
             ],
@@ -1189,7 +1322,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
 
         $ast = Parser::parse('{ human(id: 4) { name, pets { ... { name } }, unknown } }');
         Visitor::visit($ast, Visitor::visitWithTypeInfo($typeInfo, [
-            'enter' => function ($node) use ($typeInfo, &$visited) {
+            'enter' => function ($node) use ($typeInfo, &$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $parentType = $typeInfo->getParentType();
                 $type = $typeInfo->getType();
                 $inputType = $typeInfo->getInputType();
@@ -1202,7 +1336,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                     $inputType ? (string)$inputType : null
                 ];
             },
-            'leave' => function ($node) use ($typeInfo, &$visited) {
+            'leave' => function ($node) use ($typeInfo, &$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args());
                 $parentType = $typeInfo->getParentType();
                 $type = $typeInfo->getType();
                 $inputType = $typeInfo->getInputType();
@@ -1273,7 +1408,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
             '{ human(id: 4) { name, pets }, alien }'
         );
         $editedAst = Visitor::visit($ast, Visitor::visitWithTypeInfo($typeInfo, [
-            'enter' => function ($node) use ($typeInfo, &$visited) {
+            'enter' => function ($node) use ($typeInfo, &$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args(), true);
                 $parentType = $typeInfo->getParentType();
                 $type = $typeInfo->getType();
                 $inputType = $typeInfo->getInputType();
@@ -1308,7 +1444,8 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
                     ]);
                 }
             },
-            'leave' => function ($node) use ($typeInfo, &$visited) {
+            'leave' => function ($node) use ($typeInfo, &$visited, $ast) {
+                $this->checkVisitorFnArgs($ast, func_get_args(), true);
                 $parentType = $typeInfo->getParentType();
                 $type = $typeInfo->getType();
                 $inputType = $typeInfo->getInputType();
