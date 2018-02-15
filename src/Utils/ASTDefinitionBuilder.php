@@ -22,7 +22,6 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\FieldArgument;
@@ -128,53 +127,7 @@ class ASTDefinitionBuilder
 
     /**
      * @param TypeNode $typeNode
-     * @return InputType|Type
-     * @throws Error
-     */
-    public function buildInputType(TypeNode $typeNode)
-    {
-        $type = $this->internalBuildWrappedType($typeNode);
-        Utils::invariant(Type::isInputType($type), 'Expected Input type.');
-        return $type;
-    }
-
-    /**
-     * @param TypeNode $typeNode
-     * @return OutputType|Type
-     * @throws Error
-     */
-    public function buildOutputType(TypeNode $typeNode)
-    {
-        $type = $this->internalBuildWrappedType($typeNode);
-        Utils::invariant(Type::isOutputType($type), 'Expected Output type.');
-        return $type;
-    }
-
-    /**
-     * @param TypeNode|string $typeNode
-     * @return ObjectType|Type
-     * @throws Error
-     */
-    public function buildObjectType($typeNode)
-    {
-        $type = $this->buildType($typeNode);
-        return ObjectType::assertObjectType($type);
-    }
-
-    /**
-     * @param TypeNode|string $typeNode
-     * @return InterfaceType|Type
-     * @throws Error
-     */
-    public function buildInterfaceType($typeNode)
-    {
-        $type = $this->buildType($typeNode);
-        return InterfaceType::assertInterfaceType($type);
-    }
-
-    /**
-     * @param TypeNode $typeNode
-     * @return Type
+     * @return Type|InputType
      * @throws Error
      */
     private function internalBuildWrappedType(TypeNode $typeNode)
@@ -199,7 +152,10 @@ class ASTDefinitionBuilder
     public function buildField(FieldDefinitionNode $field)
     {
         return [
-            'type' => $this->buildOutputType($field->type),
+            // Note: While this could make assertions to get the correctly typed
+            // value, that would throw immediately while type system validation
+            // with validateSchema() will produce more actionable results.
+            'type' => $this->internalBuildWrappedType($field->type),
             'description' => $this->getDescription($field),
             'args' => $field->arguments ? $this->makeInputValues($field->arguments) : null,
             'deprecationReason' => $this->getDeprecationReason($field),
@@ -282,7 +238,10 @@ class ASTDefinitionBuilder
                 return $value->name->value;
             },
             function ($value) {
-                $type = $this->buildInputType($value->type);
+                // Note: While this could make assertions to get the correctly typed
+                // value, that would throw immediately while type system validation
+                // with validateSchema() will produce more actionable results.
+                $type = $this->internalBuildWrappedType($value->type);
                 $config = [
                     'name' => $value->name->value,
                     'type' => $type,
@@ -339,9 +298,12 @@ class ASTDefinitionBuilder
         return new UnionType([
             'name' => $def->name->value,
             'description' => $this->getDescription($def),
+            // Note: While this could make assertions to get the correctly typed
+            // values below, that would throw immediately while type system
+            // validation with validateSchema() will produce more actionable results.
             'types' => $def->types
                 ? Utils::map($def->types, function ($typeNode) {
-                    return $this->buildObjectType($typeNode);
+                    return $this->buildType($typeNode);
                 }):
                 [],
             'astNode' => $def,
@@ -409,7 +371,7 @@ class ASTDefinitionBuilder
     {
         $loc = $node->loc;
         if (!$loc || !$loc->startToken) {
-            return;
+            return null;
         }
         $comments = [];
         $token = $loc->startToken->prev;

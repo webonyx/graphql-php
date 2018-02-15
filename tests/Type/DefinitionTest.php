@@ -469,37 +469,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @it prohibits putting non-Object types in unions
-     */
-    public function testProhibitsPuttingNonObjectTypesInUnions()
-    {
-        $int = Type::int();
-
-        $badUnionTypes = [
-            $int,
-            new NonNull($int),
-            new ListOfType($int),
-            $this->interfaceType,
-            $this->unionType,
-            $this->enumType,
-            $this->inputObjectType
-        ];
-
-        foreach ($badUnionTypes as $type) {
-            try {
-                $union = new UnionType(['name' => 'BadUnion', 'types' => [$type]]);
-                $union->assertValid();
-                $this->fail('Expected exception not thrown');
-            } catch (\Exception $e) {
-                $this->assertSame(
-                    'BadUnion may only contain Object types, it cannot contain: ' . Utils::printSafe($type) . '.',
-                    $e->getMessage()
-                );
-            }
-        }
-    }
-
-    /**
      * @it allows a thunk for Union\'s types
      */
     public function testAllowsThunkForUnionTypes()

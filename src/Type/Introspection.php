@@ -168,7 +168,7 @@ EOD;
      * @param Type $type
      * @return bool
      */
-    public static function isIntrospectionType(Type $type)
+    public static function isIntrospectionType($type)
     {
         return in_array($type->name, array_keys(self::getTypes()));
     }

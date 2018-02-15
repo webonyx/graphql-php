@@ -980,6 +980,7 @@ class Parser
 
     /**
      * @return OperationTypeDefinitionNode
+     * @throws SyntaxError
      */
     function parseOperationTypeDefinition()
     {
@@ -1095,11 +1096,12 @@ class Parser
 
     /**
      * @return InputValueDefinitionNode[]|NodeList
+     * @throws SyntaxError
      */
     function parseArgumentDefs()
     {
         if (!$this->peek(Token::PAREN_L)) {
-            return [];
+            return new NodeList([]);
         }
         return $this->many(Token::PAREN_L, [$this, 'parseInputValueDef'], Token::PAREN_R);
     }
@@ -1357,7 +1359,7 @@ class Parser
         $fields = $this->parseFieldsDefinition();
 
         if (
-            count($interfaces) === 0 &&
+            !$interfaces &&
             count($directives) === 0 &&
             count($fields) === 0
         ) {
@@ -1412,7 +1414,7 @@ class Parser
         $types = $this->parseMemberTypesDefinition();
         if (
             count($directives) === 0 &&
-            count($types) === 0
+            !$types
         ) {
             throw $this->unexpected();
         }

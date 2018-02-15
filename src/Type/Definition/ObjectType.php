@@ -47,7 +47,7 @@ use GraphQL\Utils\Utils;
  *     ]);
  *
  */
-class ObjectType extends Type implements OutputType, CompositeType
+class ObjectType extends Type implements OutputType, CompositeType, NamedType
 {
     /**
      * @param mixed $type
@@ -103,7 +103,7 @@ class ObjectType extends Type implements OutputType, CompositeType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::assertValidName($config['name'], !empty($config['isIntrospection']));
+        Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         // Note: this validation is disabled by default, because it is resource-consuming
         // TODO: add bin/validate script to check if schema is valid during development
@@ -228,18 +228,5 @@ class ObjectType extends Type implements OutputType, CompositeType
             !isset($this->config['isTypeOf']) || is_callable($this->config['isTypeOf']),
             "{$this->name} must provide 'isTypeOf' as a function"
         );
-
-        // getFields() and getInterfaceMap() will do structural validation
-        $fields = $this->getFields();
-        Utils::invariant(
-            !empty($fields),
-            "{$this->name} fields must not be empty"
-        );
-        foreach ($fields as $field) {
-            $field->assertValid($this);
-            foreach ($field->args as $arg) {
-                $arg->assertValid($field, $this);
-            }
-        }
     }
 }

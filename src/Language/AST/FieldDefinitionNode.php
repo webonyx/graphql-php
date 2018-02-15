@@ -14,7 +14,7 @@ class FieldDefinitionNode extends Node
     public $name;
 
     /**
-     * @var InputValueDefinitionNode[]
+     * @var InputValueDefinitionNode[]|NodeList
      */
     public $arguments;
 
@@ -24,7 +24,7 @@ class FieldDefinitionNode extends Node
     public $type;
 
     /**
-     * @var DirectiveNode[]
+     * @var DirectiveNode[]|NodeList
      */
     public $directives;
 

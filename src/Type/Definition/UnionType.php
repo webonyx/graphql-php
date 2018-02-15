@@ -9,7 +9,7 @@ use GraphQL\Utils\Utils;
  * Class UnionType
  * @package GraphQL\Type\Definition
  */
-class UnionType extends Type implements AbstractType, OutputType, CompositeType
+class UnionType extends Type implements AbstractType, OutputType, CompositeType, NamedType
 {
     /**
      * @var UnionTypeDefinitionNode
@@ -36,7 +36,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::assertValidName($config['name']);
+        Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         Config::validate($config, [
             'name' => Config::NAME | Config::REQUIRED,
@@ -81,7 +81,8 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
 
             if (!is_array($types)) {
                 throw new InvariantViolation(
-                    "{$this->name} types must be an Array or a callable which returns an Array."
+                    "Must provide Array of types or a callable which returns " .
+                    "such an array for Union {$this->name}"
                 );
             }
 
@@ -133,31 +134,11 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType
     {
         parent::assertValid();
 
-        $types = $this->getTypes();
-        Utils::invariant(
-            !empty($types),
-            "{$this->name} types must not be empty"
-        );
-
         if (isset($this->config['resolveType'])) {
             Utils::invariant(
                 is_callable($this->config['resolveType']),
                 "{$this->name} must provide \"resolveType\" as a function."
             );
-        }
-
-        $includedTypeNames = [];
-        foreach ($types as $objType) {
-            Utils::invariant(
-                $objType instanceof ObjectType,
-                "{$this->name} may only contain Object types, it cannot contain: %s.",
-                Utils::printSafe($objType)
-            );
-            Utils::invariant(
-                !isset($includedTypeNames[$objType->name]),
-                "{$this->name} can include {$objType->name} type only once."
-            );
-            $includedTypeNames[$objType->name] = true;
         }
     }
 }

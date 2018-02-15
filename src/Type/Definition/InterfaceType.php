@@ -10,7 +10,7 @@ use GraphQL\Utils\Utils;
  * Class InterfaceType
  * @package GraphQL\Type\Definition
  */
-class InterfaceType extends Type implements AbstractType, OutputType, CompositeType
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NamedType
 {
     /**
      * @param mixed $type
@@ -51,7 +51,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::assertValidName($config['name']);
+        Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         Config::validate($config, [
             'name' => Config::NAME,
@@ -120,23 +120,9 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     {
         parent::assertValid();
 
-        $fields = $this->getFields();
-
         Utils::invariant(
             !isset($this->config['resolveType']) || is_callable($this->config['resolveType']),
             "{$this->name} must provide \"resolveType\" as a function."
         );
-
-        Utils::invariant(
-            !empty($fields),
-            "{$this->name} fields must not be empty"
-        );
-
-        foreach ($fields as $field) {
-            $field->assertValid($this);
-            foreach ($field->args as $arg) {
-                $arg->assertValid($field, $this);
-            }
-        }
     }
 }

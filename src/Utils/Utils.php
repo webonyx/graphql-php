@@ -1,8 +1,10 @@
 <?php
 namespace GraphQL\Utils;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use \Traversable, \InvalidArgumentException;
@@ -229,7 +231,7 @@ class Utils
      * @param string $message
      * @param mixed $sprintfParam1
      * @param mixed $sprintfParam2 ...
-     * @throws InvariantViolation
+     * @throws Error
      */
     public static function invariant($test, $message = '')
     {
@@ -239,6 +241,7 @@ class Utils
                 array_shift($args);
                 $message = call_user_func_array('sprintf', $args);
             }
+            // TODO switch to Error here
             throw new InvariantViolation($message);
         }
     }
@@ -302,7 +305,11 @@ class Utils
             return $var->toString();
         }
         if (is_object($var)) {
-            return 'instance of ' . get_class($var);
+            if (method_exists($var, '__toString')) {
+                return (string) $var;
+            } else {
+                return 'instance of ' . get_class($var);
+            }
         }
         if (is_array($var)) {
             return json_encode($var);
@@ -399,34 +406,46 @@ class Utils
     }
 
     /**
+     * Upholds the spec rules about naming.
+     *
      * @param $name
-     * @param bool $isIntrospection
-     * @throws InvariantViolation
+     * @throws Error
      */
-    public static function assertValidName($name, $isIntrospection = false)
+    public static function assertValidName($name)
     {
-        $regex = '/^[_a-zA-Z][_a-zA-Z0-9]*$/';
+        $error = self::isValidNameError($name);
+        if ($error) {
+            throw $error;
+        }
+    }
 
-        if (!$name || !is_string($name)) {
-            throw new InvariantViolation(
-                "Must be named. Unexpected name: " . self::printSafe($name)
+    /**
+     * Returns an Error if a name is invalid.
+     *
+     * @param string $name
+     * @param Node|null $node
+     * @return Error|null
+     */
+    public static function isValidNameError($name, $node = null)
+    {
+        Utils::invariant(is_string($name), 'Expected string');
+
+        if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
+            return new Error(
+                "Name \"{$name}\" must not begin with \"__\", which is reserved by " .
+                "GraphQL introspection.",
+                $node
             );
         }
 
-        if (!$isIntrospection && isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
-            Warning::warnOnce(
-                'Name "'.$name.'" must not begin with "__", which is reserved by ' .
-                'GraphQL introspection. In a future release of graphql this will ' .
-                'become an exception',
-                Warning::WARNING_NAME
+        if (!preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
+            return new Error(
+                "Names must match /^[_a-zA-Z][_a-zA-Z0-9]*\$/ but \"{$name}\" does not.",
+                $node
             );
         }
 
-        if (!preg_match($regex, $name)) {
-            throw new InvariantViolation(
-                'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "'.$name.'" does not.'
-            );
-        }
+        return null;
     }
 
     /**

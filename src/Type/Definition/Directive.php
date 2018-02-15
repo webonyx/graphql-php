@@ -3,6 +3,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Utils\Utils;
 
 /**
  * Class Directive
@@ -159,6 +160,9 @@ class Directive
         foreach ($config as $key => $value) {
             $this->{$key} = $value;
         }
+
+        Utils::invariant($this->name, 'Directive must be named.');
+        Utils::invariant(is_array($this->locations), 'Must provide locations for directive.');
         $this->config = $config;
     }
 }

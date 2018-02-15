@@ -80,7 +80,7 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
-     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
+     * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
      * @return ListOfType
      */
     public static function listOf($wrappedType)
@@ -161,8 +161,11 @@ abstract class Type implements \JsonSerializable
      */
     public static function isInputType($type)
     {
-        $nakedType = self::getNamedType($type);
-        return $nakedType instanceof InputType;
+        return $type instanceof InputType &&
+            (
+                !$type instanceof WrappingType ||
+                self::getNamedType($type) instanceof InputType
+            );
     }
 
     /**
@@ -172,8 +175,11 @@ abstract class Type implements \JsonSerializable
      */
     public static function isOutputType($type)
     {
-        $nakedType = self::getNamedType($type);
-        return $nakedType instanceof OutputType;
+        return $type instanceof OutputType &&
+            (
+                !$type instanceof WrappingType ||
+                self::getNamedType($type) instanceof OutputType
+            );
     }
 
     /**
@@ -311,6 +317,7 @@ abstract class Type implements \JsonSerializable
      */
     public function assertValid()
     {
+        Utils::assertValidName($this->name);
     }
 
     /**

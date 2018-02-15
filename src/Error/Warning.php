@@ -9,7 +9,6 @@ namespace GraphQL\Error;
  */
 final class Warning
 {
-    const WARNING_NAME = 1;
     const WARNING_ASSIGN = 2;
     const WARNING_CONFIG = 4;
     const WARNING_FULL_SCHEMA_SCAN = 8;

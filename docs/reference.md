@@ -171,7 +171,7 @@ static function float()
 ```php
 /**
  * @api
- * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
+ * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
  * @return ListOfType
  */
 static function listOf($wrappedType)
@@ -1345,7 +1345,6 @@ Also it is possible to override warning handler (which is **trigger_error()** by
 
 **Class Constants:** 
 ```php
-const WARNING_NAME = 1;
 const WARNING_ASSIGN = 2;
 const WARNING_CONFIG = 4;
 const WARNING_FULL_SCHEMA_SCAN = 8;

@@ -221,7 +221,7 @@ class SchemaPrinter
 
     private static function printArgs($options, $args, $indentation = '')
     {
-        if (count($args) === 0) {
+        if (!$args) {
             return '';
         }
 
