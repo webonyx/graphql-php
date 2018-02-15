@@ -260,13 +260,6 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $anyScalar = new CustomScalarType([
-            'name' => 'Any',
-            'serialize' => function ($value) { return $value; },
-            'parseLiteral' => function ($node) { return $node; }, // Allows any value
-            'parseValue' => function ($value) { return $value; }, // Allows any value
-        ]);
-
         $invalidScalar = new CustomScalarType([
             'name' => 'Invalid',
             'serialize' => function ($value) {
@@ -278,6 +271,13 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             'parseValue' => function ($node) {
                 throw new \Exception('Invalid scalar is always invalid: ' . $node);
             },
+        ]);
+
+        $anyScalar = new CustomScalarType([
+            'name' => 'Any',
+            'serialize' => function ($value) { return $value; },
+            'parseLiteral' => function ($node) { return $node; }, // Allows any value
+            'parseValue' => function ($value) { return $value; }, // Allows any value
         ]);
 
         $queryRoot = new ObjectType([
@@ -295,16 +295,16 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
                 'dogOrHuman' => ['type' => $DogOrHuman],
                 'humanOrAlien' => ['type' => $HumanOrAlien],
                 'complicatedArgs' => ['type' => $ComplicatedArgs],
-                'anyArg' => [
-                    'args' => ['arg' => ['type' => $anyScalar]],
-                    'type' => Type::string(),
-                ],
                 'invalidArg' => [
                     'args' => [
                         'arg' => ['type' => $invalidScalar]
                     ],
                     'type' => Type::string(),
-                ]
+                ],
+                'anyArg' => [
+                    'args' => ['arg' => ['type' => $anyScalar]],
+                    'type' => Type::string(),
+                ],
             ]
         ]);
 

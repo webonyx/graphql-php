@@ -4,7 +4,6 @@ namespace GraphQL\Tests\Executor;
 require_once __DIR__ . '/TestClasses.php';
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Schema;
@@ -82,9 +81,9 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
         $expected = [
             'data' => ['fieldWithObjectInput' => null],
             'errors' => [[
-                'message' => 'Argument "input" got invalid value ["foo", "bar", "baz"].' . "\n" .
-                    'Expected "TestInputObject", found not an object.',
-                'path' => ['fieldWithObjectInput']
+                'message' => 'Argument "input" has invalid value ["foo", "bar", "baz"].',
+                'path' => ['fieldWithObjectInput'],
+                'locations' => [['line' => 3, 'column' => 39]]
             ]]
         ];
         $this->assertArraySubset($expected, $result);
@@ -877,8 +876,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
             'data' => ['fieldWithDefaultArgumentValue' => null],
             'errors' => [[
                 'message' =>
-                    'Argument "input" got invalid value WRONG_TYPE.' . "\n" .
-                    'Expected type "String", found WRONG_TYPE.',
+                    'Argument "input" has invalid value WRONG_TYPE.',
                 'locations' => [ [ 'line' => 2, 'column' => 50 ] ],
                 'path' => [ 'fieldWithDefaultArgumentValue' ],
                 'category' => 'graphql',

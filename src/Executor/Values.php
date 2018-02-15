@@ -115,7 +115,6 @@ class Values
         }
 
         $coercedValues = [];
-        $undefined = Utils::undefined();
 
         /** @var ArgumentNode[] $argNodeMap */
         $argNodeMap = $argNodes ? Utils::keyMap($argNodes, function (ArgumentNode $arg) {
@@ -158,11 +157,12 @@ class Values
             } else {
                 $valueNode = $argumentNode->value;
                 $coercedValue = AST::valueFromAST($valueNode, $argType, $variableValues);
-                if ($coercedValue === $undefined) {
-                    $errors = DocumentValidator::isValidLiteralValue($argType, $valueNode);
-                    $message = !empty($errors) ? ("\n" . implode("\n", $errors)) : '';
+                if (Utils::isInvalid($coercedValue)) {
+                    // Note: ValuesOfCorrectType validation should catch this before
+                    // execution. This is a runtime check to ensure execution does not
+                    // continue with an invalid argument value.
                     throw new Error(
-                        'Argument "' . $name . '" got invalid value ' . Printer::doPrint($valueNode) . '.' . $message,
+                        'Argument "' . $name . '" has invalid value ' . Printer::doPrint($valueNode) . '.',
                         [ $argumentNode->value ]
                     );
                 }

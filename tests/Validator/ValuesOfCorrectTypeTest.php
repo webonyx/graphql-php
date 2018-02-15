@@ -3,21 +3,44 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Validator\Rules\ArgumentsOfCorrectType;
+use GraphQL\Validator\Rules\ValuesOfCorrectType;
 
-class ArgumentsOfCorrectTypeTest extends TestCase
+class ValuesOfCorrectTypeTest extends TestCase
 {
-    function badValue($argName, $typeName, $value, $line, $column, $errors = null)
+    private function badValue($typeName, $value, $line, $column, $message = null)
     {
-        $realErrors = !$errors ? ["Expected type \"$typeName\", found $value."] : $errors;
-
         return FormattedError::create(
-            ArgumentsOfCorrectType::badValueMessage($argName, $typeName, $value, $realErrors),
+            ValuesOfCorrectType::badValueMessage(
+                $typeName,
+                $value,
+                $message
+            ),
             [new SourceLocation($line, $column)]
         );
     }
 
-    // Validate: Argument values of correct type
+    private function requiredField($typeName, $fieldName, $fieldTypeName, $line, $column) {
+        return FormattedError::create(
+            ValuesOfCorrectType::requiredFieldMessage(
+                $typeName,
+                $fieldName,
+                $fieldTypeName
+            ),
+            [new SourceLocation($line, $column)]
+        );
+    }
+
+    private function unknownField($typeName, $fieldName, $line, $column) {
+        return FormattedError::create(
+            ValuesOfCorrectType::unknownFieldMessage(
+                $typeName,
+                $fieldName
+            ),
+            [new SourceLocation($line, $column)]
+        );
+    }
+
+    // Validate: Values of correct type
     // Valid values
 
     /**
@@ -25,7 +48,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testGoodIntValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             intArgField(intArg: 2)
@@ -39,7 +62,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testGoodNegativeIntValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             intArgField(intArg: -2)
@@ -53,7 +76,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testGoodBooleanValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             booleanArgField(booleanArg: true)
@@ -67,7 +90,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testGoodStringValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringArgField(stringArg: "foo")
@@ -81,7 +104,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testGoodFloatValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             floatArgField(floatArg: 1.1)
@@ -92,7 +115,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
 
     public function testGoodNegativeFloatValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             floatArgField(floatArg: -1.1)
@@ -106,7 +129,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testIntIntoFloat()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             floatArgField(floatArg: 1)
@@ -120,7 +143,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testIntIntoID()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             idArgField(idArg: 1)
@@ -134,7 +157,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testStringIntoID()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             idArgField(idArg: "someIdString")
@@ -148,7 +171,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testGoodEnumValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           dog {
             doesKnowCommand(dogCommand: SIT)
@@ -162,7 +185,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testEnumWithNullValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             enumArgField(enumArg: NO_FUR)
@@ -176,7 +199,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testNullIntoNullableType()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             intArgField(intArg: null)
@@ -184,7 +207,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
         }
         ');
 
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           dog(a: null, b: null, c:{ requiredField: true, intField: null }) {
             name
@@ -200,14 +223,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testIntIntoString()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringArgField(stringArg: 1)
           }
         }
         ', [
-            $this->badValue('stringArg', 'String', '1', 4, 39)
+            $this->badValue('String', '1', 4, 39)
         ]);
     }
 
@@ -216,14 +239,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testFloatIntoString()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringArgField(stringArg: 1.0)
           }
         }
         ', [
-            $this->badValue('stringArg', 'String', '1.0', 4, 39)
+            $this->badValue('String', '1.0', 4, 39)
         ]);
     }
 
@@ -232,14 +255,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testBooleanIntoString()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringArgField(stringArg: true)
           }
         }
         ', [
-            $this->badValue('stringArg', 'String', 'true', 4, 39)
+            $this->badValue('String', 'true', 4, 39)
         ]);
     }
 
@@ -248,14 +271,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testUnquotedStringIntoString()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringArgField(stringArg: BAR)
           }
         }
         ', [
-            $this->badValue('stringArg', 'String', 'BAR', 4, 39)
+            $this->badValue('String', 'BAR', 4, 39)
         ]);
     }
 
@@ -266,14 +289,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testStringIntoInt()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             intArgField(intArg: "3")
           }
         }
         ', [
-            $this->badValue('intArg', 'Int', '"3"', 4, 33)
+            $this->badValue('Int', '"3"', 4, 33)
         ]);
     }
 
@@ -282,14 +305,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testBigIntIntoInt()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             intArgField(intArg: 829384293849283498239482938)
           }
         }
         ', [
-            $this->badValue('intArg', 'Int', '829384293849283498239482938', 4, 33)
+            $this->badValue('Int', '829384293849283498239482938', 4, 33)
         ]);
     }
 
@@ -298,14 +321,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testUnquotedStringIntoInt()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             intArgField(intArg: FOO)
           }
         }
         ', [
-            $this->badValue('intArg', 'Int', 'FOO', 4, 33)
+            $this->badValue('Int', 'FOO', 4, 33)
         ]);
     }
 
@@ -314,14 +337,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testSimpleFloatIntoInt()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             intArgField(intArg: 3.0)
           }
         }
         ', [
-            $this->badValue('intArg', 'Int', '3.0', 4, 33)
+            $this->badValue('Int', '3.0', 4, 33)
         ]);
     }
 
@@ -330,14 +353,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testFloatIntoInt()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             intArgField(intArg: 3.333)
           }
         }
         ', [
-            $this->badValue('intArg', 'Int', '3.333', 4, 33)
+            $this->badValue('Int', '3.333', 4, 33)
         ]);
     }
 
@@ -348,14 +371,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testStringIntoFloat()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             floatArgField(floatArg: "3.333")
           }
         }
         ', [
-            $this->badValue('floatArg', 'Float', '"3.333"', 4, 37)
+            $this->badValue('Float', '"3.333"', 4, 37)
         ]);
     }
 
@@ -364,14 +387,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testBooleanIntoFloat()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             floatArgField(floatArg: true)
           }
         }
         ', [
-            $this->badValue('floatArg', 'Float', 'true', 4, 37)
+            $this->badValue('Float', 'true', 4, 37)
         ]);
     }
 
@@ -380,14 +403,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testUnquotedIntoFloat()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             floatArgField(floatArg: FOO)
           }
         }
         ', [
-            $this->badValue('floatArg', 'Float', 'FOO', 4, 37)
+            $this->badValue('Float', 'FOO', 4, 37)
         ]);
     }
 
@@ -398,14 +421,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testIntIntoBoolean()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             booleanArgField(booleanArg: 2)
           }
         }
         ', [
-            $this->badValue('booleanArg', 'Boolean', '2', 4, 41)
+            $this->badValue('Boolean', '2', 4, 41)
         ]);
     }
 
@@ -414,14 +437,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testFloatIntoBoolean()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             booleanArgField(booleanArg: 1.0)
           }
         }
         ', [
-            $this->badValue('booleanArg', 'Boolean', '1.0', 4, 41)
+            $this->badValue('Boolean', '1.0', 4, 41)
         ]);
     }
 
@@ -430,14 +453,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testStringIntoBoolean()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             booleanArgField(booleanArg: "true")
           }
         }
         ', [
-            $this->badValue('booleanArg', 'Boolean', '"true"', 4, 41)
+            $this->badValue('Boolean', '"true"', 4, 41)
         ]);
     }
 
@@ -446,14 +469,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testUnquotedIntoBoolean()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             booleanArgField(booleanArg: TRUE)
           }
         }
         ', [
-            $this->badValue('booleanArg', 'Boolean', 'TRUE', 4, 41)
+            $this->badValue('Boolean', 'TRUE', 4, 41)
         ]);
     }
 
@@ -464,14 +487,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testFloatIntoID()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             idArgField(idArg: 1.0)
           }
         }
         ', [
-            $this->badValue('idArg', 'ID', '1.0', 4, 31)
+            $this->badValue('ID', '1.0', 4, 31)
         ]);
     }
 
@@ -480,14 +503,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testBooleanIntoID()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             idArgField(idArg: true)
           }
         }
         ', [
-            $this->badValue('idArg', 'ID', 'true', 4, 31)
+            $this->badValue('ID', 'true', 4, 31)
         ]);
     }
 
@@ -496,14 +519,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testUnquotedIntoID()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             idArgField(idArg: SOMETHING)
           }
         }
         ', [
-            $this->badValue('idArg', 'ID', 'SOMETHING', 4, 31)
+            $this->badValue('ID', 'SOMETHING', 4, 31)
         ]);
     }
 
@@ -514,14 +537,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testIntIntoEnum()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           dog {
             doesKnowCommand(dogCommand: 2)
           }
         }
         ', [
-            $this->badValue('dogCommand', 'DogCommand', '2', 4, 41)
+            $this->badValue('DogCommand', '2', 4, 41)
         ]);
     }
 
@@ -530,14 +553,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testFloatIntoEnum()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           dog {
             doesKnowCommand(dogCommand: 1.0)
           }
         }
         ', [
-            $this->badValue('dogCommand', 'DogCommand', '1.0', 4, 41)
+            $this->badValue('DogCommand', '1.0', 4, 41)
         ]);
     }
 
@@ -546,14 +569,20 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testStringIntoEnum()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           dog {
             doesKnowCommand(dogCommand: "SIT")
           }
         }
         ', [
-            $this->badValue('dogCommand', 'DogCommand', '"SIT"', 4, 41)
+            $this->badValue(
+                'DogCommand',
+                '"SIT"',
+                4,
+                41,
+                'Did you mean the enum value: SIT?'
+            )
         ]);
     }
 
@@ -562,14 +591,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testBooleanIntoEnum()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           dog {
             doesKnowCommand(dogCommand: true)
           }
         }
         ', [
-            $this->badValue('dogCommand', 'DogCommand', 'true', 4, 41)
+            $this->badValue('DogCommand', 'true', 4, 41)
         ]);
     }
 
@@ -578,14 +607,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testUnknownEnumValueIntoEnum()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           dog {
             doesKnowCommand(dogCommand: JUGGLE)
           }
         }
         ', [
-            $this->badValue('dogCommand', 'DogCommand', 'JUGGLE', 4, 41)
+            $this->badValue('DogCommand', 'JUGGLE', 4, 41)
         ]);
     }
 
@@ -594,14 +623,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testDifferentCaseEnumValueIntoEnum()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           dog {
             doesKnowCommand(dogCommand: sit)
           }
         }
         ', [
-            $this->badValue('dogCommand', 'DogCommand', 'sit', 4, 41)
+            $this->badValue('DogCommand', 'sit', 4, 41)
         ]);
     }
 
@@ -612,7 +641,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testGoodListValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringListArgField(stringListArg: ["one", null, "two"])
@@ -626,7 +655,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testEmptyListValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringListArgField(stringListArg: [])
@@ -640,7 +669,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testNullValue()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringListArgField(stringListArg: null)
@@ -654,7 +683,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testSingleValueIntoList()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringListArgField(stringListArg: "one")
@@ -670,16 +699,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testIncorrectItemtype()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringListArgField(stringListArg: ["one", 2])
           }
         }
         ', [
-            $this->badValue('stringListArg', '[String]', '["one", 2]', 4, 47, [
-                'In element #1: Expected type "String", found 2.'
-            ]),
+            $this->badValue('String', '2', 4, 55),
         ]);
     }
 
@@ -688,14 +715,14 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testSingleValueOfIncorrectType()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             stringListArgField(stringListArg: 1)
           }
         }
         ', [
-            $this->badValue('stringListArg', 'String', '1', 4, 47),
+            $this->badValue('[String]', '1', 4, 47),
         ]);
     }
 
@@ -706,7 +733,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testArgOnOptionalArg()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           dog {
             isHousetrained(atOtherHomes: true)
@@ -720,7 +747,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testNoArgOnOptionalArg()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           dog {
             isHousetrained
@@ -734,7 +761,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testMultipleArgs()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleReqs(req1: 1, req2: 2)
@@ -748,7 +775,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testMultipleArgsReverseOrder()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleReqs(req2: 2, req1: 1)
@@ -762,7 +789,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testNoArgsOnMultipleOptional()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleOpts
@@ -776,7 +803,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testOneArgOnMultipleOptional()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleOpts(opt1: 1)
@@ -790,7 +817,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testSecondArgOnMultipleOptional()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleOpts(opt2: 1)
@@ -804,7 +831,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testMultipleReqsOnMixedList()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleOptAndReq(req1: 3, req2: 4)
@@ -818,7 +845,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testMultipleReqsAndOneOptOnMixedList()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleOptAndReq(req1: 3, req2: 4, opt1: 5)
@@ -832,7 +859,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testAllReqsAndOptsOnMixedList()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleOptAndReq(req1: 3, req2: 4, opt1: 5, opt2: 6)
@@ -848,31 +875,31 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testIncorrectValueType()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType, '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleReqs(req2: "two", req1: "one")
           }
         }
         ', [
-            $this->badValue('req2', 'Int', '"two"', 4, 32),
-            $this->badValue('req1', 'Int', '"one"', 4, 45),
+            $this->badValue('Int!', '"two"', 4, 32),
+            $this->badValue('Int!', '"one"', 4, 45),
         ]);
     }
 
     /**
-     * @it Incorrect value and missing argument
+     * @it Incorrect value and missing argument (ProvidedNonNullArguments)
      */
-    public function testIncorrectValueAndMissingArgument()
+    public function testIncorrectValueAndMissingArgumentProvidedNonNullArguments()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType, '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleReqs(req1: "one")
           }
         }
         ', [
-            $this->badValue('req1', 'Int', '"one"', 4, 32),
+            $this->badValue('Int!', '"one"', 4, 32),
         ]);
     }
 
@@ -881,28 +908,26 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testNullValue2()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType(), '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             multipleReqs(req1: null)
           }
         }
         ', [
-            $this->badValue('req1', 'Int!', 'null', 4, 32, [
-                'Expected "Int!", found null.'
-            ]),
+            $this->badValue('Int!', 'null', 4, 32),
         ]);
     }
 
 
-    // Valid input object value
+    // DESCRIBE: Valid input object value
 
     /**
      * @it Optional arg, despite required field in type
      */
     public function testOptionalArgDespiteRequiredFieldInType()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField
@@ -916,7 +941,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testPartialObjectOnlyRequired()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField(complexArg: { requiredField: true })
@@ -930,7 +955,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testPartialObjectRequiredFieldCanBeFalsey()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField(complexArg: { requiredField: false })
@@ -944,7 +969,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testPartialObjectIncludingRequired()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField(complexArg: { requiredField: true, intField: 4 })
@@ -958,7 +983,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testFullObject()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType, '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField(complexArg: {
@@ -978,7 +1003,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testFullObjectWithFieldsInDifferentOrder()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField(complexArg: {
@@ -993,23 +1018,21 @@ class ArgumentsOfCorrectTypeTest extends TestCase
         ');
     }
 
-    // Invalid input object value
+    // DESCRIBE: Invalid input object value
 
     /**
      * @it Partial object, missing required
      */
     public function testPartialObjectMissingRequired()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType, '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField(complexArg: { intField: 4 })
           }
         }
         ', [
-            $this->badValue('complexArg', 'ComplexInput', '{intField: 4}', 4, 41, [
-                'In field "requiredField": Expected "Boolean!", found null.'
-            ]),
+            $this->requiredField('ComplexInput', 'requiredField', 'Boolean!', 4, 41),
         ]);
     }
 
@@ -1018,7 +1041,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testPartialObjectInvalidFieldType()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType, '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField(complexArg: {
@@ -1028,14 +1051,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue(
-                'complexArg',
-                'ComplexInput',
-                '{stringListField: ["one", 2], requiredField: true}',
-                4,
-                41,
-                [ 'In field "stringListField": In element #1: Expected type "String", found 2.' ]
-            ),
+            $this->badValue('String', '2', 5, 40),
         ]);
     }
 
@@ -1044,7 +1060,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testPartialObjectUnknownFieldArg()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType, '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           complicatedArgs {
             complexArgField(complexArg: {
@@ -1054,25 +1070,60 @@ class ArgumentsOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue(
-                'complexArg',
-                'ComplexInput',
-                '{requiredField: true, unknownField: "value"}',
-                4,
-                41,
-                [ 'In field "unknownField": Unknown field.' ]
-            ),
+            $this->unknownField('ComplexInput', 'unknownField', 6, 15),
         ]);
     }
 
-    // Directive arguments
+
+
+    /**
+     * @it reports original error for custom scalar which throws
+     */
+    public function testReportsOriginalErrorForCustomScalarWhichThrows()
+    {
+        $errors = $this->expectFailsRule(new ValuesOfCorrectType, '
+        {
+          invalidArg(arg: 123)
+        }
+        ', [
+            $this->badValue(
+                'Invalid',
+                '123',
+                3,
+                27,
+                'Invalid scalar is always invalid: 123'
+            ),
+        ]);
+
+        $this->assertEquals(
+            'Invalid scalar is always invalid: 123',
+            $errors[0]->getPrevious()->getMessage()
+        );
+    }
+
+    /**
+     * @it allows custom scalar to accept complex literals
+     */
+    public function testAllowsCustomScalarToAcceptComplexLiterals()
+    {
+        $this->expectPassesRule(new ValuesOfCorrectType, '
+        {
+          test1: anyArg(arg: 123)
+          test2: anyArg(arg: "abc")
+          test3: anyArg(arg: [123, "abc"])
+          test4: anyArg(arg: {deep: [123, "abc"]})
+        }
+        ');
+    }
+
+    // DESCRIBE: Directive arguments
 
     /**
      * @it with directives of valid types
      */
     public function testWithDirectivesOfValidTypes()
     {
-        $this->expectPassesRule(new ArgumentsOfCorrectType(), '
+        $this->expectPassesRule(new ValuesOfCorrectType, '
         {
           dog @include(if: true) {
             name
@@ -1081,7 +1132,7 @@ class ArgumentsOfCorrectTypeTest extends TestCase
             name
           }
         }
-      ');
+        ');
     }
 
     /**
@@ -1089,15 +1140,134 @@ class ArgumentsOfCorrectTypeTest extends TestCase
      */
     public function testWithDirectiveWithIncorrectTypes()
     {
-        $this->expectFailsRule(new ArgumentsOfCorrectType, '
+        $this->expectFailsRule(new ValuesOfCorrectType, '
         {
           dog @include(if: "yes") {
             name @skip(if: ENUM)
           }
         }
-      ', [
-            $this->badValue('if', 'Boolean', '"yes"', 3, 28),
-            $this->badValue('if', 'Boolean', 'ENUM', 4, 28),
+        ', [
+            $this->badValue('Boolean!', '"yes"', 3, 28),
+            $this->badValue('Boolean!', 'ENUM', 4, 28),
+        ]);
+    }
+
+    // DESCRIBE: Variable default values
+
+    /**
+     * @it variables with valid default values
+     */
+    public function testVariablesWithValidDefaultValues()
+    {
+        $this->expectPassesRule(new ValuesOfCorrectType, '
+        query WithDefaultValues(
+          $a: Int = 1,
+          $b: String = "ok",
+          $c: ComplexInput = { requiredField: true, intField: 3 }
+        ) {
+          dog { name }
+        }
+        ');
+    }
+
+    /**
+     * @it variables with valid default null values
+     */
+    public function testVariablesWithValidDefaultNullValues()
+    {
+        $this->expectPassesRule(new ValuesOfCorrectType, '
+        query WithDefaultValues(
+          $a: Int = null,
+          $b: String = null,
+          $c: ComplexInput = { requiredField: true, intField: null }
+        ) {
+          dog { name }
+        }
+        ');
+    }
+
+    /**
+     * @it variables with invalid default null values
+     */
+    public function testVariablesWithInvalidDefaultNullValues()
+    {
+        $this->expectFailsRule(new ValuesOfCorrectType, '
+        query WithDefaultValues(
+          $a: Int! = null,
+          $b: String! = null,
+          $c: ComplexInput = { requiredField: null, intField: null }
+        ) {
+          dog { name }
+        }
+        ', [
+            $this->badValue('Int!', 'null', 3, 22),
+            $this->badValue('String!', 'null', 4, 25),
+            $this->badValue('Boolean!', 'null', 5, 47),
+        ]);
+    }
+
+    /**
+     * @it variables with invalid default values
+     */
+    public function testVariablesWithInvalidDefaultValues()
+    {
+        $this->expectFailsRule(new ValuesOfCorrectType, '
+        query InvalidDefaultValues(
+          $a: Int = "one",
+          $b: String = 4,
+          $c: ComplexInput = "notverycomplex"
+        ) {
+          dog { name }
+        }
+        ', [
+            $this->badValue('Int', '"one"', 3, 21),
+            $this->badValue('String', '4', 4, 24),
+            $this->badValue('ComplexInput', '"notverycomplex"', 5, 30),
+        ]);
+    }
+
+    /**
+     * @it variables with complex invalid default values
+     */
+    public function testVariablesWithComplexInvalidDefaultValues()
+    {
+        $this->expectFailsRule(new ValuesOfCorrectType, '
+        query WithDefaultValues(
+          $a: ComplexInput = { requiredField: 123, intField: "abc" }
+        ) {
+          dog { name }
+        }
+        ', [
+            $this->badValue('Boolean!', '123', 3, 47),
+            $this->badValue('Int', '"abc"', 3, 62),
+        ]);
+    }
+
+    /**
+     * @it complex variables missing required field
+     */
+    public function testComplexVariablesMissingRequiredField()
+    {
+        $this->expectFailsRule(new ValuesOfCorrectType, '
+        query MissingRequiredField($a: ComplexInput = {intField: 3}) {
+          dog { name }
+        }
+        ', [
+            $this->requiredField('ComplexInput', 'requiredField', 'Boolean!', 2, 55),
+        ]);
+    }
+
+    /**
+     * @it list variables with invalid item
+     */
+    public function testListVariablesWithInvalidItem()
+    {
+        $this->expectFailsRule(new ValuesOfCorrectType, '
+        query InvalidItem($a: [String] = ["one", 2]) {
+          dog { name }
+        }
+        ', [
+            $this->badValue('String', '2', 2, 50),
         ]);
     }
 }

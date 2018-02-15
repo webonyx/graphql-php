@@ -220,7 +220,22 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             '{ colorEnum(fromEnum: "GREEN") }',
             null,
             [
-                'message' => "Argument \"fromEnum\" has invalid value \"GREEN\".\nExpected type \"Color\", found \"GREEN\".",
+                'message' => "Expected type Color, found \"GREEN\"; Did you mean the enum value: GREEN?",
+                'locations' => [new SourceLocation(1, 23)]
+            ]
+        );
+    }
+
+    /**
+     * @it does not accept valuesNotInTheEnum
+     */
+    public function testDoesNotAcceptValuesNotInTheEnum()
+    {
+        $this->expectFailure(
+            '{ colorEnum(fromEnum: GREENISH) }',
+            null,
+            [
+                'message' => "Expected type Color, found GREENISH; Did you mean the enum value: GREEN?",
                 'locations' => [new SourceLocation(1, 23)]
             ]
         );
@@ -236,7 +251,8 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             null,
             [
                 'message' => 'Expected a value of type "Color" but received: GREEN',
-                'locations' => [new SourceLocation(1, 3)]
+                'locations' => [new SourceLocation(1, 3)],
+                'path' => ['colorEnum'],
             ]
         );
     }
@@ -249,7 +265,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             '{ colorEnum(fromEnum: 1) }',
             null,
-            "Argument \"fromEnum\" has invalid value 1.\nExpected type \"Color\", found 1."
+            "Expected type Color, found 1."
         );
     }
 
@@ -261,7 +277,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             '{ colorEnum(fromInt: GREEN) }',
             null,
-            "Argument \"fromInt\" has invalid value GREEN.\nExpected type \"Int\", found GREEN."
+            "Expected type Int, found GREEN."
         );
     }
 

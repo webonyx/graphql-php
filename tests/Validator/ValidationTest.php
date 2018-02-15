@@ -1,10 +1,6 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Error\FormattedError;
-use GraphQL\Validator\DocumentValidator;
-use GraphQL\Validator\Rules\QueryComplexity;
-
 class ValidationTest extends TestCase
 {
     // Validate: Supports full validation
@@ -40,8 +36,7 @@ class ValidationTest extends TestCase
         ';
 
         $expectedError = [
-            'message' => "Argument \"arg\" has invalid value \"bad value\".
-Expected type \"Invalid\", found \"bad value\"; Invalid scalar is always invalid: bad value",
+            'message' => "Expected type Invalid, found \"bad value\"; Invalid scalar is always invalid: bad value",
             'locations' => [ ['line' => 3, 'column' => 25] ]
         ];
 

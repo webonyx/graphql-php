@@ -4,7 +4,6 @@ namespace GraphQL\Utils;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\FieldNode;
-use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
@@ -20,7 +19,6 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -217,14 +215,26 @@ class TypeInfo
     /**
      * TypeInfo constructor.
      * @param Schema $schema
+     * @param Type|null $initialType
      */
-    public function __construct(Schema $schema)
+    public function __construct(Schema $schema, $initialType = null)
     {
         $this->schema = $schema;
         $this->typeStack = [];
         $this->parentTypeStack = [];
         $this->inputTypeStack = [];
         $this->fieldDefStack = [];
+        if ($initialType) {
+            if (Type::isInputType($initialType)) {
+                $this->inputTypeStack[] = $initialType;
+            }
+            if (Type::isCompositeType($initialType)) {
+                $this->parentTypeStack[] = $initialType;
+            }
+            if (Type::isOutputType($initialType)) {
+                $this->typeStack[] = $initialType;
+            }
+        }
     }
 
     /**
@@ -239,7 +249,7 @@ class TypeInfo
     }
 
     /**
-     * @return Type
+     * @return CompositeType
      */
     function getParentType()
     {
@@ -258,6 +268,17 @@ class TypeInfo
             return $this->inputTypeStack[count($this->inputTypeStack) - 1];
         }
         return null;
+    }
+
+    /**
+     * @return InputType|null
+     */
+    public function getParentInputType()
+    {
+        $inputTypeStackLength = count($this->inputTypeStack);
+        if ($inputTypeStackLength > 1) {
+            return $this->inputTypeStack[$inputTypeStackLength - 2];
+        }
     }
 
     /**
@@ -369,10 +390,9 @@ class TypeInfo
 
             case NodeKind::LST:
                 $listType = Type::getNullableType($this->getInputType());
-                $itemType = null;
-                if ($itemType instanceof ListType) {
-                    $itemType = $listType->getWrappedType();
-                }
+                $itemType = $listType instanceof ListOfType
+                    ? $listType->getWrappedType()
+                    : $listType;
                 $this->inputTypeStack[] = Type::isInputType($itemType) ? $itemType : null;
                 break;
 
