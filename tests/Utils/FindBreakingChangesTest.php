@@ -1,7 +1,10 @@
 <?php
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Language\DirectiveLocation;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -1134,32 +1137,78 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
+        $directiveThatIsRemoved = Directive::skipDirective();
+        $directiveThatRemovesArgOld = new Directive([
+            'name' => 'DirectiveThatRemovesArg',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+            'args' => FieldArgument::createMap([
+                'arg1' => [
+                    'name' => 'arg1',
+                ],
+            ]),
+        ]);
+        $directiveThatRemovesArgNew = new Directive([
+            'name' => 'DirectiveThatRemovesArg',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+        ]);
+        $nonNullDirectiveAddedOld = new Directive([
+            'name' => 'NonNullDirectiveAdded',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+        ]);
+        $nonNullDirectiveAddedNew = new Directive([
+            'name' => 'NonNullDirectiveAdded',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+            'args' => FieldArgument::createMap([
+                'arg1' => [
+                    'name' => 'arg1',
+                    'type' => Type::nonNull(Type::boolean()),
+                ],
+            ]),
+        ]);
+        $directiveRemovedLocationOld = new Directive([
+            'name' => 'Directive Name',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION, DirectiveLocation::QUERY],
+        ]);
+        $directiveRemovedLocationNew = new Directive([
+            'name' => 'Directive Name',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+        ]);
+
         $oldSchema = new Schema([
             'query' => $this->queryType,
-            'types' =>
-                [
-                    'TypeThatGetsRemoved' => $typeThatGetsRemoved,
-                    'TypeThatChangesType' => $typeThatChangesTypeOld,
-                    'TypeThatHasBreakingFieldChanges' => $typeThatHasBreakingFieldChangesOld,
-                    'UnionTypeThatLosesAType' => $unionTypeThatLosesATypeOld,
-                    'EnumTypeThatLosesAValue' => $enumTypeThatLosesAValueOld,
-                    'ArgThatChanges' => $argThatChanges,
-                    'TypeThatLosesInterface' => $typeThatLosesInterfaceOld
-                ]
+            'types' => [
+                'TypeThatGetsRemoved' => $typeThatGetsRemoved,
+                'TypeThatChangesType' => $typeThatChangesTypeOld,
+                'TypeThatHasBreakingFieldChanges' => $typeThatHasBreakingFieldChangesOld,
+                'UnionTypeThatLosesAType' => $unionTypeThatLosesATypeOld,
+                'EnumTypeThatLosesAValue' => $enumTypeThatLosesAValueOld,
+                'ArgThatChanges' => $argThatChanges,
+                'TypeThatLosesInterface' => $typeThatLosesInterfaceOld
+            ],
+            'directives' => [
+                $directiveThatIsRemoved,
+                $directiveThatRemovesArgOld,
+                $nonNullDirectiveAddedOld,
+                $directiveRemovedLocationOld,
+            ]
         ]);
 
         $newSchema = new Schema([
             'query' => $this->queryType,
-            'types' =>
-                [
-                    'TypeThatChangesType' => $typeThatChangesTypeNew,
-                    'TypeThatHasBreakingFieldChanges' => $typeThatHasBreakingFieldChangesNew,
-                    'UnionTypeThatLosesAType' => $unionTypeThatLosesATypeNew,
-                    'EnumTypeThatLosesAValue' => $enumTypeThatLosesAValueNew,
-                    'ArgThatChanges' => $argChanged,
-                    'TypeThatLosesInterface' => $typeThatLosesInterfaceNew,
-                    'Interface1' => $interface1
-                ]
+            'types' => [
+                'TypeThatChangesType' => $typeThatChangesTypeNew,
+                'TypeThatHasBreakingFieldChanges' => $typeThatHasBreakingFieldChangesNew,
+                'UnionTypeThatLosesAType' => $unionTypeThatLosesATypeNew,
+                'EnumTypeThatLosesAValue' => $enumTypeThatLosesAValueNew,
+                'ArgThatChanges' => $argChanged,
+                'TypeThatLosesInterface' => $typeThatLosesInterfaceNew,
+                'Interface1' => $interface1
+            ],
+            'directives' => [
+                $directiveThatRemovesArgNew,
+                $nonNullDirectiveAddedNew,
+                $directiveRemovedLocationNew,
+            ]
         ]);
 
         $expectedBreakingChanges = [
@@ -1206,13 +1255,208 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
                 'description' => 'TypeThatLosesInterface1 no longer implements interface Interface1.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'description' => 'skip was removed',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                'description' => 'arg1 was removed from DirectiveThatRemovesArg',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
+                'description' => 'A non-null arg arg1 on directive NonNullDirectiveAdded was added',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                'description' => 'QUERY was removed from Directive Name',
             ]
         ];
 
         $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findBreakingChanges($oldSchema, $newSchema));
     }
 
-    // findDangerousChanges tests below here
+    /**
+     * @it should detect if a directive was explicitly removed
+     */
+    public function testShouldDetectIfADirectiveWasExplicitlyRemoved()
+    {
+        $oldSchema = new Schema([
+            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+        ]);
+
+        $newSchema = new Schema([
+            'directives' => [Directive::skipDirective()],
+        ]);
+
+        $includeDirective = Directive::includeDirective();
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'description' => "{$includeDirective->name} was removed",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectives($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect if a directive was implicitly removed
+     */
+    public function testShouldDetectIfADirectiveWasImplicitlyRemoved()
+    {
+        $oldSchema = new Schema([]);
+
+        $newSchema = new Schema([
+            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+        ]);
+
+        $deprecatedDirective = Directive::deprecatedDirective();
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'description' => "{$deprecatedDirective->name} was removed",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectives($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect if a directive argument was removed
+     */
+    public function testShouldDetectIfADirectiveArgumentWasRemoved()
+    {
+        $oldSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'DirectiveWithArg',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                    'args' => FieldArgument::createMap([
+                        'arg1' => [
+                            'name' => 'arg1',
+                        ],
+                    ]),
+                ])
+            ],
+        ]);
+
+        $newSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'DirectiveWithArg',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                ])
+            ],
+        ]);
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                'description' => "arg1 was removed from DirectiveWithArg",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectiveArgs($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect if a non-nullable directive argument was added
+     */
+    public function testShouldDetectIfANonNullableDirectiveArgumentWasAdded()
+    {
+        $oldSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'DirectiveName',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                ])
+            ],
+        ]);
+
+        $newSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'DirectiveName',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                    'args' => FieldArgument::createMap([
+                        'arg1' => [
+                            'name' => 'arg1',
+                            'type' => Type::nonNull(Type::boolean()),
+                        ],
+                    ]),
+                ])
+            ],
+        ]);
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
+                'description' => "A non-null arg arg1 on directive DirectiveName was added",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findAddedNonNullDirectiveArgs($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect locations removed from a directive
+     */
+    public function testShouldDetectLocationsRemovedFromADirective()
+    {
+        $d1 = new Directive([
+            'name' => 'Directive Name',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION, DirectiveLocation::QUERY],
+        ]);
+
+        $d2 = new Directive([
+            'name' => 'Directive Name',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+        ]);
+
+        $this->assertEquals([DirectiveLocation::QUERY], FindBreakingChanges::findRemovedLocationsForDirective($d1, $d2));
+    }
+
+    /**
+     * @it should detect locations removed directives within a schema
+     */
+    public function testShouldDetectLocationsRemovedDirectiveWithinASchema()
+    {
+        $oldSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'Directive Name',
+                    'locations' => [
+                        DirectiveLocation::FIELD_DEFINITION,
+                        DirectiveLocation::QUERY
+                    ],
+                ])
+            ],
+        ]);
+
+        $newSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'Directive Name',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                ])
+            ],
+        ]);
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                'description' => "QUERY was removed from Directive Name",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectiveLocations($oldSchema, $newSchema));
+    }
+
+    // DESCRIBE: findDangerousChanges
 
     public function testFindDangerousArgChanges()
     {

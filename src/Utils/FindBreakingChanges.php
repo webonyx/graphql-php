@@ -5,10 +5,12 @@
 
 namespace GraphQL\Utils;
 
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
@@ -30,6 +32,10 @@ class FindBreakingChanges
     const BREAKING_CHANGE_NON_NULL_ARG_ADDED = 'NON_NULL_ARG_ADDED';
     const BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED = 'NON_NULL_INPUT_FIELD_ADDED';
     const BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT = 'INTERFACE_REMOVED_FROM_OBJECT';
+    const BREAKING_CHANGE_DIRECTIVE_REMOVED = 'DIRECTIVE_REMOVED';
+    const BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED = 'DIRECTIVE_ARG_REMOVED';
+    const BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED = 'DIRECTIVE_LOCATION_REMOVED';
+    const BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED = 'NON_NULL_DIRECTIVE_ARG_ADDED';
 
     const DANGEROUS_CHANGE_ARG_DEFAULT_VALUE = 'ARG_DEFAULT_VALUE_CHANGE';
     const DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM = 'VALUE_ADDED_TO_ENUM';
@@ -53,7 +59,11 @@ class FindBreakingChanges
             self::findTypesRemovedFromUnions($oldSchema, $newSchema),
             self::findValuesRemovedFromEnums($oldSchema, $newSchema),
             self::findArgChanges($oldSchema, $newSchema)['breakingChanges'],
-            self::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
+            self::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema),
+            self::findRemovedDirectives($oldSchema, $newSchema),
+            self::findRemovedDirectiveArgs($oldSchema, $newSchema),
+            self::findAddedNonNullDirectiveArgs($oldSchema, $newSchema),
+            self::findRemovedDirectiveLocations($oldSchema, $newSchema)
         );
     }
 
@@ -283,8 +293,8 @@ class FindBreakingChanges
                     $isSafe = self::isChangeSafeForObjectOrInterfaceField($oldFieldType, $newfieldType);
                     if (!$isSafe) {
 
-                        $oldFieldTypeString = self::isNamedType($oldFieldType) ? $oldFieldType->name : $oldFieldType;
-                        $newFieldTypeString = self::isNamedType($newfieldType) ? $newfieldType->name : $newfieldType;
+                        $oldFieldTypeString = $oldFieldType instanceof NamedType ? $oldFieldType->name : $oldFieldType;
+                        $newFieldTypeString = $newfieldType instanceof NamedType ? $newfieldType->name : $newfieldType;
                         $breakingChanges[] = ['type' => self::BREAKING_CHANGE_FIELD_CHANGED, 'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}."];
                     }
                 }
@@ -323,11 +333,11 @@ class FindBreakingChanges
                     ];
                 } else {
                     $oldFieldType = $oldTypeFieldsDef[$fieldName]->getType();
-                    $newfieldType = $newTypeFieldsDef[$fieldName]->getType();
-                    $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg($oldFieldType, $newfieldType);
+                    $newFieldType = $newTypeFieldsDef[$fieldName]->getType();
+                    $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg($oldFieldType, $newFieldType);
                     if (!$isSafe) {
-                        $oldFieldTypeString = self::isNamedType($oldFieldType) ? $oldFieldType->name : $oldFieldType;
-                        $newFieldTypeString = self::isNamedType($newfieldType) ? $newfieldType->name : $newfieldType;
+                        $oldFieldTypeString = $oldFieldType instanceof NamedType ? $oldFieldType->name : $oldFieldType;
+                        $newFieldTypeString = $newFieldType instanceof NamedType ? $newFieldType->name : $newFieldType;
                         $breakingChanges[] = [
                             'type' => self::BREAKING_CHANGE_FIELD_CHANGED,
                             'description' => "${typeName}->${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}."];
@@ -361,9 +371,9 @@ class FindBreakingChanges
         Type $oldType, Type $newType
     )
     {
-        if (self::isNamedType($oldType)) {
+        if ($oldType instanceof NamedType) {
             // if they're both named types, see if their names are equivalent
-            return (self::isNamedType($newType) && $oldType->name === $newType->name)
+            return ($newType instanceof NamedType && $oldType->name === $newType->name)
                 // moving from nullable to non-null of the same underlying type is safe
                 || ($newType instanceof NonNull
                     && self::isChangeSafeForObjectOrInterfaceField(
@@ -387,16 +397,16 @@ class FindBreakingChanges
 
     /**
      * @param Type $oldType
-     * @param Schema $newSchema
+     * @param Type $newType
      *
      * @return bool
      */
     private static function isChangeSafeForInputObjectFieldOrFieldArg(
-        Type $oldType, Type $newType
-    )
-    {
-        if (self::isNamedType($oldType)) {
-            return self::isNamedType($newType) && $oldType->name === $newType->name;
+        Type $oldType,
+        Type $newType
+    ) {
+        if ($oldType instanceof NamedType) {
+            return $newType instanceof NamedType && $oldType->name === $newType->name;
         } elseif ($oldType instanceof ListOfType) {
             return $newType instanceof ListOfType && self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType->getWrappedType());
         } elseif ($oldType instanceof NonNull) {
@@ -583,20 +593,135 @@ class FindBreakingChanges
         return $breakingChanges;
     }
 
-    /**
-     * @param Type $type
-     *
-     * @return bool
-     */
-    private static function isNamedType(Type $type)
+    public static function findRemovedDirectives(Schema $oldSchema, Schema $newSchema)
     {
-        return (
-            $type instanceof ScalarType ||
-            $type instanceof ObjectType ||
-            $type instanceof InterfaceType ||
-            $type instanceof UnionType ||
-            $type instanceof EnumType ||
-            $type instanceof InputObjectType
-        );
+        $removedDirectives = [];
+
+        $newSchemaDirectiveMap = self::getDirectiveMapForSchema($newSchema);
+        foreach($oldSchema->getDirectives() as $directive) {
+            if (!isset($newSchemaDirectiveMap[$directive->name])) {
+                $removedDirectives[] = [
+                    'type' => self::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                    'description' => "{$directive->name} was removed",
+                ];
+            }
+        }
+
+        return $removedDirectives;
+    }
+
+    public static function findRemovedArgsForDirectives(Directive $oldDirective, Directive $newDirective)
+    {
+        $removedArgs = [];
+        $newArgMap = self::getArgumentMapForDirective($newDirective);
+        foreach((array) $oldDirective->args as $arg) {
+            if (!isset($newArgMap[$arg->name])) {
+                $removedArgs[] = $arg;
+            }
+        }
+
+        return $removedArgs;
+    }
+
+    public static function findRemovedDirectiveArgs(Schema $oldSchema, Schema $newSchema)
+    {
+        $removedDirectiveArgs = [];
+        $oldSchemaDirectiveMap = self::getDirectiveMapForSchema($oldSchema);
+
+        foreach($newSchema->getDirectives() as $newDirective) {
+            if (!isset($oldSchemaDirectiveMap[$newDirective->name])) {
+                continue;
+            }
+
+            foreach(self::findRemovedArgsForDirectives($oldSchemaDirectiveMap[$newDirective->name], $newDirective) as $arg) {
+                $removedDirectiveArgs[] = [
+                    'type' => self::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                    'description' => "{$arg->name} was removed from {$newDirective->name}",
+                ];
+            }
+        }
+
+        return $removedDirectiveArgs;
+    }
+
+    public static function findAddedArgsForDirective(Directive $oldDirective, Directive $newDirective)
+    {
+        $addedArgs = [];
+        $oldArgMap = self::getArgumentMapForDirective($oldDirective);
+        foreach((array) $newDirective->args as $arg) {
+            if (!isset($oldArgMap[$arg->name])) {
+                $addedArgs[] = $arg;
+            }
+        }
+
+        return $addedArgs;
+    }
+
+    public static function findAddedNonNullDirectiveArgs(Schema $oldSchema, Schema $newSchema)
+    {
+        $addedNonNullableArgs = [];
+        $oldSchemaDirectiveMap = self::getDirectiveMapForSchema($oldSchema);
+
+        foreach($newSchema->getDirectives() as $newDirective) {
+            if (!isset($oldSchemaDirectiveMap[$newDirective->name])) {
+                continue;
+            }
+
+            foreach(self::findAddedArgsForDirective($oldSchemaDirectiveMap[$newDirective->name], $newDirective) as $arg) {
+                if (!$arg->getType() instanceof NonNull) {
+                    continue;
+                }
+                $addedNonNullableArgs[] = [
+                    'type' => self::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
+                    'description' => "A non-null arg {$arg->name} on directive {$newDirective->name} was added",
+                ];
+            }
+        }
+
+        return $addedNonNullableArgs;
+    }
+
+    public static function findRemovedLocationsForDirective(Directive $oldDirective, Directive $newDirective)
+    {
+        $removedLocations = [];
+        $newLocationSet = array_flip($newDirective->locations);
+        foreach($oldDirective->locations as $oldLocation) {
+            if (!array_key_exists($oldLocation, $newLocationSet)) {
+                $removedLocations[] = $oldLocation;
+            }
+        }
+
+        return $removedLocations;
+    }
+
+    public static function findRemovedDirectiveLocations(Schema $oldSchema, Schema $newSchema)
+    {
+        $removedLocations = [];
+        $oldSchemaDirectiveMap = self::getDirectiveMapForSchema($oldSchema);
+
+        foreach($newSchema->getDirectives() as $newDirective) {
+            if (!isset($oldSchemaDirectiveMap[$newDirective->name])) {
+                continue;
+            }
+
+            foreach(self::findRemovedLocationsForDirective($oldSchemaDirectiveMap[$newDirective->name], $newDirective) as $location) {
+                $removedLocations[] = [
+                    'type' => self::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                    'description' => "{$location} was removed from {$newDirective->name}",
+                ];
+            }
+        }
+
+        return $removedLocations;
+    }
+
+    private static function getDirectiveMapForSchema(Schema $schema)
+    {
+        return Utils::keyMap($schema->getDirectives(), function ($dir) { return $dir->name; });
+    }
+
+    private static function getArgumentMapForDirective(Directive $directive)
+    {
+        return Utils::keyMap($directive->args ?: [], function ($arg) { return $arg->name; });
     }
 }
