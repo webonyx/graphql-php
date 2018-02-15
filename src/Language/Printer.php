@@ -131,7 +131,11 @@ class Printer
                     ], ' ');
                 },
                 NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) {
-                    return "fragment {$node->name} on {$node->typeCondition} "
+                    // Note: fragment variable definitions are experimental and may be changed
+                    // or removed in the future.
+                    return "fragment {$node->name}"
+                        . $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')')
+                        . " on {$node->typeCondition} "
                         . $this->wrap('', $this->join($node->directives, ' '), ' ')
                         . $node->selectionSet;
                 },

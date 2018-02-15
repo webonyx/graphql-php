@@ -11,12 +11,20 @@ class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, H
     public $name;
 
     /**
+     * Note: fragment variable definitions are experimental and may be changed
+     * or removed in the future.
+     * 
+     * @var VariableDefinitionNode[]|NodeList
+     */
+    public $variableDefinitions;
+
+    /**
      * @var NamedTypeNode
      */
     public $typeCondition;
 
     /**
-     * @var DirectiveNode[]
+     * @var DirectiveNode[]|NodeList
      */
     public $directives;
 

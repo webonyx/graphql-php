@@ -115,7 +115,15 @@ class Visitor
         NodeKind::ARGUMENT => ['name', 'value'],
         NodeKind::FRAGMENT_SPREAD => ['name', 'directives'],
         NodeKind::INLINE_FRAGMENT => ['typeCondition', 'directives', 'selectionSet'],
-        NodeKind::FRAGMENT_DEFINITION => ['name', 'typeCondition', 'directives', 'selectionSet'],
+        NodeKind::FRAGMENT_DEFINITION => [
+            'name',
+            // Note: fragment variable definitions are experimental and may be changed
+            // or removed in the future.
+            'variableDefinitions',
+            'typeCondition',
+            'directives',
+            'selectionSet'
+        ],
 
         NodeKind::INT => [],
         NodeKind::FLOAT => [],

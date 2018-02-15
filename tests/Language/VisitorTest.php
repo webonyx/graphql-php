@@ -327,6 +327,60 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it Experimental: visits variables defined in fragments
+     */
+    public function testExperimentalVisitsVariablesDefinedInFragments()
+    {
+        $ast = Parser::parse(
+            'fragment a($v: Boolean = false) on t { f }',
+            ['experimentalFragmentVariables' => true]
+        );
+        $visited = [];
+
+        Visitor::visit($ast, [
+            'enter' => function($node) use (&$visited) {
+                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+            },
+            'leave' => function($node) use (&$visited) {
+                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+            },
+        ]);
+
+        $expected = [
+            ['enter', 'Document', null],
+            ['enter', 'FragmentDefinition', null],
+            ['enter', 'Name', 'a'],
+            ['leave', 'Name', 'a'],
+            ['enter', 'VariableDefinition', null],
+            ['enter', 'Variable', null],
+            ['enter', 'Name', 'v'],
+            ['leave', 'Name', 'v'],
+            ['leave', 'Variable', null],
+            ['enter', 'NamedType', null],
+            ['enter', 'Name', 'Boolean'],
+            ['leave', 'Name', 'Boolean'],
+            ['leave', 'NamedType', null],
+            ['enter', 'BooleanValue', false],
+            ['leave', 'BooleanValue', false],
+            ['leave', 'VariableDefinition', null],
+            ['enter', 'NamedType', null],
+            ['enter', 'Name', 't'],
+            ['leave', 'Name', 't'],
+            ['leave', 'NamedType', null],
+            ['enter', 'SelectionSet', null],
+            ['enter', 'Field', null],
+            ['enter', 'Name', 'f'],
+            ['leave', 'Name', 'f'],
+            ['leave', 'Field', null],
+            ['leave', 'SelectionSet', null],
+            ['leave', 'FragmentDefinition', null],
+            ['leave', 'Document', null],
+        ];
+
+        $this->assertEquals($expected, $visited);
+    }
+
+    /**
      * @it visits kitchen sink
      */
     public function testVisitsKitchenSink()

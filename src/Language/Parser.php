@@ -49,7 +49,6 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Error\SyntaxError;
-use GraphQL\Type\TypeKind;
 
 /**
  * Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
@@ -67,10 +66,25 @@ class Parser
      * in the source that they correspond to. This configuration flag
      * disables that behavior for performance or testing.)
      *
+     * experimentalFragmentVariables: boolean,
+     * (If enabled, the parser will understand and parse variable definitions
+     * contained in a fragment definition. They'll be represented in the
+     * `variableDefinitions` field of the FragmentDefinitionNode.
+     *
+     * The syntax is identical to normal, query-defined variables. For example:
+     *
+     *   fragment A($var: Boolean = false) on T  {
+     *     ...
+     *   }
+     *
+     * Note: this feature is experimental and may change or be removed in the
+     * future.)
+     *
      * @api
      * @param Source|string $source
      * @param array $options
      * @return DocumentNode
+     * @throws SyntaxError
      */
     public static function parse($source, array $options = [])
     {
@@ -639,11 +653,19 @@ class Parser
         $this->expectKeyword('fragment');
 
         $name = $this->parseFragmentName();
+
+        // Experimental support for defining variables within fragments changes
+        // the grammar of FragmentDefinition:
+        //   - fragment FragmentName VariableDefinitions? on TypeCondition Directives? SelectionSet
+        $variableDefinitions = null;
+        if (isset($this->lexer->options['experimentalFragmentVariables'])) {
+            $variableDefinitions = $this->parseVariableDefinitions();
+        }
         $this->expectKeyword('on');
         $typeCondition = $this->parseNamedType();
-
         return new FragmentDefinitionNode([
             'name' => $name,
+            'variableDefinitions' => $variableDefinitions,
             'typeCondition' => $typeCondition,
             'directives' => $this->parseDirectives(false),
             'selectionSet' => $this->parseSelectionSet(),

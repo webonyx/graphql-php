@@ -454,9 +454,22 @@ fragment $fragmentName on Type {
     }
 
     /**
+     * @it Experimental: allows parsing fragment defined variables
+     */
+    public function testExperimentalAllowsParsingFragmentDefinedVariables()
+    {
+        $source = new Source('fragment a($v: Boolean = false) on t { f(v: $v) }');
+        // not throw
+        Parser::parse($source, ['experimentalFragmentVariables' => true]);
+
+        $this->setExpectedException(SyntaxError::class);
+        Parser::parse($source);
+    }
+
+    /**
      * @it contains location information that only stringifys start/end
      */
-    public function testConvertToArray()
+    public function testContainsLocationInformationThatOnlyStringifysStartEnd()
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);

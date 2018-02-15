@@ -133,6 +133,28 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it Experimental: correctly prints fragment defined variables
+     */
+    public function testExperimentalCorrectlyPrintsFragmentDefinedVariables()
+    {
+        $fragmentWithVariable = Parser::parse('
+          fragment Foo($a: ComplexType, $b: Boolean = false) on TestType {
+            id
+          }
+          ',
+            ['experimentalFragmentVariables' => true]
+        );
+
+        $this->assertEquals(
+            Printer::doPrint($fragmentWithVariable),
+            'fragment Foo($a: ComplexType, $b: Boolean = false) on TestType {
+  id
+}
+'
+        );
+    }
+
+    /**
      * @it correctly prints single-line with leading space and quotation
      */
     public function testCorrectlyPrintsSingleLineStringsWithLeadingSpaceAndQuotation()
