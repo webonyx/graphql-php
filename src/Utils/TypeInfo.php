@@ -122,12 +122,17 @@ class TypeInfo
         if ($type instanceof ObjectType) {
             $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
         }
-        if ($type instanceof ObjectType || $type instanceof InterfaceType || $type instanceof InputObjectType) {
+        if ($type instanceof ObjectType || $type instanceof InterfaceType) {
             foreach ((array) $type->getFields() as $fieldName => $field) {
                 if (!empty($field->args)) {
                     $fieldArgTypes = array_map(function(FieldArgument $arg) { return $arg->getType(); }, $field->args);
                     $nestedTypes = array_merge($nestedTypes, $fieldArgTypes);
                 }
+                $nestedTypes[] = $field->getType();
+            }
+        }
+        if ($type instanceof InputObjectType) {
+            foreach ((array) $type->getFields() as $fieldName => $field) {
                 $nestedTypes[] = $field->getType();
             }
         }

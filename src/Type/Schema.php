@@ -224,7 +224,11 @@ class Schema
     public function getType($name)
     {
         if (!isset($this->resolvedTypes[$name])) {
-            $this->resolvedTypes[$name] = $this->loadType($name);
+            $type = $this->loadType($name);
+            if (!$type) {
+                return null;
+            }
+            $this->resolvedTypes[$name] = $type;
         }
         return $this->resolvedTypes[$name];
     }

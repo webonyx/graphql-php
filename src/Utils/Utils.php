@@ -471,4 +471,65 @@ class Utils
             }
         };
     }
+
+
+    /**
+     * @param string[] $items
+     * @return string
+     */
+    public static function quotedOrList(array $items)
+    {
+        $items = array_map(function($item) { return "\"$item\""; }, $items);
+        return self::orList($items);
+    }
+
+    public static function orList(array $items)
+    {
+        if (!$items) {
+            throw new \LogicException('items must not need to be empty.');
+        }
+        $selected = array_slice($items, 0, 5);
+        $selectedLength = count($selected);
+        $firstSelected = $selected[0];
+
+        if ($selectedLength === 1) {
+            return $firstSelected;
+        }
+
+        return array_reduce(
+            range(1, $selectedLength - 1),
+            function ($list, $index) use ($selected, $selectedLength) {
+                return $list.
+                    ($selectedLength > 2 && $index !== $selectedLength - 1? ', ' : ' ') .
+                    ($index === $selectedLength - 1 ? 'or ' : '') .
+                    $selected[$index];
+            },
+            $firstSelected
+        );
+    }
+
+    /**
+     * Given an invalid input string and a list of valid options, returns a filtered
+     * list of valid options sorted based on their similarity with the input.
+     *
+     * @param string $input
+     * @param array $options
+     * @return string[]
+     */
+    public static function suggestionList($input, array $options)
+    {
+        $optionsByDistance = [];
+        $inputThreshold = mb_strlen($input) / 2;
+        foreach ($options as $option) {
+            $distance = levenshtein($input, $option);
+            $threshold = max($inputThreshold, mb_strlen($option) / 2, 1);
+            if ($distance <= $threshold) {
+                $optionsByDistance[$option] = $distance;
+            }
+        }
+
+        asort($optionsByDistance);
+
+        return array_keys($optionsByDistance);
+    }
 }

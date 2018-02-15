@@ -97,8 +97,10 @@ class FieldsOnCorrectTypeTest extends TestCase
           }
         }
       }',
-            [ $this->undefinedField('unknown_pet_field', 'Pet', [], 3, 9),
-                $this->undefinedField('unknown_cat_field', 'Cat', [], 5, 13) ]
+            [
+                $this->undefinedField('unknown_pet_field', 'Pet', [], [], 3, 9),
+                $this->undefinedField('unknown_cat_field', 'Cat', [], [], 5, 13)
+            ]
         );
     }
 
@@ -111,7 +113,7 @@ class FieldsOnCorrectTypeTest extends TestCase
       fragment fieldNotDefined on Dog {
         meowVolume
       }',
-            [$this->undefinedField('meowVolume', 'Dog', [], 3, 9)]
+            [$this->undefinedField('meowVolume', 'Dog', [], ['barkVolume'], 3, 9)]
         );
     }
 
@@ -126,7 +128,7 @@ class FieldsOnCorrectTypeTest extends TestCase
           deeper_unknown_field
         }
       }',
-            [$this->undefinedField('unknown_field', 'Dog', [], 3, 9)]
+            [$this->undefinedField('unknown_field', 'Dog', [], [], 3, 9)]
         );
     }
 
@@ -141,7 +143,7 @@ class FieldsOnCorrectTypeTest extends TestCase
           unknown_field
         }
       }',
-            [$this->undefinedField('unknown_field', 'Pet', [], 4, 11)]
+            [$this->undefinedField('unknown_field', 'Pet', [], [], 4, 11)]
         );
     }
 
@@ -156,7 +158,7 @@ class FieldsOnCorrectTypeTest extends TestCase
           meowVolume
         }
       }',
-            [$this->undefinedField('meowVolume', 'Dog', [], 4, 11)]
+            [$this->undefinedField('meowVolume', 'Dog', [], ['barkVolume'], 4, 11)]
         );
     }
 
@@ -169,7 +171,7 @@ class FieldsOnCorrectTypeTest extends TestCase
       fragment aliasedFieldTargetNotDefined on Dog {
         volume : mooVolume
       }',
-            [$this->undefinedField('mooVolume', 'Dog', [], 3, 9)]
+            [$this->undefinedField('mooVolume', 'Dog', [], ['barkVolume'], 3, 9)]
         );
     }
 
@@ -182,7 +184,7 @@ class FieldsOnCorrectTypeTest extends TestCase
       fragment aliasedLyingFieldTargetNotDefined on Dog {
         barkVolume : kawVolume
       }',
-            [$this->undefinedField('kawVolume', 'Dog', [], 3, 9)]
+            [$this->undefinedField('kawVolume', 'Dog', [], ['barkVolume'], 3, 9)]
         );
     }
 
@@ -195,7 +197,7 @@ class FieldsOnCorrectTypeTest extends TestCase
       fragment notDefinedOnInterface on Pet {
         tailLength
       }',
-            [$this->undefinedField('tailLength', 'Pet', [], 3, 9)]
+            [$this->undefinedField('tailLength', 'Pet', [], [], 3, 9)]
         );
     }
 
@@ -208,8 +210,7 @@ class FieldsOnCorrectTypeTest extends TestCase
       fragment definedOnImplementorsButNotInterface on Pet {
         nickname
       }',
-            //[$this->undefinedField('nickname', 'Pet', [ 'Cat', 'Dog' ], 3, 9)]
-            [$this->undefinedField('nickname', 'Pet', [ ], 3, 9)]
+            [$this->undefinedField('nickname', 'Pet', ['Dog', 'Cat'], ['name'], 3, 9)]
         );
     }
 
@@ -234,7 +235,7 @@ class FieldsOnCorrectTypeTest extends TestCase
       fragment directFieldSelectionOnUnion on CatOrDog {
         directField
       }',
-            [$this->undefinedField('directField', 'CatOrDog', [], 3, 9)]
+            [$this->undefinedField('directField', 'CatOrDog', [], [], 3, 9)]
         );
     }
 
@@ -247,8 +248,14 @@ class FieldsOnCorrectTypeTest extends TestCase
       fragment definedOnImplementorsQueriedOnUnion on CatOrDog {
         name
       }',
-            //[$this->undefinedField('name', 'CatOrDog', [ 'Being', 'Pet', 'Canine', 'Cat', 'Dog' ], 3, 9)]
-            [$this->undefinedField('name', 'CatOrDog', [ ], 3, 9)]
+            [$this->undefinedField(
+                'name',
+                'CatOrDog',
+                ['Being', 'Pet', 'Canine', 'Dog', 'Cat'],
+                [],
+                3,
+                9
+            )]
         );
     }
 
@@ -273,38 +280,78 @@ class FieldsOnCorrectTypeTest extends TestCase
      */
     public function testWorksWithNoSuggestions()
     {
-        $this->assertEquals('Cannot query field "T" on type "f".', FieldsOnCorrectType::undefinedFieldMessage('T', 'f', []));
+        $this->assertEquals('Cannot query field "f" on type "T".', FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], []));
     }
 
     /**
-     * @it Works with no small numbers of suggestions
+     * @it Works with no small numbers of type suggestions
      */
-    public function testWorksWithNoSmallNumbersOfSuggestions()
+    public function testWorksWithNoSmallNumbersOfTypeSuggestions()
     {
-        $expected = 'Cannot query field "T" on type "f". ' .
-            'However, this field exists on "A", "B". ' .
-            'Perhaps you meant to use an inline fragment?';
+        $expected = 'Cannot query field "f" on type "T". ' .
+            'Did you mean to use an inline fragment on "A" or "B"?';
 
-        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('T', 'f', [ 'A', 'B' ]));
+        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], []));
     }
 
     /**
-     * @it Works with lots of suggestions
+     * @it Works with no small numbers of field suggestions
      */
-    public function testWorksWithLotsOfSuggestions()
+    public function testWorksWithNoSmallNumbersOfFieldSuggestions()
     {
-        $expected = 'Cannot query field "T" on type "f". ' .
-            'However, this field exists on "A", "B", "C", "D", "E", ' .
-            'and 1 other types. ' .
-            'Perhaps you meant to use an inline fragment?';
+        $expected = 'Cannot query field "f" on type "T". ' .
+            'Did you mean "z" or "y"?';
 
-        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('T', 'f', [ 'A', 'B', 'C', 'D', 'E', 'F' ]));
+        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], ['z', 'y']));
     }
 
-    private function undefinedField($field, $type, $suggestions, $line, $column)
+    /**
+     * @it Only shows one set of suggestions at a time, preferring types
+     */
+    public function testOnlyShowsOneSetOfSuggestionsAtATimePreferringTypes()
+    {
+        $expected = 'Cannot query field "f" on type "T". ' .
+            'Did you mean to use an inline fragment on "A" or "B"?';
+
+        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], ['z', 'y']));
+    }
+
+    /**
+     * @it Limits lots of type suggestions
+     */
+    public function testLimitsLotsOfTypeSuggestions()
+    {
+        $expected = 'Cannot query field "f" on type "T". ' .
+            'Did you mean to use an inline fragment on "A", "B", "C", "D" or "E"?';
+
+        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage(
+            'f',
+            'T',
+            ['A', 'B', 'C', 'D', 'E', 'F'],
+            []
+        ));
+    }
+
+    /**
+     * @it Limits lots of field suggestions
+     */
+    public function testLimitsLotsOfFieldSuggestions()
+    {
+        $expected = 'Cannot query field "f" on type "T". ' .
+            'Did you mean "z", "y", "x", "w" or "v"?';
+
+        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage(
+            'f',
+            'T',
+            [],
+            ['z', 'y', 'x', 'w', 'v', 'u']
+        ));
+    }
+
+    private function undefinedField($field, $type, $suggestedTypes, $suggestedFields, $line, $column)
     {
         return FormattedError::create(
-            FieldsOnCorrectType::undefinedFieldMessage($field, $type, $suggestions),
+            FieldsOnCorrectType::undefinedFieldMessage($field, $type, $suggestedTypes, $suggestedFields),
             [new SourceLocation($line, $column)]
         );
     }

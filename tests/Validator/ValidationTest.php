@@ -58,7 +58,7 @@ Expected type \"Invalid\", found \"bad value\"; Invalid scalar is always invalid
         $query = '{invalid}';
 
         $expectedError = [
-            'message' => 'Cannot query field "invalid" on type "QueryRoot".',
+            'message' => 'Cannot query field "invalid" on type "QueryRoot". Did you mean "invalidArg"?',
             'locations' => [ ['line' => 1, 'column' => 2] ]
         ];
         $this->expectFailsCompleteValidation($query, [$expectedError]);
