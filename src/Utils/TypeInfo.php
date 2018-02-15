@@ -4,6 +4,7 @@ namespace GraphQL\Utils;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\ListType;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
@@ -296,6 +297,10 @@ class TypeInfo
     {
         $schema = $this->schema;
 
+        // Note: many of the types below are explicitly typed as "mixed" to drop
+        // any assumptions of a valid schema to ensure runtime types are properly
+        // checked before continuing since TypeInfo is used as part of validation
+        // which occurs before guarantees of schema and document validity.
         switch ($node->kind) {
             case NodeKind::SELECTION_SET:
                 $namedType = Type::getNamedType($this->getType());
@@ -308,8 +313,12 @@ class TypeInfo
                 if ($parentType) {
                     $fieldDef = self::getFieldDefinition($schema, $parentType, $node);
                 }
-                $this->fieldDefStack[] = $fieldDef; // push
-                $this->typeStack[] = $fieldDef ? $fieldDef->getType() : null; // push
+                $fieldType = null;
+                if ($fieldDef) {
+                    $fieldType = $fieldDef->getType();
+                }
+                $this->fieldDefStack[] = $fieldDef;
+                $this->typeStack[] = Type::isOutputType($fieldType) ? $fieldType : null;
                 break;
 
             case NodeKind::DIRECTIVE:
@@ -325,14 +334,14 @@ class TypeInfo
                 } else if ($node->operation === 'subscription') {
                     $type = $schema->getSubscriptionType();
                 }
-                $this->typeStack[] = $type; // push
+                $this->typeStack[] = Type::isOutputType($type) ? $type : null;
                 break;
 
             case NodeKind::INLINE_FRAGMENT:
             case NodeKind::FRAGMENT_DEFINITION:
                 $typeConditionNode = $node->typeCondition;
                 $outputType = $typeConditionNode ? self::typeFromAST($schema, $typeConditionNode) : Type::getNamedType($this->getType());
-                $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null; // push
+                $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null;
                 break;
 
             case NodeKind::VARIABLE_DEFINITION:
@@ -350,23 +359,28 @@ class TypeInfo
                     }
                 }
                 $this->argument = $argDef;
-                $this->inputTypeStack[] = $argType; // push
+                $this->inputTypeStack[] = Type::isInputType($argType) ? $argType : null;
                 break;
 
             case NodeKind::LST:
                 $listType = Type::getNullableType($this->getInputType());
-                $this->inputTypeStack[] = ($listType instanceof ListOfType ? $listType->getWrappedType() : null); // push
+                $itemType = null;
+                if ($itemType instanceof ListType) {
+                    $itemType = $listType->getWrappedType();
+                }
+                $this->inputTypeStack[] = Type::isInputType($itemType) ? $itemType : null;
                 break;
 
             case NodeKind::OBJECT_FIELD:
                 $objectType = Type::getNamedType($this->getInputType());
                 $fieldType = null;
+                $inputFieldType = null;
                 if ($objectType instanceof InputObjectType) {
                     $tmp = $objectType->getFields();
                     $inputField = isset($tmp[$node->name->value]) ? $tmp[$node->name->value] : null;
-                    $fieldType = $inputField ? $inputField->getType() : null;
+                    $inputFieldType = $inputField ? $inputField->getType() : null;
                 }
-                $this->inputTypeStack[] = $fieldType;
+                $this->inputTypeStack[] = Type::isInputType($inputFieldType) ? $inputFieldType : null;
                 break;
 
             case NodeKind::ENUM:
