@@ -47,7 +47,7 @@ class QuotedOrListTest extends \PHPUnit_Framework_TestCase
     public function testReturnsCommaSeparatedManyItemList()
     {
         $this->assertEquals(
-            '"A", "B" or "C"',
+            '"A", "B", or "C"',
             Utils::quotedOrList(['A', 'B', 'C'])
         );
     }
@@ -58,7 +58,7 @@ class QuotedOrListTest extends \PHPUnit_Framework_TestCase
     public function testLimitsToFiveItems()
     {
         $this->assertEquals(
-            '"A", "B", "C", "D" or "E"',
+            '"A", "B", "C", "D", or "E"',
             Utils::quotedOrList(['A', 'B', 'C', 'D', 'E', 'F'])
         );
     }

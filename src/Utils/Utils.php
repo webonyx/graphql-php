@@ -500,7 +500,7 @@ class Utils
             range(1, $selectedLength - 1),
             function ($list, $index) use ($selected, $selectedLength) {
                 return $list.
-                    ($selectedLength > 2 && $index !== $selectedLength - 1? ', ' : ' ') .
+                    ($selectedLength > 2 ? ', ' : ' ') .
                     ($index === $selectedLength - 1 ? 'or ' : '') .
                     $selected[$index];
             },

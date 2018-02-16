@@ -322,7 +322,7 @@ class FieldsOnCorrectTypeTest extends TestCase
     public function testLimitsLotsOfTypeSuggestions()
     {
         $expected = 'Cannot query field "f" on type "T". ' .
-            'Did you mean to use an inline fragment on "A", "B", "C", "D" or "E"?';
+            'Did you mean to use an inline fragment on "A", "B", "C", "D", or "E"?';
 
         $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage(
             'f',
@@ -338,7 +338,7 @@ class FieldsOnCorrectTypeTest extends TestCase
     public function testLimitsLotsOfFieldSuggestions()
     {
         $expected = 'Cannot query field "f" on type "T". ' .
-            'Did you mean "z", "y", "x", "w" or "v"?';
+            'Did you mean "z", "y", "x", "w", or "v"?';
 
         $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage(
             'f',
