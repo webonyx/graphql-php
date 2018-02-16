@@ -45,9 +45,12 @@ class ValuesOfCorrectType extends AbstractValidationRule
             "{$fieldTypeName} was not provided.";
     }
 
-    static function unknownFieldMessage($typeName, $fieldName)
+    static function unknownFieldMessage($typeName, $fieldName, $message = null)
     {
-        return "Field \"{$fieldName}\" is not defined by type {$typeName}.";
+        return (
+            "Field \"{$fieldName}\" is not defined by type {$typeName}" .
+            ($message ? "; {$message}" : '.')
+        );
     }
 
     public function getVisitor(ValidationContext $context)
@@ -103,10 +106,18 @@ class ValuesOfCorrectType extends AbstractValidationRule
             NodeKind::OBJECT_FIELD => function(ObjectFieldNode $node) use ($context) {
                 $parentType = Type::getNamedType($context->getParentInputType());
                 $fieldType = $context->getInputType();
-                if (!$fieldType && $parentType) {
+                if (!$fieldType && $parentType instanceof InputObjectType) {
+                    $suggestions = Utils::suggestionList(
+                        $node->name->value,
+                        array_keys($parentType->getFields())
+                    );
+                    $didYouMean = $suggestions
+                        ? "Did you mean " . Utils::orList($suggestions) . "?"
+                        : null;
+
                     $context->reportError(
                         new Error(
-                            self::unknownFieldMessage($parentType->name, $node->name->value),
+                            self::unknownFieldMessage($parentType->name, $node->name->value, $didYouMean),
                             $node
                         )
                     );
@@ -148,15 +159,12 @@ class ValuesOfCorrectType extends AbstractValidationRule
         $type = Type::getNamedType($locationType);
 
         if (!$type instanceof ScalarType) {
-            $suggestions = $type instanceof EnumType
-                ? $this->enumTypeSuggestion($type, $node)
-                : null;
             $context->reportError(
                 new Error(
                     self::badValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
-                        $suggestions
+                        $this->enumTypeSuggestion($type, $node)
                     ),
                     $node
                 )
@@ -214,13 +222,17 @@ class ValuesOfCorrectType extends AbstractValidationRule
         }
     }
 
-    private function enumTypeSuggestion(EnumType $type, ValueNode $node)
+    private function enumTypeSuggestion($type, ValueNode $node)
     {
-        $suggestions = Utils::suggestionList(
-            Printer::doPrint($node),
-            array_map(function (EnumValueDefinition $value) { return $value->name; }, $type->getValues())
-        );
+        if ($type instanceof EnumType) {
+            $suggestions = Utils::suggestionList(
+                Printer::doPrint($node),
+                array_map(function (EnumValueDefinition $value) {
+                    return $value->name;
+                }, $type->getValues())
+            );
 
-        return $suggestions ? 'Did you mean the enum value: ' . Utils::orList($suggestions) . '?' : '';
+            return $suggestions ? 'Did you mean the enum value ' . Utils::orList($suggestions) . '?' : null;
+        }
     }
 }

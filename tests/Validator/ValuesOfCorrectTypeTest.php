@@ -30,11 +30,12 @@ class ValuesOfCorrectTypeTest extends TestCase
         );
     }
 
-    private function unknownField($typeName, $fieldName, $line, $column) {
+    private function unknownField($typeName, $fieldName, $line, $column, $message = null) {
         return FormattedError::create(
             ValuesOfCorrectType::unknownFieldMessage(
                 $typeName,
-                $fieldName
+                $fieldName,
+                $message
             ),
             [new SourceLocation($line, $column)]
         );
@@ -581,7 +582,7 @@ class ValuesOfCorrectTypeTest extends TestCase
                 '"SIT"',
                 4,
                 41,
-                'Did you mean the enum value: SIT?'
+                'Did you mean the enum value SIT?'
             )
         ]);
     }
@@ -630,7 +631,13 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue('DogCommand', 'sit', 4, 41)
+            $this->badValue(
+                'DogCommand',
+                'sit',
+                4,
+                41,
+                'Did you mean the enum value SIT?'
+            )
         ]);
     }
 
@@ -1070,7 +1077,13 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->unknownField('ComplexInput', 'unknownField', 6, 15),
+            $this->unknownField(
+                'ComplexInput',
+                'unknownField',
+                6,
+                15,
+                'Did you mean intField or booleanField?'
+            ),
         ]);
     }
 

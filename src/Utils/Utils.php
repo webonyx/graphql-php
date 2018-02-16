@@ -512,6 +512,9 @@ class Utils
      * Given an invalid input string and a list of valid options, returns a filtered
      * list of valid options sorted based on their similarity with the input.
      *
+     * Includes a custom alteration from Damerau-Levenshtein to treat case changes
+     * as a single edit which helps identify mis-cased values with an edit distance
+     * of 1
      * @param string $input
      * @param array $options
      * @return string[]
@@ -521,7 +524,11 @@ class Utils
         $optionsByDistance = [];
         $inputThreshold = mb_strlen($input) / 2;
         foreach ($options as $option) {
-            $distance = levenshtein($input, $option);
+            $distance = $input === $option
+                ? 0
+                : (strtolower($input) === strtolower($option)
+                    ? 1
+                    : levenshtein($input, $option));
             $threshold = max($inputThreshold, mb_strlen($option) / 2, 1);
             if ($distance <= $threshold) {
                 $optionsByDistance[$option] = $distance;

@@ -2,6 +2,7 @@
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
@@ -26,7 +27,7 @@ class Value
             if ($value === null) {
                 return self::ofErrors([
                     self::coercionError(
-                        "Expected non-nullable type $type",
+                        "Expected non-nullable type $type not to be null",
                         $blameNode,
                         $path
                     ),
@@ -55,11 +56,23 @@ class Value
                 return self::ofValue($parseResult);
             } catch (\Exception $error) {
                 return self::ofErrors([
-                    self::coercionError("Expected type {$type->name}", $blameNode, $path, $error),
+                    self::coercionError(
+                        "Expected type {$type->name}",
+                        $blameNode,
+                        $path,
+                        $error->getMessage(),
+                        $error
+                    ),
                 ]);
             } catch (\Throwable $error) {
                 return self::ofErrors([
-                    self::coercionError("Expected type {$type->name}", $blameNode, $path, $error),
+                    self::coercionError(
+                        "Expected type {$type->name}",
+                        $blameNode,
+                        $path,
+                        $error->getMessage(),
+                        $error
+                    ),
                 ]);
             }
         }
@@ -72,8 +85,21 @@ class Value
                 }
             }
 
+            $suggestions = Utils::suggestionList(
+                Utils::printSafe($value),
+                array_map(function($enumValue) { return $enumValue->name; }, $type->getValues())
+            );
+            $didYouMean = $suggestions
+                ? "did you mean " . Utils::orList($suggestions) . "?"
+                : null;
+
             return self::ofErrors([
-                self::coercionError("Expected type {$type->name}", $blameNode, $path),
+                self::coercionError(
+                    "Expected type {$type->name}",
+                    $blameNode,
+                    $path,
+                    $didYouMean
+                ),
             ]);
         }
 
@@ -105,7 +131,11 @@ class Value
         if ($type instanceof InputObjectType) {
             if (!is_object($value) && !is_array($value) && !$value instanceof \Traversable) {
                 return self::ofErrors([
-                    self::coercionError("Expected object type {$type->name}", $blameNode, $path),
+                    self::coercionError(
+                        "Expected type {$type->name} to be an object",
+                        $blameNode,
+                        $path
+                    ),
                 ]);
             }
 
@@ -146,12 +176,20 @@ class Value
             // Ensure every provided field is defined.
             foreach ($value as $fieldName => $field) {
                 if (!array_key_exists($fieldName, $fields)) {
+                    $suggestions = Utils::suggestionList(
+                        $fieldName,
+                        array_keys($fields)
+                    );
+                    $didYouMean = $suggestions
+                        ? "did you mean " . Utils::orList($suggestions) . "?"
+                        : null;
                     $errors = self::add(
                         $errors,
                         self::coercionError(
                             "Field \"{$fieldName}\" is not defined by type {$type->name}",
                             $blameNode,
-                            $path
+                            $path,
+                            $didYouMean
                         )
                     );
                 }
@@ -183,18 +221,17 @@ class Value
      * @param string $message
      * @param Node $blameNode
      * @param array|null $path
+     * @param string $subMessage
      * @param \Exception|\Throwable|null $originalError
      * @return Error
      */
-    private static function coercionError($message, $blameNode, array $path = null, $originalError = null) {
+    private static function coercionError($message, $blameNode, array $path = null, $subMessage = null, $originalError = null) {
         $pathStr = self::printPath($path);
         // Return a GraphQLError instance
         return new Error(
             $message .
             ($pathStr ? ' at ' . $pathStr : '') .
-            ($originalError && $originalError->getMessage()
-                ? '; ' . $originalError->getMessage()
-                : '.'),
+            ($subMessage ? '; ' . $subMessage : '.'),
             $blameNode,
             null,
             null,

@@ -160,7 +160,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                     'message' =>
                         'Variable "$input" got invalid value ' .
                         '{"a":"foo","b":"bar","c":null}; ' .
-                        'Expected non-nullable type String! at value.c.',
+                        'Expected non-nullable type String! not to be null at value.c.',
                     'locations' => [['line' => 2, 'column' => 17]],
                     'category' => 'graphql'
                 ]
@@ -177,7 +177,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                 [
                     'message' =>
                         'Variable "$input" got invalid value "foo bar"; ' .
-                        'Expected object type TestInputObject.',
+                        'Expected type TestInputObject to be an object.',
                     'locations' => [ [ 'line' => 2, 'column' => 17 ] ],
                     'category' => 'graphql',
                 ]
@@ -411,7 +411,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                 [
                     'message' =>
                         'Variable "$value" got invalid value null; ' .
-                        'Expected non-nullable type String!.',
+                        'Expected non-nullable type String! not to be null.',
                     'locations' => [['line' => 2, 'column' => 31]],
                     'category' => 'graphql',
                 ]
@@ -613,7 +613,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                 [
                     'message' =>
                         'Variable "$input" got invalid value null; ' .
-                        'Expected non-nullable type [String]!.',
+                        'Expected non-nullable type [String]! not to be null.',
                     'locations' => [['line' => 2, 'column' => 17]],
                     'category' => 'graphql',
                 ]
@@ -701,7 +701,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                 [
                     'message' =>
                         'Variable "$input" got invalid value ["A",null,"B"]; ' .
-                        'Expected non-nullable type String! at value[1].',
+                        'Expected non-nullable type String! not to be null at value[1].',
                     'locations' => [ ['line' => 2, 'column' => 17] ],
                     'category' => 'graphql',
                 ]
@@ -727,7 +727,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                 [
                     'message' =>
                         'Variable "$input" got invalid value null; ' .
-                        'Expected non-nullable type [String!]!.',
+                        'Expected non-nullable type [String!]! not to be null.',
                     'locations' => [ ['line' => 2, 'column' => 17] ],
                     'category' => 'graphql',
                 ]
@@ -768,7 +768,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
                 [
                     'message' =>
                         'Variable "$input" got invalid value ["A",null,"B"]; ' .
-                        'Expected non-nullable type String! at value[1].',
+                        'Expected non-nullable type String! not to be null at value[1].',
                     'locations' => [ ['line' => 2, 'column' => 17] ],
                     'category' => 'graphql',
                 ]
