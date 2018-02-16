@@ -107,7 +107,9 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     {
         $count = count($this->nodes);
         for ($i = 0; $i < $count; $i++) {
-            yield $this->offsetGet($i);
+            if ($this->offsetExists($i)) {
+                yield $this->offsetGet($i);
+            }
         }
     }
 
