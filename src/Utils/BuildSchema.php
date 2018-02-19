@@ -589,6 +589,10 @@ class BuildSchema
      */
     public function getDescription($node)
     {
+	    if (property_exists($node, 'description')) {
+		    return $node->description;
+	    }
+
         $loc = $node->loc;
         if (!$loc || !$loc->startToken) {
             return ;
