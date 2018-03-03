@@ -15,7 +15,7 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
         $parsedBody = OperationParams::create([
             'query' => $query,
             'variables' => $variables,
-            'operation' => $operation,
+            'operationName' => $operation,
         ]);
 
         $this->assertValid($parsedBody);
@@ -30,7 +30,7 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
         $parsedBody = OperationParams::create([
             'queryId' => $queryId,
             'variables' => $variables,
-            'operation' => $operation,
+            'operationName' => $operation,
         ]);
 
         $this->assertValid($parsedBody);
@@ -40,7 +40,7 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
     {
         $parsedBody = OperationParams::create([
             'variables' => ['foo' => 'bar'],
-            'operation' => 'op',
+            'operationName' => 'op',
         ]);
 
         $this->assertInputError(
@@ -90,7 +90,7 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
     {
         $parsedBody = OperationParams::create([
             'query' => '{my query}',
-            'operation' => []
+            'operationName' => []
         ]);
 
         $this->assertInputError(

@@ -34,7 +34,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $post = [
             'query' => $query,
             'variables' => $variables,
-            'operation' => $operation
+            'operationName' => $operation
         ];
         $parsed = [
             'raw' => $this->parseRawFormUrlencodedRequest($post),
@@ -56,7 +56,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $get = [
             'query' => $query,
             'variables' => $variables,
-            'operation' => $operation
+            'operationName' => $operation
         ];
         $parsed = [
             'raw' => $this->parseRawGetRequest($get),
@@ -78,7 +78,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $body = [
             'query' => $query,
             'variables' => $variables,
-            'operation' => $operation
+            'operationName' => $operation
         ];
         $parsed = [
             'raw' => $this->parseRawRequest('application/json', json_encode($body)),
@@ -99,7 +99,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $body = [
             'query' => $query,
             'variables' => json_encode($variables),
-            'operation' => $operation
+            'operationName' => $operation
         ];
         $parsed = [
             'raw' => $this->parseRawRequest('application/json', json_encode($body)),
@@ -120,7 +120,7 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $body = [
             'query' => $query,
             'variables' => $variables,
-            'operation' => $operation
+            'operationName' => $operation
         ];
         $parsed = [
             'raw' => $this->parseRawRequest('application/json', json_encode($body)),
@@ -138,12 +138,12 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
             [
                 'query' => '{my query}',
                 'variables' => ['test' => 1, 'test2' => 2],
-                'operation' => 'op'
+                'operationName' => 'op'
             ],
             [
                 'queryId' => 'my-query-id',
                 'variables' => ['test' => 1, 'test2' => 2],
-                'operation' => 'op2'
+                'operationName' => 'op2'
             ],
         ];
         $parsed = [
@@ -153,8 +153,8 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         foreach ($parsed as $method => $parsedBody) {
             $this->assertInternalType('array', $parsedBody, $method);
             $this->assertCount(2, $parsedBody, $method);
-            $this->assertValidOperationParams($parsedBody[0], $body[0]['query'], null, $body[0]['variables'], $body[0]['operation'], $method);
-            $this->assertValidOperationParams($parsedBody[1], null, $body[1]['queryId'], $body[1]['variables'], $body[1]['operation'], $method);
+            $this->assertValidOperationParams($parsedBody[0], $body[0]['query'], null, $body[0]['variables'], $body[0]['operationName'], $method);
+            $this->assertValidOperationParams($parsedBody[1], null, $body[1]['queryId'], $body[1]['variables'], $body[1]['operationName'], $method);
         }
     }
 
