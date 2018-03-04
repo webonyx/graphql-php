@@ -47,6 +47,10 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     {
         $type = $this->ofType;
 
+        if(is_callable($type)){
+            $type = $type();
+        }
+
         Utils::invariant(
             !($type instanceof NonNull),
             'Cannot nest NonNull inside NonNull'

@@ -34,6 +34,11 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
     public function toString()
     {
         $type = $this->ofType;
+
+        if(is_callable($type)){
+            $type = $type();
+        }
+
         $str = $type instanceof Type ? $type->toString() : (string) $type;
         return '[' . $str . ']';
     }

@@ -464,7 +464,11 @@ EOD;
                     return [
                         'kind' => [
                             'type' => Type::nonNull(self::_typeKind()),
-                            'resolve' => function (Type $type) {
+                            'resolve' => function ($type) : int {
+                                if (is_callable($type)) {
+                                    $type = $type();
+                                }
+
                                 switch (true) {
                                     case $type instanceof ListOfType:
                                         return TypeKind::LIST_KIND;
