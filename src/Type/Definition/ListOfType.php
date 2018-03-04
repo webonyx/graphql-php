@@ -45,7 +45,7 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
 
     /**
      * @param bool $recurse
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|callable
      */
     public function getWrappedType($recurse = false)
     {
