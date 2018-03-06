@@ -26,7 +26,7 @@ class BuildSchema
      * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
      * has no resolve methods, so execution will use default resolvers.
      *
-     * Accepts options as a second argument:
+     * Accepts options as a third argument:
      *
      *    - commentDescriptions:
      *        Provide true to use preceding comments as the description.
@@ -34,25 +34,26 @@ class BuildSchema
      *
      * @api
      * @param DocumentNode $ast
+     * @param callable $typeConfigDecorator
      * @param array $options
      * @return Schema
      * @throws Error
      */
-    public static function buildAST(DocumentNode $ast, array $options = [])
+    public static function buildAST(DocumentNode $ast, callable $typeConfigDecorator = null, array $options = [])
     {
-        $builder = new self($ast, $options);
+        $builder = new self($ast, $typeConfigDecorator, $options);
         return $builder->buildSchema();
     }
 
     private $ast;
     private $nodeMap;
-    private $loadedTypeDefs;
+    private $typeConfigDecorator;
     private $options;
 
-    public function __construct(DocumentNode $ast, array $options = [])
+    public function __construct(DocumentNode $ast, callable $typeConfigDecorator = null, array $options = [])
     {
         $this->ast = $ast;
-        $this->loadedTypeDefs = [];
+        $this->typeConfigDecorator = $typeConfigDecorator;
         $this->options = $options;
     }
 
@@ -101,7 +102,8 @@ class BuildSchema
         $defintionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
             $this->options,
-            function($typeName) { throw new Error('Type "'. $typeName . '" not found in document.'); }
+            function($typeName) { throw new Error('Type "'. $typeName . '" not found in document.'); },
+            $this->typeConfigDecorator
         );
 
         $directives = array_map(function($def) use ($defintionBuilder) {
@@ -152,9 +154,7 @@ class BuildSchema
             'types' => function () use ($defintionBuilder) {
                 $types = [];
                 foreach ($this->nodeMap as $name => $def) {
-                    if (!isset($this->loadedTypeDefs[$name])) {
-                        $types[] = $defintionBuilder->buildType($def->name->value);
-                    }
+                    $types[] = $defintionBuilder->buildType($def->name->value);
                 }
                 return $types;
             }
@@ -196,12 +196,13 @@ class BuildSchema
      *
      * @api
      * @param DocumentNode|Source|string $source
+     * @param callable $typeConfigDecorator
      * @param array $options
      * @return Schema
      */
-    public static function build($source, array $options = [])
+    public static function build($source, callable $typeConfigDecorator = null, array $options = [])
     {
         $doc = $source instanceof DocumentNode ? $source : Parser::parse($source);
-        return self::buildAST($doc, $options);
+        return self::buildAST($doc, $typeConfigDecorator, $options);
     }
 }

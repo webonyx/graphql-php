@@ -134,7 +134,7 @@ class Schema
         if ($config->subscription) {
             $this->resolvedTypes[$config->subscription->name] = $config->subscription;
         }
-        if ($this->config->types) {
+        if (is_array($this->config->types)) {
             foreach ($this->resolveAdditionalTypes() as $type) {
                 if (isset($this->resolvedTypes[$type->name])) {
                     Utils::invariant(

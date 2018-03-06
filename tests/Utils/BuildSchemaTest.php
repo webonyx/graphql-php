@@ -20,7 +20,7 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
     private function cycleOutput($body, $options = [])
     {
         $ast = Parser::parse($body);
-        $schema = BuildSchema::buildAST($ast, $options);
+        $schema = BuildSchema::buildAST($ast, null, $options);
         return "\n" . SchemaPrinter::doPrint($schema, $options);
     }
 
@@ -1140,4 +1140,132 @@ type Repeated {
         $this->setExpectedException('GraphQL\Error\Error', 'Type "Repeated" was defined more than once.');
         BuildSchema::buildAST($doc);
     }
+
+    public function testSupportsTypeConfigDecorator()
+    {
+        $body = '
+schema {
+  query: Query
+}
+
+type Query {
+  str: String
+  color: Color
+  hello: Hello
+}
+
+enum Color {
+  RED
+  GREEN
+  BLUE
+}
+
+interface Hello {
+  world: String
+}
+';
+        $doc = Parser::parse($body);
+
+        $decorated = [];
+        $calls = [];
+
+        $typeConfigDecorator = function($defaultConfig, $node, $allNodesMap) use (&$decorated, &$calls) {
+            $decorated[] = $defaultConfig['name'];
+            $calls[] = [$defaultConfig, $node, $allNodesMap];
+            return ['description' => 'My description of ' . $node->name->value] + $defaultConfig;
+        };
+
+        $schema = BuildSchema::buildAST($doc, $typeConfigDecorator);
+        $schema->getTypeMap();
+        $this->assertEquals(['Query', 'Color', 'Hello'], $decorated);
+
+        list($defaultConfig, $node, $allNodesMap) = $calls[0];
+        $this->assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
+        $this->assertEquals('Query', $defaultConfig['name']);
+        $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
+        $this->assertInstanceOf(\Closure::class, $defaultConfig['interfaces']);
+        $this->assertArrayHasKey('description', $defaultConfig);
+        $this->assertCount(5, $defaultConfig);
+        $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        $this->assertEquals('My description of Query', $schema->getType('Query')->description);
+
+
+        list($defaultConfig, $node, $allNodesMap) = $calls[1];
+        $this->assertInstanceOf(EnumTypeDefinitionNode::class, $node);
+        $this->assertEquals('Color', $defaultConfig['name']);
+        $enumValue = [
+            'description' => '',
+            'deprecationReason' => ''
+        ];
+        $this->assertArraySubset([
+            'RED' => $enumValue,
+            'GREEN' => $enumValue,
+            'BLUE' => $enumValue,
+        ], $defaultConfig['values']);
+        $this->assertCount(4, $defaultConfig); // 3 + astNode
+        $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        $this->assertEquals('My description of Color', $schema->getType('Color')->description);
+
+        list($defaultConfig, $node, $allNodesMap) = $calls[2];
+        $this->assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
+        $this->assertEquals('Hello', $defaultConfig['name']);
+        $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
+        $this->assertArrayHasKey('description', $defaultConfig);
+        $this->assertCount(4, $defaultConfig);
+        $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        $this->assertEquals('My description of Hello', $schema->getType('Hello')->description);
+    }
+
+    public function testCreatesTypesLazily()
+    {
+        $body = '
+schema {
+  query: Query
+}
+
+type Query {
+  str: String
+  color: Color
+  hello: Hello
+}
+
+enum Color {
+  RED
+  GREEN
+  BLUE
+}
+
+interface Hello {
+  world: String
+}
+
+type World implements Hello {
+  world: String
+}
+';
+        $doc = Parser::parse($body);
+        $created = [];
+
+        $typeConfigDecorator = function($config, $node) use (&$created) {
+            $created[] = $node->name->value;
+            return $config;
+        };
+
+        $schema = BuildSchema::buildAST($doc, $typeConfigDecorator);
+        $this->assertEquals(['Query'], $created);
+
+        $schema->getType('Color');
+        $this->assertEquals(['Query', 'Color'], $created);
+
+        $schema->getType('Hello');
+        $this->assertEquals(['Query', 'Color', 'Hello'], $created);
+
+        $types = $schema->getTypeMap();
+        $this->assertEquals(['Query', 'Color', 'Hello', 'World'], $created);
+        $this->assertArrayHasKey('Query', $types);
+        $this->assertArrayHasKey('Color', $types);
+        $this->assertArrayHasKey('Hello', $types);
+        $this->assertArrayHasKey('World', $types);
+    }
+
 }

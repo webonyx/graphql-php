@@ -39,6 +39,11 @@ class ASTDefinitionBuilder
     private $typeDefintionsMap;
 
     /**
+     * @var callable
+     */
+    private $typeConfigDecorator;
+
+    /**
      * @var array
      */
     private $options;
@@ -53,9 +58,10 @@ class ASTDefinitionBuilder
      */
     private $cache;
 
-    public function __construct(array $typeDefintionsMap, $options, callable $resolveType)
+    public function __construct(array $typeDefintionsMap, $options, callable $resolveType, callable $typeConfigDecorator = null)
     {
         $this->typeDefintionsMap = $typeDefintionsMap;
+        $this->typeConfigDecorator = $typeConfigDecorator;
         $this->options = $options;
         $this->resolveType = $resolveType;
 
@@ -101,7 +107,41 @@ class ASTDefinitionBuilder
     private function internalBuildType($typeName, $typeNode = null) {
         if (!isset($this->cache[$typeName])) {
             if (isset($this->typeDefintionsMap[$typeName])) {
-                $this->cache[$typeName] = $this->makeSchemaDef($this->typeDefintionsMap[$typeName]);
+                $type = $this->makeSchemaDef($this->typeDefintionsMap[$typeName]);
+                if ($this->typeConfigDecorator) {
+                    $fn = $this->typeConfigDecorator;
+                    try {
+                        $config = $fn($type->config, $this->typeDefintionsMap[$typeName], $this->typeDefintionsMap);
+                    } catch (\Exception $e) {
+                        throw new Error(
+                            "Type config decorator passed to " . (static::class) . " threw an error " .
+                            "when building $typeName type: {$e->getMessage()}",
+                            null,
+                            null,
+                            null,
+                            null,
+                            $e
+                        );
+                    } catch (\Throwable $e) {
+                        throw new Error(
+                            "Type config decorator passed to " . (static::class) . " threw an error " .
+                            "when building $typeName type: {$e->getMessage()}",
+                            null,
+                            null,
+                            null,
+                            null,
+                            $e
+                        );
+                    }
+                    if (!is_array($config) || isset($config[0])) {
+                        throw new Error(
+                            "Type config decorator passed to " . (static::class) . " is expected to return an array, but got " .
+                            Utils::getVariableType($config)
+                        );
+                    }
+                    $type = $this->makeSchemaDefFromConfig($this->typeDefintionsMap[$typeName], $config);
+                }
+                $this->cache[$typeName] = $type;
             } else {
                 $fn = $this->resolveType;
                 $this->cache[$typeName] = $fn($typeName, $typeNode);
@@ -181,6 +221,29 @@ class ASTDefinitionBuilder
                 return $this->makeScalarDef($def);
             case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
                 return $this->makeInputObjectDef($def);
+            default:
+                throw new Error("Type kind of {$def->kind} not supported.");
+        }
+    }
+
+    private function makeSchemaDefFromConfig($def, array $config)
+    {
+        if (!$def) {
+            throw new Error('def must be defined.');
+        }
+        switch ($def->kind) {
+            case NodeKind::OBJECT_TYPE_DEFINITION:
+                return new ObjectType($config);
+            case NodeKind::INTERFACE_TYPE_DEFINITION:
+                return new InterfaceType($config);
+            case NodeKind::ENUM_TYPE_DEFINITION:
+                return new EnumType($config);
+            case NodeKind::UNION_TYPE_DEFINITION:
+                return new UnionType($config);
+            case NodeKind::SCALAR_TYPE_DEFINITION:
+                return new CustomScalarType($config);
+            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
+                return new InputObjectType($config);
             default:
                 throw new Error("Type kind of {$def->kind} not supported.");
         }
