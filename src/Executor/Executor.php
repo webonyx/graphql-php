@@ -987,6 +987,10 @@ class Executor
         $fieldName = $info->fieldName;
         $property = null;
 
+        if (is_callable($source)) {
+            $source = $source();
+        }
+
         if (is_array($source) || $source instanceof \ArrayAccess) {
             if (isset($source[$fieldName])) {
                 $property = $source[$fieldName];
@@ -1172,6 +1176,9 @@ class Executor
         foreach ($result as $item) {
             $fieldPath = $path;
             $fieldPath[] = $i++;
+            if(is_callable($itemType)){
+                $itemType = $itemType();
+            }
             $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $item);
             if (!$containsPromise && $this->getPromise($completedItem)) {
                 $containsPromise = true;

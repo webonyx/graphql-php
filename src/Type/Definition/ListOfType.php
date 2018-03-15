@@ -34,13 +34,18 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
     public function toString()
     {
         $type = $this->ofType;
+
+        if(is_callable($type)){
+            $type = $type();
+        }
+
         $str = $type instanceof Type ? $type->toString() : (string) $type;
         return '[' . $str . ']';
     }
 
     /**
      * @param bool $recurse
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|callable
      */
     public function getWrappedType($recurse = false)
     {

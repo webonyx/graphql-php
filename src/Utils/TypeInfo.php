@@ -91,6 +91,10 @@ class TypeInfo
             return $typeMap;
         }
 
+        if (is_callable($type)) {
+            $type = $type();
+        }
+
         if ($type instanceof WrappingType) {
             return self::extractTypes($type->getWrappedType(true), $typeMap);
         }
