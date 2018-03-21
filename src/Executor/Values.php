@@ -12,6 +12,7 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Printer;
@@ -131,10 +132,16 @@ class Values
                         [$node]
                     );
                 }
+            } else if ($argumentNode->value instanceof NullValueNode) {
+                // Explicitly set null values should produce the defaultValue if available
+                if ($argDef->defaultValueExists()) {
+                    $coercedValues[$name] = $argDef->defaultValue;
+                }
             } else if ($argumentNode->value instanceof VariableNode) {
                 $variableName = $argumentNode->value->name->value;
 
-                if ($variableValues && array_key_exists($variableName, $variableValues)) {
+                // Explicitly set null values should produce the defaultValue if available
+                if ($variableValues && array_key_exists($variableName, $variableValues) && $variableValues[$variableName] !== null) {
                     // Note: this does not check that this variable value is correct.
                     // This assumes that this query has been validated and the variable
                     // usage here is of the correct type.
@@ -152,6 +159,12 @@ class Values
             } else {
                 $valueNode = $argumentNode->value;
                 $coercedValue = AST::valueFromAST($valueNode, $argType, $variableValues);
+
+                // Explicitly set null values should produce the defaultValue if available
+                if ($coercedValue === null && $argDef->defaultValueExists()) {
+                    $coercedValue = $argDef->defaultValue;
+                }
+
                 if ($coercedValue === $undefined) {
                     $errors = DocumentValidator::isValidLiteralValue($argType, $valueNode);
                     $message = !empty($errors) ? ("\n" . implode("\n", $errors)) : '';

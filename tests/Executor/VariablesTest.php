@@ -853,6 +853,36 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @it when null value variable provided
+     */
+    public function testWhenNullValueVariableProvided()
+    {
+        $ast = Parser::parse('query optionalVariable($optional: String) {
+            fieldWithDefaultArgumentValue(input: $optional)
+        }');
+
+        $this->assertEquals(
+            ['data' => ['fieldWithDefaultArgumentValue' => '"Hello World"']],
+            Executor::execute($this->schema(), $ast, null, null, ['optional' => null])->toArray()
+        );
+    }
+
+    /**
+     * @it when null value provided directly
+     */
+    public function testWhenNullValueProvidedDirectly()
+    {
+        $ast = Parser::parse('query {
+            fieldWithDefaultArgumentValue(input: null)
+        }');
+
+        $this->assertEquals(
+            ['data' => ['fieldWithDefaultArgumentValue' => '"Hello World"']],
+            Executor::execute($this->schema(), $ast)->toArray()
+        );
+    }
+
+    /**
      * @it not when argument cannot be coerced
      */
     public function testNotWhenArgumentCannotBeCoerced()
