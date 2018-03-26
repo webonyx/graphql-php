@@ -1,27 +1,17 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Language\DirectiveLocation as NewDirectiveLocation;
+
+trigger_error(
+    'GraphQL\Type\Definition\DirectiveLocation was moved to GraphQL\Language\DirectiveLocation and will be deleted on next release',
+    E_USER_DEPRECATED
+);
+
 /**
- * List of available directive locations
+ * @deprecated moved to GraphQL\Language\DirectiveLocation
  */
-class DirectiveLocation
+class DirectiveLocation extends NewDirectiveLocation
 {
-    const IFACE = 'INTERFACE';
-    const SUBSCRIPTION = 'SUBSCRIPTION';
-    const FRAGMENT_SPREAD = 'FRAGMENT_SPREAD';
-    const QUERY = 'QUERY';
-    const MUTATION = 'MUTATION';
-    const FRAGMENT_DEFINITION = 'FRAGMENT_DEFINITION';
-    const INPUT_OBJECT = 'INPUT_OBJECT';
-    const INLINE_FRAGMENT = 'INLINE_FRAGMENT';
-    const UNION = 'UNION';
-    const SCALAR = 'SCALAR';
-    const FIELD_DEFINITION = 'FIELD_DEFINITION';
-    const ARGUMENT_DEFINITION = 'ARGUMENT_DEFINITION';
-    const ENUM = 'ENUM';
-    const OBJECT = 'OBJECT';
-    const ENUM_VALUE = 'ENUM_VALUE';
-    const FIELD = 'FIELD';
-    const SCHEMA = 'SCHEMA';
-    const INPUT_FIELD_DEFINITION = 'INPUT_FIELD_DEFINITION';
+
 }

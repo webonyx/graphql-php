@@ -112,7 +112,21 @@ class KnownArgumentNamesTest extends TestCase
         dog @skip(unless: true)
       }
         ', [
-            $this->unknownDirectiveArg('unless', 'skip', 3, 19),
+            $this->unknownDirectiveArg('unless', 'skip', [], 3, 19),
+        ]);
+    }
+
+    /**
+     * @it misspelled directive args are reported
+     */
+    public function testMisspelledDirectiveArgsAreReported()
+    {
+        $this->expectFailsRule(new KnownArgumentNames, '
+      {
+        dog @skip(iff: true)
+      }
+        ', [
+            $this->unknownDirectiveArg('iff', 'skip', ['if'], 3, 19),
         ]);
     }
 
@@ -126,7 +140,21 @@ class KnownArgumentNamesTest extends TestCase
         doesKnowCommand(unknown: true)
       }
         ', [
-            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', 3, 25),
+            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [],3, 25),
+        ]);
+    }
+
+    /**
+     * @it misspelled arg name is reported
+     */
+    public function testMisspelledArgNameIsReported()
+    {
+        $this->expectFailsRule(new KnownArgumentNames, '
+      fragment invalidArgName on Dog {
+        doesKnowCommand(dogcommand: true)
+      }
+        ', [
+            $this->unknownArg('dogcommand', 'doesKnowCommand', 'Dog', ['dogCommand'],3, 25),
         ]);
     }
 
@@ -140,8 +168,8 @@ class KnownArgumentNamesTest extends TestCase
         doesKnowCommand(whoknows: 1, dogCommand: SIT, unknown: true)
       }
         ', [
-            $this->unknownArg('whoknows', 'doesKnowCommand', 'Dog', 3, 25),
-            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', 3, 55),
+            $this->unknownArg('whoknows', 'doesKnowCommand', 'Dog', [], 3, 25),
+            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 3, 55),
         ]);
     }
 
@@ -164,23 +192,23 @@ class KnownArgumentNamesTest extends TestCase
         }
       }
         ', [
-            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', 4, 27),
-            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', 9, 31),
+            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 4, 27),
+            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 9, 31),
         ]);
     }
 
-    private function unknownArg($argName, $fieldName, $typeName, $line, $column)
+    private function unknownArg($argName, $fieldName, $typeName, $suggestedArgs, $line, $column)
     {
         return FormattedError::create(
-            KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName),
+            KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );
     }
 
-    private function unknownDirectiveArg($argName, $directiveName, $line, $column)
+    private function unknownDirectiveArg($argName, $directiveName, $suggestedArgs, $line, $column)
     {
         return FormattedError::create(
-            KnownArgumentNames::unknownDirectiveArgMessage($argName, $directiveName),
+            KnownArgumentNames::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );
     }

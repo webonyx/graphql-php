@@ -171,7 +171,7 @@ static function float()
 ```php
 /**
  * @api
- * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
+ * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
  * @return ListOfType
  */
 static function listOf($wrappedType)
@@ -229,6 +229,15 @@ static function isCompositeType($type)
  * @return bool
  */
 static function isAbstractType($type)
+```
+
+```php
+/**
+ * @api
+ * @param Type $type
+ * @return bool
+ */
+static function isType($type)
 ```
 
 ```php
@@ -374,28 +383,28 @@ public $variableValues;
  */
 function getFieldSelection($depth = 0)
 ```
-# GraphQL\Type\Definition\DirectiveLocation
+# GraphQL\Language\DirectiveLocation
 List of available directive locations
 
 **Class Constants:** 
 ```php
-const IFACE = "INTERFACE";
-const SUBSCRIPTION = "SUBSCRIPTION";
-const FRAGMENT_SPREAD = "FRAGMENT_SPREAD";
 const QUERY = "QUERY";
 const MUTATION = "MUTATION";
+const SUBSCRIPTION = "SUBSCRIPTION";
+const FIELD = "FIELD";
 const FRAGMENT_DEFINITION = "FRAGMENT_DEFINITION";
-const INPUT_OBJECT = "INPUT_OBJECT";
+const FRAGMENT_SPREAD = "FRAGMENT_SPREAD";
 const INLINE_FRAGMENT = "INLINE_FRAGMENT";
-const UNION = "UNION";
+const SCHEMA = "SCHEMA";
 const SCALAR = "SCALAR";
+const OBJECT = "OBJECT";
 const FIELD_DEFINITION = "FIELD_DEFINITION";
 const ARGUMENT_DEFINITION = "ARGUMENT_DEFINITION";
+const IFACE = "INTERFACE";
+const UNION = "UNION";
 const ENUM = "ENUM";
-const OBJECT = "OBJECT";
 const ENUM_VALUE = "ENUM_VALUE";
-const FIELD = "FIELD";
-const SCHEMA = "SCHEMA";
+const INPUT_OBJECT = "INPUT_OBJECT";
 const INPUT_FIELD_DEFINITION = "INPUT_FIELD_DEFINITION";
 ```
 
@@ -431,7 +440,7 @@ static function create(array $options = [])
  * @param ObjectType $query
  * @return SchemaConfig
  */
-function setQuery(GraphQL\Type\Definition\ObjectType $query)
+function setQuery($query)
 ```
 
 ```php
@@ -440,7 +449,7 @@ function setQuery(GraphQL\Type\Definition\ObjectType $query)
  * @param ObjectType $mutation
  * @return SchemaConfig
  */
-function setMutation(GraphQL\Type\Definition\ObjectType $mutation)
+function setMutation($mutation)
 ```
 
 ```php
@@ -449,7 +458,7 @@ function setMutation(GraphQL\Type\Definition\ObjectType $mutation)
  * @param ObjectType $subscription
  * @return SchemaConfig
  */
-function setSubscription(GraphQL\Type\Definition\ObjectType $subscription)
+function setSubscription($subscription)
 ```
 
 ```php
@@ -677,6 +686,18 @@ function getDirective($name)
  * This operation requires full schema scan. Do not use in production environment.
  *
  * @api
+ * @return InvariantViolation[]|Error[]
+ */
+function validate()
+```
+
+```php
+/**
+ * Validates schema.
+ *
+ * This operation requires full schema scan. Do not use in production environment.
+ *
+ * @api
  * @throws InvariantViolation
  */
 function assertValid()
@@ -697,10 +718,25 @@ Parses string containing GraphQL query or [type definition](type-system/type-lan
  * in the source that they correspond to. This configuration flag
  * disables that behavior for performance or testing.)
  *
+ * experimentalFragmentVariables: boolean,
+ * (If enabled, the parser will understand and parse variable definitions
+ * contained in a fragment definition. They'll be represented in the
+ * `variableDefinitions` field of the FragmentDefinitionNode.
+ *
+ * The syntax is identical to normal, query-defined variables. For example:
+ *
+ *   fragment A($var: Boolean = false) on T  {
+ *     ...
+ *   }
+ *
+ * Note: this feature is experimental and may change or be removed in the
+ * future.)
+ *
  * @api
  * @param Source|string $source
  * @param array $options
  * @return DocumentNode
+ * @throws SyntaxError
  */
 static function parse($source, array $options = [])
 ```
@@ -936,7 +972,12 @@ const UNION_TYPE_DEFINITION = "UnionTypeDefinition";
 const ENUM_TYPE_DEFINITION = "EnumTypeDefinition";
 const ENUM_VALUE_DEFINITION = "EnumValueDefinition";
 const INPUT_OBJECT_TYPE_DEFINITION = "InputObjectTypeDefinition";
-const TYPE_EXTENSION_DEFINITION = "TypeExtensionDefinition";
+const SCALAR_TYPE_EXTENSION = "ScalarTypeExtension";
+const OBJECT_TYPE_EXTENSION = "ObjectTypeExtension";
+const INTERFACE_TYPE_EXTENSION = "InterfaceTypeExtension";
+const UNION_TYPE_EXTENSION = "UnionTypeExtension";
+const ENUM_TYPE_EXTENSION = "EnumTypeExtension";
+const INPUT_OBJECT_TYPE_EXTENSION = "InputObjectTypeExtension";
 const DIRECTIVE_DEFINITION = "DirectiveDefinition";
 ```
 
@@ -1319,7 +1360,6 @@ Also it is possible to override warning handler (which is **trigger_error()** by
 
 **Class Constants:** 
 ```php
-const WARNING_NAME = 1;
 const WARNING_ASSIGN = 2;
 const WARNING_CONFIG = 4;
 const WARNING_FULL_SCHEMA_SCAN = 8;
@@ -1352,7 +1392,7 @@ static function setWarningHandler(callable $warningHandler = null)
  * @api
  * @param bool|int $suppress
  */
-static function suppress($suppress = false)
+static function suppress($suppress = true)
 ```
 
 ```php
@@ -1367,7 +1407,7 @@ static function suppress($suppress = false)
  * @api
  * @param bool|int $enable
  */
-static function enable($enable = false)
+static function enable($enable = true)
 ```
 # GraphQL\Error\ClientAware
 This interface is used for [default error formatting](error-handling.md).
@@ -1697,7 +1737,7 @@ function setPersistentQueryLoader(callable $persistentQueryLoader)
  * @param bool|int $set
  * @return $this
  */
-function setDebug($set = false)
+function setDebug($set = true)
 ```
 
 ```php
@@ -1927,13 +1967,19 @@ See [section in docs](type-system/type-language.md) for details.
  * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
  * has no resolve methods, so execution will use default resolvers.
  *
+ * Accepts options as a second argument:
+ *
+ *    - commentDescriptions:
+ *        Provide true to use preceding comments as the description.
+ *
+ *
  * @api
  * @param DocumentNode $ast
- * @param callable $typeConfigDecorator
+ * @param array $options
  * @return Schema
  * @throws Error
  */
-static function buildAST(GraphQL\Language\AST\DocumentNode $ast, callable $typeConfigDecorator = null)
+static function buildAST(GraphQL\Language\AST\DocumentNode $ast, array $options = [])
 ```
 
 ```php
@@ -1943,10 +1989,10 @@ static function buildAST(GraphQL\Language\AST\DocumentNode $ast, callable $typeC
  *
  * @api
  * @param DocumentNode|Source|string $source
- * @param callable $typeConfigDecorator
+ * @param array $options
  * @return Schema
  */
-static function build($source, callable $typeConfigDecorator = null)
+static function build($source, array $options = [])
 ```
 # GraphQL\Utils\AST
 Various utilities dealing with AST
@@ -2051,13 +2097,39 @@ static function valueFromAST($valueNode, GraphQL\Type\Definition\InputType $type
 
 ```php
 /**
+ * Produces a PHP value given a GraphQL Value AST.
+ *
+ * Unlike `valueFromAST()`, no type is provided. The resulting JavaScript value
+ * will reflect the provided GraphQL value AST.
+ *
+ * | GraphQL Value        | PHP Value     |
+ * | -------------------- | ------------- |
+ * | Input Object         | Assoc Array   |
+ * | List                 | Array         |
+ * | Boolean              | Boolean       |
+ * | String               | String        |
+ * | Int / Float          | Int / Float   |
+ * | Enum                 | Mixed         |
+ * | Null                 | null          |
+ *
+ * @api
+ * @param Node $valueNode
+ * @param array|null $variables
+ * @return mixed
+ * @throws \Exception
+ */
+static function valueFromASTUntyped($valueNode, array $variables = null)
+```
+
+```php
+/**
  * Returns type definition for given AST Type node
  *
  * @api
  * @param Schema $schema
  * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
  * @return Type
- * @throws InvariantViolation
+ * @throws \Exception
  */
 static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
 ```
@@ -2079,11 +2151,15 @@ Given an instance of Schema, prints it in GraphQL type language.
 **Class Methods:** 
 ```php
 /**
+ * Accepts options as a second argument:
+ *
+ *    - commentDescriptions:
+ *        Provide true to use preceding comments as the description.
  * @api
  * @param Schema $schema
  * @return string
  */
-static function doPrint(GraphQL\Type\Schema $schema)
+static function doPrint(GraphQL\Type\Schema $schema, array $options = [])
 ```
 
 ```php
@@ -2092,5 +2168,5 @@ static function doPrint(GraphQL\Type\Schema $schema)
  * @param Schema $schema
  * @return string
  */
-static function printIntrosepctionSchema(GraphQL\Type\Schema $schema)
+static function printIntrosepctionSchema(GraphQL\Type\Schema $schema, array $options = [])
 ```

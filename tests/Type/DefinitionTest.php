@@ -74,10 +74,7 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
     public function setUp()
     {
-        $this->objectType = new ObjectType([
-            'name' => 'Object',
-            'isTypeOf' => function() {return true;}
-        ]);
+        $this->objectType = new ObjectType(['name' => 'Object']);
         $this->interfaceType = new InterfaceType(['name' => 'Interface']);
         $this->unionType = new UnionType(['name' => 'Union', 'types' => [$this->objectType]]);
         $this->enumType = new EnumType(['name' => 'Enum']);
@@ -363,7 +360,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 'f' => ['type' => Type::int()]
             ],
             'interfaces' => [$someInterface],
-            'isTypeOf' => function() {return true;}
         ]);
 
         $schema = new Schema([
@@ -391,7 +387,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
                 'f' => ['type' => Type::int()]
             ],
             'interfaces' => function() use (&$someInterface) { return [$someInterface]; },
-            'isTypeOf' => function() {return true;}
         ]);
 
         $someInterface = new InterfaceType([
@@ -470,46 +465,6 @@ class DefinitionTest extends \PHPUnit_Framework_TestCase
 
         foreach ($expected as $index => $entry) {
             $this->assertSame($entry[1], Type::isOutputType($entry[0]), "Type {$entry[0]} was detected incorrectly");
-        }
-    }
-
-    /**
-     * @it prohibits nesting NonNull inside NonNull
-     */
-    public function testProhibitsNonNullNesting()
-    {
-        $this->setExpectedException('\Exception');
-        new NonNull(new NonNull(Type::int()));
-    }
-
-    /**
-     * @it prohibits putting non-Object types in unions
-     */
-    public function testProhibitsPuttingNonObjectTypesInUnions()
-    {
-        $int = Type::int();
-
-        $badUnionTypes = [
-            $int,
-            new NonNull($int),
-            new ListOfType($int),
-            $this->interfaceType,
-            $this->unionType,
-            $this->enumType,
-            $this->inputObjectType
-        ];
-
-        foreach ($badUnionTypes as $type) {
-            try {
-                $union = new UnionType(['name' => 'BadUnion', 'types' => [$type]]);
-                $union->assertValid();
-                $this->fail('Expected exception not thrown');
-            } catch (\Exception $e) {
-                $this->assertSame(
-                    'BadUnion may only contain Object types, it cannot contain: ' . Utils::printSafe($type) . '.',
-                    $e->getMessage()
-                );
-            }
         }
     }
 

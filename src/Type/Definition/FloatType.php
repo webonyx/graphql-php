@@ -2,7 +2,6 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Utils\Utils;
@@ -29,39 +28,50 @@ values as specified by
     /**
      * @param mixed $value
      * @return float|null
+     * @throws Error
      */
     public function serialize($value)
     {
-        if (is_numeric($value) || $value === true || $value === false) {
-            return (float) $value;
-        }
-
-        if ($value === '') {
-            $err = 'Float cannot represent non numeric value: (empty string)';
-        } else {
-            $err = sprintf('Float cannot represent non numeric value: %s', Utils::printSafe($value));
-        }
-        throw new InvariantViolation($err);
+        return $this->coerceFloat($value);
     }
 
     /**
      * @param mixed $value
      * @return float|null
+     * @throws Error
      */
     public function parseValue($value)
     {
-        return (is_numeric($value) && !is_string($value)) ? (float) $value : null;
+        return $this->coerceFloat($value);
     }
 
     /**
-     * @param $ast
+     * @param $valueNode
+     * @param array|null $variables
      * @return float|null
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof FloatValueNode || $ast instanceof IntValueNode) {
-            return (float) $ast->value;
+        if ($valueNode instanceof FloatValueNode || $valueNode instanceof IntValueNode) {
+            return (float) $valueNode->value;
         }
-        return null;
+        return Utils::undefined();
+    }
+
+    private function coerceFloat($value) {
+        if ($value === '') {
+            throw new Error(
+                'Float cannot represent non numeric value: (empty string)'
+            );
+        }
+
+        if (!is_numeric($value) && $value !== true && $value !== false) {
+            throw new Error(
+                'Float cannot represent non numeric value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return (float) $value;
     }
 }

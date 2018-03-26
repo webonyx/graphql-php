@@ -1,8 +1,10 @@
 <?php
 namespace GraphQL\Utils;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use \Traversable, \InvalidArgumentException;
@@ -16,11 +18,22 @@ class Utils
     }
 
     /**
+     * Check if the value is invalid
+     *
+     * @param mixed $value
+     * @return bool
+     */
+    public static function isInvalid($value)
+    {
+        return self::undefined() === $value;
+    }
+
+    /**
      * @param object $obj
      * @param array  $vars
      * @param array  $requiredKeys
      *
-     * @return array
+     * @return object
      */
     public static function assign($obj, array $vars, array $requiredKeys = [])
     {
@@ -218,7 +231,7 @@ class Utils
      * @param string $message
      * @param mixed $sprintfParam1
      * @param mixed $sprintfParam2 ...
-     * @throws InvariantViolation
+     * @throws Error
      */
     public static function invariant($test, $message = '')
     {
@@ -228,6 +241,7 @@ class Utils
                 array_shift($args);
                 $message = call_user_func_array('sprintf', $args);
             }
+            // TODO switch to Error here
             throw new InvariantViolation($message);
         }
     }
@@ -258,22 +272,7 @@ class Utils
             $var = (array) $var;
         }
         if (is_array($var)) {
-            $count = count($var);
-            if (!isset($var[0]) && $count > 0) {
-                $keys = [];
-                $keyCount = 0;
-                foreach ($var as $key => $value) {
-                    $keys[] = '"' . $key . '"';
-                    if ($keyCount++ > 4) {
-                        break;
-                    }
-                }
-                $keysLabel = $keyCount === 1 ? 'key' : 'keys';
-                $msg = "object with first $keysLabel: " . implode(', ', $keys);
-            } else {
-                $msg = "array($count)";
-            }
-            return $msg;
+            return json_encode($var);
         }
         if ('' === $var) {
             return '(empty string)';
@@ -285,7 +284,7 @@ class Utils
             return 'false';
         }
         if (true === $var) {
-            return 'false';
+            return 'true';
         }
         if (is_string($var)) {
             return "\"$var\"";
@@ -306,25 +305,14 @@ class Utils
             return $var->toString();
         }
         if (is_object($var)) {
-            return 'instance of ' . get_class($var);
+            if (method_exists($var, '__toString')) {
+                return (string) $var;
+            } else {
+                return 'instance of ' . get_class($var);
+            }
         }
         if (is_array($var)) {
-            $count = count($var);
-            if (!isset($var[0]) && $count > 0) {
-                $keys = [];
-                $keyCount = 0;
-                foreach ($var as $key => $value) {
-                    $keys[] = '"' . $key . '"';
-                    if ($keyCount++ > 4) {
-                        break;
-                    }
-                }
-                $keysLabel = $keyCount === 1 ? 'key' : 'keys';
-                $msg = "associative array($count) with first $keysLabel: " . implode(', ', $keys);
-            } else {
-                $msg = "array($count)";
-            }
-            return $msg;
+            return json_encode($var);
         }
         if ('' === $var) {
             return '(empty string)';
@@ -339,7 +327,7 @@ class Utils
             return 'true';
         }
         if (is_string($var)) {
-            return "\"$var\"";
+            return $var;
         }
         if (is_scalar($var)) {
             return (string) $var;
@@ -418,34 +406,46 @@ class Utils
     }
 
     /**
+     * Upholds the spec rules about naming.
+     *
      * @param $name
-     * @param bool $isIntrospection
-     * @throws InvariantViolation
+     * @throws Error
      */
-    public static function assertValidName($name, $isIntrospection = false)
+    public static function assertValidName($name)
     {
-        $regex = '/^[_a-zA-Z][_a-zA-Z0-9]*$/';
+        $error = self::isValidNameError($name);
+        if ($error) {
+            throw $error;
+        }
+    }
 
-        if (!$name || !is_string($name)) {
-            throw new InvariantViolation(
-                "Must be named. Unexpected name: " . self::printSafe($name)
+    /**
+     * Returns an Error if a name is invalid.
+     *
+     * @param string $name
+     * @param Node|null $node
+     * @return Error|null
+     */
+    public static function isValidNameError($name, $node = null)
+    {
+        Utils::invariant(is_string($name), 'Expected string');
+
+        if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
+            return new Error(
+                "Name \"{$name}\" must not begin with \"__\", which is reserved by " .
+                "GraphQL introspection.",
+                $node
             );
         }
 
-        if (!$isIntrospection && isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
-            Warning::warnOnce(
-                'Name "'.$name.'" must not begin with "__", which is reserved by ' .
-                'GraphQL introspection. In a future release of graphql this will ' .
-                'become an exception',
-                Warning::WARNING_NAME
+        if (!preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
+            return new Error(
+                "Names must match /^[_a-zA-Z][_a-zA-Z0-9]*\$/ but \"{$name}\" does not.",
+                $node
             );
         }
 
-        if (!preg_match($regex, $name)) {
-            throw new InvariantViolation(
-                'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "'.$name.'" does not.'
-            );
-        }
+        return null;
     }
 
     /**
@@ -470,5 +470,73 @@ class Utils
                 restore_error_handler();
             }
         };
+    }
+
+
+    /**
+     * @param string[] $items
+     * @return string
+     */
+    public static function quotedOrList(array $items)
+    {
+        $items = array_map(function($item) { return "\"$item\""; }, $items);
+        return self::orList($items);
+    }
+
+    public static function orList(array $items)
+    {
+        if (!$items) {
+            throw new \LogicException('items must not need to be empty.');
+        }
+        $selected = array_slice($items, 0, 5);
+        $selectedLength = count($selected);
+        $firstSelected = $selected[0];
+
+        if ($selectedLength === 1) {
+            return $firstSelected;
+        }
+
+        return array_reduce(
+            range(1, $selectedLength - 1),
+            function ($list, $index) use ($selected, $selectedLength) {
+                return $list.
+                    ($selectedLength > 2 ? ', ' : ' ') .
+                    ($index === $selectedLength - 1 ? 'or ' : '') .
+                    $selected[$index];
+            },
+            $firstSelected
+        );
+    }
+
+    /**
+     * Given an invalid input string and a list of valid options, returns a filtered
+     * list of valid options sorted based on their similarity with the input.
+     *
+     * Includes a custom alteration from Damerau-Levenshtein to treat case changes
+     * as a single edit which helps identify mis-cased values with an edit distance
+     * of 1
+     * @param string $input
+     * @param array $options
+     * @return string[]
+     */
+    public static function suggestionList($input, array $options)
+    {
+        $optionsByDistance = [];
+        $inputThreshold = mb_strlen($input) / 2;
+        foreach ($options as $option) {
+            $distance = $input === $option
+                ? 0
+                : (strtolower($input) === strtolower($option)
+                    ? 1
+                    : levenshtein($input, $option));
+            $threshold = max($inputThreshold, mb_strlen($option) / 2, 1);
+            if ($distance <= $threshold) {
+                $optionsByDistance[$option] = $distance;
+            }
+        }
+
+        asort($optionsByDistance);
+
+        return array_keys($optionsByDistance);
     }
 }

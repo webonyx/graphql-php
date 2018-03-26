@@ -2,13 +2,11 @@
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
-use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\UnionType;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 
 class OverlappingFieldsCanBeMergedTest extends TestCase
@@ -296,12 +294,12 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
                 [new SourceLocation(18, 9), new SourceLocation(21, 9)]
             ),
             FormattedError::create(
-                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and c are different fields'),
-                [new SourceLocation(18, 9), new SourceLocation(14, 11)]
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'c and a are different fields'),
+                [new SourceLocation(14, 11), new SourceLocation(18, 9)]
             ),
             FormattedError::create(
-                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'b and c are different fields'),
-                [new SourceLocation(21, 9), new SourceLocation(14, 11)]
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'c and b are different fields'),
+                [new SourceLocation(14, 11), new SourceLocation(21, 9)]
             )
         ]);
     }
@@ -434,6 +432,113 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         ]);
     }
 
+    /**
+     * @it reports deep conflict to nearest common ancestor in fragments
+     */
+    public function testReportsDeepConflictToNearestCommonAncestorInFragments()
+    {
+        $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
+      {
+        field {
+          ...F
+        }
+        field {
+          ...F
+        }
+      }
+      fragment F on T {
+        deepField {
+          deeperField {
+            x: a
+          }
+          deeperField {
+            x: b
+          }
+        }
+        deepField {
+          deeperField {
+            y
+          }
+        }
+      }
+        ', [
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('deeperField', [['x', 'a and b are different fields']]),
+                [
+                    new SourceLocation(12,11),
+                    new SourceLocation(13,13),
+                    new SourceLocation(15,11),
+                    new SourceLocation(16,13),
+                ]
+            )
+        ]);
+    }
+
+    /**
+     * @it reports deep conflict in nested fragments
+     */
+    public function testReportsDeepConflictInNestedFragments()
+    {
+        $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
+      {
+        field {
+          ...F
+        }
+        field {
+          ...I
+        }
+      }
+      fragment F on T {
+        x: a
+        ...G
+      }
+      fragment G on T {
+        y: c
+      }
+      fragment I on T {
+        y: d
+        ...J
+      }
+      fragment J on T {
+        x: b
+      }
+        ', [
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('field', [
+                    ['x', 'a and b are different fields'],
+                    ['y', 'c and d are different fields'],
+                ]),
+                [
+                    new SourceLocation(3,9),
+                    new SourceLocation(11,9),
+                    new SourceLocation(15,9),
+                    new SourceLocation(6,9),
+                    new SourceLocation(22,9),
+                    new SourceLocation(18,9),
+                ]
+            )
+        ]);
+    }
+
+    /**
+     * @it ignores unknown fragments
+     */
+    public function testIgnoresUnknownFragments()
+    {
+        $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
+      {
+        field {
+          ...Unknown
+          ...Known
+        }
+      }
+      fragment Known on T {
+        field
+        ...OtherUnknown
+      }
+        ');
+    }
+
     // Describe: return types must be unambiguous
 
     /**
@@ -445,7 +550,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         // type IntBox and the interface type NonNullStringBox1. While that
         // condition does not exist in the current schema, the schema could
         // expand in the future to allow this. Thus it is invalid.
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ...on IntBox {
@@ -476,7 +581,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         // In this case `deepBox` returns `SomeBox` in the first usage, and
         // `StringBox` in the second usage. These return types are not the same!
         // however this is valid because the return *shapes* are compatible.
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
       {
         someBox {
           ... on SomeBox {
@@ -499,7 +604,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testDisallowsDifferingReturnTypesDespiteNoOverlap()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -523,11 +628,75 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
     }
 
     /**
+     * @it reports correctly when a non-exclusive follows an exclusive
+     */
+    public function testReportsCorrectlyWhenANonExclusiveFollowsAnExclusive()
+    {
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
+        {
+          someBox {
+            ... on IntBox {
+              deepBox {
+                ...X
+              }
+            }
+          }
+          someBox {
+            ... on StringBox {
+              deepBox {
+                ...Y
+              }
+            }
+          }
+          memoed: someBox {
+            ... on IntBox {
+              deepBox {
+                ...X
+              }
+            }
+          }
+          memoed: someBox {
+            ... on StringBox {
+              deepBox {
+                ...Y
+              }
+            }
+          }
+          other: someBox {
+            ...X
+          }
+          other: someBox {
+            ...Y
+          }
+        }
+        fragment X on SomeBox {
+          scalar
+        }
+        fragment Y on SomeBox {
+          scalar: unrelatedField
+        }
+        ', [
+            FormattedError::create(
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage(
+                    'other',
+                    [['scalar', 'scalar and unrelatedField are different fields']]
+                ),
+                [
+                    new SourceLocation(31, 11),
+                    new SourceLocation(39, 11),
+                    new SourceLocation(34, 11),
+                    new SourceLocation(42, 11),
+                ]
+            )
+        ]);
+    }
+
+    /**
      * @it disallows differing return type nullability despite no overlap
      */
     public function testDisallowsDifferingReturnTypeNullabilityDespiteNoOverlap()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on NonNullStringBox1 {
@@ -555,7 +724,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testDisallowsDifferingReturnTypeListDespiteNoOverlap()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -582,7 +751,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         ]);
 
 
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -611,7 +780,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
     public function testDisallowsDifferingSubfields()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -645,7 +814,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testDisallowsDifferingDeepReturnTypesDespiteNoOverlap()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -681,7 +850,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testAllowsNonConflictingOverlapingTypes()
     {
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ... on IntBox {
@@ -700,7 +869,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testSameWrappedScalarReturnTypes()
     {
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ...on NonNullStringBox1 {
@@ -719,7 +888,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testAllowsInlineTypelessFragments()
     {
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           a
           ... {
@@ -734,7 +903,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testComparesDeepTypesIncludingList()
     {
-        $this->expectFailsRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectFailsRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           connection {
             ...edgeID
@@ -755,14 +924,14 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         }
       ', [
             FormattedError::create(
-                OverlappingFieldsCanBeMerged::fieldsConflictMessage('edges', [['node', [['id', 'id and name are different fields']]]]),
+                OverlappingFieldsCanBeMerged::fieldsConflictMessage('edges', [['node', [['id', 'name and id are different fields']]]]),
                 [
-                    new SourceLocation(14, 11),
-                    new SourceLocation(15, 13),
-                    new SourceLocation(16, 15),
                     new SourceLocation(5, 13),
                     new SourceLocation(6, 15),
                     new SourceLocation(7, 17),
+                    new SourceLocation(14, 11),
+                    new SourceLocation(15, 13),
+                    new SourceLocation(16, 15),
                 ]
             )
         ]);
@@ -773,7 +942,7 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
      */
     public function testIgnoresUnknownTypes()
     {
-        $this->expectPassesRuleWithSchema($this->getTestSchema(), new OverlappingFieldsCanBeMerged, '
+        $this->expectPassesRuleWithSchema($this->getSchema(), new OverlappingFieldsCanBeMerged, '
         {
           someBox {
             ...on UnknownType {
@@ -787,7 +956,78 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
         ');
     }
 
-    private function getTestSchema()
+    /**
+     * @it error message contains hint for alias conflict
+     */
+    public function testErrorMessageContainsHintForAliasConflict()
+    {
+        // The error template should end with a hint for the user to try using
+        // different aliases.
+        $error = OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and b are different fields');
+        $hint = 'Use different aliases on the fields to fetch both if this was intentional.';
+
+        $this->assertStringEndsWith($hint, $error);
+    }
+
+    /**
+     * @it does not infinite loop on recursive fragment
+     */
+    public function testDoesNotInfiniteLoopOnRecursiveFragment()
+    {
+        $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
+        fragment fragA on Human { name, relatives { name, ...fragA } }
+        ');
+    }
+
+    /**
+     * @it does not infinite loop on immediately recursive fragment
+     */
+    public function testDoesNotInfiniteLoopOnImmeditelyRecursiveFragment()
+    {
+        $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
+        fragment fragA on Human { name, ...fragA }
+        ');
+    }
+
+    /**
+     * @it does not infinite loop on transitively recursive fragment
+     */
+    public function testDoesNotInfiniteLoopOnTransitivelyRecursiveFragment()
+    {
+        $this->expectPassesRule(new OverlappingFieldsCanBeMerged, '
+        fragment fragA on Human { name, ...fragB }
+        fragment fragB on Human { name, ...fragC }
+        fragment fragC on Human { name, ...fragA }
+        ');
+    }
+
+    /**
+     * @it find invalid case even with immediately recursive fragment
+     */
+    public function testFindInvalidCaseEvenWithImmediatelyRecursiveFragment()
+    {
+        $this->expectFailsRule(new OverlappingFieldsCanBeMerged, '
+      fragment sameAliasesWithDifferentFieldTargets on Dob {
+        ...sameAliasesWithDifferentFieldTargets
+        fido: name
+        fido: nickname
+      }
+        ',
+            [
+                FormattedError::create(
+                    OverlappingFieldsCanBeMerged::fieldsConflictMessage(
+                        'fido',
+                        'name and nickname are different fields'
+                    ),
+                    [
+                        new SourceLocation(4, 9),
+                        new SourceLocation(5, 9),
+                    ]
+                )
+            ]);
+    }
+
+    private function getSchema()
     {
         $StringBox = null;
         $IntBox = null;
@@ -795,7 +1035,6 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $SomeBox = new InterfaceType([
             'name' => 'SomeBox',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
             'fields' => function() use (&$SomeBox) {
                 return [
                     'deepBox' => ['type' => $SomeBox],
@@ -837,7 +1076,6 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $NonNullStringBox1 = new InterfaceType([
             'name' => 'NonNullStringBox1',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
             'fields' => [
                 'scalar' => [ 'type' => Type::nonNull(Type::string()) ]
             ]
@@ -855,7 +1093,6 @@ class OverlappingFieldsCanBeMergedTest extends TestCase
 
         $NonNullStringBox2 = new InterfaceType([
             'name' => 'NonNullStringBox2',
-            'resolveType' => function() use (&$StringBox) {return $StringBox;},
             'fields' => [
                 'scalar' => ['type' => Type::nonNull(Type::string())]
             ]

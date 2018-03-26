@@ -42,20 +42,21 @@ class UrlType extends ScalarType
     /**
      * Parses an externally provided literal value to use as an input (e.g. in Query AST)
      *
-     * @param $ast Node
+     * @param Node $valueNode
+     * @param array|null $variables
      * @return null|string
      * @throws Error
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
         // Note: throwing GraphQL\Error\Error vs \UnexpectedValueException to benefit from GraphQL
         // error location in query:
-        if (!($ast instanceof StringValueNode)) {
-            throw new Error('Query error: Can only parse strings got: ' . $ast->kind, [$ast]);
+        if (!($valueNode instanceof StringValueNode)) {
+            throw new Error('Query error: Can only parse strings got: ' . $valueNode->kind, [$valueNode]);
         }
-        if (!is_string($ast->value) || !filter_var($ast->value, FILTER_VALIDATE_URL)) {
-            throw new Error('Query error: Not a valid URL', [$ast]);
+        if (!is_string($valueNode->value) || !filter_var($valueNode->value, FILTER_VALIDATE_URL)) {
+            throw new Error('Query error: Not a valid URL', [$valueNode]);
         }
-        return $ast->value;
+        return $valueNode->value;
     }
 }

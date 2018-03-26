@@ -61,7 +61,13 @@ class PossibleFragmentSpreads extends AbstractValidationRule
     private function getFragmentType(ValidationContext $context, $name)
     {
         $frag = $context->getFragment($name);
-        return $frag ? TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition) : null;
+        if ($frag) {
+            $type = TypeInfo::typeFromAST($context->getSchema(), $frag->typeCondition);
+            if ($type instanceof CompositeType) {
+                return $type;
+            }
+        }
+        return null;
     }
 
     private function doTypesOverlap(Schema $schema, CompositeType $fragType, CompositeType $parentType)

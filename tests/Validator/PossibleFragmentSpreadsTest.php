@@ -129,6 +129,17 @@ class PossibleFragmentSpreadsTest extends TestCase
     }
 
     /**
+     * @it ignores incorrect type (caught by FragmentsOnCompositeTypes)
+     */
+    public function testIgnoresIncorrectTypeCaughtByFragmentsOnCompositeTypes()
+    {
+        $this->expectPassesRule(new PossibleFragmentSpreads, '
+      fragment petFragment on Pet { ...badInADifferentWay }
+      fragment badInADifferentWay on String { name }
+        ');
+    }
+
+    /**
      * @it different object into object
      */
     public function testDifferentObjectIntoObject()

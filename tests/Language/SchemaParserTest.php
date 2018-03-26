@@ -4,6 +4,7 @@ namespace GraphQL\Tests\Language;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
+use GraphQL\Language\SourceLocation;
 
 class SchemaParserTest extends \PHPUnit_Framework_TestCase
 {
@@ -46,6 +47,93 @@ type Hello {
     }
 
     /**
+     * @it parses type with description string
+     */
+    public function testParsesTypeWithDescriptionString()
+    {
+        $body = '
+"Description"
+type Hello {
+  world: String
+}';
+        $doc = Parser::parse($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
+                    'name' => $this->nameNode('Hello', $loc(20, 25)),
+                    'interfaces' => [],
+                    'directives' => [],
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('world', $loc(30, 35)),
+                            $this->typeNode('String', $loc(37, 43)),
+                            $loc(30, 43)
+                        )
+                    ],
+                    'loc' => $loc(1, 45),
+                    'description' => [
+                        'kind' => NodeKind::STRING,
+                        'value' => 'Description',
+                        'loc' => $loc(1, 14),
+                        'block' => false
+                    ]
+                ]
+            ],
+            'loc' => $loc(0, 45)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it parses type with description multi-linestring
+     */
+    public function testParsesTypeWithDescriptionMultiLineString()
+    {
+        $body = '
+"""
+Description
+"""
+# Even with comments between them
+type Hello {
+  world: String
+}';
+        $doc = Parser::parse($body);
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
+                    'name' => $this->nameNode('Hello', $loc(60, 65)),
+                    'interfaces' => [],
+                    'directives' => [],
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('world', $loc(70, 75)),
+                            $this->typeNode('String', $loc(77, 83)),
+                            $loc(70, 83)
+                        )
+                    ],
+                    'loc' => $loc(1, 85),
+                    'description' => [
+                        'kind' => NodeKind::STRING,
+                        'value' => 'Description',
+                        'loc' => $loc(1, 20),
+                        'block' => true
+                    ]
+                ]
+            ],
+            'loc' => $loc(0, 85)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
      * @it Simple extension
      */
     public function testSimpleExtension()
@@ -63,21 +151,16 @@ extend type Hello {
             'kind' => NodeKind::DOCUMENT,
             'definitions' => [
                 [
-                    'kind' => NodeKind::TYPE_EXTENSION_DEFINITION,
-                    'definition' => [
-                        'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
-                        'name' => $this->nameNode('Hello', $loc(13, 18)),
-                        'interfaces' => [],
-                        'directives' => [],
-                        'fields' => [
-                            $this->fieldNode(
-                                $this->nameNode('world', $loc(23, 28)),
-                                $this->typeNode('String', $loc(30, 36)),
-                                $loc(23, 36)
-                            )
-                        ],
-                        'loc' => $loc(8, 38),
-                        'description' => null
+                    'kind' => NodeKind::OBJECT_TYPE_EXTENSION,
+                    'name' => $this->nameNode('Hello', $loc(13, 18)),
+                    'interfaces' => [],
+                    'directives' => [],
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('world', $loc(23, 28)),
+                            $this->typeNode('String', $loc(30, 36)),
+                            $loc(23, 36)
+                        )
                     ],
                     'loc' => $loc(1, 38)
                 ]
@@ -85,6 +168,81 @@ extend type Hello {
             'loc' => $loc(0, 39)
         ];
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it Extension without fields
+     */
+    public function testExtensionWithoutFields()
+    {
+        $body = 'extend type Hello implements Greeting';
+        $doc = Parser::parse($body);
+        $loc = function($start, $end) {
+            return TestUtils::locArray($start, $end);
+        };
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OBJECT_TYPE_EXTENSION,
+                    'name' => $this->nameNode('Hello', $loc(12, 17)),
+                    'interfaces' => [
+                        $this->typeNode('Greeting', $loc(29, 37)),
+                    ],
+                    'directives' => [],
+                    'fields' => [],
+                    'loc' => $loc(0, 37)
+                ]
+            ],
+            'loc' => $loc(0, 37)
+        ];
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it Extension without anything throws
+     */
+    public function testExtensionWithoutAnythingThrows()
+    {
+        $this->expectSyntaxError(
+            'extend type Hello',
+            'Unexpected <EOF>',
+            $this->loc(1, 18)
+        );
+    }
+
+    /**
+     * @it Extension do not include descriptions
+     */
+    public function testExtensionDoNotIncludeDescriptions()
+    {
+        $body = '
+      "Description"
+      extend type Hello {
+        world: String
+      }';
+        $this->expectSyntaxError(
+            $body,
+            'Unexpected Name "extend"',
+            $this->loc(3, 7)
+        );
+    }
+
+    /**
+     * @it Extension do not include descriptions
+     */
+    public function testExtensionDoNotIncludeDescriptions2()
+    {
+        $body = '
+      extend "Description" type Hello {
+        world: String
+      }
+}';
+        $this->expectSyntaxError(
+            $body,
+            'Unexpected String "Description"',
+            $this->loc(2, 14)
+        );
     }
 
     /**
@@ -135,7 +293,7 @@ type Hello {
      */
     public function testSimpleTypeInheritingInterface()
     {
-        $body = 'type Hello implements World { }';
+        $body = 'type Hello implements World { field: String }';
         $loc = function($start, $end) { return TestUtils::locArray($start, $end); };
         $doc = Parser::parse($body);
 
@@ -149,12 +307,18 @@ type Hello {
                         $this->typeNode('World', $loc(22, 27))
                     ],
                     'directives' => [],
-                    'fields' => [],
-                    'loc' => $loc(0,31),
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(30, 35)),
+                            $this->typeNode('String', $loc(37, 43)),
+                            $loc(30, 43)
+                        )
+                    ],
+                    'loc' => $loc(0, 45),
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0,31)
+            'loc' => $loc(0, 45)
         ];
 
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
@@ -165,7 +329,7 @@ type Hello {
      */
     public function testSimpleTypeInheritingMultipleInterfaces()
     {
-        $body = 'type Hello implements Wo, rld { }';
+        $body = 'type Hello implements Wo, rld { field: String }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $doc = Parser::parse($body);
 
@@ -180,12 +344,18 @@ type Hello {
                         $this->typeNode('rld', $loc(26,29))
                     ],
                     'directives' => [],
-                    'fields' => [],
-                    'loc' => $loc(0, 33),
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(32, 37)),
+                            $this->typeNode('String', $loc(39, 45)),
+                            $loc(32, 45)
+                        )
+                    ],
+                    'loc' => $loc(0, 47),
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0, 33)
+            'loc' => $loc(0, 47)
         ];
 
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
@@ -556,9 +726,11 @@ type Hello {
      */
     public function testUnionFailsWithNoTypes()
     {
-        $body = 'union Hello = |';
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:16) Expected Name, found <EOF>', '/') . '/');
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            'union Hello = |',
+            'Expected Name, found <EOF>',
+            $this->loc(1, 16)
+        );
     }
 
     /**
@@ -566,9 +738,11 @@ type Hello {
      */
     public function testUnionFailsWithLeadingDoublePipe()
     {
-        $body = 'union Hello = || Wo | Rld';
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:16) Expected Name, found |', '/') . '/');
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            'union Hello = || Wo | Rld',
+            'Expected Name, found |',
+            $this->loc(1, 16)
+        );
     }
 
     /**
@@ -576,9 +750,11 @@ type Hello {
      */
     public function testUnionFailsWithDoublePipe()
     {
-        $body = 'union Hello = Wo || Rld';
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:19) Expected Name, found |', '/') . '/');
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            'union Hello = Wo || Rld',
+            'Expected Name, found |',
+            $this->loc(1, 19)
+        );
     }
 
     /**
@@ -586,9 +762,11 @@ type Hello {
      */
     public function testUnionFailsWithTrailingPipe()
     {
-        $body = 'union Hello = | Wo | Rld |';
-        $this->setExpectedExceptionRegExp(SyntaxError::class, '/' . preg_quote('Syntax Error GraphQL (1:27) Expected Name, found <EOF>', '/') . '/');
-        Parser::parse($body);
+        $this->expectSyntaxError(
+            'union Hello = | Wo | Rld |',
+            'Expected Name, found <EOF>',
+            $this->loc(1, 27)
+        );
     }
 
     /**
@@ -657,52 +835,29 @@ input Hello {
     public function testSimpleInputObjectWithArgsShouldFail()
     {
         $body = '
-input Hello {
-  world(foo: Int): String
-}';
-        $this->setExpectedException('GraphQL\Error\SyntaxError');
-        Parser::parse($body);
+      input Hello {
+        world(foo: Int): String
+      }';
+        $this->expectSyntaxError(
+            $body,
+            'Expected :, found (',
+            $this->loc(3, 14)
+        );
     }
 
     /**
-     * @it Simple type
+     * @it Directive with incorrect locations
      */
-    public function testSimpleTypeDescriptionInComments()
+    public function testDirectiveWithIncorrectLocationShouldFail()
     {
         $body = '
-# This is a simple type description.
-# It is multiline *and includes formatting*.
-type Hello {
-  # And this is a field description
-  world: String
-}';
-        $doc = Parser::parse($body);
-        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
-
-        $fieldNode = $this->fieldNode(
-            $this->nameNode('world', $loc(134, 139)),
-            $this->typeNode('String', $loc(141, 147)),
-            $loc(134, 147)
+      directive @foo on FIELD | INCORRECT_LOCATION
+';
+        $this->expectSyntaxError(
+            $body,
+            'Unexpected Name "INCORRECT_LOCATION"',
+            $this->loc(2, 33)
         );
-        $fieldNode['description'] = " And this is a field description\n";
-        $expected = [
-            'kind' => NodeKind::DOCUMENT,
-            'definitions' => [
-                [
-                    'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
-                    'name' => $this->nameNode('Hello', $loc(88, 93)),
-                    'interfaces' => [],
-                    'directives' => [],
-                    'fields' => [
-                        $fieldNode
-                    ],
-                    'loc' => $loc(83, 149),
-                    'description' => " This is a simple type description.\n It is multiline *and includes formatting*.\n"
-                ]
-            ],
-            'loc' => $loc(0, 149)
-        ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     private function typeNode($name, $loc)
@@ -763,5 +918,21 @@ type Hello {
             'loc' => $loc,
             'description' => null
         ];
+    }
+
+    private function loc($line, $column)
+    {
+        return new SourceLocation($line, $column);
+    }
+
+    private function expectSyntaxError($text, $message, $location)
+    {
+        $this->setExpectedException(SyntaxError::class, $message);
+        try {
+            Parser::parse($text);
+        } catch (SyntaxError $error) {
+            $this->assertEquals([$location], $error->getLocations());
+            throw $error;
+        }
     }
 }

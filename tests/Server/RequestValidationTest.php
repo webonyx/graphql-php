@@ -70,7 +70,7 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInputError(
             $parsedBody,
-            'GraphQL Request parameter "query" must be string, but got object with first key: "t"'
+            'GraphQL Request parameter "query" must be string, but got {"t":"{my query}"}'
         );
     }
 
@@ -82,7 +82,7 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInputError(
             $parsedBody,
-            'GraphQL Request parameter "queryId" must be string, but got object with first key: "t"'
+            'GraphQL Request parameter "queryId" must be string, but got {"t":"{my query}"}'
         );
     }
 
@@ -95,7 +95,7 @@ class RequestValidationTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInputError(
             $parsedBody,
-            'GraphQL Request parameter "operation" must be string, but got array(0)'
+            'GraphQL Request parameter "operation" must be string, but got []'
         );
     }
 

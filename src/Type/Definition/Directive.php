@@ -2,6 +2,8 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\DirectiveDefinitionNode;
+use GraphQL\Language\DirectiveLocation;
+use GraphQL\Utils\Utils;
 
 /**
  * Class Directive
@@ -17,35 +19,6 @@ class Directive
     public static $internalDirectives;
 
     // Schema Definitions
-
-
-    /**
-     * @var array
-     * @deprecated as of 8.0 (use DirectiveLocation constants directly)
-     */
-    public static $directiveLocations = [
-        // Operations:
-        DirectiveLocation::QUERY => DirectiveLocation::QUERY,
-        DirectiveLocation::MUTATION => DirectiveLocation::MUTATION,
-        DirectiveLocation::SUBSCRIPTION => DirectiveLocation::SUBSCRIPTION,
-        DirectiveLocation::FIELD => DirectiveLocation::FIELD,
-        DirectiveLocation::FRAGMENT_DEFINITION => DirectiveLocation::FRAGMENT_DEFINITION,
-        DirectiveLocation::FRAGMENT_SPREAD => DirectiveLocation::FRAGMENT_SPREAD,
-        DirectiveLocation::INLINE_FRAGMENT => DirectiveLocation::INLINE_FRAGMENT,
-
-        // Schema Definitions
-        DirectiveLocation::SCHEMA => DirectiveLocation::SCHEMA,
-        DirectiveLocation::SCALAR => DirectiveLocation::SCALAR,
-        DirectiveLocation::OBJECT => DirectiveLocation::OBJECT,
-        DirectiveLocation::FIELD_DEFINITION => DirectiveLocation::FIELD_DEFINITION,
-        DirectiveLocation::ARGUMENT_DEFINITION => DirectiveLocation::ARGUMENT_DEFINITION,
-        DirectiveLocation::IFACE => DirectiveLocation::IFACE,
-        DirectiveLocation::UNION => DirectiveLocation::UNION,
-        DirectiveLocation::ENUM => DirectiveLocation::ENUM,
-        DirectiveLocation::ENUM_VALUE => DirectiveLocation::ENUM_VALUE,
-        DirectiveLocation::INPUT_OBJECT => DirectiveLocation::INPUT_OBJECT,
-        DirectiveLocation::INPUT_FIELD_DEFINITION => DirectiveLocation::INPUT_FIELD_DEFINITION
-    ];
 
     /**
      * @return Directive
@@ -72,6 +45,15 @@ class Directive
     {
         $internal = self::getInternalDirectives();
         return $internal['deprecated'];
+    }
+
+    /**
+     * @param Directive $directive
+     * @return bool
+     */
+    public static function isSpecifiedDirective(Directive $directive)
+    {
+        return in_array($directive->name, array_keys(self::getInternalDirectives()));
     }
 
     /**
@@ -178,6 +160,9 @@ class Directive
         foreach ($config as $key => $value) {
             $this->{$key} = $value;
         }
+
+        Utils::invariant($this->name, 'Directive must be named.');
+        Utils::invariant(is_array($this->locations), 'Must provide locations for directive.');
         $this->config = $config;
     }
 }

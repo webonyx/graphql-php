@@ -11,7 +11,7 @@ use GraphQL\Utils\Utils;
  * Class EnumType
  * @package GraphQL\Type\Definition
  */
-class EnumType extends Type implements InputType, OutputType, LeafType
+class EnumType extends Type implements InputType, OutputType, LeafType, NamedType
 {
     /**
      * @var EnumTypeDefinitionNode|null
@@ -39,7 +39,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::assertValidName($config['name'], !empty($config['isIntrospection']));
+        Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         Config::validate($config, [
             'name' => Config::NAME | Config::REQUIRED,
@@ -108,25 +108,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     public function serialize($value)
     {
         $lookup = $this->getValueLookup();
-        return isset($lookup[$value]) ? $lookup[$value]->name : null;
-    }
+        if (isset($lookup[$value])) {
+            return $lookup[$value]->name;
+        }
 
-    /**
-     * @param string $value
-     * @return bool
-     */
-    public function isValidValue($value)
-    {
-        return is_string($value) && $this->getNameLookup()->offsetExists($value);
-    }
-
-    /**
-     * @param $valueNode
-     * @return bool
-     */
-    public function isValidLiteral($valueNode)
-    {
-        return $valueNode instanceof EnumValueNode && $this->getNameLookup()->offsetExists($valueNode->value);
+        return Utils::undefined();
     }
 
     /**
@@ -136,14 +122,15 @@ class EnumType extends Type implements InputType, OutputType, LeafType
     public function parseValue($value)
     {
         $lookup = $this->getNameLookup();
-        return isset($lookup[$value]) ? $lookup[$value]->value : null;
+        return isset($lookup[$value]) ? $lookup[$value]->value : Utils::undefined();
     }
 
     /**
      * @param $value
+     * @param array|null $variables
      * @return null
      */
-    public function parseLiteral($value)
+    public function parseLiteral($value, array $variables = null)
     {
         if ($value instanceof EnumValueNode) {
             $lookup = $this->getNameLookup();
@@ -201,24 +188,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType
         );
 
         $values = $this->getValues();
-
-        Utils::invariant(
-            !empty($values),
-            "{$this->name} values must be not empty."
-        );
         foreach ($values as $value) {
-            try {
-                Utils::assertValidName($value->name);
-            } catch (InvariantViolation $e) {
-                throw new InvariantViolation(
-                    "{$this->name} has value with invalid name: " .
-                    Utils::printSafe($value->name) . " ({$e->getMessage()})"
-                );
-            }
-            Utils::invariant(
-                !in_array($value->name, ['true', 'false', 'null']),
-                "{$this->name}: \"{$value->name}\" can not be used as an Enum value."
-            );
             Utils::invariant(
                 !isset($value->config['isDeprecated']),
                 "{$this->name}.{$value->name} should provide \"deprecationReason\" instead of \"isDeprecated\"."

@@ -42,9 +42,9 @@ class KnownTypeNamesTest extends TestCase
         name
       }
         ', [
-            $this->unknownType('JumbledUpLetters', 2, 23),
-            $this->unknownType('Badger', 5, 25),
-            $this->unknownType('Peettt', 8, 29)
+            $this->unknownType('JumbledUpLetters', [], 2, 23),
+            $this->unknownType('Badger', [], 5, 25),
+            $this->unknownType('Peettt', ['Pet'], 8, 29)
         ]);
     }
 
@@ -70,14 +70,14 @@ class KnownTypeNamesTest extends TestCase
         }
       }
     ', [
-            $this->unknownType('NotInTheSchema', 12, 23),
+            $this->unknownType('NotInTheSchema', [], 12, 23),
         ]);
     }
 
-    private function unknownType($typeName, $line, $column)
+    private function unknownType($typeName, $suggestedTypes, $line, $column)
     {
         return FormattedError::create(
-            KnownTypeNames::unknownTypeMessage($typeName),
+            KnownTypeNames::unknownTypeMessage($typeName, $suggestedTypes),
             [new SourceLocation($line, $column)]
         );
     }

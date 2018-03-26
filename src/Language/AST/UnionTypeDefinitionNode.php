@@ -19,12 +19,12 @@ class UnionTypeDefinitionNode extends Node implements TypeDefinitionNode
     public $directives;
 
     /**
-     * @var NamedTypeNode[]
+     * @var NamedTypeNode[]|null
      */
-    public $types = [];
+    public $types;
 
     /**
-     * @var string
+     * @var StringValueNode|null
      */
     public $description;
 }

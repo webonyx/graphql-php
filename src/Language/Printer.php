@@ -4,11 +4,14 @@ namespace GraphQL\Language;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -32,11 +35,13 @@ use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\OperationTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Language\AST\TypeExtensionDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Utils\Utils;
 
@@ -126,7 +131,11 @@ class Printer
                     ], ' ');
                 },
                 NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) {
-                    return "fragment {$node->name} on {$node->typeCondition} "
+                    // Note: fragment variable definitions are experimental and may be changed
+                    // or removed in the future.
+                    return "fragment {$node->name}"
+                        . $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')')
+                        . " on {$node->typeCondition} "
                         . $this->wrap('', $this->join($node->directives, ' '), ' ')
                         . $node->selectionSet;
                 },
@@ -138,7 +147,10 @@ class Printer
                 NodeKind::FLOAT => function(FloatValueNode $node) {
                     return $node->value;
                 },
-                NodeKind::STRING => function(StringValueNode $node) {
+                NodeKind::STRING => function(StringValueNode $node, $key) {
+                    if ($node->block) {
+                       return $this->printBlockString($node->value, $key === 'description');
+                    }
                     return json_encode($node->value);
                 },
                 NodeKind::BOOLEAN => function(BooleanValueNode $node) {
@@ -189,74 +201,150 @@ class Printer
                 },
 
                 NodeKind::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinitionNode $def) {
-                    return $this->join(['scalar', $def->name, $this->join($def->directives, ' ')], ' ');
+                    return $this->join([
+                        $def->description,
+                        $this->join(['scalar', $def->name, $this->join($def->directives, ' ')], ' ')
+                    ], "\n");
                 },
                 NodeKind::OBJECT_TYPE_DEFINITION => function(ObjectTypeDefinitionNode $def) {
                     return $this->join([
-                        'type',
-                        $def->name,
-                        $this->wrap('implements ', $this->join($def->interfaces, ', ')),
-                        $this->join($def->directives, ' '),
-                        $this->block($def->fields)
-                    ], ' ');
+                        $def->description,
+                        $this->join([
+                            'type',
+                            $def->name,
+                            $this->wrap('implements ', $this->join($def->interfaces, ', ')),
+                            $this->join($def->directives, ' '),
+                            $this->block($def->fields)
+                        ], ' ')
+                    ], "\n");
                 },
                 NodeKind::FIELD_DEFINITION => function(FieldDefinitionNode $def) {
-                    return $def->name
+                    return $this->join([
+                        $def->description,
+                        $def->name
                          . $this->wrap('(', $this->join($def->arguments, ', '), ')')
                          . ': ' . $def->type
-                         . $this->wrap(' ', $this->join($def->directives, ' '));
+                         . $this->wrap(' ', $this->join($def->directives, ' '))
+                    ], "\n");
                 },
                 NodeKind::INPUT_VALUE_DEFINITION => function(InputValueDefinitionNode $def) {
                     return $this->join([
-                        $def->name . ': ' . $def->type,
-                        $this->wrap('= ', $def->defaultValue),
-                        $this->join($def->directives, ' ')
-                    ], ' ');
+                        $def->description,
+                        $this->join([
+                            $def->name . ': ' . $def->type,
+                            $this->wrap('= ', $def->defaultValue),
+                            $this->join($def->directives, ' ')
+                        ], ' ')
+                    ], "\n");
                 },
                 NodeKind::INTERFACE_TYPE_DEFINITION => function(InterfaceTypeDefinitionNode $def) {
                     return $this->join([
-                        'interface',
-                        $def->name,
-                        $this->join($def->directives, ' '),
-                        $this->block($def->fields)
-                    ], ' ');
+                        $def->description,
+                        $this->join([
+                            'interface',
+                            $def->name,
+                            $this->join($def->directives, ' '),
+                            $this->block($def->fields)
+                        ], ' ')
+                    ], "\n");
                 },
                 NodeKind::UNION_TYPE_DEFINITION => function(UnionTypeDefinitionNode $def) {
                     return $this->join([
-                        'union',
-                        $def->name,
-                        $this->join($def->directives, ' '),
-                        '= ' . $this->join($def->types, ' | ')
-                    ], ' ');
+                        $def->description,
+                        $this->join([
+                            'union',
+                            $def->name,
+                            $this->join($def->directives, ' '),
+                            $def->types
+                                ? '= ' . $this->join($def->types, ' | ')
+                                : ''
+                        ], ' ')
+                    ], "\n");
                 },
                 NodeKind::ENUM_TYPE_DEFINITION => function(EnumTypeDefinitionNode $def) {
                     return $this->join([
-                        'enum',
-                        $def->name,
-                        $this->join($def->directives, ' '),
-                        $this->block($def->values)
-                    ], ' ');
+                        $def->description,
+                        $this->join([
+                            'enum',
+                            $def->name,
+                            $this->join($def->directives, ' '),
+                            $this->block($def->values)
+                        ], ' ')
+                    ], "\n");
                 },
                 NodeKind::ENUM_VALUE_DEFINITION => function(EnumValueDefinitionNode $def) {
                     return $this->join([
-                        $def->name,
-                        $this->join($def->directives, ' ')
-                    ], ' ');
+                        $def->description,
+                        $this->join([$def->name, $this->join($def->directives, ' ')], ' ')
+                    ], "\n");
                 },
                 NodeKind::INPUT_OBJECT_TYPE_DEFINITION => function(InputObjectTypeDefinitionNode $def) {
                     return $this->join([
-                        'input',
+                        $def->description,
+                        $this->join([
+                            'input',
+                            $def->name,
+                            $this->join($def->directives, ' '),
+                            $this->block($def->fields)
+                        ], ' ')
+                    ], "\n");
+                },
+                NodeKind::SCALAR_TYPE_EXTENSION => function(ScalarTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend scalar',
                         $def->name,
                         $this->join($def->directives, ' '),
-                        $this->block($def->fields)
                     ], ' ');
                 },
-                NodeKind::TYPE_EXTENSION_DEFINITION => function(TypeExtensionDefinitionNode $def) {
-                    return "extend {$def->definition}";
+                NodeKind::OBJECT_TYPE_EXTENSION => function(ObjectTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend type',
+                        $def->name,
+                        $this->wrap('implements ', $this->join($def->interfaces, ', ')),
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields),
+                    ], ' ');
+                },
+                NodeKind::INTERFACE_TYPE_EXTENSION => function(InterfaceTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend interface',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields),
+                    ], ' ');
+                },
+                NodeKind::UNION_TYPE_EXTENSION => function(UnionTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend union',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $def->types
+                            ? '= ' . $this->join($def->types, ' | ')
+                            : ''
+                    ], ' ');
+                },
+                NodeKind::ENUM_TYPE_EXTENSION => function(EnumTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend enum',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $this->block($def->values),
+                    ], ' ');
+                },
+                NodeKind::INPUT_OBJECT_TYPE_EXTENSION => function(InputObjectTypeExtensionNode $def) {
+                    return $this->join([
+                        'extend input',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields),
+                    ], ' ');
                 },
                 NodeKind::DIRECTIVE_DEFINITION => function(DirectiveDefinitionNode $def) {
-                    return 'directive @' . $def->name . $this->wrap('(', $this->join($def->arguments, ', '), ')')
-                        . ' on ' . $this->join($def->locations, ' | ');
+                    return $this->join([
+                        $def->description,
+                        'directive @' . $def->name . $this->wrap('(', $this->join($def->arguments, ', '), ')')
+                        . ' on ' . $this->join($def->locations, ' | ')
+                    ], "\n");
                 }
             ]
         ]);
@@ -277,12 +365,14 @@ class Printer
      */
     public function block($array)
     {
-        return $array && $this->length($array) ? $this->indent("{\n" . $this->join($array, "\n")) . "\n}" : '{}';
+        return ($array && $this->length($array))
+            ? "{\n" . $this->indent($this->join($array, "\n")) . "\n}"
+            : '';
     }
 
     public function indent($maybeString)
     {
-        return $maybeString ? str_replace("\n", "\n  ", $maybeString) : '';
+        return $maybeString ? '  ' . str_replace("\n", "\n  ", $maybeString) : '';
     }
 
     public function manyList($start, $list, $separator, $end)
@@ -306,5 +396,17 @@ class Printer
                 )
             )
             : '';
+    }
+
+    /**
+     * Print a block string in the indented block form by adding a leading and
+     * trailing blank line. However, if a block string starts with whitespace and is
+     * a single-line, adding a leading blank line would strip that whitespace.
+     */
+    private function printBlockString($value, $isDescription) {
+        $escaped = str_replace('"""', '\\"""', $value);
+        return (($value[0] === ' ' || $value[0] === "\t") && strpos($value, "\n") === false)
+            ? ('"""' . preg_replace('/"$/', "\"\n", $escaped) . '"""')
+            : ("\"\"\"\n" . ($isDescription ? $escaped : $this->indent($escaped)) . "\n\"\"\"");
     }
 }

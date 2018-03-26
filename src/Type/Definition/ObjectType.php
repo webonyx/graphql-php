@@ -3,7 +3,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
-use GraphQL\Language\AST\TypeExtensionDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
 
 
@@ -47,8 +47,22 @@ use GraphQL\Utils\Utils;
  *     ]);
  *
  */
-class ObjectType extends Type implements OutputType, CompositeType
+class ObjectType extends Type implements OutputType, CompositeType, NamedType
 {
+    /**
+     * @param mixed $type
+     * @return self
+     */
+    public static function assertObjectType($type)
+    {
+        Utils::invariant(
+            $type instanceof self,
+            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Object type.'
+        );
+
+        return $type;
+    }
+
     /**
      * @var FieldDefinition[]
      */
@@ -70,7 +84,7 @@ class ObjectType extends Type implements OutputType, CompositeType
     public $astNode;
 
     /**
-     * @var TypeExtensionDefinitionNode[]
+     * @var ObjectTypeExtensionNode[]
      */
     public $extensionASTNodes;
 
@@ -89,7 +103,7 @@ class ObjectType extends Type implements OutputType, CompositeType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::assertValidName($config['name'], !empty($config['isIntrospection']));
+        Utils::invariant(is_string($config['name']), 'Must provide name.');
 
         // Note: this validation is disabled by default, because it is resource-consuming
         // TODO: add bin/validate script to check if schema is valid during development
@@ -152,13 +166,13 @@ class ObjectType extends Type implements OutputType, CompositeType
             $interfaces = isset($this->config['interfaces']) ? $this->config['interfaces'] : [];
             $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
 
-            if (!is_array($interfaces)) {
+            if ($interfaces && !is_array($interfaces)) {
                 throw new InvariantViolation(
                     "{$this->name} interfaces must be an Array or a callable which returns an Array."
                 );
             }
 
-            $this->interfaces = $interfaces;
+            $this->interfaces = $interfaces ?: [];
         }
         return $this->interfaces;
     }
@@ -214,41 +228,5 @@ class ObjectType extends Type implements OutputType, CompositeType
             !isset($this->config['isTypeOf']) || is_callable($this->config['isTypeOf']),
             "{$this->name} must provide 'isTypeOf' as a function"
         );
-
-        // getFields() and getInterfaceMap() will do structural validation
-        $fields = $this->getFields();
-        Utils::invariant(
-            !empty($fields),
-            "{$this->name} fields must not be empty"
-        );
-        foreach ($fields as $field) {
-            $field->assertValid($this);
-            foreach ($field->args as $arg) {
-                $arg->assertValid($field, $this);
-            }
-        }
-
-        $implemented = [];
-        foreach ($this->getInterfaces() as $iface) {
-            Utils::invariant(
-                $iface instanceof InterfaceType,
-                "{$this->name} may only implement Interface types, it cannot implement %s.",
-                Utils::printSafe($iface)
-            );
-            Utils::invariant(
-                !isset($implemented[$iface->name]),
-                "{$this->name} may declare it implements {$iface->name} only once."
-            );
-            $implemented[$iface->name] = true;
-            if (!isset($iface->config['resolveType'])) {
-                Utils::invariant(
-                    isset($this->config['isTypeOf']),
-                    "Interface Type {$iface->name} does not provide a \"resolveType\" " .
-                    "function and implementing Type {$this->name} does not provide a " .
-                    '"isTypeOf" function. There is no way to resolve this implementing ' .
-                    'type during execution.'
-                );
-            }
-        }
     }
 }

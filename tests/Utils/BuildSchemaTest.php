@@ -17,11 +17,11 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
 {
     // Describe: Schema Builder
 
-    private function cycleOutput($body)
+    private function cycleOutput($body, $options = [])
     {
         $ast = Parser::parse($body);
-        $schema = BuildSchema::buildAST($ast);
-        return "\n" . SchemaPrinter::doPrint($schema);
+        $schema = BuildSchema::buildAST($ast, null, $options);
+        return "\n" . SchemaPrinter::doPrint($schema, $options);
     }
 
     /**
@@ -35,9 +35,9 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
                 str: String
             }
         '));
-        
-        $result = GraphQL::execute($schema, '{ str }', ['str' => 123]);
-        $this->assertEquals($result['data'], ['str' => 123]);
+
+        $result = GraphQL::executeQuery($schema, '{ str }', ['str' => 123]);
+        $this->assertEquals(['str' => 123], $result->toArray(true)['data']);
     }
 
     /**
@@ -52,7 +52,7 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
             }
         ");
 
-        $result = GraphQL::execute(
+        $result = GraphQL::executeQuery(
             $schema,
             '{ add(x: 34, y: 55) }',
             [
@@ -61,7 +61,7 @@ class BuildSchemaTest extends \PHPUnit_Framework_TestCase
                 }
             ]
         );
-        $this->assertEquals($result, ['data' => ['add' => 89]]);
+        $this->assertEquals(['data' => ['add' => 89]], $result->toArray(true));
     }
 
     /**
@@ -111,6 +111,42 @@ type Hello {
      */
     public function testSupportsDescriptions()
     {
+      $body = '
+schema {
+  query: Hello
+}
+
+"""This is a directive"""
+directive @foo(
+  """It has an argument"""
+  arg: Int
+) on FIELD
+
+"""With an enum"""
+enum Color {
+  RED
+
+  """Not a creative color"""
+  GREEN
+  BLUE
+}
+
+"""What a great type"""
+type Hello {
+  """And a field to boot"""
+  str: String
+}
+';
+
+        $output = $this->cycleOutput($body);
+        $this->assertEquals($body, $output);
+    }
+
+    /**
+     * @it Supports descriptions
+     */
+    public function testSupportsOptionForCommentDescriptions()
+    {
         $body = '
 schema {
   query: Hello
@@ -137,7 +173,7 @@ type Hello {
   str: String
 }
 ';
-        $output = $this->cycleOutput($body);
+        $output = $this->cycleOutput($body, [ 'commentDescriptions' => true ]);
         $this->assertEquals($body, $output);
     }
 
@@ -412,6 +448,135 @@ type WorldTwo {
     }
 
     /**
+     * @it Specifying Union type using __typename
+     */
+    public function testSpecifyingUnionTypeUsingTypename()
+    {
+        $schema = BuildSchema::buildAST(Parser::parse('
+            schema {
+              query: Root
+            }
+            
+            type Root {
+              fruits: [Fruit]
+            }
+            
+            union Fruit = Apple | Banana
+            
+            type Apple {
+              color: String
+            }
+            
+            type Banana {
+              length: Int
+            }
+        '));
+        $query = '
+            {
+              fruits {
+                ... on Apple {
+                  color
+                }
+                ... on Banana {
+                  length
+                }
+              }
+            }
+        ';
+        $root = [
+            'fruits' => [
+                [
+                    'color' => 'green',
+                    '__typename' => 'Apple',
+                ],
+                [
+                    'length' => 5,
+                    '__typename' => 'Banana',
+                ]
+            ]
+        ];
+        $expected = [
+            'data' => [
+                'fruits' => [
+                    ['color' => 'green'],
+                    ['length' => 5],
+                ]
+            ]
+        ];
+
+        $result = GraphQL::executeQuery($schema, $query, $root);
+        $this->assertEquals($expected, $result->toArray(true));
+    }
+
+    /**
+     * @it Specifying Interface type using __typename
+     */
+    public function testSpecifyingInterfaceUsingTypename()
+    {
+        $schema = BuildSchema::buildAST(Parser::parse('
+            schema {
+              query: Root
+            }
+            
+            type Root {
+              characters: [Character]
+            }
+            
+            interface Character {
+              name: String!
+            }
+            
+            type Human implements Character {
+              name: String!
+              totalCredits: Int
+            }
+            
+            type Droid implements Character {
+              name: String!
+              primaryFunction: String
+            }
+        '));
+        $query = '
+            {
+              characters {
+                name
+                ... on Human {
+                  totalCredits
+                }
+                ... on Droid {
+                  primaryFunction
+                }
+              }
+            }
+        ';
+        $root = [
+            'characters' => [
+                [
+                    'name' => 'Han Solo',
+                    'totalCredits' => 10,
+                    '__typename' => 'Human',
+                ],
+                [
+                    'name' => 'R2-D2',
+                    'primaryFunction' => 'Astromech',
+                    '__typename' => 'Droid',
+                ]
+            ]
+        ];
+        $expected = [
+            'data' => [
+                'characters' => [
+                    ['name' => 'Han Solo', 'totalCredits' => 10],
+                    ['name' => 'R2-D2', 'primaryFunction' => 'Astromech'],
+                ]
+            ]
+        ];
+
+        $result = GraphQL::executeQuery($schema, $query, $root);
+        $this->assertEquals($expected, $result->toArray(true));
+    }
+
+    /**
      * @it CustomScalar
      */
     public function testCustomScalar()
@@ -465,6 +630,26 @@ schema {
 
 type Hello {
   str(int: Int = 2): String
+}
+';
+        $output = $this->cycleOutput($body);
+        $this->assertEquals($output, $body);
+    }
+
+    /**
+     * @it Custom scalar argument field with default
+     */
+    public function testCustomScalarArgumentFieldWithDefault()
+    {
+        $body = '
+schema {
+  query: Hello
+}
+
+scalar CustomScalar
+
+type Hello {
+  str(int: CustomScalar = 2): String
 }
 ';
         $output = $this->cycleOutput($body);
@@ -679,21 +864,6 @@ type Query {
     // Describe: Failures
 
     /**
-     * @it Requires a schema definition or Query type
-     */
-    public function testRequiresSchemaDefinitionOrQueryType()
-    {
-        $this->setExpectedException('GraphQL\Error\Error', 'Must provide schema definition with query type or a type named Query.');
-        $body = '
-type Hello {
-  bar: Bar
-}
-';
-        $doc = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
      * @it Allows only a single schema definition
      */
     public function testAllowsOnlySingleSchemaDefinition()
@@ -706,25 +876,6 @@ schema {
 
 schema {
   query: Hello
-}
-
-type Hello {
-  bar: Bar
-}
-';
-        $doc = Parser::parse($body);
-        BuildSchema::buildAST($doc);
-    }
-
-    /**
-     * @it Requires a query type
-     */
-    public function testRequiresQueryType()
-    {
-        $this->setExpectedException('GraphQL\Error\Error', 'Must provide schema definition with query type or a type named Query.');
-        $body = '
-schema {
-  mutation: Hello
 }
 
 type Hello {
@@ -840,7 +991,9 @@ schema {
   query: Hello
 }
 
-type Hello implements Bar { }
+type Hello implements Bar {
+  field: String
+}
 ';
         $doc = Parser::parse($body);
         $schema = BuildSchema::buildAST($doc);
@@ -1057,9 +1210,8 @@ interface Hello {
         $this->assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         $this->assertEquals('Hello', $defaultConfig['name']);
         $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
-        $this->assertInstanceOf(\Closure::class, $defaultConfig['resolveType']);
         $this->assertArrayHasKey('description', $defaultConfig);
-        $this->assertCount(5, $defaultConfig);
+        $this->assertCount(4, $defaultConfig);
         $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
         $this->assertEquals('My description of Hello', $schema->getType('Hello')->description);
     }
@@ -1116,43 +1268,4 @@ type World implements Hello {
         $this->assertArrayHasKey('World', $types);
     }
 
-    public function testScalarDescription()
-    {
-        $schemaDef = '
-# An ISO-8601 encoded UTC date string.
-scalar Date
-
-type Query {
-    now: Date
-    test: String
-}
-';
-        $q = '
-{
-  __type(name: "Date") {
-    name
-    description
-  }
-  strType: __type(name: "String") {
-    name
-    description
-  }
-}
-';
-        $schema = BuildSchema::build($schemaDef);
-        $result = GraphQL::executeQuery($schema, $q)->toArray();
-        $expected = ['data' => [
-            '__type' => [
-                'name' => 'Date',
-                'description' => 'An ISO-8601 encoded UTC date string.'
-            ],
-            'strType' => [
-                'name' => 'String',
-                'description' => 'The `String` scalar type represents textual data, represented as UTF-8' . "\n" .
-                    'character sequences. The String type is most often used by GraphQL to'. "\n" .
-                    'represent free-form human-readable text.'
-            ]
-        ]];
-        $this->assertEquals($expected, $result);
-    }
 }

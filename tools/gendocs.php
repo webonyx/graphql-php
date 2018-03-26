@@ -9,7 +9,7 @@ $entries = [
     \GraphQL\GraphQL::class,
     \GraphQL\Type\Definition\Type::class,
     \GraphQL\Type\Definition\ResolveInfo::class,
-    \GraphQL\Type\Definition\DirectiveLocation::class => ['constants' => true],
+    \GraphQL\Language\DirectiveLocation::class => ['constants' => true],
     \GraphQL\Type\SchemaConfig::class,
     \GraphQL\Type\Schema::class,
     \GraphQL\Language\Parser::class,
@@ -41,7 +41,7 @@ function renderClassMethod(ReflectionMethod $method) {
 
         if ($p->isDefaultValueAvailable()) {
             $val = $p->isDefaultValueConstant() ? $p->getDefaultValueConstantName() : $p->getDefaultValue();
-            $def .= " = " . (is_array($val) ? '[]' : Utils::printSafe($val));
+            $def .= " = " . Utils::printSafeJson($val);
         }
 
         return $def;
@@ -63,7 +63,7 @@ TEMPLATE;
 }
 
 function renderConstant($value, $name) {
-    return "const $name = " . Utils::printSafe($value) . ";";
+    return "const $name = " . Utils::printSafeJson($value) . ";";
 }
 
 function renderProp(ReflectionProperty $prop) {

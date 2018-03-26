@@ -2,7 +2,12 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Language\AST\ListType;
+use GraphQL\Language\AST\NamedType;
+use GraphQL\Language\AST\NonNullType;
 use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Type\Introspection;
+use GraphQL\Utils\Utils;
 
 /**
  * Registry of standard GraphQL types
@@ -22,6 +27,11 @@ abstract class Type implements \JsonSerializable
      * @var array
      */
     private static $internalTypes;
+
+    /**
+     * @var array
+     */
+    private static $builtInTypes;
 
     /**
      * @api
@@ -70,7 +80,7 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @api
-     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
+     * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
      * @return ListOfType
      */
     public static function listOf($wrappedType)
@@ -107,11 +117,41 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
+     * Returns all builtin scalar types
+     *
      * @return Type[]
      */
     public static function getInternalTypes()
     {
         return self::getInternalType();
+    }
+
+    /**
+     * Returns all builtin in types including base scalar and
+     * introspection types
+     *
+     * @return Type[]
+     */
+    public static function getAllBuiltInTypes()
+    {
+        if (null === self::$builtInTypes) {
+            self::$builtInTypes = array_merge(
+                Introspection::getTypes(),
+                self::getInternalTypes()
+            );
+        }
+        return self::$builtInTypes;
+    }
+
+    /**
+     * Checks if the type is a builtin type
+     *
+     * @param Type $type
+     * @return bool
+     */
+    public static function isBuiltInType(Type $type)
+    {
+        return in_array($type->name, array_keys(self::getAllBuiltInTypes()));
     }
 
     /**
@@ -121,8 +161,11 @@ abstract class Type implements \JsonSerializable
      */
     public static function isInputType($type)
     {
-        $nakedType = self::getNamedType($type);
-        return $nakedType instanceof InputType;
+        return $type instanceof InputType &&
+            (
+                !$type instanceof WrappingType ||
+                self::getNamedType($type) instanceof InputType
+            );
     }
 
     /**
@@ -132,8 +175,11 @@ abstract class Type implements \JsonSerializable
      */
     public static function isOutputType($type)
     {
-        $nakedType = self::getNamedType($type);
-        return $nakedType instanceof OutputType;
+        return $type instanceof OutputType &&
+            (
+                !$type instanceof WrappingType ||
+                self::getNamedType($type) instanceof OutputType
+            );
     }
 
     /**
@@ -164,6 +210,39 @@ abstract class Type implements \JsonSerializable
     public static function isAbstractType($type)
     {
         return $type instanceof AbstractType;
+    }
+
+    /**
+     * @api
+     * @param Type $type
+     * @return bool
+     */
+    public static function isType($type)
+    {
+        return (
+            $type instanceof ScalarType ||
+            $type instanceof ObjectType ||
+            $type instanceof InterfaceType ||
+            $type instanceof UnionType ||
+            $type instanceof EnumType ||
+            $type instanceof InputObjectType ||
+            $type instanceof ListOfType ||
+            $type instanceof NonNull
+        );
+    }
+
+    /**
+     * @param mixed $type
+     * @return mixed
+     */
+    public static function assertType($type)
+    {
+        Utils::invariant(
+            self::isType($type),
+            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'
+        );
+
+        return $type;
     }
 
     /**
@@ -238,6 +317,7 @@ abstract class Type implements \JsonSerializable
      */
     public function assertValid()
     {
+        Utils::assertValidName($this->name);
     }
 
     /**

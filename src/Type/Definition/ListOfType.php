@@ -20,12 +20,7 @@ class ListOfType extends Type implements WrappingType, OutputType, InputType
      */
     public function __construct($type)
     {
-        if (!$type instanceof Type && !is_callable($type)) {
-            throw new InvariantViolation(
-                'Can only create List of a GraphQLType but got: ' . Utils::printSafe($type)
-            );
-        }
-        $this->ofType = $type;
+        $this->ofType = Type::assertType($type);
     }
 
     /**

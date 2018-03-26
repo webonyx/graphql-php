@@ -2,26 +2,15 @@
 namespace GraphQL\Validator;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NullValueNode;
-use GraphQL\Language\AST\VariableNode;
-use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Schema;
-use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\LeafType;
-use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils\Utils;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\Rules\AbstractValidationRule;
-use GraphQL\Validator\Rules\ArgumentsOfCorrectType;
-use GraphQL\Validator\Rules\DefaultValuesOfCorrectType;
+use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\DisableIntrospection;
+use GraphQL\Validator\Rules\ExecutableDefinitions;
 use GraphQL\Validator\Rules\FieldsOnCorrectType;
 use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 use GraphQL\Validator\Rules\KnownArgumentNames;
@@ -46,6 +35,7 @@ use GraphQL\Validator\Rules\UniqueInputFieldNames;
 use GraphQL\Validator\Rules\UniqueOperationNames;
 use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
+use GraphQL\Validator\Rules\VariablesDefaultValueAllowed;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
 /**
@@ -122,6 +112,7 @@ class DocumentValidator
     {
         if (null === self::$defaultRules) {
             self::$defaultRules = [
+                ExecutableDefinitions::class => new ExecutableDefinitions(),
                 UniqueOperationNames::class => new UniqueOperationNames(),
                 LoneAnonymousOperation::class => new LoneAnonymousOperation(),
                 KnownTypeNames::class => new KnownTypeNames(),
@@ -141,9 +132,9 @@ class DocumentValidator
                 UniqueDirectivesPerLocation::class => new UniqueDirectivesPerLocation(),
                 KnownArgumentNames::class => new KnownArgumentNames(),
                 UniqueArgumentNames::class => new UniqueArgumentNames(),
-                ArgumentsOfCorrectType::class => new ArgumentsOfCorrectType(),
+                ValuesOfCorrectType::class => new ValuesOfCorrectType(),
                 ProvidedNonNullArguments::class => new ProvidedNonNullArguments(),
-                DefaultValuesOfCorrectType::class => new DefaultValuesOfCorrectType(),
+                VariablesDefaultValueAllowed::class => new VariablesDefaultValueAllowed(),
                 VariablesInAllowedPosition::class => new VariablesInAllowedPosition(),
                 OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
                 UniqueInputFieldNames::class => new UniqueInputFieldNames(),
@@ -223,100 +214,23 @@ class DocumentValidator
     }
 
     /**
-     * Utility for validators which determines if a value literal AST is valid given
-     * an input type.
+     * Utility which determines if a value literal node is valid for an input type.
      *
-     * Note that this only validates literal values, variables are assumed to
-     * provide values of the correct type.
+     * Deprecated. Rely on validation for documents containing literal values.
      *
-     * @return array
+     * @deprecated
+     * @return Error[]
      */
     public static function isValidLiteralValue(Type $type, $valueNode)
     {
-        // A value must be provided if the type is non-null.
-        if ($type instanceof NonNull) {
-            if (!$valueNode || $valueNode instanceof NullValueNode) {
-                return [ 'Expected "' . Utils::printSafe($type) . '", found null.' ];
-            }
-            return static::isValidLiteralValue($type->getWrappedType(), $valueNode);
-        }
-
-        if (!$valueNode || $valueNode instanceof NullValueNode) {
-            return [];
-        }
-
-        // This function only tests literals, and assumes variables will provide
-        // values of the correct type.
-        if ($valueNode instanceof VariableNode) {
-            return [];
-        }
-
-        // Lists accept a non-list value as a list of one.
-        if ($type instanceof ListOfType) {
-            $itemType = $type->getWrappedType();
-            if ($valueNode instanceof ListValueNode) {
-                $errors = [];
-                foreach($valueNode->values as $index => $itemNode) {
-                    $tmp = static::isValidLiteralValue($itemType, $itemNode);
-
-                    if ($tmp) {
-                        $errors = array_merge($errors, Utils::map($tmp, function($error) use ($index) {
-                            return "In element #$index: $error";
-                        }));
-                    }
-                }
-                return $errors;
-            } else {
-                return static::isValidLiteralValue($itemType, $valueNode);
-            }
-        }
-
-        // Input objects check each defined field and look for undefined fields.
-        if ($type instanceof InputObjectType) {
-            if ($valueNode->kind !== NodeKind::OBJECT) {
-                return [ "Expected \"{$type->name}\", found not an object." ];
-            }
-
-            $fields = $type->getFields();
-            $errors = [];
-
-            // Ensure every provided field is defined.
-            $fieldNodes = $valueNode->fields;
-
-            foreach ($fieldNodes as $providedFieldNode) {
-                if (empty($fields[$providedFieldNode->name->value])) {
-                    $errors[] = "In field \"{$providedFieldNode->name->value}\": Unknown field.";
-                }
-            }
-
-            // Ensure every defined field is valid.
-            $fieldNodeMap = Utils::keyMap($fieldNodes, function($fieldNode) {return $fieldNode->name->value;});
-            foreach ($fields as $fieldName => $field) {
-                $result = static::isValidLiteralValue(
-                    $field->getType(),
-                    isset($fieldNodeMap[$fieldName]) ? $fieldNodeMap[$fieldName]->value : null
-                );
-                if ($result) {
-                    $errors = array_merge($errors, Utils::map($result, function($error) use ($fieldName) {
-                        return "In field \"$fieldName\": $error";
-                    }));
-                }
-            }
-
-            return $errors;
-        }
-
-        if ($type instanceof LeafType) {
-            // Scalars must parse to a non-null value
-            if (!$type->isValidLiteral($valueNode)) {
-                $printed = Printer::doPrint($valueNode);
-                return [ "Expected type \"{$type->name}\", found $printed." ];
-            }
-
-            return [];
-        }
-
-        throw new InvariantViolation('Must be input type');
+        $emptySchema = new Schema([]);
+        $emptyDoc = new DocumentNode(['definitions' => []]);
+        $typeInfo = new TypeInfo($emptySchema, $type);
+        $context = new ValidationContext($emptySchema, $emptyDoc, $typeInfo);
+        $validator = new ValuesOfCorrectType();
+        $visitor = $validator->getVisitor($context);
+        Visitor::visit($valueNode, Visitor::visitWithTypeInfo($typeInfo, $visitor));
+        return $context->getErrors();
     }
 
     /**

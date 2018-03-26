@@ -115,7 +115,15 @@ class Visitor
         NodeKind::ARGUMENT => ['name', 'value'],
         NodeKind::FRAGMENT_SPREAD => ['name', 'directives'],
         NodeKind::INLINE_FRAGMENT => ['typeCondition', 'directives', 'selectionSet'],
-        NodeKind::FRAGMENT_DEFINITION => ['name', 'typeCondition', 'directives', 'selectionSet'],
+        NodeKind::FRAGMENT_DEFINITION => [
+            'name',
+            // Note: fragment variable definitions are experimental and may be changed
+            // or removed in the future.
+            'variableDefinitions',
+            'typeCondition',
+            'directives',
+            'selectionSet'
+        ],
 
         NodeKind::INT => [],
         NodeKind::FLOAT => [],
@@ -133,17 +141,24 @@ class Visitor
 
         NodeKind::SCHEMA_DEFINITION => ['directives', 'operationTypes'],
         NodeKind::OPERATION_TYPE_DEFINITION => ['type'],
-        NodeKind::SCALAR_TYPE_DEFINITION => ['name', 'directives'],
-        NodeKind::OBJECT_TYPE_DEFINITION => ['name', 'interfaces', 'directives', 'fields'],
-        NodeKind::FIELD_DEFINITION => ['name', 'arguments', 'type', 'directives'],
-        NodeKind::INPUT_VALUE_DEFINITION => ['name', 'type', 'defaultValue', 'directives'],
-        NodeKind::INTERFACE_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
-        NodeKind::UNION_TYPE_DEFINITION => [ 'name', 'directives', 'types' ],
-        NodeKind::ENUM_TYPE_DEFINITION => [ 'name', 'directives', 'values' ],
-        NodeKind::ENUM_VALUE_DEFINITION => [ 'name', 'directives' ],
-        NodeKind::INPUT_OBJECT_TYPE_DEFINITION => [ 'name', 'directives', 'fields' ],
-        NodeKind::TYPE_EXTENSION_DEFINITION => [ 'definition' ],
-        NodeKind::DIRECTIVE_DEFINITION => [ 'name', 'arguments', 'locations' ]
+        NodeKind::SCALAR_TYPE_DEFINITION => ['description', 'name', 'directives'],
+        NodeKind::OBJECT_TYPE_DEFINITION => ['description', 'name', 'interfaces', 'directives', 'fields'],
+        NodeKind::FIELD_DEFINITION => ['description', 'name', 'arguments', 'type', 'directives'],
+        NodeKind::INPUT_VALUE_DEFINITION => ['description', 'name', 'type', 'defaultValue', 'directives'],
+        NodeKind::INTERFACE_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'],
+        NodeKind::UNION_TYPE_DEFINITION => ['description', 'name', 'directives', 'types'],
+        NodeKind::ENUM_TYPE_DEFINITION => ['description', 'name', 'directives', 'values'],
+        NodeKind::ENUM_VALUE_DEFINITION => ['description', 'name', 'directives'],
+        NodeKind::INPUT_OBJECT_TYPE_DEFINITION => ['description', 'name', 'directives', 'fields'],
+
+        NodeKind::SCALAR_TYPE_EXTENSION => ['name', 'directives'],
+        NodeKind::OBJECT_TYPE_EXTENSION => ['name', 'interfaces', 'directives', 'fields'],
+        NodeKind::INTERFACE_TYPE_EXTENSION => ['name', 'directives', 'fields'],
+        NodeKind::UNION_TYPE_EXTENSION => ['name', 'directives', 'types'],
+        NodeKind::ENUM_TYPE_EXTENSION => ['name', 'directives', 'values'],
+        NodeKind::INPUT_OBJECT_TYPE_EXTENSION => ['name', 'directives', 'fields'],
+
+        NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations']
     ];
 
     /**
@@ -180,7 +195,7 @@ class Visitor
             $isEdited = $isLeaving && count($edits) !== 0;
 
             if ($isLeaving) {
-                $key = count($ancestors) === 0 ? $UNDEFINED : array_pop($path);
+                $key = !$ancestors ? $UNDEFINED : $path[count($path) - 1];
                 $node = $parent;
                 $parent = array_pop($ancestors);
 
@@ -277,7 +292,9 @@ class Visitor
                 $edits[] = [$key, $node];
             }
 
-            if (!$isLeaving) {
+            if ($isLeaving) {
+                array_pop($path);
+            } else {
                 $stack = [
                     'inArray' => $inArray,
                     'index' => $index,

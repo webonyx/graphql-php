@@ -1,6 +1,8 @@
 <?php
 namespace GraphQL\Error;
 
+use GraphQL\Language\AST\Node;
+use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
@@ -25,6 +27,98 @@ class FormattedError
     public static function setInternalErrorMessage($msg)
     {
         self::$internalErrorMessage = $msg;
+    }
+
+    /**
+     * Prints a GraphQLError to a string, representing useful location information
+     * about the error's position in the source.
+     *
+     * @param Error $error
+     * @return string
+     */
+    public static function printError(Error $error)
+    {
+        $printedLocations = [];
+        if ($error->nodes) {
+            /** @var Node $node */
+            foreach($error->nodes as $node) {
+                if ($node->loc) {
+                    $printedLocations[] = self::highlightSourceAtLocation(
+                        $node->loc->source,
+                        $node->loc->source->getLocation($node->loc->start)
+                    );
+                }
+            }
+        } else if ($error->getSource() && $error->getLocations()) {
+            $source = $error->getSource();
+            foreach($error->getLocations() as $location) {
+                $printedLocations[] = self::highlightSourceAtLocation($source, $location);
+            }
+        }
+
+        return !$printedLocations
+            ? $error->getMessage()
+            : join("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
+    }
+
+    /**
+     * Render a helpful description of the location of the error in the GraphQL
+     * Source document.
+     *
+     * @param Source $source
+     * @param SourceLocation $location
+     * @return string
+     */
+    private static function highlightSourceAtLocation(Source $source, SourceLocation $location)
+    {
+        $line = $location->line;
+        $lineOffset = $source->locationOffset->line - 1;
+        $columnOffset = self::getColumnOffset($source, $location);
+        $contextLine = $line + $lineOffset;
+        $contextColumn = $location->column + $columnOffset;
+        $prevLineNum = (string) ($contextLine - 1);
+        $lineNum = (string) $contextLine;
+        $nextLineNum = (string) ($contextLine + 1);
+        $padLen = strlen($nextLineNum);
+        $lines = preg_split('/\r\n|[\n\r]/', $source->body);
+
+        $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
+
+        $outputLines = [
+            "{$source->name} ($contextLine:$contextColumn)",
+            $line >= 2 ? (self::lpad($padLen, $prevLineNum) . ': ' . $lines[$line - 2]) : null,
+            self::lpad($padLen, $lineNum) . ': ' . $lines[$line - 1],
+            self::whitespace(2 + $padLen + $contextColumn - 1) . '^',
+            $line < count($lines)? self::lpad($padLen, $nextLineNum) . ': ' . $lines[$line] : null
+        ];
+
+        return join("\n", array_filter($outputLines));
+    }
+
+    /**
+     * @param Source $source
+     * @param SourceLocation $location
+     * @return int
+     */
+    private static function getColumnOffset(Source $source, SourceLocation $location)
+    {
+        return $location->line === 1 ? $source->locationOffset->column - 1 : 0;
+    }
+
+    /**
+     * @param int $len
+     * @return string
+     */
+    private static function whitespace($len) {
+        return str_repeat(' ', $len);
+    }
+
+    /**
+     * @param int $len
+     * @return string
+     */
+    private static function lpad($len, $str) {
+        return self::whitespace($len - mb_strlen($str)) . $str;
     }
 
     /**
@@ -66,6 +160,10 @@ class FormattedError
         }
 
         if ($e instanceof Error) {
+            if ($e->getExtensions()) {
+                $formattedError = array_merge($e->getExtensions(), $formattedError);
+            }
+
             $locations = Utils::map($e->getLocations(), function(SourceLocation $loc) {
                 return $loc->toSerializableArray();
             });

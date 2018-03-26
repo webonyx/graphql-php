@@ -48,7 +48,7 @@ class TypeComparators
      * @param Type $superType
      * @return bool
      */
-    static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
+    static function isTypeSubTypeOf(Schema $schema, $maybeSubType, $superType)
     {
         // Equivalent type is a valid subtype
         if ($maybeSubType === $superType) {

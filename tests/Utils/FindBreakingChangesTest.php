@@ -1,11 +1,10 @@
 <?php
-/**
- * FindBreakingChanges tests
- */
-
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Language\DirectiveLocation;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -16,7 +15,6 @@ use GraphQL\Utils\FindBreakingChanges;
 
 class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 {
-
     private $queryType;
 
     public function setUp()
@@ -31,7 +29,12 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
     }
 
-    public function testShouldDetectIfTypeWasRemoved()
+    //DESCRIBE: findBreakingChanges
+
+    /**
+     * @it should detect if a type was removed or not
+     */
+    public function testShouldDetectIfTypeWasRemovedOrNot()
     {
         $type1 = new ObjectType([
             'name' => 'Type1',
@@ -46,31 +49,33 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $type1,
-                    'type2' => $type2
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$type1, $type2]
         ]);
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type2' => $type2
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$type2]
         ]);
 
-        $this->assertEquals(['type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED, 'description' => 'Type1 was removed.'],
-            FindBreakingChanges::findRemovedTypes($oldSchema, $newSchema)[0]
+        $expected = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED,
+                'description' => 'Type1 was removed.'
+            ]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findRemovedTypes($oldSchema, $newSchema)
         );
 
         $this->assertEquals([], FindBreakingChanges::findRemovedTypes($oldSchema, $oldSchema));
     }
 
-    public function testShouldDetectTypeChanges()
+    /**
+     * @it should detect if a type changed its type
+     */
+    public function testShouldDetectIfATypeChangedItsType()
     {
         $objectType = new ObjectType([
             'name' => 'ObjectType',
@@ -88,41 +93,45 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $unionType = new UnionType([
             'name' => 'Type1',
-            'types' => [new ObjectType(['name' => 'blah'])],
+            'types' => [$objectType],
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $interfaceType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$interfaceType]
         ]);
 
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $unionType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$unionType]
         ]);
 
+        $expected = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_CHANGED_KIND,
+                'description' => 'Type1 changed from an Interface type to a Union type.'
+            ]
+        ];
+
         $this->assertEquals(
-            ['type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_CHANGED, 'description' => 'Type1 changed from an Interface type to a Union type.'],
-            FindBreakingChanges::findTypesThatChangedKind($oldSchema, $newSchema)[0]
+            $expected,
+            FindBreakingChanges::findTypesThatChangedKind($oldSchema, $newSchema)
         );
     }
 
-    public function testShouldDetectFieldChangesAndDeletions()
+    /**
+     * @it should detect if a field on a type was deleted or changed type
+     */
+    public function testShouldDetectIfAFieldOnATypeWasDeletedOrChangedType()
     {
-        $typeA1 = new ObjectType([
+        $typeA = new ObjectType([
             'name' => 'TypeA',
             'fields' => [
                 'field1' => ['type' => Type::string()],
             ]
         ]);
+        // logically equivalent to TypeA; findBreakingFieldChanges shouldn't
+        // treat this as different than TypeA
         $typeA2 = new ObjectType([
             'name' => 'TypeA',
             'fields' => [
@@ -138,10 +147,10 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $oldType1 = new InterfaceType([
             'name' => 'Type1',
             'fields' => [
-                'field1' => ['type' => $typeA1],
+                'field1' => ['type' => $typeA],
                 'field2' => ['type' => Type::string()],
                 'field3' => ['type' => Type::string()],
-                'field4' => ['type' => $typeA1],
+                'field4' => ['type' => $typeA],
                 'field6' => ['type' => Type::string()],
                 'field7' => ['type' => Type::listOf(Type::string())],
                 'field8' => ['type' => Type::int()],
@@ -186,84 +195,78 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $expectedFieldChanges = [
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_REMOVED,
-                'description' => 'Type1->field2 was removed.',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field3 changed type from String to Boolean.',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field4 changed type from TypeA to TypeB.',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field6 changed type from String to [String].',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field7 changed type from [String] to String.',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field9 changed type from Int! to Int.',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field10 changed type from [Int]! to [Int].',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field11 changed type from Int to [Int]!.',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field13 changed type from [Int!] to [Int].',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field14 changed type from [Int] to [[Int]].',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field15 changed type from [[Int]] to [Int].',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field16 changed type from Int! to [Int]!.',
-            ],
-            [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'Type1->field18 changed type from [[Int!]!] to [[Int!]].',
-            ],
-        ];
-
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'Type1' => $oldType1
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldType1],
         ]);
 
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'Type1' => $newType1
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newType1],
         ]);
 
-        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema));
+        $expectedFieldChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_REMOVED,
+                'description' => 'Type1.field2 was removed.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field3 changed type from String to Boolean.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field4 changed type from TypeA to TypeB.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field6 changed type from String to [String].',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field7 changed type from [String] to String.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field9 changed type from Int! to Int.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field10 changed type from [Int]! to [Int].',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field11 changed type from Int to [Int]!.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field13 changed type from [Int!] to [Int].',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field14 changed type from [Int] to [[Int]].',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field15 changed type from [[Int]] to [Int].',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field16 changed type from Int! to [Int]!.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'Type1.field18 changed type from [[Int!]!] to [[Int!]].',
+            ],
+        ];
+
+        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema));
     }
 
-
-    public function testShouldDetectInputFieldChanges()
+    /**
+     * @it should detect if fields on input types changed kind or were removed
+     */
+    public function testShouldDetectIfFieldsOnInputTypesChangedKindOrWereRemoved()
     {
         $oldInputType = new InputObjectType([
             'name' => 'InputType1',
@@ -365,74 +368,69 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldInputType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldInputType]
         ]);
 
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newInputType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newInputType]
         ]);
 
         $expectedFieldChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field1 changed type from String to Int.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field1 changed type from String to Int.',
             ],
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_REMOVED,
-                'description' => 'InputType1->field2 was removed.',
+                'description' => 'InputType1.field2 was removed.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field3 changed type from [String] to String.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field3 changed type from [String] to String.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field5 changed type from String to String!.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field5 changed type from String to String!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field6 changed type from [Int] to [Int]!.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field6 changed type from [Int] to [Int]!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field8 changed type from Int to [Int]!.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field8 changed type from Int to [Int]!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field9 changed type from [Int] to [Int!].',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field9 changed type from [Int] to [Int!].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field11 changed type from [Int] to [[Int]].',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field11 changed type from [Int] to [[Int]].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field12 changed type from [[Int]] to [Int].',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field12 changed type from [[Int]] to [Int].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field13 changed type from Int! to [Int]!.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field13 changed type from Int! to [Int]!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'InputType1->field15 changed type from [[Int]!] to [[Int!]!].',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'InputType1.field15 changed type from [[Int]!] to [[Int!]!].',
             ],
         ];
 
-        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema));
+        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges']);
     }
 
-    public function testDetectsNonNullFieldAddedToInputType()
+    /**
+     * @it should detect if a non-null field is added to an input type
+     */
+    public function testShouldDetectIfANonNullFieldIsAddedToAnInputType()
     {
         $oldInputType = new InputObjectType([
             'name' => 'InputType1',
@@ -451,33 +449,32 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldInputType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldInputType],
         ]);
 
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newInputType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newInputType],
         ]);
 
-        $this->assertEquals(
+        $expected = [
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED,
                 'description' => 'A non-null field requiredField on input type InputType1 was added.'
             ],
-            FindBreakingChanges::findFieldsThatChangedType($oldSchema, $newSchema)[0]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges']
         );
     }
 
-    public function testDetectsIfTypeWasRemovedFromUnion()
+    /**
+     * @it should detect if a type was removed from a union type
+     */
+    public function testShouldRetectIfATypeWasRemovedFromAUnionType()
     {
         $type1 = new ObjectType([
             'name' => 'Type1',
@@ -485,21 +482,20 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                 'field1' => Type::string()
             ]
         ]);
-
+        // logially equivalent to type1; findTypesRemovedFromUnions should not
+        // treat this as different than type1
         $type1a = new ObjectType([
             'name' => 'Type1',
             'fields' => [
                 'field1' => Type::string()
             ]
         ]);
-
         $type2 = new ObjectType([
             'name' => 'Type2',
             'fields' => [
                 'field1' => Type::string()
             ]
         ]);
-
         $type3 = new ObjectType([
             'name' => 'Type3',
             'fields' => [
@@ -510,46 +506,38 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $oldUnionType = new UnionType([
             'name' => 'UnionType1',
             'types' => [$type1, $type2],
-            'resolveType' => function () {
-            }
         ]);
-
-
         $newUnionType = new UnionType([
             'name' => 'UnionType1',
             'types' => [$type1a, $type3],
-            'resolveType' => function () {
-            }
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldUnionType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldUnionType],
         ]);
-
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newUnionType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newUnionType],
         ]);
 
-        $this->assertEquals(
+        $expected = [
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
                 'description' => 'Type2 was removed from union type UnionType1.'
-            ],
-            FindBreakingChanges::findTypesRemovedFromUnions($oldSchema, $newSchema)[0]
+            ]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findTypesRemovedFromUnions($oldSchema, $newSchema)
         );
     }
 
-    public function testDetectsValuesRemovedFromEnum()
+    /**
+     * @it should detect if a value was removed from an enum type
+     */
+    public function testShouldDetectIfAValueWasRemovedFromAnEnumType()
     {
         $oldEnumType = new EnumType([
             'name' => 'EnumType1',
@@ -569,35 +557,33 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldEnumType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldEnumType]
         ]);
 
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newEnumType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newEnumType]
         ]);
 
-        $this->assertEquals(
+        $expected = [
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
                 'description' => 'VALUE1 was removed from enum type EnumType1.'
-            ],
-            FindBreakingChanges::findValuesRemovedFromEnums($oldSchema, $newSchema)[0]
+            ]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findValuesRemovedFromEnums($oldSchema, $newSchema)
         );
     }
 
-    public function testDetectsRemovalOfFieldArgument()
+    /**
+     * @it should detect if a field argument was removed
+     */
+    public function testShouldDetectIfAFieldArgumentWasRemoved()
     {
-
         $oldType = new ObjectType([
             'name' => 'Type1',
             'fields' => [
@@ -609,7 +595,6 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                 ]
             ]
         ]);
-
 
         $inputType = new InputObjectType([
             'name' => 'InputType1',
@@ -649,48 +634,38 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldType,
-                    'type2' => $oldInterfaceType
-                ],
-                'types' => [$oldType, $oldInterfaceType]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldType, $oldInterfaceType],
         ]);
 
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newType,
-                    'type2' => $newInterfaceType
-                ],
-                'types' => [$newType, $newInterfaceType]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newType, $newInterfaceType],
         ]);
 
         $expectedChanges = [
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
-                'description' => 'Type1->field1 arg name was removed',
+                'description' => 'Type1.field1 arg name was removed',
             ],
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
-                'description' => 'Interface1->field1 arg arg1 was removed',
+                'description' => 'Interface1.field1 arg arg1 was removed',
             ],
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
-                'description' => 'Interface1->field1 arg objectArg was removed',
+                'description' => 'Interface1.field1 arg objectArg was removed',
             ]
         ];
 
         $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
-    public function testDetectsFieldArgumentTypeChange()
+    /**
+     * @it should detect if a field argument has changed type
+     */
+    public function testShouldDetectIfAFieldArgumentHasChangedType()
     {
-
         $oldType = new ObjectType([
             'name' => 'Type1',
             'fields' => [
@@ -744,78 +719,73 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldType]
         ]);
 
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newType]
         ]);
 
         $expectedChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg1 has changed type from String to Int.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg1 has changed type from String to Int',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg2 has changed type from String to [String].'
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg2 has changed type from String to [String]'
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg3 has changed type from [String] to String.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg3 has changed type from [String] to String',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg4 has changed type from String to String!.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg4 has changed type from String to String!',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg5 has changed type from String! to Int.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg5 has changed type from String! to Int',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg6 has changed type from String! to Int!.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg6 has changed type from String! to Int!',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg8 has changed type from Int to [Int]!.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg8 has changed type from Int to [Int]!',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg9 has changed type from [Int] to [Int!].',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg9 has changed type from [Int] to [Int!]',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg11 has changed type from [Int] to [[Int]].',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg11 has changed type from [Int] to [[Int]]',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg12 has changed type from [[Int]] to [Int].',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg12 has changed type from [[Int]] to [Int]',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg13 has changed type from Int! to [Int]!.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg13 has changed type from Int! to [Int]!',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'Type1->field1 arg arg15 has changed type from [[Int]!] to [[Int!]!].',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'Type1.field1 arg arg15 has changed type from [[Int]!] to [[Int!]!]',
             ],
         ];
 
         $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
-    public function testDetectsAdditionOfFieldArg()
+    /**
+     * @it should detect if a non-null field argument was added
+     */
+    public function testShouldDetectIfANonNullFieldArgumentWasAdded()
     {
         $oldType = new ObjectType([
             'name' => 'Type1',
@@ -840,31 +810,30 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldType,
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldType]
         ]);
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newType]
         ]);
 
-        $this->assertEquals(
+        $expected = [
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
-                'description' => 'A non-null arg newRequiredArg on Type1->field1 was added.'
-            ],
-            FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges'][0]);
+                'description' => 'A non-null arg newRequiredArg on Type1.field1 was added'
+            ]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
-    public function testDoesNotFlagArgsWithSameTypeSignature()
+    /**
+     * @it should not flag args with the same type signature as breaking
+     */
+    public function testShouldNotFlagArgsWithTheSameTypeSignatureAsBreaking()
     {
         $inputType1a = new InputObjectType([
             'name' => 'InputType1',
@@ -907,26 +876,21 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldType,
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldType],
         ]);
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newType],
         ]);
 
         $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
-    public function testArgsThatMoveAwayFromNonNull()
+    /**
+     * @it should consider args that move away from NonNull as non-breaking
+     */
+    public function testShouldConsiderArgsThatMoveAwayFromNonNullAsNonBreaking()
     {
         $oldType = new ObjectType([
             'name' => 'Type1',
@@ -952,34 +916,27 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldType,
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldType],
         ]);
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newType],
         ]);
 
         $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
-    public function testDetectsRemovalOfInterfaces()
+    /**
+     * @it should detect interfaces removed from types
+     */
+    public function testShouldDetectInterfacesRemovedFromTypes()
     {
         $interface1 = new InterfaceType([
             'name' => 'Interface1',
             'fields' => [
                 'field1' => Type::string()
             ],
-            'resolveType' => function () {
-            }
         ]);
         $oldType = new ObjectType([
             'name' => 'Type1',
@@ -996,31 +953,30 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $oldSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $oldType,
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$oldType],
         ]);
         $newSchema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'root',
-                'fields' => [
-                    'type1' => $newType
-                ]
-            ])
+            'query' => $this->queryType,
+            'types' => [$newType],
         ]);
 
-        $this->assertEquals(
+        $expected = [
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
                 'description' => 'Type1 no longer implements interface Interface1.'
             ],
-            FindBreakingChanges::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)[0]);
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema));
     }
 
-    public function testDetectsAllBreakingChanges()
+    /**
+     * @it should detect all breaking changes
+     */
+    public function testShouldDetectAllBreakingChanges()
     {
         $typeThatGetsRemoved = new ObjectType([
             'name' => 'TypeThatGetsRemoved',
@@ -1099,15 +1055,11 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $unionTypeThatLosesATypeOld = new UnionType([
             'name' => 'UnionTypeThatLosesAType',
             'types' => [$typeInUnion1, $typeInUnion2],
-            'resolveType' => function () {
-            }
         ]);
 
         $unionTypeThatLosesATypeNew = new UnionType([
             'name' => 'UnionTypeThatLosesAType',
             'types' => [$typeInUnion1],
-            'resolveType' => function () {
-            }
         ]);
 
         $enumTypeThatLosesAValueOld = new EnumType([
@@ -1132,8 +1084,6 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             'fields' => [
                 'field1' => Type::string()
             ],
-            'resolveType' => function () {
-            }
         ]);
 
         $typeThatLosesInterfaceOld = new ObjectType([
@@ -1151,32 +1101,78 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
+        $directiveThatIsRemoved = Directive::skipDirective();
+        $directiveThatRemovesArgOld = new Directive([
+            'name' => 'DirectiveThatRemovesArg',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+            'args' => FieldArgument::createMap([
+                'arg1' => [
+                    'name' => 'arg1',
+                ],
+            ]),
+        ]);
+        $directiveThatRemovesArgNew = new Directive([
+            'name' => 'DirectiveThatRemovesArg',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+        ]);
+        $nonNullDirectiveAddedOld = new Directive([
+            'name' => 'NonNullDirectiveAdded',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+        ]);
+        $nonNullDirectiveAddedNew = new Directive([
+            'name' => 'NonNullDirectiveAdded',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+            'args' => FieldArgument::createMap([
+                'arg1' => [
+                    'name' => 'arg1',
+                    'type' => Type::nonNull(Type::boolean()),
+                ],
+            ]),
+        ]);
+        $directiveRemovedLocationOld = new Directive([
+            'name' => 'Directive Name',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION, DirectiveLocation::QUERY],
+        ]);
+        $directiveRemovedLocationNew = new Directive([
+            'name' => 'Directive Name',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+        ]);
+
         $oldSchema = new Schema([
             'query' => $this->queryType,
-            'types' =>
-                [
-                    'TypeThatGetsRemoved' => $typeThatGetsRemoved,
-                    'TypeThatChangesType' => $typeThatChangesTypeOld,
-                    'TypeThatHasBreakingFieldChanges' => $typeThatHasBreakingFieldChangesOld,
-                    'UnionTypeThatLosesAType' => $unionTypeThatLosesATypeOld,
-                    'EnumTypeThatLosesAValue' => $enumTypeThatLosesAValueOld,
-                    'ArgThatChanges' => $argThatChanges,
-                    'TypeThatLosesInterface' => $typeThatLosesInterfaceOld
-                ]
+            'types' => [
+                $typeThatGetsRemoved,
+                $typeThatChangesTypeOld,
+                $typeThatHasBreakingFieldChangesOld,
+                $unionTypeThatLosesATypeOld,
+                $enumTypeThatLosesAValueOld,
+                $argThatChanges,
+                $typeThatLosesInterfaceOld
+            ],
+            'directives' => [
+                $directiveThatIsRemoved,
+                $directiveThatRemovesArgOld,
+                $nonNullDirectiveAddedOld,
+                $directiveRemovedLocationOld,
+            ]
         ]);
 
         $newSchema = new Schema([
             'query' => $this->queryType,
-            'types' =>
-                [
-                    'TypeThatChangesType' => $typeThatChangesTypeNew,
-                    'TypeThatHasBreakingFieldChanges' => $typeThatHasBreakingFieldChangesNew,
-                    'UnionTypeThatLosesAType' => $unionTypeThatLosesATypeNew,
-                    'EnumTypeThatLosesAValue' => $enumTypeThatLosesAValueNew,
-                    'ArgThatChanges' => $argChanged,
-                    'TypeThatLosesInterface' => $typeThatLosesInterfaceNew,
-                    'Interface1' => $interface1
-                ]
+            'types' => [
+                $typeThatChangesTypeNew,
+                $typeThatHasBreakingFieldChangesNew,
+                $unionTypeThatLosesATypeNew,
+                $enumTypeThatLosesAValueNew,
+                $argChanged,
+                $typeThatLosesInterfaceNew,
+                $interface1
+            ],
+            'directives' => [
+                $directiveThatRemovesArgNew,
+                $nonNullDirectiveAddedNew,
+                $directiveRemovedLocationNew,
+            ]
         ]);
 
         $expectedBreakingChanges = [
@@ -1188,25 +1184,23 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                 'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED,
                 'description' => 'TypeInUnion2 was removed.',
             ],
-            /*
-            // NB the below assertion is included in the graphql-js tests, but it makes no sense.
-            // Seriously, look for what `int` type was supposed to be removed between the two schemas.  There is none.
-            // I honestly think it's a bug in the js implementation and was put into the test just to make it pass.
+            /* This is reported in the js version because builtin sclar types are added on demand
+               and not like here always
              [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED,
                 'description' => 'Int was removed.'
             ],*/
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_CHANGED,
+                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_CHANGED_KIND,
                 'description' => 'TypeThatChangesType changed from an Object type to an Interface type.',
             ],
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_REMOVED,
-                'description' => 'TypeThatHasBreakingFieldChanges->field1 was removed.',
+                'description' => 'TypeThatHasBreakingFieldChanges.field1 was removed.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED,
-                'description' => 'TypeThatHasBreakingFieldChanges->field2 changed type from String to Boolean.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'description' => 'TypeThatHasBreakingFieldChanges.field2 changed type from String to Boolean.',
             ],
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
@@ -1217,21 +1211,220 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                 'description' => 'VALUE0 was removed from enum type EnumTypeThatLosesAValue.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED,
-                'description' => 'ArgThatChanges->field1 arg id has changed type from Int to String.',
+                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'description' => 'ArgThatChanges.field1 arg id has changed type from Int to String',
             ],
             [
                 'type' => FindBreakingChanges::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
                 'description' => 'TypeThatLosesInterface1 no longer implements interface Interface1.',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'description' => 'skip was removed',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                'description' => 'arg1 was removed from DirectiveThatRemovesArg',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
+                'description' => 'A non-null arg arg1 on directive NonNullDirectiveAdded was added',
+            ],
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                'description' => 'QUERY was removed from Directive Name',
             ]
         ];
 
         $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findBreakingChanges($oldSchema, $newSchema));
     }
 
-    // findDangerousChanges tests below here
+    /**
+     * @it should detect if a directive was explicitly removed
+     */
+    public function testShouldDetectIfADirectiveWasExplicitlyRemoved()
+    {
+        $oldSchema = new Schema([
+            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+        ]);
 
-    public function testFindDangerousArgChanges()
+        $newSchema = new Schema([
+            'directives' => [Directive::skipDirective()],
+        ]);
+
+        $includeDirective = Directive::includeDirective();
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'description' => "{$includeDirective->name} was removed",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectives($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect if a directive was implicitly removed
+     */
+    public function testShouldDetectIfADirectiveWasImplicitlyRemoved()
+    {
+        $oldSchema = new Schema([]);
+
+        $newSchema = new Schema([
+            'directives' => [Directive::skipDirective(), Directive::includeDirective()],
+        ]);
+
+        $deprecatedDirective = Directive::deprecatedDirective();
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'description' => "{$deprecatedDirective->name} was removed",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectives($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect if a directive argument was removed
+     */
+    public function testShouldDetectIfADirectiveArgumentWasRemoved()
+    {
+        $oldSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'DirectiveWithArg',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                    'args' => FieldArgument::createMap([
+                        'arg1' => [
+                            'name' => 'arg1',
+                        ],
+                    ]),
+                ])
+            ],
+        ]);
+
+        $newSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'DirectiveWithArg',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                ])
+            ],
+        ]);
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                'description' => "arg1 was removed from DirectiveWithArg",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectiveArgs($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect if a non-nullable directive argument was added
+     */
+    public function testShouldDetectIfANonNullableDirectiveArgumentWasAdded()
+    {
+        $oldSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'DirectiveName',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                ])
+            ],
+        ]);
+
+        $newSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'DirectiveName',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                    'args' => FieldArgument::createMap([
+                        'arg1' => [
+                            'name' => 'arg1',
+                            'type' => Type::nonNull(Type::boolean()),
+                        ],
+                    ]),
+                ])
+            ],
+        ]);
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
+                'description' => "A non-null arg arg1 on directive DirectiveName was added",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findAddedNonNullDirectiveArgs($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect locations removed from a directive
+     */
+    public function testShouldDetectLocationsRemovedFromADirective()
+    {
+        $d1 = new Directive([
+            'name' => 'Directive Name',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION, DirectiveLocation::QUERY],
+        ]);
+
+        $d2 = new Directive([
+            'name' => 'Directive Name',
+            'locations' => [DirectiveLocation::FIELD_DEFINITION],
+        ]);
+
+        $this->assertEquals([DirectiveLocation::QUERY], FindBreakingChanges::findRemovedLocationsForDirective($d1, $d2));
+    }
+
+    /**
+     * @it should detect locations removed directives within a schema
+     */
+    public function testShouldDetectLocationsRemovedDirectiveWithinASchema()
+    {
+        $oldSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'Directive Name',
+                    'locations' => [
+                        DirectiveLocation::FIELD_DEFINITION,
+                        DirectiveLocation::QUERY
+                    ],
+                ])
+            ],
+        ]);
+
+        $newSchema = new Schema([
+            'directives' => [
+                new Directive([
+                    'name' => 'Directive Name',
+                    'locations' => [DirectiveLocation::FIELD_DEFINITION],
+                ])
+            ],
+        ]);
+
+        $expectedBreakingChanges = [
+            [
+                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                'description' => "QUERY was removed from Directive Name",
+            ]
+        ];
+
+        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectiveLocations($oldSchema, $newSchema));
+    }
+
+    // DESCRIBE: findDangerousChanges
+    // DESCRIBE: findArgChanges
+
+    /**
+     * @it should detect if an argument's defaultValue has changed
+     */
+    public function testShouldDetectIfAnArgumentsDefaultValueHasChanged()
     {
         $oldType = new ObjectType([
             'name' => 'Type1',
@@ -1256,7 +1449,7 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                     'args' => [
                         'name' => [
                             'type' => Type::string(),
-                            'defaultValue' => 'Testertest'
+                            'defaultValue' => 'Test'
                         ]
                     ]
                 ]
@@ -1265,28 +1458,31 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $oldSchema = new Schema([
             'query' => $this->queryType,
-            'types' => [
-                $oldType
-            ]
+            'types' => [$oldType],
         ]);
 
         $newSchema = new Schema([
             'query' => $this->queryType,
-            'types' => [
-                $newType
-            ]
+            'types' => [$newType],
         ]);
 
-        $this->assertEquals(
+        $expected = [
             [
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE,
-                'description' => 'Type1->field1 arg name has changed defaultValue'
-            ],
-            FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['dangerousChanges'][0]
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
+                'description' => 'Type1.field1 arg name has changed defaultValue'
+            ]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
         );
     }
 
-    public function testDetectsEnumValueAdditions()
+    /**
+     * @it should detect if a value was added to an enum type
+     */
+    public function testShouldDetectIfAValueWasAddedToAnEnumType()
     {
         $oldEnumType = new EnumType([
             'name' => 'EnumType1',
@@ -1306,28 +1502,80 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
 
         $oldSchema = new Schema([
             'query' => $this->queryType,
-            'types' => [
-                $oldEnumType
-            ]
+            'types' => [$oldEnumType],
         ]);
 
         $newSchema = new Schema([
             'query' => $this->queryType,
-            'types' => [
-                $newEnumType
-            ]
+            'types' => [$newEnumType],
         ]);
 
-        $this->assertEquals(
+        $expected = [
             [
                 'type' => FindBreakingChanges::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
-                'description' => 'VALUE2 was added to enum type EnumType1'
-            ],
-            FindBreakingChanges::findValuesAddedToEnums($oldSchema, $newSchema)[0]
+                'description' => 'VALUE2 was added to enum type EnumType1.'
+            ]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findValuesAddedToEnums($oldSchema, $newSchema)
         );
     }
 
-    public function testDetectsAdditionsToUnionType()
+    /**
+     * @it should detect interfaces added to types
+     */
+    public function testShouldDetectInterfacesAddedToTypes()
+    {
+        $interface1 = new InterfaceType([
+            'name' => 'Interface1',
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+        ]);
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+        ]);
+
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'interfaces' => [$interface1],
+            'fields' => [
+                'field1' => Type::string(),
+            ],
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$oldType],
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$newType],
+        ]);
+
+        $expected = [
+            [
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                'description' => 'Interface1 added to interfaces implemented by Type1.'
+            ]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
+        );
+    }
+
+    /**
+     * @it should detect if a type was added to a union type
+     */
+    public function testShouldDetectIfATypeWasAddedToAUnionType()
     {
         $type1 = new ObjectType([
             'name' => 'Type1',
@@ -1335,14 +1583,14 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                 'field1' => Type::string()
             ]
         ]);
-
+        // logially equivalent to type1; findTypesRemovedFromUnions should not
+        //treat this as different than type1
         $type1a = new ObjectType([
             'name' => 'Type1',
             'fields' => [
                 'field1' => Type::string()
             ]
         ]);
-
         $type2 = new ObjectType([
             'name' => 'Type2',
             'fields' => [
@@ -1353,41 +1601,88 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
         $oldUnionType = new UnionType([
             'name' => 'UnionType1',
             'types' => [$type1],
-            'resolveType' => function () {
-            }
         ]);
-
         $newUnionType = new UnionType([
             'name' => 'UnionType1',
             'types' => [$type1a, $type2],
-            'resolveType' => function () {
-            }
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$oldUnionType],
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$newUnionType],
+        ]);
+
+        $expected = [
+            [
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                'description' => 'Type2 was added to union type UnionType1.'
+            ]
+        ];
+
+        $this->assertEquals(
+            $expected,
+            FindBreakingChanges::findTypesAddedToUnions($oldSchema, $newSchema)
+        );
+    }
+
+    /**
+     * @it should detect if a nullable field was added to an input
+     */
+    public function testShouldDetectIfANullableFieldWasAddedToAnInput()
+    {
+        $oldInputType = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                ],
+            ],
+        ]);
+        $newInputType = new InputObjectType([
+            'name' => 'InputType1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                ],
+                'field2' => [
+                    'type' => Type::int(),
+                ],
+            ],
         ]);
 
         $oldSchema = new Schema([
             'query' => $this->queryType,
             'types' => [
-                $oldUnionType
+                $oldInputType,
             ]
         ]);
 
         $newSchema = new Schema([
             'query' => $this->queryType,
             'types' => [
-                $newUnionType
+                $newInputType,
             ]
         ]);
 
-        $this->assertEquals(
+        $expectedFieldChanges = [
             [
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
-                'description' => 'Type2 was added to union type UnionType1'
+                'description' => 'A nullable field field2 on input type InputType1 was added.',
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_NULLABLE_INPUT_FIELD_ADDED
             ],
-            FindBreakingChanges::findTypesAddedToUnions($oldSchema, $newSchema)[0]
-        );
+        ];
+
+        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['dangerousChanges']);
     }
 
-    public function testFindsAllDangerousChanges()
+    /**
+     * @it should find all dangerous changes
+     */
+    public function testShouldFindAllDangerousChanges()
     {
         $enumThatGainsAValueOld = new EnumType([
             'name' => 'EnumType1',
@@ -1420,6 +1715,27 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
+        $typeInUnion1 = new ObjectType([
+            'name' => 'TypeInUnion1',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+        $typeInUnion2 = new ObjectType([
+            'name' => 'TypeInUnion2',
+            'fields' => [
+                'field1' => Type::string()
+            ]
+        ]);
+        $unionTypeThatGainsATypeOld = new UnionType([
+            'name' => 'UnionTypeThatGainsAType',
+            'types' => [$typeInUnion1],
+        ]);
+        $unionTypeThatGainsATypeNew = new UnionType([
+            'name' => 'UnionTypeThatGainsAType',
+            'types' => [$typeInUnion1, $typeInUnion2],
+        ]);
+
         $newType = new ObjectType([
             'name' => 'Type1',
             'fields' => [
@@ -1428,39 +1744,33 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
                     'args' => [
                         'name' => [
                             'type' => Type::string(),
-                            'defaultValue' => 'Testertest'
+                            'defaultValue' => 'Test'
                         ]
                     ]
                 ]
             ]
         ]);
 
-        $typeInUnion1 = new ObjectType([
-            'name' => 'TypeInUnion1',
+        $interface1 = new InterfaceType([
+            'name' => 'Interface1',
             'fields' => [
-                'field1' => Type::string()
-            ]
+                'field1' => Type::string(),
+            ],
         ]);
 
-        $typeInUnion2 = new ObjectType([
-            'name' => 'TypeInUnion2',
+        $typeThatGainsInterfaceOld = new ObjectType([
+            'name' => 'TypeThatGainsInterface1',
             'fields' => [
-                'field1' => Type::string()
-            ]
+                'field1' => Type::string(),
+            ],
         ]);
 
-        $unionTypeThatGainsATypeOld = new UnionType([
-            'name' => 'UnionType1',
-            'types' => [$typeInUnion1],
-            'resolveType' => function () {
-            }
-        ]);
-
-        $unionTypeThatGainsATypeNew = new UnionType([
-            'name' => 'UnionType1',
-            'types' => [$typeInUnion1, $typeInUnion2],
-            'resolveType' => function () {
-            }
+        $typeThatGainsInterfaceNew = new ObjectType([
+            'name' => 'TypeThatGainsInterface1',
+            'interfaces' => [$interface1],
+            'fields' => [
+                'field1' => Type::string(),
+            ],
         ]);
 
         $oldSchema = new Schema([
@@ -1468,6 +1778,7 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             'types' => [
                 $oldType,
                 $enumThatGainsAValueOld,
+                $typeThatGainsInterfaceOld,
                 $unionTypeThatGainsATypeOld
             ]
         ]);
@@ -1477,25 +1788,86 @@ class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
             'types' => [
                 $newType,
                 $enumThatGainsAValueNew,
+                $typeThatGainsInterfaceNew,
                 $unionTypeThatGainsATypeNew
             ]
         ]);
 
         $expectedDangerousChanges = [
             [
-                'description' => 'Type1->field1 arg name has changed defaultValue',
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE
+                'description' => 'Type1.field1 arg name has changed defaultValue',
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED
             ],
             [
-                'description' => 'VALUE2 was added to enum type EnumType1',
+                'description' => 'VALUE2 was added to enum type EnumType1.',
                 'type' => FindBreakingChanges::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM
             ],
             [
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                'description' => 'Interface1 added to interfaces implemented by TypeThatGainsInterface1.',
+            ],
+            [
                 'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
-                'description' => 'TypeInUnion2 was added to union type UnionType1',
+                'description' => 'TypeInUnion2 was added to union type UnionTypeThatGainsAType.',
             ]
         ];
 
         $this->assertEquals($expectedDangerousChanges, FindBreakingChanges::findDangerousChanges($oldSchema, $newSchema));
+    }
+
+    /**
+     * @it should detect if a nullable field argument was added
+     */
+    public function testShouldDetectIfANullableFieldArgumentWasAdded()
+    {
+        $oldType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => [
+                            'type' => Type::string(),
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $newType = new ObjectType([
+            'name' => 'Type1',
+            'fields' => [
+                'field1' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg1' => [
+                            'type' => Type::string(),
+                        ],
+                        'arg2' => [
+                            'type' => Type::string(),
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $oldSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$oldType],
+        ]);
+
+        $newSchema = new Schema([
+            'query' => $this->queryType,
+            'types' => [$newType],
+        ]);
+
+        $expectedFieldChanges = [
+            [
+                'description' => 'A nullable arg arg2 on Type1.field1 was added',
+                'type' => FindBreakingChanges::DANGEROUS_CHANGE_NULLABLE_ARG_ADDED
+            ],
+        ];
+
+        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['dangerousChanges']);
     }
 }

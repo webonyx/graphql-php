@@ -22,7 +22,7 @@ use GraphQL\Utils\Utils;
  *     }
  * }
  */
-abstract class ScalarType extends Type implements OutputType, InputType, LeafType
+abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NamedType
 {
     /**
      * @var ScalarTypeDefinitionNode|null
@@ -36,30 +36,6 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
 
-        Utils::assertValidName($this->name);
-    }
-
-    /**
-     * Determines if an internal value is valid for this type.
-     * Equivalent to checking for if the parsedValue is nullish.
-     *
-     * @param $value
-     * @return bool
-     */
-    public function isValidValue($value)
-    {
-        return null !== $this->parseValue($value);
-    }
-
-    /**
-     * Determines if an internal value is valid for this type.
-     * Equivalent to checking for if the parsedLiteral is nullish.
-     *
-     * @param $valueNode
-     * @return bool
-     */
-    public function isValidLiteral($valueNode)
-    {
-        return null !== $this->parseLiteral($valueNode);
+        Utils::invariant(is_string($this->name), 'Must provide name.');
     }
 }

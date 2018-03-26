@@ -3,6 +3,7 @@ namespace GraphQL\Language;
 
 use GraphQL\Error\SyntaxError;
 use GraphQL\Utils\Utils;
+use GraphQL\Utils\BlockString;
 
 /**
  * A Lexer is a stateful stream generator in that every time
@@ -91,13 +92,18 @@ class Lexer
      */
     public function advance()
     {
-        $token = $this->lastToken = $this->token;
+        $this->lastToken = $this->token;
+        $token = $this->token = $this->lookahead();
+        return $token;
+    }
 
+    public function lookahead()
+    {
+        $token = $this->token;
         if ($token->kind !== Token::EOF) {
             do {
-                $token = $token->next = $this->readToken($token);
+                $token = $token->next ?: ($token->next = $this->readToken($token));
             } while ($token->kind === Token::COMMENT);
-            $this->token = $token;
         }
         return $token;
     }
@@ -201,7 +207,15 @@ class Lexer
                     ->readNumber($line, $col, $prev);
             // "
             case 34:
-                return $this->moveStringCursor(-1, -1 * $bytes)
+                list(,$nextCode) = $this->readChar();
+                list(,$nextNextCode) = $this->moveStringCursor(1, 1)->readChar();
+
+                if ($nextCode === 34 && $nextNextCode === 34) {
+                    return $this->moveStringCursor(-2, (-1 * $bytes) - 1)
+                        ->readBlockString($line, $col, $prev);
+                }
+
+                return $this->moveStringCursor(-2, (-1 * $bytes) - 1)
                     ->readString($line, $col, $prev);
         }
 
@@ -370,12 +384,28 @@ class Lexer
         $value = '';
 
         while (
-            $code &&
+            $code !== null &&
             // not LineTerminator
-            $code !== 10 && $code !== 13 &&
-            // not Quote (")
-            $code !== 34
+            $code !== 10 && $code !== 13
         ) {
+            // Closing Quote (")
+            if ($code === 34) {
+                $value .= $chunk;
+
+                // Skip quote
+                $this->moveStringCursor(1, 1);
+
+                return new Token(
+                    Token::STRING,
+                    $start,
+                    $this->position,
+                    $line,
+                    $col,
+                    $prev,
+                    $value
+                );
+            }
+
             $this->assertValidStringCharacterCode($code, $this->position);
             $this->moveStringCursor(1, $bytes);
 
@@ -421,27 +451,83 @@ class Lexer
             list ($char, $code, $bytes) = $this->readChar();
         }
 
-        if ($code !== 34) {
-            throw new SyntaxError(
-                $this->source,
-                $this->position,
-                'Unterminated string.'
-            );
+        throw new SyntaxError(
+            $this->source,
+            $this->position,
+            'Unterminated string.'
+        );
+    }
+
+    /**
+     * Reads a block string token from the source file.
+     *
+     * """("?"?(\\"""|\\(?!=""")|[^"\\]))*"""
+     */
+    private function readBlockString($line, $col, Token $prev)
+    {
+        $start = $this->position;
+
+        // Skip leading quotes and read first string char:
+        list ($char, $code, $bytes) = $this->moveStringCursor(3, 3)->readChar();
+
+        $chunk = '';
+        $value = '';
+
+        while ($code !== null) {
+            // Closing Triple-Quote (""")
+            if ($code === 34) {
+                // Move 2 quotes
+                list(,$nextCode) = $this->moveStringCursor(1, 1)->readChar();
+                list(,$nextNextCode) = $this->moveStringCursor(1, 1)->readChar();
+
+                if ($nextCode === 34 && $nextNextCode === 34) {
+                    $value .= $chunk;
+
+                    $this->moveStringCursor(1, 1);
+
+                    return new Token(
+                        Token::BLOCK_STRING,
+                        $start,
+                        $this->position,
+                        $line,
+                        $col,
+                        $prev,
+                        BlockString::value($value)
+                    );
+                } else {
+                    // move cursor back to before the first quote
+                    $this->moveStringCursor(-2, -2);
+                }
+            }
+
+            $this->assertValidBlockStringCharacterCode($code, $this->position);
+            $this->moveStringCursor(1, $bytes);
+
+            list(,$nextCode) = $this->readChar();
+            list(,$nextNextCode) = $this->moveStringCursor(1, 1)->readChar();
+            list(,$nextNextNextCode) = $this->moveStringCursor(1, 1)->readChar();
+
+            // Escape Triple-Quote (\""")
+            if ($code === 92 &&
+                $nextCode === 34 &&
+                $nextNextCode === 34 &&
+                $nextNextNextCode === 34
+            ) {
+                $this->moveStringCursor(1, 1);
+                $value .= $chunk . '"""';
+                $chunk = '';
+            } else {
+                $this->moveStringCursor(-2, -2);
+                $chunk .= $char;
+            }
+
+            list ($char, $code, $bytes) = $this->readChar();
         }
 
-        $value .= $chunk;
-
-        // Skip trailing quote:
-        $this->moveStringCursor(1, 1);
-
-        return new Token(
-            Token::STRING,
-            $start,
+        throw new SyntaxError(
+            $this->source,
             $this->position,
-            $line,
-            $col,
-            $prev,
-            $value
+            'Unterminated string.'
         );
     }
 
@@ -449,6 +535,18 @@ class Lexer
     {
         // SourceCharacter
         if ($code < 0x0020 && $code !== 0x0009) {
+            throw new SyntaxError(
+                $this->source,
+                $position,
+                'Invalid character within String: ' . Utils::printCharCode($code)
+            );
+        }
+    }
+
+    private function assertValidBlockStringCharacterCode($code, $position)
+    {
+        // SourceCharacter
+        if ($code < 0x0020 && $code !== 0x0009 && $code !== 0x000A && $code !== 0x000D) {
             throw new SyntaxError(
                 $this->source,
                 $position,
@@ -537,7 +635,7 @@ class Lexer
             $byteStreamPosition = $this->byteStreamPosition;
         }
 
-        $code = 0;
+        $code = null;
         $utf8char = '';
         $bytes = 0;
         $positionOffset = 0;

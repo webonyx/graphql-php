@@ -2,7 +2,6 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Utils\Utils;
 
@@ -35,63 +34,60 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     /**
      * @param mixed $value
      * @return int|null
+     * @throws Error
      */
     public function serialize($value)
     {
-        if ($value === '') {
-            throw new InvariantViolation('Int cannot represent non 32-bit signed integer value: (empty string)');
-        }
-        if (false === $value || true === $value) {
-            return (int) $value;
-        }
-        if (!is_numeric($value) || $value > self::MAX_INT || $value < self::MIN_INT) {
-            throw new InvariantViolation(sprintf(
-                'Int cannot represent non 32-bit signed integer value: %s',
-                Utils::printSafe($value)
-            ));
-        }
-        $num = (float) $value;
-
-        // The GraphQL specification does not allow serializing non-integer values
-        // as Int to avoid accidental data loss.
-        // Examples: 1.0 == 1; 1.1 != 1, etc
-        if ($num != (int) $value) {
-            // Additionally account for scientific notation (i.e. 1e3), because (float)'1e3' is 1000, but (int)'1e3' is 1
-            $trimmed = floor($num);
-            if ($trimmed !== $num) {
-                throw new InvariantViolation(sprintf(
-                    'Int cannot represent non-integer value: %s',
-                    Utils::printSafe($value)
-                ));
-            }
-        }
-        return (int) $value;
+        return $this->coerceInt($value);
     }
 
     /**
      * @param mixed $value
      * @return int|null
+     * @throws Error
      */
     public function parseValue($value)
     {
-        // Below is a fix against PHP bug where (in some combinations of OSs and versions)
-        // boundary values are treated as "double" vs "integer" and failing is_int() check
-        $isInt = is_int($value) || $value === self::MIN_INT || $value === self::MAX_INT;
-        return $isInt && $value <= self::MAX_INT && $value >= self::MIN_INT ? $value : null;
+        return $this->coerceInt($value);
     }
 
     /**
-     * @param $ast
+     * @param $valueNode
+     * @param array|null $variables
      * @return int|null
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof IntValueNode) {
-            $val = (int) $ast->value;
-            if ($ast->value === (string) $val && self::MIN_INT <= $val && $val <= self::MAX_INT) {
+        if ($valueNode instanceof IntValueNode) {
+            $val = (int) $valueNode->value;
+            if ($valueNode->value === (string) $val && self::MIN_INT <= $val && $val <= self::MAX_INT) {
                 return $val;
             }
         }
-        return null;
+        return Utils::undefined();
+    }
+
+    private function coerceInt($value) {
+        if ($value === '') {
+            throw new Error(
+                'Int cannot represent non 32-bit signed integer value: (empty string)'
+            );
+        }
+
+        $num = floatval($value);
+        if (!is_numeric($value) && !is_bool($value) || $num > self::MAX_INT || $num < self::MIN_INT) {
+            throw new Error(
+                'Int cannot represent non 32-bit signed integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+        $int = intval($num);
+        if ($int != $num) {
+            throw new Error(
+                'Int cannot represent non-integer value: ' .
+                Utils::printSafe($value)
+            );
+        }
+        return $int;
     }
 }

@@ -1,5 +1,5 @@
 <?php
-namespace GraphQL\Tests;
+namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\Parser;
@@ -30,6 +30,24 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse($source);
         $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
         $e = new Error('msg', [ $fieldNode ]);
+
+        $this->assertEquals([$fieldNode], $e->nodes);
+        $this->assertEquals($source, $e->getSource());
+        $this->assertEquals([8], $e->getPositions());
+        $this->assertEquals([new SourceLocation(2, 7)], $e->getLocations());
+    }
+
+    /**
+     * @it converts single node to positions and locations
+     */
+    public function testConvertSingleNodeToPositionsAndLocations()
+    {
+        $source = new Source('{
+      field
+    }');
+        $ast = Parser::parse($source);
+        $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
+        $e = new Error('msg', $fieldNode); // Non-array value.
 
         $this->assertEquals([$fieldNode], $e->nodes);
         $this->assertEquals($source, $e->getSource());
@@ -109,5 +127,24 @@ class ErrorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals([ 'path', 3, 'to', 'field' ], $e->path);
         $this->assertEquals(['message' => 'msg', 'path' => [ 'path', 3, 'to', 'field' ]], $e->toSerializableArray());
+    }
+
+    /**
+     * @it default error formatter includes extension fields
+     */
+    public function testDefaultErrorFormatterIncludesExtensionFields()
+    {
+        $e = new Error(
+            'msg',
+            null,
+            null,
+            null,
+            null,
+            null,
+            ['foo' => 'bar']
+        );
+
+        $this->assertEquals(['foo' => 'bar'], $e->getExtensions());
+        $this->assertEquals(['message' => 'msg', 'foo' => 'bar'], $e->toSerializableArray());
     }
 }

@@ -100,9 +100,16 @@ class Executor
     {
         // TODO: deprecate (just always use SyncAdapter here) and have `promiseToExecute()` for other cases
         $promiseAdapter = self::getPromiseAdapter();
-
-        $result = self::promiseToExecute($promiseAdapter, $schema, $ast, $rootValue, $contextValue,
-            $variableValues, $operationName, $fieldResolver);
+        $result = self::promiseToExecute(
+            $promiseAdapter,
+            $schema,
+            $ast,
+            $rootValue,
+            $contextValue,
+            $variableValues,
+            $operationName,
+            $fieldResolver
+        );
 
         // Wait for promised results when using sync promises
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -140,11 +147,19 @@ class Executor
         callable $fieldResolver = null
     )
     {
-        try {
-            $exeContext = self::buildExecutionContext($schema, $ast, $rootValue, $contextValue, $variableValues,
-                $operationName, $fieldResolver, $promiseAdapter);
-        } catch (Error $e) {
-            return $promiseAdapter->createFulfilled(new ExecutionResult(null, [$e]));
+        $exeContext = self::buildExecutionContext(
+            $schema,
+            $ast,
+            $rootValue,
+            $contextValue,
+            $variableValues,
+            $operationName,
+            $fieldResolver,
+            $promiseAdapter
+        );
+
+        if (is_array($exeContext)) {
+            return $promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext));
         }
 
         $executor = new self($exeContext);
@@ -159,13 +174,12 @@ class Executor
      * @param DocumentNode $documentNode
      * @param $rootValue
      * @param $contextValue
-     * @param $rawVariableValues
+     * @param array|\Traversable $rawVariableValues
      * @param string $operationName
      * @param callable $fieldResolver
      * @param PromiseAdapter $promiseAdapter
      *
-     * @return ExecutionContext
-     * @throws Error
+     * @return ExecutionContext|Error[]
      */
     private static function buildExecutionContext(
         Schema $schema,
@@ -178,30 +192,17 @@ class Executor
         PromiseAdapter $promiseAdapter = null
     )
     {
-        if (null !== $rawVariableValues) {
-            Utils::invariant(
-                is_array($rawVariableValues) || $rawVariableValues instanceof \ArrayAccess,
-                "Variable values are expected to be array or instance of ArrayAccess, got " . Utils::getVariableType($rawVariableValues)
-            );
-        }
-        if (null !== $operationName) {
-            Utils::invariant(
-                is_string($operationName),
-                "Operation name is supposed to be string, got " . Utils::getVariableType($operationName)
-            );
-        }
-
         $errors = [];
         $fragments = [];
+        /** @var OperationDefinitionNode $operation */
         $operation = null;
+        $hasMultipleAssumedOperations = false;
 
         foreach ($documentNode->definitions as $definition) {
             switch ($definition->kind) {
                 case NodeKind::OPERATION_DEFINITION:
                     if (!$operationName && $operation) {
-                        throw new Error(
-                            'Must provide operation name if query contains multiple operations.'
-                        );
+                        $hasMultipleAssumedOperations = true;
                     }
                     if (!$operationName ||
                         (isset($definition->name) && $definition->name->value === $operationName)) {
@@ -211,29 +212,45 @@ class Executor
                 case NodeKind::FRAGMENT_DEFINITION:
                     $fragments[$definition->name->value] = $definition;
                     break;
-                default:
-                    throw new Error(
-                        "GraphQL cannot execute a request containing a {$definition->kind}.",
-                        [$definition]
-                    );
             }
         }
 
         if (!$operation) {
             if ($operationName) {
-                throw new Error("Unknown operation named \"$operationName\".");
+                $errors[] = new Error("Unknown operation named \"$operationName\".");
             } else {
-                throw new Error('Must provide an operation.');
+                $errors[] = new Error('Must provide an operation.');
+            }
+        } else if ($hasMultipleAssumedOperations) {
+            $errors[] = new Error(
+                'Must provide operation name if query contains multiple operations.'
+            );
+
+        }
+
+        $variableValues = null;
+        if ($operation) {
+            $coercedVariableValues = Values::getVariableValues(
+                $schema,
+                $operation->variableDefinitions ?: [],
+                $rawVariableValues ?: []
+            );
+
+            if ($coercedVariableValues['errors']) {
+                $errors = array_merge($errors, $coercedVariableValues['errors']);
+            } else {
+                $variableValues = $coercedVariableValues['coerced'];
             }
         }
 
-        $variableValues = Values::getVariableValues(
-            $schema,
-            $operation->variableDefinitions ?: [],
-            $rawVariableValues ?: []
-        );
+        if ($errors) {
+            return $errors;
+        }
 
-        $exeContext = new ExecutionContext(
+        Utils::invariant($operation, 'Has operation if no errors.');
+        Utils::invariant($variableValues !== null, 'Has variables if no errors.');
+
+        return new ExecutionContext(
             $schema,
             $fragments,
             $rootValue,
@@ -244,7 +261,6 @@ class Executor
             $fieldResolver ?: self::$defaultFieldResolver,
             $promiseAdapter ?: self::getPromiseAdapter()
         );
-        return $exeContext;
     }
 
     /**
@@ -338,7 +354,6 @@ class Executor
         }
     }
 
-
     /**
      * Extracts the root type of the operation from the schema.
      *
@@ -351,12 +366,19 @@ class Executor
     {
         switch ($operation->operation) {
             case 'query':
-                return $schema->getQueryType();
+                $queryType = $schema->getQueryType();
+                if (!$queryType) {
+                    throw new Error(
+                        'Schema does not define the required query root type.',
+                        [$operation]
+                    );
+                }
+                return $queryType;
             case 'mutation':
                 $mutationType = $schema->getMutationType();
                 if (!$mutationType) {
                     throw new Error(
-                        'Schema is not configured for mutations',
+                        'Schema is not configured for mutations.',
                         [$operation]
                     );
                 }
@@ -365,14 +387,14 @@ class Executor
                 $subscriptionType = $schema->getSubscriptionType();
                 if (!$subscriptionType) {
                     throw new Error(
-                        'Schema is not configured for subscriptions',
+                        'Schema is not configured for subscriptions.',
                         [ $operation ]
                     );
                 }
                 return $subscriptionType;
             default:
                 throw new Error(
-                    'Can only execute queries, mutations and subscriptions',
+                    'Can only execute queries, mutations and subscriptions.',
                     [$operation]
                 );
         }
@@ -1053,15 +1075,6 @@ class Executor
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
 
         if (null === $runtimeType) {
-            if ($returnType instanceof InterfaceType && $info->schema->getConfig()->typeLoader) {
-                Warning::warnOnce(
-                    "GraphQL Interface Type `{$returnType->name}` returned `null` from it`s `resolveType` function ".
-                    'for value: ' . Utils::printSafe($result) . '. Switching to slow resolution method using `isTypeOf` ' .
-                    'of all possible implementations. It requires full schema scan and degrades query performance significantly. '.
-                    ' Make sure your `resolveType` always returns valid implementation or throws.',
-                    Warning::WARNING_FULL_SCHEMA_SCAN
-                );
-            }
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
         }
 
@@ -1122,9 +1135,11 @@ class Executor
 
         if (!$runtimeType instanceof ObjectType) {
             throw new InvariantViolation(
-                "Abstract type {$returnType} must resolve to an Object type at runtime " .
-                "for field {$info->parentType}.{$info->fieldName} with " .
-                'value "' . Utils::printSafe($result) . '", received "'. Utils::printSafe($runtimeType) . '".'
+                "Abstract type {$returnType} must resolve to an Object type at " .
+                "runtime for field {$info->parentType}.{$info->fieldName} with " .
+                'value "' . Utils::printSafe($result) . '", received "'. Utils::printSafe($runtimeType) . '".' .
+                'Either the ' . $returnType . ' type should provide a "resolveType" ' .
+                'function or each possible types should provide an "isTypeOf" function.'
             );
         }
 
@@ -1194,7 +1209,7 @@ class Executor
     {
         $serializedResult = $returnType->serialize($result);
 
-        if ($serializedResult === null) {
+        if (Utils::isInvalid($serializedResult)) {
             throw new InvariantViolation(
                 'Expected a value of type "'. Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result)
             );
@@ -1307,7 +1322,12 @@ class Executor
 
     /**
      * If a resolveType function is not given, then a default resolve behavior is
-     * used which tests each possible type for the abstract type by calling
+     * used which attempts two strategies:
+     *
+     * First, See if the provided value has a `__typename` field defined, if so, use
+     * that value as name of the resolved type.
+     *
+     * Otherwise, test each possible type for the abstract type by calling
      * isTypeOf for the object being coerced, returning the first type that matches.
      *
      * @param $value
@@ -1318,6 +1338,27 @@ class Executor
      */
     private function defaultTypeResolver($value, $context, ResolveInfo $info, AbstractType $abstractType)
     {
+        // First, look for `__typename`.
+        if (
+            $value !== null &&
+            is_array($value) &&
+            isset($value['__typename']) &&
+            is_string($value['__typename'])
+        ) {
+            return $value['__typename'];
+        }
+
+        if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader) {
+            Warning::warnOnce(
+                "GraphQL Interface Type `{$abstractType->name}` returned `null` from it`s `resolveType` function ".
+                'for value: ' . Utils::printSafe($value) . '. Switching to slow resolution method using `isTypeOf` ' .
+                'of all possible implementations. It requires full schema scan and degrades query performance significantly. '.
+                ' Make sure your `resolveType` always returns valid implementation or throws.',
+                Warning::WARNING_FULL_SCHEMA_SCAN
+            );
+        }
+
+        // Otherwise, test each possible type.
         $possibleTypes = $info->schema->getPossibleTypes($abstractType);
         $promisedIsTypeOfResults = [];
 

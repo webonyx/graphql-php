@@ -1,9 +1,6 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Validator\DocumentValidator;
-use GraphQL\Validator\Rules\QueryComplexity;
-
 class ValidationTest extends TestCase
 {
     // Validate: Supports full validation
@@ -26,25 +23,40 @@ class ValidationTest extends TestCase
           }
         ');
     }
-/*
-    public function testAllowsSettingRulesGlobally()
-    {
-        $rule = new QueryComplexity(0);
 
-        DocumentValidator::addRule($rule);
-        $instance = DocumentValidator::getRule(QueryComplexity::class);
-        $this->assertSame($rule, $instance);
+    /**
+     * @it detects bad scalar parse
+     */
+    public function testDetectsBadScalarParse()
+    {
+        $doc = '
+      query {
+        invalidArg(arg: "bad value")
+      }
+        ';
+
+        $expectedError = [
+            'message' => "Expected type Invalid, found \"bad value\"; Invalid scalar is always invalid: bad value",
+            'locations' => [ ['line' => 3, 'column' => 25] ]
+        ];
+
+        $this->expectInvalid(
+            $this->getTestSchema(),
+            null,
+            $doc,
+            [$expectedError]
+        );
     }
-*/
+
     public function testPassesValidationWithEmptyRules()
     {
         $query = '{invalid}';
 
         $expectedError = [
-            'message' => 'Cannot query field "invalid" on type "QueryRoot".',
+            'message' => 'Cannot query field "invalid" on type "QueryRoot". Did you mean "invalidArg"?',
             'locations' => [ ['line' => 1, 'column' => 2] ]
         ];
         $this->expectFailsCompleteValidation($query, [$expectedError]);
-        $this->expectValid($this->getDefaultSchema(), [], $query);
+        $this->expectValid($this->getTestSchema(), [], $query);
     }
 }

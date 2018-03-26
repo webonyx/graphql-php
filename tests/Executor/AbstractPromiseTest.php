@@ -87,9 +87,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
           }
         }';
 
-        Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = GraphQL::execute($schema, $query);
-        Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
 
         $expected = [
             'data' => [
@@ -174,9 +172,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = GraphQL::execute($schema, $query);
-        Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
 
         $expected = [
             'data' => [

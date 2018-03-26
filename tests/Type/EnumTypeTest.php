@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Tests\Type;
 
-use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Schema;
@@ -221,7 +220,37 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             '{ colorEnum(fromEnum: "GREEN") }',
             null,
             [
-                'message' => "Argument \"fromEnum\" has invalid value \"GREEN\".\nExpected type \"Color\", found \"GREEN\".",
+                'message' => "Expected type Color, found \"GREEN\"; Did you mean the enum value GREEN?",
+                'locations' => [new SourceLocation(1, 23)]
+            ]
+        );
+    }
+
+    /**
+     * @it does not accept valuesNotInTheEnum
+     */
+    public function testDoesNotAcceptValuesNotInTheEnum()
+    {
+        $this->expectFailure(
+            '{ colorEnum(fromEnum: GREENISH) }',
+            null,
+            [
+                'message' => "Expected type Color, found GREENISH; Did you mean the enum value GREEN?",
+                'locations' => [new SourceLocation(1, 23)]
+            ]
+        );
+    }
+
+    /**
+     * @it does not accept values with incorrect casing
+     */
+    public function testDoesNotAcceptValuesWithIncorrectCasing()
+    {
+        $this->expectFailure(
+            '{ colorEnum(fromEnum: green) }',
+            null,
+            [
+                'message' => "Expected type Color, found green; Did you mean the enum value GREEN?",
                 'locations' => [new SourceLocation(1, 23)]
             ]
         );
@@ -236,8 +265,9 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             '{ colorEnum(fromString: "GREEN") }',
             null,
             [
-                'message' => 'Expected a value of type "Color" but received: "GREEN"',
-                'locations' => [new SourceLocation(1, 3)]
+                'message' => 'Expected a value of type "Color" but received: GREEN',
+                'locations' => [new SourceLocation(1, 3)],
+                'path' => ['colorEnum'],
             ]
         );
     }
@@ -250,7 +280,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             '{ colorEnum(fromEnum: 1) }',
             null,
-            "Argument \"fromEnum\" has invalid value 1.\nExpected type \"Color\", found 1."
+            "Expected type Color, found 1."
         );
     }
 
@@ -262,7 +292,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             '{ colorEnum(fromInt: GREEN) }',
             null,
-            "Argument \"fromInt\" has invalid value GREEN.\nExpected type \"Int\", found GREEN."
+            "Expected type Int, found GREEN."
         );
     }
 
@@ -326,7 +356,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             'query test($color: Color!) { colorEnum(fromEnum: $color) }',
             ['color' => 2],
-            "Variable \"\$color\" got invalid value 2.\nExpected type \"Color\", found 2."
+            'Variable "$color" got invalid value 2; Expected type Color.'
         );
     }
 
@@ -460,7 +490,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             [
                 'data' => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [[
-                    'debugMessage' => 'Expected a value of type "SimpleEnum" but received: "WRONG"',
+                    'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
                     'locations' => [['line' => 4, 'column' => 13]]
                 ]]
             ],

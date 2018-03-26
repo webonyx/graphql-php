@@ -14,17 +14,17 @@ class InterfaceTypeDefinitionNode extends Node implements TypeDefinitionNode
     public $name;
 
     /**
-     * @var DirectiveNode[]
+     * @var DirectiveNode[]|null
      */
     public $directives;
 
     /**
-     * @var FieldDefinitionNode[]
+     * @var FieldDefinitionNode[]|null
      */
-    public $fields = [];
+    public $fields;
 
     /**
-     * @var string
+     * @var StringValueNode|null
      */
     public $description;
 }

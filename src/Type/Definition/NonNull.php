@@ -11,7 +11,35 @@ use GraphQL\Utils\Utils;
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
     /**
-     * @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
+     * @param mixed $type
+     * @return self
+     */
+    public static function assertNullType($type)
+    {
+        Utils::invariant(
+            $type instanceof self,
+            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Non-Null type.'
+        );
+
+        return $type;
+    }
+
+    /**
+     * @param mixed $type
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
+     */
+    public static function assertNullableType($type)
+    {
+        Utils::invariant(
+            Type::isType($type) && !$type instanceof self,
+            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL nullable type.'
+        );
+
+        return $type;
+    }
+
+    /**
+     * @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
      */
     private $ofType;
 
@@ -21,37 +49,17 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
      */
     public function __construct($type)
     {
-        if (!$type instanceof Type && !is_callable($type)) {
-            throw new InvariantViolation(
-                'Can only create NonNull of a Nullable GraphQLType but got: ' . Utils::printSafe($type)
-            );
-        }
-        if ($type instanceof NonNull) {
-            throw new InvariantViolation(
-                'Can only create NonNull of a Nullable GraphQLType but got: ' . Utils::printSafe($type)
-            );
-        }
-        Utils::invariant(
-            !($type instanceof NonNull),
-            'Cannot nest NonNull inside NonNull'
-        );
-        $this->ofType = $type;
+        $this->ofType = self::assertNullableType($type);
     }
 
     /**
      * @param bool $recurse
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
      * @throws InvariantViolation
      */
     public function getWrappedType($recurse = false)
     {
         $type = $this->ofType;
-
-        Utils::invariant(
-            !($type instanceof NonNull),
-            'Cannot nest NonNull inside NonNull'
-        );
-
         return ($recurse && $type instanceof WrappingType) ? $type->getWrappedType($recurse) : $type;
     }
 

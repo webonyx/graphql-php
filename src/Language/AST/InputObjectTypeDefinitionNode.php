@@ -14,17 +14,17 @@ class InputObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
     public $name;
 
     /**
-     * @var DirectiveNode[]
+     * @var DirectiveNode[]|null
      */
     public $directives;
 
     /**
-     * @var InputValueDefinitionNode[]
+     * @var InputValueDefinitionNode[]|null
      */
     public $fields;
 
     /**
-     * @var string
+     * @var StringValueNode|null
      */
     public $description;
 }

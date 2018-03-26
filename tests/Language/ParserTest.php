@@ -39,13 +39,13 @@ class ParserTest extends \PHPUnit_Framework_TestCase
     public function parseProvidesUsefulErrors()
     {
         return [
-            ['{', "Syntax Error GraphQL (1:2) Expected Name, found <EOF>\n\n1: {\n    ^\n", [1], [new SourceLocation(1, 2)]],
+            ['{', "Syntax Error: Expected Name, found <EOF>", "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n", [1], [new SourceLocation(1, 2)]],
             ['{ ...MissingOn }
 fragment MissingOn Type
-', "Syntax Error GraphQL (2:20) Expected \"on\", found Name \"Type\"\n\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",],
-            ['{ field: {} }', "Syntax Error GraphQL (1:10) Expected Name, found {\n\n1: { field: {} }\n            ^\n"],
-            ['notanoperation Foo { field }', "Syntax Error GraphQL (1:1) Unexpected Name \"notanoperation\"\n\n1: notanoperation Foo { field }\n   ^\n"],
-            ['...', "Syntax Error GraphQL (1:1) Unexpected ...\n\n1: ...\n   ^\n"],
+', "Syntax Error: Expected \"on\", found Name \"Type\"", "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",],
+            ['{ field: {} }', "Syntax Error: Expected Name, found {", "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n"],
+            ['notanoperation Foo { field }', "Syntax Error: Unexpected Name \"notanoperation\"", "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n"],
+            ['...', "Syntax Error: Unexpected ...", "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n"],
         ];
     }
 
@@ -53,13 +53,14 @@ fragment MissingOn Type
      * @dataProvider parseProvidesUsefulErrors
      * @it parse provides useful errors
      */
-    public function testParseProvidesUsefulErrors($str, $expectedMessage, $expectedPositions = null, $expectedLocations = null)
+    public function testParseProvidesUsefulErrors($str, $expectedMessage, $stringRepresentation, $expectedPositions = null, $expectedLocations = null)
     {
         try {
             Parser::parse($str);
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
             $this->assertEquals($expectedMessage, $e->getMessage());
+            $this->assertEquals($stringRepresentation, (string) $e);
 
             if ($expectedPositions) {
                 $this->assertEquals($expectedPositions, $e->getPositions());
@@ -76,8 +77,15 @@ fragment MissingOn Type
      */
     public function testParseProvidesUsefulErrorWhenUsingSource()
     {
-        $this->setExpectedException(SyntaxError::class, "Syntax Error MyQuery.graphql (1:6) Expected {, found <EOF>\n\n1: query\n        ^\n");
-        Parser::parse(new Source('query', 'MyQuery.graphql'));
+        try {
+            Parser::parse(new Source('query', 'MyQuery.graphql'));
+            $this->fail('Expected exception not thrown');
+        } catch (SyntaxError $error) {
+            $this->assertEquals(
+                "Syntax Error: Expected {, found <EOF>\n\nMyQuery.graphql (1:6)\n1: query\n        ^\n",
+                (string) $error
+            );
+        }
     }
 
     /**
@@ -94,8 +102,11 @@ fragment MissingOn Type
      */
     public function testParsesConstantDefaultValues()
     {
-        $this->setExpectedException(SyntaxError::class, "Syntax Error GraphQL (1:37) Unexpected $\n\n" . '1: query Foo($x: Complex = { a: { b: [ $var ] } }) { field }' . "\n                                       ^\n");
-        Parser::parse('query Foo($x: Complex = { a: { b: [ $var ] } }) { field }');
+        $this->expectSyntaxError(
+            'query Foo($x: Complex = { a: { b: [ $var ] } }) { field }',
+            'Unexpected $',
+            $this->loc(1,37)
+        );
     }
 
     /**
@@ -103,8 +114,11 @@ fragment MissingOn Type
      */
     public function testDoesNotAcceptFragmentsNamedOn()
     {
-        $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:10) Unexpected Name "on"');
-        Parser::parse('fragment on on on { on }');
+        $this->expectSyntaxError(
+            'fragment on on on { on }',
+            'Unexpected Name "on"',
+            $this->loc(1,10)
+        );
     }
 
     /**
@@ -112,8 +126,11 @@ fragment MissingOn Type
      */
     public function testDoesNotAcceptFragmentSpreadOfOn()
     {
-        $this->setExpectedException('GraphQL\Error\SyntaxError', 'Syntax Error GraphQL (1:9) Expected Name, found }');
-        Parser::parse('{ ...on }');
+        $this->expectSyntaxError(
+            '{ ...on }',
+            'Expected Name, found }',
+            $this->loc(1,9)
+        );
     }
 
     /**
@@ -276,7 +293,7 @@ fragment $fragmentName on Type {
                     'loc' => $loc(0, 40),
                     'operation' => 'query',
                     'name' => null,
-                    'variableDefinitions' => null,
+                    'variableDefinitions' => [],
                     'directives' => [],
                     'selectionSet' => [
                         'kind' => NodeKind::SELECTION_SET,
@@ -351,6 +368,81 @@ fragment $fragmentName on Type {
     }
 
     /**
+     * @it creates ast from nameless query without variables
+     */
+    public function testParseCreatesAstFromNamelessQueryWithoutVariables()
+    {
+        $source = new Source('query {
+  node {
+    id
+  }
+}
+');
+        $result = Parser::parse($source);
+
+        $loc = function($start, $end) use ($source) {
+            return [
+                'start' => $start,
+                'end' => $end
+            ];
+        };
+
+        $expected = [
+            'kind' => NodeKind::DOCUMENT,
+            'loc' => $loc(0, 30),
+            'definitions' => [
+                [
+                    'kind' => NodeKind::OPERATION_DEFINITION,
+                    'loc' => $loc(0, 29),
+                    'operation' => 'query',
+                    'name' => null,
+                    'variableDefinitions' => [],
+                    'directives' => [],
+                    'selectionSet' => [
+                        'kind' => NodeKind::SELECTION_SET,
+                        'loc' => $loc(6, 29),
+                        'selections' => [
+                            [
+                                'kind' => NodeKind::FIELD,
+                                'loc' => $loc(10, 27),
+                                'alias' => null,
+                                'name' => [
+                                    'kind' => NodeKind::NAME,
+                                    'loc' => $loc(10, 14),
+                                    'value' => 'node'
+                                ],
+                                'arguments' => [],
+                                'directives' => [],
+                                'selectionSet' => [
+                                    'kind' => NodeKind::SELECTION_SET,
+                                    'loc' => $loc(15, 27),
+                                    'selections' => [
+                                        [
+                                            'kind' => NodeKind::FIELD,
+                                            'loc' => $loc(21, 23),
+                                            'alias' => null,
+                                            'name' => [
+                                                'kind' => NodeKind::NAME,
+                                                'loc' => $loc(21, 23),
+                                                'value' => 'id'
+                                            ],
+                                            'arguments' => [],
+                                            'directives' => [],
+                                            'selectionSet' => null
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
+        $this->assertEquals($expected, $this->nodeToArray($result));
+    }
+
+    /**
      * @it allows parsing without source location information
      */
     public function testAllowsParsingWithoutSourceLocationInformation()
@@ -362,9 +454,22 @@ fragment $fragmentName on Type {
     }
 
     /**
+     * @it Experimental: allows parsing fragment defined variables
+     */
+    public function testExperimentalAllowsParsingFragmentDefinedVariables()
+    {
+        $source = new Source('fragment a($v: Boolean = false) on t { f(v: $v) }');
+        // not throw
+        Parser::parse($source, ['experimentalFragmentVariables' => true]);
+
+        $this->setExpectedException(SyntaxError::class);
+        Parser::parse($source);
+    }
+
+    /**
      * @it contains location information that only stringifys start/end
      */
-    public function testConvertToArray()
+    public function testContainsLocationInformationThatOnlyStringifysStartEnd()
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
@@ -422,7 +527,8 @@ fragment $fragmentName on Type {
                 [
                     'kind' => NodeKind::STRING,
                     'loc' => ['start' => 5, 'end' => 10],
-                    'value' => 'abc'
+                    'value' => 'abc',
+                    'block' => false
                 ]
             ]
         ], $this->nodeToArray(Parser::parseValue('[123 "abc"]')));
@@ -533,5 +639,21 @@ fragment $fragmentName on Type {
     public static function nodeToArray(Node $node)
     {
         return TestUtils::nodeToArray($node);
+    }
+
+    private function loc($line, $column)
+    {
+        return new SourceLocation($line, $column);
+    }
+
+    private function expectSyntaxError($text, $message, $location)
+    {
+        $this->setExpectedException(SyntaxError::class, $message);
+        try {
+            Parser::parse($text);
+        } catch (SyntaxError $error) {
+            $this->assertEquals([$location], $error->getLocations());
+            throw $error;
+        }
     }
 }

@@ -12,11 +12,9 @@ use GraphQL\Error\Error;
 use GraphQL\Type\Schema;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 
@@ -124,7 +122,7 @@ class ValidationContext
     }
 
     /**
-     * @param $name
+     * @param string $name
      * @return FragmentDefinitionNode|null
      */
     function getFragment($name)
@@ -273,6 +271,14 @@ class ValidationContext
     function getInputType()
     {
         return $this->typeInfo->getInputType();
+    }
+
+    /**
+     * @return InputType
+     */
+    function getParentInputType()
+    {
+        return $this->typeInfo->getParentInputType();
     }
 
     /**

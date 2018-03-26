@@ -65,7 +65,12 @@ class NodeKind
 
     // Type Extensions
 
-    const TYPE_EXTENSION_DEFINITION = 'TypeExtensionDefinition';
+    const SCALAR_TYPE_EXTENSION = 'ScalarTypeExtension';
+    const OBJECT_TYPE_EXTENSION = 'ObjectTypeExtension';
+    const INTERFACE_TYPE_EXTENSION = 'InterfaceTypeExtension';
+    const UNION_TYPE_EXTENSION = 'UnionTypeExtension';
+    const ENUM_TYPE_EXTENSION = 'EnumTypeExtension';
+    const INPUT_OBJECT_TYPE_EXTENSION = 'InputObjectTypeExtension';
 
     // Directive Definitions
 
@@ -127,7 +132,12 @@ class NodeKind
         NodeKind::INPUT_OBJECT_TYPE_DEFINITION =>InputObjectTypeDefinitionNode::class,
 
         // Type Extensions
-        NodeKind::TYPE_EXTENSION_DEFINITION => TypeExtensionDefinitionNode::class,
+        NodeKind::SCALAR_TYPE_EXTENSION => ScalarTypeExtensionNode::class,
+        NodeKind::OBJECT_TYPE_EXTENSION => ObjectTypeExtensionNode::class,
+        NodeKind::INTERFACE_TYPE_EXTENSION => InterfaceTypeExtensionNode::class,
+        NodeKind::UNION_TYPE_EXTENSION => UnionTypeExtensionNode::class,
+        NodeKind::ENUM_TYPE_EXTENSION => EnumTypeExtensionNode::class,
+        NodeKind::INPUT_OBJECT_TYPE_EXTENSION => InputObjectTypeExtensionNode::class,
 
         // Directive Definitions
         NodeKind::DIRECTIVE_DEFINITION => DirectiveDefinitionNode::class

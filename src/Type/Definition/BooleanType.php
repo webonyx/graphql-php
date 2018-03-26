@@ -2,6 +2,7 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Utils\Utils;
 
 /**
  * Class BooleanType
@@ -34,18 +35,19 @@ class BooleanType extends ScalarType
      */
     public function parseValue($value)
     {
-        return is_bool($value) ? $value : null;
+        return is_bool($value) ? $value : Utils::undefined();
     }
 
     /**
-     * @param $ast
+     * @param $valueNode
+     * @param array|null $variables
      * @return bool|null
      */
-    public function parseLiteral($ast)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($ast instanceof BooleanValueNode) {
-            return (bool) $ast->value;
+        if ($valueNode instanceof BooleanValueNode) {
+            return (bool) $valueNode->value;
         }
-        return null;
+        return Utils::undefined();
     }
 }
