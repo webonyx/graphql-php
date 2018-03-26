@@ -38,13 +38,6 @@ Exception inside `parseLiteral()`, `parseValue()` and `serialize()`.
 
 Returning null from any of these methods will now be treated as valid result.
 
-### Breaking: TypeConfigDecorator was removed from BuildSchema
-TypeConfigDecorator was used as second argument in `BuildSchema::build()` and `BuildSchema::buildAST()` to
-enable generated schemas with Unions or Interfaces to be used for resolving. This was fixed in a more
-generalised approach so that the TypeConfigDecorator is not needed anymore and can be removed.
-
-The concrete Types are now resolved based on the `__typename` field.
-
 ### Possibly Breaking: AST to array serialization excludes nulls
 Most users won't be affected. It *may* affect you only if you do your own manipulations 
 with exported AST. 
