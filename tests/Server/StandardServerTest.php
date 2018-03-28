@@ -57,6 +57,23 @@ class StandardServerTest extends TestCase
         $this->assertPsrRequestEquals($expected, $request);
     }
 
+    public function testMultipleOperationPsrRequestExecution()
+    {
+        $body = [
+            'query' => 'query firstOp {fieldWithPhpError} query secondOp {f1}',
+            'operationName' => 'secondOp'
+        ];
+
+        $expected = [
+            'data' => [
+                'f1' => 'f1'
+            ]
+        ];
+
+        $request = $this->preparePsrRequest('application/json', $body);
+        $this->assertPsrRequestEquals($expected, $request);
+    }
+
     private function executePsrRequest($psrRequest)
     {
         $server = new StandardServer($this->config);
