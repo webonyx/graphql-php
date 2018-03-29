@@ -67,7 +67,7 @@ class OperationParams
             'queryid' => null,
             'documentid' => null, // alias to queryid
             'id' => null, // alias to queryid
-            'operation' => null,
+            'operationname' => null,
             'variables' => null
         ];
 
@@ -84,7 +84,7 @@ class OperationParams
 
         $instance->query = $params['query'];
         $instance->queryId = $params['queryid'] ?: $params['documentid'] ?: $params['id'];
-        $instance->operation = $params['operation'];
+        $instance->operation = $params['operationname'];
         $instance->variables = $params['variables'];
         $instance->readOnly = (bool) $readonly;
 
