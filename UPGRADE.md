@@ -38,6 +38,25 @@ Exception inside `parseLiteral()`, `parseValue()` and `serialize()`.
 
 Returning null from any of these methods will now be treated as valid result.
 
+### Breaking: Standard server expects `operationName` vs `operation` for multi-op queries
+Before the change:
+```json
+{
+  "queryId": "persisted-query-id",
+  "operation": "QueryFromPersistedDocument",
+  "variables": {}
+}
+```
+After the change:
+```json
+{
+  "queryId": "persisted-query-id",
+  "operationName": "QueryFromPersistedDocument",
+  "variables": {}
+}
+```
+This naming is aligned with graphql-express version.
+
 ### Possibly Breaking: AST to array serialization excludes nulls
 Most users won't be affected. It *may* affect you only if you do your own manipulations 
 with exported AST. 
