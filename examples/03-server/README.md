@@ -10,10 +10,10 @@ php -S localhost:8080 ./graphql.php
 
 ### Try query
 ```
-curl http://localhost:8080 -d '{"query": "query { echo(message: \"Hello World\") }" }'
+curl -H "Content-Type: application/json" -d '{"query": "query { echo(message: \"Hello World\") }" }' http://localhost:8080
 ```
 
 ### Try mutation
 ```
-curl http://localhost:8080 -d '{"query": "mutation { sum(x: 2, y: 2) }" }'
+curl -H "Content-Type: application/json" http://localhost:8080 -d '{"query": "mutation { sum(x: 2, y: 2) }" }'
 ```
