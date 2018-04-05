@@ -251,11 +251,11 @@ class Schema
 
         foreach ($types as $index => $type) {
             if (!$type instanceof Type) {
-                throw new InvariantViolation(
+                throw new InvariantViolation(sprintf(
                     'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
                     $index,
                     Utils::printSafe($type)
-                );
+                ));
             }
             yield $type;
         }
