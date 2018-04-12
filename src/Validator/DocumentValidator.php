@@ -96,6 +96,12 @@ class DocumentValidator
         if (null === $rules) {
             $rules = static::allRules();
         }
+
+        if (true === is_array($rules) && 0 === count($rules)) {
+            // Skip validation if there are no rules
+            return [];
+        }
+
         $typeInfo = $typeInfo ?: new TypeInfo($schema);
         $errors = static::visitUsingRules($schema, $typeInfo, $ast, $rules);
         return $errors;
