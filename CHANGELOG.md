@@ -123,4 +123,4 @@ Improvements:
 - New docs and examples
 
 ## Older versions
-Look at [Github Releases Page](https://github.com/webonyx/graphql-php/releases).
+Look at [GitHub Releases Page](https://github.com/webonyx/graphql-php/releases).

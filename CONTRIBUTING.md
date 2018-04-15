@@ -3,7 +3,7 @@
 ## Workflow
 
 If your contribution requires significant or breaking changes, or if you plan to propose a major new feature,
-we recommend you to create an issue on the [Github](https://github.com/webonyx/graphql-php/issues) with 
+we recommend you to create an issue on the [GitHub](https://github.com/webonyx/graphql-php/issues) with
 a brief proposal and discuss it with us first.
 
 For smaller contributions just use this workflow:
