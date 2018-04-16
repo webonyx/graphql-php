@@ -1,7 +1,7 @@
 # Integrations
 
 * [Integration with Relay](https://github.com/ivome/graphql-relay-php)
-* [Integration with Laravel 5](https://github.com/Folkloreatelier/laravel-graphql) + [Relay Helpers for Laravel](https://github.com/nuwave/laravel-graphql-relay) + [Nuwave Lighthosue](https://github.com/nuwave/lighthouse)
+* [Integration with Laravel 5](https://github.com/Folkloreatelier/laravel-graphql) + [Relay Helpers for Laravel](https://github.com/nuwave/laravel-graphql-relay) + [Nuwave Lighthouse](https://github.com/nuwave/lighthouse)
 * [Symfony Bundle](https://github.com/overblog/GraphQLBundle) by Overblog
 * Out of the box integration with any PSR-7 compatible framework (like [Slim](http://slimframework.com) or [Zend Expressive](http://zendframework.github.io/zend-expressive/)) via [Standard Server](executing-queries.md/#using-server)
 
