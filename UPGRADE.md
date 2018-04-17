@@ -1,5 +1,9 @@
 ## Upgrade v0.11.x > dev-master
 
+### Breaking: Minimum supported version is PHP5.6
+Dropped support for PHP 5.5. This release still supports PHP 5.6 and PHP 7.0
+**But the next major release will require PHP7.1+**
+
 ### Breaking: Descriptions in comments are not used as descriptions by default anymore
 Descriptions now need to be inside Strings or BlockStrings in order to be picked up as
 description. If you want to keep the old behaviour you can supply the option `commentDescriptions`
@@ -89,7 +93,6 @@ After the change:
     "directives": []
 }
 ```
-
 
 ## Upgrade v0.8.x, v0.9.x > v0.10.x
 
