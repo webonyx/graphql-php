@@ -1,4 +1,9 @@
 # Changelog
+#### v0.11.6
+- Switched to MIT License
+- Restored `noLocation` option for parser
+- Several minor bugfixes and improvements
+
 #### v0.11.5
 - Allow objects with __toString in IDType
 
