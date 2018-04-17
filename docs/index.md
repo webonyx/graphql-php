@@ -51,5 +51,5 @@ The current version (v0.10) supports all features described by GraphQL specifica
 
 Ready for real-world usage. 
 
-## Github
+## GitHub
 Project source code is [hosted on GitHub](https://github.com/webonyx/graphql-php).
