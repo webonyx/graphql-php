@@ -46,14 +46,7 @@ class Value
             // throw to indicate failure. If it throws, maintain a reference to
             // the original error.
             try {
-                $parseResult = $type->parseValue($value);
-                if (Utils::isInvalid($parseResult)) {
-                    return self::ofErrors([
-                        self::coercionError("Expected type {$type->name}", $blameNode, $path),
-                    ]);
-                }
-
-                return self::ofValue($parseResult);
+                return self::ofValue($type->parseValue($value));
             } catch (\Exception $error) {
                 return self::ofErrors([
                     self::coercionError(

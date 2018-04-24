@@ -1,7 +1,9 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
 
 /**
@@ -32,22 +34,30 @@ class BooleanType extends ScalarType
     /**
      * @param mixed $value
      * @return bool
+     * @throws Error
      */
     public function parseValue($value)
     {
-        return is_bool($value) ? $value : Utils::undefined();
+        if (is_bool($value)) {
+            return $value;
+        }
+
+        throw new Error("Cannot represent value as boolean: " . Utils::printSafe($value));
     }
 
     /**
-     * @param $valueNode
+     * @param Node $valueNode
      * @param array|null $variables
      * @return bool|null
+     * @throws \Exception
      */
     public function parseLiteral($valueNode, array $variables = null)
     {
         if ($valueNode instanceof BooleanValueNode) {
             return (bool) $valueNode->value;
         }
-        return Utils::undefined();
+
+        // Intentionally without message, as all information already in wrapped Exception
+        throw new \Exception();
     }
 }

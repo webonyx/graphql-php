@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\Error;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 
@@ -53,28 +54,40 @@ class ComplexScalar extends ScalarType
 
     public $name = 'ComplexScalar';
 
+    /**
+     * {@inheritdoc}
+     */
     public function serialize($value)
     {
         if ($value === 'DeserializedValue') {
             return 'SerializedValue';
         }
-        return null;
+
+        throw new Error("Cannot serialize value as ComplexScalar: " . Utils::printSafe($value));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function parseValue($value)
     {
         if ($value === 'SerializedValue') {
             return 'DeserializedValue';
         }
-        return Utils::undefined();
+
+        throw new Error("Cannot represent value as ComplexScalar: " . Utils::printSafe($value));
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function parseLiteral($valueNode, array $variables = null)
     {
         if ($valueNode->value === 'SerializedValue') {
             return 'DeserializedValue';
         }
-        return Utils::undefined();
+
+        throw new Error("Cannot represent literal as ComplexScalar: " . Utils::printSafe($valueNode->value));
     }
 }
 

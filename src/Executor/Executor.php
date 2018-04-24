@@ -1197,8 +1197,7 @@ class Executor
     }
 
     /**
-     * Complete a Scalar or Enum by serializing to a valid value, returning
-     * null if serialization is not possible.
+     * Complete a Scalar or Enum by serializing to a valid value, throwing if serialization is not possible.
      *
      * @param LeafType $returnType
      * @param $result
@@ -1207,14 +1206,21 @@ class Executor
      */
     private function completeLeafValue(LeafType $returnType, &$result)
     {
-        $serializedResult = $returnType->serialize($result);
-
-        if (Utils::isInvalid($serializedResult)) {
+        try {
+            return $returnType->serialize($result);
+        } catch (\Exception $error) {
             throw new InvariantViolation(
-                'Expected a value of type "'. Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result)
+                'Expected a value of type "'. Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
+                0,
+                $error
+            );
+        } catch (\Throwable $error) {
+            throw new InvariantViolation(
+                'Expected a value of type "'. Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
+                0,
+                $error
             );
         }
-        return $serializedResult;
     }
 
     /**

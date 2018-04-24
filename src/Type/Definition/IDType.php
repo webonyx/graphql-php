@@ -3,6 +3,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
 
@@ -30,6 +31,7 @@ When expected as an input type, any string (such as `"4"`) or integer
     /**
      * @param mixed $value
      * @return string
+     * @throws Error
      */
     public function serialize($value)
     {
@@ -51,22 +53,30 @@ When expected as an input type, any string (such as `"4"`) or integer
     /**
      * @param mixed $value
      * @return string
+     * @throws Error
      */
     public function parseValue($value)
     {
-        return (is_string($value) || is_int($value)) ? (string) $value : Utils::undefined();
+        if (is_string($value) || is_int($value)) {
+            return (string) $value;
+        }
+
+        throw new Error("Cannot represent value as ID: " . Utils::printSafe($value));
     }
 
     /**
-     * @param $ast
+     * @param Node $valueNode
      * @param array|null $variables
      * @return null|string
+     * @throws \Exception
      */
     public function parseLiteral($valueNode, array $variables = null)
     {
         if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
             return $valueNode->value;
         }
-        return Utils::undefined();
+
+        // Intentionally without message, as all information already in wrapped Exception
+        throw new \Exception();
     }
 }
