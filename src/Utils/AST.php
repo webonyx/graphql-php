@@ -28,7 +28,6 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;

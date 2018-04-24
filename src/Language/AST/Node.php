@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Language\AST;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 abstract class Node

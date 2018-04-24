@@ -2,9 +2,7 @@
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
-use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;

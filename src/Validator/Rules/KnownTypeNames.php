@@ -5,7 +5,6 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 

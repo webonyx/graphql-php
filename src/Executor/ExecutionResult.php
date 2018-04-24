@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Executor;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 
 /**
@@ -32,7 +31,7 @@ class ExecutionResult implements \JsonSerializable
      * @var \GraphQL\Error\Error[]
      */
     public $errors;
-    
+
     /**
      * User-defined serializable array of extensions included in serialized result.
      * Conforms to
@@ -138,7 +137,7 @@ class ExecutionResult implements \JsonSerializable
         if (null !== $this->data) {
             $result['data'] = $this->data;
         }
-        
+
         if (!empty($this->extensions)) {
             $result['extensions'] = (array) $this->extensions;
         }

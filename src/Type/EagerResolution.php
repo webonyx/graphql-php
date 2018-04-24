@@ -2,13 +2,10 @@
 namespace GraphQL\Type;
 
 use GraphQL\Type\Definition\AbstractType;
-use GraphQL\Type\Definition\FieldArgument;
-use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
-use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 

@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Validator\Rules;
 
-
 use GraphQL\Error\Error;
 use GraphQL\Validator\ValidationContext;
 

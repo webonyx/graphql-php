@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
