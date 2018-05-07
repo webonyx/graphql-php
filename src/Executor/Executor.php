@@ -311,7 +311,7 @@ class Executor
                 return null;
             })
             ->then(function ($data) {
-                if ($data === null){
+                if ($data !== null){
                     $data = (array) $data;
                 }
                 return new ExecutionResult($data, $this->exeContext->errors);
