@@ -106,7 +106,7 @@ echo json_encode($output);
 
 Our example is finished. Try it by running:
 ```sh
-php -S localhost:8000 graphql.php
+php -S localhost:8080 graphql.php
 curl http://localhost:8080 -d '{"query": "query { echo(message: \"Hello World\") }" }'
 ```
 
