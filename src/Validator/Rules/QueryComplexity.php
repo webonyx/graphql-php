@@ -58,9 +58,9 @@ class QueryComplexity extends AbstractQuerySecurity
         return $this->maxQueryComplexity;
     }
 
-    public function setRawVariableValues(array $rawVariableValues = null)
+    public function setRawVariableValues($rawVariableValues = null)
     {
-        $this->rawVariableValues = $rawVariableValues ?: [];
+        $this->rawVariableValues = json_decode($rawVariableValues) ?: [];
     }
 
     public function getRawVariableValues()
