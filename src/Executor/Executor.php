@@ -311,7 +311,10 @@ class Executor
                 return null;
             })
             ->then(function ($data) {
-                return new ExecutionResult((array) $data, $this->exeContext->errors);
+                if ($data !== null){
+                    $data = (array) $data;
+                }
+                return new ExecutionResult($data, $this->exeContext->errors);
             });
     }
 

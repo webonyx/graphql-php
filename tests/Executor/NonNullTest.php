@@ -732,7 +732,6 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         ';
 
         $expected = [
-            'data' => null,
             'errors' => [
                 FormattedError::create($this->nonNullSyncError->getMessage(), [new SourceLocation(2, 17)])
             ]
@@ -750,7 +749,6 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => null,
             'errors' => [
                 FormattedError::create($this->nonNullPromiseError->getMessage(), [new SourceLocation(2, 17)]),
             ]
@@ -789,7 +787,6 @@ class NonNullTest extends \PHPUnit_Framework_TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => null,
             'errors' => [
                 [
                     'debugMessage' => 'Cannot return null for non-nullable field DataType.nonNullPromise.',
