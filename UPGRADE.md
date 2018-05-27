@@ -1,8 +1,14 @@
-## Upgrade v0.11.x > dev-master
+## Upgrade v0.11.x > v0.12.x
 
 ### Breaking: Minimum supported version is PHP5.6
 Dropped support for PHP 5.5. This release still supports PHP 5.6 and PHP 7.0
 **But the next major release will require PHP7.1+**
+
+### Breaking: Custom scalar types need to throw on invalid value
+As null might be a valid value custom types need to throw an
+Exception inside `parseLiteral()`, `parseValue()` and `serialize()`. 
+
+Returning null from any of these methods will now be treated as valid result.
 
 ### Breaking: Descriptions in comments are not used as descriptions by default anymore
 Descriptions now need to be inside Strings or BlockStrings in order to be picked up as
@@ -36,11 +42,8 @@ type Dog {
 }
 ```
 
-### Breaking: Custom types need to return `Utils::undefined()` or throw on invalid value
-As null might be a valid value custom types need to return now `Utils::undefined()` or throw an
-Exception inside `parseLiteral()`, `parseValue()` and `serialize()`. 
-
-Returning null from any of these methods will now be treated as valid result.
+### Breaking: Most of previously deprecated classes and methods were removed
+See deprecation notices for previous versions in details.
 
 ### Breaking: Standard server expects `operationName` vs `operation` for multi-op queries
 Before the change:
