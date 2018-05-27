@@ -11,7 +11,7 @@ namespace GraphQL\Tests;
  * NOTE: This may contain spoilers for the original Star
  * Wars trilogy.
  */
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;

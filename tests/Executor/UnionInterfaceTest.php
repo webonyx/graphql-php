@@ -394,7 +394,7 @@ class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             ['data' => ['name' => 'John', 'friends' => [['name' => 'Liz']]]],
-            GraphQL::execute($schema2, $ast, $john2, $context)
+            GraphQL::executeQuery($schema2, $ast, $john2, $context)->toArray()
         );
         $this->assertSame($context, $encounteredContext);
         $this->assertSame($schema2, $encounteredSchema);

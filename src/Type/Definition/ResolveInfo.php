@@ -1,7 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
@@ -24,12 +23,6 @@ class ResolveInfo
      * @var string
      */
     public $fieldName;
-
-    /**
-     * @var FieldNode[]
-     * @deprecated as of 8.0 (Renamed to $fieldNodes)
-     */
-    public $fieldASTs;
 
     /**
      * AST of all nodes referencing this field in the query.
@@ -106,7 +99,6 @@ class ResolveInfo
     public function __construct(array $values)
     {
         Utils::assign($this, $values);
-        $this->fieldASTs = $this->fieldNodes;
     }
 
     /**
@@ -178,14 +170,5 @@ class ResolveInfo
         }
 
         return $fields;
-    }
-
-    public function __get($name)
-    {
-        if ('fieldASTs' === $name) {
-            trigger_error('Property ' . __CLASS__ . '->fieldASTs was renamed to ' . __CLASS__ . '->fieldNodes', E_USER_DEPRECATED);
-            return $this->fieldNodes;
-        }
-        throw new InvariantViolation("Undefined property '$name' in class " . __CLASS__);
     }
 }

@@ -33,17 +33,6 @@ class InputObjectType extends Type implements InputType, NamedType
 
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        Config::validate($config, [
-            'name' => Config::NAME | Config::REQUIRED,
-            'fields' => Config::arrayOf([
-                'name' => Config::NAME | Config::REQUIRED,
-                'type' => Config::INPUT_TYPE | Config::REQUIRED,
-                'defaultValue' => Config::ANY,
-                'description' => Config::STRING
-            ], Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE),
-            'description' => Config::STRING
-        ]);
-
         $this->config = $config;
         $this->name = $config['name'];
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;

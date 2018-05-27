@@ -1421,30 +1421,4 @@ class Executor
         }
         return null;
     }
-
-    /**
-     * @deprecated as of v0.8.0 should use self::defaultFieldResolver method
-     *
-     * @param $source
-     * @param $args
-     * @param $context
-     * @param ResolveInfo $info
-     * @return mixed|null
-     */
-    public static function defaultResolveFn($source, $args, $context, ResolveInfo $info)
-    {
-        trigger_error(__METHOD__ . ' is renamed to ' . __CLASS__ . '::defaultFieldResolver', E_USER_DEPRECATED);
-        return self::defaultFieldResolver($source, $args, $context, $info);
-    }
-
-    /**
-     * @deprecated as of v0.8.0 should use self::setDefaultFieldResolver method
-     *
-     * @param callable $fn
-     */
-    public static function setDefaultResolveFn($fn)
-    {
-        trigger_error(__METHOD__ . ' is renamed to ' . __CLASS__ . '::setDefaultFieldResolver', E_USER_DEPRECATED);
-        self::setDefaultFieldResolver($fn);
-    }
 }

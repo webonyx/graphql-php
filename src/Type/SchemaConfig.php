@@ -96,20 +96,6 @@ class SchemaConfig
                 $config->setDirectives($options['directives']);
             }
 
-            if (isset($options['typeResolution'])) {
-                trigger_error(
-                    'Type resolution strategies are deprecated. Just pass single option `typeLoader` '.
-                    'to schema constructor instead.',
-                    E_USER_DEPRECATED
-                );
-                if ($options['typeResolution'] instanceof Resolution && !isset($options['typeLoader'])) {
-                    $strategy = $options['typeResolution'];
-                    $options['typeLoader'] = function($name) use ($strategy) {
-                        return $strategy->resolveType($name);
-                    };
-                }
-            }
-
             if (isset($options['typeLoader'])) {
                 Utils::invariant(
                     is_callable($options['typeLoader']),

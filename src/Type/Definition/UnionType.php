@@ -38,13 +38,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        Config::validate($config, [
-            'name' => Config::NAME | Config::REQUIRED,
-            'types' => Config::arrayOf(Config::OBJECT_TYPE, Config::MAYBE_THUNK | Config::REQUIRED),
-            'resolveType' => Config::CALLBACK, // function($value, ResolveInfo $info) => ObjectType
-            'description' => Config::STRING
-        ]);
-
         /**
          * Optionally provide a custom type resolver function. If one is not provided,
          * the default implemenation will call `isTypeOf` on each implementing
@@ -54,15 +47,6 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
         $this->config = $config;
-    }
-
-    /**
-     * @return ObjectType[]
-     */
-    public function getPossibleTypes()
-    {
-        trigger_error(__METHOD__ . ' is deprecated in favor of ' . __CLASS__ . '::getTypes()', E_USER_DEPRECATED);
-        return $this->getTypes();
     }
 
     /**

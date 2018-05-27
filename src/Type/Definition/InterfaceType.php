@@ -53,16 +53,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        Config::validate($config, [
-            'name' => Config::NAME,
-            'fields' => Config::arrayOf(
-                FieldDefinition::getDefinition(),
-                Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE
-            ),
-            'resolveType' => Config::CALLBACK, // function($value, $context, ResolveInfo $info) => ObjectType
-            'description' => Config::STRING
-        ]);
-
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;

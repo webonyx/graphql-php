@@ -69,28 +69,6 @@ class FieldDefinition
 
     private static $def;
 
-    /**
-     * @return array
-     */
-    public static function getDefinition()
-    {
-        return self::$def ?: (self::$def = [
-            'name' => Config::NAME | Config::REQUIRED,
-            'type' => Config::OUTPUT_TYPE | Config::REQUIRED,
-            'args' => Config::arrayOf([
-                'name' => Config::NAME | Config::REQUIRED,
-                'type' => Config::INPUT_TYPE | Config::REQUIRED,
-                'description' => Config::STRING,
-                'defaultValue' => Config::ANY
-            ], Config::KEY_AS_NAME | Config::MAYBE_TYPE),
-            'resolve' => Config::CALLBACK,
-            'map' => Config::CALLBACK,
-            'description' => Config::STRING,
-            'deprecationReason' => Config::STRING,
-            'complexity' => Config::CALLBACK,
-        ]);
-    }
-
     public static function defineFieldMap(Type $type, $fields)
     {
         if (is_callable($fields)) {
@@ -130,51 +108,12 @@ class FieldDefinition
     }
 
     /**
-     * @param array $fields
-     * @param string $parentTypeName
-     * @deprecated use defineFieldMap instead
-     * @return array
-     */
-    public static function createMap(array $fields, $parentTypeName = null)
-    {
-        trigger_error(
-            __METHOD__ . ' is deprecated, use ' . __CLASS__ . '::defineFieldMap() instead',
-            E_USER_DEPRECATED
-        );
-
-        $map = [];
-        foreach ($fields as $name => $field) {
-            if (is_array($field)) {
-                if (!isset($field['name']) && is_string($name)) {
-                    $field['name'] = $name;
-                }
-                $fieldDef = self::create($field);
-            } else if ($field instanceof FieldDefinition) {
-                $fieldDef = $field;
-            } else {
-                if (is_string($name)) {
-                    $fieldDef = self::create(['name' => $name, 'type' => $field]);
-                } else {
-                    throw new InvariantViolation(
-                        "Unexpected field definition for type $parentTypeName at field $name: " . Utils::printSafe($field)
-                    );
-                }
-            }
-            $map[$fieldDef->name] = $fieldDef;
-        }
-        return $map;
-    }
-
-    /**
      * @param array|Config $field
      * @param string $typeName
      * @return FieldDefinition
      */
     public static function create($field, $typeName = null)
     {
-        if ($typeName) {
-            Config::validateField($typeName, $field, self::getDefinition());
-        }
         return new self($field);
     }
 

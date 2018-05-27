@@ -75,21 +75,6 @@ class Schema
      */
     public function __construct($config)
     {
-        if (func_num_args() > 1 || $config instanceof Type) {
-            trigger_error(
-                'GraphQL\Schema constructor expects config object now instead of types passed as arguments. '.
-                'See https://github.com/webonyx/graphql-php/issues/36',
-                E_USER_DEPRECATED
-            );
-            list($queryType, $mutationType, $subscriptionType) = func_get_args() + [null, null, null];
-
-            $config = [
-                'query' => $queryType,
-                'mutation' => $mutationType,
-                'subscription' => $subscriptionType
-            ];
-        }
-
         if (is_array($config)) {
             $config = SchemaConfig::create($config);
         }

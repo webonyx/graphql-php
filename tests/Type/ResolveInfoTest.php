@@ -2,7 +2,7 @@
 namespace GraphQL\Tests\Type;
 
 use GraphQL\GraphQL;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -155,7 +155,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $schema = new Schema(['query' => $blogQuery]);
-        $result = GraphQL::execute($schema, $doc);
+        $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         $this->assertTrue($hasCalled);
         $this->assertEquals(['data' => ['article' => null]], $result);
@@ -313,7 +313,7 @@ class ResolveInfoTest extends \PHPUnit_Framework_TestCase
         ]);
 
         $schema = new Schema(['query' => $blogQuery]);
-        $result = GraphQL::execute($schema, $doc);
+        $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
         $this->assertTrue($hasCalled);
         $this->assertEquals(['data' => ['article' => null]], $result);

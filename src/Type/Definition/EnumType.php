@@ -42,17 +42,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
 
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        Config::validate($config, [
-            'name' => Config::NAME | Config::REQUIRED,
-            'values' => Config::arrayOf([
-                'name' => Config::NAME | Config::REQUIRED,
-                'value' => Config::ANY,
-                'deprecationReason' => Config::STRING,
-                'description' => Config::STRING
-            ], Config::KEY_AS_NAME | Config::MAYBE_NAME),
-            'description' => Config::STRING
-        ]);
-
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;

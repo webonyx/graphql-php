@@ -382,7 +382,10 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
      */
     private function assertValidQuery($query, $expected)
     {
-        $this->assertEquals(['data' => $expected], GraphQL::execute(StarWarsSchema::build(), $query));
+        $this->assertEquals(
+            ['data' => $expected],
+            GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray()
+        );
     }
 
     /**
@@ -390,6 +393,9 @@ class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
      */
     private function assertValidQueryWithParams($query, $params, $expected)
     {
-        $this->assertEquals(['data' => $expected], GraphQL::execute(StarWarsSchema::build(), $query, null, null, $params));
+        $this->assertEquals(
+            ['data' => $expected],
+            GraphQL::executeQuery(StarWarsSchema::build(), $query, null, null, $params)->toArray()
+        );
     }
 }

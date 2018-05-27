@@ -2,7 +2,7 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\GraphQL;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
@@ -37,7 +37,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             ['data' => ['test' => 'testValue']],
-            GraphQL::execute($schema, '{ test }', $source)
+            GraphQL::executeQuery($schema, '{ test }', $source)->toArray()
         );
     }
 
@@ -56,7 +56,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
         ];
         $this->assertEquals(
             ['data' => ['test' => $_secret]],
-            GraphQL::execute($schema, '{ test }', $source)
+            GraphQL::executeQuery($schema, '{ test }', $source)->toArray()
         );
     }
 
@@ -74,7 +74,7 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
 
         $source = new Adder(700);
 
-        $result = GraphQL::execute($schema, '{ test(addend1: 80) }', $source, ['addend2' => 9]);
+        $result = GraphQL::executeQuery($schema, '{ test(addend1: 80) }', $source, ['addend2' => 9])->toArray();
         $this->assertEquals(['data' => ['test' => 789]], $result);
     }
 
@@ -96,22 +96,22 @@ class ResolveTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(
             ['data' => ['test' => '[null,[]]']],
-            GraphQL::execute($schema, '{ test }')
+            GraphQL::executeQuery($schema, '{ test }')->toArray()
         );
 
         $this->assertEquals(
             ['data' => ['test' => '["Source!",[]]']],
-            GraphQL::execute($schema, '{ test }', 'Source!')
+            GraphQL::executeQuery($schema, '{ test }', 'Source!')->toArray()
         );
 
         $this->assertEquals(
             ['data' => ['test' => '["Source!",{"aStr":"String!"}]']],
-            GraphQL::execute($schema, '{ test(aStr: "String!") }', 'Source!')
+            GraphQL::executeQuery($schema, '{ test(aStr: "String!") }', 'Source!')->toArray()
         );
 
         $this->assertEquals(
             ['data' => ['test' => '["Source!",{"aStr":"String!","aInt":-123}]']],
-            GraphQL::execute($schema, '{ test(aInt: -123, aStr: "String!") }', 'Source!')
+            GraphQL::executeQuery($schema, '{ test(aInt: -123, aStr: "String!") }', 'Source!')->toArray()
         );
     }
 }

@@ -25,7 +25,6 @@
     "sort-packages": true
 },
   "autoload": {
-    "files": ["src/deprecated.php"],
     "psr-4": {
       "GraphQL\\": "src/"
     }

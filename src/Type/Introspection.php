@@ -48,7 +48,11 @@ class Introspection
     public static function getIntrospectionQuery($options = [])
     {
         if (is_bool($options)) {
-            trigger_error('Calling Introspection::getIntrospectionQuery(boolean) is deprecated. Please use Introspection::getIntrospectionQuery(["descriptions" => boolean]).', E_USER_DEPRECATED);
+            trigger_error(
+                'Calling Introspection::getIntrospectionQuery(boolean) is deprecated. '.
+                'Please use Introspection::getIntrospectionQuery(["descriptions" => boolean]).',
+                E_USER_DEPRECATED
+            );
             $descriptions = $options;
         } else {
             $descriptions = !array_key_exists('descriptions', $options) || $options['descriptions'] === true;

@@ -109,15 +109,6 @@ class Lexer
     }
 
     /**
-     * @return Token
-     */
-    public function nextToken()
-    {
-        trigger_error(__METHOD__ . ' is deprecated in favor of advance()', E_USER_DEPRECATED);
-        return $this->advance();
-    }
-
-    /**
      * @param Token $prev
      * @return Token
      * @throws SyntaxError

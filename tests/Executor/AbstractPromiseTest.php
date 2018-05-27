@@ -5,7 +5,7 @@ use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Error\Warning;
 use GraphQL\GraphQL;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -87,7 +87,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
           }
         }';
 
-        $result = GraphQL::execute($schema, $query);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         $expected = [
             'data' => [
@@ -172,7 +172,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        $result = GraphQL::execute($schema, $query);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         $expected = [
             'data' => [
@@ -259,7 +259,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        $result = GraphQL::execute($schema, $query);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         $expected = [
             'data' => [
@@ -357,7 +357,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        $result = GraphQL::executeAndReturnResult($schema, $query)->toArray(true);
+        $result = GraphQL::executeQuery($schema, $query)->toArray(true);
 
         $expected = [
             'data' => [
@@ -458,7 +458,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        $result = GraphQL::executeAndReturnResult($schema, $query)->toArray(true);
+        $result = GraphQL::executeQuery($schema, $query)->toArray(true);
 
         $expected = [
             'data' => [
@@ -552,7 +552,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        $result = GraphQL::execute($schema, $query);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         $expected = [
             'data' => [
@@ -631,7 +631,7 @@ class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
       }
     }';
 
-        $result = GraphQL::execute($schema, $query);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         $expected = [
             'data' => [

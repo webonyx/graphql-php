@@ -8,7 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -252,7 +252,6 @@ class ExecutorTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals([
             'fieldName',
-            'fieldASTs',
             'fieldNodes',
             'returnType',
             'parentType',

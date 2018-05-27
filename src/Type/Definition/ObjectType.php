@@ -105,23 +105,6 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
 
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        // Note: this validation is disabled by default, because it is resource-consuming
-        // TODO: add bin/validate script to check if schema is valid during development
-        Config::validate($config, [
-            'name' => Config::NAME | Config::REQUIRED,
-            'fields' => Config::arrayOf(
-                FieldDefinition::getDefinition(),
-                Config::KEY_AS_NAME | Config::MAYBE_THUNK | Config::MAYBE_TYPE
-            ),
-            'description' => Config::STRING,
-            'interfaces' => Config::arrayOf(
-                Config::INTERFACE_TYPE,
-                Config::MAYBE_THUNK
-            ),
-            'isTypeOf' => Config::CALLBACK, // ($value, $context, ResolveInfo $info) => boolean
-            'resolveField' => Config::CALLBACK // ($value, $args, $context, ResolveInfo $info) => $fieldValue
-        ]);
-
         $this->name = $config['name'];
         $this->description = isset($config['description']) ? $config['description'] : null;
         $this->resolveFieldFn = isset($config['resolveField']) ? $config['resolveField'] : null;

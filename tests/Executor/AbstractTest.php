@@ -256,7 +256,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
                 'path' => ['pets', 2]
             ]]
         ];
-        $actual = GraphQL::executeAndReturnResult($schema, $query)->toArray(true);
+        $actual = GraphQL::executeQuery($schema, $query)->toArray(true);
 
         $this->assertArraySubset($expected, $actual);
     }
@@ -336,7 +336,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
           }
         }';
 
-        $result = GraphQL::executeAndReturnResult($schema, $query)->toArray(true);
+        $result = GraphQL::executeQuery($schema, $query)->toArray(true);
         $expected = [
             'data' => [
                 'pets' => [
@@ -421,7 +421,7 @@ class AbstractTest extends \PHPUnit_Framework_TestCase
           }
         }';
 
-        $result = GraphQL::execute($schema, $query);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
 
         $this->assertEquals([
             'data' => [

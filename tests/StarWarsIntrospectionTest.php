@@ -420,6 +420,6 @@ class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
      */
     private function assertValidQuery($query, $expected)
     {
-        $this->assertEquals(['data' => $expected], GraphQL::execute(StarWarsSchema::build(), $query));
+        $this->assertEquals(['data' => $expected], GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray());
     }
 }

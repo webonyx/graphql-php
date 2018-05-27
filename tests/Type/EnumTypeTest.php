@@ -3,7 +3,7 @@ namespace GraphQL\Tests\Type;
 
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Schema;
+use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -185,7 +185,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ['data' => ['colorInt' => 1]],
-            GraphQL::execute($this->schema, '{ colorInt(fromEnum: GREEN) }')
+            GraphQL::executeQuery($this->schema, '{ colorInt(fromEnum: GREEN) }')->toArray()
         );
     }
 
@@ -196,7 +196,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ['data' => ['colorEnum' => 'GREEN']],
-            GraphQL::execute($this->schema, '{ colorEnum(fromInt: 1) }')
+            GraphQL::executeQuery($this->schema, '{ colorEnum(fromInt: 1) }')->toArray()
         );
     }
 
@@ -207,7 +207,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ['data' => ['colorEnum' => 'GREEN']],
-            GraphQL::execute($this->schema, '{ colorEnum(fromEnum: GREEN) }')
+            GraphQL::executeQuery($this->schema, '{ colorEnum(fromEnum: GREEN) }')->toArray()
         );
     }
 
@@ -303,13 +303,13 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ['data' => ['colorEnum' => 'BLUE']],
-            GraphQL::execute(
+            GraphQL::executeQuery(
                 $this->schema,
                 'query test($color: Color!) { colorEnum(fromEnum: $color) }',
                 null,
                 null,
                 ['color' => 'BLUE']
-            )
+            )->toArray()
         );
     }
 
@@ -320,13 +320,13 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ['data' => ['favoriteEnum' => 'GREEN']],
-            GraphQL::execute(
+            GraphQL::executeQuery(
                 $this->schema,
                 'mutation x($color: Color!) { favoriteEnum(color: $color) }',
                 null,
                 null,
                 ['color' => 'GREEN']
-            )
+            )->toArray()
         );
     }
 
@@ -338,13 +338,13 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ['data' => ['subscribeToEnum' => 'GREEN']],
-            GraphQL::execute(
+            GraphQL::executeQuery(
                 $this->schema,
                 'subscription x($color: Color!) { subscribeToEnum(color: $color) }',
                 null,
                 null,
                 ['color' => 'GREEN']
-            )
+            )->toArray()
         );
     }
 
@@ -391,10 +391,10 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ['data' => ['colorEnum' => 'RED', 'colorInt' => 0]],
-            GraphQL::execute($this->schema, "{
+            GraphQL::executeQuery($this->schema, "{
                 colorEnum(fromEnum: RED)
                 colorInt(fromEnum: RED)
-            }")
+            }")->toArray()
         );
     }
 
@@ -405,10 +405,10 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals(
             ['data' => ['colorEnum' => null, 'colorInt' => null]],
-            GraphQL::execute($this->schema, "{
+            GraphQL::executeQuery($this->schema, "{
                 colorEnum
                 colorInt
-            }")
+            }")->toArray()
         );
     }
 
@@ -445,7 +445,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testMayBeInternallyRepresentedWithComplexValues()
     {
-        $result = GraphQL::executeAndReturnResult($this->schema, '{
+        $result = GraphQL::executeQuery($this->schema, '{
         first: complexEnum
         second: complexEnum(fromEnum: TWO)
         good: complexEnum(provideGoodValue: true)
@@ -474,7 +474,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
      */
     public function testCanBeIntrospectedWithoutError()
     {
-        $result = GraphQL::execute($this->schema, Introspection::getIntrospectionQuery());
+        $result = GraphQL::executeQuery($this->schema, Introspection::getIntrospectionQuery())->toArray();
         $this->assertArrayNotHasKey('errors', $result);
     }
 
@@ -494,13 +494,13 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
                     'locations' => [['line' => 4, 'column' => 13]]
                 ]]
             ],
-            GraphQL::executeAndReturnResult($this->schema, $q)->toArray(true)
+            GraphQL::executeQuery($this->schema, $q)->toArray(true)
         );
     }
 
     private function expectFailure($query, $vars, $err)
     {
-        $result = GraphQL::executeAndReturnResult($this->schema, $query, null, null, $vars);
+        $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
         $this->assertEquals(1, count($result->errors));
 
         if (is_array($err)) {

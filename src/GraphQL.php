@@ -182,6 +182,10 @@ class GraphQL
         $operationName = null
     )
     {
+        trigger_error(
+            __METHOD__ . ' is deprecated, use GraphQL::executeQuery()->toArray() as a quick replacement',
+            E_USER_DEPRECATED
+        );
         $result = self::promiseToExecute(
             $promiseAdapter = Executor::getPromiseAdapter(),
             $schema,
@@ -223,6 +227,10 @@ class GraphQL
         $operationName = null
     )
     {
+        trigger_error(
+            __METHOD__ . ' is deprecated, use GraphQL::executeQuery() as a quick replacement',
+            E_USER_DEPRECATED
+        );
         $result = self::promiseToExecute(
             $promiseAdapter = Executor::getPromiseAdapter(),
             $schema,
