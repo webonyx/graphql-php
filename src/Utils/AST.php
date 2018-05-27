@@ -28,7 +28,6 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
-use GraphQL\Type\Definition\LeafType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
@@ -209,9 +208,18 @@ class AST
         if ($type instanceof ScalarType || $type instanceof EnumType) {
             // Since value is an internally represented value, it must be serialized
             // to an externally represented value before converting into an AST.
-            $serialized = $type->serialize($value);
-            if (null === $serialized || Utils::isInvalid($serialized)) {
-                return null;
+            try {
+                $serialized = $type->serialize($value);
+            } catch (\Exception $error) {
+                if ($error instanceof Error && $type instanceof EnumType) {
+                    return null;
+                }
+                throw $error;
+            } catch (\Throwable $error) {
+                if ($error instanceof Error && $type instanceof EnumType) {
+                    return null;
+                }
+                throw $error;
             }
 
             // Others serialize based on their corresponding PHP scalar types.
@@ -400,18 +408,12 @@ class AST
             // Invalid values represent a failure to parse correctly, in which case
             // no value is returned.
             try {
-                $result = $type->parseLiteral($valueNode, $variables);
+                return $type->parseLiteral($valueNode, $variables);
             } catch (\Exception $error) {
                 return $undefined;
             } catch (\Throwable $error) {
                 return $undefined;
             }
-
-            if (Utils::isInvalid($result)) {
-                return $undefined;
-            }
-
-            return $result;
         }
 
         throw new Error('Unknown type: ' . Utils::printSafe($type) . '.');
@@ -420,7 +422,7 @@ class AST
     /**
      * Produces a PHP value given a GraphQL Value AST.
      *
-     * Unlike `valueFromAST()`, no type is provided. The resulting JavaScript value
+     * Unlike `valueFromAST()`, no type is provided. The resulting PHP value
      * will reflect the provided GraphQL value AST.
      *
      * | GraphQL Value        | PHP Value     |
@@ -471,7 +473,7 @@ class AST
               );
             case $valueNode instanceof VariableNode:
                 $variableName = $valueNode->name->value;
-                return ($variables && isset($variables[$variableName]) && !Utils::isInvalid($variables[$variableName]))
+                return ($variables && isset($variables[$variableName]))
                     ? $variables[$variableName]
                     : null;
         }

@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Language\AST\Node;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 
@@ -25,10 +26,6 @@ class CustomScalarType extends ScalarType
      */
     public function parseValue($value)
     {
-        if (Utils::isInvalid($value)) {
-            return Utils::undefined();
-        }
-
         if (isset($this->config['parseValue'])) {
             return call_user_func($this->config['parseValue'], $value);
         } else {
@@ -37,9 +34,10 @@ class CustomScalarType extends ScalarType
     }
 
     /**
-     * @param $valueNode
+     * @param Node $valueNode
      * @param array|null $variables
      * @return mixed
+     * @throws \Exception
      */
     public function parseLiteral(/* GraphQL\Language\AST\ValueNode */ $valueNode, array $variables = null)
     {

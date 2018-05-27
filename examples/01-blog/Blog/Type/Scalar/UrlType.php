@@ -30,11 +30,12 @@ class UrlType extends ScalarType
      *
      * @param mixed $value
      * @return mixed
+     * @throws Error
      */
     public function parseValue($value)
     {
         if (!is_string($value) || !filter_var($value, FILTER_VALIDATE_URL)) { // quite naive, but after all this is example
-            throw new \UnexpectedValueException("Cannot represent value as URL: " . Utils::printSafe($value));
+            throw new Error("Cannot represent value as URL: " . Utils::printSafe($value));
         }
         return $value;
     }

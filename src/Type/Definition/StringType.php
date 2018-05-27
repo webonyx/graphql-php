@@ -60,13 +60,16 @@ represent free-form human-readable text.';
      * @param $valueNode
      * @param array|null $variables
      * @return null|string
+     * @throws \Exception
      */
     public function parseLiteral($valueNode, array $variables = null)
     {
         if ($valueNode instanceof StringValueNode) {
             return $valueNode->value;
         }
-        return Utils::undefined();
+
+        // Intentionally without message, as all information already in wrapped Exception
+        throw new \Exception();
     }
 
     private function coerceString($value) {

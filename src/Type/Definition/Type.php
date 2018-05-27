@@ -2,9 +2,6 @@
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Language\AST\ListType;
-use GraphQL\Language\AST\NamedType;
-use GraphQL\Language\AST\NonNullType;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;

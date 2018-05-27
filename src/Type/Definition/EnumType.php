@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -103,7 +104,8 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
 
     /**
      * @param $value
-     * @return null
+     * @return mixed
+     * @throws Error
      */
     public function serialize($value)
     {
@@ -112,36 +114,44 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
             return $lookup[$value]->name;
         }
 
-        return Utils::undefined();
+        throw new Error("Cannot serialize value as enum: " . Utils::printSafe($value));
     }
 
     /**
      * @param $value
-     * @return null
+     * @return mixed
+     * @throws Error
      */
     public function parseValue($value)
     {
         $lookup = $this->getNameLookup();
-        return isset($lookup[$value]) ? $lookup[$value]->value : Utils::undefined();
+        if (isset($lookup[$value])) {
+            return $lookup[$value]->value;
+        }
+
+        throw new Error("Cannot represent value as enum: " . Utils::printSafe($value));
     }
 
     /**
-     * @param $value
+     * @param $valueNode
      * @param array|null $variables
      * @return null
+     * @throws \Exception
      */
-    public function parseLiteral($value, array $variables = null)
+    public function parseLiteral($valueNode, array $variables = null)
     {
-        if ($value instanceof EnumValueNode) {
+        if ($valueNode instanceof EnumValueNode) {
             $lookup = $this->getNameLookup();
-            if (isset($lookup[$value->value])) {
-                $enumValue = $lookup[$value->value];
+            if (isset($lookup[$valueNode->value])) {
+                $enumValue = $lookup[$valueNode->value];
                 if ($enumValue) {
                     return $enumValue->value;
                 }
             }
         }
-        return null;
+
+        // Intentionally without message, as all information already in wrapped Exception
+        throw new \Exception();
     }
 
     /**

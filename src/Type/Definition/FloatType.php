@@ -49,13 +49,16 @@ values as specified by
      * @param $valueNode
      * @param array|null $variables
      * @return float|null
+     * @throws \Exception
      */
     public function parseLiteral($valueNode, array $variables = null)
     {
         if ($valueNode instanceof FloatValueNode || $valueNode instanceof IntValueNode) {
             return (float) $valueNode->value;
         }
-        return Utils::undefined();
+
+        // Intentionally without message, as all information already in wrapped Exception
+        throw new \Exception();
     }
 
     private function coerceFloat($value) {

@@ -55,6 +55,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      * @param $valueNode
      * @param array|null $variables
      * @return int|null
+     * @throws \Exception
      */
     public function parseLiteral($valueNode, array $variables = null)
     {
@@ -64,7 +65,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
                 return $val;
             }
         }
-        return Utils::undefined();
+
+        // Intentionally without message, as all information already in wrapped Exception
+        throw new \Exception();
     }
 
     private function coerceInt($value) {

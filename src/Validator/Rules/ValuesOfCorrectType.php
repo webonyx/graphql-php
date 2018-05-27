@@ -173,20 +173,9 @@ class ValuesOfCorrectType extends AbstractValidationRule
         }
 
         // Scalars determine if a literal value is valid via parseLiteral() which
-        // may throw or return an invalid value to indicate failure.
+        // may throw to indicate failure.
         try {
-            $parseResult = $type->parseLiteral($node);
-            if (Utils::isInvalid($parseResult)) {
-                $context->reportError(
-                    new Error(
-                        self::badValueMessage(
-                            (string) $locationType,
-                            Printer::doPrint($node)
-                        ),
-                        $node
-                    )
-                );
-            }
+            $type->parseLiteral($node);
         } catch (\Exception $error) {
             // Ensure a reference to the original error is maintained.
             $context->reportError(
