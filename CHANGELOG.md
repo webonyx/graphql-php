@@ -1,4 +1,16 @@
 # Changelog
+## v0.12.0
+- RFC: Block String (multi-line strings via triple-quote """string""")
+- GraphQL Schema SDL: Descriptions as strings (including multi-line)
+- Changed minimum required PHP version to 5.6
+
+Improvements:
+- Allow extending GraphQL errors with additional properties
+- Fixed parsing of default values in Schema SDL
+- Handling several more cases in findBreakingChanges
+- StandardServer: expect `operationName` (instead of `operation`) in input
+
+
 #### v0.11.5
 - Allow objects with __toString in IDType
 
