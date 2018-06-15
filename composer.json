@@ -17,10 +17,6 @@
     "psr/http-message": "^1.0"
   },
   "config": {
-    "bin-dir": "bin",
-    "platform": {
-      "php": "5.6.0"
-    },
     "preferred-install": "dist",
     "sort-packages": true
 },

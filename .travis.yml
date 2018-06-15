@@ -1,6 +1,5 @@
-language: php
-
 dist: trusty
+language: php
 
 php:
     - 5.6
@@ -18,16 +17,33 @@ cache:
         - $HOME/.composer/cache
 
 before_install:
-    - if [[ "$TRAVIS_PHP_VERSION" != "5.6" ]]; then phpenv config-rm xdebug.ini || true; fi
-    - phpenv config-rm xdebug.ini || true
-    - composer selfupdate
+    - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
+    - travis_retry composer self-update
 
 install:
-    - composer install --dev --prefer-dist
     - composer require react/promise:2.*
     - composer require psr/http-message:1.*
+    - travis_retry composer update --prefer-dist
 
-script: if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then bin/phpunit --coverage-clover build/logs/clover.xml --group default,ReactPromise; else bin/phpunit --group default,ReactPromise; fi
+script: ./vendor/bin/phpunit --group default,ReactPromise
 
-after_success:
-    - if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then composer require "satooshi/php-coveralls:^1.0" && travis_retry php bin/coveralls -v; fi
+jobs:
+  allow_failures:
+    - php: nightly
+
+  include:
+    - stage: Test
+      env: DEPENDENCIES=low
+      install:
+        - travis_retry composer update --prefer-dist --prefer-lowest
+
+    - stage: Test
+      env: COVERAGE
+      before_script:
+        - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{.disabled,}
+        - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
+      script:
+        - ./vendor/bin/phpunit --coverage-clover clover.xml
+      after_script:
+        - wget https://scrutinizer-ci.com/ocular.phar
+        - php ocular.phar code-coverage:upload --format=php-clover clover.xml
