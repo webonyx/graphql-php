@@ -2,8 +2,6 @@ dist: trusty
 language: php
 
 php:
-    - 5.6
-    - 7.0
     - 7.1
     - 7.2
     - nightly
@@ -47,3 +45,21 @@ jobs:
       after_script:
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover clover.xml
+    - stage: Pull request coding standard
+      if: type = pull_request
+      install: travis_retry composer install --prefer-dist
+      script:
+        - |
+          if [ $TRAVIS_BRANCH != "master" ]; then
+            git remote set-branches --add origin $TRAVIS_BRANCH;
+            git fetch origin $TRAVIS_BRANCH;
+          fi
+        - git merge-base origin/$TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA || git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge --unshallow
+        - wget https://github.com/diff-sniffer/git/releases/download/0.1.0/git-phpcs.phar
+        - php git-phpcs.phar origin/$TRAVIS_BRANCH...$TRAVIS_PULL_REQUEST_SHA
+    - stage: Coding standard
+      if: NOT type = pull_request
+      php: 7.1
+      install: travis_retry composer install --prefer-dist
+      script:
+        - ./vendor/bin/phpcs
