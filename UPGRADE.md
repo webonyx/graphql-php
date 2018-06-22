@@ -15,15 +15,25 @@ A new parameter was added to `parseLiteral()`, which also needs to be added to a
 
 Before:
 ```php
-public function parseLiteral($valueNode) {
-    //custom implementation
+class MyType extends ScalarType {
+
+    ...
+
+    public function parseLiteral($valueNode) {
+        //custom implementation
+    }
 }
 ```
 
 After:
 ```php
-public function parseLiteral($valueNode, array $variables = null) {
-    //custom implementation
+class MyType extends ScalarType {
+
+    ...
+
+    public function parseLiteral($valueNode, array $variables = null) {
+        //custom implementation
+    }
 }
 ```
 
