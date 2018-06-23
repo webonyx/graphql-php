@@ -57,9 +57,9 @@ jobs:
         - git merge-base origin/$TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA || git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge --unshallow
         - wget https://github.com/diff-sniffer/git/releases/download/0.1.0/git-phpcs.phar
         - php git-phpcs.phar origin/$TRAVIS_BRANCH...$TRAVIS_PULL_REQUEST_SHA
-    - stage: Coding standard
-      if: NOT type = pull_request
-      php: 7.1
-      install: travis_retry composer install --prefer-dist
-      script:
-        - ./vendor/bin/phpcs
+#    - stage: Coding standard
+#      if: NOT type = pull_request
+#      php: 7.1
+#      install: travis_retry composer install --prefer-dist
+#      script:
+#        - ./vendor/bin/phpcs
