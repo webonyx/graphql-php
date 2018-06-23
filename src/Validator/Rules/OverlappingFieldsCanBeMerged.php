@@ -426,7 +426,7 @@ class OverlappingFieldsCanBeMerged extends AbstractValidationRule
         $fragmentNames1Length = count($fragmentNames1);
         if ($fragmentNames1Length !== 0) {
             $comparedFragments = [];
-            for ($i = 0; $i < $fragmentNames2Length; $i++) {
+            for ($i = 0; $i < $fragmentNames1Length; $i++) {
                 $this->collectConflictsBetweenFieldsAndFragment(
                     $context,
                     $conflicts,
