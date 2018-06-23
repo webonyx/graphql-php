@@ -10,6 +10,33 @@ Exception inside `parseLiteral()`, `parseValue()` and `serialize()`.
 
 Returning null from any of these methods will now be treated as valid result.
 
+### Breaking: Custom scalar types parseLiteral() declaration changed
+A new parameter was added to `parseLiteral()`, which also needs to be added to any custom scalar type extending from `ScalarType`
+
+Before:
+```php
+class MyType extends ScalarType {
+
+    ...
+
+    public function parseLiteral($valueNode) {
+        //custom implementation
+    }
+}
+```
+
+After:
+```php
+class MyType extends ScalarType {
+
+    ...
+
+    public function parseLiteral($valueNode, array $variables = null) {
+        //custom implementation
+    }
+}
+```
+
 ### Breaking: Descriptions in comments are not used as descriptions by default anymore
 Descriptions now need to be inside Strings or BlockStrings in order to be picked up as
 description. If you want to keep the old behaviour you can supply the option `commentDescriptions`
