@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 
 class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
@@ -24,13 +25,13 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
 
     private function printSingleFieldSchema($fieldConfig)
     {
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => [
                 'singleField' => $fieldConfig
             ]
         ]);
-        return $this->printForTest(new Schema(['query' => $root]));
+        return $this->printForTest(new Schema(['query' => $query]));
     }
 
     /**
@@ -42,11 +43,7 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
             'type' => Type::string()
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: String
 }
 ', $output);
@@ -61,11 +58,7 @@ type Root {
             'type' => Type::listOf(Type::string())
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: [String]
 }
 ', $output);
@@ -80,11 +73,7 @@ type Root {
             'type' => Type::nonNull(Type::string())
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: String!
 }
 ', $output);
@@ -99,11 +88,7 @@ type Root {
             'type' => Type::nonNull(Type::listOf(Type::string()))
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: [String]!
 }
 ', $output);
@@ -118,11 +103,7 @@ type Root {
             'type' => Type::listOf(Type::nonNull(Type::string()))
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: [String!]
 }
 ', $output);
@@ -137,11 +118,7 @@ type Root {
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: [String!]!
 }
 ', $output);
@@ -189,11 +166,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::int()]]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int): String
 }
 ', $output);
@@ -209,11 +182,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int = 2): String
 }
 ', $output);
@@ -229,11 +198,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int = null): String
 }
 ', $output);
@@ -249,11 +214,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int!): String
 }
 ', $output);
@@ -272,11 +233,7 @@ type Root {
             ]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int, argTwo: String): String
 }
 ', $output);
@@ -296,11 +253,7 @@ type Root {
             ]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int = 1, argTwo: String, argThree: Boolean): String
 }
 ', $output);
@@ -320,11 +273,7 @@ type Root {
             ]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int, argTwo: String = "foo", argThree: Boolean): String
 }
 ', $output);
@@ -344,11 +293,7 @@ type Root {
             ]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int, argTwo: String, argThree: Boolean = false): String
 }
 ', $output);
@@ -659,6 +604,78 @@ type Query {
   field: String
 }
 ', $output);
+    }
+
+    /**
+     * @it One-line prints a short description
+     */
+    public function testOneLinePrintsAShortDescription()
+    {
+        $description = 'This field is awesome';
+        $output = $this->printSingleFieldSchema([
+            "type" => Type::string(),
+            "description" => $description
+        ]);
+
+        $this->assertEquals('
+type Query {
+  """This field is awesome"""
+  singleField: String
+}
+', $output);
+
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedField = $recreatedRoot->getFields()['singleField'];
+        $this->assertEquals($description, $recreatedField->description);
+    }
+
+    /**
+     * @it Does not one-line print a description that ends with a quote
+     */
+    public function testDoesNotOneLinePrintADescriptionThatEndsWithAQuote()
+    {
+        $description = 'This field is "awesome"';
+        $output = $this->printSingleFieldSchema([
+            "type" => Type::string(),
+            "description" => $description
+        ]);
+
+        $this->assertEquals('
+type Query {
+  """
+  This field is "awesome"
+  """
+  singleField: String
+}
+', $output);
+
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedField = $recreatedRoot->getFields()['singleField'];
+        $this->assertEquals($description, $recreatedField->description);
+    }
+
+    /**
+     * @it Preserves leading spaces when printing a description
+     */
+    public function testPReservesLeadingSpacesWhenPrintingADescription()
+    {
+        $description = '    This field is "awesome"';
+        $output = $this->printSingleFieldSchema([
+            "type" => Type::string(),
+            "description" => $description
+        ]);
+
+        $this->assertEquals('
+type Query {
+  """    This field is "awesome"
+  """
+  singleField: String
+}
+', $output);
+
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedField = $recreatedRoot->getFields()['singleField'];
+        $this->assertEquals($description, $recreatedField->description);
     }
 
     /**
