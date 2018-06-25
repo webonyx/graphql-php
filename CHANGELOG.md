@@ -1,4 +1,7 @@
 # Changelog
+#### v0.12.2
+- SchemaPrinter: Use multi-line block for trailing quote (#294)
+
 #### v0.12.1
 - Fixed bug in validation rule OverlappingFieldsCanBeMerged (#292)
 - Added one more breaking change note in UPGRADE.md (#291)
