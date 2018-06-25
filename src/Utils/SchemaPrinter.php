@@ -275,15 +275,35 @@ class SchemaPrinter
             return self::printDescriptionWithComments($lines, $indentation, $firstInBlock);
         }
 
-        $description = ($indentation && !$firstInBlock) ? "\n" : '';
-        if (count($lines) === 1 && mb_strlen($lines[0]) < 70) {
-            $description .= $indentation . '"""' . self::escapeQuote($lines[0]) . "\"\"\"\n";
-            return $description;
+        $description = ($indentation && !$firstInBlock)
+            ? "\n" . $indentation . '"""'
+            : $indentation . '"""';
+
+        // In some circumstances, a single line can be used for the description.
+        if (
+            count($lines) === 1 &&
+            mb_strlen($lines[0]) < 70 &&
+            substr($lines[0], -1) !== '"'
+        ) {
+            return $description . self::escapeQuote($lines[0]) . "\"\"\"\n";
         }
 
-        $description .= $indentation . "\"\"\"\n";
-        foreach ($lines as $line) {
-            $description .= $indentation . self::escapeQuote($line) . "\n";
+        // Format a multi-line block quote to account for leading space.
+        $hasLeadingSpace = isset($lines[0]) &&
+            (
+                substr($lines[0], 0, 1) === ' ' ||
+                substr($lines[0], 0, 1) === '\t'
+            );
+        if (!$hasLeadingSpace) {
+            $description .= "\n";
+        }
+
+        $lineLength = count($lines);
+        for ($i = 0; $i < $lineLength; $i++) {
+            if ($i !== 0 || !$hasLeadingSpace) {
+                $description .= $indentation;
+            }
+            $description .= self::escapeQuote($lines[$i]) . "\n";
         }
         $description .= $indentation . "\"\"\"\n";
 
