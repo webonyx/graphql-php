@@ -189,7 +189,7 @@ class Helper
      * @api
      * @param ServerConfig $config
      * @param OperationParams[] $operations
-     * @return ExecutionResult[]|Promise
+     * @return ExecutionResult|ExecutionResult[]|Promise
      */
     public function executeBatch(ServerConfig $config, array $operations)
     {

@@ -59,7 +59,7 @@ class Utils
     /**
      * @param array|Traversable $traversable
      * @param callable $predicate
-     * @return null
+     * @return mixed|null
      */
     public static function find($traversable, callable $predicate)
     {

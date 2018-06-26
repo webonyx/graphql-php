@@ -282,7 +282,7 @@ class AST
      * @api
      * @param $valueNode
      * @param InputType $type
-     * @param null $variables
+     * @param mixed[]|null $variables
      * @return array|null|\stdClass
      * @throws \Exception
      */
