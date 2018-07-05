@@ -69,6 +69,28 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         }
     }
 
+    public function testParsesMultipartFormdataRequest()
+    {
+        $query = '{my query}';
+        $variables = ['test' => 1, 'test2' => 2];
+        $operation = 'op';
+
+        $post = [
+            'query' => $query,
+            'variables' => $variables,
+            'operationName' => $operation
+        ];
+        $parsed = [
+            'raw' => $this->parseRawMultipartFormdataRequest($post),
+            'psr' => $this->parsePsrMultipartFormdataRequest($post)
+        ];
+
+        foreach ($parsed as $method => $parsedBody) {
+            $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            $this->assertFalse($parsedBody->isReadOnly(), $method);
+        }
+    }
+
     public function testParsesJSONRequest()
     {
         $query = '{my query}';
@@ -320,6 +342,37 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     {
         $psrRequest = new PsrRequestStub();
         $psrRequest->headers['content-type'] = ['application/x-www-form-urlencoded'];
+        $psrRequest->method = 'POST';
+        $psrRequest->parsedBody = $postValue;
+
+        $helper = new Helper();
+        return $helper->parsePsrRequest($psrRequest);
+    }
+
+    /**
+     * @param array $postValue
+     * @return OperationParams|OperationParams[]
+     */
+    private function parseRawMultipartFormDataRequest($postValue)
+    {
+        $_SERVER['CONTENT_TYPE'] = 'multipart/form-data; boundary=----FormBoundary';
+        $_SERVER['REQUEST_METHOD'] = 'POST';
+        $_POST = $postValue;
+
+        $helper = new Helper();
+        return $helper->parseHttpRequest(function() {
+            throw new InvariantViolation("Shouldn't read from php://input for multipart/form-data request");
+        });
+    }
+
+    /**
+     * @param $postValue
+     * @return array|Helper
+     */
+    private function parsePsrMultipartFormDataRequest($postValue)
+    {
+        $psrRequest = new PsrRequestStub();
+        $psrRequest->headers['content-type'] = ['multipart/form-data; boundary=----FormBoundary'];
         $psrRequest->method = 'POST';
         $psrRequest->parsedBody = $postValue;
 
