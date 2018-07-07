@@ -1,4 +1,7 @@
 # Changelog
+#### v0.12.3
+- StandardServer: add support for the multipart/form-data content type (#300)
+
 #### v0.12.2
 - SchemaPrinter: Use multi-line block for trailing quote (#294)
 
