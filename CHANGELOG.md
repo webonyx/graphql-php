@@ -1,4 +1,7 @@
 # Changelog
+#### v0.12.4
+- Allow stringeable objects to be serialized by StringType (#303)
+
 #### v0.12.3
 - StandardServer: add support for the multipart/form-data content type (#300)
 
