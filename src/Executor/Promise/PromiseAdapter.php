@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Executor\Promise;
 
 /**
@@ -29,13 +32,10 @@ interface PromiseAdapter
      * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
      *
      * @api
-     * @param Promise $promise
-     * @param callable|null $onFulfilled
-     * @param callable|null $onRejected
      *
      * @return Promise
      */
-    public function then(Promise $promise, callable $onFulfilled = null, callable $onRejected = null);
+    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null);
 
     /**
      * Creates a Promise
@@ -44,7 +44,6 @@ interface PromiseAdapter
      *     function(callable $resolve, callable $reject)
      *
      * @api
-     * @param callable $resolver
      * @return Promise
      */
     public function create(callable $resolver);
@@ -73,7 +72,7 @@ interface PromiseAdapter
      * items in the array are fulfilled.
      *
      * @api
-     * @param array $promisesOrValues Promises or values.
+     * @param Promise[]|mixed[] $promisesOrValues Promises or values.
      * @return Promise
      */
     public function all(array $promisesOrValues);

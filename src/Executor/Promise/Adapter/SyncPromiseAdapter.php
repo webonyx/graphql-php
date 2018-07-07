@@ -1,19 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Executor\Promise\Adapter;
 
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
+use function count;
 
 /**
- * Class SyncPromiseAdapter
- *
  * Allows changing order of field resolution even in sync environments
  * (by leveraging queue of deferreds and promises)
- *
- * @package GraphQL\Executor\Promise\Adapter
  */
 class SyncPromiseAdapter implements PromiseAdapter
 {
@@ -30,20 +31,22 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function convertThenable($thenable)
     {
-        if (!$thenable instanceof Deferred) {
+        if (! $thenable instanceof Deferred) {
             throw new InvariantViolation('Expected instance of GraphQL\Deferred, got ' . Utils::printSafe($thenable));
         }
+
         return new Promise($thenable->promise, $this);
     }
 
     /**
      * @inheritdoc
      */
-    public function then(Promise $promise, callable $onFulfilled = null, callable $onRejected = null)
+    public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null)
     {
-        /** @var SyncPromise $promise */
-        $promise = $promise->adoptedPromise;
-        return new Promise($promise->then($onFulfilled, $onRejected), $this);
+        /** @var SyncPromise $adoptedPromise */
+        $adoptedPromise = $promise->adoptedPromise;
+
+        return new Promise($adoptedPromise->then($onFulfilled, $onRejected), $this);
     }
 
     /**
@@ -55,8 +58,14 @@ class SyncPromiseAdapter implements PromiseAdapter
 
         try {
             $resolver(
-                [$promise, 'resolve'],
-                [$promise, 'reject']
+                [
+                    $promise,
+                    'resolve',
+                ],
+                [
+                    $promise,
+                    'reject',
+                ]
             );
         } catch (\Exception $e) {
             $promise->reject($e);
@@ -73,6 +82,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function createFulfilled($value = null)
     {
         $promise = new SyncPromise();
+
         return new Promise($promise->resolve($value), $this);
     }
 
@@ -82,6 +92,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function createRejected($reason)
     {
         $promise = new SyncPromise();
+
         return new Promise($promise->reject($reason), $this);
     }
 
@@ -92,20 +103,22 @@ class SyncPromiseAdapter implements PromiseAdapter
     {
         $all = new SyncPromise();
 
-        $total = count($promisesOrValues);
-        $count = 0;
+        $total  = count($promisesOrValues);
+        $count  = 0;
         $result = [];
 
         foreach ($promisesOrValues as $index => $promiseOrValue) {
             if ($promiseOrValue instanceof Promise) {
                 $result[$index] = null;
                 $promiseOrValue->then(
-                    function($value) use ($index, &$count, $total, &$result, $all) {
+                    function ($value) use ($index, &$count, $total, &$result, $all) {
                         $result[$index] = $value;
                         $count++;
-                        if ($count >= $total) {
-                            $all->resolve($result);
+                        if ($count < $total) {
+                            return;
                         }
+
+                        $all->resolve($result);
                     },
                     [$all, 'reject']
                 );
@@ -117,24 +130,23 @@ class SyncPromiseAdapter implements PromiseAdapter
         if ($count === $total) {
             $all->resolve($result);
         }
+
         return new Promise($all, $this);
     }
 
     /**
      * Synchronously wait when promise completes
      *
-     * @param Promise $promise
-     * @return mixed
+     * @return ExecutionResult
      */
     public function wait(Promise $promise)
     {
         $this->beforeWait($promise);
-        $dfdQueue = Deferred::getQueue();
+        $dfdQueue     = Deferred::getQueue();
         $promiseQueue = SyncPromise::getQueue();
 
-        while (
-            $promise->adoptedPromise->state === SyncPromise::PENDING &&
-            !($dfdQueue->isEmpty() && $promiseQueue->isEmpty())
+        while ($promise->adoptedPromise->state === SyncPromise::PENDING &&
+            ! ($dfdQueue->isEmpty() && $promiseQueue->isEmpty())
         ) {
             Deferred::runQueue();
             SyncPromise::runQueue();
@@ -146,17 +158,16 @@ class SyncPromiseAdapter implements PromiseAdapter
 
         if ($syncPromise->state === SyncPromise::FULFILLED) {
             return $syncPromise->result;
-        } else if ($syncPromise->state === SyncPromise::REJECTED) {
+        } elseif ($syncPromise->state === SyncPromise::REJECTED) {
             throw $syncPromise->result;
         }
 
-        throw new InvariantViolation("Could not resolve promise");
+        throw new InvariantViolation('Could not resolve promise');
     }
 
     /**
      * Execute just before starting to run promise completion
      *
-     * @param Promise $promise
      */
     protected function beforeWait(Promise $promise)
     {
@@ -165,7 +176,6 @@ class SyncPromiseAdapter implements PromiseAdapter
     /**
      * Execute while running promise completion
      *
-     * @param Promise $promise
      */
     protected function onWait(Promise $promise)
     {
