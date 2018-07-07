@@ -40,6 +40,9 @@ represent free-form human-readable text.';
         if ($value === null) {
             return 'null';
         }
+        if (is_object($value) && method_exists($value, '__toString')) {
+            return (string) $value;
+        }
         if (!is_scalar($value)) {
             throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
         }
