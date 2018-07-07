@@ -150,6 +150,7 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
         $this->assertSame('true', $stringType->serialize(true));
         $this->assertSame('false', $stringType->serialize(false));
         $this->assertSame('null', $stringType->serialize(null));
+        $this->assertSame('2', $stringType->serialize(new ObjectIdStub(2)));
     }
 
     public function testSerializesOutputStringsCannotRepresentArray()
