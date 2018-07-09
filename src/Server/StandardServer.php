@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Server;
 
 use GraphQL\Error\FormattedError;
@@ -9,6 +12,7 @@ use GraphQL\Utils;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use function is_array;
 
 /**
  * GraphQL server compatible with both: [express-graphql](https://github.com/graphql/express-graphql)
@@ -34,14 +38,10 @@ use Psr\Http\Message\StreamInterface;
  */
 class StandardServer
 {
-    /**
-     * @var ServerConfig
-     */
+    /** @var ServerConfig */
     private $config;
 
-    /**
-     * @var Helper
-     */
+    /** @var Helper */
     private $helper;
 
     /**
@@ -51,17 +51,15 @@ class StandardServer
      *
      * @api
      * @param \Throwable $error
-     * @param bool $debug
-     * @param bool $exitWhenDone
+     * @param bool       $debug
+     * @param bool       $exitWhenDone
      */
     public static function send500Error($error, $debug = false, $exitWhenDone = false)
     {
         $response = [
-            'errors' => [
-                FormattedError::createFromException($error, $debug)
-            ]
+            'errors' => [FormattedError::createFromException($error, $debug)],
         ];
-        $helper = new Helper();
+        $helper   = new Helper();
         $helper->emitResponse($response, 500, $exitWhenDone);
     }
 
@@ -69,15 +67,15 @@ class StandardServer
      * Creates new instance of a standard GraphQL HTTP server
      *
      * @api
-     * @param ServerConfig|array $config
+     * @param ServerConfig|mixed[] $config
      */
     public function __construct($config)
     {
         if (is_array($config)) {
             $config = ServerConfig::create($config);
         }
-        if (!$config instanceof ServerConfig) {
-            throw new InvariantViolation("Expecting valid server config, but got " . Utils::printSafe($config));
+        if (! $config instanceof ServerConfig) {
+            throw new InvariantViolation('Expecting valid server config, but got ' . Utils::printSafe($config));
         }
         $this->config = $config;
         $this->helper = new Helper();
@@ -95,7 +93,7 @@ class StandardServer
      *
      * @api
      * @param OperationParams|OperationParams[] $parsedBody
-     * @param bool $exitWhenDone
+     * @param bool                              $exitWhenDone
      */
     public function handleRequest($parsedBody = null, $exitWhenDone = false)
     {
@@ -120,15 +118,15 @@ class StandardServer
      */
     public function executeRequest($parsedBody = null)
     {
-        if (null === $parsedBody) {
+        if ($parsedBody === null) {
             $parsedBody = $this->helper->parseHttpRequest();
         }
 
         if (is_array($parsedBody)) {
             return $this->helper->executeBatch($this->config, $parsedBody);
-        } else {
-            return $this->helper->executeOperation($this->config, $parsedBody);
         }
+
+        return $this->helper->executeOperation($this->config, $parsedBody);
     }
 
     /**
@@ -138,17 +136,13 @@ class StandardServer
      * (e.g. using specific JsonResponse instance of some framework).
      *
      * @api
-     * @param ServerRequestInterface $request
-     * @param ResponseInterface $response
-     * @param StreamInterface $writableBodyStream
      * @return ResponseInterface|Promise
      */
     public function processPsrRequest(
         ServerRequestInterface $request,
         ResponseInterface $response,
         StreamInterface $writableBodyStream
-    )
-    {
+    ) {
         $result = $this->executePsrRequest($request);
         return $this->helper->toPsrResponse($result, $response, $writableBodyStream);
     }
@@ -158,7 +152,6 @@ class StandardServer
      * (or promise when promise adapter is different from SyncPromiseAdapter)
      *
      * @api
-     * @param ServerRequestInterface $request
      * @return ExecutionResult|ExecutionResult[]|Promise
      */
     public function executePsrRequest(ServerRequestInterface $request)
