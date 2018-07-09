@@ -23,7 +23,7 @@ install:
     - composer require psr/http-message:1.*
     - travis_retry composer update --prefer-dist
 
-script: ./vendor/bin/phpunit --group default,ReactPromise
+script: ./vendor/bin/phpunit
 
 jobs:
   allow_failures:
