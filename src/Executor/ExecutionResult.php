@@ -78,7 +78,7 @@ class ExecutionResult implements \JsonSerializable
      * );
      *
      * @api
-     * @return $this
+     * @return self
      */
     public function setErrorFormatter(callable $errorFormatter)
     {
@@ -98,7 +98,7 @@ class ExecutionResult implements \JsonSerializable
      * }
      *
      * @api
-     * @return $this
+     * @return self
      */
     public function setErrorsHandler(callable $handler)
     {

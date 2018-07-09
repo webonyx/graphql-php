@@ -48,7 +48,7 @@ abstract class Node
     }
 
     /**
-     * @return $this
+     * @return self
      */
     public function cloneDeep()
     {
