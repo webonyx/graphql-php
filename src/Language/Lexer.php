@@ -690,7 +690,7 @@ class Lexer
      *
      * @param $positionOffset
      * @param $byteStreamOffset
-     * @return $this
+     * @return self
      */
     private function moveStringCursor($positionOffset, $byteStreamOffset)
     {
