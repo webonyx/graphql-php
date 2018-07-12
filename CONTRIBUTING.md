@@ -14,14 +14,20 @@ For smaller contributions just use this workflow:
 * Send a pull request
 
 ## Using GraphQL PHP from a Git checkout
-```
-$ git clone https://github.com/webonyx/graphql-php.git
-$ cd graphql-php
-$ composer install
+```sh
+git clone https://github.com/webonyx/graphql-php.git
+cd graphql-php
+composer install
 ```
 
 ## Running tests
-From the project root:
+```sh
+./vendor/bin/phpunit
 ```
-$ ./bin/phpunit
+
+## Coding Standard
+Coding standard of this project is based on [Doctrine CS](https://github.com/doctrine/coding-standard). To run the inspection:
+
+```sh
+./vendor/bin/phpcs
 ```
