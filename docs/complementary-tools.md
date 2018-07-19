@@ -19,3 +19,4 @@
 * [ChromeiQL](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij)
   or [GraphiQL Feen](https://chrome.google.com/webstore/detail/graphiql-feen/mcbfdonlkfpbfdpimkjilhdneikhfklp) -
   GraphiQL as Google Chrome extension
+* [GraphQL Playground](https://github.com/prismagraphql/graphql-playground) - GraphQL IDE for better development workflows (GraphQL Subscriptions, interactive docs & collaboration).
