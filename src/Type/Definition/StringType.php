@@ -44,6 +44,11 @@ represent free-form human-readable text.';
             return (string) $value;
         }
         if (!is_scalar($value)) {
+
+            // check if we have a carbon date (Laravel)
+            if('Illuminate\Support\Carbon' === get_class($value)) return $value->format('c');
+            
+            // we can't do anything, throw error
             throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
         }
         return $this->coerceString($value);
