@@ -82,8 +82,15 @@ represent free-form human-readable text.';
      * @param mixed $value
      * @throws Error
      */
-    private function throwError ($value) {
-        throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
+    private function throwError ($value)
+    {
+        $message = 'String cannot represent non scalar value';
+
+        if (is_array($value)) {
+            $message = 'String cannot represent an array value';
+        }
+
+        throw new Error($message .': ' . Utils::printSafe($value));
     }
 
     /**
@@ -91,7 +98,8 @@ represent free-form human-readable text.';
      * @return mixed
      * @throws Error
      */
-    private function checkStringForDates ($value) {
+    private function checkStringForDates ($value)
+    {
         if (is_object($value)) {
             switch (get_class($value)) {
                 case 'DateTime':
@@ -109,7 +117,8 @@ represent free-form human-readable text.';
      * @return string
      * @throws Error
      */
-    private function coerceString($value) {
+    private function coerceString($value)
+    {
         if (is_array($value)) $this->throwError($value);
         return (string) $value;
     }
