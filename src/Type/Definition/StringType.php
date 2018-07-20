@@ -45,24 +45,10 @@ represent free-form human-readable text.';
         }
         if (!is_scalar($value)) {
 
-            $is_object = is_object($value);
-
             // check for different types of objects we can convert to our string
-            if ($is_object) {
-
-                $class = get_class($value);
-
-                switch ($class) {
-                    case 'DateTime':
-                    case 'Illuminate\Support\Carbon':
-                        return $value->format('c');
-                        // no break
-                }
-            }
-
-            // we can't do anything, throw error
-            throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
+            return $this->checkStringForDates($value);
         }
+
         return $this->coerceString($value);
     }
 
@@ -92,14 +78,39 @@ represent free-form human-readable text.';
         throw new \Exception();
     }
 
-    private function coerceString($value) {
-        if (is_array($value)) {
-            throw new Error(
-                'String cannot represent an array value: ' .
-                Utils::printSafe($value)
-            );
+    /**
+     * @param mixed $value
+     * @throws Error
+     */
+    private function throwError ($value) {
+        throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
+    }
+
+    /**
+     * @param $value
+     * @return mixed
+     * @throws Error
+     */
+    private function checkStringForDates ($value) {
+        if (is_object($value)) {
+            switch (get_class($value)) {
+                case 'DateTime':
+                case 'Illuminate\Support\Carbon':
+                    return $value->format('c');
+                    // no break
+            }
         }
 
+        $this->throwError($value);
+    }
+
+    /**
+     * @param $value
+     * @return string
+     * @throws Error
+     */
+    private function coerceString($value) {
+        if (is_array($value)) $this->throwError($value);
         return (string) $value;
     }
 }
