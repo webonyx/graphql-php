@@ -47,10 +47,8 @@ represent free-form human-readable text.';
 
             // check for different types of objects we can convert to our string
             switch(is_object($value) && get_class($value)) {
-                case 'DateTime':
-                case 'Illuminate\Support\Carbon':
+                case 'DateTime': case 'Illuminate\Support\Carbon':
                     return $value->format('c');
-                    break;
             }
 
             // we can't do anything, throw error
