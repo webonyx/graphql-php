@@ -44,8 +44,11 @@ represent free-form human-readable text.';
             return (string) $value;
         }
         if (!is_scalar($value)) {
-            throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
+
+            // check for different types of objects we can convert to our string
+            return $this->checkStringForDates($value);
         }
+
         return $this->coerceString($value);
     }
 
@@ -75,14 +78,43 @@ represent free-form human-readable text.';
         throw new \Exception();
     }
 
-    private function coerceString($value) {
-        if (is_array($value)) {
-            throw new Error(
-                'String cannot represent an array value: ' .
-                Utils::printSafe($value)
-            );
+    /**
+     * @param mixed $value
+     * @throws Error
+     */
+    private function throwError ($value)
+    {
+        $message = 'String cannot represent non scalar value';
+        throw new Error($message .': ' . Utils::printSafe($value));
+    }
+
+    /**
+     * @param $value
+     * @return mixed
+     * @throws Error
+     */
+    private function checkStringForDates ($value)
+    {
+        if (is_object($value)) {
+            switch (get_class($value)) {
+                case 'DateTime':
+                case 'Illuminate\Support\Carbon':
+                    return $value->format('c');
+                    // no break
+            }
         }
 
+        $this->throwError($value);
+    }
+
+    /**
+     * @param $value
+     * @return string
+     * @throws Error
+     */
+    private function coerceString($value)
+    {
+        if (is_array($value)) $this->throwError($value);
         return (string) $value;
     }
 }
