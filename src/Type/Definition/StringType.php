@@ -46,7 +46,7 @@ represent free-form human-readable text.';
         if (!is_scalar($value)) {
 
             // check for different types of objects we can convert to our string
-            switch(get_class($value)) {
+            switch(is_object($value) && get_class($value)) {
                 case 'DateTime':
                 case 'Illuminate\Support\Carbon':
                     return $value->format('c');
