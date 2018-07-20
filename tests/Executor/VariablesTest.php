@@ -512,7 +512,7 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
     {
         $this->setExpectedException(
             Error::class,
-            'String cannot represent an array value: array(3)'
+            'String cannot represent non scalar value: [1,2,3]'
         );
         Type::string()->serialize([1, 2, 3]);
     }

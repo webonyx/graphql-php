@@ -85,11 +85,6 @@ represent free-form human-readable text.';
     private function throwError ($value)
     {
         $message = 'String cannot represent non scalar value';
-
-        if (is_array($value)) {
-            $message = 'String cannot represent an array value';
-        }
-
         throw new Error($message .': ' . Utils::printSafe($value));
     }
 
