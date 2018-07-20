@@ -156,7 +156,7 @@ class ScalarSerializationTest extends \PHPUnit_Framework_TestCase
     public function testSerializesOutputStringsCannotRepresentArray()
     {
         $stringType = Type::string();
-        $this->setExpectedException(Error::class, 'String cannot represent non scalar value: []');
+        $this->setExpectedException(Error::class, 'String cannot represent an array value: array(0)');
         $stringType->serialize([]);
     }
 
