@@ -866,7 +866,7 @@ class ExecutorTest extends TestCase
         ...Frag
       }
 
-      fragment Frag on DataType {
+      fragment Frag on Type {
         a,
         ...Frag
       }

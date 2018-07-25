@@ -35,6 +35,10 @@ use const E_USER_DEPRECATED;
 
 class Introspection
 {
+    const SCHEMA_FIELD_NAME    = '__schema';
+    const TYPE_FIELD_NAME      = '__type';
+    const TYPE_NAME_FIELD_NAME = '__typename';
+
     /** @var Type[] */
     private static $map = [];
 
@@ -691,9 +695,9 @@ EOD;
 
     public static function schemaMetaFieldDef()
     {
-        if (! isset(self::$map['__schema'])) {
-            self::$map['__schema'] = FieldDefinition::create([
-                'name'        => '__schema',
+        if (! isset(self::$map[self::SCHEMA_FIELD_NAME])) {
+            self::$map[self::SCHEMA_FIELD_NAME] = FieldDefinition::create([
+                'name'        => self::SCHEMA_FIELD_NAME,
                 'type'        => Type::nonNull(self::_schema()),
                 'description' => 'Access the current type schema of this server.',
                 'args'        => [],
@@ -708,14 +712,14 @@ EOD;
             ]);
         }
 
-        return self::$map['__schema'];
+        return self::$map[self::SCHEMA_FIELD_NAME];
     }
 
     public static function typeMetaFieldDef()
     {
-        if (! isset(self::$map['__type'])) {
-            self::$map['__type'] = FieldDefinition::create([
-                'name'        => '__type',
+        if (! isset(self::$map[self::TYPE_FIELD_NAME])) {
+            self::$map[self::TYPE_FIELD_NAME] = FieldDefinition::create([
+                'name'        => self::TYPE_FIELD_NAME,
                 'type'        => self::_type(),
                 'description' => 'Request the type information of a single type.',
                 'args'        => [
@@ -727,14 +731,14 @@ EOD;
             ]);
         }
 
-        return self::$map['__type'];
+        return self::$map[self::TYPE_FIELD_NAME];
     }
 
     public static function typeNameMetaFieldDef()
     {
-        if (! isset(self::$map['__typename'])) {
-            self::$map['__typename'] = FieldDefinition::create([
-                'name'        => '__typename',
+        if (! isset(self::$map[self::TYPE_NAME_FIELD_NAME])) {
+            self::$map[self::TYPE_NAME_FIELD_NAME] = FieldDefinition::create([
+                'name'        => self::TYPE_NAME_FIELD_NAME,
                 'type'        => Type::nonNull(Type::string()),
                 'description' => 'The name of the current Object type at runtime.',
                 'args'        => [],
@@ -749,6 +753,6 @@ EOD;
             ]);
         }
 
-        return self::$map['__typename'];
+        return self::$map[self::TYPE_NAME_FIELD_NAME];
     }
 }

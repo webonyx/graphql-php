@@ -6,6 +6,12 @@ php:
   - 7.2
   - nightly
 
+env:
+  matrix:
+  - EXECUTOR=coroutine
+  - EXECUTOR=
+
+
 cache:
   directories:
     - $HOME/.composer/cache

@@ -1,0 +1,70 @@
+{
+    "pipeline": [
+        {
+            "fieldNodes": [
+                {
+                    "kind": "Field",
+                    "name": {
+                        "kind": "Name",
+                        "value": "human"
+                    },
+                    "arguments": [
+                        {
+                            "kind": "Argument",
+                            "value": {
+                                "kind": "Variable",
+                                "name": {
+                                    "kind": "Name",
+                                    "value": "id"
+                                }
+                            },
+                            "name": {
+                                "kind": "Name",
+                                "value": "id"
+                            }
+                        }
+                    ],
+                    "directives": [],
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [
+                            {
+                                "kind": "Field",
+                                "name": {
+                                    "kind": "Name",
+                                    "value": "name"
+                                },
+                                "arguments": [],
+                                "directives": []
+                            },
+                            {
+                                "kind": "Field",
+                                "name": {
+                                    "kind": "Name",
+                                    "value": "secretBackstory"
+                                },
+                                "alias": {
+                                    "kind": "Name",
+                                    "value": "name"
+                                },
+                                "arguments": [],
+                                "directives": []
+                            }
+                        ]
+                    }
+                }
+            ],
+            "fieldName": "human",
+            "resultName": "human",
+            "argumentValueMap": {
+                "id": {
+                    "kind": "Variable",
+                    "name": {
+                        "kind": "Name",
+                        "value": "id"
+                    }
+                }
+            }
+        }
+    ]
+}

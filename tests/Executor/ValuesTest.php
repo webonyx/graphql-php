@@ -25,7 +25,7 @@ class ValuesTest extends TestCase
     {
         $this->expectInputVariablesMatchOutputVariables(['idInput' => '123456789']);
         self::assertEquals(
-            ['errors' => [], 'coerced' => ['idInput' => '123456789']],
+            [null, ['idInput' => '123456789']],
             $this->runTestCase(['idInput' => 123456789]),
             'Integer ID was not converted to string'
         );
@@ -35,7 +35,7 @@ class ValuesTest extends TestCase
     {
         self::assertEquals(
             $variables,
-            $this->runTestCase($variables)['coerced'],
+            $this->runTestCase($variables)[1],
             'Output variables did not match input variables' . "\n" . var_export($variables, true) . "\n"
         );
     }
@@ -148,7 +148,8 @@ class ValuesTest extends TestCase
     private function expectGraphQLError($variables) : void
     {
         $result = $this->runTestCase($variables);
-        self::assertGreaterThan(0, count($result['errors']));
+        self::assertNotNull($result[0]);
+        self::assertGreaterThan(0, count($result[0]));
     }
 
     public function testFloatForIDVariableThrowsError() : void

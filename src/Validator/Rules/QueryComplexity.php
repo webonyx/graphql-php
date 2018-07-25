@@ -186,37 +186,30 @@ class QueryComplexity extends QuerySecurityRule
             if ($directiveNode->name->value === 'deprecated') {
                 return false;
             }
-
-            $variableValuesResult = Values::getVariableValues(
+            [$errors, $variableValues] = Values::getVariableValues(
                 $this->context->getSchema(),
                 $this->variableDefs,
                 $this->getRawVariableValues()
             );
-
-            if (! empty($variableValuesResult['errors'])) {
+            if (! empty($errors)) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(
                         static function ($error) {
                             return $error->getMessage();
                         },
-                        $variableValuesResult['errors']
+                        $errors
                     )
                 ));
             }
-            $variableValues = $variableValuesResult['coerced'];
-
             if ($directiveNode->name->value === 'include') {
                 $directive = Directive::includeDirective();
                 /** @var bool $directiveArgsIf */
                 $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues)['if'];
-
                 return ! $directiveArgsIf;
             }
-
             $directive       = Directive::skipDirective();
             $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues);
-
             return $directiveArgsIf['if'];
         }
     }
@@ -243,24 +236,23 @@ class QueryComplexity extends QuerySecurityRule
         $args = [];
 
         if ($fieldDef instanceof FieldDefinition) {
-            $variableValuesResult = Values::getVariableValues(
+            [$errors, $variableValues] = Values::getVariableValues(
                 $this->context->getSchema(),
                 $this->variableDefs,
                 $rawVariableValues
             );
 
-            if (! empty($variableValuesResult['errors'])) {
+            if (! empty($errors)) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(
                         static function ($error) {
                             return $error->getMessage();
                         },
-                        $variableValuesResult['errors']
+                        $errors
                     )
                 ));
             }
-            $variableValues = $variableValuesResult['coerced'];
 
             $args = Values::getArgumentValues($fieldDef, $node, $variableValues);
         }

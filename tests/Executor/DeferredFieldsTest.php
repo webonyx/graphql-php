@@ -13,7 +13,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use function count;
 use function in_array;
+use function json_encode;
 
 class DeferredFieldsTest extends TestCase
 {
@@ -27,7 +29,7 @@ class DeferredFieldsTest extends TestCase
     private $categoryType;
 
     /** @var  */
-    private $path;
+    private $paths;
 
     /** @var mixed[][] */
     private $storyDataSource;
@@ -68,7 +70,7 @@ class DeferredFieldsTest extends TestCase
             ['id' => 3, 'name' => 'Category #3', 'topStoryId' => 9],
         ];
 
-        $this->path     = [];
+        $this->paths    = [];
         $this->userType = new ObjectType([
             'name'   => 'User',
             'fields' => function () {
@@ -76,7 +78,7 @@ class DeferredFieldsTest extends TestCase
                     'name'       => [
                         'type'    => Type::string(),
                         'resolve' => function ($user, $args, $context, ResolveInfo $info) {
-                            $this->path[] = $info->path;
+                            $this->paths[] = $info->path;
 
                             return $user['name'];
                         },
@@ -84,10 +86,10 @@ class DeferredFieldsTest extends TestCase
                     'bestFriend' => [
                         'type'    => $this->userType,
                         'resolve' => function ($user, $args, $context, ResolveInfo $info) {
-                            $this->path[] = $info->path;
+                            $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($user) {
-                                $this->path[] = 'deferred-for-best-friend-of-' . $user['id'];
+                                $this->paths[] = 'deferred-for-best-friend-of-' . $user['id'];
 
                                 return Utils::find(
                                     $this->userDataSource,
@@ -108,7 +110,7 @@ class DeferredFieldsTest extends TestCase
                 'title'  => [
                     'type'    => Type::string(),
                     'resolve' => function ($entry, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
+                        $this->paths[] = $info->path;
 
                         return $entry['title'];
                     },
@@ -116,10 +118,10 @@ class DeferredFieldsTest extends TestCase
                 'author' => [
                     'type'    => $this->userType,
                     'resolve' => function ($story, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
+                        $this->paths[] = $info->path;
 
                         return new Deferred(function () use ($story) {
-                            $this->path[] = 'deferred-for-story-' . $story['id'] . '-author';
+                            $this->paths[] = 'deferred-for-story-' . $story['id'] . '-author';
 
                             return Utils::find(
                                 $this->userDataSource,
@@ -139,7 +141,7 @@ class DeferredFieldsTest extends TestCase
                 'name' => [
                     'type'    => Type::string(),
                     'resolve' => function ($category, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
+                        $this->paths[] = $info->path;
 
                         return $category['name'];
                     },
@@ -148,7 +150,7 @@ class DeferredFieldsTest extends TestCase
                 'stories'  => [
                     'type'    => Type::listOf($this->storyType),
                     'resolve' => function ($category, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
+                        $this->paths[] = $info->path;
 
                         return Utils::filter(
                             $this->storyDataSource,
@@ -161,10 +163,10 @@ class DeferredFieldsTest extends TestCase
                 'topStory' => [
                     'type'    => $this->storyType,
                     'resolve' => function ($category, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
+                        $this->paths[] = $info->path;
 
                         return new Deferred(function () use ($category) {
-                            $this->path[] = 'deferred-for-category-' . $category['id'] . '-topStory';
+                            $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStory';
 
                             return Utils::find(
                                 $this->storyDataSource,
@@ -184,7 +186,7 @@ class DeferredFieldsTest extends TestCase
                 'topStories'       => [
                     'type'    => Type::listOf($this->storyType),
                     'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
+                        $this->paths[] = $info->path;
 
                         return Utils::filter(
                             $this->storyDataSource,
@@ -197,7 +199,7 @@ class DeferredFieldsTest extends TestCase
                 'featuredCategory' => [
                     'type'    => $this->categoryType,
                     'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
+                        $this->paths[] = $info->path;
 
                         return $this->categoryDataSource[0];
                     },
@@ -205,7 +207,7 @@ class DeferredFieldsTest extends TestCase
                 'categories'       => [
                     'type'    => Type::listOf($this->categoryType),
                     'resolve' => function ($val, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
+                        $this->paths[] = $info->path;
 
                         return $this->categoryDataSource;
                     },
@@ -264,7 +266,7 @@ class DeferredFieldsTest extends TestCase
         $result = Executor::execute($schema, $query);
         self::assertEquals($expected, $result->toArray());
 
-        $expectedPath = [
+        $expectedPaths = [
             ['topStories'],
             ['topStories', 0, 'title'],
             ['topStories', 0, 'author'],
@@ -305,7 +307,10 @@ class DeferredFieldsTest extends TestCase
             ['featuredCategory', 'stories', 2, 'author', 'name'],
             ['featuredCategory', 'stories', 3, 'author', 'name'],
         ];
-        self::assertEquals($expectedPath, $this->path);
+        self::assertCount(count($expectedPaths), $this->paths);
+        foreach ($expectedPaths as $expectedPath) {
+            self::assertTrue(in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
+        }
     }
 
     public function testNestedDeferredFields() : void
@@ -349,7 +354,7 @@ class DeferredFieldsTest extends TestCase
         $result = Executor::execute($schema, $query);
         self::assertEquals($expected, $result->toArray());
 
-        $expectedPath = [
+        $expectedPaths = [
             ['categories'],
             ['categories', 0, 'name'],
             ['categories', 0, 'topStory'],
@@ -382,7 +387,10 @@ class DeferredFieldsTest extends TestCase
             ['categories', 1, 'topStory', 'author', 'bestFriend', 'name'],
             ['categories', 2, 'topStory', 'author', 'bestFriend', 'name'],
         ];
-        self::assertEquals($expectedPath, $this->path);
+        self::assertCount(count($expectedPaths), $this->paths);
+        foreach ($expectedPaths as $expectedPath) {
+            self::assertTrue(in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
+        }
     }
 
     public function testComplexRecursiveDeferredFields() : void
@@ -394,7 +402,7 @@ class DeferredFieldsTest extends TestCase
                     'sync'         => [
                         'type'    => Type::string(),
                         'resolve' => function ($v, $a, $c, ResolveInfo $info) {
-                            $this->path[] = $info->path;
+                            $this->paths[] = $info->path;
 
                             return 'sync';
                         },
@@ -402,10 +410,10 @@ class DeferredFieldsTest extends TestCase
                     'deferred'     => [
                         'type'    => Type::string(),
                         'resolve' => function ($v, $a, $c, ResolveInfo $info) {
-                            $this->path[] = $info->path;
+                            $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($info) {
-                                $this->path[] = ['!dfd for: ', $info->path];
+                                $this->paths[] = ['!dfd for: ', $info->path];
 
                                 return 'deferred';
                             });
@@ -414,7 +422,7 @@ class DeferredFieldsTest extends TestCase
                     'nest'         => [
                         'type'    => $complexType,
                         'resolve' => function ($v, $a, $c, ResolveInfo $info) {
-                            $this->path[] = $info->path;
+                            $this->paths[] = $info->path;
 
                             return [];
                         },
@@ -422,10 +430,10 @@ class DeferredFieldsTest extends TestCase
                     'deferredNest' => [
                         'type'    => $complexType,
                         'resolve' => function ($v, $a, $c, ResolveInfo $info) {
-                            $this->path[] = $info->path;
+                            $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($info) {
-                                $this->path[] = ['!dfd nest for: ', $info->path];
+                                $this->paths[] = ['!dfd nest for: ', $info->path];
 
                                 return [];
                             });
@@ -497,7 +505,7 @@ class DeferredFieldsTest extends TestCase
 
         self::assertEquals($expected, $result->toArray());
 
-        $expectedPath = [
+        $expectedPaths = [
             ['nest'],
             ['nest', 'sync'],
             ['nest', 'deferred'],
@@ -531,6 +539,9 @@ class DeferredFieldsTest extends TestCase
             ['!dfd for: ', ['deferredNest', 'deferredNest', 'deferred']],
         ];
 
-        self::assertEquals($expectedPath, $this->path);
+        self::assertCount(count($expectedPaths), $this->paths);
+        foreach ($expectedPaths as $expectedPath) {
+            self::assertTrue(in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
+        }
     }
 }

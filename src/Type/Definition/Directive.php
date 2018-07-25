@@ -8,6 +8,8 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
+use function array_keys;
+use function in_array;
 use function is_array;
 
 /**
@@ -16,6 +18,12 @@ use function is_array;
 class Directive
 {
     public const DEFAULT_DEPRECATION_REASON = 'No longer supported';
+
+    const INCLUDE_NAME         = 'include';
+    const IF_ARGUMENT_NAME     = 'if';
+    const SKIP_NAME            = 'skip';
+    const DEPRECATED_NAME      = 'deprecated';
+    const REASON_ARGUMENT_NAME = 'reason';
 
     /** @var Directive[] */
     public static $internalDirectives;
@@ -72,7 +80,6 @@ class Directive
     public static function includeDirective()
     {
         $internal = self::getInternalDirectives();
-
         return $internal['include'];
     }
 
@@ -84,7 +91,7 @@ class Directive
         if (! self::$internalDirectives) {
             self::$internalDirectives = [
                 'include'    => new self([
-                    'name'        => 'include',
+                    'name'        => self::INCLUDE_NAME,
                     'description' => 'Directs the executor to include this field or fragment only when the `if` argument is true.',
                     'locations'   => [
                         DirectiveLocation::FIELD,
@@ -92,14 +99,14 @@ class Directive
                         DirectiveLocation::INLINE_FRAGMENT,
                     ],
                     'args'        => [new FieldArgument([
-                        'name'        => 'if',
+                        'name'        => self::IF_ARGUMENT_NAME,
                         'type'        => Type::nonNull(Type::boolean()),
                         'description' => 'Included when true.',
                     ]),
                     ],
                 ]),
                 'skip'       => new self([
-                    'name'        => 'skip',
+                    'name'        => self::SKIP_NAME,
                     'description' => 'Directs the executor to skip this field or fragment when the `if` argument is true.',
                     'locations'   => [
                         DirectiveLocation::FIELD,
@@ -107,21 +114,21 @@ class Directive
                         DirectiveLocation::INLINE_FRAGMENT,
                     ],
                     'args'        => [new FieldArgument([
-                        'name'        => 'if',
+                        'name'        => self::IF_ARGUMENT_NAME,
                         'type'        => Type::nonNull(Type::boolean()),
                         'description' => 'Skipped when true.',
                     ]),
                     ],
                 ]),
                 'deprecated' => new self([
-                    'name'        => 'deprecated',
+                    'name'        => self::DEPRECATED_NAME,
                     'description' => 'Marks an element of a GraphQL schema as no longer supported.',
                     'locations'   => [
                         DirectiveLocation::FIELD_DEFINITION,
                         DirectiveLocation::ENUM_VALUE,
                     ],
                     'args'        => [new FieldArgument([
-                        'name'         => 'reason',
+                        'name'         => self::REASON_ARGUMENT_NAME,
                         'type'         => Type::string(),
                         'description'  =>
                             'Explains why this element was deprecated, usually also including a ' .
@@ -133,30 +140,24 @@ class Directive
                 ]),
             ];
         }
-
         return self::$internalDirectives;
     }
-
     /**
      * @return Directive
      */
     public static function skipDirective()
     {
         $internal = self::getInternalDirectives();
-
         return $internal['skip'];
     }
-
     /**
      * @return Directive
      */
     public static function deprecatedDirective()
     {
         $internal = self::getInternalDirectives();
-
         return $internal['deprecated'];
     }
-
     /**
      * @return bool
      */

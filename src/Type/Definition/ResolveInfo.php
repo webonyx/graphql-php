@@ -11,7 +11,6 @@ use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\Utils;
 use function array_merge_recursive;
 
 /**
@@ -56,7 +55,7 @@ class ResolveInfo
      * Path to this field from the very root value
      *
      * @api
-     * @var mixed[]|null
+     * @var string[]
      */
     public $path;
 
@@ -100,12 +99,28 @@ class ResolveInfo
      */
     public $variableValues;
 
-    /**
-     * @param mixed[] $values
-     */
-    public function __construct(array $values)
-    {
-        Utils::assign($this, $values);
+    public function __construct(
+        string $fieldName,
+        $fieldNodes,
+        $returnType,
+        ObjectType $parentType,
+        $path,
+        Schema $schema,
+        $fragments,
+        $rootValue,
+        ?OperationDefinitionNode $operation,
+        $variableValues
+    ) {
+        $this->fieldName      = $fieldName;
+        $this->fieldNodes     = $fieldNodes;
+        $this->returnType     = $returnType;
+        $this->parentType     = $parentType;
+        $this->path           = $path;
+        $this->schema         = $schema;
+        $this->fragments      = $fragments;
+        $this->rootValue      = $rootValue;
+        $this->operation      = $operation;
+        $this->variableValues = $variableValues;
     }
 
     /**
@@ -156,14 +171,12 @@ class ResolveInfo
 
         return $fields;
     }
-
     /**
      * @return bool[]
      */
     private function foldSelectionSet(SelectionSetNode $selectionSet, int $descend) : array
     {
         $fields = [];
-
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
                 $fields[$selectionNode->name->value] = $descend > 0 && ! empty($selectionNode->selectionSet)
@@ -186,7 +199,6 @@ class ResolveInfo
                 );
             }
         }
-
         return $fields;
     }
 }

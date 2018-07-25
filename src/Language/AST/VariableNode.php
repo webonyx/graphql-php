@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Language\AST;
 
-class VariableNode extends Node
+class VariableNode extends Node implements ValueNode
 {
     /** @var string */
     public $kind = NodeKind::VARIABLE;
