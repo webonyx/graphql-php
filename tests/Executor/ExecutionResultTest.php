@@ -2,8 +2,9 @@
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\ExecutionResult;
+use PHPUnit\Framework\TestCase;
 
-class ExecutionResultTest extends \PHPUnit_Framework_TestCase
+class ExecutionResultTest extends TestCase
 {
     public function testToArrayWithoutExtensions()
     {

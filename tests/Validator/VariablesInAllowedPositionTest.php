@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 
-class VariablesInAllowedPositionTest extends TestCase
+class VariablesInAllowedPositionTest extends ValidatorTestCase
 {
     // Validate: Variables are in allowed positions
 

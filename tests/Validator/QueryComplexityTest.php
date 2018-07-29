@@ -9,7 +9,7 @@ use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\ValidationContext;
 
-class QueryComplexityTest extends AbstractQuerySecurityTest
+class QueryComplexityTest extends QuerySecurityTestCase
 {
     /** @var QueryComplexity  */
     private static $rule;
@@ -179,7 +179,7 @@ class QueryComplexityTest extends AbstractQuerySecurityTest
         $this->assertEquals(1, count($errors));
         $this->assertSame($reportedError, $errors[0]);
 
-        $this->setExpectedException('GraphQL\Error\Error');
+        $this->expectException(Error::class);
         DocumentValidator::validate(
             QuerySecuritySchema::buildSchema(),
             Parser::parse($query),

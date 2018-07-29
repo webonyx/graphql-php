@@ -5,8 +5,9 @@ use GraphQL\Executor\ExecutionResult;
 use GraphQL\Server\Helper;
 use GraphQL\Tests\Server\Psr7\PsrStreamStub;
 use GraphQL\Tests\Server\Psr7\PsrResponseStub;
+use PHPUnit\Framework\TestCase;
 
-class PsrResponseTest extends \PHPUnit_Framework_TestCase
+class PsrResponseTest extends TestCase
 {
     public function testConvertsResultToPsrResponse()
     {

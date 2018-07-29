@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Executor\Promise;
 
 use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
+use PHPUnit\Framework\TestCase;
 use React\Promise\Deferred;
 use React\Promise\FulfilledPromise;
 use React\Promise\LazyPromise;
@@ -15,7 +16,7 @@ use React\Promise\RejectedPromise;
 /**
  * @group ReactPromise
  */
-class ReactPromiseAdapterTest extends \PHPUnit_Framework_TestCase
+class ReactPromiseAdapterTest extends TestCase
 {
     public function setUp()
     {

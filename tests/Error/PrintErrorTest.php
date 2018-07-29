@@ -5,8 +5,9 @@ use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
+use PHPUnit\Framework\TestCase;
 
-class PrintErrorTest extends \PHPUnit_Framework_TestCase
+class PrintErrorTest extends TestCase
 {
     // Describe printError
 

@@ -8,8 +8,9 @@ use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
 use GraphQL\Tests\Server\Psr7\PsrRequestStub;
 use GraphQL\Tests\Server\Psr7\PsrStreamStub;
+use PHPUnit\Framework\TestCase;
 
-class RequestParsingTest extends \PHPUnit_Framework_TestCase
+class RequestParsingTest extends TestCase
 {
     public function testParsesGraphqlRequest()
     {
@@ -184,7 +185,8 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     {
         $body = 'not really{} a json';
 
-        $this->setExpectedException(RequestError::class, 'Could not parse JSON: Syntax error');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('Could not parse JSON: Syntax error');
             $this->parseRawRequest('application/json', $body);
         }
 
@@ -192,7 +194,8 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     {
         $body = 'not really{} a json';
 
-        $this->setExpectedException(InvariantViolation::class, 'PSR-7 request is expected to provide parsed body for "application/json" requests but got null');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('PSR-7 request is expected to provide parsed body for "application/json" requests but got null');
             $this->parsePsrRequest('application/json', $body);
     }
 
@@ -216,7 +219,8 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     {
         $body = '"str"';
 
-        $this->setExpectedException(RequestError::class, 'GraphQL Server expects JSON object or array, but got "str"');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('GraphQL Server expects JSON object or array, but got "str"');
             $this->parseRawRequest('application/json', $body);
         }
 
@@ -224,7 +228,8 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
     {
         $body = '"str"';
 
-        $this->setExpectedException(RequestError::class, 'GraphQL Server expects JSON object or array, but got "str"');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('GraphQL Server expects JSON object or array, but got "str"');
             $this->parsePsrRequest('application/json', $body);
         }
 
@@ -233,7 +238,8 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $contentType = 'not-supported-content-type';
         $body = 'test';
 
-        $this->setExpectedException(RequestError::class, 'Unexpected content type: "not-supported-content-type"');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('Unexpected content type: "not-supported-content-type"');
         $this->parseRawRequest($contentType, $body);
     }
 
@@ -242,31 +248,36 @@ class RequestParsingTest extends \PHPUnit_Framework_TestCase
         $contentType = 'not-supported-content-type';
         $body = 'test';
 
-        $this->setExpectedException(RequestError::class, 'Unexpected content type: "not-supported-content-type"');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('Unexpected content type: "not-supported-content-type"');
             $this->parseRawRequest($contentType, $body);
         }
 
     public function testFailsWithMissingContentTypeRaw()
     {
-        $this->setExpectedException(RequestError::class, 'Missing "Content-Type" header');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('Missing "Content-Type" header');
             $this->parseRawRequest(null, 'test');
         }
 
     public function testFailsWithMissingContentTypePsr()
     {
-        $this->setExpectedException(RequestError::class, 'Missing "Content-Type" header');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('Missing "Content-Type" header');
             $this->parsePsrRequest(null, 'test');
     }
 
     public function testFailsOnMethodsOtherThanPostOrGetRaw()
     {
-        $this->setExpectedException(RequestError::class, 'HTTP Method "PUT" is not supported');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('HTTP Method "PUT" is not supported');
         $this->parseRawRequest('application/json', json_encode([]), "PUT");
     }
 
     public function testFailsOnMethodsOtherThanPostOrGetPsr()
     {
-        $this->setExpectedException(RequestError::class, 'HTTP Method "PUT" is not supported');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('HTTP Method "PUT" is not supported');
         $this->parsePsrRequest('application/json', json_encode([]), "PUT");
     }
 

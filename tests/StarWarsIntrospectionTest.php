@@ -1,10 +1,10 @@
 <?php
 namespace GraphQL\Tests;
 
-
 use GraphQL\GraphQL;
+use PHPUnit\Framework\TestCase;
 
-class StarWarsIntrospectionTest extends \PHPUnit_Framework_TestCase
+class StarWarsIntrospectionTest extends TestCase
 {
     // Star Wars Introspection Tests
     // Basic Introspection

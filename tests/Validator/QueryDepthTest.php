@@ -3,7 +3,7 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\QueryDepth;
 
-class QueryDepthTest extends AbstractQuerySecurityTest
+class QueryDepthTest extends QuerySecurityTestCase
 {
     /**
      * @param $max

@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 
-class VariablesAreInputTypesTest extends TestCase
+class VariablesAreInputTypesTest extends ValidatorTestCase
 {
     // Validate: Variables are input types
 

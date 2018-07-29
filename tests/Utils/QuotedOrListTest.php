@@ -5,8 +5,9 @@ use GraphQL\Executor\Values;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
+use PHPUnit\Framework\TestCase;
 
-class QuotedOrListTest extends \PHPUnit_Framework_TestCase
+class QuotedOrListTest extends TestCase
 {
     // DESCRIBE: quotedOrList
 
@@ -15,7 +16,7 @@ class QuotedOrListTest extends \PHPUnit_Framework_TestCase
      */
     public function testResturnsResultsWhenInputIsEmpty()
     {
-        $this->setExpectedException(\LogicException::class);
+        $this->expectException(\LogicException::class);
         Utils::quotedOrList([]);
     }
 

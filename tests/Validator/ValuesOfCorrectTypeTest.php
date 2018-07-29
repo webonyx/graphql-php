@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 
-class ValuesOfCorrectTypeTest extends TestCase
+class ValuesOfCorrectTypeTest extends ValidatorTestCase
 {
     private function badValue($typeName, $value, $line, $column, $message = null)
     {

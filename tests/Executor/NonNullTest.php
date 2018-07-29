@@ -11,8 +11,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use PHPUnit\Framework\TestCase;
 
-class NonNullTest extends \PHPUnit_Framework_TestCase
+class NonNullTest extends TestCase
 {
     /** @var \Exception */
     public $syncError;

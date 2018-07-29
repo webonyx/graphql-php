@@ -1,14 +1,16 @@
 <?php
 namespace Utils;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\TypeInfo;
+use PHPUnit\Framework\TestCase;
 
-class ExtractTypesTest extends \PHPUnit_Framework_TestCase
+class ExtractTypesTest extends TestCase
 {
     /**
      * @var ObjectType
@@ -326,10 +328,8 @@ class ExtractTypesTest extends \PHPUnit_Framework_TestCase
             ]
         ]);
 
-        $this->setExpectedException(
-            '\GraphQL\Error\InvariantViolation',
-            "Schema must contain unique named types but contains multiple types named \"User\""
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Schema must contain unique named types but contains multiple types named "User"');
         TypeInfo::extractTypes($queryType);
     }
 }

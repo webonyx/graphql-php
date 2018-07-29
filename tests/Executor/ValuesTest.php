@@ -9,9 +9,10 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use PHPUnit\Framework\TestCase;
 
-class ValuesTest extends \PHPUnit_Framework_TestCase {
-
+class ValuesTest extends TestCase
+{
     public function testGetIDVariableValues()
     {
         $this->expectInputVariablesMatchOutputVariables(['idInput' => '123456789']);

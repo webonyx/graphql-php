@@ -4,8 +4,9 @@ namespace GraphQL\Tests\Utils;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
+use PHPUnit\Framework\TestCase;
 
-class AssertValidNameTest extends \PHPUnit_Framework_TestCase
+class AssertValidNameTest extends TestCase
 {
     // Describe: assertValidName()
 
@@ -14,10 +15,8 @@ class AssertValidNameTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowsForUseOfLeadingDoubleUnderscores()
     {
-        $this->setExpectedException(
-            Error::class,
-            '"__bad" must not begin with "__", which is reserved by GraphQL introspection.'
-        );
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('"__bad" must not begin with "__", which is reserved by GraphQL introspection.');
         Utils::assertValidName('__bad');
     }
 
@@ -26,10 +25,8 @@ class AssertValidNameTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowsForNonStrings()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Expected string'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Expected string');
         Utils::assertValidName([]);
     }
 
@@ -38,10 +35,8 @@ class AssertValidNameTest extends \PHPUnit_Framework_TestCase
      */
     public function testThrowsForNamesWithInvalidCharacters()
     {
-        $this->setExpectedException(
-            Error::class,
-            'Names must match'
-        );
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Names must match');
         Utils::assertValidName('>--()-->');
     }
 }

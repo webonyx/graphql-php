@@ -6,8 +6,9 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
+use PHPUnit\Framework\TestCase;
 
-class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
+class SyncPromiseAdapterTest extends TestCase
 {
     /**
      * @var SyncPromiseAdapter
@@ -40,7 +41,8 @@ class SyncPromiseAdapterTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
         $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
 
-        $this->setExpectedException(InvariantViolation::class, 'Expected instance of GraphQL\Deferred, got (empty string)');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Expected instance of GraphQL\Deferred, got (empty string)');
         $this->promises->convertThenable('');
     }
 

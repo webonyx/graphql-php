@@ -6,8 +6,9 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
+use PHPUnit\Framework\TestCase;
 
-class SerializationTest extends \PHPUnit_Framework_TestCase
+class SerializationTest extends TestCase
 {
     public function testSerializesAst()
     {

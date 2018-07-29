@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\ScalarLeafs;
 
-class ScalarLeafsTest extends TestCase
+class ScalarLeafsTest extends ValidatorTestCase
 {
     // Validate: Scalar leafs
 

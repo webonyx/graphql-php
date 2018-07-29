@@ -9,7 +9,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 
-class OverlappingFieldsCanBeMergedTest extends TestCase
+class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
 {
     // Validate: Overlapping fields can be merged
 

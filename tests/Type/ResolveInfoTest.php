@@ -6,8 +6,9 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use PHPUnit\Framework\TestCase;
 
-class ResolveInfoTest extends \PHPUnit_Framework_TestCase
+class ResolveInfoTest extends TestCase
 {
     public function testFieldSelection()
     {

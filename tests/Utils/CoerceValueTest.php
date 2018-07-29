@@ -8,8 +8,9 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
+use PHPUnit\Framework\TestCase;
 
-class CoerceValueTest extends \PHPUnit_Framework_TestCase
+class CoerceValueTest extends TestCase
 {
     private $testEnum;
     private $testInputObject;

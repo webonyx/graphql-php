@@ -6,7 +6,7 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\ExecutableDefinitions;
 use GraphQL\Validator\Rules\KnownDirectives;
 
-class ExecutableDefinitionsTest extends TestCase
+class ExecutableDefinitionsTest extends ValidatorTestCase
 {
     // Validate: Executable definitions
 

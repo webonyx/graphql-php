@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 
-class PossibleFragmentSpreadsTest extends TestCase
+class PossibleFragmentSpreadsTest extends ValidatorTestCase
 {
     // Validate: Possible fragment spreads
 

@@ -7,8 +7,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Utils\Utils;
+use PHPUnit\Framework\TestCase;
 
-class LexerTest extends \PHPUnit_Framework_TestCase
+class LexerTest extends TestCase
 {
     /**
      * @it disallows uncommon control characters
@@ -545,7 +546,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
         $lexer = new Lexer(new Source($q));
         $this->assertArraySubset(['kind' => Token::NAME, 'start' => 0, 'end' => 1, 'value' => 'a'], (array) $lexer->advance());
 
-        $this->setExpectedException(SyntaxError::class, 'Syntax Error: Invalid number, expected digit but got: "b"');
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage('Syntax Error: Invalid number, expected digit but got: "b"');
         try {
             $lexer->advance();
             $this->fail('Expected exception not thrown');
@@ -614,7 +616,8 @@ class LexerTest extends \PHPUnit_Framework_TestCase
 
     private function expectSyntaxError($text, $message, $location)
     {
-        $this->setExpectedException(SyntaxError::class, $message);
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage($message);
         try {
             $this->lexOne($text);
         } catch (SyntaxError $error) {

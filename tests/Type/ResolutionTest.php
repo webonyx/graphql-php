@@ -9,8 +9,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\EagerResolution;
 use GraphQL\Type\LazyResolution;
+use PHPUnit\Framework\TestCase;
 
-class ResolutionTest extends \PHPUnit_Framework_TestCase
+class ResolutionTest extends TestCase
 {
     /**
      * @var ObjectType
@@ -563,7 +564,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
     public function testLazyThrowsOnInvalidLoadedType()
     {
         $lazy = $this->createLazy();
-        $this->setExpectedException(InvariantViolation::class, "Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer");
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer');
         $lazy->resolveType('int');
     }
 
@@ -571,7 +573,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
     {
         $tmp = new InterfaceType(['name' => 'a', 'fields' => []]);
         $lazy = $this->createLazy();
-        $this->setExpectedException(InvariantViolation::class, 'Lazy Type Resolution Error: Implementation null of interface a is expected to be instance of ObjectType, but got NULL');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Lazy Type Resolution Error: Implementation null of interface a is expected to be instance of ObjectType, but got NULL');
         $lazy->resolvePossibleTypes($tmp);
     }
 
@@ -579,7 +582,8 @@ class ResolutionTest extends \PHPUnit_Framework_TestCase
     {
         $tmp = new InterfaceType(['name' => 'b', 'fields' => []]);
         $lazy = $this->createLazy();
-        $this->setExpectedException(InvariantViolation::class, 'Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Lazy Type Resolution Error: Expecting GraphQL Type instance, but got integer');
         $lazy->resolvePossibleTypes($tmp);
     }
 }

@@ -15,24 +15,28 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Utils\Utils;
+use PHPUnit\Framework\TestCase;
 
-class ParserTest extends \PHPUnit_Framework_TestCase
+class ParserTest extends TestCase
 {
     public function testAssertsThatASourceToParseIsNotNull()
     {
-        $this->setExpectedException(InvariantViolation::class, 'GraphQL query body is expected to be string, but got NULL');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('GraphQL query body is expected to be string, but got NULL');
         Parser::parse(null);
     }
 
     public function testAssertsThatASourceToParseIsNotArray()
     {
-        $this->setExpectedException(InvariantViolation::class, 'GraphQL query body is expected to be string, but got array');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('GraphQL query body is expected to be string, but got array');
         Parser::parse(['a' => 'b']);
     }
 
     public function testAssertsThatASourceToParseIsNotObject()
     {
-        $this->setExpectedException(InvariantViolation::class, 'GraphQL query body is expected to be string, but got stdClass');
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('GraphQL query body is expected to be string, but got stdClass');
         Parser::parse(new \stdClass());
     }
 
@@ -462,7 +466,7 @@ fragment $fragmentName on Type {
         // not throw
         Parser::parse($source, ['experimentalFragmentVariables' => true]);
 
-        $this->setExpectedException(SyntaxError::class);
+        $this->expectException(SyntaxError::class);
         Parser::parse($source);
     }
 
@@ -648,7 +652,8 @@ fragment $fragmentName on Type {
 
     private function expectSyntaxError($text, $message, $location)
     {
-        $this->setExpectedException(SyntaxError::class, $message);
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage($message);
         try {
             Parser::parse($text);
         } catch (SyntaxError $error) {

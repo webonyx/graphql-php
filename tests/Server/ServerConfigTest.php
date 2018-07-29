@@ -7,8 +7,9 @@ use GraphQL\Type\Schema;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use PHPUnit\Framework\TestCase;
 
-class ServerConfigTest extends \PHPUnit_Framework_TestCase
+class ServerConfigTest extends TestCase
 {
     public function testDefaults()
     {
@@ -195,10 +196,8 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
             'missingKey' => 'value'
         ];
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Unknown server config option "missingKey"'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Unknown server config option "missingKey"');
 
         ServerConfig::create($arr);
     }
@@ -208,10 +207,8 @@ class ServerConfigTest extends \PHPUnit_Framework_TestCase
         $rules = new \stdClass();
         $config = ServerConfig::create();
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Server config expects array of validation rules or callable returning such array, but got instance of stdClass'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Server config expects array of validation rules or callable returning such array, but got instance of stdClass');
 
         $config->setValidationRules($rules);
     }

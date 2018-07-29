@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\KnownTypeNames;
 
-class KnownTypeNamesTest extends TestCase
+class KnownTypeNamesTest extends ValidatorTestCase
 {
     // Validate: Known type names
 

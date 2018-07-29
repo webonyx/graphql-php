@@ -12,8 +12,9 @@ use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use PHPUnit\Framework\TestCase;
 
-class PrinterTest extends \PHPUnit_Framework_TestCase
+class PrinterTest extends TestCase
 {
     /**
      * @it does not alter ast
@@ -45,7 +46,8 @@ class PrinterTest extends \PHPUnit_Framework_TestCase
     public function testProducesHelpfulErrorMessages()
     {
         $badAst1 = new \ArrayObject(['random' => 'Data']);
-        $this->setExpectedException(\Exception::class, 'Invalid AST Node: {"random":"Data"}');
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage('Invalid AST Node: {"random":"Data"}');
         Printer::doPrint($badAst1);
     }
 

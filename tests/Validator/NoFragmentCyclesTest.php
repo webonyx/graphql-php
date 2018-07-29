@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\NoFragmentCycles;
 
-class NoFragmentCyclesTest extends TestCase
+class NoFragmentCyclesTest extends ValidatorTestCase
 {
     // Validate: No circular fragment spreads
 

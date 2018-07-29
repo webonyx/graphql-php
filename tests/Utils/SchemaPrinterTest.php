@@ -13,8 +13,9 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
+use PHPUnit\Framework\TestCase;
 
-class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
+class SchemaPrinterTest extends TestCase
 {
     // Describe: Type System Printer
 

@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\LoneAnonymousOperation;
 
-class LoneAnonymousOperationTest extends TestCase
+class LoneAnonymousOperationTest extends ValidatorTestCase
 {
     // Validate: Anonymous operation must be alone
 

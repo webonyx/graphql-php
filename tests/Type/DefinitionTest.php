@@ -14,8 +14,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\Utils;
+use PHPUnit\Framework\TestCase;
 
-class DefinitionTest extends \PHPUnit_Framework_TestCase
+class DefinitionTest extends TestCase
 {
     /**
      * @var ObjectType

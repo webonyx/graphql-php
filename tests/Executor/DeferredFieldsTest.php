@@ -10,8 +10,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
+use PHPUnit\Framework\TestCase;
 
-class DeferredFieldsTest extends \PHPUnit_Framework_TestCase
+class DeferredFieldsTest extends TestCase
 {
     private $userType;
 

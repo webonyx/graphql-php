@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
 
-class UniqueArgumentNamesTest extends TestCase
+class UniqueArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique argument names
 

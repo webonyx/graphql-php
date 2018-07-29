@@ -13,8 +13,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use PHPUnit\Framework\TestCase;
 
-class UnionInterfaceTest extends \PHPUnit_Framework_TestCase
+class UnionInterfaceTest extends TestCase
 {
     public $schema;
     public $garfield;

@@ -3,7 +3,7 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 
-class UniqueDirectivesPerLocationTest extends TestCase
+class UniqueDirectivesPerLocationTest extends ValidatorTestCase
 {
     /**
      * @it no directives

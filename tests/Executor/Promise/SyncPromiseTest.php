@@ -2,8 +2,10 @@
 namespace GraphQL\Tests\Executor\Promise;
 
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
+use PHPUnit\Framework\Error\Error;
+use PHPUnit\Framework\TestCase;
 
-class SyncPromiseTest extends \PHPUnit_Framework_TestCase
+class SyncPromiseTest extends TestCase
 {
     public function getFulfilledPromiseResolveData()
     {
@@ -47,7 +49,8 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $promise->resolve($resolvedValue);
         $this->assertEquals(SyncPromise::FULFILLED, $promise->state);
 
-        $this->setExpectedException(\Exception::class, 'Cannot change value of fulfilled promise');
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage('Cannot change value of fulfilled promise');
         $promise->resolve($resolvedValue . '-other-value');
     }
 
@@ -68,7 +71,8 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $promise->resolve($resolvedValue);
         $this->assertEquals(SyncPromise::FULFILLED, $promise->state);
 
-        $this->setExpectedException(\Exception::class, 'Cannot reject fulfilled promise');
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage('Cannot reject fulfilled promise');
         $promise->reject(new \Exception('anything'));
     }
 
@@ -162,7 +166,8 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $promise->reject($rejectedReason);
         $this->assertEquals(SyncPromise::REJECTED, $promise->state);
 
-        $this->setExpectedException(\Exception::class, 'Cannot change rejection reason');
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage('Cannot change rejection reason');
         $promise->reject(new \Exception('other-reason'));
 
     }
@@ -184,7 +189,8 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         $promise->reject($rejectedReason);
         $this->assertEquals(SyncPromise::REJECTED, $promise->state);
 
-        $this->setExpectedException(\Exception::class, 'Cannot resolve rejected promise');
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage('Cannot resolve rejected promise');
         $promise->resolve('anything');
     }
 
@@ -289,7 +295,7 @@ class SyncPromiseTest extends \PHPUnit_Framework_TestCase
         try {
             $promise->reject('a');
             $this->fail('Expected exception not thrown');
-        } catch (\PHPUnit_Framework_AssertionFailedError $e) {
+        } catch (Error $e) {
             throw $e;
         } catch (\Throwable $e) {
             $this->assertEquals(SyncPromise::PENDING, $promise->state);

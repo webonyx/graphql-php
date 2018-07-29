@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 
-class NoUnusedVariablesTest extends TestCase
+class NoUnusedVariablesTest extends ValidatorTestCase
 {
     // Validate: No unused variables
 

@@ -7,8 +7,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
 require_once __DIR__ . '/TestClasses.php';
+use PHPUnit\Framework\TestCase;
 
-class ResolveTest extends \PHPUnit_Framework_TestCase
+class ResolveTest extends TestCase
 {
     // Execute: resolve function
 

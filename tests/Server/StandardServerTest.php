@@ -8,7 +8,7 @@ use GraphQL\Server\StandardServer;
 use GraphQL\Tests\Server\Psr7\PsrRequestStub;
 use GraphQL\Tests\Server\Psr7\PsrStreamStub;
 
-class StandardServerTest extends TestCase
+class StandardServerTest extends ServerTestCase
 {
     /**
      * @var ServerConfig

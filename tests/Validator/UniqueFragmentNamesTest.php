@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
 
-class UniqueFragmentNamesTest extends TestCase
+class UniqueFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique fragment names
 

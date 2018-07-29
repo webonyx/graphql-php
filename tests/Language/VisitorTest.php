@@ -12,11 +12,11 @@ use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
-use GraphQL\Tests\Validator\TestCase;
+use GraphQL\Tests\Validator\ValidatorTestCase;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 
-class VisitorTest extends \PHPUnit_Framework_TestCase
+class VisitorTest extends ValidatorTestCase
 {
     private function getNodeByPath(DocumentNode $ast, $path)
     {
@@ -1318,7 +1318,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     {
         $visited = [];
 
-        $typeInfo = new TypeInfo(TestCase::getTestSchema());
+        $typeInfo = new TypeInfo(ValidatorTestCase::getTestSchema());
 
         $ast = Parser::parse('{ human(id: 4) { name, pets { ... { name } }, unknown } }');
         Visitor::visit($ast, Visitor::visitWithTypeInfo($typeInfo, [
@@ -1402,7 +1402,7 @@ class VisitorTest extends \PHPUnit_Framework_TestCase
     public function testMaintainsTypeInfoDuringEdit()
     {
         $visited = [];
-        $typeInfo = new TypeInfo(TestCase::getTestSchema());
+        $typeInfo = new TypeInfo(ValidatorTestCase::getTestSchema());
 
         $ast = Parser::parse(
             '{ human(id: 4) { name, pets }, alien }'
