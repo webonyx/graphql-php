@@ -17,7 +17,7 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
 
-class QueryExecutionTest extends TestCase
+class QueryExecutionTest extends ServerTestCase
 {
     /**
      * @var ServerConfig
@@ -319,9 +319,9 @@ class QueryExecutionTest extends TestCase
 
     public function testProhibitsInvalidPersistedQueryLoader()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode '.
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
+            'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
             'but got: {"err":"err"}'
         );
         $this->config->setPersistentQueryLoader(function($queryId, OperationParams $params) use (&$called) {
@@ -388,10 +388,8 @@ class QueryExecutionTest extends TestCase
 
     public function testProhibitsUnexpectedValidationRules()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Expecting validation rules to be array or callable returning array, but got: instance of stdClass'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Expecting validation rules to be array or callable returning array, but got: instance of stdClass');
         $this->config->setValidationRules(function(OperationParams $params) {
             return new \stdClass();
         });

@@ -3,8 +3,9 @@ namespace GraphQL\Tests;
 
 
 use GraphQL\GraphQL;
+use PHPUnit\Framework\TestCase;
 
-class StarWarsQueryTest extends \PHPUnit_Framework_TestCase
+class StarWarsQueryTest extends TestCase
 {
     // Star Wars Query Tests
     // Basic Queries

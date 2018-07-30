@@ -12,8 +12,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 
 require_once __DIR__ . '/TestClasses.php';
+use PHPUnit\Framework\TestCase;
 
-class AbstractPromiseTest extends \PHPUnit_Framework_TestCase
+class AbstractPromiseTest extends TestCase
 {
     // DESCRIBE: Execute: Handles execution of abstract types with promises
 

@@ -6,8 +6,9 @@ use GraphQL\Language\Parser;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use PHPUnit\Framework\TestCase;
 
-class ExecutorSchemaTest extends \PHPUnit_Framework_TestCase
+class ExecutorSchemaTest extends TestCase
 {
     // Execute: Handles execution with a complex schema
 

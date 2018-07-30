@@ -5,8 +5,9 @@ use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use PHPUnit\Framework\TestCase;
 
-class SchemaParserTest extends \PHPUnit_Framework_TestCase
+class SchemaParserTest extends TestCase
 {
     // Describe: Schema Parser
 
@@ -927,7 +928,8 @@ input Hello {
 
     private function expectSyntaxError($text, $message, $location)
     {
-        $this->setExpectedException(SyntaxError::class, $message);
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage($message);
         try {
             Parser::parse($text);
         } catch (SyntaxError $error) {

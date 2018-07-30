@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\UniqueOperationNames;
 
-class UniqueOperationNamesTest extends TestCase
+class UniqueOperationNamesTest extends ValidatorTestCase
 {
     // Validate: Unique operation names
 

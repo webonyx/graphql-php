@@ -14,8 +14,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\Utils;
+use PHPUnit\Framework\TestCase;
 
-class ValidationTest extends \PHPUnit_Framework_TestCase
+class ValidationTest extends TestCase
 {
     public $SomeScalarType;
 
@@ -857,10 +858,8 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
                 'value' => ['isDeprecated' => true]
             ]
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'SomeEnum.value should provide "deprecationReason" instead of "isDeprecated".'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('SomeEnum.value should provide "deprecationReason" instead of "isDeprecated".');
         $enum->assertValid();
     }
 
@@ -1756,8 +1755,8 @@ class ValidationTest extends \PHPUnit_Framework_TestCase
             'query' => $typeLoader('Query'),
             'typeLoader' => $typeLoader
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'Type loader returns different instance for Query than field/argument definitions. '.
             'Make sure you always return the same instance for the same type name.'
         );

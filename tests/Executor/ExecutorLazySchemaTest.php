@@ -14,8 +14,10 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
+use PHPUnit\Framework\Error\Error;
+use PHPUnit\Framework\TestCase;
 
-class ExecutorLazySchemaTest extends \PHPUnit_Framework_TestCase
+class ExecutorLazySchemaTest extends TestCase
 {
     public $SomeScalarType;
 
@@ -129,7 +131,7 @@ class ExecutorLazySchemaTest extends \PHPUnit_Framework_TestCase
         Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
         $this->assertEquals(1, count($result->errors));
-        $this->assertInstanceOf('PHPUnit_Framework_Error_Warning', $result->errors[0]->getPrevious());
+        $this->assertInstanceOf(Error::class, $result->errors[0]->getPrevious());
 
         $this->assertEquals(
             'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: instance of '.

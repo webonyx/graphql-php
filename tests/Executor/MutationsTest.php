@@ -10,8 +10,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use PHPUnit\Framework\TestCase;
 
-class MutationsTest extends \PHPUnit_Framework_TestCase
+class MutationsTest extends TestCase
 {
     // Execute: Handles mutation execution ordering
 

@@ -5,8 +5,9 @@ use GraphQL\Error\Error;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
+use PHPUnit\Framework\TestCase;
 
-class ErrorTest extends \PHPUnit_Framework_TestCase
+class ErrorTest extends TestCase
 {
     /**
      * @it uses the stack of an original error

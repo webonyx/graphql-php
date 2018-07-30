@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\ProvidedNonNullArguments;
 
-class ProvidedNonNullArgumentsTest extends TestCase
+class ProvidedNonNullArgumentsTest extends ValidatorTestCase
 {
     // Validate: Provided required arguments
 

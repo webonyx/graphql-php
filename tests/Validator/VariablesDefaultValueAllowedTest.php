@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\VariablesDefaultValueAllowed;
 
-class VariablesDefaultValueAllowedTest extends TestCase
+class VariablesDefaultValueAllowedTest extends ValidatorTestCase
 {
     private function defaultForRequiredVar($varName, $typeName, $guessTypeName, $line, $column)
     {

@@ -4,8 +4,9 @@ namespace GraphQL\Tests\Utils;
 
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\MixedStore;
+use PHPUnit\Framework\TestCase;
 
-class MixedStoreTest extends \PHPUnit_Framework_TestCase
+class MixedStoreTest extends TestCase
 {
     /**
      * @var MixedStore

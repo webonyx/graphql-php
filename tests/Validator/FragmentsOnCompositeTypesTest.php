@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 
-class FragmentsOnCompositeTypesTest extends TestCase
+class FragmentsOnCompositeTypesTest extends ValidatorTestCase
 {
     // Validate: Fragments on composite types
 

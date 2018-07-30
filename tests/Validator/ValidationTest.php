@@ -1,7 +1,7 @@
 <?php
 namespace GraphQL\Tests\Validator;
 
-class ValidationTest extends TestCase
+class ValidationTest extends ValidatorTestCase
 {
     // Validate: Supports full validation
 

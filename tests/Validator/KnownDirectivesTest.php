@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\KnownDirectives;
 
-class KnownDirectivesTest extends TestCase
+class KnownDirectivesTest extends ValidatorTestCase
 {
     // Validate: Known directives
 

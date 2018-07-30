@@ -6,8 +6,9 @@ use GraphQL\Language\Parser;
 use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use PHPUnit\Framework\TestCase;
 
-class DirectivesTest extends \PHPUnit_Framework_TestCase
+class DirectivesTest extends TestCase
 {
     // Describe: Execute: handles directives
 

@@ -5,8 +5,10 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use PHPUnit\Framework\TestCase;
+use Throwable;
 
-class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
+class SchemaPrinterTest extends TestCase
 {
     /**
      * @it prints minimal ast
@@ -24,9 +26,11 @@ class SchemaPrinterTest extends \PHPUnit_Framework_TestCase
      */
     public function testProducesHelpfulErrorMessages()
     {
+        $this->expectException(Throwable::class);
+        $this->expectExceptionMessage('Invalid AST Node: {"random":"Data"}');
+
         // $badAst1 = { random: 'Data' };
         $badAst = (object) ['random' => 'Data'];
-        $this->setExpectedException('Exception', 'Invalid AST Node: {"random":"Data"}');
         Printer::doPrint($badAst);
     }
 

@@ -7,8 +7,9 @@ use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use PHPUnit\Framework\TestCase;
 
-abstract class TestCase extends \PHPUnit_Framework_TestCase
+abstract class ServerTestCase extends TestCase
 {
     protected function buildSchema()
     {

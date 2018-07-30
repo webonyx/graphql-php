@@ -8,8 +8,9 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use PHPUnit\Framework\TestCase;
 
-class TypeLoaderTest extends \PHPUnit_Framework_TestCase
+class TypeLoaderTest extends TestCase
 {
     /**
      * @var ObjectType
@@ -163,10 +164,8 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
 
     public function testSchemaRejectsNonCallableTypeLoader()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Schema type loader must be callable if provided but got: []'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Schema type loader must be callable if provided but got: []');
 
         new Schema([
             'query' => new ObjectType([
@@ -262,10 +261,8 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
             'typeLoader' => function() {}
         ]);
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Type loader is expected to return valid type "NonExistingType", but it returned null'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Type loader is expected to return valid type "NonExistingType", but it returned null');
 
         $schema->getType('NonExistingType');
     }
@@ -279,10 +276,8 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
             }
         ]);
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Type loader is expected to return valid type "Node", but it returned instance of stdClass'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Type loader is expected to return valid type "Node", but it returned instance of stdClass');
 
         $schema->getType('Node');
     }
@@ -296,10 +291,8 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
             }
         ]);
 
-        $this->setExpectedException(
-            InvariantViolation::class,
-            'Type loader is expected to return type "Node", but it returned "Content"'
-        );
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage('Type loader is expected to return type "Node", but it returned "Content"');
 
         $schema->getType('Node');
     }
@@ -313,10 +306,8 @@ class TypeLoaderTest extends \PHPUnit_Framework_TestCase
             }
         ]);
 
-        $this->setExpectedException(
-            \Exception::class,
-            'This is the exception we are looking for'
-        );
+        $this->expectException(\Throwable::class);
+        $this->expectExceptionMessage('This is the exception we are looking for');
 
         $schema->getType('Node');
     }

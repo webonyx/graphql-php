@@ -5,8 +5,9 @@ use GraphQL\Executor\Values;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
+use PHPUnit\Framework\TestCase;
 
-class SuggestionListTest extends \PHPUnit_Framework_TestCase
+class SuggestionListTest extends TestCase
 {
     // DESCRIBE: suggestionList
 

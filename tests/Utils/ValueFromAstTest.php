@@ -8,8 +8,9 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\AST;
+use PHPUnit\Framework\TestCase;
 
-class ValueFromAstTest extends \PHPUnit_Framework_TestCase
+class ValueFromAstTest extends TestCase
 {
     private function runTestCase($type, $valueText, $expected)
     {

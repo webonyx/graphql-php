@@ -5,7 +5,7 @@ use GraphQL\Validator\Rules\KnownFragmentNames;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 
-class KnownFragmentNamesTest extends TestCase
+class KnownFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Known fragment names
 

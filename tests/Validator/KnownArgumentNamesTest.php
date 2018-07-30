@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\KnownArgumentNames;
 
-class KnownArgumentNamesTest extends TestCase
+class KnownArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Known argument names:
 

@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\UniqueInputFieldNames;
 
-class UniqueInputFieldNamesTest extends TestCase
+class UniqueInputFieldNamesTest extends ValidatorTestCase
 {
     // Validate: Unique input field names
 

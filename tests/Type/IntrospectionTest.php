@@ -11,8 +11,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\Rules\ProvidedNonNullArguments;
+use PHPUnit\Framework\TestCase;
 
-class IntrospectionTest extends \PHPUnit_Framework_TestCase
+class IntrospectionTest extends TestCase
 {
     // Describe: Introspection
 

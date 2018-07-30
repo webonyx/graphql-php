@@ -12,8 +12,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\FindBreakingChanges;
+use PHPUnit\Framework\TestCase;
 
-class FindBreakingChangesTest extends \PHPUnit_Framework_TestCase
+class FindBreakingChangesTest extends TestCase
 {
     private $queryType;
 

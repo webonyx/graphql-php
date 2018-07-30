@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 
-class NoUndefinedVariablesTest extends TestCase
+class NoUndefinedVariablesTest extends ValidatorTestCase
 {
     // Validate: No undefined variables
 

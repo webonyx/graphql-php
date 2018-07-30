@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\DisableIntrospection;
 
-class DisableIntrospectionTest extends TestCase
+class DisableIntrospectionTest extends ValidatorTestCase
 {
     // Validate: Disable Introspection
 

@@ -1,6 +1,7 @@
 <?php
 namespace GraphQL\Tests\Utils;
 
+use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
@@ -12,8 +13,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use GraphQL\Type\Definition\Directive;
+use PHPUnit\Framework\TestCase;
 
-class BuildSchemaTest extends \PHPUnit_Framework_TestCase
+class BuildSchemaTest extends TestCase
 {
     // Describe: Schema Builder
 
@@ -868,7 +870,8 @@ type Query {
      */
     public function testAllowsOnlySingleSchemaDefinition()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Must provide only one schema definition.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Must provide only one schema definition.');
         $body = '
 schema {
   query: Hello
@@ -891,7 +894,8 @@ type Hello {
      */
     public function testAllowsOnlySingleQueryType()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Must provide only one query type in schema.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Must provide only one query type in schema.');
         $body = '
 schema {
   query: Hello
@@ -915,7 +919,8 @@ type Yellow {
      */
     public function testAllowsOnlySingleMutationType()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Must provide only one mutation type in schema.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Must provide only one mutation type in schema.');
         $body = '
 schema {
   query: Hello
@@ -940,7 +945,8 @@ type Yellow {
      */
     public function testAllowsOnlySingleSubscriptionType()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Must provide only one subscription type in schema.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Must provide only one subscription type in schema.');
         $body = '
 schema {
   query: Hello
@@ -965,7 +971,8 @@ type Yellow {
      */
     public function testUnknownTypeReferenced()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Type "Bar" not found in document.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Type "Bar" not found in document.');
         $body = '
 schema {
   query: Hello
@@ -985,7 +992,8 @@ type Hello {
      */
     public function testUnknownTypeInInterfaceList()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Type "Bar" not found in document.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Type "Bar" not found in document.');
         $body = '
 schema {
   query: Hello
@@ -1005,7 +1013,8 @@ type Hello implements Bar {
      */
     public function testUnknownTypeInUnionList()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Type "Bar" not found in document.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Type "Bar" not found in document.');
         $body = '
 schema {
   query: Hello
@@ -1024,7 +1033,8 @@ type Hello { testUnion: TestUnion }
      */
     public function testUnknownQueryType()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Specified query type "Wat" not found in document.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Specified query type "Wat" not found in document.');
         $body = '
 schema {
   query: Wat
@@ -1043,7 +1053,8 @@ type Hello {
      */
     public function testUnknownMutationType()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Specified mutation type "Wat" not found in document.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Specified mutation type "Wat" not found in document.');
         $body = '
 schema {
   query: Hello
@@ -1063,7 +1074,8 @@ type Hello {
      */
     public function testUnknownSubscriptionType()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Specified subscription type "Awesome" not found in document.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Specified subscription type "Awesome" not found in document.');
         $body = '
 schema {
   query: Hello
@@ -1088,7 +1100,8 @@ type Wat {
      */
     public function testDoesNotConsiderOperationNames()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Specified query type "Foo" not found in document.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
         $body = '
 schema {
   query: Foo
@@ -1105,7 +1118,8 @@ query Foo { field }
      */
     public function testDoesNotConsiderFragmentNames()
     {
-        $this->setExpectedException('GraphQL\Error\Error', 'Specified query type "Foo" not found in document.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
         $body = '
 schema {
   query: Foo
@@ -1137,7 +1151,8 @@ type Repeated {
 ';
         $doc = Parser::parse($body);
 
-        $this->setExpectedException('GraphQL\Error\Error', 'Type "Repeated" was defined more than once.');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Type "Repeated" was defined more than once.');
         BuildSchema::buildAST($doc);
     }
 

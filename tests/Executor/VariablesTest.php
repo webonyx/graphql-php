@@ -10,8 +10,9 @@ use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use PHPUnit\Framework\TestCase;
 
-class VariablesTest extends \PHPUnit_Framework_TestCase
+class VariablesTest extends TestCase
 {
     // Execute: Handles inputs
     // Handles objects and nullability
@@ -510,10 +511,8 @@ class VariablesTest extends \PHPUnit_Framework_TestCase
      */
     public function testSerializingAnArrayViaGraphQLStringThrowsTypeError()
     {
-        $this->setExpectedException(
-            Error::class,
-            'String cannot represent non scalar value: [1,2,3]'
-        );
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('String cannot represent non scalar value: [1,2,3]');
         Type::string()->serialize([1, 2, 3]);
     }
 

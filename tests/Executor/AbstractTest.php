@@ -12,8 +12,9 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use PHPUnit\Framework\TestCase;
 
-class AbstractTest extends \PHPUnit_Framework_TestCase
+class AbstractTest extends TestCase
 {
     // Execute: Handles execution of abstract types
 

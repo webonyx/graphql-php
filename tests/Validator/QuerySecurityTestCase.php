@@ -6,8 +6,9 @@ use GraphQL\Language\Parser;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\AbstractQuerySecurity;
+use PHPUnit\Framework\TestCase;
 
-abstract class AbstractQuerySecurityTest extends \PHPUnit_Framework_TestCase
+abstract class QuerySecurityTestCase extends TestCase
 {
     /**
      * @param $max

@@ -3,8 +3,9 @@ namespace GraphQL\Tests\Utils;
 
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
+use PHPUnit\Framework\TestCase;
 
-class ASTFromValueUntypedTest extends \PHPUnit_Framework_TestCase
+class AstFromValueUntypedTest extends TestCase
 {
     // Describe: valueFromASTUntyped
 

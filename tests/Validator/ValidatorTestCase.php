@@ -12,8 +12,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Validator\DocumentValidator;
+use PHPUnit\Framework\TestCase;
 
-abstract class TestCase extends \PHPUnit_Framework_TestCase
+abstract class ValidatorTestCase extends TestCase
 {
     /**
      * @return Schema

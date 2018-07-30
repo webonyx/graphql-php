@@ -6,8 +6,9 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
+use PHPUnit\Framework\TestCase;
 
-class IsValidLiteralValueTest extends \PHPUnit_Framework_TestCase
+class IsValidLiteralValueTest extends TestCase
 {
     // DESCRIBE: isValidLiteralValue
 
