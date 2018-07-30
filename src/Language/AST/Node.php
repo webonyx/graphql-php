@@ -84,7 +84,7 @@ abstract class Node
     public function __toString()
     {
         $tmp = $this->toArray(true);
-        return json_encode($tmp);
+        return (string) json_encode($tmp);
     }
 
     /**
