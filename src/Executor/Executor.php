@@ -274,6 +274,11 @@ class Executor
     private $promises;
 
     /**
+     * @var \SplObjectStorage
+     */
+    private $subFieldCache;
+
+    /**
      * Executor constructor.
      *
      * @param ExecutionContext $context
@@ -285,6 +290,7 @@ class Executor
         }
 
         $this->exeContext = $context;
+        $this->subFieldCache = new \SplObjectStorage();
     }
 
     /**
@@ -1311,12 +1317,28 @@ class Executor
         &$result
     )
     {
-        // Collect sub-fields to execute to complete this value.
-        $subFieldNodes = new \ArrayObject();
-        $visitedFragmentNames = new \ArrayObject();
+        $subFieldNodes = $this->collectSubFields($returnType, $fieldNodes);
+        return $this->executeFields($returnType, $result, $path, $subFieldNodes);
+    }
 
-        foreach ($fieldNodes as $fieldNode) {
-            if (isset($fieldNode->selectionSet)) {
+    /**
+     * @param ObjectType $returnType
+     * @param $fieldNodes
+     * @return \ArrayObject
+     */
+    private function collectSubFields(ObjectType $returnType, $fieldNodes)
+    {
+        if (!isset($this->subFieldCache[$returnType])) {
+            $this->subFieldCache[$returnType] = new \SplObjectStorage();
+        }
+        if (!isset($this->subFieldCache[$returnType][$fieldNodes])) {
+            // Collect sub-fields to execute to complete this value.
+            $subFieldNodes = new \ArrayObject();
+            $visitedFragmentNames = new \ArrayObject();
+            foreach ($fieldNodes as $fieldNode) {
+                if (!isset($fieldNode->selectionSet)) {
+                    continue;
+                }
                 $subFieldNodes = $this->collectFields(
                     $returnType,
                     $fieldNode->selectionSet,
@@ -1324,9 +1346,9 @@ class Executor
                     $visitedFragmentNames
                 );
             }
+            $this->subFieldCache[$returnType][$fieldNodes] = $subFieldNodes;
         }
-
-        return $this->executeFields($returnType, $result, $path, $subFieldNodes);
+        return $this->subFieldCache[$returnType][$fieldNodes];
     }
 
     /**
