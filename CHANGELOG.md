@@ -1,4 +1,7 @@
 # Changelog
+#### v0.12.5
+- Execution performance optimization for lists
+
 #### v0.12.4
 - Allow stringeable objects to be serialized by StringType (#303)
 
