@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language\AST;
 
 class FieldNode extends Node implements SelectionNode
@@ -29,4 +32,9 @@ class FieldNode extends Node implements SelectionNode
      * @var SelectionSetNode|null
      */
     public $selectionSet;
+
+    public function getKind() : string
+    {
+        return NodeKind::FIELD;
+    }
 }

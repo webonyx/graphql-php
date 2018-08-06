@@ -487,7 +487,7 @@ class AST
      * @api
      * @param Schema $schema
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
-     * @return Type
+     * @return Type|null
      * @throws \Exception
      */
     public static function typeFromAST(Schema $schema, $inputTypeNode)
