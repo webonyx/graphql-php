@@ -97,6 +97,7 @@ fragment MissingOn Type
      */
     public function testParsesVariableInlineValues()
     {
+        $this->expectNotToPerformAssertions();
         // Following line should not throw:
         Parser::parse('{ field(complex: { a: { b: [ $var ] } }) }');
     }
@@ -221,6 +222,7 @@ fragment $fragmentName on Type {
      */
     public function testParsessAnonymousMutationOperations()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw:
         Parser::parse('
           mutation {
@@ -234,6 +236,7 @@ fragment $fragmentName on Type {
      */
     public function testParsesAnonymousSubscriptionOperations()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw:
         Parser::parse('
           subscription {
@@ -247,6 +250,7 @@ fragment $fragmentName on Type {
      */
     public function testParsesNamedMutationOperations()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw:
         Parser::parse('
           mutation Foo {
@@ -260,6 +264,7 @@ fragment $fragmentName on Type {
      */
     public function testParsesNamedSubscriptionOperations()
     {
+        $this->expectNotToPerformAssertions();
         Parser::parse('
           subscription Foo {
             subscriptionField

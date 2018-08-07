@@ -153,6 +153,7 @@ class TypeLoaderTest extends TestCase
 
     public function testSchemaAcceptsTypeLoader()
     {
+        $this->expectNotToPerformAssertions();
         new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',

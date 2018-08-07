@@ -137,10 +137,7 @@ class RequestValidationTest extends TestCase
     {
         $helper = new Helper();
         $errors = $helper->validateOperationParams($parsedRequest);
-
-        if (!empty($errors)) {
-            throw $errors[0];
-        }
+        $this->assertEmpty($errors, isset($errors[0]) ? $errors[0]->getMessage() : '');
     }
 
     private function assertInputError($parsedRequest, $expectedMessage)

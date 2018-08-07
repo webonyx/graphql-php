@@ -515,8 +515,8 @@ class DefinitionTest extends TestCase
      */
     public function testProhibitsNestingNonNullInsideNonNull()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'Expected Int! to be a GraphQL nullable type.'
         );
         Type::nonNull(Type::nonNull(Type::int()));
@@ -771,8 +771,8 @@ class DefinitionTest extends TestCase
                 'f' => null,
             ],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeObject.f field config must be an array, but got: null'
         );
         $objType->getFields();
@@ -787,8 +787,8 @@ class DefinitionTest extends TestCase
             'name' => 'SomeObject',
             'fields' => [['field' => Type::string()]],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeObject fields must be an associative array with field names as keys or a ' .
             'function which returns such an array.'
         );
@@ -806,8 +806,8 @@ class DefinitionTest extends TestCase
                 return [['field' => Type::string()]];
             },
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeObject fields must be an associative array with field names as keys or a ' .
             'function which returns such an array.'
         );
@@ -821,6 +821,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAnObjectTypeWithFieldArgs()
     {
+        $this->expectNotToPerformAssertions();
         $objType = new ObjectType([
             'name' => 'SomeObject',
             'fields' => [
@@ -833,7 +834,7 @@ class DefinitionTest extends TestCase
             ],
         ]);
         // Should not throw:
-        $objType->assertValid(true);
+        $objType->assertValid();
     }
 
     // rejects an Object type with incorrectly typed field args
@@ -853,12 +854,11 @@ class DefinitionTest extends TestCase
             ],
         ]);
 
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'OldObject.field should provide "deprecationReason" instead of "isDeprecated".'
         );
-
-        $OldObject->assertValid(true);
+        $OldObject->assertValid();
     }
 
     // Object interfaces must be array
@@ -901,8 +901,8 @@ class DefinitionTest extends TestCase
             'interfaces' => new \stdClass(),
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeObject interfaces must be an Array or a callable which returns an Array.'
         );
         $objType->getInterfaces();
@@ -920,8 +920,8 @@ class DefinitionTest extends TestCase
             },
             'fields' => ['f' => ['type' => Type::string()]],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeObject interfaces must be an Array or a callable which returns an Array.'
         );
         $objType->getInterfaces();
@@ -958,6 +958,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsALambdaAsAnObjectFieldResolver()
     {
+        $this->expectNotToPerformAssertions();
         // should not throw:
         $this->schemaWithObjectWithFieldResolver(function () {});
     }
@@ -967,8 +968,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAnEmptyObjectFieldResolver()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'BadResolver.badField field resolver must be a function if provided, but got: []'
         );
         $this->schemaWithObjectWithFieldResolver([]);
@@ -979,8 +980,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAConstantScalarValueResolver()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'BadResolver.badField field resolver must be a function if provided, but got: 0'
         );
         $this->schemaWithObjectWithFieldResolver(0);
@@ -1006,6 +1007,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAnInterfaceTypeDefiningResolveType()
     {
+        $this->expectNotToPerformAssertions();
         $AnotherInterfaceType = new InterfaceType([
             'name' => 'AnotherInterface',
             'fields' => ['f' => ['type' => Type::string()]],
@@ -1026,6 +1028,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAnInterfaceWithImplementingTypeDefiningIsTypeOf()
     {
+        $this->expectNotToPerformAssertions();
         $InterfaceTypeWithoutResolveType = new InterfaceType([
             'name' => 'InterfaceTypeWithoutResolveType',
             'fields' => ['f' => ['type' => Type::string()]],
@@ -1046,6 +1049,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAnInterfaceTypeDefiningResolveTypeWithImplementingTypeDefiningIsTypeOf()
     {
+        $this->expectNotToPerformAssertions();
         $AnotherInterfaceType = new InterfaceType([
             'name' => 'AnotherInterface',
             'fields' => ['f' => ['type' => Type::string()]],
@@ -1066,8 +1070,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'AnotherInterface must provide "resolveType" as a function, but got: instance of stdClass'
         );
 
@@ -1094,6 +1098,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionTypeDefiningResolveType()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw:
         $this->schemaWithFieldType(
             new UnionType([
@@ -1108,6 +1113,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionOfObjectTypesDefiningIsTypeOf()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw:
         $this->schemaWithFieldType(
             new UnionType([
@@ -1122,6 +1128,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionTypeDefiningResolveTypeOfObjectTypesDefiningIsTypeOf()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw:
         $this->schemaWithFieldType(
             new UnionType([
@@ -1136,8 +1143,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAnUnionTypeWithAnIncorrectTypeForResolveType()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeUnion must provide "resolveType" as a function, but got: instance of stdClass'
         );
         $this->schemaWithFieldType(
@@ -1156,6 +1163,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAScalarTypeDefiningSerialize()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw
         $this->schemaWithFieldType(
             new CustomScalarType([
@@ -1172,8 +1180,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAScalarTypeNotDefiningSerialize()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeScalar must provide "serialize" function. If this custom Scalar ' .
             'is also used as an input type, ensure "parseValue" and "parseLiteral" ' .
             'functions are also provided.'
@@ -1190,8 +1198,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeScalar must provide "serialize" function. If this custom Scalar ' .
             'is also used as an input type, ensure "parseValue" and "parseLiteral" ' .
             'functions are also provided.'
@@ -1209,6 +1217,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAScalarTypeDefiningParseValueAndParseLiteral()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw:
         $this->schemaWithFieldType(
             new CustomScalarType([
@@ -1228,8 +1237,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
         );
         $this->schemaWithFieldType(
@@ -1248,8 +1257,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
         );
         $this->schemaWithFieldType(
@@ -1268,8 +1277,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeScalar must provide both "parseValue" and "parseLiteral" functions.'
         );
         $this->schemaWithFieldType(
@@ -1290,6 +1299,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAnObjectTypeWithAnIsTypeOfFunction()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw
         $this->schemaWithFieldType(
             new ObjectType([
@@ -1304,8 +1314,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAnObjectTypeWithAnIncorrectTypeForIsTypeOf()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'AnotherObject must provide "isTypeOf" as a function, but got: instance of stdClass'
         );
         $this->schemaWithFieldType(
@@ -1324,6 +1334,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionTypeWithArrayTypes()
     {
+        $this->expectNotToPerformAssertions();
         // Should not throw:
         $this->schemaWithFieldType(
             new UnionType([
@@ -1338,6 +1349,7 @@ class DefinitionTest extends TestCase
      */
     public function testAcceptsAUnionTypeWithFunctionReturningAnArrayOfTypes()
     {
+        $this->expectNotToPerformAssertions();
         $this->schemaWithFieldType(
             new UnionType([
                 'name' => 'SomeUnion',
@@ -1353,8 +1365,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAUnionTypeWithoutTypes()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'Must provide Array of types or a callable which returns such an array for Union SomeUnion'
         );
         $this->schemaWithFieldType(
@@ -1369,8 +1381,8 @@ class DefinitionTest extends TestCase
      */
     public function testRejectsAUnionTypeWithIncorrectlyTypedTypes()
     {
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'Must provide Array of types or a callable which returns such an array for Union SomeUnion'
         );
         $this->schemaWithFieldType(
@@ -1424,8 +1436,8 @@ class DefinitionTest extends TestCase
             'name' => 'SomeInputObject',
             'fields' => [],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeInputObject fields must be an associative array with field names as keys or a callable '.
             'which returns such an array.'
         );
@@ -1443,8 +1455,8 @@ class DefinitionTest extends TestCase
                 return [];
             },
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeInputObject fields must be an associative array with field names as keys or a ' .
             'callable which returns such an array.'
         );
@@ -1469,8 +1481,8 @@ class DefinitionTest extends TestCase
                 ],
             ],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeInputObject.f field type has a resolve property, ' .
             'but Input Types cannot define resolvers.'
         );
@@ -1491,8 +1503,8 @@ class DefinitionTest extends TestCase
                 ],
             ],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeInputObject.f field type has a resolve property, ' .
             'but Input Types cannot define resolvers.'
         );
@@ -1542,8 +1554,8 @@ class DefinitionTest extends TestCase
             'name' => 'SomeEnum',
             'values' => [['FOO' => 10]],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeEnum values must be an array with value names as keys.'
         );
         $enumType->assertValid();
@@ -1562,8 +1574,8 @@ class DefinitionTest extends TestCase
                 ],
             ],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'SomeEnum.FOO should provide "deprecationReason" instead ' .
             'of "isDeprecated".'
         );
@@ -1667,8 +1679,8 @@ class DefinitionTest extends TestCase
             ],
         ]);
 
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "String" '.
             '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
         );
@@ -1698,8 +1710,8 @@ class DefinitionTest extends TestCase
                 'b' => ['type' => $B],
             ],
         ]);
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "SameName" ' .
             '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
         );
@@ -1736,8 +1748,8 @@ class DefinitionTest extends TestCase
             ],
         ]);
 
-        $this->setExpectedException(
-            InvariantViolation::class,
+        $this->expectException(InvariantViolation::class);
+        $this->expectExceptionMessage(
             'Schema must contain unique named types but contains multiple types named "BadObject" ' .
             '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
         );

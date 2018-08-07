@@ -535,6 +535,7 @@ class ValidationTest extends TestCase
 
     public function testAcceptsShorthandNotationForFields()
     {
+        $this->expectNotToPerformAssertions();
         $schema = $this->schemaWithFieldType(
             new ObjectType([
                 'name' => 'SomeObject',
@@ -1032,6 +1033,7 @@ class ValidationTest extends TestCase
      */
     public function testRejectsAnObjectImplementingTheSameInterfaceTwiceDueToExtension()
     {
+        $this->expectNotToPerformAssertions();
         $this->markTestIncomplete('extend does not work this way (yet).');
         $schema = BuildSchema::build('
       type Query {
