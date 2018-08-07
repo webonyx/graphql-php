@@ -64,7 +64,7 @@ class SchemaPrinterTest extends TestCase
 This is a description
 of the `Foo` type.
 """
-type Foo implements Bar {
+type Foo implements Bar & Baz {
   one: Type
   two(argument: InputType!): Type
   three(argument: InputType, other: String): Int

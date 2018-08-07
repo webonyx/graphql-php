@@ -330,7 +330,7 @@ type Hello {
      */
     public function testSimpleTypeInheritingMultipleInterfaces()
     {
-        $body = 'type Hello implements Wo, rld { field: String }';
+        $body = 'type Hello implements Wo & rld { field: String }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
         $doc = Parser::parse($body);
 
@@ -341,24 +341,59 @@ type Hello {
                     'kind' => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name' => $this->nameNode('Hello', $loc(5, 10)),
                     'interfaces' => [
-                        $this->typeNode('Wo', $loc(22,24)),
-                        $this->typeNode('rld', $loc(26,29))
+                        $this->typeNode('Wo', $loc(22, 24)),
+                        $this->typeNode('rld', $loc(27, 30))
                     ],
                     'directives' => [],
                     'fields' => [
                         $this->fieldNode(
-                            $this->nameNode('field', $loc(32, 37)),
-                            $this->typeNode('String', $loc(39, 45)),
-                            $loc(32, 45)
+                            $this->nameNode('field', $loc(33, 38)),
+                            $this->typeNode('String', $loc(40, 46)),
+                            $loc(33, 46)
                         )
                     ],
-                    'loc' => $loc(0, 47),
+                    'loc' => $loc(0, 48),
                     'description' => null
                 ]
             ],
-            'loc' => $loc(0, 47)
+            'loc' => $loc(0, 48)
         ];
 
+        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @it Simple type inheriting multiple interfaces with leading ampersand
+     */
+    public function testSimpleTypeInheritingMultipleInterfacesWithLeadingAmpersand()
+    {
+        $body = 'type Hello implements & Wo & rld { field: String }';
+        $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
+        $doc = Parser::parse($body);
+        $expected = [
+            'kind' => 'Document',
+            'definitions' => [
+                [
+                    'kind' => 'ObjectTypeDefinition',
+                    'name' => $this->nameNode('Hello', $loc(5, 10)),
+                    'interfaces' => [
+                        $this->typeNode('Wo', $loc(24, 26)),
+                        $this->typeNode('rld', $loc(29, 32)),
+                    ],
+                    'directives' => [],
+                    'fields' => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(35, 40)),
+                            $this->typeNode('String', $loc(42, 48)),
+                            $loc(35, 48)
+                        ),
+                    ],
+                    'loc' => $loc(0, 50),
+                    'description' => null,
+                ],
+            ],
+            'loc' => $loc(0, 50),
+        ];
         $this->assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
@@ -878,6 +913,32 @@ input Hello {
             'definitions' => [
                 [
                     'fields' => [],
+                ],
+            ],
+        ];
+        $this->assertArraySubset($expected, $doc->toArray(true));
+    }
+
+    public function testDoesntAllowLegacySDLImplementsInterfacesByDefault()
+    {
+        $body = 'type Hello implements Wo rld { field: String }';
+        $this->expectSyntaxError($body, 'Syntax Error: Unexpected Name "rld"', new SourceLocation(1, 26));
+    }
+
+    /**
+     * @it Option: allowLegacySDLImplementsInterfaces
+     */
+    public function testDefaultSDLImplementsInterfaces()
+    {
+        $body = 'type Hello implements Wo rld { field: String }';
+        $doc = Parser::parse($body, ['allowLegacySDLImplementsInterfaces' => true]);
+        $expected = [
+            'definitions' => [
+                [
+                    'interfaces' => [
+                        $this->typeNode('Wo', ['start' => 22, 'end' => 24]),
+                        $this->typeNode('rld', ['start' => 25, 'end' => 28]),
+                    ],
                 ],
             ],
         ];

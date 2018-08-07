@@ -212,7 +212,7 @@ class Printer
                         $this->join([
                             'type',
                             $def->name,
-                            $this->wrap('implements ', $this->join($def->interfaces, ', ')),
+                            $this->wrap('implements ', $this->join($def->interfaces, ' & ')),
                             $this->join($def->directives, ' '),
                             $this->block($def->fields)
                         ], ' ')
@@ -300,7 +300,7 @@ class Printer
                     return $this->join([
                         'extend type',
                         $def->name,
-                        $this->wrap('implements ', $this->join($def->interfaces, ', ')),
+                        $this->wrap('implements ', $this->join($def->interfaces, ' & ')),
                         $this->join($def->directives, ' '),
                         $this->block($def->fields),
                     ], ' ');

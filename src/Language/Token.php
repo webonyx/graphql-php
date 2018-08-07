@@ -12,6 +12,7 @@ class Token
     const EOF = '<EOF>';
     const BANG = '!';
     const DOLLAR = '$';
+    const AMP = '&';
     const PAREN_L = '(';
     const PAREN_R = ')';
     const SPREAD = '...';

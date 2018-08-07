@@ -66,11 +66,18 @@ class Parser
      *   in the source that they correspond to. This configuration flag
      *   disables that behavior for performance or testing.)
      *
-     *
      * allowLegacySDLEmptyFields: boolean
      *   If enabled, the parser will parse empty fields sets in the Schema
      *   Definition Language. Otherwise, the parser will follow the current
      *   specification.
+     *
+     *   This option is provided to ease adoption of the final SDL specification
+     *   and will be removed in a future major release.
+     *
+     * allowLegacySDLImplementsInterfaces: boolean
+     *   If enabled, the parser will parse implemented interfaces with no `&`
+     *   character between each interface. Otherwise, the parser will follow the
+     *   current specification.
      *
      *   This option is provided to ease adoption of the final SDL specification
      *   and will be removed in a future major release.
@@ -1072,6 +1079,10 @@ class Parser
     }
 
     /**
+     * ImplementsInterfaces :
+     *   - implements `&`? NamedType
+     *   - ImplementsInterfaces & NamedType
+     *
      * @return NamedTypeNode[]
      */
     function parseImplementsInterfaces()
@@ -1079,9 +1090,15 @@ class Parser
         $types = [];
         if ($this->lexer->token->value === 'implements') {
             $this->lexer->advance();
+            // Optional leading ampersand
+            $this->skip(Token::AMP);
             do {
                 $types[] = $this->parseNamedType();
-            } while ($this->peek(Token::NAME));
+            } while (
+                $this->skip(Token::AMP) ||
+                // Legacy support for the SDL?
+                (!empty($this->lexer->options['allowLegacySDLImplementsInterfaces']) && $this->peek(Token::NAME))
+            );
         }
         return $types;
     }

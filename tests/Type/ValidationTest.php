@@ -1015,7 +1015,7 @@ class ValidationTest extends TestCase
         field: String
       }
       
-      type AnotherObject implements AnotherInterface, AnotherInterface {
+      type AnotherObject implements AnotherInterface & AnotherInterface {
         field: String
       }
         ');
@@ -1023,7 +1023,7 @@ class ValidationTest extends TestCase
             $schema->validate(),
             [[
                 'message' => 'Type AnotherObject can only implement AnotherInterface once.',
-                'locations' => [['line' => 10, 'column' => 37], ['line' => 10, 'column' => 55]],
+                'locations' => [['line' => 10, 'column' => 37], ['line' => 10, 'column' => 56]],
             ]]
         );
     }

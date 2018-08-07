@@ -3,6 +3,22 @@
 ### Breaking: minimum supported version of PHP
 New minimum required version of PHP is **7.1+**
 
+### Breaking: multiple interfaces separated with & in SDL
+Before the change:
+```graphql
+type Foo implements Bar, Baz { field: Type }
+```
+
+After the change:
+```graphql
+type Foo implements Bar & Baz { field: Type }
+```
+
+To allow for an adaptive migration, use `allowLegacySDLImplementsInterfaces` option of parser:
+```php
+Parser::parse($source, [ 'allowLegacySDLImplementsInterfaces' => true])
+```
+
 ### Breaking: errors formatting changed according to spec 
 Extensions assigned to errors are shown under `extensions` key
 ```php
