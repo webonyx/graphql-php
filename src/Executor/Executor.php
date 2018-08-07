@@ -1400,15 +1400,16 @@ class Executor
         if (! $runtimeType instanceof ObjectType) {
             throw new InvariantViolation(
                 sprintf(
-                    'Abstract type %1$s must resolve to an Object type at ' .
-                    'runtime for field %s.%s with value "%s", received "%s".' .
-                    'Either the %1$s type should provide a "resolveType" ' .
-                    'function or each possible types should provide an "isTypeOf" function.',
+                    'Abstract type %s must resolve to an Object type at ' .
+                    'runtime for field %s.%s with value "%s", received "%s". ' .
+                    'Either the %s type should provide a "resolveType" ' .
+                    'function or each possible type should provide an "isTypeOf" function.',
                     $returnType,
                     $info->parentType,
                     $info->fieldName,
                     Utils::printSafe($result),
-                    Utils::printSafe($runtimeType)
+                    Utils::printSafe($runtimeType),
+                    $returnType
                 )
             );
         }

@@ -358,6 +358,61 @@ class AbstractTest extends TestCase
     }
 
     /**
+     * @it returning invalid value from resolveType yields useful error
+     */
+    public function testReturningInvalidValueFromResolveTypeYieldsUsefulError()
+    {
+        $fooInterface = new InterfaceType([
+            'name' => 'FooInterface',
+            'fields' => ['bar' => ['type' => Type::string()]],
+            'resolveType' => function () {
+                return [];
+            },
+        ]);
+
+        $fooObject = new ObjectType([
+            'name' => 'FooObject',
+            'fields' => ['bar' => ['type' => Type::string()]],
+            'interfaces' => [$fooInterface],
+        ]);
+
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'foo' => [
+                        'type' => $fooInterface,
+                        'resolve' => function () {
+                            return 'dummy';
+                        },
+                    ],
+                ],
+            ]),
+            'types' => [$fooObject],
+        ]);
+
+        $result = GraphQL::executeQuery($schema, '{ foo { bar } }');
+
+        $expected = [
+            'data' => ['foo' => null],
+            'errors' => [
+                [
+                    'message' => 'Internal server error',
+                    'debugMessage' =>
+                        'Abstract type FooInterface must resolve to an Object type at ' .
+                        'runtime for field Query.foo with value "dummy", received "[]". ' .
+                        'Either the FooInterface type should provide a "resolveType" ' .
+                        'function or each possible type should provide an "isTypeOf" function.',
+                    'locations' => [['line' => 1, 'column' => 3]],
+                    'path' => ['foo'],
+                    'category' => 'internal',
+                ],
+            ],
+        ];
+        $this->assertEquals($expected, $result->toArray(true));
+    }
+
+    /**
      * @it resolveType allows resolving with type name
      */
     public function testResolveTypeAllowsResolvingWithTypeName()
