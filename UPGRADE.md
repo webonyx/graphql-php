@@ -1,3 +1,40 @@
+## Upgrade v0.12.x > dev-master
+
+### Breaking: minimum supported version of PHP
+New minimum required version of PHP is **7.1+**
+
+### Breaking: errors formatting changed according to spec 
+Extensions assigned to errors are shown under `extensions` key
+```php
+$e = new Error(
+    'msg',
+    null,
+    null,
+    null,
+    null,
+    null,
+    ['foo' => 'bar']
+);
+```
+Formatting before the change:
+```
+'errors' => [
+    [
+        'message' => 'msg',
+        'foo' => 'bar'
+    ]
+]
+```
+After the change:
+```
+'errors' => [
+    [
+        'message' => 'msg',
+        'extensions' => ['foo' => 'bar'],
+    ]
+]
+```
+
 ## Upgrade v0.11.x > v0.12.x
 
 ### Breaking: Minimum supported version is PHP5.6

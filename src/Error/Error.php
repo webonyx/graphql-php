@@ -326,10 +326,6 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
             'message' => $this->getMessage(),
         ];
 
-        if ($this->getExtensions()) {
-            $arr = array_merge($this->getExtensions(), $arr);
-        }
-
         $locations = Utils::map(
             $this->getLocations(),
             function (SourceLocation $loc) {
@@ -342,6 +338,9 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         }
         if (! empty($this->path)) {
             $arr['path'] = $this->path;
+        }
+        if (! empty($this->extensions)) {
+            $arr['extensions'] = $this->extensions;
         }
 
         return $arr;

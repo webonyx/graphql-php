@@ -5,11 +5,50 @@ use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
+use GraphQL\Language\SourceLocation;
 use PHPUnit\Framework\TestCase;
 
 class PrintErrorTest extends TestCase
 {
     // Describe printError
+
+    /**
+     * @it prints an line numbers with correct padding
+     */
+    public function testPrintsAnLineNumbersWithCorrectPadding()
+    {
+        $singleDigit = new Error(
+            'Single digit line number with no padding',
+            null,
+            new Source('*', 'Test', new SourceLocation(9, 1)),
+            [0]
+        );
+
+        $actual = FormattedError::printError($singleDigit);
+        $expected = 'Single digit line number with no padding
+
+Test (9:1)
+ 9: *
+    ^
+';
+        $this->assertEquals($expected, $actual);
+
+        $doubleDigit = new Error(
+            'Left padded first line number',
+            null,
+            new Source("*\n", 'Test', new SourceLocation(9, 1)),
+            [0]
+        );
+        $actual = FormattedError::printError($doubleDigit);
+        $expected = 'Left padded first line number
+
+Test (9:1)
+ 9: *
+    ^
+10: 
+';
+        $this->assertEquals($expected, $actual);
+    }
 
     /**
      * @it prints an error with nodes from different sources

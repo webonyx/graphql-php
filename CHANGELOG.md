@@ -1,4 +1,24 @@
 # Changelog
+## dev-master
+- Spec compliance: error extensions are displayed under `extensions` key 
+
+#### v0.12.5
+- Execution performance optimization for lists
+
+#### v0.12.4
+- Allow stringeable objects to be serialized by StringType (#303)
+
+#### v0.12.3
+- StandardServer: add support for the multipart/form-data content type (#300)
+
+#### v0.12.2
+- SchemaPrinter: Use multi-line block for trailing quote (#294)
+
+#### v0.12.1
+- Fixed bug in validation rule OverlappingFieldsCanBeMerged (#292)
+- Added one more breaking change note in UPGRADE.md (#291)
+- Spec compliance: remove `data` entry from response on top-level error (#281)
+
 ## v0.12.0
 - RFC: Block String (multi-line strings via triple-quote """string""")
 - GraphQL Schema SDL: Descriptions as strings (including multi-line)

@@ -187,22 +187,20 @@ class FormattedError
         }
 
         if ($e instanceof Error) {
-            if ($e->getExtensions()) {
-                $formattedError = array_merge($e->getExtensions(), $formattedError);
-            }
-
             $locations = Utils::map(
                 $e->getLocations(),
                 function (SourceLocation $loc) {
                     return $loc->toSerializableArray();
                 }
             );
-
             if (! empty($locations)) {
                 $formattedError['locations'] = $locations;
             }
             if (! empty($e->path)) {
                 $formattedError['path'] = $e->path;
+            }
+            if (! empty($e->getExtensions())) {
+                $formattedError['extensions'] = $e->getExtensions();
             }
         }
 

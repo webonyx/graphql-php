@@ -146,6 +146,9 @@ class ErrorTest extends TestCase
         );
 
         $this->assertEquals(['foo' => 'bar'], $e->getExtensions());
-        $this->assertEquals(['message' => 'msg', 'foo' => 'bar'], $e->toSerializableArray());
+        $this->assertEquals([
+            'message' => 'msg',
+            'extensions' => ['foo' => 'bar'],
+        ], $e->toSerializableArray());
     }
 }
