@@ -1,5 +1,6 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\TypeDefinitionNode;
@@ -82,8 +83,15 @@ class FieldDefinition
         $map = [];
         foreach ($fields as $name => $field) {
             if (is_array($field)) {
-                if (!isset($field['name']) && is_string($name)) {
-                    $field['name'] = $name;
+                if (!isset($field['name'])) {
+                    if (is_string($name)) {
+                        $field['name'] = $name;
+                    } else {
+                        throw new InvariantViolation(
+                            "{$type->name} fields must be an associative array with field names as keys or a " .
+                            "function which returns such an array."
+                        );
+                    }
                 }
                 if (isset($field['args']) && !is_array($field['args'])) {
                     throw new InvariantViolation(
@@ -185,7 +193,7 @@ class FieldDefinition
     {
         try {
             Utils::assertValidName($this->name);
-        } catch (InvariantViolation $e) {
+        } catch (Error $e) {
             throw new InvariantViolation("{$parentType->name}.{$this->name}: {$e->getMessage()}");
         }
         Utils::invariant(

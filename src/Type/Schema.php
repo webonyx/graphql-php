@@ -406,7 +406,8 @@ class Schema
      * @api
      * @return InvariantViolation[]|Error[]
      */
-    public function validate() {
+    public function validate()
+    {
         // If this Schema has already been validated, return the previous results.
         if ($this->validationErrors !== null) {
             return $this->validationErrors;

@@ -1,6 +1,9 @@
 <?php
 namespace GraphQL\Type\Definition;
+use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Utils\Utils;
 
 /**
  * Class InputObjectField
@@ -80,5 +83,31 @@ class InputObjectField
     public function defaultValueExists()
     {
         return $this->defaultValueExists;
+    }
+
+    /**
+     * @param Type $parentType
+     * @throws InvariantViolation
+     */
+    public function assertValid(Type $parentType)
+    {
+        try {
+            Utils::assertValidName($this->name);
+        } catch (Error $e) {
+            throw new InvariantViolation("{$parentType->name}.{$this->name}: {$e->getMessage()}");
+        }
+        $type = $this->type;
+        if ($type instanceof WrappingType) {
+            $type = $type->getWrappedType(true);
+        }
+        Utils::invariant(
+            $type instanceof InputType,
+            "{$parentType->name}.{$this->name} field type must be Input Type but got: " . Utils::printSafe($this->type)
+        );
+        Utils::invariant(
+            empty($this->config['resolve']),
+            "{$parentType->name}.{$this->name} field type has a resolve property, " .
+            'but Input Types cannot define resolvers.'
+        );
     }
 }

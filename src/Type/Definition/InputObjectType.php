@@ -80,4 +80,25 @@ class InputObjectType extends Type implements InputType, NamedType
         Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
         return $this->fields[$name];
     }
+
+    /**
+     * Validates type config and throws if one of type options is invalid.
+     * Note: this method is shallow, it won't validate object fields and their arguments.
+     *
+     * @throws InvariantViolation
+     */
+    public function assertValid()
+    {
+        parent::assertValid();
+
+        Utils::invariant(
+            !empty($this->getFields()),
+            "{$this->name} fields must be an associative array with field names as keys or a " .
+            "callable which returns such an array."
+        );
+
+        foreach ($this->getFields() as $field) {
+            $field->assertValid($this);
+        }
+    }
 }

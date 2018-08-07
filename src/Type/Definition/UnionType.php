@@ -121,7 +121,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         if (isset($this->config['resolveType'])) {
             Utils::invariant(
                 is_callable($this->config['resolveType']),
-                "{$this->name} must provide \"resolveType\" as a function."
+                "{$this->name} must provide \"resolveType\" as a function, but got: " . Utils::printSafe($this->config['resolveType'])
             );
         }
     }

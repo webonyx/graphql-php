@@ -216,16 +216,7 @@ abstract class Type implements \JsonSerializable
      */
     public static function isType($type)
     {
-        return (
-            $type instanceof ScalarType ||
-            $type instanceof ObjectType ||
-            $type instanceof InterfaceType ||
-            $type instanceof UnionType ||
-            $type instanceof EnumType ||
-            $type instanceof InputObjectType ||
-            $type instanceof ListOfType ||
-            $type instanceof NonNull
-        );
+        return $type instanceof Type;
     }
 
     /**

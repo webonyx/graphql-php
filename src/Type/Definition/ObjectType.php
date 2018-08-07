@@ -207,9 +207,15 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
             "{$this->name} description must be string if set, but it is: " . Utils::printSafe($this->description)
         );
 
+        $isTypeOf = $this->config['isTypeOf'] ?? null;
+
         Utils::invariant(
-            !isset($this->config['isTypeOf']) || is_callable($this->config['isTypeOf']),
-            "{$this->name} must provide 'isTypeOf' as a function"
+            !isset($isTypeOf) || is_callable($isTypeOf),
+            "{$this->name} must provide \"isTypeOf\" as a function, but got: " . Utils::printSafe($isTypeOf)
         );
+
+        foreach ($this->getFields() as $field) {
+            $field->assertValid($this);
+        }
     }
 }

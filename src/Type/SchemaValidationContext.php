@@ -49,11 +49,13 @@ class SchemaValidationContext
     /**
      * @return Error[]
      */
-    public function getErrors() {
+    public function getErrors()
+    {
         return $this->errors;
     }
 
-    public function validateRootTypes() {
+    public function validateRootTypes()
+    {
         $queryType = $this->schema->getQueryType();
         if (!$queryType) {
             $this->reportError(
@@ -208,7 +210,8 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      */
-    private function validateFields($type) {
+    private function validateFields($type)
+    {
         $fieldMap = $type->getFields();
 
         // Objects and Interfaces both must define one or more fields.
@@ -271,7 +274,8 @@ class SchemaValidationContext
         }
     }
 
-    private function validateObjectInterfaces(ObjectType $object) {
+    private function validateObjectInterfaces(ObjectType $object)
+    {
         $implementedTypeNames = [];
         foreach($object->getInterfaces() as $iface) {
             if (isset($implementedTypeNames[$iface->name])) {
@@ -714,7 +718,8 @@ class SchemaValidationContext
      * @param string $message
      * @param array|Node|TypeNode|TypeDefinitionNode $nodes
      */
-    private function reportError($message, $nodes = null) {
+    private function reportError($message, $nodes = null)
+    {
         $nodes = array_filter($nodes && is_array($nodes) ? $nodes : [$nodes]);
         $this->addError(new Error($message, $nodes));
     }
@@ -722,7 +727,8 @@ class SchemaValidationContext
     /**
      * @param Error $error
      */
-    private function addError($error) {
+    private function addError($error)
+    {
         $this->errors[] = $error;
     }
 }
