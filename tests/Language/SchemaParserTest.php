@@ -201,6 +201,42 @@ extend type Hello {
     }
 
     /**
+     * @it Extension without fields followed by extension
+     */
+    public function testExtensionWithoutFieldsFollowedByExtension()
+    {
+        $body = '
+          extend type Hello implements Greeting
+    
+          extend type Hello implements SecondGreeting
+        ';
+        $doc = Parser::parse($body);
+        $expected = [
+            'kind' => 'Document',
+            'definitions' => [
+                [
+                    'kind' => 'ObjectTypeExtension',
+                    'name' => $this->nameNode('Hello', ['start' => 23, 'end' => 28]),
+                    'interfaces' => [$this->typeNode('Greeting', ['start' => 40, 'end' => 48])],
+                    'directives' => [],
+                    'fields' => [],
+                    'loc' => ['start' => 11, 'end' => 48],
+                ],
+                [
+                    'kind' => 'ObjectTypeExtension',
+                    'name' => $this->nameNode('Hello', ['start' => 76, 'end' => 81]),
+                    'interfaces' => [$this->typeNode('SecondGreeting', ['start' => 93, 'end' => 107])],
+                    'directives' => [],
+                    'fields' => [],
+                    'loc' => ['start' => 64, 'end' => 107],
+                ],
+            ],
+            'loc' => ['start' => 0, 'end' => 116],
+        ];
+        $this->assertEquals($expected, $doc->toArray(true));
+    }
+
+    /**
      * @it Extension without anything throws
      */
     public function testExtensionWithoutAnythingThrows()
