@@ -325,7 +325,7 @@ class Printer
     public function addDescription(\Closure $cb)
     {
         return function ($node) use ($cb) {
-            return $this->join([$node->description, $cb($node)]);
+            return $this->join([$node->description, $cb($node)], "\n");
         };
     }
 
