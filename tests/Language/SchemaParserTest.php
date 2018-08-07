@@ -861,6 +861,29 @@ input Hello {
         );
     }
 
+    public function testDoesNotAllowEmptyFields()
+    {
+        $body = 'type Hello { }';
+        $this->expectSyntaxError($body, 'Syntax Error: Expected Name, found }', new SourceLocation(1, 14));
+    }
+
+    /**
+     * @it Option: allowLegacySDLEmptyFields supports type with empty fields
+     */
+    public function testAllowLegacySDLEmptyFieldsOption()
+    {
+        $body = 'type Hello { }';
+        $doc = Parser::parse($body, ['allowLegacySDLEmptyFields' => true]);
+        $expected = [
+            'definitions' => [
+                [
+                    'fields' => [],
+                ],
+            ],
+        ];
+        $this->assertArraySubset($expected, $doc->toArray(true));
+    }
+
     private function typeNode($name, $loc)
     {
         return [

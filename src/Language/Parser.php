@@ -62,23 +62,32 @@ class Parser
      * Available options:
      *
      * noLocation: boolean,
-     * (By default, the parser creates AST nodes that know the location
-     * in the source that they correspond to. This configuration flag
-     * disables that behavior for performance or testing.)
+     *   (By default, the parser creates AST nodes that know the location
+     *   in the source that they correspond to. This configuration flag
+     *   disables that behavior for performance or testing.)
+     *
+     *
+     * allowLegacySDLEmptyFields: boolean
+     *   If enabled, the parser will parse empty fields sets in the Schema
+     *   Definition Language. Otherwise, the parser will follow the current
+     *   specification.
+     *
+     *   This option is provided to ease adoption of the final SDL specification
+     *   and will be removed in a future major release.
      *
      * experimentalFragmentVariables: boolean,
-     * (If enabled, the parser will understand and parse variable definitions
-     * contained in a fragment definition. They'll be represented in the
-     * `variableDefinitions` field of the FragmentDefinitionNode.
+     *   (If enabled, the parser will understand and parse variable definitions
+     *   contained in a fragment definition. They'll be represented in the
+     *   `variableDefinitions` field of the FragmentDefinitionNode.
      *
-     * The syntax is identical to normal, query-defined variables. For example:
+     *   The syntax is identical to normal, query-defined variables. For example:
      *
-     *   fragment A($var: Boolean = false) on T  {
-     *     ...
-     *   }
+     *     fragment A($var: Boolean = false) on T  {
+     *       ...
+     *     }
      *
-     * Note: this feature is experimental and may change or be removed in the
-     * future.)
+     *   Note: this feature is experimental and may change or be removed in the
+     *   future.)
      *
      * @api
      * @param Source|string $source
@@ -1083,6 +1092,16 @@ class Parser
      */
     function parseFieldsDefinition()
     {
+        // Legacy support for the SDL?
+        if (
+            !empty($this->lexer->options['allowLegacySDLEmptyFields']) &&
+            $this->peek(Token::BRACE_L) &&
+            $this->lexer->lookahead()->kind === Token::BRACE_R
+        ) {
+            $this->lexer->advance();
+            $this->lexer->advance();
+            return [];
+        }
         return $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
@@ -1177,6 +1196,9 @@ class Parser
     }
 
     /**
+     * UnionTypeDefinition :
+     *   - Description? union Name Directives[Const]? UnionMemberTypes?
+     *
      * @return UnionTypeDefinitionNode
      * @throws SyntaxError
      */
@@ -1187,7 +1209,7 @@ class Parser
         $this->expectKeyword('union');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $types = $this->parseMemberTypesDefinition();
+        $types = $this->parseUnionMemberTypes();
 
         return new UnionTypeDefinitionNode([
             'name' => $name,
@@ -1199,13 +1221,13 @@ class Parser
     }
 
     /**
-     * MemberTypes :
-     *   - `|`? NamedType
-     *   - MemberTypes | NamedType
+     * UnionMemberTypes :
+     *   - = `|`? NamedType
+     *   - UnionMemberTypes | NamedType
      *
      * @return NamedTypeNode[]
      */
-    function parseMemberTypesDefinition()
+    function parseUnionMemberTypes()
     {
         $types = [];
         if ($this->skip(Token::EQUALS)) {
@@ -1424,6 +1446,10 @@ class Parser
     }
 
     /**
+     * UnionTypeExtension :
+     *   - extend union Name Directives[Const]? UnionMemberTypes
+     *   - extend union Name Directives[Const]
+     *
      * @return UnionTypeExtensionNode
      * @throws SyntaxError
      */
@@ -1433,7 +1459,7 @@ class Parser
         $this->expectKeyword('union');
         $name = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $types = $this->parseMemberTypesDefinition();
+        $types = $this->parseUnionMemberTypes();
         if (
             count($directives) === 0 &&
             !$types
