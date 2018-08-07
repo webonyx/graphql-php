@@ -200,95 +200,68 @@ class Printer
                     return $def->operation . ': ' . $def->type;
                 },
 
-                NodeKind::SCALAR_TYPE_DEFINITION => function(ScalarTypeDefinitionNode $def) {
+                NodeKind::SCALAR_TYPE_DEFINITION => $this->addDescription(function(ScalarTypeDefinitionNode $def) {
+                    return $this->join(['scalar', $def->name, $this->join($def->directives, ' ')], ' ');
+                }),
+                NodeKind::OBJECT_TYPE_DEFINITION => $this->addDescription(function(ObjectTypeDefinitionNode $def) {
                     return $this->join([
-                        $def->description,
-                        $this->join(['scalar', $def->name, $this->join($def->directives, ' ')], ' ')
-                    ], "\n");
-                },
-                NodeKind::OBJECT_TYPE_DEFINITION => function(ObjectTypeDefinitionNode $def) {
+                        'type',
+                        $def->name,
+                        $this->wrap('implements ', $this->join($def->interfaces, ' & ')),
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields)
+                    ], ' ');
+                }),
+                NodeKind::FIELD_DEFINITION => $this->addDescription(function(FieldDefinitionNode $def) {
+                    return $def->name
+                     . $this->wrap('(', $this->join($def->arguments, ', '), ')')
+                     . ': ' . $def->type
+                     . $this->wrap(' ', $this->join($def->directives, ' '));
+                }),
+                NodeKind::INPUT_VALUE_DEFINITION => $this->addDescription(function(InputValueDefinitionNode $def) {
                     return $this->join([
-                        $def->description,
-                        $this->join([
-                            'type',
-                            $def->name,
-                            $this->wrap('implements ', $this->join($def->interfaces, ' & ')),
-                            $this->join($def->directives, ' '),
-                            $this->block($def->fields)
-                        ], ' ')
-                    ], "\n");
-                },
-                NodeKind::FIELD_DEFINITION => function(FieldDefinitionNode $def) {
+                        $def->name . ': ' . $def->type,
+                        $this->wrap('= ', $def->defaultValue),
+                        $this->join($def->directives, ' ')
+                    ], ' ');
+                }),
+                NodeKind::INTERFACE_TYPE_DEFINITION => $this->addDescription(function(InterfaceTypeDefinitionNode $def) {
                     return $this->join([
-                        $def->description,
-                        $def->name
-                         . $this->wrap('(', $this->join($def->arguments, ', '), ')')
-                         . ': ' . $def->type
-                         . $this->wrap(' ', $this->join($def->directives, ' '))
-                    ], "\n");
-                },
-                NodeKind::INPUT_VALUE_DEFINITION => function(InputValueDefinitionNode $def) {
+                        'interface',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields)
+                    ], ' ');
+                }),
+                NodeKind::UNION_TYPE_DEFINITION => $this->addDescription(function(UnionTypeDefinitionNode $def) {
                     return $this->join([
-                        $def->description,
-                        $this->join([
-                            $def->name . ': ' . $def->type,
-                            $this->wrap('= ', $def->defaultValue),
-                            $this->join($def->directives, ' ')
-                        ], ' ')
-                    ], "\n");
-                },
-                NodeKind::INTERFACE_TYPE_DEFINITION => function(InterfaceTypeDefinitionNode $def) {
+                        'union',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $def->types
+                            ? '= ' . $this->join($def->types, ' | ')
+                            : ''
+                    ], ' ');
+                }),
+                NodeKind::ENUM_TYPE_DEFINITION => $this->addDescription(function(EnumTypeDefinitionNode $def) {
                     return $this->join([
-                        $def->description,
-                        $this->join([
-                            'interface',
-                            $def->name,
-                            $this->join($def->directives, ' '),
-                            $this->block($def->fields)
-                        ], ' ')
-                    ], "\n");
-                },
-                NodeKind::UNION_TYPE_DEFINITION => function(UnionTypeDefinitionNode $def) {
+                        'enum',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $this->block($def->values)
+                    ], ' ');
+                }),
+                NodeKind::ENUM_VALUE_DEFINITION => $this->addDescription(function(EnumValueDefinitionNode $def) {
+                    return $this->join([$def->name, $this->join($def->directives, ' ')], ' ');
+                }),
+                NodeKind::INPUT_OBJECT_TYPE_DEFINITION => $this->addDescription(function(InputObjectTypeDefinitionNode $def) {
                     return $this->join([
-                        $def->description,
-                        $this->join([
-                            'union',
-                            $def->name,
-                            $this->join($def->directives, ' '),
-                            $def->types
-                                ? '= ' . $this->join($def->types, ' | ')
-                                : ''
-                        ], ' ')
-                    ], "\n");
-                },
-                NodeKind::ENUM_TYPE_DEFINITION => function(EnumTypeDefinitionNode $def) {
-                    return $this->join([
-                        $def->description,
-                        $this->join([
-                            'enum',
-                            $def->name,
-                            $this->join($def->directives, ' '),
-                            $this->block($def->values)
-                        ], ' ')
-                    ], "\n");
-                },
-                NodeKind::ENUM_VALUE_DEFINITION => function(EnumValueDefinitionNode $def) {
-                    return $this->join([
-                        $def->description,
-                        $this->join([$def->name, $this->join($def->directives, ' ')], ' ')
-                    ], "\n");
-                },
-                NodeKind::INPUT_OBJECT_TYPE_DEFINITION => function(InputObjectTypeDefinitionNode $def) {
-                    return $this->join([
-                        $def->description,
-                        $this->join([
-                            'input',
-                            $def->name,
-                            $this->join($def->directives, ' '),
-                            $this->block($def->fields)
-                        ], ' ')
-                    ], "\n");
-                },
+                        'input',
+                        $def->name,
+                        $this->join($def->directives, ' '),
+                        $this->block($def->fields)
+                    ], ' ');
+                }),
                 NodeKind::SCALAR_TYPE_EXTENSION => function(ScalarTypeExtensionNode $def) {
                     return $this->join([
                         'extend scalar',
@@ -339,15 +312,21 @@ class Printer
                         $this->block($def->fields),
                     ], ' ');
                 },
-                NodeKind::DIRECTIVE_DEFINITION => function(DirectiveDefinitionNode $def) {
-                    return $this->join([
-                        $def->description,
-                        'directive @' . $def->name . $this->wrap('(', $this->join($def->arguments, ', '), ')')
-                        . ' on ' . $this->join($def->locations, ' | ')
-                    ], "\n");
-                }
+                NodeKind::DIRECTIVE_DEFINITION => $this->addDescription(function(DirectiveDefinitionNode $def) {
+                    return 'directive @'
+                        . $def->name
+                        . $this->wrap('(', $this->join($def->arguments, ', '), ')')
+                        . ' on ' . $this->join($def->locations, ' | ');
+                })
             ]
         ]);
+    }
+
+    public function addDescription(\Closure $cb)
+    {
+        return function ($node) use ($cb) {
+            return $this->join([$node->description, $cb($node)]);
+        };
     }
 
     /**
