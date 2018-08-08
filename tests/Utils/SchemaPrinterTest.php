@@ -21,7 +21,9 @@ class SchemaPrinterTest extends TestCase
 
     private function printForTest($schema)
     {
-        return "\n" . SchemaPrinter::doPrint($schema);
+        $schemaText = SchemaPrinter::doPrint($schema);
+        $this->assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
+        return "\n" . $schemaText;
     }
 
     private function printSingleFieldSchema($fieldConfig)
@@ -464,7 +466,7 @@ interface Baaz {
   int: Int
 }
 
-type Bar implements Foo, Baaz {
+type Bar implements Foo & Baaz {
   str: String
   int: Int
 }
