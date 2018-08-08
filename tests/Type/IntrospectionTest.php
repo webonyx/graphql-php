@@ -1077,7 +1077,7 @@ class IntrospectionTest extends TestCase
         $TestInputObject = new InputObjectType([
             'name' => 'TestInputObject',
             'fields' => [
-                'a' => ['type' => Type::string(), 'defaultValue' => 'foo'],
+                'a' => ['type' => Type::string(), 'defaultValue' => "tes\t de\fault"],
                 'b' => ['type' => Type::listOf(Type::string())],
                 'c' => ['type' => Type::string(), 'defaultValue' => null ]
             ]
@@ -1099,15 +1099,13 @@ class IntrospectionTest extends TestCase
         $schema = new Schema(['query' => $TestType]);
         $request = '
           {
-            __schema {
-              types {
-                kind
+            __type(name: "TestInputObject") {
+              kind
+              name
+              inputFields {
                 name
-                inputFields {
-                  name
-                  type { ...TypeRef }
-                  defaultValue
-                }
+                type { ...TypeRef }
+                defaultValue
               }
             }
           }
@@ -1142,7 +1140,7 @@ class IntrospectionTest extends TestCase
                         'name' => 'String',
                         'ofType' => null
                     ],
-                    'defaultValue' => '"foo"'
+                    'defaultValue' => '"tes\t de\fault"'
                 ],
                 [
                     'name' => 'b',
@@ -1166,9 +1164,8 @@ class IntrospectionTest extends TestCase
         ];
 
         $result = GraphQL::executeQuery($schema, $request)->toArray();
-        $result = $result['data']['__schema']['types'];
-        // $this->assertEquals($expectedFragment, $result[1]);
-        $this->assertContains($expectedFragment, $result);
+        $result = $result['data']['__type'];
+        $this->assertEquals($expectedFragment, $result);
     }
 
     /**
