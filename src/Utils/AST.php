@@ -39,6 +39,8 @@ use GraphQL\Type\Schema;
  */
 class AST
 {
+    public static $integerStringRegExp = '/^-?(0|[1-9][0-9]*)$/';
+
     /**
      * Convert representation of AST as an associative array to instance of GraphQL\Language\AST\Node.
      *
@@ -250,7 +252,7 @@ class AST
                 // Use json_encode, which uses the same string encoding as GraphQL,
                 // then remove the quotes.
                 return new StringValueNode([
-                    'value' => substr(json_encode($serialized), 1, -1)
+                    'value' => $serialized
                 ]);
             }
 

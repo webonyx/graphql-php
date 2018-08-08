@@ -27,7 +27,7 @@ class SchemaPrinterTest extends TestCase
     private function printSingleFieldSchema($fieldConfig)
     {
         $query = new ObjectType([
-            'name' => 'Query',
+            'name' => 'Root',
             'fields' => [
                 'singleField' => $fieldConfig
             ]
@@ -44,7 +44,11 @@ class SchemaPrinterTest extends TestCase
             'type' => Type::string()
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField: String
 }
 ', $output);
@@ -59,7 +63,11 @@ type Query {
             'type' => Type::listOf(Type::string())
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField: [String]
 }
 ', $output);
@@ -74,7 +82,11 @@ type Query {
             'type' => Type::nonNull(Type::string())
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField: String!
 }
 ', $output);
@@ -89,7 +101,11 @@ type Query {
             'type' => Type::nonNull(Type::listOf(Type::string()))
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField: [String]!
 }
 ', $output);
@@ -104,7 +120,11 @@ type Query {
             'type' => Type::listOf(Type::nonNull(Type::string()))
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField: [String!]
 }
 ', $output);
@@ -119,7 +139,11 @@ type Query {
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField: [String!]!
 }
 ', $output);
@@ -167,7 +191,11 @@ type Root {
             'args' => ['argOne' => ['type' => Type::int()]]
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField(argOne: Int): String
 }
 ', $output);
@@ -183,8 +211,32 @@ type Query {
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]]
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField(argOne: Int = 2): String
+}
+', $output);
+    }
+
+    /**
+     * @it Prints String Field With String Arg With Default
+     */
+    public function testPrintsStringFieldWithStringArgWithDefault()
+    {
+        $output = $this->printSingleFieldSchema([
+            'type' => Type::string(),
+            'args' => ['argOne' => ['type' => Type::string(), 'defaultValue' => "tes\t de\fault"]],
+        ]);
+        $this->assertEquals('
+schema {
+  query: Root
+}
+
+type Root {
+  singleField(argOne: String = "tes\t de\fault"): String
 }
 ', $output);
     }
@@ -199,7 +251,11 @@ type Query {
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]]
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField(argOne: Int = null): String
 }
 ', $output);
@@ -215,7 +271,11 @@ type Query {
             'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]]
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField(argOne: Int!): String
 }
 ', $output);
@@ -234,7 +294,11 @@ type Query {
             ]
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField(argOne: Int, argTwo: String): String
 }
 ', $output);
@@ -254,7 +318,11 @@ type Query {
             ]
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField(argOne: Int = 1, argTwo: String, argThree: Boolean): String
 }
 ', $output);
@@ -274,7 +342,11 @@ type Query {
             ]
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField(argOne: Int, argTwo: String = "foo", argThree: Boolean): String
 }
 ', $output);
@@ -294,7 +366,11 @@ type Query {
             ]
         ]);
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   singleField(argOne: Int, argTwo: String, argThree: Boolean = false): String
 }
 ', $output);
@@ -619,13 +695,17 @@ type Query {
         ]);
 
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   """This field is awesome"""
   singleField: String
 }
 ', $output);
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Root'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }
@@ -642,7 +722,11 @@ type Query {
         ]);
 
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   """
   This field is "awesome"
   """
@@ -650,7 +734,7 @@ type Query {
 }
 ', $output);
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Root'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }
@@ -667,14 +751,18 @@ type Query {
         ]);
 
         $this->assertEquals('
-type Query {
+schema {
+  query: Root
+}
+
+type Root {
   """    This field is "awesome"
   """
   singleField: String
 }
 ', $output);
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Root'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }

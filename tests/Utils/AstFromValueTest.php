@@ -40,6 +40,7 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsIntValuesToASTs()
     {
+        $this->assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::int()));
         $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::int()));
         $this->assertEquals(new IntValueNode(['value' => '10000']), AST::astFromValue(1e4, Type::int()));
         $this->assertEquals(new IntValueNode(['value' => '0']), AST::astFromValue(0e4, Type::int()));
@@ -66,6 +67,7 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsFloatValuesToIntOrFloatASTs()
     {
+        $this->assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::float()));
         $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::float()));
         $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::float()));
         $this->assertEquals(new FloatValueNode(['value' => '123.5']), AST::astFromValue(123.5, Type::float()));
@@ -81,7 +83,7 @@ class AstFromValueTest extends TestCase
     {
         $this->assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::string()));
         $this->assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::string()));
-        $this->assertEquals(new StringValueNode(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::string()));
+        $this->assertEquals(new StringValueNode(['value' => "VA\nLUE"]), AST::astFromValue("VA\nLUE", Type::string()));
         $this->assertEquals(new StringValueNode(['value' => '123']), AST::astFromValue(123, Type::string()));
         $this->assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::string()));
         $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::string()));
@@ -95,8 +97,11 @@ class AstFromValueTest extends TestCase
     {
         $this->assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::id()));
         $this->assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::id()));
-        $this->assertEquals(new StringValueNode(['value' => 'VA\\nLUE']), AST::astFromValue("VA\nLUE", Type::id()));
+        $this->assertEquals(new StringValueNode(['value' => "VA\nLUE"]), AST::astFromValue("VA\nLUE", Type::id()));
+        $this->assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::id()));
         $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::id()));
+        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue('123', Type::id()));
+        $this->assertEquals(new StringValueNode(['value' => '01']), AST::astFromValue('01', Type::id()));
         $this->assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::id()));
         $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::id()));
         $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::id())));
