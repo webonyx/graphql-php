@@ -141,6 +141,21 @@ class TypeInfo
     }
 
     /**
+     * @param Directive $directive
+     * @param array $typeMap
+     * @return array
+     */
+    public static function extractTypesFromDirectives(Directive $directive, array $typeMap = [])
+    {
+        if (is_array($directive->args)) {
+            foreach ($directive->args as $arg) {
+                $typeMap = self::extractTypes($arg->getType(), $typeMap);
+            }
+        }
+        return $typeMap;
+    }
+
+    /**
      * Not exactly the same as the executor's definition of getFieldDef, in this
      * statically evaluated environment we do not always have an Object type,
      * and need to handle Interface and Union types.

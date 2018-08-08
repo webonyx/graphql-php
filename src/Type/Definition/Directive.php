@@ -157,6 +157,18 @@ class Directive
      */
     public function __construct(array $config)
     {
+        if (isset($config['args'])) {
+            $args = [];
+            foreach ($config['args'] as $name => $arg) {
+                if (is_array($arg)) {
+                    $args[] = FieldDefinition::create($arg + ['name' => $name]);
+                } else {
+                    $args[] = $arg;
+                }
+            }
+            $this->args = $args;
+            unset($config['args']);
+        }
         foreach ($config as $key => $value) {
             $this->{$key} = $value;
         }

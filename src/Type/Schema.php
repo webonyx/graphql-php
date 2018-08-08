@@ -227,6 +227,11 @@ class Schema
         foreach ($this->resolvedTypes as $type) {
             $typeMap = TypeInfo::extractTypes($type, $typeMap);
         }
+        foreach ($this->getDirectives() as $directive) {
+            if ($directive instanceof Directive) {
+                $typeMap = TypeInfo::extractTypesFromDirectives($directive, $typeMap);
+            }
+        }
         // When types are set as array they are resolved in constructor
         if (is_callable($this->config->types)) {
             foreach ($this->resolveAdditionalTypes() as $type) {
