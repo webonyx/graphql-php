@@ -13,7 +13,7 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Validator\DocumentValidator;
-use GraphQL\Validator\Rules\AbstractValidationRule;
+use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
 
 /**
@@ -272,7 +272,7 @@ class GraphQL
      * Returns standard validation rules implementing GraphQL spec
      *
      * @api
-     * @return AbstractValidationRule[]
+     * @return ValidationRule[]
      */
     public static function getStandardValidationRules()
     {

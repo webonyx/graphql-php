@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class InlineFragmentNode extends Node implements SelectionNode
@@ -19,4 +20,9 @@ class InlineFragmentNode extends Node implements SelectionNode
      * @var SelectionSetNode
      */
     public $selectionSet;
+
+    public function getKind() : string
+    {
+        return NodeKind::INLINE_FRAGMENT;
+    }
 }

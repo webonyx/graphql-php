@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Language\AST;
 
 class FragmentSpreadNode extends Node implements SelectionNode
@@ -14,4 +15,9 @@ class FragmentSpreadNode extends Node implements SelectionNode
      * @var DirectiveNode[]
      */
     public $directives;
+
+    public function getKind() : string
+    {
+        return NodeKind::FRAGMENT_SPREAD;
+    }
 }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
@@ -6,55 +9,56 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Validator\ValidationContext;
+use function sprintf;
 
 /**
  * Class NoUndefinedVariables
  *
  * A GraphQL operation is only valid if all variables encountered, both directly
  * and via fragment spreads, are defined by that operation.
- *
- * @package GraphQL\Validator\Rules
  */
-class NoUndefinedVariables extends AbstractValidationRule
+class NoUndefinedVariables extends ValidationRule
 {
-    static function undefinedVarMessage($varName, $opName = null)
-    {
-        return $opName
-            ? "Variable \"$$varName\" is not defined by operation \"$opName\"."
-            : "Variable \"$$varName\" is not defined.";
-    }
-
     public function getVisitor(ValidationContext $context)
     {
         $variableNameDefined = [];
 
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function() use (&$variableNameDefined) {
+                'enter' => function () use (&$variableNameDefined) {
                     $variableNameDefined = [];
                 },
-                'leave' => function(OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
+                'leave' => function (OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
-                        $node = $usage['node'];
+                        $node    = $usage['node'];
                         $varName = $node->name->value;
 
-                        if (empty($variableNameDefined[$varName])) {
-                            $context->reportError(new Error(
-                                self::undefinedVarMessage(
-                                    $varName,
-                                    $operation->name ? $operation->name->value : null
-                                ),
-                                [ $node, $operation ]
-                            ));
+                        if (! empty($variableNameDefined[$varName])) {
+                            continue;
                         }
+
+                        $context->reportError(new Error(
+                            self::undefinedVarMessage(
+                                $varName,
+                                $operation->name ? $operation->name->value : null
+                            ),
+                            [$node, $operation]
+                        ));
                     }
-                }
+                },
             ],
-            NodeKind::VARIABLE_DEFINITION => function(VariableDefinitionNode $def) use (&$variableNameDefined) {
+            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $def) use (&$variableNameDefined) {
                 $variableNameDefined[$def->variable->name->value] = true;
-            }
+            },
         ];
+    }
+
+    public static function undefinedVarMessage($varName, $opName = null)
+    {
+        return $opName
+            ? sprintf('Variable "$%s" is not defined by operation "%s".', $varName, $opName)
+            : sprintf('Variable "$%s" is not defined.', $varName);
     }
 }

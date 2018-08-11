@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
@@ -7,19 +10,12 @@ use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Validator\ValidationContext;
+use function count;
+use function in_array;
+use function sprintf;
 
-class KnownDirectives extends AbstractValidationRule
+class KnownDirectives extends ValidationRule
 {
-    static function unknownDirectiveMessage($directiveName)
-    {
-        return "Unknown directive \"$directiveName\".";
-    }
-
-    static function misplacedDirectiveMessage($directiveName, $location)
-    {
-        return "Directive \"$directiveName\" may not be used on \"$location\".";
-    }
-
     public function getVisitor(ValidationContext $context)
     {
         return [
@@ -32,39 +28,51 @@ class KnownDirectives extends AbstractValidationRule
                     }
                 }
 
-                if (!$directiveDef) {
+                if (! $directiveDef) {
                     $context->reportError(new Error(
                         self::unknownDirectiveMessage($node->name->value),
                         [$node]
                     ));
+
                     return;
                 }
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if (!$candidateLocation) {
+                if (! $candidateLocation) {
                     $context->reportError(new Error(
                         self::misplacedDirectiveMessage($node->name->value, $node->type),
                         [$node]
                     ));
-                } else if (!in_array($candidateLocation, $directiveDef->locations)) {
+                } elseif (! in_array($candidateLocation, $directiveDef->locations)) {
                     $context->reportError(new Error(
                         self::misplacedDirectiveMessage($node->name->value, $candidateLocation),
-                        [ $node ]
+                        [$node]
                     ));
                 }
-            }
+            },
         ];
     }
 
+    public static function unknownDirectiveMessage($directiveName)
+    {
+        return sprintf('Unknown directive "%s".', $directiveName);
+    }
+
+    /**
+     * @param (Node|NodeList)[] $ancestors
+     */
     private function getDirectiveLocationForASTPath(array $ancestors)
     {
         $appliedTo = $ancestors[count($ancestors) - 1];
         switch ($appliedTo->kind) {
             case NodeKind::OPERATION_DEFINITION:
                 switch ($appliedTo->operation) {
-                    case 'query': return DirectiveLocation::QUERY;
-                    case 'mutation': return DirectiveLocation::MUTATION;
-                    case 'subscription': return DirectiveLocation::SUBSCRIPTION;
+                    case 'query':
+                        return DirectiveLocation::QUERY;
+                    case 'mutation':
+                        return DirectiveLocation::MUTATION;
+                    case 'subscription':
+                        return DirectiveLocation::SUBSCRIPTION;
                 }
                 break;
             case NodeKind::FIELD:
@@ -101,9 +109,15 @@ class KnownDirectives extends AbstractValidationRule
                 return DirectiveLocation::INPUT_OBJECT;
             case NodeKind::INPUT_VALUE_DEFINITION:
                 $parentNode = $ancestors[count($ancestors) - 3];
+
                 return $parentNode instanceof InputObjectTypeDefinitionNode
                     ? DirectiveLocation::INPUT_FIELD_DEFINITION
                     : DirectiveLocation::ARGUMENT_DEFINITION;
         }
+    }
+
+    public static function misplacedDirectiveMessage($directiveName, $location)
+    {
+        return sprintf('Directive "%s" may not be used on "%s".', $directiveName, $location);
     }
 }

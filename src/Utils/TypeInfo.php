@@ -58,7 +58,7 @@ class TypeInfo
     /**
      * @param Schema $schema
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
-     * @return Type
+     * @return Type|null
      * @throws InvariantViolation
      */
     public static function typeFromAST(Schema $schema, $inputTypeNode)
@@ -249,7 +249,7 @@ class TypeInfo
     }
 
     /**
-     * @return CompositeType
+     * @return Type
      */
     function getParentType()
     {
