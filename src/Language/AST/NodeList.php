@@ -1,22 +1,22 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language\AST;
 
 use GraphQL\Utils\AST;
+use function array_merge;
+use function array_splice;
+use function count;
+use function is_array;
 
-/**
- * Class NodeList
- *
- * @package GraphQL\Utils
- */
 class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 {
-    /**
-     * @var array
-     */
+    /** @var Node[]|mixed[] */
     private $nodes;
 
     /**
-     * @param array $nodes
+     * @param Node[]|mixed[] $nodes
      * @return static
      */
     public static function create(array $nodes)
@@ -25,8 +25,8 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * NodeList constructor.
-     * @param array $nodes
+     *
+     * @param Node[]|mixed[] $nodes
      */
     public function __construct(array $nodes)
     {
@@ -78,8 +78,8 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param int $offset
-     * @param int $length
+     * @param int   $offset
+     * @param int   $length
      * @param mixed $replacement
      * @return NodeList
      */
@@ -89,12 +89,12 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @param $list
+     * @param NodeList|Node[] $list
      * @return NodeList
      */
     public function merge($list)
     {
-        if ($list instanceof NodeList) {
+        if ($list instanceof self) {
             $list = $list->nodes;
         }
         return new NodeList(array_merge($this->nodes, $list));

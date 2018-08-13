@@ -6,7 +6,9 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
@@ -25,6 +27,7 @@ class KnownArgumentNames extends ValidationRule
     {
         return [
             NodeKind::ARGUMENT => function (ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
+                /** @var NodeList|Node[] $ancestors */
                 $argDef = $context->getArgument();
                 if ($argDef !== null) {
                     return;

@@ -111,7 +111,7 @@ abstract class QuerySecurityRule extends ValidationRule
         $_astAndDefs           = $astAndDefs ?: new \ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
-            switch ($selection->getKind()) {
+            switch ($selection->kind) {
                 case NodeKind::FIELD:
                     /** @var FieldNode $selection */
                     $fieldName = $selection->name->value;

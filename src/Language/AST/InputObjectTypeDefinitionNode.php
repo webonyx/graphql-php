@@ -1,30 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language\AST;
 
 class InputObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $kind = NodeKind::INPUT_OBJECT_TYPE_DEFINITION;
 
-    /**
-     * @var NameNode
-     */
+    /** @var NameNode */
     public $name;
 
-    /**
-     * @var DirectiveNode[]|null
-     */
+    /** @var DirectiveNode[]|null */
     public $directives;
 
-    /**
-     * @var InputValueDefinitionNode[]|null
-     */
+    /** @var InputValueDefinitionNode[]|null */
     public $fields;
 
-    /**
-     * @var StringValueNode|null
-     */
+    /** @var StringValueNode|null */
     public $description;
+
 }

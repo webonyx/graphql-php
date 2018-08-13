@@ -11,6 +11,7 @@ use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\HasSelectionSet;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\FieldDefinition;
@@ -191,6 +192,7 @@ class ValidationContext
         $spreads = $this->fragmentSpreads[$node] ?? null;
         if (! $spreads) {
             $spreads     = [];
+            /** @var SelectionSetNode[] $setsToVisit */
             $setsToVisit = [$node->selectionSet];
             while (! empty($setsToVisit)) {
                 $set = array_pop($setsToVisit);
