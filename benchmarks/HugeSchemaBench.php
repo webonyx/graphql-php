@@ -2,10 +2,9 @@
 namespace GraphQL\Benchmarks;
 
 use GraphQL\GraphQL;
-use GraphQL\Schema;
 use GraphQL\Benchmarks\Utils\QueryGenerator;
 use GraphQL\Benchmarks\Utils\SchemaGenerator;
-use GraphQL\Type\LazyResolution;
+use GraphQL\Type\Schema;
 
 /**
  * @BeforeMethods({"setUp"})
@@ -22,8 +21,6 @@ class HugeSchemaBench
     private $schemaBuilder;
 
     private $schema;
-
-    private $lazySchema;
 
     /**
      * @var string
