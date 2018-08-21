@@ -119,7 +119,7 @@ static function getStandardTypes()
  * Returns standard validation rules implementing GraphQL spec
  *
  * @api
- * @return AbstractValidationRule[]
+ * @return ValidationRule[]
  */
 static function getStandardValidationRules()
 ```
@@ -1241,7 +1241,7 @@ an empty array if no errors were encountered and the document is valid.
 A list of specific validation rules may be provided. If not provided, the
 default list of rules defined by the GraphQL specification will be used.
 
-Each validation rule is an instance of GraphQL\Validator\Rules\AbstractValidationRule
+Each validation rule is an instance of GraphQL\Validator\Rules\ValidationRule
 which returns a visitor (see the [GraphQL\Language\Visitor API](reference.md#graphqllanguagevisitor)).
 
 Visitor methods are expected to return an instance of [GraphQL\Error\Error](reference.md#graphqlerrorerror),
@@ -1258,7 +1258,7 @@ will be created from the provided schema.
  * @api
  * @param Schema $schema
  * @param DocumentNode $ast
- * @param AbstractValidationRule[]|null $rules
+ * @param ValidationRule[]|null $rules
  * @param TypeInfo|null $typeInfo
  * @return Error[]
  */
@@ -1275,7 +1275,7 @@ static function validate(
  * Returns all global validation rules.
  *
  * @api
- * @return AbstractValidationRule[]
+ * @return ValidationRule[]
  */
 static function allRules()
 ```
@@ -1289,7 +1289,7 @@ static function allRules()
  *
  * @api
  * @param string $name
- * @return AbstractValidationRule
+ * @return ValidationRule
  */
 static function getRule($name)
 ```
@@ -1299,9 +1299,9 @@ static function getRule($name)
  * Add rule to list of global validation rules
  *
  * @api
- * @param AbstractValidationRule $rule
+ * @param ValidationRule $rule
  */
-static function addRule(GraphQL\Validator\Rules\AbstractValidationRule $rule)
+static function addRule(GraphQL\Validator\Rules\ValidationRule $rule)
 ```
 # GraphQL\Error\Error
 Describes an Error found during the parse, validate, or

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
@@ -6,9 +9,11 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Validator\ValidationContext;
 
-class DisableIntrospection extends AbstractQuerySecurity
+class DisableIntrospection extends QuerySecurityRule
 {
-    const ENABLED = 1;
+    public const ENABLED = 1;
+
+    /** @var bool */
     private $isEnabled;
 
     public function __construct($enabled = self::ENABLED)
@@ -21,7 +26,26 @@ class DisableIntrospection extends AbstractQuerySecurity
         $this->isEnabled = $enabled;
     }
 
-    static function introspectionDisabledMessage()
+    public function getVisitor(ValidationContext $context)
+    {
+        return $this->invokeIfNeeded(
+            $context,
+            [
+                NodeKind::FIELD => function (FieldNode $node) use ($context) {
+                    if ($node->name->value !== '__type' && $node->name->value !== '__schema') {
+                        return;
+                    }
+
+                    $context->reportError(new Error(
+                        static::introspectionDisabledMessage(),
+                        [$node]
+                    ));
+                },
+            ]
+        );
+    }
+
+    public static function introspectionDisabledMessage()
     {
         return 'GraphQL introspection is not allowed, but the query contained __schema or __type';
     }
@@ -29,22 +53,5 @@ class DisableIntrospection extends AbstractQuerySecurity
     protected function isEnabled()
     {
         return $this->isEnabled !== static::DISABLED;
-    }
-
-    public function getVisitor(ValidationContext $context)
-    {
-        return $this->invokeIfNeeded(
-            $context,
-            [
-                NodeKind::FIELD => function (FieldNode $node) use ($context) {
-                    if ($node->name->value === '__type' || $node->name->value === '__schema') {
-                        $context->reportError(new Error(
-                            static::introspectionDisabledMessage(),
-                            [$node]
-                        ));
-                    }
-                }
-            ]
-        );
     }
 }

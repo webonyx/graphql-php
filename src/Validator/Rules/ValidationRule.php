@@ -1,10 +1,16 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Validator\ValidationContext;
+use function class_alias;
+use function get_class;
 
-abstract class AbstractValidationRule
+abstract class ValidationRule
 {
+    /** @var string */
     protected $name;
 
     public function getName()
@@ -21,8 +27,9 @@ abstract class AbstractValidationRule
      * Returns structure suitable for GraphQL\Language\Visitor
      *
      * @see \GraphQL\Language\Visitor
-     * @param ValidationContext $context
-     * @return array
+     * @return mixed[]
      */
     abstract public function getVisitor(ValidationContext $context);
 }
+
+class_alias(ValidationRule::class, 'GraphQL\Validator\Rules\AbstractValidationRule');

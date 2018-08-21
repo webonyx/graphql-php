@@ -7,11 +7,11 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Printer;
-use GraphQL\Schema;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\WrappingType;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 
 class QueryGenerator

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language\AST;
 
 use GraphQL\Language\Source;
@@ -46,27 +49,29 @@ class Location
     public $source;
 
     /**
-     * @param $start
-     * @param $end
+     * @param int $start
+     * @param int $end
      * @return static
      */
     public static function create($start, $end)
     {
-        $tmp = new static();
+        $tmp        = new static();
         $tmp->start = $start;
-        $tmp->end = $end;
+        $tmp->end   = $end;
         return $tmp;
     }
 
-    public function __construct(Token $startToken = null, Token $endToken = null, Source $source = null)
+    public function __construct(?Token $startToken = null, ?Token $endToken = null, ?Source $source = null)
     {
         $this->startToken = $startToken;
-        $this->endToken = $endToken;
-        $this->source = $source;
+        $this->endToken   = $endToken;
+        $this->source     = $source;
 
-        if ($startToken && $endToken) {
-            $this->start = $startToken->start;
-            $this->end = $endToken->end;
+        if (! $startToken || ! $endToken) {
+            return;
         }
+
+        $this->start = $startToken->start;
+        $this->end   = $endToken->end;
     }
 }

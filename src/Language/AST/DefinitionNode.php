@@ -1,11 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language\AST;
 
-interface DefinitionNode
-{
 /**
  * export type DefinitionNode =
  *   | ExecutableDefinitionNode
  *   | TypeSystemDefinitionNode; // experimental non-spec addition.
  */
+interface DefinitionNode
+{
 }

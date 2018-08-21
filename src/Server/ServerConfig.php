@@ -8,7 +8,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\Rules\AbstractValidationRule;
+use GraphQL\Validator\Rules\ValidationRule;
 use function is_array;
 use function is_callable;
 use function method_exists;
@@ -73,7 +73,7 @@ class ServerConfig
     /** @var bool */
     private $queryBatching = false;
 
-    /** @var AbstractValidationRule[]|callable */
+    /** @var ValidationRule[]|callable */
     private $validationRules;
 
     /** @var callable */
@@ -150,7 +150,7 @@ class ServerConfig
      * Set validation rules for this server.
      *
      * @api
-     * @param AbstractValidationRule[]|callable $validationRules
+     * @param ValidationRule[]|callable $validationRules
      * @return self
      */
     public function setValidationRules($validationRules)
@@ -281,7 +281,7 @@ class ServerConfig
     }
 
     /**
-     * @return AbstractValidationRule[]|callable
+     * @return ValidationRule[]|callable
      */
     public function getValidationRules()
     {

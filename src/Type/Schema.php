@@ -204,7 +204,7 @@ class Schema
      *
      * @api
      * @param string $name
-     * @return Type
+     * @return Type|null
      */
     public function getType($name)
     {

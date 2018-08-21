@@ -8,9 +8,9 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Utils\Utils;
+use Traversable;
 use function array_filter;
 use function array_map;
-use function array_merge;
 use function is_array;
 use function iterator_to_array;
 
@@ -81,12 +81,12 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
     protected $extensions;
 
     /**
-     * @param string       $message
-     * @param Node[]|null  $nodes
-     * @param mixed[]|null $positions
-     * @param mixed[]|null $path
-     * @param \Throwable   $previous
-     * @param mixed[]      $extensions
+     * @param string                       $message
+     * @param Node|Node[]|Traversable|null $nodes
+     * @param mixed[]|null                 $positions
+     * @param mixed[]|null                 $path
+     * @param \Throwable                   $previous
+     * @param mixed[]                      $extensions
      */
     public function __construct(
         $message,
@@ -271,7 +271,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
                 $this->locations = array_filter(
                     array_map(
                         function ($node) {
-                            if ($node->loc) {
+                            if ($node->loc && $node->loc->source) {
                                 return $node->loc->source->getLocation($node->loc->start);
                             }
                         },

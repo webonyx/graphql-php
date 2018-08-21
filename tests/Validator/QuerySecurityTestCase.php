@@ -5,7 +5,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
-use GraphQL\Validator\Rules\AbstractQuerySecurity;
+use GraphQL\Validator\Rules\QuerySecurityRule;
 use PHPUnit\Framework\TestCase;
 
 abstract class QuerySecurityTestCase extends TestCase
@@ -13,7 +13,7 @@ abstract class QuerySecurityTestCase extends TestCase
     /**
      * @param $max
      *
-     * @return AbstractQuerySecurity
+     * @return QuerySecurityRule
      */
     abstract protected function getRule($max);
 
@@ -89,8 +89,9 @@ abstract class QuerySecurityTestCase extends TestCase
     {
         $this->assertDocumentValidator($query, $maxExpected);
         $newMax = $maxExpected - 1;
-        if ($newMax !== AbstractQuerySecurity::DISABLED) {
-            $this->assertDocumentValidator($query, $newMax, [$this->createFormattedError($newMax, $maxExpected)]);
+        if ($newMax === QuerySecurityRule::DISABLED) {
+            return;
         }
+        $this->assertDocumentValidator($query, $newMax, [$this->createFormattedError($newMax, $maxExpected)]);
     }
 }

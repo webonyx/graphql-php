@@ -1,11 +1,11 @@
 <?php
 namespace GraphQL\Benchmarks\Utils;
 
-use GraphQL\Schema;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 
 class SchemaGenerator
 {
