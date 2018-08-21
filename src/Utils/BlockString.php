@@ -53,7 +53,7 @@ class BlockString {
     private static function leadingWhitespace($str) {
         $i = 0;
         while ($i < mb_strlen($str) && ($str[$i] === ' ' || $str[$i] === '\t')) {
-          $i++;
+            $i++;
         }
 
         return $i;

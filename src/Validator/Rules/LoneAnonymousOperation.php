@@ -6,6 +6,7 @@ namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Utils\Utils;
@@ -28,7 +29,7 @@ class LoneAnonymousOperation extends ValidationRule
             NodeKind::DOCUMENT             => function (DocumentNode $node) use (&$operationCount) {
                 $tmp = Utils::filter(
                     $node->definitions,
-                    function ($definition) {
+                    function (Node $definition) {
                         return $definition->kind === NodeKind::OPERATION_DEFINITION;
                     }
                 );

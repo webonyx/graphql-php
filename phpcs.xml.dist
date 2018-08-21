@@ -90,4 +90,11 @@
             />
         </properties>
     </rule>
+
+    <!-- IDEs sort by PSR12, Slevomat coding standard uses old sorting for BC -->
+    <rule ref="SlevomatCodingStandard.Namespaces.AlphabeticallySortedUses">
+        <properties>
+            <property name="psr12Compatible" type="bool" value="true" />
+        </properties>
+    </rule>
 </ruleset>

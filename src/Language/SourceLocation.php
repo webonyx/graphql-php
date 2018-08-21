@@ -1,30 +1,40 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Language;
 
 class SourceLocation implements \JsonSerializable
 {
+    /** @var int */
     public $line;
+
+    /** @var int */
     public $column;
 
+    /**
+     * @param int $line
+     * @param int $col
+     */
     public function __construct($line, $col)
     {
-        $this->line = $line;
+        $this->line   = $line;
         $this->column = $col;
     }
 
     /**
-     * @return array
+     * @return int[]
      */
     public function toArray()
     {
         return [
-            'line' => $this->line,
-            'column' => $this->column
+            'line'   => $this->line,
+            'column' => $this->column,
         ];
     }
 
     /**
-     * @return array
+     * @return int[]
      */
     public function toSerializableArray()
     {
@@ -32,13 +42,9 @@ class SourceLocation implements \JsonSerializable
     }
 
     /**
-     * Specify data which should be serialized to JSON
-     * @link http://php.net/manual/en/jsonserializable.jsonserialize.php
-     * @return mixed data which can be serialized by <b>json_encode</b>,
-     * which is a value of any type other than a resource.
-     * @since 5.4.0
+     * @return int[]
      */
-    function jsonSerialize()
+    public function jsonSerialize()
     {
         return $this->toSerializableArray();
     }

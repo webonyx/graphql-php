@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\DocumentNode;
@@ -15,6 +18,14 @@ use GraphQL\Language\Visitor;
 use GraphQL\Tests\Validator\ValidatorTestCase;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
+use function array_keys;
+use function array_slice;
+use function count;
+use function file_get_contents;
+use function func_get_args;
+use function gettype;
+use function is_array;
+use function iterator_to_array;
 
 class VisitorTest extends ValidatorTestCase
 {
@@ -34,14 +45,14 @@ class VisitorTest extends ValidatorTestCase
         /** @var Node $node */
         list($node, $key, $parent, $path, $ancestors) = $args;
 
-        $parentArray = $parent && !is_array($parent) ? ($parent instanceof NodeList ? iterator_to_array($parent) : $parent->toArray()) : $parent;
+        $parentArray = $parent && ! is_array($parent) ? ($parent instanceof NodeList ? iterator_to_array($parent) : $parent->toArray()) : $parent;
 
         $this->assertInstanceOf(Node::class, $node);
         $this->assertContains($node->kind, array_keys(NodeKind::$classMap));
 
         $isRoot = $key === null;
         if ($isRoot) {
-            if (!$isEdited) {
+            if (! $isEdited) {
                 $this->assertEquals($ast, $node);
             }
             $this->assertEquals(null, $parent);
@@ -60,14 +71,16 @@ class VisitorTest extends ValidatorTestCase
         $this->assertInternalType('array', $ancestors);
         $this->assertCount(count($path) - 1, $ancestors);
 
-        if (!$isEdited) {
-            $this->assertEquals($node, $parentArray[$key]);
-            $this->assertEquals($node, $this->getNodeByPath($ast, $path));
-            $ancestorsLength = count($ancestors);
-            for ($i = 0; $i < $ancestorsLength; ++$i) {
-                $ancestorPath = array_slice($path, 0, $i);
-                $this->assertEquals($ancestors[$i], $this->getNodeByPath($ast, $ancestorPath));
-            }
+        if ($isEdited) {
+            return;
+        }
+
+        $this->assertEquals($node, $parentArray[$key]);
+        $this->assertEquals($node, $this->getNodeByPath($ast, $path));
+        $ancestorsLength = count($ancestors);
+        for ($i = 0; $i < $ancestorsLength; ++$i) {
+            $ancestorPath = array_slice($path, 0, $i);
+            $this->assertEquals($ancestors[$i], $this->getNodeByPath($ast, $ancestorPath));
         }
     }
 
@@ -104,94 +117,84 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $visited);
     }
 
-    /**
-     * @it allows editing a node both on enter and on leave
-     */
     public function testAllowsEditingNodeOnEnterAndOnLeave()
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
 
         $selectionSet = null;
-        $editedAst = Visitor::visit($ast, [
+        $editedAst    = Visitor::visit($ast, [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function(OperationDefinitionNode $node) use (&$selectionSet, $ast) {
+                'enter' => function (OperationDefinitionNode $node) use (&$selectionSet, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
                     $selectionSet = $node->selectionSet;
 
-                    $newNode = clone $node;
+                    $newNode               = clone $node;
                     $newNode->selectionSet = new SelectionSetNode([
-                        'selections' => []
+                        'selections' => [],
                     ]);
-                    $newNode->didEnter = true;
+                    $newNode->didEnter     = true;
                     return $newNode;
                 },
-                'leave' => function(OperationDefinitionNode $node) use (&$selectionSet, $ast) {
+                'leave' => function (OperationDefinitionNode $node) use (&$selectionSet, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args(), true);
-                    $newNode = clone $node;
+                    $newNode               = clone $node;
                     $newNode->selectionSet = $selectionSet;
-                    $newNode->didLeave = true;
+                    $newNode->didLeave     = true;
                     return $newNode;
-                }
-            ]
+                },
+            ],
         ]);
 
         $this->assertNotEquals($ast, $editedAst);
 
-        $expected = $ast->cloneDeep();
+        $expected                           = $ast->cloneDeep();
         $expected->definitions[0]->didEnter = true;
         $expected->definitions[0]->didLeave = true;
 
         $this->assertEquals($expected, $editedAst);
     }
 
-    /**
-     * @it allows editing the root node on enter and on leave
-     */
     public function testAllowsEditingRootNodeOnEnterAndLeave()
     {
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
+        $ast         = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
         $definitions = $ast->definitions;
 
         $editedAst = Visitor::visit($ast, [
             NodeKind::DOCUMENT => [
                 'enter' => function (DocumentNode $node) use ($ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $tmp = clone $node;
+                    $tmp              = clone $node;
                     $tmp->definitions = [];
-                    $tmp->didEnter = true;
+                    $tmp->didEnter    = true;
                     return $tmp;
                 },
-                'leave' => function(DocumentNode $node) use ($definitions, $ast) {
+                'leave' => function (DocumentNode $node) use ($definitions, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args(), true);
-                    $tmp = clone $node;
                     $node->definitions = $definitions;
-                    $node->didLeave = true;
-                }
-            ]
+                    $node->didLeave    = true;
+                },
+            ],
         ]);
 
         $this->assertNotEquals($ast, $editedAst);
 
-        $tmp = $ast->cloneDeep();
+        $tmp           = $ast->cloneDeep();
         $tmp->didEnter = true;
         $tmp->didLeave = true;
 
         $this->assertEquals($tmp, $editedAst);
     }
 
-    /**
-     * @it allows for editing on enter
-     */
     public function testAllowsForEditingOnEnter()
     {
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
+        $ast       = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
-            'enter' => function($node) use ($ast) {
+            'enter' => function ($node) use ($ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::removeNode();
                 }
-            }
+            },
         ]);
 
         $this->assertEquals(
@@ -204,19 +207,16 @@ class VisitorTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @it allows for editing on leave
-     */
     public function testAllowsForEditingOnLeave()
     {
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
+        $ast       = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
-            'leave' => function($node) use ($ast) {
+            'leave' => function ($node) use ($ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args(), true);
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::removeNode();
                 }
-            }
+            },
         ]);
 
         $this->assertEquals(
@@ -230,60 +230,54 @@ class VisitorTest extends ValidatorTestCase
         );
     }
 
-    /**
-     * @it visits edited node
-     */
     public function testVisitsEditedNode()
     {
-        $addedField = new FieldNode(array(
-            'name' => new NameNode(array(
-                'value' => '__typename'
-            ))
-        ));
+        $addedField = new FieldNode([
+            'name' => new NameNode(['value' => '__typename']),
+        ]);
 
         $didVisitAddedField = false;
 
         $ast = Parser::parse('{ a { x } }', ['noLocation' => true]);
 
         Visitor::visit($ast, [
-            'enter' => function($node) use ($addedField, &$didVisitAddedField, $ast) {
+            'enter' => function ($node) use ($addedField, &$didVisitAddedField, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args(), true);
                 if ($node instanceof FieldNode && $node->name->value === 'a') {
                     return new FieldNode([
-                        'selectionSet' => new SelectionSetNode(array(
-                            'selections' => NodeList::create([$addedField])->merge($node->selectionSet->selections)
-                        ))
+                        'selectionSet' => new SelectionSetNode([
+                            'selections' => NodeList::create([$addedField])->merge($node->selectionSet->selections),
+                        ]),
                     ]);
                 }
-                if ($node === $addedField) {
-                    $didVisitAddedField = true;
+                if ($node !== $addedField) {
+                    return;
                 }
-            }
+
+                $didVisitAddedField = true;
+            },
         ]);
 
         $this->assertTrue($didVisitAddedField);
     }
 
-    /**
-     * @it allows skipping a sub-tree
-     */
     public function testAllowsSkippingASubTree()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
+        $ast     = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
 
         Visitor::visit($ast, [
-            'enter' => function(Node $node) use (&$visited, $ast) {
+            'enter' => function (Node $node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['enter', $node->kind, $node->value ?? null];
                 if ($node instanceof FieldNode && $node->name->value === 'b') {
                     return Visitor::skipNode();
                 }
             },
             'leave' => function (Node $node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
-            }
+                $visited[] = ['leave', $node->kind, $node->value ?? null];
+            },
         ]);
 
         $expected = [
@@ -301,32 +295,29 @@ class VisitorTest extends ValidatorTestCase
             [ 'leave', 'Field', null ],
             [ 'leave', 'SelectionSet', null ],
             [ 'leave', 'OperationDefinition', null ],
-            [ 'leave', 'Document', null ]
+            [ 'leave', 'Document', null ],
         ];
 
         $this->assertEquals($expected, $visited);
     }
 
-    /**
-     * @it allows early exit while visiting
-     */
     public function testAllowsEarlyExitWhileVisiting()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
+        $ast     = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
 
         Visitor::visit($ast, [
-            'enter' => function(Node $node) use (&$visited, $ast) {
+            'enter' => function (Node $node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['enter', $node->kind, $node->value ?? null];
                 if ($node instanceof NameNode && $node->value === 'x') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function(Node $node) use (&$visited, $ast) {
+            'leave' => function (Node $node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
-            }
+                $visited[] = ['leave', $node->kind, $node->value ?? null];
+            },
         ]);
 
         $expected = [
@@ -342,33 +333,30 @@ class VisitorTest extends ValidatorTestCase
             [ 'leave', 'Name', 'b' ],
             [ 'enter', 'SelectionSet', null ],
             [ 'enter', 'Field', null ],
-            [ 'enter', 'Name', 'x' ]
+            [ 'enter', 'Name', 'x' ],
         ];
 
         $this->assertEquals($expected, $visited);
     }
 
-    /**
-     * @it allows early exit while leaving
-     */
     public function testAllowsEarlyExitWhileLeaving()
     {
         $visited = [];
 
         $ast = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
         Visitor::visit($ast, [
-            'enter' => function($node) use (&$visited, $ast) {
+            'enter' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['enter', $node->kind, $node->value ?? null];
             },
-            'leave' => function($node) use (&$visited, $ast) {
+            'leave' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['leave', $node->kind, $node->value ?? null];
 
                 if ($node->kind === NodeKind::NAME && $node->value === 'x') {
                     return Visitor::stop();
                 }
-            }
+            },
         ]);
 
         $this->assertEquals($visited, [
@@ -385,33 +373,30 @@ class VisitorTest extends ValidatorTestCase
             [ 'enter', 'SelectionSet', null ],
             [ 'enter', 'Field', null ],
             [ 'enter', 'Name', 'x' ],
-            [ 'leave', 'Name', 'x' ]
+            [ 'leave', 'Name', 'x' ],
         ]);
     }
 
-    /**
-     * @it allows a named functions visitor API
-     */
     public function testAllowsANamedFunctionsVisitorAPI()
     {
         $visited = [];
-        $ast = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
+        $ast     = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
 
         Visitor::visit($ast, [
-            NodeKind::NAME => function(NameNode $node) use (&$visited, $ast) {
+            NodeKind::NAME => function (NameNode $node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
                 $visited[] = ['enter', $node->kind, $node->value];
             },
             NodeKind::SELECTION_SET => [
-                'enter' => function(SelectionSetNode $node) use (&$visited, $ast) {
+                'enter' => function (SelectionSetNode $node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['enter', $node->kind, null];
                 },
-                'leave' => function(SelectionSetNode $node) use (&$visited, $ast) {
+                'leave' => function (SelectionSetNode $node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['leave', $node->kind, null];
-                }
-            ]
+                },
+            ],
         ]);
 
         $expected = [
@@ -428,12 +413,9 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $visited);
     }
 
-    /**
-     * @it Experimental: visits variables defined in fragments
-     */
     public function testExperimentalVisitsVariablesDefinedInFragments()
     {
-        $ast = Parser::parse(
+        $ast     = Parser::parse(
             'fragment a($v: Boolean = false) on t { f }',
             [
                 'noLocation' => true,
@@ -443,13 +425,13 @@ class VisitorTest extends ValidatorTestCase
         $visited = [];
 
         Visitor::visit($ast, [
-            'enter' => function($node) use (&$visited, $ast) {
+            'enter' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['enter', $node->kind, $node->value ?? null];
             },
-            'leave' => function($node) use (&$visited, $ast) {
+            'leave' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['leave', $node->kind, $node->value ?? null];
             },
         ]);
 
@@ -487,26 +469,23 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $visited);
     }
 
-    /**
-     * @it visits kitchen sink
-     */
     public function testVisitsKitchenSink()
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast = Parser::parse($kitchenSink);
+        $ast         = Parser::parse($kitchenSink);
 
         $visited = [];
         Visitor::visit($ast, [
-            'enter' => function(Node $node, $key, $parent) use (&$visited, $ast) {
+            'enter' => function (Node $node, $key, $parent) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $r = ['enter', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
+                $r         = ['enter', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
                 $visited[] = $r;
             },
-            'leave' => function(Node $node, $key, $parent) use (&$visited, $ast) {
+            'leave' => function (Node $node, $key, $parent) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $r = ['leave', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
+                $r         = ['leave', $node->kind, $key, $parent instanceof Node ? $parent->kind : null];
                 $visited[] = $r;
-            }
+            },
         ]);
 
         $expected = [
@@ -819,17 +798,15 @@ class VisitorTest extends ValidatorTestCase
             [ 'leave', 'Field', 1, null ],
             [ 'leave', 'SelectionSet', 'selectionSet', 'OperationDefinition' ],
             [ 'leave', 'OperationDefinition', 4, null ],
-            [ 'leave', 'Document', null, null ]
+            [ 'leave', 'Document', null, null ],
         ];
 
         $this->assertEquals($expected, $visited);
     }
 
-    // Describe: visitInParallel
-    // Note: nearly identical to the above test of the same test but using visitInParallel.
-
     /**
-     * @it allows skipping a sub-tree
+     * Describe: visitInParallel
+     * Note: nearly identical to the above test of the same test but using visitInParallel.
      */
     public function testAllowsSkippingSubTree()
     {
@@ -838,20 +815,20 @@ class VisitorTest extends ValidatorTestCase
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function($node) use (&$visited, $ast) {
+                'enter' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = [ 'enter', $node->kind, isset($node->value) ?  $node->value : null];
+                    $visited[] = [ 'enter', $node->kind, $node->value ?? null];
 
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                         return Visitor::skipNode();
                     }
                 },
 
-                'leave' => function($node) use (&$visited, $ast) {
+                'leave' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
-                }
-            ]
+                    $visited[] = ['leave', $node->kind, $node->value ?? null];
+                },
+            ],
         ]));
 
         $this->assertEquals([
@@ -873,9 +850,6 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    /**
-     * @it allows skipping different sub-trees
-     */
     public function testAllowsSkippingDifferentSubTrees()
     {
         $visited = [];
@@ -883,31 +857,31 @@ class VisitorTest extends ValidatorTestCase
         $ast = Parser::parse('{ a { x }, b { y} }');
         Visitor::visit($ast, Visitor::visitInParallel([
         [
-            'enter' => function($node) use (&$visited, $ast) {
+            'enter' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['no-a', 'enter', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['no-a', 'enter', $node->kind, $node->value ?? null];
                 if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'a') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function($node) use (&$visited, $ast) {
+            'leave' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = [ 'no-a', 'leave', $node->kind, isset($node->value) ? $node->value : null ];
-            }
+                $visited[] = [ 'no-a', 'leave', $node->kind, $node->value ?? null ];
+            },
         ],
         [
-            'enter' => function($node) use (&$visited, $ast) {
+            'enter' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['no-b', 'enter', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['no-b', 'enter', $node->kind, $node->value ?? null];
                 if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                     return Visitor::skipNode();
                 }
             },
-            'leave' => function($node) use (&$visited, $ast) {
+            'leave' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['no-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
-            }
-        ]
+                $visited[] = ['no-b', 'leave', $node->kind, $node->value ?? null];
+            },
+        ],
         ]));
 
         $this->assertEquals([
@@ -948,28 +922,26 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    /**
-     * @it allows early exit while visiting
-     */
     public function testAllowsEarlyExitWhileVisiting2()
     {
         $visited = [];
 
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([ [
-            'enter' => function($node) use (&$visited, $ast) {
+            'enter' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $value = isset($node->value) ? $node->value : null;
+                $value     = $node->value ?? null;
                 $visited[] = ['enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'x') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited, $ast) {
+            'leave' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
-            }
-        ] ]));
+                $visited[] = ['leave', $node->kind, $node->value ?? null];
+            },
+        ],
+        ]));
 
         $this->assertEquals([
             [ 'enter', 'Document', null ],
@@ -984,13 +956,10 @@ class VisitorTest extends ValidatorTestCase
             [ 'leave', 'Name', 'b' ],
             [ 'enter', 'SelectionSet', null ],
             [ 'enter', 'Field', null ],
-            [ 'enter', 'Name', 'x' ]
+            [ 'enter', 'Name', 'x' ],
         ], $visited);
     }
 
-    /**
-     * @it allows early exit from different points
-     */
     public function testAllowsEarlyExitFromDifferentPoints()
     {
         $visited = [];
@@ -998,32 +967,32 @@ class VisitorTest extends ValidatorTestCase
         $ast = Parser::parse('{ a { y }, b { x } }');
         Visitor::visit($ast, Visitor::visitInParallel([
         [
-            'enter' => function($node) use (&$visited, $ast) {
+            'enter' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $value = isset($node->value) ? $node->value : null;
+                $value     = $node->value ?? null;
                 $visited[] = ['break-a', 'enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'a') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited, $ast) {
+            'leave' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = [ 'break-a', 'leave', $node->kind, isset($node->value) ? $node->value : null ];
-            }
+                $visited[] = [ 'break-a', 'leave', $node->kind, $node->value ?? null ];
+            },
         ],
         [
-            'enter' => function($node) use (&$visited, $ast) {
+            'enter' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $value = isset($node->value) ? $node->value : null;
+                $value     = $node->value ?? null;
                 $visited[] = ['break-b', 'enter', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'b') {
                     return Visitor::stop();
                 }
             },
-            'leave' => function($node) use (&$visited, $ast) {
+            'leave' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['break-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
-            }
+                $visited[] = ['break-b', 'leave', $node->kind, $node->value ?? null];
+            },
         ],
         ]));
 
@@ -1047,32 +1016,30 @@ class VisitorTest extends ValidatorTestCase
             [ 'break-b', 'leave', 'SelectionSet', null ],
             [ 'break-b', 'leave', 'Field', null ],
             [ 'break-b', 'enter', 'Field', null ],
-            [ 'break-b', 'enter', 'Name', 'b' ]
+            [ 'break-b', 'enter', 'Name', 'b' ],
         ], $visited);
     }
 
-    /**
-     * @it allows early exit while leaving
-     */
     public function testAllowsEarlyExitWhileLeaving2()
     {
         $visited = [];
 
         $ast = Parser::parse('{ a, b { x }, c }');
         Visitor::visit($ast, Visitor::visitInParallel([ [
-            'enter' => function($node) use (&$visited, $ast) {
+            'enter' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                $visited[] = ['enter', $node->kind, $node->value ?? null];
             },
-            'leave' => function($node) use (&$visited, $ast) {
+            'leave' => function ($node) use (&$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
-                $value = isset($node->value) ? $node->value : null;
+                $value     = $node->value ?? null;
                 $visited[] = ['leave', $node->kind, $value];
                 if ($node->kind === 'Name' && $value === 'x') {
                     return Visitor::stop();
                 }
-            }
-        ] ]));
+            },
+        ],
+        ]));
 
         $this->assertEquals([
             [ 'enter', 'Document', null ],
@@ -1088,13 +1055,10 @@ class VisitorTest extends ValidatorTestCase
             [ 'enter', 'SelectionSet', null ],
             [ 'enter', 'Field', null ],
             [ 'enter', 'Name', 'x' ],
-            [ 'leave', 'Name', 'x' ]
+            [ 'leave', 'Name', 'x' ],
         ], $visited);
     }
 
-    /**
-     * @it allows early exit from leaving different points
-     */
     public function testAllowsEarlyExitFromLeavingDifferentPoints()
     {
         $visited = [];
@@ -1102,30 +1066,30 @@ class VisitorTest extends ValidatorTestCase
         $ast = Parser::parse('{ a { y }, b { x } }');
         Visitor::visit($ast, Visitor::visitInParallel([
             [
-                'enter' => function($node) use (&$visited, $ast) {
+                'enter' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['break-a', 'enter', $node->kind, isset($node->value) ? $node->value : null];
+                    $visited[] = ['break-a', 'enter', $node->kind, $node->value ?? null];
                 },
-                'leave' => function($node) use (&$visited, $ast) {
+                'leave' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['break-a', 'leave', $node->kind, isset($node->value) ? $node->value : null];
+                    $visited[] = ['break-a', 'leave', $node->kind, $node->value ?? null];
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'a') {
                         return Visitor::stop();
                     }
-                }
+                },
             ],
             [
-                'enter' => function($node) use (&$visited, $ast) {
+                'enter' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['break-b', 'enter', $node->kind, isset($node->value) ? $node->value : null];
+                    $visited[] = ['break-b', 'enter', $node->kind, $node->value ?? null];
                 },
-                'leave' => function($node) use (&$visited, $ast) {
+                'leave' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['break-b', 'leave', $node->kind, isset($node->value) ? $node->value : null];
+                    $visited[] = ['break-b', 'leave', $node->kind, $node->value ?? null];
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                         return Visitor::stop();
                     }
-                }
+                },
             ],
         ]));
 
@@ -1165,18 +1129,15 @@ class VisitorTest extends ValidatorTestCase
             [ 'break-b', 'leave', 'Name', 'x' ],
             [ 'break-b', 'leave', 'Field', null ],
             [ 'break-b', 'leave', 'SelectionSet', null ],
-            [ 'break-b', 'leave', 'Field', null ]
+            [ 'break-b', 'leave', 'Field', null ],
         ], $visited);
     }
 
-    /**
-     * @it allows for editing on enter
-     */
     public function testAllowsForEditingOnEnter2()
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
+        $ast       = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, Visitor::visitInParallel([
             [
                 'enter' => function ($node) use (&$visited, $ast) {
@@ -1184,17 +1145,17 @@ class VisitorTest extends ValidatorTestCase
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                         return Visitor::removeNode();
                     }
-                }
+                },
             ],
             [
                 'enter' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                    $visited[] = ['enter', $node->kind, $node->value ?? null];
                 },
                 'leave' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args(), true);
-                    $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
-                }
+                    $visited[] = ['leave', $node->kind, $node->value ?? null];
+                },
             ],
         ]));
 
@@ -1232,18 +1193,15 @@ class VisitorTest extends ValidatorTestCase
             ['leave', 'Field', null],
             ['leave', 'SelectionSet', null],
             ['leave', 'OperationDefinition', null],
-            ['leave', 'Document', null]
+            ['leave', 'Document', null],
         ], $visited);
     }
 
-    /**
-     * @it allows for editing on leave
-     */
     public function testAllowsForEditingOnLeave2()
     {
         $visited = [];
 
-        $ast = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
+        $ast       = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, Visitor::visitInParallel([
             [
                 'leave' => function ($node) use (&$visited, $ast) {
@@ -1251,17 +1209,17 @@ class VisitorTest extends ValidatorTestCase
                     if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                         return Visitor::removeNode();
                     }
-                }
+                },
             ],
             [
                 'enter' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args());
-                    $visited[] = ['enter', $node->kind, isset($node->value) ? $node->value : null];
+                    $visited[] = ['enter', $node->kind, $node->value ?? null];
                 },
                 'leave' => function ($node) use (&$visited, $ast) {
                     $this->checkVisitorFnArgs($ast, func_get_args(), true);
-                    $visited[] = ['leave', $node->kind, isset($node->value) ? $node->value : null];
-                }
+                    $visited[] = ['leave', $node->kind, $node->value ?? null];
+                },
             ],
         ]));
 
@@ -1305,14 +1263,13 @@ class VisitorTest extends ValidatorTestCase
             ['leave', 'Field', null],
             ['leave', 'SelectionSet', null],
             ['leave', 'OperationDefinition', null],
-            ['leave', 'Document', null]
+            ['leave', 'Document', null],
         ], $visited);
     }
 
-    // Describe: visitWithTypeInfo
 
     /**
-     * @it maintains type info during visit
+     * Describe: visitWithTypeInfo
      */
     public function testMaintainsTypeInfoDuringVisit()
     {
@@ -1325,31 +1282,31 @@ class VisitorTest extends ValidatorTestCase
             'enter' => function ($node) use ($typeInfo, &$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
                 $parentType = $typeInfo->getParentType();
-                $type = $typeInfo->getType();
-                $inputType = $typeInfo->getInputType();
-                $visited[] = [
+                $type       = $typeInfo->getType();
+                $inputType  = $typeInfo->getInputType();
+                $visited[]  = [
                     'enter',
                     $node->kind,
                     $node->kind === 'Name' ? $node->value : null,
-                    $parentType ? (string)$parentType : null,
-                    $type ? (string)$type : null,
-                    $inputType ? (string)$inputType : null
+                    $parentType ? (string) $parentType : null,
+                    $type ? (string) $type : null,
+                    $inputType ? (string) $inputType : null,
                 ];
             },
             'leave' => function ($node) use ($typeInfo, &$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args());
                 $parentType = $typeInfo->getParentType();
-                $type = $typeInfo->getType();
-                $inputType = $typeInfo->getInputType();
-                $visited[] = [
+                $type       = $typeInfo->getType();
+                $inputType  = $typeInfo->getInputType();
+                $visited[]  = [
                     'leave',
                     $node->kind,
                     $node->kind === 'Name' ? $node->value : null,
-                    $parentType ? (string)$parentType : null,
-                    $type ? (string)$type : null,
-                    $inputType ? (string)$inputType : null
+                    $parentType ? (string) $parentType : null,
+                    $type ? (string) $type : null,
+                    $inputType ? (string) $inputType : null,
                 ];
-            }
+            },
         ]));
 
         $this->assertEquals([
@@ -1392,40 +1349,36 @@ class VisitorTest extends ValidatorTestCase
             ['leave', 'Field', null, 'QueryRoot', 'Human', null],
             ['leave', 'SelectionSet', null, 'QueryRoot', 'QueryRoot', null],
             ['leave', 'OperationDefinition', null, null, 'QueryRoot', null],
-            ['leave', 'Document', null, null, null, null]
+            ['leave', 'Document', null, null, null, null],
         ], $visited);
     }
 
-    /**
-     * @it maintains type info during edit
-     */
     public function testMaintainsTypeInfoDuringEdit()
     {
-        $visited = [];
+        $visited  = [];
         $typeInfo = new TypeInfo(ValidatorTestCase::getTestSchema());
 
-        $ast = Parser::parse(
+        $ast       = Parser::parse(
             '{ human(id: 4) { name, pets }, alien }'
         );
         $editedAst = Visitor::visit($ast, Visitor::visitWithTypeInfo($typeInfo, [
             'enter' => function ($node) use ($typeInfo, &$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args(), true);
                 $parentType = $typeInfo->getParentType();
-                $type = $typeInfo->getType();
-                $inputType = $typeInfo->getInputType();
-                $visited[] = [
+                $type       = $typeInfo->getType();
+                $inputType  = $typeInfo->getInputType();
+                $visited[]  = [
                     'enter',
                     $node->kind,
                     $node->kind === 'Name' ? $node->value : null,
-                    $parentType ? (string)$parentType : null,
-                    $type ? (string)$type : null,
-                    $inputType ? (string)$inputType : null
+                    $parentType ? (string) $parentType : null,
+                    $type ? (string) $type : null,
+                    $inputType ? (string) $inputType : null,
                 ];
 
                 // Make a query valid by adding missing selection sets.
-                if (
-                    $node->kind === 'Field' &&
-                    !$node->selectionSet &&
+                if ($node->kind === 'Field' &&
+                    ! $node->selectionSet &&
                     Type::isCompositeType(Type::getNamedType($type))
                 ) {
                     return new FieldNode([
@@ -1435,29 +1388,28 @@ class VisitorTest extends ValidatorTestCase
                         'directives' => $node->directives,
                         'selectionSet' => new SelectionSetNode([
                             'kind' => 'SelectionSet',
-                            'selections' => [
-                                new FieldNode([
-                                    'name' => new NameNode(['value' => '__typename'])
-                                ])
-                            ]
-                        ])
+                            'selections' => [new FieldNode([
+                                    'name' => new NameNode(['value' => '__typename']),
+                                ]),
+                            ],
+                        ]),
                     ]);
                 }
             },
             'leave' => function ($node) use ($typeInfo, &$visited, $ast) {
                 $this->checkVisitorFnArgs($ast, func_get_args(), true);
                 $parentType = $typeInfo->getParentType();
-                $type = $typeInfo->getType();
-                $inputType = $typeInfo->getInputType();
-                $visited[] = [
+                $type       = $typeInfo->getType();
+                $inputType  = $typeInfo->getInputType();
+                $visited[]  = [
                     'leave',
                     $node->kind,
                     $node->kind === 'Name' ? $node->value : null,
-                    $parentType ? (string)$parentType : null,
-                    $type ? (string)$type : null,
-                    $inputType ? (string)$inputType : null
+                    $parentType ? (string) $parentType : null,
+                    $type ? (string) $type : null,
+                    $inputType ? (string) $inputType : null,
                 ];
-            }
+            },
         ]));
 
         $this->assertEquals(Printer::doPrint(Parser::parse(
@@ -1510,7 +1462,7 @@ class VisitorTest extends ValidatorTestCase
             ['leave', 'Field', null, 'QueryRoot', 'Alien', null],
             ['leave', 'SelectionSet', null, 'QueryRoot', 'QueryRoot', null],
             ['leave', 'OperationDefinition', null, null, 'QueryRoot', null],
-            ['leave', 'Document', null, null, null, null]
+            ['leave', 'Document', null, null, null, null],
         ], $visited);
     }
 }
