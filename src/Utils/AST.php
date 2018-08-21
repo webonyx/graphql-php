@@ -81,9 +81,8 @@ class AST
      *
      * @api
      * @param mixed[] $node
-     * @return Node
      */
-    public static function fromArray(array $node)
+    public static function fromArray(array $node) : Node
     {
         if (! isset($node['kind']) || ! isset(NodeKind::$classMap[$node['kind']])) {
             throw new InvariantViolation('Unexpected node structure: ' . Utils::printSafeJson($node));
@@ -458,6 +457,19 @@ class AST
     }
 
     /**
+     * Returns true if the provided valueNode is a variable which is not defined
+     * in the set of variables.
+     * @param ValueNode $valueNode
+     * @param mixed[]   $variables
+     * @return bool
+     */
+    private static function isMissingVariable($valueNode, $variables)
+    {
+        return $valueNode instanceof VariableNode &&
+            (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));
+    }
+
+    /**
      * Produces a PHP value given a GraphQL Value AST.
      *
      * Unlike `valueFromAST()`, no type is provided. The resulting PHP value
@@ -550,19 +562,6 @@ class AST
         }
 
         throw new Error('Unexpected type kind: ' . $inputTypeNode->kind . '.');
-    }
-
-    /**
-     * Returns true if the provided valueNode is a variable which is not defined
-     * in the set of variables.
-     * @param ValueNode $valueNode
-     * @param mixed[]   $variables
-     * @return bool
-     */
-    private static function isMissingVariable($valueNode, $variables)
-    {
-        return $valueNode instanceof VariableNode &&
-            (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));
     }
 
     /**

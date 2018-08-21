@@ -3,6 +3,7 @@
 - Spec compliance: error extensions are displayed under `extensions` key 
 - `AbstractValidationRule` renamed to `ValidationRule` (NS `GraphQL\Validator\Rules`)
 - `AbstractQuerySecurity` renamed to `QuerySecurityRule` (NS `GraphQL\Validator\Rules`)
+- `FindBreakingChanges` renamed to `BreakingChangesFinder` (NS `GraphQL\Utils`)
 
 #### v0.12.5
 - Execution performance optimization for lists
