@@ -1,4 +1,5 @@
 <?php
+
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Language\DirectiveLocation;
@@ -11,10 +12,10 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\FindBreakingChanges;
+use GraphQL\Utils\BreakingChangesFinder;
 use PHPUnit\Framework\TestCase;
 
-class FindBreakingChangesTest extends TestCase
+class BreakingChangesFinderTest extends TestCase
 {
     private $queryType;
 
@@ -60,17 +61,17 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
                 'description' => 'Type1 was removed.'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findRemovedTypes($oldSchema, $newSchema)
+            BreakingChangesFinder::findRemovedTypes($oldSchema, $newSchema)
         );
 
-        $this->assertEquals([], FindBreakingChanges::findRemovedTypes($oldSchema, $oldSchema));
+        $this->assertEquals([], BreakingChangesFinder::findRemovedTypes($oldSchema, $oldSchema));
     }
 
     /**
@@ -109,14 +110,14 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_CHANGED_KIND,
                 'description' => 'Type1 changed from an Interface type to a Union type.'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findTypesThatChangedKind($oldSchema, $newSchema)
+            BreakingChangesFinder::findTypesThatChangedKind($oldSchema, $newSchema)
         );
     }
 
@@ -208,60 +209,60 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedFieldChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
                 'description' => 'Type1.field2 was removed.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field3 changed type from String to Boolean.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field4 changed type from TypeA to TypeB.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field6 changed type from String to [String].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field7 changed type from [String] to String.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field9 changed type from Int! to Int.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field10 changed type from [Int]! to [Int].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field11 changed type from Int to [Int]!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field13 changed type from [Int!] to [Int].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field14 changed type from [Int] to [[Int]].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field15 changed type from [[Int]] to [Int].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field16 changed type from Int! to [Int]!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'Type1.field18 changed type from [[Int!]!] to [[Int!]].',
             ],
         ];
 
-        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema));
+        $this->assertEquals($expectedFieldChanges, BreakingChangesFinder::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema));
     }
 
     /**
@@ -380,52 +381,52 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedFieldChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field1 changed type from String to Int.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
                 'description' => 'InputType1.field2 was removed.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field3 changed type from [String] to String.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field5 changed type from String to String!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field6 changed type from [Int] to [Int]!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field8 changed type from Int to [Int]!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field9 changed type from [Int] to [Int!].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field11 changed type from [Int] to [[Int]].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field12 changed type from [[Int]] to [Int].',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field13 changed type from Int! to [Int]!.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'InputType1.field15 changed type from [[Int]!] to [[Int!]!].',
             ],
         ];
 
-        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges']);
+        $this->assertEquals($expectedFieldChanges, BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -461,14 +462,14 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED,
                 'description' => 'A non-null field requiredField on input type InputType1 was added.'
             ],
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges']
+            BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['breakingChanges']
         );
     }
 
@@ -524,14 +525,14 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
                 'description' => 'Type2 was removed from union type UnionType1.'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findTypesRemovedFromUnions($oldSchema, $newSchema)
+            BreakingChangesFinder::findTypesRemovedFromUnions($oldSchema, $newSchema)
         );
     }
 
@@ -569,14 +570,14 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
                 'description' => 'VALUE1 was removed from enum type EnumType1.'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findValuesRemovedFromEnums($oldSchema, $newSchema)
+            BreakingChangesFinder::findValuesRemovedFromEnums($oldSchema, $newSchema)
         );
     }
 
@@ -646,20 +647,20 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
                 'description' => 'Type1.field1 arg name was removed',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
                 'description' => 'Interface1.field1 arg arg1 was removed',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_REMOVED,
                 'description' => 'Interface1.field1 arg objectArg was removed',
             ]
         ];
 
-        $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        $this->assertEquals($expectedChanges, BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -731,56 +732,56 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg1 has changed type from String to Int',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg2 has changed type from String to [String]'
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg3 has changed type from [String] to String',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg4 has changed type from String to String!',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg5 has changed type from String! to Int',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg6 has changed type from String! to Int!',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg8 has changed type from Int to [Int]!',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg9 has changed type from [Int] to [Int!]',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg11 has changed type from [Int] to [[Int]]',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg12 has changed type from [[Int]] to [Int]',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg13 has changed type from Int! to [Int]!',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'Type1.field1 arg arg15 has changed type from [[Int]!] to [[Int!]!]',
             ],
         ];
 
-        $this->assertEquals($expectedChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        $this->assertEquals($expectedChanges, BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -821,14 +822,15 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
                 'description' => 'A non-null arg newRequiredArg on Type1.field1 was added'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+            BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
+        );
     }
 
     /**
@@ -885,7 +887,7 @@ class FindBreakingChangesTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        $this->assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -925,7 +927,7 @@ class FindBreakingChangesTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $this->assertEquals([], FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        $this->assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -964,14 +966,15 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
                 'description' => 'Type1 no longer implements interface Interface1.'
             ],
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema));
+            BreakingChangesFinder::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
+        );
     }
 
     /**
@@ -1178,11 +1181,11 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedBreakingChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
                 'description' => 'TypeThatGetsRemoved was removed.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED,
                 'description' => 'TypeInUnion2 was removed.',
             ],
             /* This is reported in the js version because builtin sclar types are added on demand
@@ -1192,52 +1195,52 @@ class FindBreakingChangesTest extends TestCase
                 'description' => 'Int was removed.'
             ],*/
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_CHANGED_KIND,
                 'description' => 'TypeThatChangesType changed from an Object type to an Interface type.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_REMOVED,
                 'description' => 'TypeThatHasBreakingFieldChanges.field1 was removed.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_FIELD_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                 'description' => 'TypeThatHasBreakingFieldChanges.field2 changed type from String to Boolean.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
                 'description' => 'TypeInUnion2 was removed from union type UnionTypeThatLosesAType.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
                 'description' => 'VALUE0 was removed from enum type EnumTypeThatLosesAValue.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_ARG_CHANGED_KIND,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_ARG_CHANGED_KIND,
                 'description' => 'ArgThatChanges.field1 arg id has changed type from Int to String',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
                 'description' => 'TypeThatLosesInterface1 no longer implements interface Interface1.',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
                 'description' => 'skip was removed',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
                 'description' => 'arg1 was removed from DirectiveThatRemovesArg',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
                 'description' => 'A non-null arg arg1 on directive NonNullDirectiveAdded was added',
             ],
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
                 'description' => 'QUERY was removed from Directive Name',
             ]
         ];
 
-        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findBreakingChanges($oldSchema, $newSchema));
+        $this->assertEquals($expectedBreakingChanges, BreakingChangesFinder::findBreakingChanges($oldSchema, $newSchema));
     }
 
     /**
@@ -1257,12 +1260,12 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedBreakingChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
                 'description' => "{$includeDirective->name} was removed",
             ]
         ];
 
-        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectives($oldSchema, $newSchema));
+        $this->assertEquals($expectedBreakingChanges, BreakingChangesFinder::findRemovedDirectives($oldSchema, $newSchema));
     }
 
     /**
@@ -1280,12 +1283,12 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedBreakingChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_REMOVED,
                 'description' => "{$deprecatedDirective->name} was removed",
             ]
         ];
 
-        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectives($oldSchema, $newSchema));
+        $this->assertEquals($expectedBreakingChanges, BreakingChangesFinder::findRemovedDirectives($oldSchema, $newSchema));
     }
 
     /**
@@ -1318,12 +1321,12 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedBreakingChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
                 'description' => "arg1 was removed from DirectiveWithArg",
             ]
         ];
 
-        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectiveArgs($oldSchema, $newSchema));
+        $this->assertEquals($expectedBreakingChanges, BreakingChangesFinder::findRemovedDirectiveArgs($oldSchema, $newSchema));
     }
 
     /**
@@ -1357,12 +1360,12 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedBreakingChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
                 'description' => "A non-null arg arg1 on directive DirectiveName was added",
             ]
         ];
 
-        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findAddedNonNullDirectiveArgs($oldSchema, $newSchema));
+        $this->assertEquals($expectedBreakingChanges, BreakingChangesFinder::findAddedNonNullDirectiveArgs($oldSchema, $newSchema));
     }
 
     /**
@@ -1380,7 +1383,7 @@ class FindBreakingChangesTest extends TestCase
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
         ]);
 
-        $this->assertEquals([DirectiveLocation::QUERY], FindBreakingChanges::findRemovedLocationsForDirective($d1, $d2));
+        $this->assertEquals([DirectiveLocation::QUERY], BreakingChangesFinder::findRemovedLocationsForDirective($d1, $d2));
     }
 
     /**
@@ -1411,12 +1414,12 @@ class FindBreakingChangesTest extends TestCase
 
         $expectedBreakingChanges = [
             [
-                'type' => FindBreakingChanges::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
+                'type' => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
                 'description' => "QUERY was removed from Directive Name",
             ]
         ];
 
-        $this->assertEquals($expectedBreakingChanges, FindBreakingChanges::findRemovedDirectiveLocations($oldSchema, $newSchema));
+        $this->assertEquals($expectedBreakingChanges, BreakingChangesFinder::findRemovedDirectiveLocations($oldSchema, $newSchema));
     }
 
     // DESCRIBE: findDangerousChanges
@@ -1469,14 +1472,14 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
                 'description' => 'Type1.field1 arg name has changed defaultValue'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
+            BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
         );
     }
 
@@ -1513,14 +1516,14 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
                 'description' => 'VALUE2 was added to enum type EnumType1.'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findValuesAddedToEnums($oldSchema, $newSchema)
+            BreakingChangesFinder::findValuesAddedToEnums($oldSchema, $newSchema)
         );
     }
 
@@ -1562,14 +1565,14 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
                 'description' => 'Interface1 added to interfaces implemented by Type1.'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
+            BreakingChangesFinder::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
         );
     }
 
@@ -1620,14 +1623,14 @@ class FindBreakingChangesTest extends TestCase
 
         $expected = [
             [
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
                 'description' => 'Type2 was added to union type UnionType1.'
             ]
         ];
 
         $this->assertEquals(
             $expected,
-            FindBreakingChanges::findTypesAddedToUnions($oldSchema, $newSchema)
+            BreakingChangesFinder::findTypesAddedToUnions($oldSchema, $newSchema)
         );
     }
 
@@ -1673,11 +1676,11 @@ class FindBreakingChangesTest extends TestCase
         $expectedFieldChanges = [
             [
                 'description' => 'A nullable field field2 on input type InputType1 was added.',
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_NULLABLE_INPUT_FIELD_ADDED
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_NULLABLE_INPUT_FIELD_ADDED,
             ],
         ];
 
-        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['dangerousChanges']);
+        $this->assertEquals($expectedFieldChanges, BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes($oldSchema, $newSchema)['dangerousChanges']);
     }
 
     /**
@@ -1797,23 +1800,23 @@ class FindBreakingChangesTest extends TestCase
         $expectedDangerousChanges = [
             [
                 'description' => 'Type1.field1 arg name has changed defaultValue',
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED,
             ],
             [
                 'description' => 'VALUE2 was added to enum type EnumType1.',
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
             ],
             [
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
                 'description' => 'Interface1 added to interfaces implemented by TypeThatGainsInterface1.',
             ],
             [
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
                 'description' => 'TypeInUnion2 was added to union type UnionTypeThatGainsAType.',
             ]
         ];
 
-        $this->assertEquals($expectedDangerousChanges, FindBreakingChanges::findDangerousChanges($oldSchema, $newSchema));
+        $this->assertEquals($expectedDangerousChanges, BreakingChangesFinder::findDangerousChanges($oldSchema, $newSchema));
     }
 
     /**
@@ -1865,10 +1868,10 @@ class FindBreakingChangesTest extends TestCase
         $expectedFieldChanges = [
             [
                 'description' => 'A nullable arg arg2 on Type1.field1 was added',
-                'type' => FindBreakingChanges::DANGEROUS_CHANGE_NULLABLE_ARG_ADDED
+                'type' => BreakingChangesFinder::DANGEROUS_CHANGE_NULLABLE_ARG_ADDED,
             ],
         ];
 
-        $this->assertEquals($expectedFieldChanges, FindBreakingChanges::findArgChanges($oldSchema, $newSchema)['dangerousChanges']);
+        $this->assertEquals($expectedFieldChanges, BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['dangerousChanges']);
     }
 }
