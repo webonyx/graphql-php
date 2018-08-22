@@ -28,7 +28,7 @@ abstract class ValidatorTestCase extends TestCase
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                    'args' => ['surname' => ['type' => Type::boolean()]]
                 ]
             ],
         ]);
@@ -38,14 +38,14 @@ abstract class ValidatorTestCase extends TestCase
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                    'args' => ['surname' => ['type' => Type::boolean()]]
                 ]
             ],
         ]);
 
         $Canine = new InterfaceType([
             'name' => 'Canine',
-            'fields' => function() {
+            'fields' => function () {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -69,7 +69,7 @@ abstract class ValidatorTestCase extends TestCase
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                    'args' => ['surname' => ['type' => Type::boolean()]]
                 ],
                 'nickname' => ['type' => Type::string()],
                 'barkVolume' => ['type' => Type::int()],
@@ -92,11 +92,11 @@ abstract class ValidatorTestCase extends TestCase
 
         $Cat = new ObjectType([
             'name' => 'Cat',
-            'fields' => function() use (&$FurColor) {
+            'fields' => function () use (&$FurColor) {
                 return [
                     'name' => [
                         'type' => Type::string(),
-                        'args' => [ 'surname' => [ 'type' => Type::boolean() ] ]
+                        'args' => ['surname' => ['type' => Type::boolean()]]
                     ],
                     'nickname' => ['type' => Type::string()],
                     'meows' => ['type' => Type::boolean()],
@@ -123,7 +123,7 @@ abstract class ValidatorTestCase extends TestCase
         $Human = new ObjectType([
             'name' => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields' => function() use (&$Human, $Pet) {
+            'fields' => function () use (&$Human, $Pet) {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -162,11 +162,11 @@ abstract class ValidatorTestCase extends TestCase
         $FurColor = new EnumType([
             'name' => 'FurColor',
             'values' => [
-                'BROWN' => [ 'value' => 0 ],
-                'BLACK' => [ 'value' => 1 ],
-                'TAN' => [ 'value' => 2 ],
-                'SPOTTED' => [ 'value' => 3 ],
-                'NO_FUR' => [ 'value' => null ],
+                'BROWN' => ['value' => 0],
+                'BLACK' => ['value' => 1],
+                'TAN' => ['value' => 2],
+                'SPOTTED' => ['value' => 3],
+                'NO_FUR' => ['value' => null],
             ],
         ]);
 
@@ -193,41 +193,49 @@ abstract class ValidatorTestCase extends TestCase
                 ],
                 'nonNullIntArgField' => [
                     'type' => Type::string(),
-                    'args' => [ 'nonNullIntArg' => [ 'type' => Type::nonNull(Type::int())]],
+                    'args' => ['nonNullIntArg' => ['type' => Type::nonNull(Type::int())]],
                 ],
                 'stringArgField' => [
                     'type' => Type::string(),
-                    'args' => [ 'stringArg' => [ 'type' => Type::string()]],
+                    'args' => ['stringArg' => ['type' => Type::string()]],
                 ],
                 'booleanArgField' => [
                     'type' => Type::string(),
-                    'args' => ['booleanArg' => [ 'type' => Type::boolean() ]],
+                    'args' => ['booleanArg' => ['type' => Type::boolean()]],
                 ],
                 'enumArgField' => [
                     'type' => Type::string(),
-                    'args' => [ 'enumArg' => ['type' => $FurColor ]],
+                    'args' => ['enumArg' => ['type' => $FurColor]],
                 ],
                 'floatArgField' => [
                     'type' => Type::string(),
-                    'args' => [ 'floatArg' => [ 'type' => Type::float()]],
+                    'args' => ['floatArg' => ['type' => Type::float()]],
                 ],
                 'idArgField' => [
                     'type' => Type::string(),
-                    'args' => [ 'idArg' => [ 'type' => Type::id() ]],
+                    'args' => ['idArg' => ['type' => Type::id()]],
                 ],
                 'stringListArgField' => [
                     'type' => Type::string(),
-                    'args' => [ 'stringListArg' => [ 'type' => Type::listOf(Type::string())]],
+                    'args' => ['stringListArg' => ['type' => Type::listOf(Type::string())]],
+                ],
+                'stringListNonNullArgField' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'stringListNonNullArg' => [
+                            'type' => Type::listOf(Type::nonNull(Type::string())),
+                        ],
+                    ],
                 ],
                 'complexArgField' => [
                     'type' => Type::string(),
-                    'args' => [ 'complexArg' => [ 'type' => $ComplexInput ]],
+                    'args' => ['complexArg' => ['type' => $ComplexInput]],
                 ],
                 'multipleReqs' => [
                     'type' => Type::string(),
                     'args' => [
-                        'req1' => [ 'type' => Type::nonNull(Type::int())],
-                        'req2' => [ 'type' => Type::nonNull(Type::int())],
+                        'req1' => ['type' => Type::nonNull(Type::int())],
+                        'req2' => ['type' => Type::nonNull(Type::int())],
                     ],
                 ],
                 'multipleOpts' => [
@@ -246,8 +254,8 @@ abstract class ValidatorTestCase extends TestCase
                 'multipleOptAndReq' => [
                     'type' => Type::string(),
                     'args' => [
-                        'req1' => [ 'type' => Type::nonNull(Type::int())],
-                        'req2' => [ 'type' => Type::nonNull(Type::int())],
+                        'req1' => ['type' => Type::nonNull(Type::int())],
+                        'req2' => ['type' => Type::nonNull(Type::int())],
                         'opt1' => [
                             'type' => Type::int(),
                             'defaultValue' => 0,
@@ -276,9 +284,15 @@ abstract class ValidatorTestCase extends TestCase
 
         $anyScalar = new CustomScalarType([
             'name' => 'Any',
-            'serialize' => function ($value) { return $value; },
-            'parseLiteral' => function ($node) { return $node; }, // Allows any value
-            'parseValue' => function ($value) { return $value; }, // Allows any value
+            'serialize' => function ($value) {
+                return $value;
+            },
+            'parseLiteral' => function ($node) {
+                return $node;
+            }, // Allows any value
+            'parseValue' => function ($value) {
+                return $value;
+            }, // Allows any value
         ]);
 
         $queryRoot = new ObjectType([

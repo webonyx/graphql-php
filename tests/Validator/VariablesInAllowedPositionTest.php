@@ -368,4 +368,26 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
         ]);
     }
 
+    /**
+     * @it [String] => [String!]
+     */
+    public function testStringArrayXStringNonNullArray()
+    {
+        $this->expectFailsRule(
+            new VariablesInAllowedPosition,
+            '
+      query Query($stringListVar: [String])
+      {
+        complicatedArgs {
+          stringListNonNullArgField(stringListNonNullArg: $stringListVar)
+        }
+      }
+        ', [
+                FormattedError::create(
+                    VariablesInAllowedPosition::badVarPosMessage('stringListVar', '[String]', '[String!]'),
+                    [new SourceLocation(2, 19), new SourceLocation(5, 59)]
+                )
+            ]
+        );
+    }
 }
