@@ -975,6 +975,28 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Objects can only implement unique interfaces
 
     /**
+     * @it rejects an Object implementing a non-type values
+     */
+    public function testRejectsAnObjectImplementingANonTypeValues()
+    {
+        $schema = new Schema([
+            'query' => new ObjectType([
+                'name' => 'BadObject',
+                'interfaces' => [null],
+                'fields' => ['a' => Type::string()]
+            ]),
+        ]);
+        $expected = [
+            'message' => 'Type BadObject must only implement Interface types, it cannot implement null.'
+        ];
+
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            [$expected]
+        );
+    }
+
+    /**
      * @it rejects an Object implementing a non-Interface type
      */
     public function testRejectsAnObjectImplementingANonInterfaceType()

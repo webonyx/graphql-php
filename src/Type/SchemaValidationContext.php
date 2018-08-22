@@ -278,6 +278,18 @@ class SchemaValidationContext
     {
         $implementedTypeNames = [];
         foreach($object->getInterfaces() as $iface) {
+            if (! $iface instanceof InterfaceType) {
+                $this->reportError(
+                    sprintf(
+                        'Type %s must only implement Interface types, ' .
+                        'it cannot implement %s.',
+                        $object->name,
+                        Utils::printSafe($iface)
+                    ),
+                    $this->getImplementsInterfaceNode($object, $iface)
+                );
+                continue;
+            }
             if (isset($implementedTypeNames[$iface->name])) {
                 $this->reportError(
                     "Type {$object->name} can only implement {$iface->name} once.",
@@ -296,15 +308,6 @@ class SchemaValidationContext
      */
     private function validateObjectImplementsInterface(ObjectType $object, $iface)
     {
-        if (!$iface instanceof InterfaceType) {
-            $this->reportError(
-                "Type {$object->name} must only implement Interface types, " .
-                "it cannot implement ". Utils::printSafe($iface) . ".",
-                $this->getImplementsInterfaceNode($object, $iface)
-            );
-            return;
-        }
-
         $objectFieldMap = $object->getFields();
         $ifaceFieldMap = $iface->getFields();
 

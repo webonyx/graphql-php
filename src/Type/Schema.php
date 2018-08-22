@@ -297,7 +297,9 @@ class Schema
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof ObjectType) {
                     foreach ($type->getInterfaces() as $interface) {
-                        $this->possibleTypeMap[$interface->name][$type->name] = $type;
+                        if ($interface instanceof InterfaceType) {
+                            $this->possibleTypeMap[$interface->name][$type->name] = $type;
+                        }
                     }
                 } else if ($type instanceof UnionType) {
                     foreach ($type->getTypes() as $innerType) {
