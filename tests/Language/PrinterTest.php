@@ -95,7 +95,7 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @it correctly prints single-line block strings with leading space
+     * @it correctly prints single-line with leading space
      */
     public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace()
     {
@@ -110,7 +110,7 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @it correctly prints block strings with a first line indentation
+     * @it correctly prints string with a first line indentation
      */
     public function testCorrectlyPrintsBlockStringsWithAFirstLineIndentation()
     {
@@ -132,6 +132,27 @@ class PrinterTest extends TestCase
 }
 ';
       $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+    }
+
+    /**
+     * @it correctly prints single-line with leading space and quotation
+     */
+    public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation()
+    {
+        $mutationAstWithArtifacts = Parser::parse('
+            {
+              field(arg: """    space-led value "quoted string"
+              """)
+            }
+        ');
+        $expected = <<<END
+{
+  field(arg: """    space-led value "quoted string"
+  """)
+}
+
+END;
+        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**

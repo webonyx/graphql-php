@@ -488,6 +488,6 @@ class Printer
 
         return (($value[0] === ' ' || $value[0] === "\t") && strpos($value, "\n") === false)
             ? ('"""' . preg_replace('/"$/', "\"\n", $escaped) . '"""')
-            : ("\"\"\"\n" . ($isDescription ? $escaped : $this->indent($escaped)) . "\n\"\"\"");
+            : ('"""' . "\n" . ($isDescription ? $escaped : $this->indent($escaped)) . "\n" . '"""');
     }
 }
