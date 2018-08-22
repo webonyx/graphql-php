@@ -29,7 +29,7 @@ class SchemaPrinterTest extends TestCase
     private function printSingleFieldSchema($fieldConfig)
     {
         $query = new ObjectType([
-            'name' => 'Root',
+            'name' => 'Query',
             'fields' => [
                 'singleField' => $fieldConfig
             ]
@@ -46,11 +46,7 @@ class SchemaPrinterTest extends TestCase
             'type' => Type::string()
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: String
 }
 ', $output);
@@ -65,11 +61,7 @@ type Root {
             'type' => Type::listOf(Type::string())
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: [String]
 }
 ', $output);
@@ -84,11 +76,7 @@ type Root {
             'type' => Type::nonNull(Type::string())
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: String!
 }
 ', $output);
@@ -103,11 +91,7 @@ type Root {
             'type' => Type::nonNull(Type::listOf(Type::string()))
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: [String]!
 }
 ', $output);
@@ -122,11 +106,7 @@ type Root {
             'type' => Type::listOf(Type::nonNull(Type::string()))
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: [String!]
 }
 ', $output);
@@ -141,18 +121,14 @@ type Root {
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField: [String!]!
 }
 ', $output);
     }
 
     /**
-     * @it Prints Object Field
+     * @it Print Object Field
      */
     public function testPrintObjectField()
     {
@@ -162,22 +138,18 @@ type Root {
         ]);
 
         $root = new ObjectType([
-            'name' => 'Root',
+            'name' => 'Query',
             'fields' => ['foo' => ['type' => $fooType]]
         ]);
 
         $schema = new Schema(['query' => $root]);
         $output = $this->printForTest($schema);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
 type Foo {
   str: String
 }
 
-type Root {
+type Query {
   foo: Foo
 }
 ', $output);
@@ -193,11 +165,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::int()]]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int): String
 }
 ', $output);
@@ -213,11 +181,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int = 2): String
 }
 ', $output);
@@ -233,11 +197,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::string(), 'defaultValue' => "tes\t de\fault"]],
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: String = "tes\t de\fault"): String
 }
 ', $output);
@@ -253,11 +213,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int = null): String
 }
 ', $output);
@@ -273,11 +229,7 @@ type Root {
             'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int!): String
 }
 ', $output);
@@ -296,11 +248,7 @@ type Root {
             ]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int, argTwo: String): String
 }
 ', $output);
@@ -320,11 +268,7 @@ type Root {
             ]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int = 1, argTwo: String, argThree: Boolean): String
 }
 ', $output);
@@ -344,11 +288,7 @@ type Root {
             ]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int, argTwo: String = "foo", argThree: Boolean): String
 }
 ', $output);
@@ -368,14 +308,36 @@ type Root {
             ]
         ]);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   singleField(argOne: Int, argTwo: String, argThree: Boolean = false): String
 }
 ', $output);
+    }
+
+    /**
+     * @it Prints custom query root type
+     */
+    public function testPrintsCustomQueryRootType()
+    {
+        $customQueryType = new ObjectType([
+            'name' => 'CustomQueryType',
+            'fields' => ['bar' => ['type' => Type::string()]],
+        ]);
+
+        $schema = new Schema([
+            'query' => $customQueryType,
+        ]);
+        $output = $this->printForTest($schema);
+        $expected = '
+schema {
+  query: CustomQueryType
+}
+
+type CustomQueryType {
+  bar: String
+}
+';
+        $this->assertEquals($expected, $output);
     }
 
     /**
@@ -394,21 +356,17 @@ type Root {
             'interfaces' => [$fooType]
         ]);
 
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => ['bar' => ['type' => $barType]]
         ]);
 
         $schema = new Schema([
-            'query' => $root,
+            'query' => $query,
             'types' => [$barType]
         ]);
         $output = $this->printForTest($schema);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
 type Bar implements Foo {
   str: String
 }
@@ -417,7 +375,7 @@ interface Foo {
   str: String
 }
 
-type Root {
+type Query {
   bar: Bar
 }
 ', $output);
@@ -447,21 +405,17 @@ type Root {
             'interfaces' => [$fooType, $baazType]
         ]);
 
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => ['bar' => ['type' => $barType]]
         ]);
 
         $schema = new Schema([
-            'query' => $root,
+            'query' => $query,
             'types' => [$barType]
         ]);
         $output = $this->printForTest($schema);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
 interface Baaz {
   int: Int
 }
@@ -475,7 +429,7 @@ interface Foo {
   str: String
 }
 
-type Root {
+type Query {
   bar: Bar
 }
 ', $output);
@@ -506,21 +460,17 @@ type Root {
             'types' => [$fooType, $barType]
         ]);
 
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => [
                 'single' => ['type' => $singleUnion],
                 'multiple' => ['type' => $multipleUnion]
             ]
         ]);
 
-        $schema = new Schema(['query' => $root]);
+        $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
 type Bar {
   str: String
 }
@@ -531,7 +481,7 @@ type Foo {
 
 union MultipleUnion = Foo | Bar
 
-type Root {
+type Query {
   single: SingleUnion
   multiple: MultipleUnion
 }
@@ -550,8 +500,8 @@ union SingleUnion = Foo
             'fields' => ['int' => ['type' => Type::int()]]
         ]);
 
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => [
                 'str' => [
                     'type' => Type::string(),
@@ -560,18 +510,14 @@ union SingleUnion = Foo
             ]
         ]);
 
-        $schema = new Schema(['query' => $root]);
+        $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
 input InputType {
   int: Int
 }
 
-type Root {
+type Query {
   str(argOne: InputType): String
 }
 ', $output);
@@ -589,23 +535,19 @@ type Root {
             }
         ]);
 
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => [
                 'odd' => ['type' => $oddType]
             ]
         ]);
 
-        $schema = new Schema(['query' => $root]);
+        $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
         $this->assertEquals('
-schema {
-  query: Root
-}
-
 scalar Odd
 
-type Root {
+type Query {
   odd: Odd
 }
 ', $output);
@@ -625,28 +567,24 @@ type Root {
             ]
         ]);
 
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => [
                 'rgb' => ['type' => $RGBType]
             ]
         ]);
 
-        $schema = new Schema(['query' => $root]);
+        $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
         $this->assertEquals('
-schema {
-  query: Root
+type Query {
+  rgb: RGB
 }
 
 enum RGB {
   RED
   GREEN
   BLUE
-}
-
-type Root {
-  rgb: RGB
 }
 ', $output);
     }
@@ -697,17 +635,13 @@ type Query {
         ]);
 
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   """This field is awesome"""
   singleField: String
 }
 ', $output);
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Root'];
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }
@@ -724,11 +658,7 @@ type Root {
         ]);
 
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   """
   This field is "awesome"
   """
@@ -736,7 +666,7 @@ type Root {
 }
 ', $output);
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Root'];
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }
@@ -753,18 +683,14 @@ type Root {
         ]);
 
         $this->assertEquals('
-schema {
-  query: Root
-}
-
-type Root {
+type Query {
   """    This field is "awesome"
   """
   singleField: String
 }
 ', $output);
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Root'];
+        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }
@@ -774,20 +700,16 @@ type Root {
      */
     public function testPrintIntrospectionSchema()
     {
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => [
                 'onlyField' => ['type' => Type::string()]
             ]
         ]);
 
-        $schema = new Schema(['query' => $root]);
+        $schema = new Schema(['query' => $query]);
         $output = SchemaPrinter::printIntrosepctionSchema($schema);
         $introspectionSchema = <<<'EOT'
-schema {
-  query: Root
-}
-
 """
 Directs the executor to include this field or fragment only when the `if` argument is true.
 """
@@ -1019,26 +941,22 @@ EOT;
     }
 
     /**
-     * @it Print Introspection Schema with comment description
+     * @it Print Introspection Schema with comment descriptions
      */
-    public function testPrintIntrospectionSchemaWithCommentDescription()
+    public function testPrintIntrospectionSchemaWithCommentDescriptions()
     {
-        $root = new ObjectType([
-            'name' => 'Root',
+        $query = new ObjectType([
+            'name' => 'Query',
             'fields' => [
                 'onlyField' => ['type' => Type::string()]
             ]
         ]);
 
-        $schema = new Schema(['query' => $root]);
+        $schema = new Schema(['query' => $query]);
         $output = SchemaPrinter::printIntrosepctionSchema($schema, [
             'commentDescriptions' => true
         ]);
         $introspectionSchema = <<<'EOT'
-schema {
-  query: Root
-}
-
 # Directs the executor to include this field or fragment only when the `if` argument is true.
 directive @include(
   # Included when true.
