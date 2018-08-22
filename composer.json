@@ -39,6 +39,6 @@
     "psr/http-message": "To use standard GraphQL server"
   },
   "scripts": {
-    "lint" : "vendor/bin/phpcs"
+    "lint" : "phpcs"
   }
 }
