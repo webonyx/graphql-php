@@ -191,7 +191,7 @@ class ValidationContext
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
         if (! $spreads) {
-            $spreads     = [];
+            $spreads = [];
             /** @var SelectionSetNode[] $setsToVisit */
             $setsToVisit = [$node->selectionSet];
             while (! empty($setsToVisit)) {

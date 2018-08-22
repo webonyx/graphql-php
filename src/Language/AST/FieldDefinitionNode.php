@@ -23,5 +23,4 @@ class FieldDefinitionNode extends Node
 
     /** @var StringValueNode|null */
     public $description;
-
 }

@@ -17,5 +17,4 @@ class InlineFragmentNode extends Node implements SelectionNode
 
     /** @var SelectionSetNode */
     public $selectionSet;
-
 }

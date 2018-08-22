@@ -23,5 +23,4 @@ class InputValueDefinitionNode extends Node
 
     /** @var StringValueNode|null */
     public $description;
-
 }

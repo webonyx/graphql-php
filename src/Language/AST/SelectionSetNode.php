@@ -11,5 +11,4 @@ class SelectionSetNode extends Node
 
     /** @var SelectionNode[] */
     public $selections;
-
 }

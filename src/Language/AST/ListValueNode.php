@@ -11,5 +11,4 @@ class ListValueNode extends Node implements ValueNode
 
     /** @var ValueNode[]|NodeList */
     public $values;
-
 }

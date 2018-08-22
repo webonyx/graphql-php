@@ -11,5 +11,4 @@ class ListTypeNode extends Node implements TypeNode
 
     /** @var Node */
     public $type;
-
 }

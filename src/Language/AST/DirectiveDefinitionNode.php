@@ -20,5 +20,4 @@ class DirectiveDefinitionNode extends Node implements TypeSystemDefinitionNode
 
     /** @var StringValueNode|null */
     public $description;
-
 }

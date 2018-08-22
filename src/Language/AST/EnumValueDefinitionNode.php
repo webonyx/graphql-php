@@ -17,5 +17,4 @@ class EnumValueDefinitionNode extends Node
 
     /** @var StringValueNode|null */
     public $description;
-
 }

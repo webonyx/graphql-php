@@ -18,5 +18,4 @@ class OperationTypeDefinitionNode extends Node
 
     /** @var NamedTypeNode */
     public $type;
-
 }

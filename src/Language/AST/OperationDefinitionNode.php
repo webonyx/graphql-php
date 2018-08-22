@@ -23,5 +23,4 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
 
     /** @var SelectionSetNode */
     public $selectionSet;
-
 }

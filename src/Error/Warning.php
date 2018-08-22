@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Error;
 
-use const E_USER_WARNING;
 use function trigger_error;
+use const E_USER_WARNING;
 
 /**
  * Encapsulates warnings produced by the library.

@@ -14,5 +14,4 @@ class DirectiveNode extends Node
 
     /** @var ArgumentNode[] */
     public $arguments;
-
 }

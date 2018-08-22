@@ -17,5 +17,4 @@ class InterfaceTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var FieldDefinitionNode[]|null */
     public $fields;
-
 }

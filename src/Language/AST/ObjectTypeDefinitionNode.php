@@ -23,6 +23,4 @@ class ObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
 
     /** @var StringValueNode|null */
     public $description;
-
-
 }

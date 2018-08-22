@@ -17,5 +17,4 @@ class InputObjectTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var InputValueDefinitionNode[]|null */
     public $fields;
-
 }

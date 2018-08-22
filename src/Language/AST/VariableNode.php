@@ -11,5 +11,4 @@ class VariableNode extends Node
 
     /** @var NameNode */
     public $name;
-
 }

@@ -20,5 +20,4 @@ class ObjectTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var FieldDefinitionNode[] */
     public $fields;
-
 }

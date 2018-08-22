@@ -31,6 +31,7 @@ use function array_map;
 use function array_merge;
 use function array_pop;
 use function count;
+use function is_array;
 use function sprintf;
 
 /**
@@ -198,9 +199,8 @@ class TypeInfo
     }
 
     /**
-     * @param Directive $directive
-     * @param array $typeMap
-     * @return array
+     * @param Type[] $typeMap
+     * @return Type[]
      */
     public static function extractTypesFromDirectives(Directive $directive, array $typeMap = [])
     {

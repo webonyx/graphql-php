@@ -11,5 +11,4 @@ class ObjectValueNode extends Node implements ValueNode
 
     /** @var ObjectFieldNode[]|NodeList */
     public $fields;
-
 }

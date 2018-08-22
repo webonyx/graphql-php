@@ -28,6 +28,4 @@ class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, H
 
     /** @var SelectionSetNode */
     public $selectionSet;
-
-
 }

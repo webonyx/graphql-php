@@ -17,5 +17,4 @@ class EnumTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var EnumValueDefinitionNode[]|null */
     public $values;
-
 }

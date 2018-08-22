@@ -14,5 +14,4 @@ class ObjectFieldNode extends Node
 
     /** @var ValueNode */
     public $value;
-
 }

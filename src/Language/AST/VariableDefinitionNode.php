@@ -17,5 +17,4 @@ class VariableDefinitionNode extends Node implements DefinitionNode
 
     /** @var ValueNode|null */
     public $defaultValue;
-
 }

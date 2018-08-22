@@ -11,5 +11,4 @@ class NameNode extends Node implements TypeNode
 
     /** @var string */
     public $value;
-
 }

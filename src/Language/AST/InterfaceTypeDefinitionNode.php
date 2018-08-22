@@ -20,5 +20,4 @@ class InterfaceTypeDefinitionNode extends Node implements TypeDefinitionNode
 
     /** @var StringValueNode|null */
     public $description;
-
 }

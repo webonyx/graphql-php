@@ -181,7 +181,7 @@ class Utils
         $map = [];
         foreach ($traversable as $key => $value) {
             list($newKey, $newValue) = $fn($value, $key);
-            $map[$newKey] = $newValue;
+            $map[$newKey]            = $newValue;
         }
 
         return $map;

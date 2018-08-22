@@ -11,5 +11,4 @@ class FloatValueNode extends Node implements ValueNode
 
     /** @var string */
     public $value;
-
 }

@@ -49,9 +49,7 @@ use function is_int;
 use function is_object;
 use function is_string;
 use function iterator_to_array;
-use function json_encode;
 use function property_exists;
-use function substr;
 
 /**
  * Various utilities dealing with AST
@@ -278,9 +276,7 @@ class AST
 
                 // Use json_encode, which uses the same string encoding as GraphQL,
                 // then remove the quotes.
-                return new StringValueNode([
-                    'value' => $serialized
-                ]);
+                return new StringValueNode(['value' => $serialized]);
             }
 
             throw new InvariantViolation('Cannot convert value to AST: ' . Utils::printSafe($serialized));

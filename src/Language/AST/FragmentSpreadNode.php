@@ -14,5 +14,4 @@ class FragmentSpreadNode extends Node implements SelectionNode
 
     /** @var DirectiveNode[] */
     public $directives;
-
 }

@@ -11,5 +11,4 @@ class DocumentNode extends Node
 
     /** @var DefinitionNode[] */
     public $definitions;
-
 }

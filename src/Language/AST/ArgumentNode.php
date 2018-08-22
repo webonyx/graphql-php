@@ -14,6 +14,4 @@ class ArgumentNode extends Node
 
     /** @var NameNode */
     public $name;
-
-
 }

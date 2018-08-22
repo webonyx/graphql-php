@@ -23,5 +23,4 @@ class FieldNode extends Node implements SelectionNode
 
     /** @var SelectionSetNode|null */
     public $selectionSet;
-
 }

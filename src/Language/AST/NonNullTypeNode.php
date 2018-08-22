@@ -11,5 +11,4 @@ class NonNullTypeNode extends Node implements TypeNode
 
     /** @var NameNode | ListTypeNode */
     public $type;
-
 }

@@ -14,5 +14,4 @@ class SchemaDefinitionNode extends Node implements TypeSystemDefinitionNode
 
     /** @var OperationTypeDefinitionNode[] */
     public $operationTypes;
-
 }

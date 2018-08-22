@@ -14,5 +14,4 @@ class StringValueNode extends Node implements ValueNode
 
     /** @var bool|null */
     public $block;
-
 }
