@@ -75,36 +75,112 @@ class ASTDefinitionBuilder
         $this->cache = Type::getAllBuiltInTypes();
     }
 
-    /**
-     * @param TypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
-     * @return Type
-     */
-    private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
+    public function buildDirective(DirectiveDefinitionNode $directiveNode)
     {
-        if ($inputTypeNode->kind === NodeKind::LIST_TYPE) {
-            return Type::listOf($this->buildWrappedType($innerType, $inputTypeNode->type));
-        }
-        if ($inputTypeNode->kind === NodeKind::NON_NULL_TYPE) {
-            $wrappedType = $this->buildWrappedType($innerType, $inputTypeNode->type);
-
-            return Type::nonNull(NonNull::assertNullableType($wrappedType));
-        }
-
-        return $innerType;
+        return new Directive([
+            'name'        => $directiveNode->name->value,
+            'description' => $this->getDescription($directiveNode),
+            'locations'   => Utils::map(
+                $directiveNode->locations,
+                function ($node) {
+                    return $node->value;
+                }
+            ),
+            'args'        => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
+            'astNode'     => $directiveNode,
+        ]);
     }
 
     /**
-     * @param TypeNode|ListTypeNode|NonNullTypeNode $typeNode
-     * @return TypeNode
+     * Given an ast node, returns its string description.
      */
-    private function getNamedTypeNode(TypeNode $typeNode)
+    private function getDescription($node)
     {
-        $namedType = $typeNode;
-        while ($namedType->kind === NodeKind::LIST_TYPE || $namedType->kind === NodeKind::NON_NULL_TYPE) {
-            $namedType = $namedType->type;
+        if ($node->description) {
+            return $node->description->value;
+        }
+        if (isset($this->options['commentDescriptions'])) {
+            $rawValue = $this->getLeadingCommentBlock($node);
+            if ($rawValue !== null) {
+                return BlockString::value("\n" . $rawValue);
+            }
         }
 
-        return $namedType;
+        return null;
+    }
+
+    private function getLeadingCommentBlock($node)
+    {
+        $loc = $node->loc;
+        if (! $loc || ! $loc->startToken) {
+            return null;
+        }
+        $comments = [];
+        $token    = $loc->startToken->prev;
+        while ($token &&
+            $token->kind === Token::COMMENT &&
+            $token->next && $token->prev &&
+            $token->line + 1 === $token->next->line &&
+            $token->line !== $token->prev->line
+        ) {
+            $value      = $token->value;
+            $comments[] = $value;
+            $token      = $token->prev;
+        }
+
+        return implode("\n", array_reverse($comments));
+    }
+
+    private function makeInputValues($values)
+    {
+        return Utils::keyValMap(
+            $values,
+            function ($value) {
+                return $value->name->value;
+            },
+            function ($value) {
+                // Note: While this could make assertions to get the correctly typed
+                // value, that would throw immediately while type system validation
+                // with validateSchema() will produce more actionable results.
+                $type   = $this->internalBuildWrappedType($value->type);
+                $config = [
+                    'name'        => $value->name->value,
+                    'type'        => $type,
+                    'description' => $this->getDescription($value),
+                    'astNode'     => $value,
+                ];
+                if (isset($value->defaultValue)) {
+                    $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
+                }
+
+                return $config;
+            }
+        );
+    }
+
+    /**
+     * @return Type|InputType
+     * @throws Error
+     */
+    private function internalBuildWrappedType(TypeNode $typeNode)
+    {
+        $typeDef = $this->buildType($this->getNamedTypeNode($typeNode));
+
+        return $this->buildWrappedType($typeDef, $typeNode);
+    }
+
+    /**
+     * @param string|NamedTypeNode $ref
+     * @return Type
+     * @throws Error
+     */
+    public function buildType($ref)
+    {
+        if (is_string($ref)) {
+            return $this->internalBuildType($ref);
+        }
+
+        return $this->internalBuildType($ref->name->value, $ref);
     }
 
     /**
@@ -155,61 +231,6 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param string|NamedTypeNode $ref
-     * @return Type
-     * @throws Error
-     */
-    public function buildType($ref)
-    {
-        if (is_string($ref)) {
-            return $this->internalBuildType($ref);
-        }
-
-        return $this->internalBuildType($ref->name->value, $ref);
-    }
-
-    /**
-     * @return Type|InputType
-     * @throws Error
-     */
-    private function internalBuildWrappedType(TypeNode $typeNode)
-    {
-        $typeDef = $this->buildType($this->getNamedTypeNode($typeNode));
-
-        return $this->buildWrappedType($typeDef, $typeNode);
-    }
-
-    public function buildDirective(DirectiveDefinitionNode $directiveNode)
-    {
-        return new Directive([
-            'name'        => $directiveNode->name->value,
-            'description' => $this->getDescription($directiveNode),
-            'locations'   => Utils::map(
-                $directiveNode->locations,
-                function ($node) {
-                    return $node->value;
-                }
-            ),
-            'args'        => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
-            'astNode'     => $directiveNode,
-        ]);
-    }
-
-    public function buildField(FieldDefinitionNode $field)
-    {
-        return [
-            // Note: While this could make assertions to get the correctly typed
-            // value, that would throw immediately while type system validation
-            // with validateSchema() will produce more actionable results.
-            'type'              => $this->internalBuildWrappedType($field->type),
-            'description'       => $this->getDescription($field),
-            'args'              => $field->arguments ? $this->makeInputValues($field->arguments) : null,
-            'deprecationReason' => $this->getDeprecationReason($field),
-            'astNode'           => $field,
-        ];
-    }
-
-    /**
      * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|EnumTypeDefinitionNode|ScalarTypeDefinitionNode|InputObjectTypeDefinitionNode|UnionTypeDefinitionNode $def
      * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
      * @throws Error
@@ -232,35 +253,6 @@ class ASTDefinitionBuilder
                 return $this->makeScalarDef($def);
             case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
                 return $this->makeInputObjectDef($def);
-            default:
-                throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
-        }
-    }
-
-    /**
-     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|EnumTypeExtensionNode|ScalarTypeDefinitionNode|InputObjectTypeDefinitionNode $def
-     * @param mixed[]                                                                                                                           $config
-     * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
-     * @throws Error
-     */
-    private function makeSchemaDefFromConfig($def, array $config)
-    {
-        if (! $def) {
-            throw new Error('def must be defined.');
-        }
-        switch ($def->kind) {
-            case NodeKind::OBJECT_TYPE_DEFINITION:
-                return new ObjectType($config);
-            case NodeKind::INTERFACE_TYPE_DEFINITION:
-                return new InterfaceType($config);
-            case NodeKind::ENUM_TYPE_DEFINITION:
-                return new EnumType($config);
-            case NodeKind::UNION_TYPE_DEFINITION:
-                return new UnionType($config);
-            case NodeKind::SCALAR_TYPE_DEFINITION:
-                return new CustomScalarType($config);
-            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
-                return new InputObjectType($config);
             default:
                 throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
         }
@@ -298,6 +290,34 @@ class ASTDefinitionBuilder
             : [];
     }
 
+    public function buildField(FieldDefinitionNode $field)
+    {
+        return [
+            // Note: While this could make assertions to get the correctly typed
+            // value, that would throw immediately while type system validation
+            // with validateSchema() will produce more actionable results.
+            'type'              => $this->internalBuildWrappedType($field->type),
+            'description'       => $this->getDescription($field),
+            'args'              => $field->arguments ? $this->makeInputValues($field->arguments) : null,
+            'deprecationReason' => $this->getDeprecationReason($field),
+            'astNode'           => $field,
+        ];
+    }
+
+    /**
+     * Given a collection of directives, returns the string value for the
+     * deprecation reason.
+     *
+     * @param EnumValueDefinitionNode | FieldDefinitionNode $node
+     * @return string
+     */
+    private function getDeprecationReason($node)
+    {
+        $deprecated = Values::getDirectiveValues(Directive::deprecatedDirective(), $node);
+
+        return $deprecated['reason'] ?? null;
+    }
+
     private function makeImplementedInterfaces(ObjectTypeDefinitionNode $def)
     {
         if ($def->interfaces) {
@@ -313,33 +333,6 @@ class ASTDefinitionBuilder
         }
 
         return null;
-    }
-
-    private function makeInputValues($values)
-    {
-        return Utils::keyValMap(
-            $values,
-            function ($value) {
-                return $value->name->value;
-            },
-            function ($value) {
-                // Note: While this could make assertions to get the correctly typed
-                // value, that would throw immediately while type system validation
-                // with validateSchema() will produce more actionable results.
-                $type   = $this->internalBuildWrappedType($value->type);
-                $config = [
-                    'name'        => $value->name->value,
-                    'type'        => $type,
-                    'description' => $this->getDescription($value),
-                    'astNode'     => $value,
-                ];
-                if (isset($value->defaultValue)) {
-                    $config['defaultValue'] = AST::valueFromAST($value->defaultValue, $type);
-                }
-
-                return $config;
-            }
-        );
     }
 
     private function makeInterfaceDef(InterfaceTypeDefinitionNode $def)
@@ -427,56 +420,63 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * Given a collection of directives, returns the string value for the
-     * deprecation reason.
-     *
-     * @param EnumValueDefinitionNode | FieldDefinitionNode $node
-     * @return string
+     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|EnumTypeExtensionNode|ScalarTypeDefinitionNode|InputObjectTypeDefinitionNode $def
+     * @param mixed[]                                                                                                                           $config
+     * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
+     * @throws Error
      */
-    private function getDeprecationReason($node)
+    private function makeSchemaDefFromConfig($def, array $config)
     {
-        $deprecated = Values::getDirectiveValues(Directive::deprecatedDirective(), $node);
-
-        return $deprecated['reason'] ?? null;
+        if (! $def) {
+            throw new Error('def must be defined.');
+        }
+        switch ($def->kind) {
+            case NodeKind::OBJECT_TYPE_DEFINITION:
+                return new ObjectType($config);
+            case NodeKind::INTERFACE_TYPE_DEFINITION:
+                return new InterfaceType($config);
+            case NodeKind::ENUM_TYPE_DEFINITION:
+                return new EnumType($config);
+            case NodeKind::UNION_TYPE_DEFINITION:
+                return new UnionType($config);
+            case NodeKind::SCALAR_TYPE_DEFINITION:
+                return new CustomScalarType($config);
+            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
+                return new InputObjectType($config);
+            default:
+                throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
+        }
     }
 
     /**
-     * Given an ast node, returns its string description.
+     * @param TypeNode|ListTypeNode|NonNullTypeNode $typeNode
+     * @return TypeNode
      */
-    private function getDescription($node)
+    private function getNamedTypeNode(TypeNode $typeNode)
     {
-        if ($node->description) {
-            return $node->description->value;
-        }
-        if (isset($this->options['commentDescriptions'])) {
-            $rawValue = $this->getLeadingCommentBlock($node);
-            if ($rawValue !== null) {
-                return BlockString::value("\n" . $rawValue);
-            }
+        $namedType = $typeNode;
+        while ($namedType->kind === NodeKind::LIST_TYPE || $namedType->kind === NodeKind::NON_NULL_TYPE) {
+            $namedType = $namedType->type;
         }
 
-        return null;
+        return $namedType;
     }
 
-    private function getLeadingCommentBlock($node)
+    /**
+     * @param TypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+     * @return Type
+     */
+    private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
     {
-        $loc = $node->loc;
-        if (! $loc || ! $loc->startToken) {
-            return null;
+        if ($inputTypeNode->kind === NodeKind::LIST_TYPE) {
+            return Type::listOf($this->buildWrappedType($innerType, $inputTypeNode->type));
         }
-        $comments = [];
-        $token    = $loc->startToken->prev;
-        while ($token &&
-            $token->kind === Token::COMMENT &&
-            $token->next && $token->prev &&
-            $token->line + 1 === $token->next->line &&
-            $token->line !== $token->prev->line
-        ) {
-            $value      = $token->value;
-            $comments[] = $value;
-            $token      = $token->prev;
+        if ($inputTypeNode->kind === NodeKind::NON_NULL_TYPE) {
+            $wrappedType = $this->buildWrappedType($innerType, $inputTypeNode->type);
+
+            return Type::nonNull(NonNull::assertNullableType($wrappedType));
         }
 
-        return implode("\n", array_reverse($comments));
+        return $innerType;
     }
 }

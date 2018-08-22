@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
@@ -9,6 +12,14 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
+use function array_key_exists;
+use function array_keys;
+use function array_map;
+use function array_merge;
+use function is_array;
+use function is_object;
+use function is_string;
+use function sprintf;
 
 /**
  * Coerces a PHP value given a GraphQL Type.
@@ -20,23 +31,26 @@ class Value
 {
     /**
      * Given a type and any value, return a runtime value coerced to match the type.
+     *
+     * @param mixed[] $path
      */
-    public static function coerceValue($value, InputType $type, $blameNode = null, array $path = null)
+    public static function coerceValue($value, InputType $type, $blameNode = null, ?array $path = null)
     {
         if ($type instanceof NonNull) {
             if ($value === null) {
                 return self::ofErrors([
                     self::coercionError(
-                        "Expected non-nullable type $type not to be null",
+                        sprintf('Expected non-nullable type %s not to be null', $type),
                         $blameNode,
                         $path
                     ),
                 ]);
             }
+
             return self::coerceValue($value, $type->getWrappedType(), $blameNode, $path);
         }
 
-        if (null === $value) {
+        if ($value === null) {
             // Explicitly return the value null.
             return self::ofValue(null);
         }
@@ -50,7 +64,7 @@ class Value
             } catch (\Exception $error) {
                 return self::ofErrors([
                     self::coercionError(
-                        "Expected type {$type->name}",
+                        sprintf('Expected type %s', $type->name),
                         $blameNode,
                         $path,
                         $error->getMessage(),
@@ -60,7 +74,7 @@ class Value
             } catch (\Throwable $error) {
                 return self::ofErrors([
                     self::coercionError(
-                        "Expected type {$type->name}",
+                        sprintf('Expected type %s', $type->name),
                         $blameNode,
                         $path,
                         $error->getMessage(),
@@ -80,15 +94,21 @@ class Value
 
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
-                array_map(function($enumValue) { return $enumValue->name; }, $type->getValues())
+                array_map(
+                    function ($enumValue) {
+                        return $enumValue->name;
+                    },
+                    $type->getValues()
+                )
             );
+
             $didYouMean = $suggestions
-                ? "did you mean " . Utils::orList($suggestions) . "?"
+                ? 'did you mean ' . Utils::orList($suggestions) . '?'
                 : null;
 
             return self::ofErrors([
                 self::coercionError(
-                    "Expected type {$type->name}",
+                    sprintf('Expected type %s', $type->name),
                     $blameNode,
                     $path,
                     $didYouMean
@@ -99,7 +119,7 @@ class Value
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
             if (is_array($value) || $value instanceof \Traversable) {
-                $errors = [];
+                $errors       = [];
                 $coercedValue = [];
                 foreach ($value as $index => $itemValue) {
                     $coercedItem = self::coerceValue(
@@ -114,44 +134,32 @@ class Value
                         $coercedValue[] = $coercedItem['value'];
                     }
                 }
+
                 return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
             }
             // Lists accept a non-list value as a list of one.
             $coercedItem = self::coerceValue($value, $itemType, $blameNode);
+
             return $coercedItem['errors'] ? $coercedItem : self::ofValue([$coercedItem['value']]);
         }
 
         if ($type instanceof InputObjectType) {
-            if (!is_object($value) && !is_array($value) && !$value instanceof \Traversable) {
+            if (! is_object($value) && ! is_array($value) && ! $value instanceof \Traversable) {
                 return self::ofErrors([
                     self::coercionError(
-                        "Expected type {$type->name} to be an object",
+                        sprintf('Expected type %s to be an object', $type->name),
                         $blameNode,
                         $path
                     ),
                 ]);
             }
 
-            $errors = [];
+            $errors       = [];
             $coercedValue = [];
-            $fields = $type->getFields();
+            $fields       = $type->getFields();
             foreach ($fields as $fieldName => $field) {
-                if (!array_key_exists($fieldName, $value)) {
-                    if ($field->defaultValueExists()) {
-                        $coercedValue[$fieldName] = $field->defaultValue;
-                    } else if ($field->getType() instanceof NonNull) {
-                        $fieldPath = self::printPath(self::atPath($path, $fieldName));
-                        $errors = self::add(
-                            $errors,
-                            self::coercionError(
-                                "Field {$fieldPath} of required " .
-                                "type {$field->type} was not provided",
-                                $blameNode
-                            )
-                        );
-                    }
-                } else {
-                    $fieldValue = $value[$fieldName];
+                if (array_key_exists($fieldName, $value)) {
+                    $fieldValue   = $value[$fieldName];
                     $coercedField = self::coerceValue(
                         $fieldValue,
                         $field->getType(),
@@ -163,63 +171,76 @@ class Value
                     } else {
                         $coercedValue[$fieldName] = $coercedField['value'];
                     }
-                }
-            }
-
-            // Ensure every provided field is defined.
-            foreach ($value as $fieldName => $field) {
-                if (!array_key_exists($fieldName, $fields)) {
-                    $suggestions = Utils::suggestionList(
-                        $fieldName,
-                        array_keys($fields)
-                    );
-                    $didYouMean = $suggestions
-                        ? "did you mean " . Utils::orList($suggestions) . "?"
-                        : null;
-                    $errors = self::add(
+                } elseif ($field->defaultValueExists()) {
+                    $coercedValue[$fieldName] = $field->defaultValue;
+                } elseif ($field->getType() instanceof NonNull) {
+                    $fieldPath = self::printPath(self::atPath($path, $fieldName));
+                    $errors    = self::add(
                         $errors,
                         self::coercionError(
-                            "Field \"{$fieldName}\" is not defined by type {$type->name}",
-                            $blameNode,
-                            $path,
-                            $didYouMean
+                            sprintf(
+                                'Field %s of required type %s was not provided',
+                                $fieldPath,
+                                $field->type->toString()
+                            ),
+                            $blameNode
                         )
                     );
                 }
             }
 
+            // Ensure every provided field is defined.
+            foreach ($value as $fieldName => $field) {
+                if (array_key_exists($fieldName, $fields)) {
+                    continue;
+                }
+
+                $suggestions = Utils::suggestionList(
+                    $fieldName,
+                    array_keys($fields)
+                );
+                $didYouMean  = $suggestions
+                    ? 'did you mean ' . Utils::orList($suggestions) . '?'
+                    : null;
+                $errors      = self::add(
+                    $errors,
+                    self::coercionError(
+                        sprintf('Field "%s" is not defined by type %s', $fieldName, $type->name),
+                        $blameNode,
+                        $path,
+                        $didYouMean
+                    )
+                );
+            }
+
             return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
         }
 
-        throw new Error("Unexpected type {$type}");
+        throw new Error(sprintf('Unexpected type %s', $type->name));
     }
 
-    private static function ofValue($value) {
-        return ['errors' => null, 'value' => $value];
-    }
-
-    private static function ofErrors($errors) {
+    private static function ofErrors($errors)
+    {
         return ['errors' => $errors, 'value' => Utils::undefined()];
     }
 
-    private static function add($errors, $moreErrors) {
-        return array_merge($errors, is_array($moreErrors) ? $moreErrors : [$moreErrors]);
-    }
-
-    private static function atPath($prev, $key) {
-        return ['prev' => $prev, 'key' => $key];
-    }
-
     /**
-     * @param string $message
-     * @param Node $blameNode
-     * @param array|null $path
-     * @param string $subMessage
+     * @param string                     $message
+     * @param Node                       $blameNode
+     * @param mixed[]|null               $path
+     * @param string                     $subMessage
      * @param \Exception|\Throwable|null $originalError
      * @return Error
      */
-    private static function coercionError($message, $blameNode, array $path = null, $subMessage = null, $originalError = null) {
+    private static function coercionError(
+        $message,
+        $blameNode,
+        ?array $path = null,
+        $subMessage = null,
+        $originalError = null
+    ) {
         $pathStr = self::printPath($path);
+
         // Return a GraphQLError instance
         return new Error(
             $message .
@@ -236,19 +257,50 @@ class Value
     /**
      * Build a string describing the path into the value where the error was found
      *
-     * @param $path
+     * @param mixed[]|null $path
      * @return string
      */
-    private static function printPath(array $path = null) {
-        $pathStr = '';
+    private static function printPath(?array $path = null)
+    {
+        $pathStr     = '';
         $currentPath = $path;
-        while($currentPath) {
-            $pathStr =
+        while ($currentPath) {
+            $pathStr     =
                 (is_string($currentPath['key'])
                     ? '.' . $currentPath['key']
                     : '[' . $currentPath['key'] . ']') . $pathStr;
             $currentPath = $currentPath['prev'];
         }
+
         return $pathStr ? 'value' . $pathStr : '';
+    }
+
+    /**
+     * @param mixed $value
+     * @return (mixed|null)[]
+     */
+    private static function ofValue($value)
+    {
+        return ['errors' => null, 'value' => $value];
+    }
+
+    /**
+     * @param mixed|null $prev
+     * @param mixed|null $key
+     * @return (mixed|null)[]
+     */
+    private static function atPath($prev, $key)
+    {
+        return ['prev' => $prev, 'key' => $key];
+    }
+
+    /**
+     * @param Error[]       $errors
+     * @param Error|Error[] $moreErrors
+     * @return Error[]
+     */
+    private static function add($errors, $moreErrors)
+    {
+        return array_merge($errors, is_array($moreErrors) ? $moreErrors : [$moreErrors]);
     }
 }
