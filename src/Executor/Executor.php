@@ -285,29 +285,31 @@ class Executor
         // field and its descendants will be omitted, and sibling fields will still
         // be executed. An execution which encounters errors will still result in a
         // resolved Promise.
-        $result = $this->exeContext->promises->create(function (callable $resolve) {
-            return $resolve($this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue));
-        });
+        $data = $this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue);
+        $result = $this->buildResponse($data);
 
-        return $result
-            ->then(
-                null,
-                function ($error) {
-                    // Errors from sub-fields of a NonNull type may propagate to the top level,
-                    // at which point we still log the error and null the parent field, which
-                    // in this case is the entire response.
-                    $this->exeContext->addError($error);
+        // Note: we deviate here from the reference implementation a bit by always returning promise
+        // But for the "sync" case it is always fulfilled
+        return $this->isPromise($result)
+            ? $result
+            : $this->exeContext->promises->createFulfilled($result);
+    }
 
-                    return null;
-                }
-            )
-            ->then(function ($data) {
-                if ($data !== null) {
-                    $data = (array) $data;
-                }
-
-                return new ExecutionResult($data, $this->exeContext->errors);
+    /**
+     * @param mixed|null|Promise $data
+     * @return ExecutionResult|Promise
+     */
+    private function buildResponse($data)
+    {
+        if ($this->isPromise($data)) {
+            return $data->then(function ($resolved) {
+                return $this->buildResponse($resolved);
             });
+        }
+        if ($data !== null) {
+            $data = (array) $data;
+        }
+        return new ExecutionResult($data, $this->exeContext->errors);
     }
 
     /**
@@ -333,14 +335,12 @@ class Executor
                 $this->executeFieldsSerially($type, $rootValue, $path, $fields) :
                 $this->executeFields($type, $rootValue, $path, $fields);
 
-            $promise = $this->getPromise($result);
-            if ($promise) {
-                return $promise->then(
+            if ($this->isPromise($result)) {
+                return $result->then(
                     null,
                     function ($error) {
                         $this->exeContext->addError($error);
-
-                        return null;
+                        return $this->exeContext->promises->createFulfilled(null);
                     }
                 );
             }
@@ -348,7 +348,6 @@ class Executor
             return $result;
         } catch (Error $error) {
             $this->exeContext->addError($error);
-
             return null;
         }
     }
@@ -555,44 +554,34 @@ class Executor
      */
     private function executeFieldsSerially(ObjectType $parentType, $sourceValue, $path, $fields)
     {
-        $prevPromise = $this->exeContext->promises->createFulfilled([]);
-
-        $process = function ($results, $responseName, $path, $parentType, $sourceValue, $fieldNodes) {
-            $fieldPath   = $path;
-            $fieldPath[] = $responseName;
-            $result      = $this->resolveField($parentType, $sourceValue, $fieldNodes, $fieldPath);
-            if ($result === self::$UNDEFINED) {
-                return $results;
-            }
-            $promise = $this->getPromise($result);
-            if ($promise) {
-                return $promise->then(function ($resolvedResult) use ($responseName, $results) {
-                    $results[$responseName] = $resolvedResult;
-
+        $result = $this->promiseReduce(
+            array_keys($fields->getArrayCopy()),
+            function ($results, $responseName) use ($path, $parentType, $sourceValue, $fields) {
+                $fieldNodes  = $fields[$responseName];
+                $fieldPath   = $path;
+                $fieldPath[] = $responseName;
+                $result      = $this->resolveField($parentType, $sourceValue, $fieldNodes, $fieldPath);
+                if ($result === self::$UNDEFINED) {
                     return $results;
-                });
-            }
-            $results[$responseName] = $result;
-
-            return $results;
-        };
-
-        foreach ($fields as $responseName => $fieldNodes) {
-            $prevPromise = $prevPromise->then(function ($resolvedResults) use (
-                $process,
-                $responseName,
-                $path,
-                $parentType,
-                $sourceValue,
-                $fieldNodes
-            ) {
-                return $process($resolvedResults, $responseName, $path, $parentType, $sourceValue, $fieldNodes);
+                }
+                $promise = $this->getPromise($result);
+                if ($promise) {
+                    return $promise->then(function ($resolvedResult) use ($responseName, $results) {
+                        $results[$responseName] = $resolvedResult;
+                        return $results;
+                    });
+                }
+                $results[$responseName] = $result;
+                return $results;
+            },
+            []
+        );
+        if ($this->isPromise($result)) {
+            return $result->then(function ($resolvedResults) {
+                return self::fixResultsIfEmptyArray($resolvedResults);
             });
         }
-
-        return $prevPromise->then(function ($resolvedResults) {
-            return self::fixResultsIfEmptyArray($resolvedResults);
-        });
+        return self::fixResultsIfEmptyArray($result);
     }
 
     /**
@@ -963,6 +952,15 @@ class Executor
     }
 
     /**
+     * @param mixed $value
+     * @return bool
+     */
+    private function isPromise($value)
+    {
+        return $value instanceof Promise || $this->exeContext->promises->isThenable($value);
+    }
+
+    /**
      * Only returns the value if it acts like a Promise, i.e. has a "then" function,
      * otherwise returns null.
      *
@@ -988,6 +986,31 @@ class Executor
         }
 
         return null;
+    }
+
+    /**
+     * Similar to array_reduce(), however the reducing callback may return
+     * a Promise, in which case reduction will continue after each promise resolves.
+     *
+     * If the callback does not return a Promise, then this function will also not
+     * return a Promise.
+     *
+     * @param mixed[] $values
+     * @param \Closure $callback
+     * @param Promise|mixed|null $initialValue
+     * @return mixed[]
+     */
+    private function promiseReduce(array $values, \Closure $callback, $initialValue)
+    {
+        return array_reduce($values, function ($previous, $value) use ($callback) {
+            $promise = $this->getPromise($previous);
+            if ($promise) {
+                return $promise->then(function ($resolved) use ($callback, $value) {
+                    return $callback($resolved, $value);
+                });
+            }
+            return $callback($previous, $value);
+        }, $initialValue);
     }
 
     /**
