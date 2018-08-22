@@ -351,7 +351,7 @@ class SchemaPrinter
         $interfaces            = $type->getInterfaces();
         $implementedInterfaces = ! empty($interfaces) ?
             ' implements ' . implode(
-                '& ',
+                ' & ',
                 array_map(
                     function ($i) {
                         return $i->name;
