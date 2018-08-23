@@ -6,15 +6,6 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
 
-class VisitorOperation
-{
-    public $doBreak;
-
-    public $doContinue;
-
-    public $removeNode;
-}
-
 /**
  * Utility for efficient AST traversal and modification.
  *
@@ -258,6 +249,7 @@ class Visitor
 
                 if ($visitFn) {
                     $result = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
+                    $editValue = null;
 
                     if ($result !== null) {
                         if ($result instanceof VisitorOperation) {
