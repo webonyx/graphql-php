@@ -2,6 +2,7 @@
 namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
+use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Type\Schema;
@@ -55,6 +56,11 @@ class ExecutionContext
      * @var array
      */
     public $errors;
+
+    /**
+     * @var PromiseAdapter
+     */
+    public $promises;
 
     public function __construct(
         $schema,
