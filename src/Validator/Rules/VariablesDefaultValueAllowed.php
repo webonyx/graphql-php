@@ -49,10 +49,10 @@ class VariablesDefaultValueAllowed extends AbstractValidationRule
 
                 return Visitor::skipNode();
             },
-            NodeKind::SELECTION_SET => function(SelectionSetNode $node) use ($context) {
+            NodeKind::SELECTION_SET => function(SelectionSetNode $node) {
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) use ($context) {
+            NodeKind::FRAGMENT_DEFINITION => function(FragmentDefinitionNode $node) {
                 return Visitor::skipNode();
             },
         ];
