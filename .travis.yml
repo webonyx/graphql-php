@@ -28,10 +28,7 @@ before_install:
     - phpenv config-rm xdebug.ini || true
     - composer selfupdate
 
-install:
-    - composer install --dev --prefer-dist
-    - composer require react/promise:2.*
-    - composer require psr/http-message:1.*
+install: composer install --dev --prefer-dist
 
 script: if [ "$TRAVIS_PHP_VERSION" == "5.6" ]; then bin/phpunit --coverage-clover build/logs/clover.xml --group default,ReactPromise; else bin/phpunit --group default,ReactPromise; fi
 

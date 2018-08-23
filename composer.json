@@ -14,7 +14,8 @@
   },
   "require-dev": {
     "phpunit/phpunit": "^4.8",
-    "psr/http-message": "^1.0"
+    "psr/http-message": "^1.0",
+    "react/promise": "2.*"
   },
   "config": {
     "bin-dir": "bin",
