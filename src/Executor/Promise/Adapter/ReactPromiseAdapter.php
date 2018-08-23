@@ -5,6 +5,7 @@ use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
 use React\Promise\Promise as ReactPromise;
+use React\Promise\PromiseInterface as ReactPromiseInterface;
 
 class ReactPromiseAdapter implements PromiseAdapter
 {
@@ -13,7 +14,7 @@ class ReactPromiseAdapter implements PromiseAdapter
      */
     public function isThenable($value)
     {
-        return $value instanceof PromiseAdapter;
+        return $value instanceof ReactPromiseInterface;
     }
 
     /**
