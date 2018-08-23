@@ -9,7 +9,13 @@ php:
     - 7.2
     - nightly
 
-matrix:
+jobs:
+    include:
+        - stage: Code Quality
+          php: 7.2
+          env: STATIC_ANALYSIS
+          install: travis_retry composer install --prefer-dist
+          script: composer static-analysis
     allow_failures:
         - php: nightly
 

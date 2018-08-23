@@ -18,9 +18,6 @@
   },
   "config": {
     "bin-dir": "bin",
-    "platform": {
-      "php": "5.6.0"
-    },
     "preferred-install": "dist",
     "sort-packages": true
 },
@@ -35,6 +32,15 @@
       "GraphQL\\Benchmarks\\": "benchmarks/",
       "GraphQL\\Examples\\Blog\\": "examples/01-blog/Blog/"
     }
+  },
+  "scripts": {
+    "static-analysis": [
+      "rm phpstan.phar || true",
+      "@composer req --ansi --no-interaction --dev phpstan/phpstan-shim",
+      "cp -f vendor/phpstan/phpstan-shim/phpstan.phar .",
+      "@composer rem --ansi --dev phpstan/phpstan-shim",
+      "@php phpstan.phar analyse --ansi -l 1 -c phpstan.neon src"
+    ]
   },
   "suggest": {
     "react/promise": "To leverage async resolving on React PHP platform",
