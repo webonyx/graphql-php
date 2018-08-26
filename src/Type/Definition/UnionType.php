@@ -1,38 +1,35 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Utils\Utils;
+use function call_user_func;
+use function is_array;
+use function is_callable;
+use function is_string;
+use function sprintf;
 
 /**
  * Class UnionType
- * @package GraphQL\Type\Definition
  */
 class UnionType extends Type implements AbstractType, OutputType, CompositeType, NamedType
 {
-    /**
-     * @var UnionTypeDefinitionNode
-     */
+    /** @var UnionTypeDefinitionNode */
     public $astNode;
 
-    /**
-     * @var ObjectType[]
-     */
+    /** @var ObjectType[] */
     private $types;
 
-    /**
-     * @var ObjectType[]
-     */
+    /** @var ObjectType[] */
     private $possibleTypeNames;
 
-    /**
-     * UnionType constructor.
-     * @param $config
-     */
     public function __construct($config)
     {
-        if (!isset($config['name'])) {
+        if (! isset($config['name'])) {
             $config['name'] = $this->tryInferName();
         }
 
@@ -43,10 +40,29 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
          * the default implemenation will call `isTypeOf` on each implementing
          * Object type.
          */
-        $this->name = $config['name'];
-        $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
-        $this->config = $config;
+        $this->name        = $config['name'];
+        $this->description = $config['description'] ?? null;
+        $this->astNode     = $config['astNode'] ?? null;
+        $this->config      = $config;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isPossibleType(Type $type)
+    {
+        if (! $type instanceof ObjectType) {
+            return false;
+        }
+
+        if ($this->possibleTypeNames === null) {
+            $this->possibleTypeNames = [];
+            foreach ($this->getTypes() as $possibleType) {
+                $this->possibleTypeNames[$possibleType->name] = true;
+            }
+        }
+
+        return isset($this->possibleTypeNames[$type->name]);
     }
 
     /**
@@ -54,60 +70,45 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      */
     public function getTypes()
     {
-        if (null === $this->types) {
-            if (!isset($this->config['types'])) {
+        if ($this->types === null) {
+            if (! isset($this->config['types'])) {
                 $types = null;
-            } else if (is_callable($this->config['types'])) {
+            } elseif (is_callable($this->config['types'])) {
                 $types = call_user_func($this->config['types']);
             } else {
                 $types = $this->config['types'];
             }
 
-            if (!is_array($types)) {
+            if (! is_array($types)) {
                 throw new InvariantViolation(
-                    "Must provide Array of types or a callable which returns " .
-                    "such an array for Union {$this->name}"
+                    sprintf(
+                        'Must provide Array of types or a callable which returns such an array for Union %s',
+                        $this->name
+                    )
                 );
             }
 
             $this->types = $types;
         }
+
         return $this->types;
-    }
-
-    /**
-     * @param Type $type
-     * @return mixed
-     */
-    public function isPossibleType(Type $type)
-    {
-        if (!$type instanceof ObjectType) {
-            return false;
-        }
-
-        if (null === $this->possibleTypeNames) {
-            $this->possibleTypeNames = [];
-            foreach ($this->getTypes() as $possibleType) {
-                $this->possibleTypeNames[$possibleType->name] = true;
-            }
-        }
-        return isset($this->possibleTypeNames[$type->name]);
     }
 
     /**
      * Resolves concrete ObjectType for given object value
      *
-     * @param $objectValue
-     * @param $context
-     * @param ResolveInfo $info
+     * @param object $objectValue
+     * @param mixed  $context
      * @return callable|null
      */
     public function resolveType($objectValue, $context, ResolveInfo $info)
     {
         if (isset($this->config['resolveType'])) {
             $fn = $this->config['resolveType'];
+
             return $fn($objectValue, $context, $info);
         }
+
         return null;
     }
 
@@ -118,11 +119,17 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     {
         parent::assertValid();
 
-        if (isset($this->config['resolveType'])) {
-            Utils::invariant(
-                is_callable($this->config['resolveType']),
-                "{$this->name} must provide \"resolveType\" as a function, but got: " . Utils::printSafe($this->config['resolveType'])
-            );
+        if (! isset($this->config['resolveType'])) {
+            return;
         }
+
+        Utils::invariant(
+            is_callable($this->config['resolveType']),
+            sprintf(
+                '%s must provide "resolveType" as a function, but got: %s',
+                $this->name,
+                Utils::printSafe($this->config['resolveType'])
+            )
+        );
     }
 }

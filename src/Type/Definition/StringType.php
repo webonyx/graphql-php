@@ -1,26 +1,29 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
+use function is_array;
+use function is_object;
+use function is_scalar;
+use function method_exists;
 
 /**
  * Class StringType
- * @package GraphQL\Type\Definition
  */
 class StringType extends ScalarType
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name = Type::STRING;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     public $description =
-'The `String` scalar type represents textual data, represented as UTF-8
+        'The `String` scalar type represents textual data, represented as UTF-8
 character sequences. The String type is most often used by GraphQL to
 represent free-form human-readable text.';
 
@@ -43,10 +46,23 @@ represent free-form human-readable text.';
         if (is_object($value) && method_exists($value, '__toString')) {
             return (string) $value;
         }
-        if (!is_scalar($value)) {
-            throw new Error("String cannot represent non scalar value: " . Utils::printSafe($value));
+        if (! is_scalar($value)) {
+            throw new Error('String cannot represent non scalar value: ' . Utils::printSafe($value));
         }
+
         return $this->coerceString($value);
+    }
+
+    private function coerceString($value)
+    {
+        if (is_array($value)) {
+            throw new Error(
+                'String cannot represent an array value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return (string) $value;
     }
 
     /**
@@ -60,12 +76,12 @@ represent free-form human-readable text.';
     }
 
     /**
-     * @param $valueNode
-     * @param array|null $variables
+     * @param Node         $valueNode
+     * @param mixed[]|null $variables
      * @return null|string
      * @throws \Exception
      */
-    public function parseLiteral($valueNode, array $variables = null)
+    public function parseLiteral($valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof StringValueNode) {
             return $valueNode->value;
@@ -73,16 +89,5 @@ represent free-form human-readable text.';
 
         // Intentionally without message, as all information already in wrapped Exception
         throw new \Exception();
-    }
-
-    private function coerceString($value) {
-        if (is_array($value)) {
-            throw new Error(
-                'String cannot represent an array value: ' .
-                Utils::printSafe($value)
-            );
-        }
-
-        return (string) $value;
     }
 }
