@@ -16,7 +16,7 @@ before_install:
 
 install: composer install --dev --prefer-dist
 
-script: bin/phpunit --group default,ReactPromise
+script: ./vendor/bin/phpunit --group default,ReactPromise
 
 jobs:
   allow_failures:
@@ -34,7 +34,7 @@ jobs:
         - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{.disabled,}
         - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
       script:
-        - bin/phpunit --coverage-clover clover.xml
+        - ./vendor/bin/phpunit --coverage-clover clover.xml
       after_script:
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover clover.xml

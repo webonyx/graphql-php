@@ -21,7 +21,6 @@
     "react/promise": "2.*"
   },
   "config": {
-    "bin-dir": "bin",
     "preferred-install": "dist",
     "sort-packages": true
 },
