@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\Error;
@@ -10,27 +13,27 @@ use PHPUnit\Framework\TestCase;
 class ErrorTest extends TestCase
 {
     /**
-     * @it uses the stack of an original error
+     * @see it('uses the stack of an original error')
      */
-    public function testUsesTheStackOfAnOriginalError()
+    public function testUsesTheStackOfAnOriginalError() : void
     {
-        $prev = new \Exception("Original");
-        $err = new Error('msg', null, null, null, null, $prev);
+        $prev = new \Exception('Original');
+        $err  = new Error('msg', null, null, null, null, $prev);
 
         $this->assertSame($err->getPrevious(), $prev);
     }
 
     /**
-     * @it converts nodes to positions and locations
+     * @see it('converts nodes to positions and locations')
      */
-    public function testConvertsNodesToPositionsAndLocations()
+    public function testConvertsNodesToPositionsAndLocations() : void
     {
-        $source = new Source('{
+        $source    = new Source('{
       field
     }');
-        $ast = Parser::parse($source);
+        $ast       = Parser::parse($source);
         $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
-        $e = new Error('msg', [ $fieldNode ]);
+        $e         = new Error('msg', [$fieldNode]);
 
         $this->assertEquals([$fieldNode], $e->nodes);
         $this->assertEquals($source, $e->getSource());
@@ -39,16 +42,16 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * @it converts single node to positions and locations
+     * @see it('converts single node to positions and locations')
      */
-    public function testConvertSingleNodeToPositionsAndLocations()
+    public function testConvertSingleNodeToPositionsAndLocations() : void
     {
-        $source = new Source('{
+        $source    = new Source('{
       field
     }');
-        $ast = Parser::parse($source);
+        $ast       = Parser::parse($source);
         $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
-        $e = new Error('msg', $fieldNode); // Non-array value.
+        $e         = new Error('msg', $fieldNode); // Non-array value.
 
         $this->assertEquals([$fieldNode], $e->nodes);
         $this->assertEquals($source, $e->getSource());
@@ -57,16 +60,16 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * @it converts node with loc.start === 0 to positions and locations
+     * @see it('converts node with loc.start === 0 to positions and locations')
      */
-    public function testConvertsNodeWithStart0ToPositionsAndLocations()
+    public function testConvertsNodeWithStart0ToPositionsAndLocations() : void
     {
-        $source = new Source('{
+        $source        = new Source('{
       field
     }');
-        $ast = Parser::parse($source);
+        $ast           = Parser::parse($source);
         $operationNode = $ast->definitions[0];
-        $e = new Error('msg', [ $operationNode ]);
+        $e             = new Error('msg', [$operationNode]);
 
         $this->assertEquals([$operationNode], $e->nodes);
         $this->assertEquals($source, $e->getSource());
@@ -75,14 +78,14 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * @it converts source and positions to locations
+     * @see it('converts source and positions to locations')
      */
-    public function testConvertsSourceAndPositionsToLocations()
+    public function testConvertsSourceAndPositionsToLocations() : void
     {
         $source = new Source('{
       field
     }');
-        $e = new Error('msg', null, $source, [ 10 ]);
+        $e      = new Error('msg', null, $source, [10]);
 
         $this->assertEquals(null, $e->nodes);
         $this->assertEquals($source, $e->getSource());
@@ -91,21 +94,21 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * @it serializes to include message
+     * @see it('serializes to include message')
      */
-    public function testSerializesToIncludeMessage()
+    public function testSerializesToIncludeMessage() : void
     {
         $e = new Error('msg');
         $this->assertEquals(['message' => 'msg'], $e->toSerializableArray());
     }
 
     /**
-     * @it serializes to include message and locations
+     * @see it('serializes to include message and locations')
      */
-    public function testSerializesToIncludeMessageAndLocations()
+    public function testSerializesToIncludeMessageAndLocations() : void
     {
         $node = Parser::parse('{ field }')->definitions[0]->selectionSet->selections[0];
-        $e = new Error('msg', [ $node ]);
+        $e    = new Error('msg', [$node]);
 
         $this->assertEquals(
             ['message' => 'msg', 'locations' => [['line' => 1, 'column' => 3]]],
@@ -114,26 +117,26 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * @it serializes to include path
+     * @see it('serializes to include path')
      */
-    public function testSerializesToIncludePath()
+    public function testSerializesToIncludePath() : void
     {
         $e = new Error(
             'msg',
             null,
             null,
             null,
-            [ 'path', 3, 'to', 'field' ]
+            ['path', 3, 'to', 'field']
         );
 
-        $this->assertEquals([ 'path', 3, 'to', 'field' ], $e->path);
-        $this->assertEquals(['message' => 'msg', 'path' => [ 'path', 3, 'to', 'field' ]], $e->toSerializableArray());
+        $this->assertEquals(['path', 3, 'to', 'field'], $e->path);
+        $this->assertEquals(['message' => 'msg', 'path' => ['path', 3, 'to', 'field']], $e->toSerializableArray());
     }
 
     /**
-     * @it default error formatter includes extension fields
+     * @see it('default error formatter includes extension fields')
      */
-    public function testDefaultErrorFormatterIncludesExtensionFields()
+    public function testDefaultErrorFormatterIncludesExtensionFields() : void
     {
         $e = new Error(
             'msg',
@@ -146,9 +149,12 @@ class ErrorTest extends TestCase
         );
 
         $this->assertEquals(['foo' => 'bar'], $e->getExtensions());
-        $this->assertEquals([
-            'message' => 'msg',
-            'extensions' => ['foo' => 'bar'],
-        ], $e->toSerializableArray());
+        $this->assertEquals(
+            [
+                'message'    => 'msg',
+                'extensions' => ['foo' => 'bar'],
+            ],
+            $e->toSerializableArray()
+        );
     }
 }

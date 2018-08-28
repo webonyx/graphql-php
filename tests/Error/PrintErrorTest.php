@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Error;
 
 use GraphQL\Error\Error;
@@ -10,12 +13,10 @@ use PHPUnit\Framework\TestCase;
 
 class PrintErrorTest extends TestCase
 {
-    // Describe printError
-
     /**
-     * @it prints an line numbers with correct padding
+     * @see it('prints an line numbers with correct padding')
      */
-    public function testPrintsAnLineNumbersWithCorrectPadding()
+    public function testPrintsAnLineNumbersWithCorrectPadding() : void
     {
         $singleDigit = new Error(
             'Single digit line number with no padding',
@@ -24,7 +25,7 @@ class PrintErrorTest extends TestCase
             [0]
         );
 
-        $actual = FormattedError::printError($singleDigit);
+        $actual   = FormattedError::printError($singleDigit);
         $expected = 'Single digit line number with no padding
 
 Test (9:1)
@@ -39,8 +40,8 @@ Test (9:1)
             new Source("*\n", 'Test', new SourceLocation(9, 1)),
             [0]
         );
-        $actual = FormattedError::printError($doubleDigit);
-        $expected = 'Left padded first line number
+        $actual      = FormattedError::printError($doubleDigit);
+        $expected    = 'Left padded first line number
 
 Test (9:1)
  9: *
@@ -51,26 +52,27 @@ Test (9:1)
     }
 
     /**
-     * @it prints an error with nodes from different sources
+     * @see it('prints an error with nodes from different sources')
      */
-    public function testPrintsAnErrorWithNodesFromDifferentSources()
+    public function testPrintsAnErrorWithNodesFromDifferentSources() : void
     {
-        $sourceA = Parser::parse(new Source('type Foo {
+        $sourceA = Parser::parse(new Source(
+            'type Foo {
   field: String
 }',
-        'SourceA'
+            'SourceA'
         ));
 
         $fieldTypeA = $sourceA->definitions[0]->fields[0]->type;
 
-        $sourceB = Parser::parse(new Source('type Foo {
+        $sourceB = Parser::parse(new Source(
+            'type Foo {
   field: Int
 }',
             'SourceB'
         ));
 
         $fieldTypeB = $sourceB->definitions[0]->fields[0]->type;
-
 
         $error = new Error(
             'Example error with two nodes',
