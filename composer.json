@@ -42,6 +42,6 @@
   },
   "scripts": {
     "lint" : "phpcs",
-    "static-analysis": "@php bin/phpstan.phar analyse --ansi -l 1 -c phpstan.neon src"
+    "static-analysis": "@php ./vendor/bin/phpstan.phar analyse --ansi -l 1 -c phpstan.neon src"
   }
 }
