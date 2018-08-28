@@ -16,9 +16,12 @@
   "require-dev": {
     "doctrine/coding-standard": "^4.0",
     "phpunit/phpunit": "^7.2",
-    "psr/http-message": "^1.0"
+    "phpstan/phpstan-shim": "^0.10",
+    "psr/http-message": "^1.0",
+    "react/promise": "2.*"
   },
   "config": {
+    "bin-dir": "bin",
     "preferred-install": "dist",
     "sort-packages": true
 },
@@ -39,6 +42,7 @@
     "psr/http-message": "To use standard GraphQL server"
   },
   "scripts": {
-    "lint" : "phpcs"
+    "lint" : "phpcs",
+    "static-analysis": "@php bin/phpstan.phar analyse --ansi -l 1 -c phpstan.neon src"
   }
 }

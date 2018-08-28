@@ -7,7 +7,9 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Validator\ValidationContext;
 use function count;
@@ -59,7 +61,9 @@ class KnownDirectives extends ValidationRule
     }
 
     /**
-     * @param (Node|NodeList)[] $ancestors
+     * @param Node[]|NodeList[] $ancestors
+     *
+     * @return string
      */
     private function getDirectiveLocationForASTPath(array $ancestors)
     {

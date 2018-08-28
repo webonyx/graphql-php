@@ -6,10 +6,6 @@ php:
   - 7.2
   - nightly
 
-matrix:
-  allow_failures:
-    - php: nightly
-
 cache:
   directories:
     - $HOME/.composer/cache
@@ -18,12 +14,9 @@ before_install:
   - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
   - travis_retry composer self-update
 
-install:
-  - composer require react/promise:2.*
-  - composer require psr/http-message:1.*
-  - travis_retry composer update --prefer-dist
+install: composer install --dev --prefer-dist
 
-script: ./vendor/bin/phpunit --group default,ReactPromise
+script: bin/phpunit --group default,ReactPromise
 
 jobs:
   allow_failures:
@@ -41,13 +34,19 @@ jobs:
         - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{.disabled,}
         - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
       script:
-        - ./vendor/bin/phpunit --coverage-clover clover.xml
+        - bin/phpunit --coverage-clover clover.xml
       after_script:
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover clover.xml
 
-    - stage: Coding standard
+    - stage: Code Quality
       php: 7.1
       install: travis_retry composer install --prefer-dist
       script:
         - ./vendor/bin/phpcs
+
+    - stage: Code Quality
+      php: 7.2
+      env: STATIC_ANALYSIS
+      install: travis_retry composer install --prefer-dist
+      script: composer static-analysis

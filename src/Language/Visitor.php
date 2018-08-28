@@ -264,6 +264,7 @@ class Visitor
 
                 if ($visitFn) {
                     $result = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
+                    $editValue = null;
 
                     if ($result !== null) {
                         if ($result instanceof VisitorOperation) {
