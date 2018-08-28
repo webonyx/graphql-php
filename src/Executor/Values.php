@@ -52,35 +52,15 @@ class Values
             /** @var InputType|Type $varType */
             $varType = TypeInfo::typeFromAST($schema, $varDefNode->type);
 
-            if (! Type::isInputType($varType)) {
-                $errors[] = new Error(
-                    sprintf(
-                        'Variable "$%s" expected value of type "%s" which cannot be used as an input type.',
-                        $varName,
-                        Printer::doPrint($varDefNode->type)
-                    ),
-                    [$varDefNode->type]
-                );
-            } else {
-                if (! array_key_exists($varName, $inputs)) {
-                    if ($varType instanceof NonNull) {
-                        $errors[] = new Error(
-                            sprintf(
-                                'Variable "$%s" of required type "%s" was not provided.',
-                                $varName,
-                                $varType
-                            ),
-                            [$varDefNode]
-                        );
-                    } elseif ($varDefNode->defaultValue) {
-                        $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
-                    }
-                } else {
+            if (Type::isInputType($varType)) {
+                if (array_key_exists($varName, $inputs)) {
                     $value   = $inputs[$varName];
                     $coerced = Value::coerceValue($value, $varType, $varDefNode);
                     /** @var Error[] $coercionErrors */
                     $coercionErrors = $coerced['errors'];
-                    if (! empty($coercionErrors)) {
+                    if (empty($coercionErrors)) {
+                        $coercedValues[$varName] = $coerced['value'];
+                    } else {
                         $messagePrelude = sprintf(
                             'Variable "$%s" got invalid value %s; ',
                             $varName,
@@ -98,10 +78,30 @@ class Values
                                 $error->getExtensions()
                             );
                         }
-                    } else {
-                        $coercedValues[$varName] = $coerced['value'];
+                    }
+                } else {
+                    if ($varType instanceof NonNull) {
+                        $errors[] = new Error(
+                            sprintf(
+                                'Variable "$%s" of required type "%s" was not provided.',
+                                $varName,
+                                $varType
+                            ),
+                            [$varDefNode]
+                        );
+                    } elseif ($varDefNode->defaultValue) {
+                        $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
                     }
                 }
+            } else {
+                $errors[] = new Error(
+                    sprintf(
+                        'Variable "$%s" expected value of type "%s" which cannot be used as an input type.',
+                        $varName,
+                        Printer::doPrint($varDefNode->type)
+                    ),
+                    [$varDefNode->type]
+                );
             }
         }
 

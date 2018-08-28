@@ -1,44 +1,33 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
+
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Utils\Utils;
+use function sprintf;
 
-/**
- * Class InputObjectField
- * @package GraphQL\Type\Definition
- */
 class InputObjectField
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
 
-    /**
-     * @var mixed|null
-     */
+    /** @var mixed|null */
     public $defaultValue;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $description;
 
-    /**
-     * @var callback|InputType
-     */
+    /** @var callback|InputType */
     public $type;
 
-    /**
-     * @var InputValueDefinitionNode|null
-     */
+    /** @var InputValueDefinitionNode|null */
     public $astNode;
 
-    /**
-     * @var array
-     */
+    /** @var mixed[] */
     public $config;
 
     /**
@@ -49,15 +38,15 @@ class InputObjectField
     private $defaultValueExists = false;
 
     /**
-     * InputObjectField constructor.
-     * @param array $opts
+     *
+     * @param mixed[] $opts
      */
     public function __construct(array $opts)
     {
         foreach ($opts as $k => $v) {
             switch ($k) {
                 case 'defaultValue':
-                    $this->defaultValue = $v;
+                    $this->defaultValue       = $v;
                     $this->defaultValueExists = true;
                     break;
                 case 'defaultValueExists':
@@ -86,7 +75,6 @@ class InputObjectField
     }
 
     /**
-     * @param Type $parentType
      * @throws InvariantViolation
      */
     public function assertValid(Type $parentType)
@@ -94,7 +82,7 @@ class InputObjectField
         try {
             Utils::assertValidName($this->name);
         } catch (Error $e) {
-            throw new InvariantViolation("{$parentType->name}.{$this->name}: {$e->getMessage()}");
+            throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
         }
         $type = $this->type;
         if ($type instanceof WrappingType) {
@@ -102,12 +90,20 @@ class InputObjectField
         }
         Utils::invariant(
             $type instanceof InputType,
-            "{$parentType->name}.{$this->name} field type must be Input Type but got: " . Utils::printSafe($this->type)
+            sprintf(
+                '%s.%s field type must be Input Type but got: %s',
+                $parentType->name,
+                $this->name,
+                Utils::printSafe($this->type)
+            )
         );
         Utils::invariant(
             empty($this->config['resolve']),
-            "{$parentType->name}.{$this->name} field type has a resolve property, " .
-            'but Input Types cannot define resolvers.'
+            sprintf(
+                '%s.%s field type has a resolve property, but Input Types cannot define resolvers.',
+                $parentType->name,
+                $this->name
+            )
         );
     }
 }

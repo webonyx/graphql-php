@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type;
 
 use GraphQL\Type\Definition\AbstractType;
@@ -12,24 +15,17 @@ use GraphQL\Utils\Utils;
 /**
  * EXPERIMENTAL!
  * This class can be removed or changed in future versions without a prior notice.
- *
- * Class EagerResolution
- * @package GraphQL\Type
  */
 class EagerResolution implements Resolution
 {
-    /**
-     * @var Type[]
-     */
+    /** @var Type[] */
     private $typeMap = [];
 
-    /**
-     * @var array<string, ObjectType[]>
-     */
+    /** @var array<string, ObjectType[]> */
     private $implementations = [];
 
     /**
-     * EagerResolution constructor.
+     *
      * @param Type[] $initialTypes
      */
     public function __construct(array $initialTypes)
@@ -42,10 +38,12 @@ class EagerResolution implements Resolution
 
         // Keep track of all possible types for abstract types
         foreach ($this->typeMap as $typeName => $type) {
-            if ($type instanceof ObjectType) {
-                foreach ($type->getInterfaces() as $iface) {
-                    $this->implementations[$iface->name][] = $type;
-                }
+            if (! ($type instanceof ObjectType)) {
+                continue;
+            }
+
+            foreach ($type->getInterfaces() as $iface) {
+                $this->implementations[$iface->name][] = $type;
             }
         }
     }
@@ -55,7 +53,7 @@ class EagerResolution implements Resolution
      */
     public function resolveType($name)
     {
-        return isset($this->typeMap[$name]) ? $this->typeMap[$name] : null;
+        return $this->typeMap[$name] ?? null;
     }
 
     /**
@@ -63,7 +61,7 @@ class EagerResolution implements Resolution
      */
     public function resolvePossibleTypes(AbstractType $abstractType)
     {
-        if (!isset($this->typeMap[$abstractType->name])) {
+        if (! isset($this->typeMap[$abstractType->name])) {
             return [];
         }
 
@@ -73,7 +71,37 @@ class EagerResolution implements Resolution
 
         /** @var InterfaceType $abstractType */
         Utils::invariant($abstractType instanceof InterfaceType);
-        return isset($this->implementations[$abstractType->name]) ? $this->implementations[$abstractType->name] : [];
+
+        return $this->implementations[$abstractType->name] ?? [];
+    }
+
+    /**
+     * Returns serializable schema representation suitable for GraphQL\Type\LazyResolution
+     *
+     * @return mixed[]
+     */
+    public function getDescriptor()
+    {
+        $typeMap          = [];
+        $possibleTypesMap = [];
+        foreach ($this->getTypeMap() as $type) {
+            if ($type instanceof UnionType) {
+                foreach ($type->getTypes() as $innerType) {
+                    $possibleTypesMap[$type->name][$innerType->name] = 1;
+                }
+            } elseif ($type instanceof InterfaceType) {
+                foreach ($this->implementations[$type->name] as $obj) {
+                    $possibleTypesMap[$type->name][$obj->name] = 1;
+                }
+            }
+            $typeMap[$type->name] = 1;
+        }
+
+        return [
+            'version'         => '1.0',
+            'typeMap'         => $typeMap,
+            'possibleTypeMap' => $possibleTypesMap,
+        ];
     }
 
     /**
@@ -82,33 +110,5 @@ class EagerResolution implements Resolution
     public function getTypeMap()
     {
         return $this->typeMap;
-    }
-
-    /**
-     * Returns serializable schema representation suitable for GraphQL\Type\LazyResolution
-     *
-     * @return array
-     */
-    public function getDescriptor()
-    {
-        $typeMap = [];
-        $possibleTypesMap = [];
-        foreach ($this->getTypeMap() as $type) {
-            if ($type instanceof UnionType) {
-                foreach ($type->getTypes() as $innerType) {
-                    $possibleTypesMap[$type->name][$innerType->name] = 1;
-                }
-            } else if ($type instanceof InterfaceType) {
-                foreach ($this->implementations[$type->name] as $obj) {
-                    $possibleTypesMap[$type->name][$obj->name] = 1;
-                }
-            }
-            $typeMap[$type->name] = 1;
-        }
-        return [
-            'version' => '1.0',
-            'typeMap' => $typeMap,
-            'possibleTypeMap' => $possibleTypesMap
-        ];
     }
 }

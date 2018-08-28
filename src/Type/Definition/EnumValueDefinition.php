@@ -1,51 +1,44 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
+
 use GraphQL\Language\AST\EnumValueDefinitionNode;
-use GraphQL\Utils\Utils;
 
 /**
  * Class EnumValueDefinition
- * @package GraphQL\Type\Definition
  */
 class EnumValueDefinition
 {
-    /**
-     * @var string
-     */
+    /** @var string */
     public $name;
 
-    /**
-     * @var mixed
-     */
+    /** @var mixed */
     public $value;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $deprecationReason;
 
-    /**
-     * @var string|null
-     */
+    /** @var string|null */
     public $description;
 
-    /**
-     * @var EnumValueDefinitionNode|null
-     */
+    /** @var EnumValueDefinitionNode|null */
     public $astNode;
 
-    /**
-     * @var array
-     */
+    /** @var mixed[] */
     public $config;
 
+    /**
+     * @param mixed[] $config
+     */
     public function __construct(array $config)
     {
-        $this->name = isset($config['name']) ? $config['name'] : null;
-        $this->value = isset($config['value']) ? $config['value'] : null;
-        $this->deprecationReason = isset($config['deprecationReason']) ? $config['deprecationReason'] : null;
-        $this->description = isset($config['description']) ? $config['description'] : null;
-        $this->astNode = isset($config['astNode']) ? $config['astNode'] : null;
+        $this->name              = $config['name'] ?? null;
+        $this->value             = $config['value'] ?? null;
+        $this->deprecationReason = $config['deprecationReason'] ?? null;
+        $this->description       = $config['description'] ?? null;
+        $this->astNode           = $config['astNode'] ?? null;
 
         $this->config = $config;
     }
@@ -55,6 +48,6 @@ class EnumValueDefinition
      */
     public function isDeprecated()
     {
-        return !!$this->deprecationReason;
+        return (bool) $this->deprecationReason;
     }
 }

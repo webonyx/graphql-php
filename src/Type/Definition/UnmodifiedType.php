@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type\Definition;
 
 /*
@@ -10,6 +13,7 @@ GraphQLUnionType |
 GraphQLEnumType |
 GraphQLInputObjectType;
 */
+
 interface UnmodifiedType
 {
 }

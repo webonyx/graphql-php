@@ -470,7 +470,7 @@ class Printer
                 Utils::filter(
                     $maybeArray,
                     function ($x) {
-                        return ! ! $x;
+                        return (bool) $x;
                     }
                 )
             )

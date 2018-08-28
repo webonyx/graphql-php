@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Type;
 
 use GraphQL\Type\Definition\AbstractType;
@@ -10,7 +13,6 @@ use GraphQL\Type\Definition\Type;
  * This interface can be removed or changed in future versions without a prior notice.
  *
  * Interface Resolution
- * @package GraphQL\Type
  */
 interface Resolution
 {
@@ -25,7 +27,6 @@ interface Resolution
     /**
      * Returns instances of possible ObjectTypes for given InterfaceType or UnionType
      *
-     * @param AbstractType $type
      * @return ObjectType[]
      */
     public function resolvePossibleTypes(AbstractType $type);
