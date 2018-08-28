@@ -14,7 +14,7 @@ before_install:
   - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
   - travis_retry composer self-update
 
-install: composer install --dev --prefer-dist
+install: travis_retry composer update --prefer-dist
 
 script: ./vendor/bin/phpunit --group default,ReactPromise
 
