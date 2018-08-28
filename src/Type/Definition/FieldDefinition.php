@@ -63,6 +63,11 @@ class FieldDefinition
     public $config;
 
     /**
+     * @var null|callable
+     */
+    public $complexityFn;
+
+    /**
      * @var OutputType
      */
     private $type;
@@ -108,7 +113,7 @@ class FieldDefinition
     }
 
     /**
-     * @param array|Config $field
+     * @param array $field
      * @param string $typeName
      * @return FieldDefinition
      */

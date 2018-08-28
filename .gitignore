@@ -3,3 +3,4 @@ composer.phar
 composer.lock
 vendor/
 bin/
+phpstan.phar
