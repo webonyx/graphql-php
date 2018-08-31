@@ -1222,7 +1222,7 @@ class VisitorTest extends ValidatorTestCase
             $ast,
             Visitor::visitInParallel([
                 [
-                    'enter' => function ($node) use (&$visited, $ast) {
+                    'enter' => function ($node) use ($ast) {
                         $this->checkVisitorFnArgs($ast, func_get_args());
                         if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                             return Visitor::removeNode();
@@ -1292,7 +1292,7 @@ class VisitorTest extends ValidatorTestCase
             $ast,
             Visitor::visitInParallel([
                 [
-                    'leave' => function ($node) use (&$visited, $ast) {
+                    'leave' => function ($node) use ($ast) {
                         $this->checkVisitorFnArgs($ast, func_get_args(), true);
                         if ($node->kind === 'Field' && isset($node->name->value) && $node->name->value === 'b') {
                             return Visitor::removeNode();

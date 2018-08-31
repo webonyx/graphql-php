@@ -331,7 +331,7 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = function ($start, $end) use ($source) {
+        $loc = function ($start, $end) {
             return [
                 'start' => $start,
                 'end'   => $end,
@@ -442,7 +442,7 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = function ($start, $end) use ($source) {
+        $loc = function ($start, $end) {
             return [
                 'start' => $start,
                 'end'   => $end,
