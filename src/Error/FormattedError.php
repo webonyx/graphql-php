@@ -235,7 +235,9 @@ class FormattedError
 
         $debug = (int) $debug;
 
-        if ($debug & Debug::RETHROW_INTERNAL_EXCEPTIONS) {
+        $isInternal = ! $e instanceof ClientAware || ! $e->isClientSafe();
+
+        if (($debug & Debug::RETHROW_INTERNAL_EXCEPTIONS) && $isInternal) {
             if (! $e instanceof Error) {
                 throw $e;
             }
@@ -244,8 +246,6 @@ class FormattedError
                 throw $e->getPrevious();
             }
         }
-
-        $isInternal = ! $e instanceof ClientAware || ! $e->isClientSafe();
 
         if (($debug & Debug::INCLUDE_DEBUG_MESSAGE) && $isInternal) {
             // Displaying debugMessage as a first entry:
