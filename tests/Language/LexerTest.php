@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class LexerTest extends TestCase
 {
     /**
-     * @it disallows uncommon control characters
+     * @see it('disallows uncommon control characters')
      */
     public function testDissallowsUncommonControlCharacters()
     {
@@ -24,7 +24,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it accepts BOM header
+     * @see it('accepts BOM header')
      */
     public function testAcceptsBomHeader()
     {
@@ -40,7 +40,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it records line and column
+     * @see it('records line and column')
      */
     public function testRecordsLineAndColumn()
     {
@@ -56,7 +56,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it skips whitespace and comments
+     * @see it('skips whitespace and comments')
      */
     public function testSkipsWhitespacesAndComments()
     {
@@ -99,7 +99,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it errors respect whitespace
+     * @see it('errors respect whitespace')
      */
     public function testErrorsRespectWhitespace()
     {
@@ -127,7 +127,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it updates line numbers in error for file context
+     * @see it('updates line numbers in error for file context')
      */
     public function testUpdatesLineNumbersInErrorForFileContext()
     {
@@ -177,7 +177,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it lexes strings
+     * @see it('lexes strings')
      */
     public function testLexesStrings()
     {
@@ -241,7 +241,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it lexes block strings
+     * @see it('lexes block strings')
      */
     public function testLexesBlockString()
     {
@@ -336,7 +336,7 @@ class LexerTest extends TestCase
 
     /**
      * @dataProvider reportsUsefulStringErrors
-     * @it lex reports useful string errors
+     * @see it('lex reports useful string errors')
      */
     public function testLexReportsUsefulStringErrors($str, $expectedMessage, $location)
     {
@@ -354,7 +354,7 @@ class LexerTest extends TestCase
 
     /**
      * @dataProvider reportsUsefulBlockStringErrors
-     * @it lex reports useful block string errors
+     * @see it('lex reports useful block string errors')
      */
     public function testReportsUsefulBlockStringErrors($str, $expectedMessage, $location)
     {
@@ -362,7 +362,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it lexes numbers
+     * @see it('lexes numbers')
      */
     public function testLexesNumbers()
     {
@@ -449,7 +449,7 @@ class LexerTest extends TestCase
 
     /**
      * @dataProvider reportsUsefulNumberErrors
-     * @it lex reports useful number errors
+     * @see it('lex reports useful number errors')
      */
     public function testReportsUsefulNumberErrors($str, $expectedMessage, $location)
     {
@@ -457,7 +457,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it lexes punctuation
+     * @see it('lexes punctuation')
      */
     public function testLexesPunctuation()
     {
@@ -530,7 +530,7 @@ class LexerTest extends TestCase
 
     /**
      * @dataProvider reportsUsefulUnknownCharErrors
-     * @it lex reports useful unknown character error
+     * @see it('lex reports useful unknown character error')
      */
     public function testReportsUsefulUnknownCharErrors($str, $expectedMessage, $location)
     {
@@ -538,7 +538,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it lex reports useful information for dashes in names
+     * @see it('lex reports useful information for dashes in names')
      */
     public function testReportsUsefulDashesInfo()
     {
@@ -558,7 +558,7 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @it produces double linked list of tokens, including comments
+     * @see it('produces double linked list of tokens, including comments')
      */
     public function testDoubleLinkedList()
     {

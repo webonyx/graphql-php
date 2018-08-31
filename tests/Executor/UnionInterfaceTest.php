@@ -97,7 +97,7 @@ class UnionInterfaceTest extends TestCase
     // Execute: Union and intersection types
 
     /**
-     * @it can introspect on union and intersection types
+     * @see it('can introspect on union and intersection types')
      */
     public function testCanIntrospectOnUnionAndIntersectionTypes()
     {
@@ -160,7 +160,7 @@ class UnionInterfaceTest extends TestCase
     }
 
     /**
-     * @it executes using union types
+     * @see it('executes using union types')
      */
     public function testExecutesUsingUnionTypes()
     {
@@ -192,7 +192,7 @@ class UnionInterfaceTest extends TestCase
     }
 
     /**
-     * @it executes union types with inline fragments
+     * @see it('executes union types with inline fragments')
      */
     public function testExecutesUnionTypesWithInlineFragments()
     {
@@ -229,7 +229,7 @@ class UnionInterfaceTest extends TestCase
     }
 
     /**
-     * @it executes using interface types
+     * @see it('executes using interface types')
      */
     public function testExecutesUsingInterfaceTypes()
     {
@@ -261,7 +261,7 @@ class UnionInterfaceTest extends TestCase
     }
 
     /**
-     * @it executes interface types with inline fragments
+     * @see it('executes interface types with inline fragments')
      */
     public function testExecutesInterfaceTypesWithInlineFragments()
     {
@@ -297,7 +297,7 @@ class UnionInterfaceTest extends TestCase
     }
 
     /**
-     * @it allows fragment conditions to be abstract types
+     * @see it('allows fragment conditions to be abstract types')
      */
     public function testAllowsFragmentConditionsToBeAbstractTypes()
     {
@@ -352,7 +352,7 @@ class UnionInterfaceTest extends TestCase
     }
 
     /**
-     * @it gets execution info in resolver
+     * @see it('gets execution info in resolver')
      */
     public function testGetsExecutionInfoInResolver()
     {

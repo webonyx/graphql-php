@@ -27,7 +27,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * @it can use built schema for limited execution
+     * @see it('can use built schema for limited execution')
      */
     public function testUseBuiltSchemaForLimitedExecution()
     {
@@ -42,7 +42,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * @it can build a schema directly from the source
+     * @see it('can build a schema directly from the source')
      */
     public function testBuildSchemaDirectlyFromSource()
     {
@@ -67,7 +67,7 @@ class BuildSchemaTest extends TestCase
     }
 
     /**
-     * @it Simple Type
+     * @see it('Simple Type')
      */
     public function testSimpleType()
     {
@@ -85,7 +85,7 @@ type HelloScalars {
     }
 
     /**
-     * @it With directives
+     * @see it('With directives')
      */
     public function testWithDirectives()
     {
@@ -101,7 +101,7 @@ type Query {
     }
 
     /**
-     * @it Supports descriptions
+     * @see it('Supports descriptions')
      */
     public function testSupportsDescriptions()
     {
@@ -133,7 +133,7 @@ type Query {
     }
 
     /**
-     * @it Supports option for comment descriptions
+     * @see it('Supports option for comment descriptions')
      */
     public function testSupportsOptionForCommentDescriptions()
     {
@@ -164,7 +164,7 @@ type Query {
     }
 
     /**
-     * @it Maintains @skip & @include
+     * @see it('Maintains @skip & @include')
      */
     public function testMaintainsSkipAndInclude()
     {
@@ -181,7 +181,7 @@ type Query {
     }
 
     /**
-     * @it Overriding directives excludes specified
+     * @see it('Overriding directives excludes specified')
      */
     public function testOverridingDirectivesExcludesSpecified()
     {
@@ -202,7 +202,7 @@ type Query {
     }
 
     /**
-     * @it Adding directives maintains @skip & @include
+     * @see it('Adding directives maintains @skip & @include')
      */
     public function testAddingDirectivesMaintainsSkipAndInclude()
     {
@@ -221,7 +221,7 @@ type Query {
     }
 
     /**
-     * @it Type modifiers
+     * @see it('Type modifiers')
      */
     public function testTypeModifiers()
     {
@@ -239,7 +239,7 @@ type HelloScalars {
     }
 
     /**
-     * @it Recursive type
+     * @see it('Recursive type')
      */
     public function testRecursiveType()
     {
@@ -254,7 +254,7 @@ type Query {
     }
 
     /**
-     * @it Two types circular
+     * @see it('Two types circular')
      */
     public function testTwoTypesCircular()
     {
@@ -278,7 +278,7 @@ type TypeTwo {
     }
 
     /**
-     * @it Single argument field
+     * @see it('Single argument field')
      */
     public function testSingleArgumentField()
     {
@@ -296,7 +296,7 @@ type Query {
     }
 
     /**
-     * @it Simple type with multiple arguments
+     * @see it('Simple type with multiple arguments')
      */
     public function testSimpleTypeWithMultipleArguments()
     {
@@ -310,7 +310,7 @@ type Query {
     }
 
     /**
-     * @it Simple type with interface
+     * @see it('Simple type with interface')
      */
     public function testSimpleTypeWithInterface()
     {
@@ -328,7 +328,7 @@ interface WorldInterface {
     }
 
     /**
-     * @it Simple output enum
+     * @see it('Simple output enum')
      */
     public function testSimpleOutputEnum()
     {
@@ -346,7 +346,7 @@ type Query {
     }
 
     /**
-     * @it Simple input enum
+     * @see it('Simple input enum')
      */
     public function testSimpleInputEnum()
     {
@@ -364,7 +364,7 @@ type Query {
     }
 
     /**
-     * @it Multiple value enum
+     * @see it('Multiple value enum')
      */
     public function testMultipleValueEnum()
     {
@@ -383,7 +383,7 @@ type Query {
     }
 
     /**
-     * @it Simple Union
+     * @see it('Simple Union')
      */
     public function testSimpleUnion()
     {
@@ -403,7 +403,7 @@ type World {
     }
 
     /**
-     * @it Multiple Union
+     * @see it('Multiple Union')
      */
     public function testMultipleUnion()
     {
@@ -427,7 +427,7 @@ type WorldTwo {
     }
 
     /**
-     * @it Specifying Union type using __typename
+     * @see it('Specifying Union type using __typename')
      */
     public function testSpecifyingUnionTypeUsingTypename()
     {
@@ -484,7 +484,7 @@ type WorldTwo {
     }
 
     /**
-     * @it Specifying Interface type using __typename
+     * @see it('Specifying Interface type using __typename')
      */
     public function testSpecifyingInterfaceUsingTypename()
     {
@@ -548,7 +548,7 @@ type WorldTwo {
     }
 
     /**
-     * @it Custom Scalar
+     * @see it('Custom Scalar')
      */
     public function testCustomScalar()
     {
@@ -564,7 +564,7 @@ type Query {
     }
 
     /**
-     * @it Input Object
+     * @see it('Input Object')
      */
     public function testInputObject()
     {
@@ -582,7 +582,7 @@ type Query {
     }
 
     /**
-     * @it Simple argument field with default
+     * @see it('Simple argument field with default')
      */
     public function testSimpleArgumentFieldWithDefault()
     {
@@ -596,7 +596,7 @@ type Query {
     }
 
     /**
-     * @it Custom scalar argument field with default
+     * @see it('Custom scalar argument field with default')
      */
     public function testCustomScalarArgumentFieldWithDefault()
     {
@@ -612,7 +612,7 @@ type Query {
     }
 
     /**
-     * @it Simple type with mutation
+     * @see it('Simple type with mutation')
      */
     public function testSimpleTypeWithMutation()
     {
@@ -637,7 +637,7 @@ type Mutation {
     }
 
     /**
-     * @it Simple type with subscription
+     * @see it('Simple type with subscription')
      */
     public function testSimpleTypeWithSubscription()
     {
@@ -662,7 +662,7 @@ type Subscription {
     }
 
     /**
-     * @it Unreferenced type implementing referenced interface
+     * @see it('Unreferenced type implementing referenced interface')
      */
     public function testUnreferencedTypeImplementingReferencedInterface()
     {
@@ -684,7 +684,7 @@ type Query {
     }
 
     /**
-     * @it Unreferenced type implementing referenced union
+     * @see it('Unreferenced type implementing referenced union')
      */
     public function testUnreferencedTypeImplementingReferencedUnion()
     {
@@ -704,7 +704,7 @@ union Union = Concrete
     }
 
     /**
-     * @it Supports @deprecated
+     * @see it('Supports @deprecated')
      */
     public function testSupportsDeprecated()
     {
@@ -750,7 +750,7 @@ type Query {
     }
 
     /**
-     * @it Correctly assign AST nodes
+     * @see it('Correctly assign AST nodes')
      */
     public function testCorrectlyAssignASTNodes()
     {
@@ -821,7 +821,7 @@ type Query {
     }
 
     /**
-     * @it Root operation types with custom names
+     * @see it('Root operation types with custom names')
      */
     public function testRootOperationTypesWithCustomNames()
     {
@@ -842,7 +842,7 @@ type Query {
     }
 
     /**
-     * @it Default root operation type names
+     * @see it('Default root operation type names')
      */
     public function testDefaultRootOperationTypeNames()
     {
@@ -857,7 +857,7 @@ type Query {
     }
 
     /**
-     * @it can build invalid schema
+     * @see it('can build invalid schema')
      */
     public function testCanBuildInvalidSchema()
     {
@@ -874,7 +874,7 @@ type Query {
     // Describe: Failures
 
     /**
-     * @it Allows only a single schema definition
+     * @see it('Allows only a single schema definition')
      */
     public function testAllowsOnlySingleSchemaDefinition()
     {
@@ -898,7 +898,7 @@ type Hello {
     }
 
     /**
-     * @it Allows only a single query type
+     * @see it('Allows only a single query type')
      */
     public function testAllowsOnlySingleQueryType()
     {
@@ -923,7 +923,7 @@ type Yellow {
     }
 
     /**
-     * @it Allows only a single mutation type
+     * @see it('Allows only a single mutation type')
      */
     public function testAllowsOnlySingleMutationType()
     {
@@ -949,7 +949,7 @@ type Yellow {
     }
 
     /**
-     * @it Allows only a single subscription type
+     * @see it('Allows only a single subscription type')
      */
     public function testAllowsOnlySingleSubscriptionType()
     {
@@ -975,7 +975,7 @@ type Yellow {
     }
 
     /**
-     * @it Unknown type referenced
+     * @see it('Unknown type referenced')
      */
     public function testUnknownTypeReferenced()
     {
@@ -996,7 +996,7 @@ type Hello {
     }
 
     /**
-     * @it Unknown type in interface list
+     * @see it('Unknown type in interface list')
      */
     public function testUnknownTypeInInterfaceList()
     {
@@ -1013,7 +1013,7 @@ type Query implements Bar {
     }
 
     /**
-     * @it Unknown type in union list
+     * @see it('Unknown type in union list')
      */
     public function testUnknownTypeInUnionList()
     {
@@ -1029,7 +1029,7 @@ type Query { testUnion: TestUnion }
     }
 
     /**
-     * @it Unknown query type
+     * @see it('Unknown query type')
      */
     public function testUnknownQueryType()
     {
@@ -1049,7 +1049,7 @@ type Hello {
     }
 
     /**
-     * @it Unknown mutation type
+     * @see it('Unknown mutation type')
      */
     public function testUnknownMutationType()
     {
@@ -1070,7 +1070,7 @@ type Hello {
     }
 
     /**
-     * @it Unknown subscription type
+     * @see it('Unknown subscription type')
      */
     public function testUnknownSubscriptionType()
     {
@@ -1096,7 +1096,7 @@ type Wat {
     }
 
     /**
-     * @it Does not consider operation names
+     * @see it('Does not consider operation names')
      */
     public function testDoesNotConsiderOperationNames()
     {
@@ -1114,7 +1114,7 @@ query Foo { field }
     }
 
     /**
-     * @it Does not consider fragment names
+     * @see it('Does not consider fragment names')
      */
     public function testDoesNotConsiderFragmentNames()
     {
@@ -1132,7 +1132,7 @@ fragment Foo on Type { field }
     }
 
     /**
-     * @it Forbids duplicate type definitions
+     * @see it('Forbids duplicate type definitions')
      */
     public function testForbidsDuplicateTypeDefinitions()
     {

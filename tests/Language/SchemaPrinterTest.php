@@ -11,7 +11,7 @@ use Throwable;
 class SchemaPrinterTest extends TestCase
 {
     /**
-     * @it prints minimal ast
+     * @see it('prints minimal ast')
      */
     public function testPrintsMinimalAst()
     {
@@ -22,7 +22,7 @@ class SchemaPrinterTest extends TestCase
     }
 
     /**
-     * @it produces helpful error messages
+     * @see it('produces helpful error messages')
      */
     public function testProducesHelpfulErrorMessages()
     {
@@ -35,7 +35,7 @@ class SchemaPrinterTest extends TestCase
     }
 
     /**
-     * @it does not alter ast
+     * @see it('does not alter ast')
      */
     public function testDoesNotAlterAst()
     {

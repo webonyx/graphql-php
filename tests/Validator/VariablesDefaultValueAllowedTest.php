@@ -22,7 +22,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     // DESCRIBE: Validate: Variable default value is allowed
 
     /**
-     * @it variables with no default values
+     * @see it('variables with no default values')
      */
     public function testVariablesWithNoDefaultValues()
     {
@@ -34,7 +34,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     }
 
     /**
-     * @it required variables without default values
+     * @see it('required variables without default values')
      */
     public function testRequiredVariablesWithoutDefaultValues()
     {
@@ -46,7 +46,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     }
 
     /**
-     * @it variables with valid default values
+     * @see it('variables with valid default values')
      */
     public function testVariablesWithValidDefaultValues()
     {
@@ -62,7 +62,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     }
 
     /**
-     * @it variables with valid default null values
+     * @see it('variables with valid default null values')
      */
     public function testVariablesWithValidDefaultNullValues()
     {
@@ -78,7 +78,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     }
 
     /**
-     * @it no required variables with default values
+     * @see it('no required variables with default values')
      */
     public function testNoRequiredVariablesWithDefaultValues()
     {
@@ -93,7 +93,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     }
 
     /**
-     * @it variables with invalid default null values
+     * @see it('variables with invalid default null values')
      */
     public function testNullIntoNullableType()
     {

@@ -10,7 +10,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     // Validate: Unique input field names
 
     /**
-     * @it input object with fields
+     * @see it('input object with fields')
      */
     public function testInputObjectWithFields()
     {
@@ -22,7 +22,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it same input object within two args
+     * @see it('same input object within two args')
      */
     public function testSameInputObjectWithinTwoArgs()
     {
@@ -34,7 +34,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple input object fields
+     * @see it('multiple input object fields')
      */
     public function testMultipleInputObjectFields()
     {
@@ -46,7 +46,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it allows for nested input objects with similar fields
+     * @see it('allows for nested input objects with similar fields')
      */
     public function testAllowsForNestedInputObjectsWithSimilarFields()
     {
@@ -66,7 +66,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it duplicate input object fields
+     * @see it('duplicate input object fields')
      */
     public function testDuplicateInputObjectFields()
     {
@@ -80,7 +80,7 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it many duplicate input object fields
+     * @see it('many duplicate input object fields')
      */
     public function testManyDuplicateInputObjectFields()
     {

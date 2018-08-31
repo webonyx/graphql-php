@@ -10,7 +10,7 @@ class ScalarSerializationTest extends TestCase
     // Type System: Scalar coercion
 
     /**
-     * @it serializes output int
+     * @see it('serializes output int')
      */
     public function testSerializesOutputInt()
     {
@@ -116,7 +116,7 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @it serializes output float
+     * @see it('serializes output float')
      */
     public function testSerializesOutputFloat()
     {
@@ -151,7 +151,7 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @it serializes output strings
+     * @see it('serializes output strings')
      */
     public function testSerializesOutputStrings()
     {
@@ -183,7 +183,7 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @it serializes output boolean
+     * @see it('serializes output boolean')
      */
     public function testSerializesOutputBoolean()
     {

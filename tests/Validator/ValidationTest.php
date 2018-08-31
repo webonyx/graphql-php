@@ -6,7 +6,7 @@ class ValidationTest extends ValidatorTestCase
     // Validate: Supports full validation
 
     /**
-     * @it validates queries
+     * @see it('validates queries')
      */
     public function testValidatesQueries()
     {
@@ -25,7 +25,7 @@ class ValidationTest extends ValidatorTestCase
     }
 
     /**
-     * @it detects bad scalar parse
+     * @see it('detects bad scalar parse')
      */
     public function testDetectsBadScalarParse()
     {

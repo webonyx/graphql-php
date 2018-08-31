@@ -18,7 +18,7 @@ class IntrospectionTest extends TestCase
     // Describe: Introspection
 
     /**
-     * @it executes an introspection query
+     * @see it('executes an introspection query')
      */
     function testExecutesAnIntrospectionQuery()
     {
@@ -1070,7 +1070,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it introspects on input object
+     * @see it('introspects on input object')
      */
     function testIntrospectsOnInputObject()
     {
@@ -1169,7 +1169,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it supports the __type root field
+     * @see it('supports the __type root field')
      */
     public function testSupportsThe__typeRootField()
     {
@@ -1202,7 +1202,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it identifies deprecated fields
+     * @see it('identifies deprecated fields')
      */
     public function testIdentifiesDeprecatedFields()
     {
@@ -1257,7 +1257,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it respects the includeDeprecated parameter for fields
+     * @see it('respects the includeDeprecated parameter for fields')
      */
     public function testRespectsTheIncludeDeprecatedParameterForFields()
     {
@@ -1322,7 +1322,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it identifies deprecated enum values
+     * @see it('identifies deprecated enum values')
      */
     public function testIdentifiesDeprecatedEnumValues()
     {
@@ -1386,7 +1386,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it respects the includeDeprecated parameter for enum values
+     * @see it('respects the includeDeprecated parameter for enum values')
      */
     public function testRespectsTheIncludeDeprecatedParameterForEnumValues()
     {
@@ -1449,7 +1449,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it fails as expected on the __type root field without an arg
+     * @see it('fails as expected on the __type root field without an arg')
      */
     public function testFailsAsExpectedOnThe__typeRootFieldWithoutAnArg()
     {
@@ -1481,7 +1481,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it exposes descriptions on types and fields
+     * @see it('exposes descriptions on types and fields')
      */
     public function testExposesDescriptionsOnTypesAndFields()
     {
@@ -1541,7 +1541,7 @@ class IntrospectionTest extends TestCase
     }
 
     /**
-     * @it exposes descriptions on enums
+     * @see it('exposes descriptions on enums')
      */
     public function testExposesDescriptionsOnEnums()
     {

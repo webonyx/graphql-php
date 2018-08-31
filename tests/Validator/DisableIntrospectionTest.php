@@ -10,7 +10,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     // Validate: Disable Introspection
 
     /**
-     * @it fails if the query contains __schema
+     * @see it('fails if the query contains __schema')
      */
     public function testQueryContainsSchema()
     {
@@ -28,7 +28,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     }
     
     /**
-     * @it fails if the query contains __type
+     * @see it('fails if the query contains __type')
      */
     public function testQueryContainsType()
     {
@@ -46,7 +46,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     }
 
     /**
-     * @it does not fail on a query that does not contain __type
+     * @see it('does not fail on a query that does not contain __type')
      */
     public function testValidQuery()
     {
@@ -64,7 +64,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     }
 
     /**
-     * @it does not fail when not enabled
+     * @see it('does not fail when not enabled')
      */
     public function testQueryWhenDisabled()
     {
@@ -80,7 +80,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     }
 
     /**
-     * @it has a public interface for enabeling the rule
+     * @see it('has a public interface for enabeling the rule')
      */
     public function testPublicEnableInterface()
     {
@@ -100,7 +100,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
     }
 
     /**
-     * @it has a public interface for disableing the rule
+     * @see it('has a public interface for disableing the rule')
      */
     public function testPublicDisableInterface()
     {

@@ -13,7 +13,7 @@ class ExecutorSchemaTest extends TestCase
     // Execute: Handles execution with a complex schema
 
     /**
-     * @it executes using a schema
+     * @see it('executes using a schema')
      */
     public function testExecutesUsingASchema()
     {

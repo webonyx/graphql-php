@@ -17,7 +17,7 @@ class AstFromValueUntypedTest extends TestCase
     }
 
     /**
-     * @it parses simple values
+     * @see it('parses simple values')
      */
     public function testParsesSimpleValues()
     {
@@ -30,7 +30,7 @@ class AstFromValueUntypedTest extends TestCase
     }
 
     /**
-     * @it parses lists of values
+     * @see it('parses lists of values')
      */
     public function testParsesListsOfValues()
     {
@@ -41,7 +41,7 @@ class AstFromValueUntypedTest extends TestCase
     }
 
     /**
-     * @it parses input objects
+     * @see it('parses input objects')
      */
     public function testParsesInputObjects()
     {
@@ -57,7 +57,7 @@ class AstFromValueUntypedTest extends TestCase
     }
 
     /**
-     * @it parses enum values as plain strings
+     * @see it('parses enum values as plain strings')
      */
     public function testParsesEnumValuesAsPlainStrings()
     {
@@ -73,7 +73,7 @@ class AstFromValueUntypedTest extends TestCase
     }
 
     /**
-     * @it parses enum values as plain strings
+     * @see it('parses enum values as plain strings')
      */
     public function testParsesVariables()
     {

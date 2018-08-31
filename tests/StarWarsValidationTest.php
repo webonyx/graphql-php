@@ -11,7 +11,7 @@ class StarWarsValidationTest extends TestCase
     // Basic Queries
 
     /**
-     * @it Validates a complex but valid query
+     * @see it('Validates a complex but valid query')
      */
     public function testValidatesAComplexButValidQuery()
     {
@@ -38,7 +38,7 @@ class StarWarsValidationTest extends TestCase
     }
 
     /**
-     * @it Notes that non-existent fields are invalid
+     * @see it('Notes that non-existent fields are invalid')
      */
     public function testThatNonExistentFieldsAreInvalid()
     {
@@ -54,7 +54,7 @@ class StarWarsValidationTest extends TestCase
     }
 
     /**
-     * @it Requires fields on objects
+     * @see it('Requires fields on objects')
      */
     public function testRequiresFieldsOnObjects()
     {
@@ -69,7 +69,7 @@ class StarWarsValidationTest extends TestCase
     }
 
     /**
-     * @it Disallows fields on scalars
+     * @see it('Disallows fields on scalars')
      */
     public function testDisallowsFieldsOnScalars()
     {
@@ -87,7 +87,7 @@ class StarWarsValidationTest extends TestCase
     }
 
     /**
-     * @it Disallows object fields on interfaces
+     * @see it('Disallows object fields on interfaces')
      */
     public function testDisallowsObjectFieldsOnInterfaces()
     {
@@ -104,7 +104,7 @@ class StarWarsValidationTest extends TestCase
     }
 
     /**
-     * @it Allows object fields in fragments
+     * @see it('Allows object fields in fragments')
      */
     public function testAllowsObjectFieldsInFragments()
     {
@@ -125,7 +125,7 @@ class StarWarsValidationTest extends TestCase
     }
 
     /**
-     * @it Allows object fields in inline fragments
+     * @see it('Allows object fields in inline fragments')
      */
     public function testAllowsObjectFieldsInInlineFragments()
     {

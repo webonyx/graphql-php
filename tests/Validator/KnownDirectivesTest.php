@@ -10,7 +10,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     // Validate: Known directives
 
     /**
-     * @it with no directives
+     * @see it('with no directives')
      */
     public function testWithNoDirectives()
     {
@@ -27,7 +27,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     }
 
     /**
-     * @it with known directives
+     * @see it('with known directives')
      */
     public function testWithKnownDirectives()
     {
@@ -44,7 +44,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     }
 
     /**
-     * @it with unknown directive
+     * @see it('with unknown directive')
      */
     public function testWithUnknownDirective()
     {
@@ -60,7 +60,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     }
 
     /**
-     * @it with many unknown directives
+     * @see it('with many unknown directives')
      */
     public function testWithManyUnknownDirectives()
     {
@@ -84,7 +84,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     }
 
     /**
-     * @it with well placed directives
+     * @see it('with well placed directives')
      */
     public function testWithWellPlacedDirectives()
     {
@@ -103,7 +103,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     }
 
     /**
-     * @it with misplaced directives
+     * @see it('with misplaced directives')
      */
     public function testWithMisplacedDirectives()
     {
@@ -127,7 +127,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     // within schema language
 
     /**
-     * @it with well placed directives
+     * @see it('with well placed directives')
      */
     public function testWSLWithWellPlacedDirectives()
     {
@@ -171,7 +171,7 @@ class KnownDirectivesTest extends ValidatorTestCase
     }
 
     /**
-     * @it with misplaced directives
+     * @see it('with misplaced directives')
      */
     public function testWSLWithMisplacedDirectives()
     {

@@ -10,7 +10,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     // Validate: Unique fragment names
 
     /**
-     * @it no fragments
+     * @see it('no fragments')
      */
     public function testNoFragments()
     {
@@ -22,7 +22,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it one fragment
+     * @see it('one fragment')
      */
     public function testOneFragment()
     {
@@ -38,7 +38,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it many fragments
+     * @see it('many fragments')
      */
     public function testManyFragments()
     {
@@ -61,7 +61,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it inline fragments are always unique
+     * @see it('inline fragments are always unique')
      */
     public function testInlineFragmentsAreAlwaysUnique()
     {
@@ -78,7 +78,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it fragment and operation named the same
+     * @see it('fragment and operation named the same')
      */
     public function testFragmentAndOperationNamedTheSame()
     {
@@ -93,7 +93,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it fragments named the same
+     * @see it('fragments named the same')
      */
     public function testFragmentsNamedTheSame()
     {
@@ -113,7 +113,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it fragments named the same without being referenced
+     * @see it('fragments named the same without being referenced')
      */
     public function testFragmentsNamedTheSameWithoutBeingReferenced()
     {

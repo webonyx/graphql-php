@@ -38,7 +38,7 @@ class SchemaPrinterTest extends TestCase
     }
 
     /**
-     * @it Prints String Field
+     * @see it('Prints String Field')
      */
     public function testPrintsStringField()
     {
@@ -53,7 +53,7 @@ type Query {
     }
 
     /**
-     * @it Prints [String] Field
+     * @see it('Prints [String] Field')
      */
     public function testPrintArrayStringField()
     {
@@ -68,7 +68,7 @@ type Query {
     }
 
     /**
-     * @it Prints String! Field
+     * @see it('Prints String! Field')
      */
     public function testPrintNonNullStringField()
     {
@@ -83,7 +83,7 @@ type Query {
     }
 
     /**
-     * @it Prints [String]! Field
+     * @see it('Prints [String]! Field')
      */
     public function testPrintNonNullArrayStringField()
     {
@@ -98,7 +98,7 @@ type Query {
     }
 
     /**
-     * @it Prints [String!] Field
+     * @see it('Prints [String!] Field')
      */
     public function testPrintArrayNonNullStringField()
     {
@@ -113,7 +113,7 @@ type Query {
     }
 
     /**
-     * @it Prints [String!]! Field
+     * @see it('Prints [String!]! Field')
      */
     public function testPrintNonNullArrayNonNullStringField()
     {
@@ -128,7 +128,7 @@ type Query {
     }
 
     /**
-     * @it Print Object Field
+     * @see it('Print Object Field')
      */
     public function testPrintObjectField()
     {
@@ -156,7 +156,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With Int Arg
+     * @see it('Prints String Field With Int Arg')
      */
     public function testPrintsStringFieldWithIntArg()
     {
@@ -172,7 +172,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With Int Arg With Default
+     * @see it('Prints String Field With Int Arg With Default')
      */
     public function testPrintsStringFieldWithIntArgWithDefault()
     {
@@ -188,7 +188,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With String Arg With Default
+     * @see it('Prints String Field With String Arg With Default')
      */
     public function testPrintsStringFieldWithStringArgWithDefault()
     {
@@ -204,7 +204,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With Int Arg With Default Null
+     * @see it('Prints String Field With Int Arg With Default Null')
      */
     public function testPrintsStringFieldWithIntArgWithDefaultNull()
     {
@@ -220,7 +220,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With Int! Arg
+     * @see it('Prints String Field With Int! Arg')
      */
     public function testPrintsStringFieldWithNonNullIntArg()
     {
@@ -236,7 +236,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With Multiple Args
+     * @see it('Prints String Field With Multiple Args')
      */
     public function testPrintsStringFieldWithMultipleArgs()
     {
@@ -255,7 +255,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With Multiple Args, First is Default
+     * @see it('Prints String Field With Multiple Args, First is Default')
      */
     public function testPrintsStringFieldWithMultipleArgsFirstIsDefault()
     {
@@ -275,7 +275,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With Multiple Args, Second is Default
+     * @see it('Prints String Field With Multiple Args, Second is Default')
      */
     public function testPrintsStringFieldWithMultipleArgsSecondIsDefault()
     {
@@ -295,7 +295,7 @@ type Query {
     }
 
     /**
-     * @it Prints String Field With Multiple Args, Last is Default
+     * @see it('Prints String Field With Multiple Args, Last is Default')
      */
     public function testPrintsStringFieldWithMultipleArgsLastIsDefault()
     {
@@ -315,7 +315,7 @@ type Query {
     }
 
     /**
-     * @it Prints custom query root type
+     * @see it('Prints custom query root type')
      */
     public function testPrintsCustomQueryRootType()
     {
@@ -341,7 +341,7 @@ type CustomQueryType {
     }
 
     /**
-     * @it Print Interface
+     * @see it('Print Interface')
      */
     public function testPrintInterface()
     {
@@ -382,7 +382,7 @@ type Query {
     }
 
     /**
-     * @it Print Multiple Interface
+     * @see it('Print Multiple Interface')
      */
     public function testPrintMultipleInterface()
     {
@@ -436,7 +436,7 @@ type Query {
     }
 
     /**
-     * @it Print Unions
+     * @see it('Print Unions')
      */
     public function testPrintUnions()
     {
@@ -491,7 +491,7 @@ union SingleUnion = Foo
     }
 
     /**
-     * @it Print Input Type
+     * @see it('Print Input Type')
      */
     public function testInputType()
     {
@@ -524,7 +524,7 @@ type Query {
     }
 
     /**
-     * @it Custom Scalar
+     * @see it('Custom Scalar')
      */
     public function testCustomScalar()
     {
@@ -554,7 +554,7 @@ type Query {
     }
 
     /**
-     * @it Enum
+     * @see it('Enum')
      */
     public function testEnum()
     {
@@ -590,7 +590,7 @@ enum RGB {
     }
 
     /**
-     * @it Prints custom directives
+     * @see it('Prints custom directives')
      */
     public function testPrintsCustomDirectives()
     {
@@ -624,7 +624,7 @@ type Query {
     }
 
     /**
-     * @it One-line prints a short description
+     * @see it('One-line prints a short description')
      */
     public function testOneLinePrintsAShortDescription()
     {
@@ -647,7 +647,7 @@ type Query {
     }
 
     /**
-     * @it Does not one-line print a description that ends with a quote
+     * @see it('Does not one-line print a description that ends with a quote')
      */
     public function testDoesNotOneLinePrintADescriptionThatEndsWithAQuote()
     {
@@ -672,7 +672,7 @@ type Query {
     }
 
     /**
-     * @it Preserves leading spaces when printing a description
+     * @see it('Preserves leading spaces when printing a description')
      */
     public function testPReservesLeadingSpacesWhenPrintingADescription()
     {
@@ -696,7 +696,7 @@ type Query {
     }
 
     /**
-     * @it Print Introspection Schema
+     * @see it('Print Introspection Schema')
      */
     public function testPrintIntrospectionSchema()
     {
@@ -941,7 +941,7 @@ EOT;
     }
 
     /**
-     * @it Print Introspection Schema with comment descriptions
+     * @see it('Print Introspection Schema with comment descriptions')
      */
     public function testPrintIntrospectionSchemaWithCommentDescriptions()
     {

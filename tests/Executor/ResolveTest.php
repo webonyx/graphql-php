@@ -26,7 +26,7 @@ class ResolveTest extends TestCase
     }
 
     /**
-     * @it default function accesses properties
+     * @see it('default function accesses properties')
      */
     public function testDefaultFunctionAccessesProperties()
     {
@@ -43,7 +43,7 @@ class ResolveTest extends TestCase
     }
 
     /**
-     * @it default function calls methods
+     * @see it('default function calls methods')
      */
     public function testDefaultFunctionCallsClosures()
     {
@@ -62,7 +62,7 @@ class ResolveTest extends TestCase
     }
 
     /**
-     * @it default function passes args and context
+     * @see it('default function passes args and context')
      */
     public function testDefaultFunctionPassesArgsAndContext()
     {
@@ -80,7 +80,7 @@ class ResolveTest extends TestCase
     }
 
     /**
-     * @it uses provided resolve function
+     * @see it('uses provided resolve function')
      */
     public function testUsesProvidedResolveFunction()
     {

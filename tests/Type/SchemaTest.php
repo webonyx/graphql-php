@@ -91,7 +91,7 @@ class SchemaTest extends TestCase
     // Getting possible types
 
     /**
-     * @it throws human-reable error if schema.types is not defined
+     * @see it('throws human-reable error if schema.types is not defined')
      */
     public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined()
     {
@@ -109,7 +109,7 @@ class SchemaTest extends TestCase
     // Type Map
 
     /**
-     * @it includes input types only used in directives
+     * @see it('includes input types only used in directives')
      */
     public function testIncludesInputTypesOnlyUsedInDirectives()
     {

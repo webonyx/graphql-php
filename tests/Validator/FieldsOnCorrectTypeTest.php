@@ -10,7 +10,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     // Validate: Fields on correct type
 
     /**
-     * @it Object field selection
+     * @see it('Object field selection')
      */
     public function testObjectFieldSelection()
     {
@@ -23,7 +23,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Aliased object field selection
+     * @see it('Aliased object field selection')
      */
     public function testAliasedObjectFieldSelection()
     {
@@ -36,7 +36,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Interface field selection
+     * @see it('Interface field selection')
      */
     public function testInterfaceFieldSelection()
     {
@@ -49,7 +49,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Aliased interface field selection
+     * @see it('Aliased interface field selection')
      */
     public function testAliasedInterfaceFieldSelection()
     {
@@ -61,7 +61,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Lying alias selection
+     * @see it('Lying alias selection')
      */
     public function testLyingAliasSelection()
     {
@@ -73,7 +73,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Ignores fields on unknown type
+     * @see it('Ignores fields on unknown type')
      */
     public function testIgnoresFieldsOnUnknownType()
     {
@@ -85,7 +85,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it reports errors when type is known again
+     * @see it('reports errors when type is known again')
      */
     public function testReportsErrorsWhenTypeIsKnownAgain()
     {
@@ -105,7 +105,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Field not defined on fragment
+     * @see it('Field not defined on fragment')
      */
     public function testFieldNotDefinedOnFragment()
     {
@@ -118,7 +118,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Ignores deeply unknown field
+     * @see it('Ignores deeply unknown field')
      */
     public function testIgnoresDeeplyUnknownField()
     {
@@ -133,7 +133,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Sub-field not defined
+     * @see it('Sub-field not defined')
      */
     public function testSubFieldNotDefined()
     {
@@ -148,7 +148,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Field not defined on inline fragment
+     * @see it('Field not defined on inline fragment')
      */
     public function testFieldNotDefinedOnInlineFragment()
     {
@@ -163,7 +163,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Aliased field target not defined
+     * @see it('Aliased field target not defined')
      */
     public function testAliasedFieldTargetNotDefined()
     {
@@ -176,7 +176,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Aliased lying field target not defined
+     * @see it('Aliased lying field target not defined')
      */
     public function testAliasedLyingFieldTargetNotDefined()
     {
@@ -189,7 +189,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Not defined on interface
+     * @see it('Not defined on interface')
      */
     public function testNotDefinedOnInterface()
     {
@@ -202,7 +202,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Defined on implementors but not on interface
+     * @see it('Defined on implementors but not on interface')
      */
     public function testDefinedOnImplmentorsButNotOnInterface()
     {
@@ -215,7 +215,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Meta field selection on union
+     * @see it('Meta field selection on union')
      */
     public function testMetaFieldSelectionOnUnion()
     {
@@ -227,7 +227,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Direct field selection on union
+     * @see it('Direct field selection on union')
      */
     public function testDirectFieldSelectionOnUnion()
     {
@@ -240,7 +240,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Defined on implementors queried on union
+     * @see it('Defined on implementors queried on union')
      */
     public function testDefinedOnImplementorsQueriedOnUnion()
     {
@@ -260,7 +260,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it valid field in inline fragment
+     * @see it('valid field in inline fragment')
      */
     public function testValidFieldInInlineFragment()
     {
@@ -276,7 +276,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     // Describe: Fields on correct type error message
 
     /**
-     * @it Works with no suggestions
+     * @see it('Works with no suggestions')
      */
     public function testWorksWithNoSuggestions()
     {
@@ -284,7 +284,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Works with no small numbers of type suggestions
+     * @see it('Works with no small numbers of type suggestions')
      */
     public function testWorksWithNoSmallNumbersOfTypeSuggestions()
     {
@@ -295,7 +295,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Works with no small numbers of field suggestions
+     * @see it('Works with no small numbers of field suggestions')
      */
     public function testWorksWithNoSmallNumbersOfFieldSuggestions()
     {
@@ -306,7 +306,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Only shows one set of suggestions at a time, preferring types
+     * @see it('Only shows one set of suggestions at a time, preferring types')
      */
     public function testOnlyShowsOneSetOfSuggestionsAtATimePreferringTypes()
     {
@@ -317,7 +317,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Limits lots of type suggestions
+     * @see it('Limits lots of type suggestions')
      */
     public function testLimitsLotsOfTypeSuggestions()
     {
@@ -333,7 +333,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Limits lots of field suggestions
+     * @see it('Limits lots of field suggestions')
      */
     public function testLimitsLotsOfFieldSuggestions()
     {

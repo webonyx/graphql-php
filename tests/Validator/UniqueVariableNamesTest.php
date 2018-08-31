@@ -10,7 +10,7 @@ class UniqueVariableNamesTest extends ValidatorTestCase
     // Validate: Unique variable names
 
     /**
-     * @it unique variable names
+     * @see it('unique variable names')
      */
     public function testUniqueVariableNames()
     {
@@ -21,7 +21,7 @@ class UniqueVariableNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it duplicate variable names
+     * @see it('duplicate variable names')
      */
     public function testDuplicateVariableNames()
     {

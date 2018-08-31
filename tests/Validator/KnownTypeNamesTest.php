@@ -10,7 +10,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     // Validate: Known type names
 
     /**
-     * @it known type names are valid
+     * @see it('known type names are valid')
      */
     public function testKnownTypeNamesAreValid()
     {
@@ -27,7 +27,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it unknown type names are invalid
+     * @see it('unknown type names are invalid')
      */
     public function testUnknownTypeNamesAreInvalid()
     {
@@ -49,7 +49,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it ignores type definitions
+     * @see it('ignores type definitions')
      */
     public function testIgnoresTypeDefinitions()
     {

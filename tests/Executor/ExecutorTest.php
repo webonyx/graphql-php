@@ -26,7 +26,7 @@ class ExecutorTest extends TestCase
     // Execute: Handles basic execution tasks
 
     /**
-     * @it executes arbitrary code
+     * @see it('executes arbitrary code')
      */
     public function testExecutesArbitraryCode()
     {
@@ -164,7 +164,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it merges parallel fragments
+     * @see it('merges parallel fragments')
      */
     public function testMergesParallelFragments()
     {
@@ -225,7 +225,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it provides info about current execution state
+     * @see it('provides info about current execution state')
      */
     public function testProvidesInfoAboutCurrentExecutionState()
     {
@@ -277,7 +277,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it threads root value context correctly
+     * @see it('threads root value context correctly')
      */
     public function testThreadsContextCorrectly()
     {
@@ -311,7 +311,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it correctly threads arguments
+     * @see it('correctly threads arguments')
      */
     public function testCorrectlyThreadsArguments()
     {
@@ -348,7 +348,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it nulls out error subtrees
+     * @see it('nulls out error subtrees')
      */
     public function testNullsOutErrorSubtrees()
     {
@@ -526,7 +526,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it uses the inline operation if no operation name is provided
+     * @see it('uses the inline operation if no operation name is provided')
      */
     public function testUsesTheInlineOperationIfNoOperationIsProvided()
     {
@@ -548,7 +548,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it uses the only operation if no operation name is provided
+     * @see it('uses the only operation if no operation name is provided')
      */
     public function testUsesTheOnlyOperationIfNoOperationIsProvided()
     {
@@ -569,7 +569,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it uses the named operation if operation name is provided
+     * @see it('uses the named operation if operation name is provided')
      */
     public function testUsesTheNamedOperationIfOperationNameIsProvided()
     {
@@ -590,7 +590,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it provides error if no operation is provided
+     * @see it('provides error if no operation is provided')
      */
     public function testProvidesErrorIfNoOperationIsProvided()
     {
@@ -619,7 +619,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it errors if no op name is provided with multiple operations
+     * @see it('errors if no op name is provided with multiple operations')
      */
     public function testErrorsIfNoOperationIsProvidedWithMultipleOperations()
     {
@@ -649,7 +649,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it errors if unknown operation name is provided
+     * @see it('errors if unknown operation name is provided')
      */
     public function testErrorsIfUnknownOperationNameIsProvided()
     {
@@ -687,7 +687,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it uses the query schema for queries
+     * @see it('uses the query schema for queries')
      */
     public function testUsesTheQuerySchemaForQueries()
     {
@@ -714,7 +714,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it uses the mutation schema for mutations
+     * @see it('uses the mutation schema for mutations')
      */
     public function testUsesTheMutationSchemaForMutations()
     {
@@ -740,7 +740,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it uses the subscription schema for subscriptions
+     * @see it('uses the subscription schema for subscriptions')
      */
     public function testUsesTheSubscriptionSchemaForSubscriptions()
     {
@@ -821,7 +821,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it Avoids recursion
+     * @see it('Avoids recursion')
      */
     public function testAvoidsRecursion()
     {
@@ -853,7 +853,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it does not include illegal fields in output
+     * @see it('does not include illegal fields in output')
      */
     public function testDoesNotIncludeIllegalFieldsInOutput()
     {
@@ -880,7 +880,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it does not include arguments that were not set
+     * @see it('does not include arguments that were not set')
      */
     public function testDoesNotIncludeArgumentsThatWereNotSet()
     {
@@ -915,7 +915,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it fails when an isTypeOf check is not met
+     * @see it('fails when an isTypeOf check is not met')
      */
     public function testFailsWhenAnIsTypeOfCheckIsNotMet()
     {
@@ -965,7 +965,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it executes ignoring invalid non-executable definitions
+     * @see it('executes ignoring invalid non-executable definitions')
      */
     public function testExecutesIgnoringInvalidNonExecutableDefinitions()
     {
@@ -997,7 +997,7 @@ class ExecutorTest extends TestCase
     }
 
     /**
-     * @it uses a custom field resolver
+     * @see it('uses a custom field resolver')
      */
     public function testUsesACustomFieldResolver()
     {

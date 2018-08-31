@@ -10,7 +10,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     // Validate: Possible fragment spreads
 
     /**
-     * @it of the same object
+     * @see it('of the same object')
      */
     public function testOfTheSameObject()
     {
@@ -21,7 +21,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it of the same object with inline fragment
+     * @see it('of the same object with inline fragment')
      */
     public function testOfTheSameObjectWithInlineFragment()
     {
@@ -31,7 +31,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it object into an implemented interface
+     * @see it('object into an implemented interface')
      */
     public function testObjectIntoAnImplementedInterface()
     {
@@ -42,7 +42,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it object into containing union
+     * @see it('object into containing union')
      */
     public function testObjectIntoContainingUnion()
     {
@@ -53,7 +53,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it union into contained object
+     * @see it('union into contained object')
      */
     public function testUnionIntoContainedObject()
     {
@@ -64,7 +64,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it union into overlapping interface
+     * @see it('union into overlapping interface')
      */
     public function testUnionIntoOverlappingInterface()
     {
@@ -75,7 +75,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it union into overlapping union
+     * @see it('union into overlapping union')
      */
     public function testUnionIntoOverlappingUnion()
     {
@@ -86,7 +86,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface into implemented object
+     * @see it('interface into implemented object')
      */
     public function testInterfaceIntoImplementedObject()
     {
@@ -97,7 +97,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface into overlapping interface
+     * @see it('interface into overlapping interface')
      */
     public function testInterfaceIntoOverlappingInterface()
     {
@@ -108,7 +108,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface into overlapping interface in inline fragment
+     * @see it('interface into overlapping interface in inline fragment')
      */
     public function testInterfaceIntoOverlappingInterfaceInInlineFragment()
     {
@@ -118,7 +118,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface into overlapping union
+     * @see it('interface into overlapping union')
      */
     public function testInterfaceIntoOverlappingUnion()
     {
@@ -129,7 +129,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it ignores incorrect type (caught by FragmentsOnCompositeTypes)
+     * @see it('ignores incorrect type (caught by FragmentsOnCompositeTypes)')
      */
     public function testIgnoresIncorrectTypeCaughtByFragmentsOnCompositeTypes()
     {
@@ -140,7 +140,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it different object into object
+     * @see it('different object into object')
      */
     public function testDifferentObjectIntoObject()
     {
@@ -153,7 +153,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it different object into object in inline fragment
+     * @see it('different object into object in inline fragment')
      */
     public function testDifferentObjectIntoObjectInInlineFragment()
     {
@@ -167,7 +167,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it object into not implementing interface
+     * @see it('object into not implementing interface')
      */
     public function testObjectIntoNotImplementingInterface()
     {
@@ -180,7 +180,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it object into not containing union
+     * @see it('object into not containing union')
      */
     public function testObjectIntoNotContainingUnion()
     {
@@ -193,7 +193,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it union into not contained object
+     * @see it('union into not contained object')
      */
     public function testUnionIntoNotContainedObject()
     {
@@ -206,7 +206,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it union into non overlapping interface
+     * @see it('union into non overlapping interface')
      */
     public function testUnionIntoNonOverlappingInterface()
     {
@@ -219,7 +219,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it union into non overlapping union
+     * @see it('union into non overlapping union')
      */
     public function testUnionIntoNonOverlappingUnion()
     {
@@ -232,7 +232,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface into non implementing object
+     * @see it('interface into non implementing object')
      */
     public function testInterfaceIntoNonImplementingObject()
     {
@@ -245,7 +245,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface into non overlapping interface
+     * @see it('interface into non overlapping interface')
      */
     public function testInterfaceIntoNonOverlappingInterface()
     {
@@ -261,7 +261,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface into non overlapping interface in inline fragment
+     * @see it('interface into non overlapping interface in inline fragment')
      */
     public function testInterfaceIntoNonOverlappingInterfaceInInlineFragment()
     {
@@ -276,7 +276,7 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface into non overlapping union
+     * @see it('interface into non overlapping union')
      */
     public function testInterfaceIntoNonOverlappingUnion()
     {

@@ -180,7 +180,7 @@ class EnumTypeTest extends TestCase
     // Describe: Type System: Enum Values
 
     /**
-     * @it accepts enum literals as input
+     * @see it('accepts enum literals as input')
      */
     public function testAcceptsEnumLiteralsAsInput()
     {
@@ -191,7 +191,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it enum may be output type
+     * @see it('enum may be output type')
      */
     public function testEnumMayBeOutputType()
     {
@@ -202,7 +202,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it enum may be both input and output type
+     * @see it('enum may be both input and output type')
      */
     public function testEnumMayBeBothInputAndOutputType()
     {
@@ -213,7 +213,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept string literals
+     * @see it('does not accept string literals')
      */
     public function testDoesNotAcceptStringLiterals()
     {
@@ -228,7 +228,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept valuesNotInTheEnum
+     * @see it('does not accept valuesNotInTheEnum')
      */
     public function testDoesNotAcceptValuesNotInTheEnum()
     {
@@ -243,7 +243,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept values with incorrect casing
+     * @see it('does not accept values with incorrect casing')
      */
     public function testDoesNotAcceptValuesWithIncorrectCasing()
     {
@@ -258,7 +258,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept incorrect internal value
+     * @see it('does not accept incorrect internal value')
      */
     public function testDoesNotAcceptIncorrectInternalValue()
     {
@@ -274,7 +274,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept internal value in place of enum literal
+     * @see it('does not accept internal value in place of enum literal')
      */
     public function testDoesNotAcceptInternalValueInPlaceOfEnumLiteral()
     {
@@ -286,7 +286,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept enum literal in place of int
+     * @see it('does not accept enum literal in place of int')
      */
     public function testDoesNotAcceptEnumLiteralInPlaceOfInt()
     {
@@ -298,7 +298,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it accepts JSON string as enum variable
+     * @see it('accepts JSON string as enum variable')
      */
     public function testAcceptsJSONStringAsEnumVariable()
     {
@@ -315,7 +315,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it accepts enum literals as input arguments to mutations
+     * @see it('accepts enum literals as input arguments to mutations')
      */
     public function testAcceptsEnumLiteralsAsInputArgumentsToMutations()
     {
@@ -332,7 +332,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it accepts enum literals as input arguments to subscriptions
+     * @see it('accepts enum literals as input arguments to subscriptions')
      * @todo
      */
     public function testAcceptsEnumLiteralsAsInputArgumentsToSubscriptions()
@@ -350,7 +350,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept internal value as enum variable
+     * @see it('does not accept internal value as enum variable')
      */
     public function testDoesNotAcceptInternalValueAsEnumVariable()
     {
@@ -362,7 +362,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept string variables as enum input
+     * @see it('does not accept string variables as enum input')
      */
     public function testDoesNotAcceptStringVariablesAsEnumInput()
     {
@@ -374,7 +374,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it does not accept internal value variable as enum input
+     * @see it('does not accept internal value variable as enum input')
      */
     public function testDoesNotAcceptInternalValueVariableSsEnumInput()
     {
@@ -386,7 +386,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it enum value may have an internal value of 0
+     * @see it('enum value may have an internal value of 0')
      */
     public function testEnumValueMayHaveAnInternalValueOf0()
     {
@@ -400,7 +400,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it enum inputs may be nullable
+     * @see it('enum inputs may be nullable')
      */
     public function testEnumInputsMayBeNullable()
     {
@@ -414,7 +414,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it presents a getValues() API for complex enums
+     * @see it('presents a getValues() API for complex enums')
      */
     public function testPresentsGetValuesAPIForComplexEnums()
     {
@@ -429,7 +429,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it presents a getValue() API for complex enums
+     * @see it('presents a getValue() API for complex enums')
      */
     public function testPresentsGetValueAPIForComplexEnums()
     {
@@ -442,7 +442,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it may be internally represented with complex values
+     * @see it('may be internally represented with complex values')
      */
     public function testMayBeInternallyRepresentedWithComplexValues()
     {
@@ -471,7 +471,7 @@ class EnumTypeTest extends TestCase
     }
 
     /**
-     * @it can be introspected without error
+     * @see it('can be introspected without error')
      */
     public function testCanBeIntrospectedWithoutError()
     {

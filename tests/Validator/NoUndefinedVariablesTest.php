@@ -10,7 +10,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     // Validate: No undefined variables
 
     /**
-     * @it all variables defined
+     * @see it('all variables defined')
      */
     public function testAllVariablesDefined()
     {
@@ -22,7 +22,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it all variables deeply defined
+     * @see it('all variables deeply defined')
      */
     public function testAllVariablesDeeplyDefined()
     {
@@ -38,7 +38,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it all variables deeply in inline fragments defined
+     * @see it('all variables deeply in inline fragments defined')
      */
     public function testAllVariablesDeeplyInInlineFragmentsDefined()
     {
@@ -58,7 +58,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it all variables in fragments deeply defined
+     * @see it('all variables in fragments deeply defined')
      */
     public function testAllVariablesInFragmentsDeeplyDefined()
     {
@@ -83,7 +83,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable within single fragment defined in multiple operations
+     * @see it('variable within single fragment defined in multiple operations')
      */
     public function testVariableWithinSingleFragmentDefinedInMultipleOperations()
     {
@@ -102,7 +102,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable within fragments defined in operations
+     * @see it('variable within fragments defined in operations')
      */
     public function testVariableWithinFragmentsDefinedInOperations()
     {
@@ -123,7 +123,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable within recursive fragment defined
+     * @see it('variable within recursive fragment defined')
      */
     public function testVariableWithinRecursiveFragmentDefined()
     {
@@ -140,7 +140,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable not defined
+     * @see it('variable not defined')
      */
     public function testVariableNotDefined()
     {
@@ -154,7 +154,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable not defined by un-named query
+     * @see it('variable not defined by un-named query')
      */
     public function testVariableNotDefinedByUnNamedQuery()
     {
@@ -168,7 +168,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple variables not defined
+     * @see it('multiple variables not defined')
      */
     public function testMultipleVariablesNotDefined()
     {
@@ -183,7 +183,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable in fragment not defined by un-named query
+     * @see it('variable in fragment not defined by un-named query')
      */
     public function testVariableInFragmentNotDefinedByUnNamedQuery()
     {
@@ -200,7 +200,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable in fragment not defined by operation
+     * @see it('variable in fragment not defined by operation')
      */
     public function testVariableInFragmentNotDefinedByOperation()
     {
@@ -227,7 +227,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple variables in fragments not defined
+     * @see it('multiple variables in fragments not defined')
      */
     public function testMultipleVariablesInFragmentsNotDefined()
     {
@@ -255,7 +255,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it single variable in fragment not defined by multiple operations
+     * @see it('single variable in fragment not defined by multiple operations')
      */
     public function testSingleVariableInFragmentNotDefinedByMultipleOperations()
     {
@@ -276,7 +276,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variables in fragment not defined by multiple operations
+     * @see it('variables in fragment not defined by multiple operations')
      */
     public function testVariablesInFragmentNotDefinedByMultipleOperations()
     {
@@ -297,7 +297,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable in fragment used by other operation
+     * @see it('variable in fragment used by other operation')
      */
     public function testVariableInFragmentUsedByOtherOperation()
     {
@@ -321,7 +321,7 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple undefined variables produce multiple errors
+     * @see it('multiple undefined variables produce multiple errors')
      */
     public function testMultipleUndefinedVariablesProduceMultipleErrors()
     {

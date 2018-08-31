@@ -14,7 +14,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     // Validate: Overlapping fields can be merged
 
     /**
-     * @it unique fields
+     * @see it('unique fields')
      */
     public function testUniqueFields()
     {
@@ -27,7 +27,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it identical fields
+     * @see it('identical fields')
      */
     public function testIdenticalFields()
     {
@@ -40,7 +40,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it identical fields with identical args
+     * @see it('identical fields with identical args')
      */
     public function testIdenticalFieldsWithIdenticalArgs()
     {
@@ -53,7 +53,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it identical fields with identical directives
+     * @see it('identical fields with identical directives')
      */
     public function testIdenticalFieldsWithIdenticalDirectives()
     {
@@ -66,7 +66,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it different args with different aliases
+     * @see it('different args with different aliases')
      */
     public function testDifferentArgsWithDifferentAliases()
     {
@@ -79,7 +79,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it different directives with different aliases
+     * @see it('different directives with different aliases')
      */
     public function testDifferentDirectivesWithDifferentAliases()
     {
@@ -92,7 +92,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it different skip/include directives accepted
+     * @see it('different skip/include directives accepted')
      */
     public function testDifferentSkipIncludeDirectivesAccepted()
     {
@@ -108,7 +108,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it Same aliases with different field targets
+     * @see it('Same aliases with different field targets')
      */
     public function testSameAliasesWithDifferentFieldTargets()
     {
@@ -126,7 +126,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it Same aliases allowed on non-overlapping fields
+     * @see it('Same aliases allowed on non-overlapping fields')
      */
     public function testSameAliasesAllowedOnNonOverlappingFields()
     {
@@ -145,7 +145,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it Alias masking direct field access
+     * @see it('Alias masking direct field access')
      */
     public function testAliasMaskingDirectFieldAccess()
     {
@@ -163,7 +163,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it different args, second adds an argument
+     * @see it('different args, second adds an argument')
      */
     public function testDifferentArgsSecondAddsAnArgument()
     {
@@ -181,7 +181,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it different args, second missing an argument
+     * @see it('different args, second missing an argument')
      */
     public function testDifferentArgsSecondMissingAnArgument()
     {
@@ -201,7 +201,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it conflicting args
+     * @see it('conflicting args')
      */
     public function testConflictingArgs()
     {
@@ -219,7 +219,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it allows different args where no conflict is possible
+     * @see it('allows different args where no conflict is possible')
      */
     public function testAllowsDifferentArgsWhereNoConflictIsPossible()
     {
@@ -238,7 +238,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it encounters conflict in fragments
+     * @see it('encounters conflict in fragments')
      */
     public function testEncountersConflictInFragments()
     {
@@ -262,7 +262,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it reports each conflict once
+     * @see it('reports each conflict once')
      */
     public function testReportsEachConflictOnce()
     {
@@ -305,7 +305,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it deep conflict
+     * @see it('deep conflict')
      */
     public function testDeepConflict()
     {
@@ -332,7 +332,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it deep conflict with multiple issues
+     * @see it('deep conflict with multiple issues')
      */
     public function testDeepConflictWithMultipleIssues()
     {
@@ -366,7 +366,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it very deep conflict
+     * @see it('very deep conflict')
      */
     public function testVeryDeepConflict()
     {
@@ -399,7 +399,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it reports deep conflict to nearest common ancestor
+     * @see it('reports deep conflict to nearest common ancestor')
      */
     public function testReportsDeepConflictToNearestCommonAncestor()
     {
@@ -433,7 +433,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it reports deep conflict to nearest common ancestor in fragments
+     * @see it('reports deep conflict to nearest common ancestor in fragments')
      */
     public function testReportsDeepConflictToNearestCommonAncestorInFragments()
     {
@@ -475,7 +475,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it reports deep conflict in nested fragments
+     * @see it('reports deep conflict in nested fragments')
      */
     public function testReportsDeepConflictInNestedFragments()
     {
@@ -521,7 +521,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it ignores unknown fragments
+     * @see it('ignores unknown fragments')
      */
     public function testIgnoresUnknownFragments()
     {
@@ -542,7 +542,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     // Describe: return types must be unambiguous
 
     /**
-     * @it conflicting return types which potentially overlap
+     * @see it('conflicting return types which potentially overlap')
      */
     public function testConflictingReturnTypesWhichPotentiallyOverlap()
     {
@@ -574,7 +574,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it compatible return shapes on different return types
+     * @see it('compatible return shapes on different return types')
      */
     public function testCompatibleReturnShapesOnDifferentReturnTypes()
     {
@@ -600,7 +600,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it disallows differing return types despite no overlap
+     * @see it('disallows differing return types despite no overlap')
      */
     public function testDisallowsDifferingReturnTypesDespiteNoOverlap()
     {
@@ -628,7 +628,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it reports correctly when a non-exclusive follows an exclusive
+     * @see it('reports correctly when a non-exclusive follows an exclusive')
      */
     public function testReportsCorrectlyWhenANonExclusiveFollowsAnExclusive()
     {
@@ -692,7 +692,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it disallows differing return type nullability despite no overlap
+     * @see it('disallows differing return type nullability despite no overlap')
      */
     public function testDisallowsDifferingReturnTypeNullabilityDespiteNoOverlap()
     {
@@ -720,7 +720,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it disallows differing return type list despite no overlap
+     * @see it('disallows differing return type list despite no overlap')
      */
     public function testDisallowsDifferingReturnTypeListDespiteNoOverlap()
     {
@@ -810,7 +810,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it disallows differing deep return types despite no overlap
+     * @see it('disallows differing deep return types despite no overlap')
      */
     public function testDisallowsDifferingDeepReturnTypesDespiteNoOverlap()
     {
@@ -846,7 +846,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it allows non-conflicting overlaping types
+     * @see it('allows non-conflicting overlaping types')
      */
     public function testAllowsNonConflictingOverlapingTypes()
     {
@@ -865,7 +865,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it same wrapped scalar return types
+     * @see it('same wrapped scalar return types')
      */
     public function testSameWrappedScalarReturnTypes()
     {
@@ -884,7 +884,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it allows inline typeless fragments
+     * @see it('allows inline typeless fragments')
      */
     public function testAllowsInlineTypelessFragments()
     {
@@ -899,7 +899,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it compares deep types including list
+     * @see it('compares deep types including list')
      */
     public function testComparesDeepTypesIncludingList()
     {
@@ -938,7 +938,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
      }
 
     /**
-     * @it ignores unknown types
+     * @see it('ignores unknown types')
      */
     public function testIgnoresUnknownTypes()
     {
@@ -957,7 +957,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it error message contains hint for alias conflict
+     * @see it('error message contains hint for alias conflict')
      */
     public function testErrorMessageContainsHintForAliasConflict()
     {
@@ -970,7 +970,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it does not infinite loop on recursive fragment
+     * @see it('does not infinite loop on recursive fragment')
      */
     public function testDoesNotInfiniteLoopOnRecursiveFragment()
     {
@@ -980,7 +980,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it does not infinite loop on immediately recursive fragment
+     * @see it('does not infinite loop on immediately recursive fragment')
      */
     public function testDoesNotInfiniteLoopOnImmeditelyRecursiveFragment()
     {
@@ -990,7 +990,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it does not infinite loop on transitively recursive fragment
+     * @see it('does not infinite loop on transitively recursive fragment')
      */
     public function testDoesNotInfiniteLoopOnTransitivelyRecursiveFragment()
     {
@@ -1002,7 +1002,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
     }
 
     /**
-     * @it find invalid case even with immediately recursive fragment
+     * @see it('find invalid case even with immediately recursive fragment')
      */
     public function testFindInvalidCaseEvenWithImmediatelyRecursiveFragment()
     {

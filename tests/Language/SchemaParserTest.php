@@ -12,7 +12,7 @@ class SchemaParserTest extends TestCase
     // Describe: Schema Parser
 
     /**
-     * @it Simple type
+     * @see it('Simple type')
      */
     public function testSimpleType()
     {
@@ -48,7 +48,7 @@ type Hello {
     }
 
     /**
-     * @it parses type with description string
+     * @see it('parses type with description string')
      */
     public function testParsesTypeWithDescriptionString()
     {
@@ -90,7 +90,7 @@ type Hello {
     }
 
     /**
-     * @it parses type with description multi-linestring
+     * @see it('parses type with description multi-linestring')
      */
     public function testParsesTypeWithDescriptionMultiLineString()
     {
@@ -135,7 +135,7 @@ type Hello {
     }
 
     /**
-     * @it Simple extension
+     * @see it('Simple extension')
      */
     public function testSimpleExtension()
     {
@@ -172,7 +172,7 @@ extend type Hello {
     }
 
     /**
-     * @it Extension without fields
+     * @see it('Extension without fields')
      */
     public function testExtensionWithoutFields()
     {
@@ -201,7 +201,7 @@ extend type Hello {
     }
 
     /**
-     * @it Extension without fields followed by extension
+     * @see it('Extension without fields followed by extension')
      */
     public function testExtensionWithoutFieldsFollowedByExtension()
     {
@@ -237,7 +237,7 @@ extend type Hello {
     }
 
     /**
-     * @it Extension without anything throws
+     * @see it('Extension without anything throws')
      */
     public function testExtensionWithoutAnythingThrows()
     {
@@ -249,7 +249,7 @@ extend type Hello {
     }
 
     /**
-     * @it Extension do not include descriptions
+     * @see it('Extension do not include descriptions')
      */
     public function testExtensionDoNotIncludeDescriptions()
     {
@@ -266,7 +266,7 @@ extend type Hello {
     }
 
     /**
-     * @it Extension do not include descriptions
+     * @see it('Extension do not include descriptions')
      */
     public function testExtensionDoNotIncludeDescriptions2()
     {
@@ -283,7 +283,7 @@ extend type Hello {
     }
 
     /**
-     * @it Simple non-null type
+     * @see it('Simple non-null type')
      */
     public function testSimpleNonNullType()
     {
@@ -326,7 +326,7 @@ type Hello {
     }
 
     /**
-     * @it Simple type inheriting interface
+     * @see it('Simple type inheriting interface')
      */
     public function testSimpleTypeInheritingInterface()
     {
@@ -362,7 +362,7 @@ type Hello {
     }
 
     /**
-     * @it Simple type inheriting multiple interfaces
+     * @see it('Simple type inheriting multiple interfaces')
      */
     public function testSimpleTypeInheritingMultipleInterfaces()
     {
@@ -399,7 +399,7 @@ type Hello {
     }
 
     /**
-     * @it Simple type inheriting multiple interfaces with leading ampersand
+     * @see it('Simple type inheriting multiple interfaces with leading ampersand')
      */
     public function testSimpleTypeInheritingMultipleInterfacesWithLeadingAmpersand()
     {
@@ -434,7 +434,7 @@ type Hello {
     }
 
     /**
-     * @it Single value enum
+     * @see it('Single value enum')
      */
     public function testSingleValueEnum()
     {
@@ -461,7 +461,7 @@ type Hello {
     }
 
     /**
-     * @it Double value enum
+     * @see it('Double value enum')
      */
     public function testDoubleValueEnum()
     {
@@ -491,7 +491,7 @@ type Hello {
     }
 
     /**
-     * @it Simple interface
+     * @see it('Simple interface')
      */
     public function testSimpleInterface()
     {
@@ -526,7 +526,7 @@ interface Hello {
     }
 
     /**
-     * @it Simple field with arg
+     * @see it('Simple field with arg')
      */
     public function testSimpleFieldWithArg()
     {
@@ -571,7 +571,7 @@ type Hello {
     }
 
     /**
-     * @it Simple field with arg with default value
+     * @see it('Simple field with arg with default value')
      */
     public function testSimpleFieldWithArgWithDefaultValue()
     {
@@ -615,7 +615,7 @@ type Hello {
     }
 
     /**
-     * @it Simple field with list arg
+     * @see it('Simple field with list arg')
      */
     public function testSimpleFieldWithListArg()
     {
@@ -660,7 +660,7 @@ type Hello {
     }
 
     /**
-     * @it Simple field with two args
+     * @see it('Simple field with two args')
      */
     public function testSimpleFieldWithTwoArgs()
     {
@@ -711,7 +711,7 @@ type Hello {
     }
 
     /**
-     * @it Simple union
+     * @see it('Simple union')
      */
     public function testSimpleUnion()
     {
@@ -737,7 +737,7 @@ type Hello {
     }
 
     /**
-     * @it Union with two types
+     * @see it('Union with two types')
      */
     public function testUnionWithTwoTypes()
     {
@@ -767,7 +767,7 @@ type Hello {
 
 
     /**
-     * @it Union with two types and leading pipe
+     * @see it('Union with two types and leading pipe')
      */
     public function testUnionWithTwoTypesAndLeadingPipe()
     {
@@ -794,7 +794,7 @@ type Hello {
     }
 
     /**
-     * @it Union fails with no types
+     * @see it('Union fails with no types')
      */
     public function testUnionFailsWithNoTypes()
     {
@@ -806,7 +806,7 @@ type Hello {
     }
 
     /**
-     * @it Union fails with leading douple pipe
+     * @see it('Union fails with leading douple pipe')
      */
     public function testUnionFailsWithLeadingDoublePipe()
     {
@@ -818,7 +818,7 @@ type Hello {
     }
 
     /**
-     * @it Union fails with double pipe
+     * @see it('Union fails with double pipe')
      */
     public function testUnionFailsWithDoublePipe()
     {
@@ -830,7 +830,7 @@ type Hello {
     }
 
     /**
-     * @it Union fails with trailing pipe
+     * @see it('Union fails with trailing pipe')
      */
     public function testUnionFailsWithTrailingPipe()
     {
@@ -842,7 +842,7 @@ type Hello {
     }
 
     /**
-     * @it Scalar
+     * @see it('Scalar')
      */
     public function testScalar()
     {
@@ -866,7 +866,7 @@ type Hello {
     }
 
     /**
-     * @it Simple input object
+     * @see it('Simple input object')
      */
     public function testSimpleInputObject()
     {
@@ -902,7 +902,7 @@ input Hello {
     }
 
     /**
-     * @it Simple input object with args should fail
+     * @see it('Simple input object with args should fail')
      */
     public function testSimpleInputObjectWithArgsShouldFail()
     {
@@ -918,7 +918,7 @@ input Hello {
     }
 
     /**
-     * @it Directive with incorrect locations
+     * @see it('Directive with incorrect locations')
      */
     public function testDirectiveWithIncorrectLocationShouldFail()
     {
@@ -939,7 +939,7 @@ input Hello {
     }
 
     /**
-     * @it Option: allowLegacySDLEmptyFields supports type with empty fields
+     * @see it('Option: allowLegacySDLEmptyFields supports type with empty fields')
      */
     public function testAllowLegacySDLEmptyFieldsOption()
     {
@@ -962,7 +962,7 @@ input Hello {
     }
 
     /**
-     * @it Option: allowLegacySDLImplementsInterfaces
+     * @see it('Option: allowLegacySDLImplementsInterfaces')
      */
     public function testDefaultSDLImplementsInterfaces()
     {

@@ -10,7 +10,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
     // Validate: Anonymous operation must be alone
 
     /**
-     * @it no operations
+     * @see it('no operations')
      */
     public function testNoOperations()
     {
@@ -22,7 +22,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
     }
 
     /**
-     * @it one anon operation
+     * @see it('one anon operation')
      */
     public function testOneAnonOperation()
     {
@@ -34,7 +34,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple named operations
+     * @see it('multiple named operations')
      */
     public function testMultipleNamedOperations()
     {
@@ -50,7 +50,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
     }
 
     /**
-     * @it anon operation with fragment
+     * @see it('anon operation with fragment')
      */
     public function testAnonOperationWithFragment()
     {
@@ -65,7 +65,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple anon operations
+     * @see it('multiple anon operations')
      */
     public function testMultipleAnonOperations()
     {
@@ -83,7 +83,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
     }
 
     /**
-     * @it anon operation with a mutation
+     * @see it('anon operation with a mutation')
      */
     public function testAnonOperationWithMutation()
     {
@@ -100,7 +100,7 @@ class LoneAnonymousOperationTest extends ValidatorTestCase
     }
 
     /**
-     * @it anon operation with a subscription
+     * @see it('anon operation with a subscription')
      */
     public function testAnonOperationWithSubscription()
     {

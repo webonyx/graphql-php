@@ -10,7 +10,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     // Validate: No unused variables
 
     /**
-     * @it uses all variables
+     * @see it('uses all variables')
      */
     public function testUsesAllVariables()
     {
@@ -22,7 +22,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it uses all variables deeply
+     * @see it('uses all variables deeply')
      */
     public function testUsesAllVariablesDeeply()
     {
@@ -38,7 +38,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it uses all variables deeply in inline fragments
+     * @see it('uses all variables deeply in inline fragments')
      */
     public function testUsesAllVariablesDeeplyInInlineFragments()
     {
@@ -58,7 +58,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it uses all variables in fragments
+     * @see it('uses all variables in fragments')
      */
     public function testUsesAllVariablesInFragments()
     {
@@ -83,7 +83,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable used by fragment in multiple operations
+     * @see it('variable used by fragment in multiple operations')
      */
     public function testVariableUsedByFragmentInMultipleOperations()
     {
@@ -104,7 +104,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable used by recursive fragment
+     * @see it('variable used by recursive fragment')
      */
     public function testVariableUsedByRecursiveFragment()
     {
@@ -121,7 +121,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable not used
+     * @see it('variable not used')
      */
     public function testVariableNotUsed()
     {
@@ -135,7 +135,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple variables not used
+     * @see it('multiple variables not used')
      */
     public function testMultipleVariablesNotUsed()
     {
@@ -150,7 +150,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable not used in fragments
+     * @see it('variable not used in fragments')
      */
     public function testVariableNotUsedInFragments()
     {
@@ -177,7 +177,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple variables not used
+     * @see it('multiple variables not used')
      */
     public function testMultipleVariablesNotUsed2()
     {
@@ -205,7 +205,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable not used by unreferenced fragment
+     * @see it('variable not used by unreferenced fragment')
      */
     public function testVariableNotUsedByUnreferencedFragment()
     {
@@ -225,7 +225,7 @@ class NoUnusedVariablesTest extends ValidatorTestCase
     }
 
     /**
-     * @it variable not used by fragment used by other operation
+     * @see it('variable not used by fragment used by other operation')
      */
     public function testVariableNotUsedByFragmentUsedByOtherOperation()
     {

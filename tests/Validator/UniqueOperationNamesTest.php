@@ -10,7 +10,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     // Validate: Unique operation names
 
     /**
-     * @it no operations
+     * @see it('no operations')
      */
     public function testNoOperations()
     {
@@ -22,7 +22,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it one anon operation
+     * @see it('one anon operation')
      */
     public function testOneAnonOperation()
     {
@@ -34,7 +34,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it one named operation
+     * @see it('one named operation')
      */
     public function testOneNamedOperation()
     {
@@ -46,7 +46,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple operations
+     * @see it('multiple operations')
      */
     public function testMultipleOperations()
     {
@@ -62,7 +62,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple operations of different types
+     * @see it('multiple operations of different types')
      */
     public function testMultipleOperationsOfDifferentTypes()
     {
@@ -82,7 +82,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it fragment and operation named the same
+     * @see it('fragment and operation named the same')
      */
     public function testFragmentAndOperationNamedTheSame()
     {
@@ -97,7 +97,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple operations of same name
+     * @see it('multiple operations of same name')
      */
     public function testMultipleOperationsOfSameName()
     {
@@ -114,7 +114,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple ops of same name of different types (mutation)
+     * @see it('multiple ops of same name of different types (mutation)')
      */
     public function testMultipleOpsOfSameNameOfDifferentTypes_Mutation()
     {
@@ -131,7 +131,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple ops of same name of different types (subscription)
+     * @see it('multiple ops of same name of different types (subscription)')
      */
     public function testMultipleOpsOfSameNameOfDifferentTypes_Subscription()
     {

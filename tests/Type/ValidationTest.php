@@ -169,7 +169,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: A Schema must have Object root types
 
     /**
-     * @it accepts a Schema whose query type is an object type
+     * @see it('accepts a Schema whose query type is an object type')
      */
     public function testAcceptsASchemaWhoseQueryTypeIsAnObjectType()
     {
@@ -192,7 +192,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it accepts a Schema whose query and mutation types are object types
+     * @see it('accepts a Schema whose query and mutation types are object types')
      */
     public function testAcceptsASchemaWhoseQueryAndMutationTypesAreObjectTypes()
     {
@@ -225,7 +225,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it accepts a Schema whose query and subscription types are object types
+     * @see it('accepts a Schema whose query and subscription types are object types')
      */
     public function testAcceptsASchemaWhoseQueryAndSubscriptionTypesAreObjectTypes()
     {
@@ -258,7 +258,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a Schema without a query type
+     * @see it('rejects a Schema without a query type')
      */
     public function testRejectsASchemaWithoutAQueryType()
     {
@@ -294,7 +294,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a Schema whose query root type is not an Object type
+     * @see it('rejects a Schema whose query root type is not an Object type')
      */
     public function testRejectsASchemaWhoseQueryTypeIsNotAnObjectType()
     {
@@ -333,7 +333,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a Schema whose mutation type is an input type
+     * @see it('rejects a Schema whose mutation type is an input type')
      */
     public function testRejectsASchemaWhoseMutationTypeIsAnInputType()
     {
@@ -380,7 +380,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a Schema whose subscription type is an input type
+     * @see it('rejects a Schema whose subscription type is an input type')
      */
     public function testRejectsASchemaWhoseSubscriptionTypeIsAnInputType()
     {
@@ -429,7 +429,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a Schema whose directives are incorrectly typed
+     * @see it('rejects a Schema whose directives are incorrectly typed')
      */
     public function testRejectsASchemaWhoseDirectivesAreIncorrectlyTyped()
     {
@@ -447,7 +447,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Objects must have fields
 
     /**
-     * @it accepts an Object type with fields object
+     * @see it('accepts an Object type with fields object')
      */
     public function testAcceptsAnObjectTypeWithFieldsObject()
     {
@@ -465,7 +465,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object type with missing fields
+     * @see it('rejects an Object type with missing fields')
      */
     public function testRejectsAnObjectTypeWithMissingFields()
     {
@@ -511,7 +511,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object type with incorrectly named fields
+     * @see it('rejects an Object type with incorrectly named fields')
      */
     public function testRejectsAnObjectTypeWithIncorrectlyNamedFields()
     {
@@ -550,7 +550,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Fields args must be properly named
 
     /**
-     * @it accepts field args with valid names
+     * @see it('accepts field args with valid names')
      */
     public function testAcceptsFieldArgsWithValidNames()
     {
@@ -569,7 +569,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects field arg with invalid names
+     * @see it('rejects field arg with invalid names')
      */
     public function testRejectsFieldArgWithInvalidNames()
     {
@@ -595,7 +595,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Union types must be valid
 
     /**
-     * @it accepts a Union type with member types
+     * @see it('accepts a Union type with member types')
      */
     public function testAcceptsAUnionTypeWithArrayTypes()
     {
@@ -621,7 +621,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a Union type with empty types
+     * @see it('rejects a Union type with empty types')
      */
     public function testRejectsAUnionTypeWithEmptyTypes()
     {
@@ -642,7 +642,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a Union type with duplicated member type
+     * @see it('rejects a Union type with duplicated member type')
      */
     public function testRejectsAUnionTypeWithDuplicatedMemberType()
     {
@@ -674,7 +674,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a Union type with non-Object members types
+     * @see it('rejects a Union type with non-Object members types')
      */
     public function testRejectsAUnionTypeWithNonObjectMembersType()
     {
@@ -733,7 +733,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Input Objects must have fields
 
     /**
-     * @it accepts an Input Object type with fields
+     * @see it('accepts an Input Object type with fields')
      */
     public function testAcceptsAnInputObjectTypeWithFields()
     {
@@ -750,7 +750,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Input Object type with missing fields
+     * @see it('rejects an Input Object type with missing fields')
      */
     public function testRejectsAnInputObjectTypeWithMissingFields()
     {
@@ -771,7 +771,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Input Object type with incorrectly typed fields
+     * @see it('rejects an Input Object type with incorrectly typed fields')
      */
     public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields()
     {
@@ -807,7 +807,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Enum types must be well defined
 
     /**
-     * @it rejects an Enum type without values
+     * @see it('rejects an Enum type without values')
      */
     public function testRejectsAnEnumTypeWithoutValues()
     {
@@ -828,7 +828,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Enum type with duplicate values
+     * @see it('rejects an Enum type with duplicate values')
      */
     public function testRejectsAnEnumTypeWithDuplicateValues()
     {
@@ -889,7 +889,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Enum type with incorrectly named values
+     * @see it('rejects an Enum type with incorrectly named values')
      * @dataProvider invalidEnumValueName
      */
     public function testRejectsAnEnumTypeWithIncorrectlyNamedValues($name, $expectedMessage)
@@ -907,7 +907,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Object fields must have output types
 
     /**
-     * @it accepts an output type as an Object field type
+     * @see it('accepts an output type as an Object field type')
      */
     public function testAcceptsAnOutputTypeAsNnObjectFieldType()
     {
@@ -918,7 +918,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an empty Object field type
+     * @see it('rejects an empty Object field type')
      */
     public function testRejectsAnEmptyObjectFieldType()
     {
@@ -933,7 +933,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a non-output type as an Object field type
+     * @see it('rejects a non-output type as an Object field type')
      */
     public function testRejectsANonOutputTypeAsAnObjectFieldType()
     {
@@ -950,7 +950,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects with relevant locations for a non-output type as an Object field type
+     * @see it('rejects with relevant locations for a non-output type as an Object field type')
      */
     public function testRejectsWithReleventLocationsForANonOutputTypeAsAnObjectFieldType()
     {
@@ -975,7 +975,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Objects can only implement unique interfaces
 
     /**
-     * @it rejects an Object implementing a non-type values
+     * @see it('rejects an Object implementing a non-type values')
      */
     public function testRejectsAnObjectImplementingANonTypeValues()
     {
@@ -997,7 +997,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object implementing a non-Interface type
+     * @see it('rejects an Object implementing a non-Interface type')
      */
     public function testRejectsAnObjectImplementingANonInterfaceType()
     {
@@ -1024,7 +1024,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object implementing the same interface twice
+     * @see it('rejects an Object implementing the same interface twice')
      */
     public function testRejectsAnObjectImplementingTheSameInterfaceTwice()
     {
@@ -1051,7 +1051,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object implementing the same interface twice due to extension
+     * @see it('rejects an Object implementing the same interface twice due to extension')
      */
     public function testRejectsAnObjectImplementingTheSameInterfaceTwiceDueToExtension()
     {
@@ -1084,7 +1084,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Interface fields must have output types
 
     /**
-     * @it accepts an output type as an Interface field type
+     * @see it('accepts an output type as an Interface field type')
      */
     public function testAcceptsAnOutputTypeAsAnInterfaceFieldType()
     {
@@ -1095,7 +1095,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an empty Interface field type
+     * @see it('rejects an empty Interface field type')
      */
     public function testRejectsAnEmptyInterfaceFieldType()
     {
@@ -1109,7 +1109,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a non-output type as an Interface field type
+     * @see it('rejects a non-output type as an Interface field type')
      */
     public function testRejectsANonOutputTypeAsAnInterfaceFieldType()
     {
@@ -1126,7 +1126,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a non-output type as an Interface field type with locations
+     * @see it('rejects a non-output type as an Interface field type with locations')
      */
     public function testRejectsANonOutputTypeAsAnInterfaceFieldTypeWithLocations()
     {
@@ -1155,7 +1155,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Field arguments must have input types
 
     /**
-     * @it accepts an input type as a field arg type
+     * @see it('accepts an input type as a field arg type')
      */
     public function testAcceptsAnInputTypeAsAFieldArgType()
     {
@@ -1166,7 +1166,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an empty field arg type
+     * @see it('rejects an empty field arg type')
      */
     public function testRejectsAnEmptyFieldArgType()
     {
@@ -1180,7 +1180,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a non-input type as a field arg type
+     * @see it('rejects a non-input type as a field arg type')
      */
     public function testRejectsANonInputTypeAsAFieldArgType()
     {
@@ -1196,7 +1196,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a non-input type as a field arg with locations
+     * @see it('rejects a non-input type as a field arg with locations')
      */
     public function testANonInputTypeAsAFieldArgWithLocations()
     {
@@ -1221,7 +1221,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Type System: Input Object fields must have input types
 
     /**
-     * @it accepts an input type as an input field type
+     * @see it('accepts an input type as an input field type')
      */
     public function testAcceptsAnInputTypeAsAnInputFieldType()
     {
@@ -1232,7 +1232,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an empty input field type
+     * @see it('rejects an empty input field type')
      */
     public function testRejectsAnEmptyInputFieldType()
     {
@@ -1246,7 +1246,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a non-input type as an input field type
+     * @see it('rejects a non-input type as an input field type')
      */
     public function testRejectsANonInputTypeAsAnInputFieldType()
     {
@@ -1262,7 +1262,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects a non-input type as an input object field with locations
+     * @see it('rejects a non-input type as an input object field with locations')
      */
     public function testRejectsANonInputTypeAsAnInputObjectFieldWithLocations()
     {
@@ -1291,7 +1291,7 @@ class ValidationTest extends TestCase
     // DESCRIBE: Objects must adhere to Interface they implement
 
     /**
-     * @it accepts an Object which implements an Interface
+     * @see it('accepts an Object which implements an Interface')
      */
     public function testAcceptsAnObjectWhichImplementsAnInterface()
     {
@@ -1316,7 +1316,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it accepts an Object which implements an Interface along with more fields
+     * @see it('accepts an Object which implements an Interface along with more fields')
      */
     public function testAcceptsAnObjectWhichImplementsAnInterfaceAlongWithMoreFields()
     {
@@ -1342,7 +1342,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it accepts an Object which implements an Interface field along with additional optional arguments
+     * @see it('accepts an Object which implements an Interface field along with additional optional arguments')
      */
     public function testAcceptsAnObjectWhichImplementsAnInterfaceFieldAlongWithAdditionalOptionalArguments()
     {
@@ -1367,7 +1367,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object missing an Interface field
+     * @see it('rejects an Object missing an Interface field')
      */
     public function testRejectsAnObjectMissingAnInterfaceField()
     {
@@ -1396,7 +1396,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object with an incorrectly typed Interface field
+     * @see it('rejects an Object with an incorrectly typed Interface field')
      */
     public function testRejectsAnObjectWithAnIncorrectlyTypedInterfaceField()
     {
@@ -1425,7 +1425,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object with a differently typed Interface field
+     * @see it('rejects an Object with a differently typed Interface field')
      */
     public function testRejectsAnObjectWithADifferentlyTypedInterfaceField()
     {
@@ -1457,7 +1457,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it accepts an Object with a subtyped Interface field (interface)
+     * @see it('accepts an Object with a subtyped Interface field (interface)')
      */
     public function testAcceptsAnObjectWithASubtypedInterfaceFieldForInterface()
     {
@@ -1479,7 +1479,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it accepts an Object with a subtyped Interface field (union)
+     * @see it('accepts an Object with a subtyped Interface field (union)')
      */
     public function testAcceptsAnObjectWithASubtypedInterfaceFieldForUnion()
     {
@@ -1507,7 +1507,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object missing an Interface argument
+     * @see it('rejects an Object missing an Interface argument')
      */
     public function testRejectsAnObjectMissingAnInterfaceArgument()
     {
@@ -1536,7 +1536,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object with an incorrectly typed Interface argument
+     * @see it('rejects an Object with an incorrectly typed Interface argument')
      */
     public function testRejectsAnObjectWithAnIncorrectlyTypedInterfaceArgument()
     {
@@ -1565,7 +1565,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object with both an incorrectly typed field and argument
+     * @see it('rejects an Object with both an incorrectly typed field and argument')
      */
     public function testRejectsAnObjectWithBothAnIncorrectlyTypedFieldAndArgument()
     {
@@ -1598,7 +1598,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object which implements an Interface field along with additional required arguments
+     * @see it('rejects an Object which implements an Interface field along with additional required arguments')
      */
     public function testRejectsAnObjectWhichImplementsAnInterfaceFieldAlongWithAdditionalRequiredArguments()
     {
@@ -1628,7 +1628,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it accepts an Object with an equivalently wrapped Interface field type
+     * @see it('accepts an Object with an equivalently wrapped Interface field type')
      */
     public function testAcceptsAnObjectWithAnEquivalentlyWrappedInterfaceFieldType()
     {
@@ -1650,7 +1650,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object with a non-list Interface field list type
+     * @see it('rejects an Object with a non-list Interface field list type')
      */
     public function testRejectsAnObjectWithANonListInterfaceFieldListType()
     {
@@ -1679,7 +1679,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object with a list Interface field non-list type
+     * @see it('rejects an Object with a list Interface field non-list type')
      */
     public function testRejectsAnObjectWithAListInterfaceFieldNonListType()
     {
@@ -1708,7 +1708,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it accepts an Object with a subset non-null Interface field type
+     * @see it('accepts an Object with a subset non-null Interface field type')
      */
     public function testAcceptsAnObjectWithASubsetNonNullInterfaceFieldType()
     {
@@ -1730,7 +1730,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @it rejects an Object with a superset nullable Interface field type
+     * @see it('rejects an Object with a superset nullable Interface field type')
      */
     public function testRejectsAnObjectWithASupersetNullableInterfaceFieldType()
     {

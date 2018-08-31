@@ -6,7 +6,7 @@ use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 class UniqueDirectivesPerLocationTest extends ValidatorTestCase
 {
     /**
-     * @it no directives
+     * @see it('no directives')
      */
     public function testNoDirectives()
     {
@@ -18,7 +18,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
-     * @it unique directives in different locations
+     * @see it('unique directives in different locations')
      */
     public function testUniqueDirectivesInDifferentLocations()
     {
@@ -30,7 +30,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
-     * @it unique directives in same locations
+     * @see it('unique directives in same locations')
      */
     public function testUniqueDirectivesInSameLocations()
     {
@@ -42,7 +42,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
-     * @it same directives in different locations
+     * @see it('same directives in different locations')
      */
     public function testSameDirectivesInDifferentLocations()
     {
@@ -54,7 +54,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
-     * @it same directives in similar locations
+     * @see it('same directives in similar locations')
      */
     public function testSameDirectivesInSimilarLocations()
     {
@@ -67,7 +67,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
-     * @it duplicate directives in one location
+     * @see it('duplicate directives in one location')
      */
     public function testDuplicateDirectivesInOneLocation()
     {
@@ -81,7 +81,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
-     * @it many duplicate directives in one location
+     * @see it('many duplicate directives in one location')
      */
     public function testManyDuplicateDirectivesInOneLocation()
     {
@@ -96,7 +96,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
-     * @it different duplicate directives in one location
+     * @see it('different duplicate directives in one location')
      */
     public function testDifferentDuplicateDirectivesInOneLocation()
     {
@@ -111,7 +111,7 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
-     * @it duplicate directives in many locations
+     * @see it('duplicate directives in many locations')
      */
     public function testDuplicateDirectivesInManyLocations()
     {

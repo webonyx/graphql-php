@@ -17,7 +17,7 @@ class MutationsTest extends TestCase
     // Execute: Handles mutation execution ordering
 
     /**
-     * @it evaluates mutations serially
+     * @see it('evaluates mutations serially')
      */
     public function testEvaluatesMutationsSerially()
     {
@@ -63,7 +63,7 @@ class MutationsTest extends TestCase
     }
 
     /**
-     * @it evaluates mutations correctly in the presense of a failed mutation
+     * @see it('evaluates mutations correctly in the presense of a failed mutation')
      */
     public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation()
     {

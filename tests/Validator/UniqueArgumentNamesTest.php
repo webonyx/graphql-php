@@ -10,7 +10,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     // Validate: Unique argument names
 
     /**
-     * @it no arguments on field
+     * @see it('no arguments on field')
      */
     public function testNoArgumentsOnField()
     {
@@ -22,7 +22,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no arguments on directive
+     * @see it('no arguments on directive')
      */
     public function testNoArgumentsOnDirective()
     {
@@ -34,7 +34,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it argument on field
+     * @see it('argument on field')
      */
     public function testArgumentOnField()
     {
@@ -46,7 +46,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it argument on directive
+     * @see it('argument on directive')
      */
     public function testArgumentOnDirective()
     {
@@ -58,7 +58,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it same argument on two fields
+     * @see it('same argument on two fields')
      */
     public function testSameArgumentOnTwoFields()
     {
@@ -71,7 +71,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it same argument on field and directive
+     * @see it('same argument on field and directive')
      */
     public function testSameArgumentOnFieldAndDirective()
     {
@@ -83,7 +83,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it same argument on two directives
+     * @see it('same argument on two directives')
      */
     public function testSameArgumentOnTwoDirectives()
     {
@@ -95,7 +95,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple field arguments
+     * @see it('multiple field arguments')
      */
     public function testMultipleFieldArguments()
     {
@@ -107,7 +107,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple directive arguments
+     * @see it('multiple directive arguments')
      */
     public function testMultipleDirectiveArguments()
     {
@@ -119,7 +119,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it duplicate field arguments
+     * @see it('duplicate field arguments')
      */
     public function testDuplicateFieldArguments()
     {
@@ -133,7 +133,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it many duplicate field arguments
+     * @see it('many duplicate field arguments')
      */
     public function testManyDuplicateFieldArguments()
     {
@@ -148,7 +148,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it duplicate directive arguments
+     * @see it('duplicate directive arguments')
      */
     public function testDuplicateDirectiveArguments()
     {
@@ -162,7 +162,7 @@ class UniqueArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it many duplicate directive arguments
+     * @see it('many duplicate directive arguments')
      */
     public function testManyDuplicateDirectiveArguments()
     {

@@ -19,7 +19,7 @@ class AbstractTest extends TestCase
     // Execute: Handles execution of abstract types
 
     /**
-     * @it isTypeOf used to resolve runtime type for Interface
+     * @see it('isTypeOf used to resolve runtime type for Interface')
      */
     public function testIsTypeOfUsedToResolveRuntimeTypeForInterface()
     {
@@ -93,7 +93,7 @@ class AbstractTest extends TestCase
     }
 
     /**
-     * @it isTypeOf used to resolve runtime type for Union
+     * @see it('isTypeOf used to resolve runtime type for Union')
      */
     public function testIsTypeOfUsedToResolveRuntimeTypeForUnion()
     {
@@ -159,7 +159,7 @@ class AbstractTest extends TestCase
     }
 
     /**
-     * @it resolveType on Interface yields useful error
+     * @see it('resolveType on Interface yields useful error')
      */
     function testResolveTypeOnInterfaceYieldsUsefulError()
     {
@@ -263,7 +263,7 @@ class AbstractTest extends TestCase
     }
 
     /**
-     * @it resolveType on Union yields useful error
+     * @see it('resolveType on Union yields useful error')
      */
     public function testResolveTypeOnUnionYieldsUsefulError()
     {
@@ -358,7 +358,7 @@ class AbstractTest extends TestCase
     }
 
     /**
-     * @it returning invalid value from resolveType yields useful error
+     * @see it('returning invalid value from resolveType yields useful error')
      */
     public function testReturningInvalidValueFromResolveTypeYieldsUsefulError()
     {
@@ -413,7 +413,7 @@ class AbstractTest extends TestCase
     }
 
     /**
-     * @it resolveType allows resolving with type name
+     * @see it('resolveType allows resolving with type name')
      */
     public function testResolveTypeAllowsResolvingWithTypeName()
     {
