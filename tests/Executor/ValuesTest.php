@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 class ValuesTest extends TestCase
 {
-    public function testGetIDVariableValues()
+    public function testGetIDVariableValues() : void
     {
         $this->expectInputVariablesMatchOutputVariables(['idInput' => '123456789']);
         $this->assertEquals(
@@ -23,13 +23,13 @@ class ValuesTest extends TestCase
         );
     }
 
-    public function testGetBooleanVariableValues()
+    public function testGetBooleanVariableValues() : void
     {
         $this->expectInputVariablesMatchOutputVariables(['boolInput' => true]);
         $this->expectInputVariablesMatchOutputVariables(['boolInput' => false]);
     }
 
-    public function testGetIntVariableValues()
+    public function testGetIntVariableValues() : void
     {
         $this->expectInputVariablesMatchOutputVariables(['intInput' => -1]);
         $this->expectInputVariablesMatchOutputVariables(['intInput' => 0]);
@@ -40,7 +40,7 @@ class ValuesTest extends TestCase
         $this->expectInputVariablesMatchOutputVariables(['intInput' => -2147483648]);
     }
 
-    public function testGetStringVariableValues()
+    public function testGetStringVariableValues() : void
     {
         $this->expectInputVariablesMatchOutputVariables(['stringInput' => 'meow']);
         $this->expectInputVariablesMatchOutputVariables(['stringInput' => '']);
@@ -50,7 +50,7 @@ class ValuesTest extends TestCase
         $this->expectInputVariablesMatchOutputVariables(['stringInput' => '1.2']);
     }
 
-    public function testGetFloatVariableValues()
+    public function testGetFloatVariableValues() : void
     {
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 1.2]);
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 1.0]);
@@ -59,42 +59,42 @@ class ValuesTest extends TestCase
         $this->expectInputVariablesMatchOutputVariables(['floatInput' => 1e3]);
     }
 
-    public function testBooleanForIDVariableThrowsError()
+    public function testBooleanForIDVariableThrowsError() : void
     {
         $this->expectGraphQLError(['idInput' => true]);
     }
 
-    public function testFloatForIDVariableThrowsError()
+    public function testFloatForIDVariableThrowsError() : void
     {
         $this->expectGraphQLError(['idInput' => 1.0]);
     }
 
-    public function testStringForBooleanVariableThrowsError()
+    public function testStringForBooleanVariableThrowsError() : void
     {
         $this->expectGraphQLError(['boolInput' => 'true']);
     }
 
-    public function testIntForBooleanVariableThrowsError()
+    public function testIntForBooleanVariableThrowsError() : void
     {
         $this->expectGraphQLError(['boolInput' => 1]);
     }
 
-    public function testFloatForBooleanVariableThrowsError()
+    public function testFloatForBooleanVariableThrowsError() : void
     {
         $this->expectGraphQLError(['boolInput' => 1.0]);
     }
 
-    public function testStringForIntVariableThrowsError()
+    public function testStringForIntVariableThrowsError() : void
     {
         $this->expectGraphQLError(['intInput' => 'true']);
     }
 
-    public function testPositiveBigIntForIntVariableThrowsError()
+    public function testPositiveBigIntForIntVariableThrowsError() : void
     {
         $this->expectGraphQLError(['intInput' => 2147483648]);
     }
 
-    public function testNegativeBigIntForIntVariableThrowsError()
+    public function testNegativeBigIntForIntVariableThrowsError() : void
     {
         $this->expectGraphQLError(['intInput' => -2147483649]);
     }

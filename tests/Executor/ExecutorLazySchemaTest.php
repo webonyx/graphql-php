@@ -41,7 +41,7 @@ class ExecutorLazySchemaTest extends TestCase
 
     public $loadedTypes = [];
 
-    public function testWarnsAboutSlowIsTypeOfForLazySchema()
+    public function testWarnsAboutSlowIsTypeOfForLazySchema() : void
     {
         // isTypeOf used to resolve runtime type for Interface
         $petType = new InterfaceType([
@@ -141,7 +141,7 @@ class ExecutorLazySchemaTest extends TestCase
             $result->errors[0]->getMessage());
     }
 
-    public function testHintsOnConflictingTypeInstancesInDefinitions()
+    public function testHintsOnConflictingTypeInstancesInDefinitions() : void
     {
         $calls = [];
         $typeLoader = function($name) use (&$calls) {
@@ -197,7 +197,7 @@ class ExecutorLazySchemaTest extends TestCase
         );
     }
 
-    public function testSimpleQuery()
+    public function testSimpleQuery() : void
     {
         $schema = new Schema([
             'query' => $this->loadType('Query'),
@@ -225,7 +225,7 @@ class ExecutorLazySchemaTest extends TestCase
         $this->assertEquals($expectedExecutorCalls, $this->calls);
     }
 
-    public function testDeepQuery()
+    public function testDeepQuery() : void
     {
         $schema = new Schema([
             'query' => $this->loadType('Query'),
@@ -261,7 +261,7 @@ class ExecutorLazySchemaTest extends TestCase
         $this->assertEquals($expectedExecutorCalls, $this->calls);
     }
 
-    public function testResolveUnion()
+    public function testResolveUnion() : void
     {
         $schema = new Schema([
             'query' => $this->loadType('Query'),

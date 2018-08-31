@@ -29,7 +29,7 @@ abstract class QuerySecurityTestCase extends TestCase
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage argument must be greater or equal to 0.
      */
-    public function testMaxQueryDepthMustBeGreaterOrEqualTo0()
+    public function testMaxQueryDepthMustBeGreaterOrEqualTo0() : void
     {
         $this->getRule(-1);
     }

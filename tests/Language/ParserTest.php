@@ -19,21 +19,21 @@ use PHPUnit\Framework\TestCase;
 
 class ParserTest extends TestCase
 {
-    public function testAssertsThatASourceToParseIsNotNull()
+    public function testAssertsThatASourceToParseIsNotNull() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('GraphQL query body is expected to be string, but got NULL');
         Parser::parse(null);
     }
 
-    public function testAssertsThatASourceToParseIsNotArray()
+    public function testAssertsThatASourceToParseIsNotArray() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('GraphQL query body is expected to be string, but got array');
         Parser::parse(['a' => 'b']);
     }
 
-    public function testAssertsThatASourceToParseIsNotObject()
+    public function testAssertsThatASourceToParseIsNotObject() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('GraphQL query body is expected to be string, but got stdClass');
@@ -57,7 +57,7 @@ fragment MissingOn Type
      * @dataProvider parseProvidesUsefulErrors
      * @see it('parse provides useful errors')
      */
-    public function testParseProvidesUsefulErrors($str, $expectedMessage, $stringRepresentation, $expectedPositions = null, $expectedLocations = null)
+    public function testParseProvidesUsefulErrors($str, $expectedMessage, $stringRepresentation, $expectedPositions = null, $expectedLocations = null) : void
     {
         try {
             Parser::parse($str);
@@ -79,7 +79,7 @@ fragment MissingOn Type
     /**
      * @see it('parse provides useful error when using source')
      */
-    public function testParseProvidesUsefulErrorWhenUsingSource()
+    public function testParseProvidesUsefulErrorWhenUsingSource() : void
     {
         try {
             Parser::parse(new Source('query', 'MyQuery.graphql'));
@@ -95,7 +95,7 @@ fragment MissingOn Type
     /**
      * @see it('parses variable inline values')
      */
-    public function testParsesVariableInlineValues()
+    public function testParsesVariableInlineValues() : void
     {
         $this->expectNotToPerformAssertions();
         // Following line should not throw:
@@ -105,7 +105,7 @@ fragment MissingOn Type
     /**
      * @see it('parses constant default values')
      */
-    public function testParsesConstantDefaultValues()
+    public function testParsesConstantDefaultValues() : void
     {
         $this->expectSyntaxError(
             'query Foo($x: Complex = { a: { b: [ $var ] } }) { field }',
@@ -117,7 +117,7 @@ fragment MissingOn Type
     /**
      * @see it('does not accept fragments spread of "on"')
      */
-    public function testDoesNotAcceptFragmentsNamedOn()
+    public function testDoesNotAcceptFragmentsNamedOn() : void
     {
         $this->expectSyntaxError(
             'fragment on on on { on }',
@@ -129,7 +129,7 @@ fragment MissingOn Type
     /**
      * @see it('does not accept fragments spread of "on"')
      */
-    public function testDoesNotAcceptFragmentSpreadOfOn()
+    public function testDoesNotAcceptFragmentSpreadOfOn() : void
     {
         $this->expectSyntaxError(
             '{ ...on }',
@@ -141,7 +141,7 @@ fragment MissingOn Type
     /**
      * @see it('parses multi-byte characters')
      */
-    public function testParsesMultiByteCharacters()
+    public function testParsesMultiByteCharacters() : void
     {
         // Note: \u0A0A could be naively interpretted as two line-feed chars.
 
@@ -176,7 +176,7 @@ HEREDOC;
     /**
      * @see it('parses kitchen sink')
      */
-    public function testParsesKitchenSink()
+    public function testParsesKitchenSink() : void
     {
         // Following should not throw:
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
@@ -187,7 +187,7 @@ HEREDOC;
     /**
      * allows non-keywords anywhere a Name is allowed
      */
-    public function testAllowsNonKeywordsAnywhereANameIsAllowed()
+    public function testAllowsNonKeywordsAnywhereANameIsAllowed() : void
     {
         $nonKeywords = [
             'on',
@@ -220,7 +220,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses anonymous mutation operations')
      */
-    public function testParsessAnonymousMutationOperations()
+    public function testParsessAnonymousMutationOperations() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -234,7 +234,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses anonymous subscription operations')
      */
-    public function testParsesAnonymousSubscriptionOperations()
+    public function testParsesAnonymousSubscriptionOperations() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -248,7 +248,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses named mutation operations')
      */
-    public function testParsesNamedMutationOperations()
+    public function testParsesNamedMutationOperations() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -262,7 +262,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses named subscription operations')
      */
-    public function testParsesNamedSubscriptionOperations()
+    public function testParsesNamedSubscriptionOperations() : void
     {
         $this->expectNotToPerformAssertions();
         Parser::parse('
@@ -275,7 +275,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('creates ast')
      */
-    public function testParseCreatesAst()
+    public function testParseCreatesAst() : void
     {
         $source = new Source('{
   node(id: 4) {
@@ -379,7 +379,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('creates ast from nameless query without variables')
      */
-    public function testParseCreatesAstFromNamelessQueryWithoutVariables()
+    public function testParseCreatesAstFromNamelessQueryWithoutVariables() : void
     {
         $source = new Source('query {
   node {
@@ -454,7 +454,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('allows parsing without source location information')
      */
-    public function testAllowsParsingWithoutSourceLocationInformation()
+    public function testAllowsParsingWithoutSourceLocationInformation() : void
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source, ['noLocation' => true]);
@@ -465,7 +465,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('Experimental: allows parsing fragment defined variables')
      */
-    public function testExperimentalAllowsParsingFragmentDefinedVariables()
+    public function testExperimentalAllowsParsingFragmentDefinedVariables() : void
     {
         $source = new Source('fragment a($v: Boolean = false) on t { f(v: $v) }');
         // not throw
@@ -478,7 +478,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('contains location information that only stringifys start/end')
      */
-    public function testContainsLocationInformationThatOnlyStringifysStartEnd()
+    public function testContainsLocationInformationThatOnlyStringifysStartEnd() : void
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
@@ -488,7 +488,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('contains references to source')
      */
-    public function testContainsReferencesToSource()
+    public function testContainsReferencesToSource() : void
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
@@ -498,7 +498,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('contains references to start and end tokens')
      */
-    public function testContainsReferencesToStartAndEndTokens()
+    public function testContainsReferencesToStartAndEndTokens() : void
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
@@ -511,7 +511,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses null value')
      */
-    public function testParsesNullValues()
+    public function testParsesNullValues() : void
     {
         $this->assertEquals([
             'kind' => NodeKind::NULL,
@@ -522,7 +522,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses list values')
      */
-    public function testParsesListValues()
+    public function testParsesListValues() : void
     {
         $this->assertEquals([
             'kind' => NodeKind::LST,
@@ -548,7 +548,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses well known types')
      */
-    public function testParsesWellKnownTypes()
+    public function testParsesWellKnownTypes() : void
     {
         $this->assertEquals([
             'kind' => NodeKind::NAMED_TYPE,
@@ -564,7 +564,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses custom types')
      */
-    public function testParsesCustomTypes()
+    public function testParsesCustomTypes() : void
     {
         $this->assertEquals([
             'kind' => NodeKind::NAMED_TYPE,
@@ -580,7 +580,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses list types')
      */
-    public function testParsesListTypes()
+    public function testParsesListTypes() : void
     {
         $this->assertEquals([
             'kind' => NodeKind::LIST_TYPE,
@@ -600,7 +600,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses non-null types')
      */
-    public function testParsesNonNullTypes()
+    public function testParsesNonNullTypes() : void
     {
         $this->assertEquals([
             'kind' => NodeKind::NON_NULL_TYPE,
@@ -620,7 +620,7 @@ fragment $fragmentName on Type {
     /**
      * @see it('parses nested types')
      */
-    public function testParsesNestedTypes()
+    public function testParsesNestedTypes() : void
     {
         $this->assertEquals([
             'kind' => NodeKind::LIST_TYPE,

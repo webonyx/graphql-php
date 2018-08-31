@@ -20,7 +20,7 @@ class SyncPromiseAdapterTest extends TestCase
         $this->promises = new SyncPromiseAdapter();
     }
 
-    public function testIsThenable()
+    public function testIsThenable() : void
     {
         $this->assertEquals(true, $this->promises->isThenable(new Deferred(function() {})));
         $this->assertEquals(false, $this->promises->isThenable(false));
@@ -33,7 +33,7 @@ class SyncPromiseAdapterTest extends TestCase
         $this->assertEquals(false, $this->promises->isThenable(new \stdClass()));
     }
 
-    public function testConvert()
+    public function testConvert() : void
     {
         $dfd = new Deferred(function() {});
         $result = $this->promises->convertThenable($dfd);
@@ -46,7 +46,7 @@ class SyncPromiseAdapterTest extends TestCase
         $this->promises->convertThenable('');
     }
 
-    public function testThen()
+    public function testThen() : void
     {
         $dfd = new Deferred(function() {});
         $promise = $this->promises->convertThenable($dfd);
@@ -57,7 +57,7 @@ class SyncPromiseAdapterTest extends TestCase
         $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
     }
 
-    public function testCreatePromise()
+    public function testCreatePromise() : void
     {
         $promise = $this->promises->create(function($resolve, $reject) {});
 
@@ -71,19 +71,19 @@ class SyncPromiseAdapterTest extends TestCase
         $this->assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
     }
 
-    public function testCreateFulfilledPromise()
+    public function testCreateFulfilledPromise() : void
     {
         $promise = $this->promises->createFulfilled('test');
         $this->assertValidPromise($promise, null, 'test', SyncPromise::FULFILLED);
     }
 
-    public function testCreateRejectedPromise()
+    public function testCreateRejectedPromise() : void
     {
         $promise = $this->promises->createRejected(new \Exception('test reason'));
         $this->assertValidPromise($promise, 'test reason', null, SyncPromise::REJECTED);
     }
 
-    public function testCreatePromiseAll()
+    public function testCreatePromiseAll() : void
     {
         $promise = $this->promises->all([]);
         $this->assertValidPromise($promise, null, [], SyncPromise::FULFILLED);
@@ -117,7 +117,7 @@ class SyncPromiseAdapterTest extends TestCase
         $this->assertValidPromise($promise, null, ['1', 'value1', 'value2', 3, 'value2-value3', []], SyncPromise::FULFILLED);
     }
 
-    public function testWait()
+    public function testWait() : void
     {
         $called = [];
 

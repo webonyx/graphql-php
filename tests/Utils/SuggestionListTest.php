@@ -14,7 +14,7 @@ class SuggestionListTest extends TestCase
     /**
      * @see it('Returns results when input is empty')
      */
-    public function testResturnsResultsWhenInputIsEmpty()
+    public function testResturnsResultsWhenInputIsEmpty() : void
     {
         $this->assertEquals(
             Utils::suggestionList('', ['a']),
@@ -25,7 +25,7 @@ class SuggestionListTest extends TestCase
     /**
      * @see it('Returns empty array when there are no options')
      */
-    public function testReturnsEmptyArrayWhenThereAreNoOptions()
+    public function testReturnsEmptyArrayWhenThereAreNoOptions() : void
     {
         $this->assertEquals(
             Utils::suggestionList('input', []),
@@ -36,7 +36,7 @@ class SuggestionListTest extends TestCase
     /**
      * @see it('Returns options sorted based on similarity')
      */
-    public function testReturnsOptionsSortedBasedOnSimilarity()
+    public function testReturnsOptionsSortedBasedOnSimilarity() : void
     {
         $this->assertEquals(
             Utils::suggestionList('abc', ['a', 'ab', 'abc']),

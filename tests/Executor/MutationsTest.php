@@ -19,7 +19,7 @@ class MutationsTest extends TestCase
     /**
      * @see it('evaluates mutations serially')
      */
-    public function testEvaluatesMutationsSerially()
+    public function testEvaluatesMutationsSerially() : void
     {
         $doc = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
@@ -65,7 +65,7 @@ class MutationsTest extends TestCase
     /**
      * @see it('evaluates mutations correctly in the presense of a failed mutation')
      */
-    public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation()
+    public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation() : void
     {
         $doc = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {

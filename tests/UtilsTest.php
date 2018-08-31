@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 class UtilsTest extends TestCase
 {
-    public function testAssignThrowsExceptionOnMissingRequiredKey()
+    public function testAssignThrowsExceptionOnMissingRequiredKey() : void
     {
         $object = new \stdClass();
         $object->requiredKey = 'value';

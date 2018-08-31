@@ -93,7 +93,7 @@ class SchemaTest extends TestCase
     /**
      * @see it('throws human-reable error if schema.types is not defined')
      */
-    public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined()
+    public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined() : void
     {
         $this->markTestSkipped("Can't check interface implementations without full schema scan");
 
@@ -111,7 +111,7 @@ class SchemaTest extends TestCase
     /**
      * @see it('includes input types only used in directives')
      */
-    public function testIncludesInputTypesOnlyUsedInDirectives()
+    public function testIncludesInputTypesOnlyUsedInDirectives() : void
     {
         $typeMap = $this->schema->getTypeMap();
         $this->assertArrayHasKey('DirInput', $typeMap);

@@ -84,7 +84,7 @@ class VisitorTest extends ValidatorTestCase
         }
     }
 
-    public function testValidatesPathArgument()
+    public function testValidatesPathArgument() : void
     {
         $visited = [];
 
@@ -117,7 +117,7 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $visited);
     }
 
-    public function testAllowsEditingNodeOnEnterAndOnLeave()
+    public function testAllowsEditingNodeOnEnterAndOnLeave() : void
     {
         $ast = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
 
@@ -154,7 +154,7 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $editedAst);
     }
 
-    public function testAllowsEditingRootNodeOnEnterAndLeave()
+    public function testAllowsEditingRootNodeOnEnterAndLeave() : void
     {
         $ast         = Parser::parse('{ a, b, c { a, b, c } }', [ 'noLocation' => true ]);
         $definitions = $ast->definitions;
@@ -185,7 +185,7 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($tmp, $editedAst);
     }
 
-    public function testAllowsForEditingOnEnter()
+    public function testAllowsForEditingOnEnter() : void
     {
         $ast       = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
@@ -207,7 +207,7 @@ class VisitorTest extends ValidatorTestCase
         );
     }
 
-    public function testAllowsForEditingOnLeave()
+    public function testAllowsForEditingOnLeave() : void
     {
         $ast       = Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]);
         $editedAst = Visitor::visit($ast, [
@@ -230,7 +230,7 @@ class VisitorTest extends ValidatorTestCase
         );
     }
 
-    public function testVisitsEditedNode()
+    public function testVisitsEditedNode() : void
     {
         $addedField = new FieldNode([
             'name' => new NameNode(['value' => '__typename']),
@@ -261,7 +261,7 @@ class VisitorTest extends ValidatorTestCase
         $this->assertTrue($didVisitAddedField);
     }
 
-    public function testAllowsSkippingASubTree()
+    public function testAllowsSkippingASubTree() : void
     {
         $visited = [];
         $ast     = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
@@ -301,7 +301,7 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $visited);
     }
 
-    public function testAllowsEarlyExitWhileVisiting()
+    public function testAllowsEarlyExitWhileVisiting() : void
     {
         $visited = [];
         $ast     = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
@@ -339,7 +339,7 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $visited);
     }
 
-    public function testAllowsEarlyExitWhileLeaving()
+    public function testAllowsEarlyExitWhileLeaving() : void
     {
         $visited = [];
 
@@ -377,7 +377,7 @@ class VisitorTest extends ValidatorTestCase
         ]);
     }
 
-    public function testAllowsANamedFunctionsVisitorAPI()
+    public function testAllowsANamedFunctionsVisitorAPI() : void
     {
         $visited = [];
         $ast     = Parser::parse('{ a, b { x }, c }', ['noLocation' => true]);
@@ -413,7 +413,7 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $visited);
     }
 
-    public function testExperimentalVisitsVariablesDefinedInFragments()
+    public function testExperimentalVisitsVariablesDefinedInFragments() : void
     {
         $ast     = Parser::parse(
             'fragment a($v: Boolean = false) on t { f }',
@@ -469,7 +469,7 @@ class VisitorTest extends ValidatorTestCase
         $this->assertEquals($expected, $visited);
     }
 
-    public function testVisitsKitchenSink()
+    public function testVisitsKitchenSink() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast         = Parser::parse($kitchenSink);
@@ -808,7 +808,7 @@ class VisitorTest extends ValidatorTestCase
      * Describe: visitInParallel
      * Note: nearly identical to the above test of the same test but using visitInParallel.
      */
-    public function testAllowsSkippingSubTree()
+    public function testAllowsSkippingSubTree() : void
     {
         $visited = [];
 
@@ -850,7 +850,7 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    public function testAllowsSkippingDifferentSubTrees()
+    public function testAllowsSkippingDifferentSubTrees() : void
     {
         $visited = [];
 
@@ -922,7 +922,7 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    public function testAllowsEarlyExitWhileVisiting2()
+    public function testAllowsEarlyExitWhileVisiting2() : void
     {
         $visited = [];
 
@@ -960,7 +960,7 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    public function testAllowsEarlyExitFromDifferentPoints()
+    public function testAllowsEarlyExitFromDifferentPoints() : void
     {
         $visited = [];
 
@@ -1020,7 +1020,7 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    public function testAllowsEarlyExitWhileLeaving2()
+    public function testAllowsEarlyExitWhileLeaving2() : void
     {
         $visited = [];
 
@@ -1059,7 +1059,7 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    public function testAllowsEarlyExitFromLeavingDifferentPoints()
+    public function testAllowsEarlyExitFromLeavingDifferentPoints() : void
     {
         $visited = [];
 
@@ -1133,7 +1133,7 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    public function testAllowsForEditingOnEnter2()
+    public function testAllowsForEditingOnEnter2() : void
     {
         $visited = [];
 
@@ -1197,7 +1197,7 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    public function testAllowsForEditingOnLeave2()
+    public function testAllowsForEditingOnLeave2() : void
     {
         $visited = [];
 
@@ -1271,7 +1271,7 @@ class VisitorTest extends ValidatorTestCase
     /**
      * Describe: visitWithTypeInfo
      */
-    public function testMaintainsTypeInfoDuringVisit()
+    public function testMaintainsTypeInfoDuringVisit() : void
     {
         $visited = [];
 
@@ -1353,7 +1353,7 @@ class VisitorTest extends ValidatorTestCase
         ], $visited);
     }
 
-    public function testMaintainsTypeInfoDuringEdit()
+    public function testMaintainsTypeInfoDuringEdit() : void
     {
         $visited  = [];
         $typeInfo = new TypeInfo(ValidatorTestCase::getTestSchema());

@@ -13,7 +13,7 @@ class SchemaPrinterTest extends TestCase
     /**
      * @see it('prints minimal ast')
      */
-    public function testPrintsMinimalAst()
+    public function testPrintsMinimalAst() : void
     {
         $ast = new ScalarTypeDefinitionNode([
             'name' => new NameNode(['value' => 'foo'])
@@ -24,7 +24,7 @@ class SchemaPrinterTest extends TestCase
     /**
      * @see it('produces helpful error messages')
      */
-    public function testProducesHelpfulErrorMessages()
+    public function testProducesHelpfulErrorMessages() : void
     {
         $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Invalid AST Node: {"random":"Data"}');
@@ -37,7 +37,7 @@ class SchemaPrinterTest extends TestCase
     /**
      * @see it('does not alter ast')
      */
-    public function testDoesNotAlterAst()
+    public function testDoesNotAlterAst() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
@@ -48,7 +48,7 @@ class SchemaPrinterTest extends TestCase
         $this->assertEquals($astCopy, $ast);
     }
 
-    public function testPrintsKitchenSink()
+    public function testPrintsKitchenSink() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 

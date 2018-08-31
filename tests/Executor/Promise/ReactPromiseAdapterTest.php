@@ -25,7 +25,7 @@ class ReactPromiseAdapterTest extends TestCase
         }
     }
 
-    public function testIsThenableReturnsTrueWhenAReactPromiseIsGiven()
+    public function testIsThenableReturnsTrueWhenAReactPromiseIsGiven() : void
     {
         $reactAdapter = new ReactPromiseAdapter();
 
@@ -43,7 +43,7 @@ class ReactPromiseAdapterTest extends TestCase
         $this->assertSame(false, $reactAdapter->isThenable(new \stdClass()));
     }
 
-    public function testConvertsReactPromisesToGraphQlOnes()
+    public function testConvertsReactPromisesToGraphQlOnes() : void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $reactPromise = new FulfilledPromise(1);
@@ -54,7 +54,7 @@ class ReactPromiseAdapterTest extends TestCase
         $this->assertInstanceOf('React\Promise\FulfilledPromise', $promise->adoptedPromise);
     }
 
-    public function testThen()
+    public function testThen() : void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $reactPromise = new FulfilledPromise(1);
@@ -71,7 +71,7 @@ class ReactPromiseAdapterTest extends TestCase
         $this->assertInstanceOf('React\Promise\FulfilledPromise', $resultPromise->adoptedPromise);
     }
 
-    public function testCreate()
+    public function testCreate() : void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $resolvedPromise = $reactAdapter->create(function ($resolve) {
@@ -90,7 +90,7 @@ class ReactPromiseAdapterTest extends TestCase
         $this->assertSame(1, $result);
     }
 
-    public function testCreateFulfilled()
+    public function testCreateFulfilled() : void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $fulfilledPromise = $reactAdapter->createFulfilled(1);
@@ -107,7 +107,7 @@ class ReactPromiseAdapterTest extends TestCase
         $this->assertSame(1, $result);
     }
 
-    public function testCreateRejected()
+    public function testCreateRejected() : void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $rejectedPromise = $reactAdapter->createRejected(new \Exception('I am a bad promise'));
@@ -125,7 +125,7 @@ class ReactPromiseAdapterTest extends TestCase
         $this->assertEquals('I am a bad promise', $exception->getMessage());
     }
 
-    public function testAll()
+    public function testAll() : void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $promises = [new FulfilledPromise(1), new FulfilledPromise(2), new FulfilledPromise(3)];
@@ -144,7 +144,7 @@ class ReactPromiseAdapterTest extends TestCase
         $this->assertSame([1, 2, 3], $result);
     }
 
-    public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises()
+    public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises() : void
     {
         $reactAdapter = new ReactPromiseAdapter();
         $deferred = new Deferred();

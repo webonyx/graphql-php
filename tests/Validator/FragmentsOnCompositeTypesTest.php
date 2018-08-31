@@ -12,7 +12,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('object is valid fragment type')
      */
-    public function testObjectIsValidFragmentType()
+    public function testObjectIsValidFragmentType() : void
     {
         $this->expectPassesRule(new FragmentsOnCompositeTypes, '
       fragment validFragment on Dog {
@@ -24,7 +24,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('interface is valid fragment type')
      */
-    public function testInterfaceIsValidFragmentType()
+    public function testInterfaceIsValidFragmentType() : void
     {
         $this->expectPassesRule(new FragmentsOnCompositeTypes, '
       fragment validFragment on Pet {
@@ -36,7 +36,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('object is valid inline fragment type')
      */
-    public function testObjectIsValidInlineFragmentType()
+    public function testObjectIsValidInlineFragmentType() : void
     {
         $this->expectPassesRule(new FragmentsOnCompositeTypes, '
       fragment validFragment on Pet {
@@ -50,7 +50,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('inline fragment without type is valid')
      */
-    public function testInlineFragmentWithoutTypeIsValid()
+    public function testInlineFragmentWithoutTypeIsValid() : void
     {
         $this->expectPassesRule(new FragmentsOnCompositeTypes, '
       fragment validFragment on Pet {
@@ -64,7 +64,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('union is valid fragment type')
      */
-    public function testUnionIsValidFragmentType()
+    public function testUnionIsValidFragmentType() : void
     {
         $this->expectPassesRule(new FragmentsOnCompositeTypes, '
       fragment validFragment on CatOrDog {
@@ -76,7 +76,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('scalar is invalid fragment type')
      */
-    public function testScalarIsInvalidFragmentType()
+    public function testScalarIsInvalidFragmentType() : void
     {
         $this->expectFailsRule(new FragmentsOnCompositeTypes, '
       fragment scalarFragment on Boolean {
@@ -89,7 +89,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('enum is invalid fragment type')
      */
-    public function testEnumIsInvalidFragmentType()
+    public function testEnumIsInvalidFragmentType() : void
     {
         $this->expectFailsRule(new FragmentsOnCompositeTypes, '
       fragment scalarFragment on FurColor {
@@ -102,7 +102,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('input object is invalid fragment type')
      */
-    public function testInputObjectIsInvalidFragmentType()
+    public function testInputObjectIsInvalidFragmentType() : void
     {
         $this->expectFailsRule(new FragmentsOnCompositeTypes, '
       fragment inputFragment on ComplexInput {
@@ -115,7 +115,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     /**
      * @see it('scalar is invalid inline fragment type')
      */
-    public function testScalarIsInvalidInlineFragmentType()
+    public function testScalarIsInvalidInlineFragmentType() : void
     {
         $this->expectFailsRule(new FragmentsOnCompositeTypes, '
       fragment invalidFragment on Pet {

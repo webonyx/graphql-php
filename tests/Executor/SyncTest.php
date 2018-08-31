@@ -68,7 +68,7 @@ class SyncTest extends TestCase
     /**
      * @see it('does not return a Promise for initial errors')
      */
-    public function testDoesNotReturnAPromiseForInitialErrors()
+    public function testDoesNotReturnAPromiseForInitialErrors() : void
     {
         $doc = 'fragment Example on Query { syncField }';
         $result = $this->execute(
@@ -82,7 +82,7 @@ class SyncTest extends TestCase
     /**
      * @see it('does not return a Promise if fields are all synchronous')
      */
-    public function testDoesNotReturnAPromiseIfFieldsAreAllSynchronous()
+    public function testDoesNotReturnAPromiseIfFieldsAreAllSynchronous() : void
     {
         $doc = 'query Example { syncField }';
         $result = $this->execute(
@@ -96,7 +96,7 @@ class SyncTest extends TestCase
     /**
      * @see it('does not return a Promise if mutation fields are all synchronous')
      */
-    public function testDoesNotReturnAPromiseIfMutationFieldsAreAllSynchronous()
+    public function testDoesNotReturnAPromiseIfMutationFieldsAreAllSynchronous() : void
     {
         $doc = 'mutation Example { syncMutationField }';
         $result = $this->execute(
@@ -110,7 +110,7 @@ class SyncTest extends TestCase
     /**
      * @see it('returns a Promise if any field is asynchronous')
      */
-    public function testReturnsAPromiseIfAnyFieldIsAsynchronous()
+    public function testReturnsAPromiseIfAnyFieldIsAsynchronous() : void
     {
         $doc = 'query Example { syncField, asyncField }';
         $result = $this->execute(
@@ -126,7 +126,7 @@ class SyncTest extends TestCase
     /**
      * @see it('does not return a Promise for syntax errors')
      */
-    public function testDoesNotReturnAPromiseForSyntaxErrors()
+    public function testDoesNotReturnAPromiseForSyntaxErrors() : void
     {
         $doc = 'fragment Example on Query { { { syncField }';
         $result = $this->graphqlSync(
@@ -144,7 +144,7 @@ class SyncTest extends TestCase
     /**
      * @see it('does not return a Promise for validation errors')
      */
-    public function testDoesNotReturnAPromiseForValidationErrors()
+    public function testDoesNotReturnAPromiseForValidationErrors() : void
     {
         $doc = 'fragment Example on Query { unknownField }';
         $validationErrors = DocumentValidator::validate($this->schema, Parser::parse($doc));
@@ -163,7 +163,7 @@ class SyncTest extends TestCase
     /**
      * @see it('does not return a Promise for sync execution')
      */
-    public function testDoesNotReturnAPromiseForSyncExecution()
+    public function testDoesNotReturnAPromiseForSyncExecution() : void
     {
         $doc = 'query Example { syncField }';
         $result = $this->graphqlSync(

@@ -180,7 +180,7 @@ class DeferredFieldsTest extends TestCase
         parent::setUp();
     }
 
-    public function testDeferredFields()
+    public function testDeferredFields() : void
     {
         $query = Parser::parse('
             {
@@ -272,7 +272,7 @@ class DeferredFieldsTest extends TestCase
         $this->assertEquals($expectedPath, $this->path);
     }
 
-    public function testNestedDeferredFields()
+    public function testNestedDeferredFields() : void
     {
         $query = Parser::parse('
             {
@@ -349,7 +349,7 @@ class DeferredFieldsTest extends TestCase
         $this->assertEquals($expectedPath, $this->path);
     }
 
-    public function testComplexRecursiveDeferredFields()
+    public function testComplexRecursiveDeferredFields() : void
     {
         $complexType = new ObjectType([
             'name' => 'ComplexType',

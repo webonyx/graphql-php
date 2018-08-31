@@ -32,7 +32,7 @@ class QueryDepthTest extends QuerySecurityTestCase
      * @param array $expectedErrors
      * @dataProvider queryDataProvider
      */
-    public function testSimpleQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = [])
+    public function testSimpleQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
     {
         $this->assertDocumentValidator($this->buildRecursiveQuery($queryDepth), $maxQueryDepth, $expectedErrors);
     }
@@ -43,7 +43,7 @@ class QueryDepthTest extends QuerySecurityTestCase
      * @param array $expectedErrors
      * @dataProvider queryDataProvider
      */
-    public function testFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = [])
+    public function testFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
     {
         $this->assertDocumentValidator($this->buildRecursiveUsingFragmentQuery($queryDepth), $maxQueryDepth, $expectedErrors);
     }
@@ -54,22 +54,22 @@ class QueryDepthTest extends QuerySecurityTestCase
      * @param array $expectedErrors
      * @dataProvider queryDataProvider
      */
-    public function testInlineFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = [])
+    public function testInlineFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
     {
         $this->assertDocumentValidator($this->buildRecursiveUsingInlineFragmentQuery($queryDepth), $maxQueryDepth, $expectedErrors);
     }
 
-    public function testComplexityIntrospectionQuery()
+    public function testComplexityIntrospectionQuery() : void
     {
         $this->assertIntrospectionQuery(11);
     }
 
-    public function testIntrospectionTypeMetaFieldQuery()
+    public function testIntrospectionTypeMetaFieldQuery() : void
     {
         $this->assertIntrospectionTypeMetaFieldQuery(1);
     }
 
-    public function testTypeNameMetaFieldQuery()
+    public function testTypeNameMetaFieldQuery() : void
     {
         $this->assertTypeNameMetaFieldQuery(1);
     }

@@ -12,7 +12,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('all fragment names are used')
      */
-    public function testAllFragmentNamesAreUsed()
+    public function testAllFragmentNamesAreUsed() : void
     {
         $this->expectPassesRule(new NoUnusedFragments(), '
       {
@@ -39,7 +39,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('all fragment names are used by multiple operations')
      */
-    public function testAllFragmentNamesAreUsedByMultipleOperations()
+    public function testAllFragmentNamesAreUsedByMultipleOperations() : void
     {
         $this->expectPassesRule(new NoUnusedFragments, '
       query Foo {
@@ -68,7 +68,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('contains unknown fragments')
      */
-    public function testContainsUnknownFragments()
+    public function testContainsUnknownFragments() : void
     {
         $this->expectFailsRule(new NoUnusedFragments, '
       query Foo {
@@ -106,7 +106,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('contains unknown fragments with ref cycle')
      */
-    public function testContainsUnknownFragmentsWithRefCycle()
+    public function testContainsUnknownFragmentsWithRefCycle() : void
     {
         $this->expectFailsRule(new NoUnusedFragments, '
       query Foo {
@@ -146,7 +146,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     /**
      * @see it('contains unknown and undef fragments')
      */
-    public function testContainsUnknownAndUndefFragments()
+    public function testContainsUnknownAndUndefFragments() : void
     {
 
         $this->expectFailsRule(new NoUnusedFragments, '

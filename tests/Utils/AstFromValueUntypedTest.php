@@ -19,7 +19,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses simple values')
      */
-    public function testParsesSimpleValues()
+    public function testParsesSimpleValues() : void
     {
         $this->assertTestCase('null', null);
         $this->assertTestCase('true', true);
@@ -32,7 +32,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses lists of values')
      */
-    public function testParsesListsOfValues()
+    public function testParsesListsOfValues() : void
     {
         $this->assertTestCase('[true, false]', [true, false]);
         $this->assertTestCase('[true, 123.45]', [true, 123.45]);
@@ -43,7 +43,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses input objects')
      */
-    public function testParsesInputObjects()
+    public function testParsesInputObjects() : void
     {
         $this->assertTestCase(
             '{ int: 123, bool: false }',
@@ -59,7 +59,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses enum values as plain strings')
      */
-    public function testParsesEnumValuesAsPlainStrings()
+    public function testParsesEnumValuesAsPlainStrings() : void
     {
         $this->assertTestCase(
             'TEST_ENUM_VALUE',
@@ -75,7 +75,7 @@ class AstFromValueUntypedTest extends TestCase
     /**
      * @see it('parses enum values as plain strings')
      */
-    public function testParsesVariables()
+    public function testParsesVariables() : void
     {
         $this->assertTestCase(
             '$testVariable',

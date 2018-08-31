@@ -12,7 +12,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('no operations')
      */
-    public function testNoOperations()
+    public function testNoOperations() : void
     {
         $this->expectPassesRule(new UniqueOperationNames(), '
       fragment fragA on Type {
@@ -24,7 +24,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('one anon operation')
      */
-    public function testOneAnonOperation()
+    public function testOneAnonOperation() : void
     {
         $this->expectPassesRule(new UniqueOperationNames, '
       {
@@ -36,7 +36,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('one named operation')
      */
-    public function testOneNamedOperation()
+    public function testOneNamedOperation() : void
     {
         $this->expectPassesRule(new UniqueOperationNames, '
       query Foo {
@@ -48,7 +48,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple operations')
      */
-    public function testMultipleOperations()
+    public function testMultipleOperations() : void
     {
         $this->expectPassesRule(new UniqueOperationNames, '
       query Foo {
@@ -64,7 +64,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple operations of different types')
      */
-    public function testMultipleOperationsOfDifferentTypes()
+    public function testMultipleOperationsOfDifferentTypes() : void
     {
         $this->expectPassesRule(new UniqueOperationNames, '
       query Foo {
@@ -84,7 +84,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('fragment and operation named the same')
      */
-    public function testFragmentAndOperationNamedTheSame()
+    public function testFragmentAndOperationNamedTheSame() : void
     {
         $this->expectPassesRule(new UniqueOperationNames, '
       query Foo {
@@ -99,7 +99,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple operations of same name')
      */
-    public function testMultipleOperationsOfSameName()
+    public function testMultipleOperationsOfSameName() : void
     {
         $this->expectFailsRule(new UniqueOperationNames, '
       query Foo {
@@ -116,7 +116,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple ops of same name of different types (mutation)')
      */
-    public function testMultipleOpsOfSameNameOfDifferentTypes_Mutation()
+    public function testMultipleOpsOfSameNameOfDifferentTypesMutation() : void
     {
         $this->expectFailsRule(new UniqueOperationNames, '
       query Foo {
@@ -133,7 +133,7 @@ class UniqueOperationNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple ops of same name of different types (subscription)')
      */
-    public function testMultipleOpsOfSameNameOfDifferentTypes_Subscription()
+    public function testMultipleOpsOfSameNameOfDifferentTypesSubscription() : void
     {
         $this->expectFailsRule(new UniqueOperationNames, '
       query Foo {

@@ -13,7 +13,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Correctly identifies R2-D2 as the hero of the Star Wars Saga')
      */
-    public function testCorrectlyIdentifiesR2D2AsTheHeroOfTheStarWarsSaga()
+    public function testCorrectlyIdentifiesR2D2AsTheHeroOfTheStarWarsSaga() : void
     {
         $query = '
         query HeroNameQuery {
@@ -33,7 +33,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to query for the ID and friends of R2-D2')
      */
-    public function testAllowsUsToQueryForTheIDAndFriendsOfR2D2()
+    public function testAllowsUsToQueryForTheIDAndFriendsOfR2D2() : void
     {
         $query = '
         query HeroNameAndFriendsQuery {
@@ -71,7 +71,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to query for the friends of friends of R2-D2')
      */
-    public function testAllowsUsToQueryForTheFriendsOfFriendsOfR2D2()
+    public function testAllowsUsToQueryForTheFriendsOfFriendsOfR2D2() : void
     {
         $query = '
         query NestedQuery {
@@ -132,7 +132,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Using IDs and query parameters to refetch objects')
      */
-    public function testAllowsUsToQueryForLukeSkywalkerDirectlyUsingHisID()
+    public function testAllowsUsToQueryForLukeSkywalkerDirectlyUsingHisID() : void
     {
         $query = '
         query FetchLukeQuery {
@@ -153,7 +153,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to create a generic query, then use it to fetch Luke Skywalker using his ID')
      */
-    public function testGenericQueryToGetLukeSkywalkerById()
+    public function testGenericQueryToGetLukeSkywalkerById() : void
     {
         $query = '
         query FetchSomeIDQuery($someId: String!) {
@@ -177,7 +177,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to create a generic query, then use it to fetch Han Solo using his ID')
      */
-    public function testGenericQueryToGetHanSoloById()
+    public function testGenericQueryToGetHanSoloById() : void
     {
         $query = '
         query FetchSomeIDQuery($someId: String!) {
@@ -200,7 +200,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to create a generic query, then pass an invalid ID to get null back')
      */
-    public function testGenericQueryWithInvalidId()
+    public function testGenericQueryWithInvalidId() : void
     {
         $query = '
         query humanQuery($id: String!) {
@@ -335,7 +335,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Using __typename to find the type of an object')
      */
-    public function testVerifyThatR2D2IsADroid()
+    public function testVerifyThatR2D2IsADroid() : void
     {
         $query = '
         query CheckTypeOfR2 {
@@ -357,7 +357,7 @@ class StarWarsQueryTest extends TestCase
     /**
      * @see it('Allows us to verify that Luke is a human')
      */
-    public function testVerifyThatLukeIsHuman()
+    public function testVerifyThatLukeIsHuman() : void
     {
         $query = '
         query CheckTypeOfLuke {

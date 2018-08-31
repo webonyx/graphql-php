@@ -28,7 +28,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('executes arbitrary code')
      */
-    public function testExecutesArbitraryCode()
+    public function testExecutesArbitraryCode() : void
     {
         $deepData = null;
         $data = null;
@@ -166,7 +166,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('merges parallel fragments')
      */
-    public function testMergesParallelFragments()
+    public function testMergesParallelFragments() : void
     {
         $ast = Parser::parse('
       { a, ...FragOne, ...FragTwo }
@@ -227,7 +227,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('provides info about current execution state')
      */
-    public function testProvidesInfoAboutCurrentExecutionState()
+    public function testProvidesInfoAboutCurrentExecutionState() : void
     {
         $ast = Parser::parse('query ($var: String) { result: test }');
 
@@ -279,7 +279,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('threads root value context correctly')
      */
-    public function testThreadsContextCorrectly()
+    public function testThreadsContextCorrectly() : void
     {
         // threads context correctly
         $doc = 'query Example { a }';
@@ -313,7 +313,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('correctly threads arguments')
      */
-    public function testCorrectlyThreadsArguments()
+    public function testCorrectlyThreadsArguments() : void
     {
         $doc = '
       query Example {
@@ -350,7 +350,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('nulls out error subtrees')
      */
-    public function testNullsOutErrorSubtrees()
+    public function testNullsOutErrorSubtrees() : void
     {
         $doc = '{
       sync
@@ -528,7 +528,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the inline operation if no operation name is provided')
      */
-    public function testUsesTheInlineOperationIfNoOperationIsProvided()
+    public function testUsesTheInlineOperationIfNoOperationIsProvided() : void
     {
         $doc = '{ a }';
         $data = ['a' => 'b'];
@@ -550,7 +550,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the only operation if no operation name is provided')
      */
-    public function testUsesTheOnlyOperationIfNoOperationIsProvided()
+    public function testUsesTheOnlyOperationIfNoOperationIsProvided() : void
     {
         $doc = 'query Example { a }';
         $data = [ 'a' => 'b' ];
@@ -571,7 +571,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the named operation if operation name is provided')
      */
-    public function testUsesTheNamedOperationIfOperationNameIsProvided()
+    public function testUsesTheNamedOperationIfOperationNameIsProvided() : void
     {
         $doc = 'query Example { first: a } query OtherExample { second: a }';
         $data = [ 'a' => 'b' ];
@@ -592,7 +592,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('provides error if no operation is provided')
      */
-    public function testProvidesErrorIfNoOperationIsProvided()
+    public function testProvidesErrorIfNoOperationIsProvided() : void
     {
         $doc = 'fragment Example on Type { a }';
         $data = [ 'a' => 'b' ];
@@ -621,7 +621,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('errors if no op name is provided with multiple operations')
      */
-    public function testErrorsIfNoOperationIsProvidedWithMultipleOperations()
+    public function testErrorsIfNoOperationIsProvidedWithMultipleOperations() : void
     {
         $doc = 'query Example { a } query OtherExample { a }';
         $data = ['a' => 'b'];
@@ -651,7 +651,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('errors if unknown operation name is provided')
      */
-    public function testErrorsIfUnknownOperationNameIsProvided()
+    public function testErrorsIfUnknownOperationNameIsProvided() : void
     {
         $doc = 'query Example { a } query OtherExample { a }';
         $ast = Parser::parse($doc);
@@ -689,7 +689,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the query schema for queries')
      */
-    public function testUsesTheQuerySchemaForQueries()
+    public function testUsesTheQuerySchemaForQueries() : void
     {
         $doc = 'query Q { a } mutation M { c }';
         $data = ['a' => 'b', 'c' => 'd'];
@@ -716,7 +716,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the mutation schema for mutations')
      */
-    public function testUsesTheMutationSchemaForMutations()
+    public function testUsesTheMutationSchemaForMutations() : void
     {
         $doc = 'query Q { a } mutation M { c }';
         $data = [ 'a' => 'b', 'c' => 'd' ];
@@ -742,7 +742,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses the subscription schema for subscriptions')
      */
-    public function testUsesTheSubscriptionSchemaForSubscriptions()
+    public function testUsesTheSubscriptionSchemaForSubscriptions() : void
     {
         $doc = 'query Q { a } subscription S { a }';
         $data = [ 'a' => 'b', 'c' => 'd' ];
@@ -766,7 +766,7 @@ class ExecutorTest extends TestCase
         $this->assertEquals(['data' => ['a' => 'b']], $subscriptionResult->toArray());
     }
 
-    public function testCorrectFieldOrderingDespiteExecutionOrder()
+    public function testCorrectFieldOrderingDespiteExecutionOrder() : void
     {
         $doc = '{
       a,
@@ -823,7 +823,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('Avoids recursion')
      */
-    public function testAvoidsRecursion()
+    public function testAvoidsRecursion() : void
     {
         $doc = '
       query Q {
@@ -855,7 +855,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('does not include illegal fields in output')
      */
-    public function testDoesNotIncludeIllegalFieldsInOutput()
+    public function testDoesNotIncludeIllegalFieldsInOutput() : void
     {
         $doc = 'mutation M {
       thisIsIllegalDontIncludeMe
@@ -882,7 +882,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('does not include arguments that were not set')
      */
-    public function testDoesNotIncludeArgumentsThatWereNotSet()
+    public function testDoesNotIncludeArgumentsThatWereNotSet() : void
     {
         $schema = new Schema([
             'query' => new ObjectType([
@@ -917,7 +917,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('fails when an isTypeOf check is not met')
      */
-    public function testFailsWhenAnIsTypeOfCheckIsNotMet()
+    public function testFailsWhenAnIsTypeOfCheckIsNotMet() : void
     {
         $SpecialType = new ObjectType([
             'name' => 'SpecialType',
@@ -967,7 +967,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('executes ignoring invalid non-executable definitions')
      */
-    public function testExecutesIgnoringInvalidNonExecutableDefinitions()
+    public function testExecutesIgnoringInvalidNonExecutableDefinitions() : void
     {
         $query = Parser::parse('
       { foo }
@@ -999,7 +999,7 @@ class ExecutorTest extends TestCase
     /**
      * @see it('uses a custom field resolver')
      */
-    public function testUsesACustomFieldResolver()
+    public function testUsesACustomFieldResolver() : void
     {
         $query = Parser::parse('{ foo }');
 
@@ -1034,7 +1034,7 @@ class ExecutorTest extends TestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
-    public function testSubstitutesArgumentWithDefaultValue()
+    public function testSubstitutesArgumentWithDefaultValue() : void
     {
         $schema = new Schema([
             'query' => new ObjectType([
@@ -1078,7 +1078,7 @@ class ExecutorTest extends TestCase
     /**
      * @see https://github.com/webonyx/graphql-php/issues/59
      */
-    public function testSerializesToEmptyObjectVsEmptyArray()
+    public function testSerializesToEmptyObjectVsEmptyArray() : void
     {
         $iface = null;
 

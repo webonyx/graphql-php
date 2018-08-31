@@ -172,7 +172,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines a query only schema')
      */
-    public function testDefinesAQueryOnlySchema()
+    public function testDefinesAQueryOnlySchema() : void
     {
         $blogSchema = new Schema([
             'query' => $this->blogQuery
@@ -216,7 +216,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines a mutation schema')
      */
-    public function testDefinesAMutationSchema()
+    public function testDefinesAMutationSchema() : void
     {
         $schema = new Schema([
             'query' => $this->blogQuery,
@@ -235,7 +235,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines a subscription schema')
      */
-    public function testDefinesSubscriptionSchema()
+    public function testDefinesSubscriptionSchema() : void
     {
         $schema = new Schema([
             'query' => $this->blogQuery,
@@ -253,7 +253,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines an enum type with deprecated value')
      */
-    public function testDefinesEnumTypeWithDeprecatedValue()
+    public function testDefinesEnumTypeWithDeprecatedValue() : void
     {
         $enumTypeWithDeprecatedValue = new EnumType([
             'name' => 'EnumWithDeprecatedValue',
@@ -278,7 +278,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines an enum type with a value of `null` and `undefined`')
      */
-    public function testDefinesAnEnumTypeWithAValueOfNullAndUndefined()
+    public function testDefinesAnEnumTypeWithAValueOfNullAndUndefined() : void
     {
         $EnumTypeWithNullishValue = new EnumType([
             'name' => 'EnumWithNullishValue',
@@ -315,7 +315,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('defines an object type with deprecated field')
      */
-    public function testDefinesAnObjectTypeWithDeprecatedField()
+    public function testDefinesAnObjectTypeWithDeprecatedField() : void
     {
         $TypeWithDeprecatedField = new ObjectType([
           'name' => 'foo',
@@ -339,7 +339,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('includes nested input objects in the map')
      */
-    public function testIncludesNestedInputObjectInTheMap()
+    public function testIncludesNestedInputObjectInTheMap() : void
     {
         $nestedInputObject = new InputObjectType([
             'name' => 'NestedInputObject',
@@ -369,7 +369,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('includes interface possible types in the type map')
      */
-    public function testIncludesInterfaceSubtypesInTheTypeMap()
+    public function testIncludesInterfaceSubtypesInTheTypeMap() : void
     {
         $someInterface = new InterfaceType([
             'name' => 'SomeInterface',
@@ -401,7 +401,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('includes interfaces' thunk subtypes in the type map')
      */
-    public function testIncludesInterfacesThunkSubtypesInTheTypeMap()
+    public function testIncludesInterfacesThunkSubtypesInTheTypeMap() : void
     {
         $someInterface = null;
 
@@ -436,7 +436,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('stringifies simple types')
      */
-    public function testStringifiesSimpleTypes()
+    public function testStringifiesSimpleTypes() : void
     {
         $this->assertSame('Int', (string) Type::int());
         $this->assertSame('Article', (string) $this->blogArticle);
@@ -457,7 +457,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('JSON stringifies simple types')
      */
-    public function testJSONStringifiesSimpleTypes()
+    public function testJSONStringifiesSimpleTypes() : void
     {
         $this->assertEquals('"Int"', json_encode(Type::int()));
         $this->assertEquals('"Article"', json_encode($this->blogArticle));
@@ -475,7 +475,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('identifies input types')
      */
-    public function testIdentifiesInputTypes()
+    public function testIdentifiesInputTypes() : void
     {
         $expected = [
             [Type::int(), true],
@@ -494,7 +494,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('identifies output types')
      */
-    public function testIdentifiesOutputTypes()
+    public function testIdentifiesOutputTypes() : void
     {
         $expected = [
             [Type::int(), true],
@@ -513,7 +513,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('prohibits nesting NonNull inside NonNull')
      */
-    public function testProhibitsNestingNonNullInsideNonNull()
+    public function testProhibitsNestingNonNullInsideNonNull() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -525,7 +525,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('allows a thunk for Union member types')
      */
-    public function testAllowsThunkForUnionTypes()
+    public function testAllowsThunkForUnionTypes() : void
     {
         $union = new UnionType([
             'name' => 'ThunkUnion',
@@ -537,7 +537,7 @@ class DefinitionTest extends TestCase
         $this->assertSame($this->objectType, $types[0]);
     }
 
-    public function testAllowsRecursiveDefinitions()
+    public function testAllowsRecursiveDefinitions() : void
     {
         // See https://github.com/webonyx/graphql-php/issues/16
         $node = new InterfaceType([
@@ -602,7 +602,7 @@ class DefinitionTest extends TestCase
         $this->assertSame($user, $blog->getField('owner')->getType()->getWrappedType(true));
     }
 
-    public function testInputObjectTypeAllowsRecursiveDefinitions()
+    public function testInputObjectTypeAllowsRecursiveDefinitions() : void
     {
         $called = false;
         $inputObject = new InputObjectType([
@@ -637,7 +637,7 @@ class DefinitionTest extends TestCase
         $this->assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
     }
 
-    public function testInterfaceTypeAllowsRecursiveDefinitions()
+    public function testInterfaceTypeAllowsRecursiveDefinitions() : void
     {
         $called = false;
         $interface = new InterfaceType([
@@ -669,7 +669,7 @@ class DefinitionTest extends TestCase
         $this->assertSame($interface->getField('value')->getType(), Type::string());
     }
 
-    public function testAllowsShorthandFieldDefinition()
+    public function testAllowsShorthandFieldDefinition() : void
     {
         $interface = new InterfaceType([
             'name' => 'SomeInterface',
@@ -715,7 +715,7 @@ class DefinitionTest extends TestCase
         $this->assertEquals('test', $testField->name);
     }
 
-    public function testInfersNameFromClassname()
+    public function testInfersNameFromClassname() : void
     {
         $myObj = new MyCustomType();
         $this->assertEquals('MyCustom', $myObj->name);
@@ -724,7 +724,7 @@ class DefinitionTest extends TestCase
         $this->assertEquals('OtherCustom', $otherCustom->name);
     }
 
-    public function testAllowsOverridingInternalTypes()
+    public function testAllowsOverridingInternalTypes() : void
     {
         $idType = new CustomScalarType([
             'name' => 'ID',
@@ -746,7 +746,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with a field function')
      */
-    public function testAcceptsAnObjectTypeWithAFieldFunction()
+    public function testAcceptsAnObjectTypeWithAFieldFunction() : void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
@@ -763,7 +763,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type field with undefined config')
      */
-    public function testRejectsAnObjectTypeFieldWithUndefinedConfig()
+    public function testRejectsAnObjectTypeFieldWithUndefinedConfig() : void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
@@ -781,7 +781,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with incorrectly typed fields')
      */
-    public function testRejectsAnObjectTypeWithIncorrectlyTypedFields()
+    public function testRejectsAnObjectTypeWithIncorrectlyTypedFields() : void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
@@ -798,7 +798,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with a field function that returns incorrect type')
      */
-    public function testRejectsAnObjectTypeWithAFieldFunctionThatReturnsIncorrectType()
+    public function testRejectsAnObjectTypeWithAFieldFunctionThatReturnsIncorrectType() : void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
@@ -819,7 +819,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with field args')
      */
-    public function testAcceptsAnObjectTypeWithFieldArgs()
+    public function testAcceptsAnObjectTypeWithFieldArgs() : void
     {
         $this->expectNotToPerformAssertions();
         $objType = new ObjectType([
@@ -842,7 +842,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('does not allow isDeprecated without deprecationReason on field')
      */
-    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnField()
+    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnField() : void
     {
         $OldObject = new ObjectType([
             'name' => 'OldObject',
@@ -866,7 +866,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with array interfaces')
      */
-    public function testAcceptsAnObjectTypeWithArrayInterfaces()
+    public function testAcceptsAnObjectTypeWithArrayInterfaces() : void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
@@ -879,7 +879,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with interfaces as a function returning an array')
      */
-    public function testAcceptsAnObjectTypeWithInterfacesAsAFunctionReturningAnArray()
+    public function testAcceptsAnObjectTypeWithInterfacesAsAFunctionReturningAnArray() : void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
@@ -894,7 +894,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with incorrectly typed interfaces')
      */
-    public function testRejectsAnObjectTypeWithIncorrectlyTypedInterfaces()
+    public function testRejectsAnObjectTypeWithIncorrectlyTypedInterfaces() : void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
@@ -911,7 +911,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with interfaces as a function returning an incorrect type')
      */
-    public function testRejectsAnObjectTypeWithInterfacesAsAFunctionReturningAnIncorrectType()
+    public function testRejectsAnObjectTypeWithInterfacesAsAFunctionReturningAnIncorrectType() : void
     {
         $objType = new ObjectType([
             'name' => 'SomeObject',
@@ -956,7 +956,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a lambda as an Object field resolver')
      */
-    public function testAcceptsALambdaAsAnObjectFieldResolver()
+    public function testAcceptsALambdaAsAnObjectFieldResolver() : void
     {
         $this->expectNotToPerformAssertions();
         // should not throw:
@@ -966,7 +966,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an empty Object field resolver')
      */
-    public function testRejectsAnEmptyObjectFieldResolver()
+    public function testRejectsAnEmptyObjectFieldResolver() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -978,7 +978,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a constant scalar value resolver')
      */
-    public function testRejectsAConstantScalarValueResolver()
+    public function testRejectsAConstantScalarValueResolver() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1005,7 +1005,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Interface type defining resolveType')
      */
-    public function testAcceptsAnInterfaceTypeDefiningResolveType()
+    public function testAcceptsAnInterfaceTypeDefiningResolveType() : void
     {
         $this->expectNotToPerformAssertions();
         $AnotherInterfaceType = new InterfaceType([
@@ -1026,7 +1026,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Interface with implementing type defining isTypeOf')
      */
-    public function testAcceptsAnInterfaceWithImplementingTypeDefiningIsTypeOf()
+    public function testAcceptsAnInterfaceWithImplementingTypeDefiningIsTypeOf() : void
     {
         $this->expectNotToPerformAssertions();
         $InterfaceTypeWithoutResolveType = new InterfaceType([
@@ -1047,7 +1047,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Interface type defining resolveType with implementing type defining isTypeOf')
      */
-    public function testAcceptsAnInterfaceTypeDefiningResolveTypeWithImplementingTypeDefiningIsTypeOf()
+    public function testAcceptsAnInterfaceTypeDefiningResolveTypeWithImplementingTypeDefiningIsTypeOf() : void
     {
         $this->expectNotToPerformAssertions();
         $AnotherInterfaceType = new InterfaceType([
@@ -1068,7 +1068,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Interface type with an incorrect type for resolveType')
      */
-    public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType()
+    public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1096,7 +1096,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union type defining resolveType')
      */
-    public function testAcceptsAUnionTypeDefiningResolveType()
+    public function testAcceptsAUnionTypeDefiningResolveType() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1111,7 +1111,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union of Object types defining isTypeOf')
      */
-    public function testAcceptsAUnionOfObjectTypesDefiningIsTypeOf()
+    public function testAcceptsAUnionOfObjectTypesDefiningIsTypeOf() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1126,7 +1126,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union type defining resolveType of Object types defining isTypeOf')
      */
-    public function testAcceptsAUnionTypeDefiningResolveTypeOfObjectTypesDefiningIsTypeOf()
+    public function testAcceptsAUnionTypeDefiningResolveTypeOfObjectTypesDefiningIsTypeOf() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1141,7 +1141,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Union type with an incorrect type for resolveType')
      */
-    public function testRejectsAnUnionTypeWithAnIncorrectTypeForResolveType()
+    public function testRejectsAnUnionTypeWithAnIncorrectTypeForResolveType() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1161,7 +1161,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Scalar type defining serialize')
      */
-    public function testAcceptsAScalarTypeDefiningSerialize()
+    public function testAcceptsAScalarTypeDefiningSerialize() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw
@@ -1178,7 +1178,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type not defining serialize')
      */
-    public function testRejectsAScalarTypeNotDefiningSerialize()
+    public function testRejectsAScalarTypeNotDefiningSerialize() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1196,7 +1196,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type defining serialize with an incorrect type')
      */
-    public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType()
+    public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1215,7 +1215,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Scalar type defining parseValue and parseLiteral')
      */
-    public function testAcceptsAScalarTypeDefiningParseValueAndParseLiteral()
+    public function testAcceptsAScalarTypeDefiningParseValueAndParseLiteral() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1235,7 +1235,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type defining parseValue but not parseLiteral')
      */
-    public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral()
+    public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1255,7 +1255,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type defining parseLiteral but not parseValue')
      */
-    public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue()
+    public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1275,7 +1275,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Scalar type defining parseValue and parseLiteral with an incorrect type')
      */
-    public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType()
+    public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1297,7 +1297,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Object type with an isTypeOf function')
      */
-    public function testAcceptsAnObjectTypeWithAnIsTypeOfFunction()
+    public function testAcceptsAnObjectTypeWithAnIsTypeOfFunction() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw
@@ -1312,7 +1312,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Object type with an incorrect type for isTypeOf')
      */
-    public function testRejectsAnObjectTypeWithAnIncorrectTypeForIsTypeOf()
+    public function testRejectsAnObjectTypeWithAnIncorrectTypeForIsTypeOf() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1332,7 +1332,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union type with array types')
      */
-    public function testAcceptsAUnionTypeWithArrayTypes()
+    public function testAcceptsAUnionTypeWithArrayTypes() : void
     {
         $this->expectNotToPerformAssertions();
         // Should not throw:
@@ -1347,7 +1347,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a Union type with function returning an array of types')
      */
-    public function testAcceptsAUnionTypeWithFunctionReturningAnArrayOfTypes()
+    public function testAcceptsAUnionTypeWithFunctionReturningAnArrayOfTypes() : void
     {
         $this->expectNotToPerformAssertions();
         $this->schemaWithFieldType(
@@ -1363,7 +1363,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Union type without types')
      */
-    public function testRejectsAUnionTypeWithoutTypes()
+    public function testRejectsAUnionTypeWithoutTypes() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1379,7 +1379,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Union type with incorrectly typed types')
      */
-    public function testRejectsAUnionTypeWithIncorrectlyTypedTypes()
+    public function testRejectsAUnionTypeWithIncorrectlyTypedTypes() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -1398,7 +1398,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Input Object type with fields')
      */
-    public function testAcceptsAnInputObjectTypeWithFields()
+    public function testAcceptsAnInputObjectTypeWithFields() : void
     {
         $inputObjType = new InputObjectType([
             'name' => 'SomeInputObject',
@@ -1413,7 +1413,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts an Input Object type with a field function')
      */
-    public function testAcceptsAnInputObjectTypeWithAFieldFunction()
+    public function testAcceptsAnInputObjectTypeWithAFieldFunction() : void
     {
         $inputObjType = new InputObjectType([
             'name' => 'SomeInputObject',
@@ -1430,7 +1430,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Input Object type with incorrect fields')
      */
-    public function testRejectsAnInputObjectTypeWithIncorrectFields()
+    public function testRejectsAnInputObjectTypeWithIncorrectFields() : void
     {
         $inputObjType = new InputObjectType([
             'name' => 'SomeInputObject',
@@ -1447,7 +1447,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Input Object type with fields function that returns incorrect type')
      */
-    public function testRejectsAnInputObjectTypeWithFieldsFunctionThatReturnsIncorrectType()
+    public function testRejectsAnInputObjectTypeWithFieldsFunctionThatReturnsIncorrectType() : void
     {
         $inputObjType = new InputObjectType([
             'name' => 'SomeInputObject',
@@ -1468,7 +1468,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Input Object type with resolvers')
      */
-    public function testRejectsAnInputObjectTypeWithResolvers()
+    public function testRejectsAnInputObjectTypeWithResolvers() : void
     {
         $inputObjType = new InputObjectType([
             'name' => 'SomeInputObject',
@@ -1492,7 +1492,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Input Object type with resolver constant')
      */
-    public function testRejectsAnInputObjectTypeWithResolverConstant()
+    public function testRejectsAnInputObjectTypeWithResolverConstant() : void
     {
         $inputObjType = new InputObjectType([
             'name' => 'SomeInputObject',
@@ -1516,7 +1516,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a well defined Enum type with empty value definition')
      */
-    public function testAcceptsAWellDefinedEnumTypeWithEmptyValueDefinition()
+    public function testAcceptsAWellDefinedEnumTypeWithEmptyValueDefinition() : void
     {
         $enumType = new EnumType([
             'name' => 'SomeEnum',
@@ -1532,7 +1532,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('accepts a well defined Enum type with internal value definition')
      */
-    public function testAcceptsAWellDefinedEnumTypeWithInternalValueDefinition()
+    public function testAcceptsAWellDefinedEnumTypeWithInternalValueDefinition() : void
     {
         $enumType = new EnumType([
             'name' => 'SomeEnum',
@@ -1548,7 +1548,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects an Enum type with incorrectly typed values')
      */
-    public function testRejectsAnEnumTypeWithIncorrectlyTypedValues()
+    public function testRejectsAnEnumTypeWithIncorrectlyTypedValues() : void
     {
         $enumType = new EnumType([
             'name' => 'SomeEnum',
@@ -1564,7 +1564,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('does not allow isDeprecated without deprecationReason on enum')
      */
-    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum()
+    public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum() : void
     {
         $enumType = new EnumType([
             'name' => 'SomeEnum',
@@ -1582,9 +1582,11 @@ class DefinitionTest extends TestCase
         $enumType->assertValid();
     }
 
-    // Type System: List must accept only types
 
-    public function testListMustAcceptOnlyTypes()
+    /**
+     * Type System: List must accept only types
+     */
+    public function testListMustAcceptOnlyTypes() : void
     {
         $types = [
             Type::string(),
@@ -1618,9 +1620,11 @@ class DefinitionTest extends TestCase
         }
     }
 
-    // Type System: NonNull must only accept non-nullable types
 
-    public function testNonNullMustOnlyAcceptNonNullableTypes()
+    /**
+     * Type System: NonNull must only accept non-nullable types
+     */
+    public function testNonNullMustOnlyAcceptNonNullableTypes() : void
     {
         $nullableTypes = [
             Type::string(),
@@ -1663,7 +1667,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Schema which redefines a built-in type')
      */
-    public function testRejectsASchemaWhichRedefinesABuiltInType()
+    public function testRejectsASchemaWhichRedefinesABuiltInType() : void
     {
         $FakeString = new CustomScalarType([
             'name' => 'String',
@@ -1691,7 +1695,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Schema which defines an object type twice')
      */
-    public function testRejectsASchemaWhichDefinesAnObjectTypeTwice()
+    public function testRejectsASchemaWhichDefinesAnObjectTypeTwice() : void
     {
         $A = new ObjectType([
             'name' => 'SameName',
@@ -1722,7 +1726,7 @@ class DefinitionTest extends TestCase
     /**
      * @see it('rejects a Schema which have same named objects implementing an interface')
      */
-    public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface()
+    public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface() : void
     {
         $AnotherInterface = new InterfaceType([
             'name' => 'AnotherInterface',

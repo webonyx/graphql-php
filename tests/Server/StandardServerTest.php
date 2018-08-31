@@ -22,7 +22,7 @@ class StandardServerTest extends ServerTestCase
             ->setSchema($schema);
     }
 
-    public function testSimpleRequestExecutionWithOutsideParsing()
+    public function testSimpleRequestExecutionWithOutsideParsing() : void
     {
         $body = json_encode([
             'query' => '{f1}'
@@ -41,7 +41,7 @@ class StandardServerTest extends ServerTestCase
         $this->assertEquals($expected, $result->toArray(true));
     }
 
-    public function testSimplePsrRequestExecution()
+    public function testSimplePsrRequestExecution() : void
     {
         $body = [
             'query' => '{f1}'
@@ -57,7 +57,7 @@ class StandardServerTest extends ServerTestCase
         $this->assertPsrRequestEquals($expected, $request);
     }
 
-    public function testMultipleOperationPsrRequestExecution()
+    public function testMultipleOperationPsrRequestExecution() : void
     {
         $body = [
             'query' => 'query firstOp {fieldWithPhpError} query secondOp {f1}',
