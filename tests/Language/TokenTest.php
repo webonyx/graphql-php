@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GraphQL\Tests;
+namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\Token;
 use PHPUnit\Framework\TestCase;
