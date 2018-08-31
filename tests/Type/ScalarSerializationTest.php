@@ -12,7 +12,7 @@ class ScalarSerializationTest extends TestCase
     /**
      * @see it('serializes output int')
      */
-    public function testSerializesOutputInt()
+    public function testSerializesOutputInt() : void
     {
         $intType = Type::int();
 
@@ -26,7 +26,7 @@ class ScalarSerializationTest extends TestCase
         $this->assertSame(1, $intType->serialize(true));
     }
 
-    public function testSerializesOutputIntCannotRepresentFloat1()
+    public function testSerializesOutputIntCannotRepresentFloat1() : void
     {
         // The GraphQL specification does not allow serializing non-integer values
         // as Int to avoid accidental data loss.
@@ -36,7 +36,7 @@ class ScalarSerializationTest extends TestCase
         $intType->serialize(0.1);
     }
 
-    public function testSerializesOutputIntCannotRepresentFloat2()
+    public function testSerializesOutputIntCannotRepresentFloat2() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
@@ -45,7 +45,7 @@ class ScalarSerializationTest extends TestCase
 
     }
 
-    public function testSerializesOutputIntCannotRepresentNegativeFloat()
+    public function testSerializesOutputIntCannotRepresentNegativeFloat() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
@@ -54,7 +54,7 @@ class ScalarSerializationTest extends TestCase
 
     }
 
-    public function testSerializesOutputIntCannotRepresentNumericString()
+    public function testSerializesOutputIntCannotRepresentNumericString() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
@@ -63,7 +63,7 @@ class ScalarSerializationTest extends TestCase
 
     }
 
-    public function testSerializesOutputIntCannotRepresentBiggerThan32Bits()
+    public function testSerializesOutputIntCannotRepresentBiggerThan32Bits() : void
     {
         // Maybe a safe PHP int, but bigger than 2^32, so not
         // representable as a GraphQL Int
@@ -74,7 +74,7 @@ class ScalarSerializationTest extends TestCase
 
     }
 
-    public function testSerializesOutputIntCannotRepresentLowerThan32Bits()
+    public function testSerializesOutputIntCannotRepresentLowerThan32Bits() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
@@ -82,7 +82,7 @@ class ScalarSerializationTest extends TestCase
         $intType->serialize(-9876504321);
     }
 
-    public function testSerializesOutputIntCannotRepresentBiggerThanSigned32Bits()
+    public function testSerializesOutputIntCannotRepresentBiggerThanSigned32Bits() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
@@ -90,7 +90,7 @@ class ScalarSerializationTest extends TestCase
         $intType->serialize(1e100);
     }
 
-    public function testSerializesOutputIntCannotRepresentLowerThanSigned32Bits()
+    public function testSerializesOutputIntCannotRepresentLowerThanSigned32Bits() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
@@ -98,7 +98,7 @@ class ScalarSerializationTest extends TestCase
         $intType->serialize(-1e100);
     }
 
-    public function testSerializesOutputIntCannotRepresentString()
+    public function testSerializesOutputIntCannotRepresentString() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
@@ -107,7 +107,7 @@ class ScalarSerializationTest extends TestCase
 
     }
 
-    public function testSerializesOutputIntCannotRepresentEmptyString()
+    public function testSerializesOutputIntCannotRepresentEmptyString() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
@@ -118,7 +118,7 @@ class ScalarSerializationTest extends TestCase
     /**
      * @see it('serializes output float')
      */
-    public function testSerializesOutputFloat()
+    public function testSerializesOutputFloat() : void
     {
         $floatType = Type::float();
 
@@ -134,7 +134,7 @@ class ScalarSerializationTest extends TestCase
         $this->assertSame(1.0, $floatType->serialize(true));
     }
 
-    public function testSerializesOutputFloatCannotRepresentString()
+    public function testSerializesOutputFloatCannotRepresentString() : void
     {
         $floatType = Type::float();
         $this->expectException(Error::class);
@@ -142,7 +142,7 @@ class ScalarSerializationTest extends TestCase
         $floatType->serialize('one');
     }
 
-    public function testSerializesOutputFloatCannotRepresentEmptyString()
+    public function testSerializesOutputFloatCannotRepresentEmptyString() : void
     {
         $floatType = Type::float();
         $this->expectException(Error::class);
@@ -153,7 +153,7 @@ class ScalarSerializationTest extends TestCase
     /**
      * @see it('serializes output strings')
      */
-    public function testSerializesOutputStrings()
+    public function testSerializesOutputStrings() : void
     {
         $stringType = Type::string();
 
@@ -166,7 +166,7 @@ class ScalarSerializationTest extends TestCase
         $this->assertSame('2', $stringType->serialize(new ObjectIdStub(2)));
     }
 
-    public function testSerializesOutputStringsCannotRepresentArray()
+    public function testSerializesOutputStringsCannotRepresentArray() : void
     {
         $stringType = Type::string();
         $this->expectException(Error::class);
@@ -174,7 +174,7 @@ class ScalarSerializationTest extends TestCase
         $stringType->serialize([]);
     }
 
-    public function testSerializesOutputStringsCannotRepresentObject()
+    public function testSerializesOutputStringsCannotRepresentObject() : void
     {
         $stringType = Type::string();
         $this->expectException(Error::class);
@@ -185,7 +185,7 @@ class ScalarSerializationTest extends TestCase
     /**
      * @see it('serializes output boolean')
      */
-    public function testSerializesOutputBoolean()
+    public function testSerializesOutputBoolean() : void
     {
         $boolType = Type::boolean();
 
@@ -200,7 +200,7 @@ class ScalarSerializationTest extends TestCase
         // TODO: how should it behave on '0'?
     }
 
-    public function testSerializesOutputID()
+    public function testSerializesOutputID() : void
     {
         $idType = Type::id();
 
@@ -214,7 +214,7 @@ class ScalarSerializationTest extends TestCase
         $this->assertSame('2', $idType->serialize(new ObjectIdStub(2)));
     }
 
-    public function testSerializesOutputIDCannotRepresentObject()
+    public function testSerializesOutputIDCannotRepresentObject() : void
     {
         $idType = Type::id();
         $this->expectException(Error::class);

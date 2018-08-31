@@ -14,7 +14,7 @@ class SchemaParserTest extends TestCase
     /**
      * @see it('Simple type')
      */
-    public function testSimpleType()
+    public function testSimpleType() : void
     {
         $body = '
 type Hello {
@@ -50,7 +50,7 @@ type Hello {
     /**
      * @see it('parses type with description string')
      */
-    public function testParsesTypeWithDescriptionString()
+    public function testParsesTypeWithDescriptionString() : void
     {
         $body = '
 "Description"
@@ -92,7 +92,7 @@ type Hello {
     /**
      * @see it('parses type with description multi-linestring')
      */
-    public function testParsesTypeWithDescriptionMultiLineString()
+    public function testParsesTypeWithDescriptionMultiLineString() : void
     {
         $body = '
 """
@@ -137,7 +137,7 @@ type Hello {
     /**
      * @see it('Simple extension')
      */
-    public function testSimpleExtension()
+    public function testSimpleExtension() : void
     {
         $body = '
 extend type Hello {
@@ -174,7 +174,7 @@ extend type Hello {
     /**
      * @see it('Extension without fields')
      */
-    public function testExtensionWithoutFields()
+    public function testExtensionWithoutFields() : void
     {
         $body = 'extend type Hello implements Greeting';
         $doc = Parser::parse($body);
@@ -203,7 +203,7 @@ extend type Hello {
     /**
      * @see it('Extension without fields followed by extension')
      */
-    public function testExtensionWithoutFieldsFollowedByExtension()
+    public function testExtensionWithoutFieldsFollowedByExtension() : void
     {
         $body = '
           extend type Hello implements Greeting
@@ -239,7 +239,7 @@ extend type Hello {
     /**
      * @see it('Extension without anything throws')
      */
-    public function testExtensionWithoutAnythingThrows()
+    public function testExtensionWithoutAnythingThrows() : void
     {
         $this->expectSyntaxError(
             'extend type Hello',
@@ -251,7 +251,7 @@ extend type Hello {
     /**
      * @see it('Extension do not include descriptions')
      */
-    public function testExtensionDoNotIncludeDescriptions()
+    public function testExtensionDoNotIncludeDescriptions() : void
     {
         $body = '
       "Description"
@@ -268,7 +268,7 @@ extend type Hello {
     /**
      * @see it('Extension do not include descriptions')
      */
-    public function testExtensionDoNotIncludeDescriptions2()
+    public function testExtensionDoNotIncludeDescriptions2() : void
     {
         $body = '
       extend "Description" type Hello {
@@ -285,7 +285,7 @@ extend type Hello {
     /**
      * @see it('Simple non-null type')
      */
-    public function testSimpleNonNullType()
+    public function testSimpleNonNullType() : void
     {
         $body = '
 type Hello {
@@ -328,7 +328,7 @@ type Hello {
     /**
      * @see it('Simple type inheriting interface')
      */
-    public function testSimpleTypeInheritingInterface()
+    public function testSimpleTypeInheritingInterface() : void
     {
         $body = 'type Hello implements World { field: String }';
         $loc = function($start, $end) { return TestUtils::locArray($start, $end); };
@@ -364,7 +364,7 @@ type Hello {
     /**
      * @see it('Simple type inheriting multiple interfaces')
      */
-    public function testSimpleTypeInheritingMultipleInterfaces()
+    public function testSimpleTypeInheritingMultipleInterfaces() : void
     {
         $body = 'type Hello implements Wo & rld { field: String }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
@@ -401,7 +401,7 @@ type Hello {
     /**
      * @see it('Simple type inheriting multiple interfaces with leading ampersand')
      */
-    public function testSimpleTypeInheritingMultipleInterfacesWithLeadingAmpersand()
+    public function testSimpleTypeInheritingMultipleInterfacesWithLeadingAmpersand() : void
     {
         $body = 'type Hello implements & Wo & rld { field: String }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
@@ -436,7 +436,7 @@ type Hello {
     /**
      * @see it('Single value enum')
      */
-    public function testSingleValueEnum()
+    public function testSingleValueEnum() : void
     {
         $body = 'enum Hello { WORLD }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
@@ -463,7 +463,7 @@ type Hello {
     /**
      * @see it('Double value enum')
      */
-    public function testDoubleValueEnum()
+    public function testDoubleValueEnum() : void
     {
         $body = 'enum Hello { WO, RLD }';
         $loc = function($start, $end) {return TestUtils::locArray($start, $end);};
@@ -493,7 +493,7 @@ type Hello {
     /**
      * @see it('Simple interface')
      */
-    public function testSimpleInterface()
+    public function testSimpleInterface() : void
     {
         $body = '
 interface Hello {
@@ -528,7 +528,7 @@ interface Hello {
     /**
      * @see it('Simple field with arg')
      */
-    public function testSimpleFieldWithArg()
+    public function testSimpleFieldWithArg() : void
     {
         $body = '
 type Hello {
@@ -573,7 +573,7 @@ type Hello {
     /**
      * @see it('Simple field with arg with default value')
      */
-    public function testSimpleFieldWithArgWithDefaultValue()
+    public function testSimpleFieldWithArgWithDefaultValue() : void
     {
         $body = '
 type Hello {
@@ -617,7 +617,7 @@ type Hello {
     /**
      * @see it('Simple field with list arg')
      */
-    public function testSimpleFieldWithListArg()
+    public function testSimpleFieldWithListArg() : void
     {
         $body = '
 type Hello {
@@ -662,7 +662,7 @@ type Hello {
     /**
      * @see it('Simple field with two args')
      */
-    public function testSimpleFieldWithTwoArgs()
+    public function testSimpleFieldWithTwoArgs() : void
     {
         $body = '
 type Hello {
@@ -713,7 +713,7 @@ type Hello {
     /**
      * @see it('Simple union')
      */
-    public function testSimpleUnion()
+    public function testSimpleUnion() : void
     {
         $body = 'union Hello = World';
         $doc = Parser::parse($body);
@@ -739,7 +739,7 @@ type Hello {
     /**
      * @see it('Union with two types')
      */
-    public function testUnionWithTwoTypes()
+    public function testUnionWithTwoTypes() : void
     {
         $body = 'union Hello = Wo | Rld';
         $doc = Parser::parse($body);
@@ -769,7 +769,7 @@ type Hello {
     /**
      * @see it('Union with two types and leading pipe')
      */
-    public function testUnionWithTwoTypesAndLeadingPipe()
+    public function testUnionWithTwoTypesAndLeadingPipe() : void
     {
         $body = 'union Hello = | Wo | Rld';
         $doc = Parser::parse($body);
@@ -796,7 +796,7 @@ type Hello {
     /**
      * @see it('Union fails with no types')
      */
-    public function testUnionFailsWithNoTypes()
+    public function testUnionFailsWithNoTypes() : void
     {
         $this->expectSyntaxError(
             'union Hello = |',
@@ -808,7 +808,7 @@ type Hello {
     /**
      * @see it('Union fails with leading douple pipe')
      */
-    public function testUnionFailsWithLeadingDoublePipe()
+    public function testUnionFailsWithLeadingDoublePipe() : void
     {
         $this->expectSyntaxError(
             'union Hello = || Wo | Rld',
@@ -820,7 +820,7 @@ type Hello {
     /**
      * @see it('Union fails with double pipe')
      */
-    public function testUnionFailsWithDoublePipe()
+    public function testUnionFailsWithDoublePipe() : void
     {
         $this->expectSyntaxError(
             'union Hello = Wo || Rld',
@@ -832,7 +832,7 @@ type Hello {
     /**
      * @see it('Union fails with trailing pipe')
      */
-    public function testUnionFailsWithTrailingPipe()
+    public function testUnionFailsWithTrailingPipe() : void
     {
         $this->expectSyntaxError(
             'union Hello = | Wo | Rld |',
@@ -844,7 +844,7 @@ type Hello {
     /**
      * @see it('Scalar')
      */
-    public function testScalar()
+    public function testScalar() : void
     {
         $body = 'scalar Hello';
         $doc = Parser::parse($body);
@@ -868,7 +868,7 @@ type Hello {
     /**
      * @see it('Simple input object')
      */
-    public function testSimpleInputObject()
+    public function testSimpleInputObject() : void
     {
         $body = '
 input Hello {
@@ -904,7 +904,7 @@ input Hello {
     /**
      * @see it('Simple input object with args should fail')
      */
-    public function testSimpleInputObjectWithArgsShouldFail()
+    public function testSimpleInputObjectWithArgsShouldFail() : void
     {
         $body = '
       input Hello {
@@ -920,7 +920,7 @@ input Hello {
     /**
      * @see it('Directive with incorrect locations')
      */
-    public function testDirectiveWithIncorrectLocationShouldFail()
+    public function testDirectiveWithIncorrectLocationShouldFail() : void
     {
         $body = '
       directive @foo on FIELD | INCORRECT_LOCATION
@@ -932,7 +932,7 @@ input Hello {
         );
     }
 
-    public function testDoesNotAllowEmptyFields()
+    public function testDoesNotAllowEmptyFields() : void
     {
         $body = 'type Hello { }';
         $this->expectSyntaxError($body, 'Syntax Error: Expected Name, found }', new SourceLocation(1, 14));
@@ -941,7 +941,7 @@ input Hello {
     /**
      * @see it('Option: allowLegacySDLEmptyFields supports type with empty fields')
      */
-    public function testAllowLegacySDLEmptyFieldsOption()
+    public function testAllowLegacySDLEmptyFieldsOption() : void
     {
         $body = 'type Hello { }';
         $doc = Parser::parse($body, ['allowLegacySDLEmptyFields' => true]);
@@ -955,7 +955,7 @@ input Hello {
         $this->assertArraySubset($expected, $doc->toArray(true));
     }
 
-    public function testDoesntAllowLegacySDLImplementsInterfacesByDefault()
+    public function testDoesntAllowLegacySDLImplementsInterfacesByDefault() : void
     {
         $body = 'type Hello implements Wo rld { field: String }';
         $this->expectSyntaxError($body, 'Syntax Error: Unexpected Name "rld"', new SourceLocation(1, 26));
@@ -964,7 +964,7 @@ input Hello {
     /**
      * @see it('Option: allowLegacySDLImplementsInterfaces')
      */
-    public function testDefaultSDLImplementsInterfaces()
+    public function testDefaultSDLImplementsInterfaces() : void
     {
         $body = 'type Hello implements Wo rld { field: String }';
         $doc = Parser::parse($body, ['allowLegacySDLImplementsInterfaces' => true]);

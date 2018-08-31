@@ -258,7 +258,7 @@ class SyncPromiseTest extends TestCase
         $this->assertValidPromise($nextPromise3, $expectedNextReason, $expectedNextValue, $expectedNextState);
     }
 
-    public function testPendingPromise()
+    public function testPendingPromise() : void
     {
         $promise = new SyncPromise();
         $this->assertEquals(SyncPromise::PENDING, $promise->state);
@@ -319,7 +319,7 @@ class SyncPromiseTest extends TestCase
         $this->assertValidPromise($promise2, "Rejected Once Again", null, SyncPromise::REJECTED);
     }
 
-    public function testPendingPromiseThen()
+    public function testPendingPromiseThen() : void
     {
         $promise = new SyncPromise();
         $this->assertEquals(SyncPromise::PENDING, $promise->state);

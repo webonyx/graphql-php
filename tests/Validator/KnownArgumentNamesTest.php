@@ -12,7 +12,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('single arg is known')
      */
-    public function testSingleArgIsKnown()
+    public function testSingleArgIsKnown() : void
     {
         $this->expectPassesRule(new KnownArgumentNames, '
       fragment argOnRequiredArg on Dog {
@@ -24,7 +24,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple args are known')
      */
-    public function testMultipleArgsAreKnown()
+    public function testMultipleArgsAreKnown() : void
     {
         $this->expectPassesRule(new KnownArgumentNames, '
       fragment multipleArgs on ComplicatedArgs {
@@ -36,7 +36,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('ignores args of unknown fields')
      */
-    public function testIgnoresArgsOfUnknownFields()
+    public function testIgnoresArgsOfUnknownFields() : void
     {
         $this->expectPassesRule(new KnownArgumentNames, '
       fragment argOnUnknownField on Dog {
@@ -48,7 +48,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('multiple args in reverse order are known')
      */
-    public function testMultipleArgsInReverseOrderAreKnown()
+    public function testMultipleArgsInReverseOrderAreKnown() : void
     {
         $this->expectPassesRule(new KnownArgumentNames, '
       fragment multipleArgsReverseOrder on ComplicatedArgs {
@@ -60,7 +60,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('no args on optional arg')
      */
-    public function testNoArgsOnOptionalArg()
+    public function testNoArgsOnOptionalArg() : void
     {
         $this->expectPassesRule(new KnownArgumentNames, '
       fragment noArgOnOptionalArg on Dog {
@@ -72,7 +72,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('args are known deeply')
      */
-    public function testArgsAreKnownDeeply()
+    public function testArgsAreKnownDeeply() : void
     {
         $this->expectPassesRule(new KnownArgumentNames, '
       {
@@ -93,7 +93,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('directive args are known')
      */
-    public function testDirectiveArgsAreKnown()
+    public function testDirectiveArgsAreKnown() : void
     {
         $this->expectPassesRule(new KnownArgumentNames, '
       {
@@ -105,7 +105,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('undirective args are invalid')
      */
-    public function testUndirectiveArgsAreInvalid()
+    public function testUndirectiveArgsAreInvalid() : void
     {
         $this->expectFailsRule(new KnownArgumentNames, '
       {
@@ -119,7 +119,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('misspelled directive args are reported')
      */
-    public function testMisspelledDirectiveArgsAreReported()
+    public function testMisspelledDirectiveArgsAreReported() : void
     {
         $this->expectFailsRule(new KnownArgumentNames, '
       {
@@ -133,7 +133,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('invalid arg name')
      */
-    public function testInvalidArgName()
+    public function testInvalidArgName() : void
     {
         $this->expectFailsRule(new KnownArgumentNames, '
       fragment invalidArgName on Dog {
@@ -147,7 +147,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('misspelled arg name is reported')
      */
-    public function testMisspelledArgNameIsReported()
+    public function testMisspelledArgNameIsReported() : void
     {
         $this->expectFailsRule(new KnownArgumentNames, '
       fragment invalidArgName on Dog {
@@ -161,7 +161,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown args amongst known args')
      */
-    public function testUnknownArgsAmongstKnownArgs()
+    public function testUnknownArgsAmongstKnownArgs() : void
     {
         $this->expectFailsRule(new KnownArgumentNames, '
       fragment oneGoodArgOneInvalidArg on Dog {
@@ -176,7 +176,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown args deeply')
      */
-    public function testUnknownArgsDeeply()
+    public function testUnknownArgsDeeply() : void
     {
         $this->expectFailsRule(new KnownArgumentNames, '
       {

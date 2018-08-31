@@ -21,7 +21,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('isTypeOf used to resolve runtime type for Interface')
      */
-    public function testIsTypeOfUsedToResolveRuntimeTypeForInterface()
+    public function testIsTypeOfUsedToResolveRuntimeTypeForInterface() : void
     {
         $PetType = new InterfaceType([
             'name' => 'Pet',
@@ -105,7 +105,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('isTypeOf can be rejected')
      */
-    public function testIsTypeOfCanBeRejected()
+    public function testIsTypeOfCanBeRejected() : void
     {
 
         $PetType = new InterfaceType([
@@ -199,7 +199,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('isTypeOf used to resolve runtime type for Union')
      */
-    public function testIsTypeOfUsedToResolveRuntimeTypeForUnion()
+    public function testIsTypeOfUsedToResolveRuntimeTypeForUnion() : void
     {
 
         $DogType = new ObjectType([
@@ -277,7 +277,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('resolveType on Interface yields useful error')
      */
-    public function testResolveTypeOnInterfaceYieldsUsefulError()
+    public function testResolveTypeOnInterfaceYieldsUsefulError() : void
     {
         $PetType = new InterfaceType([
             'name' => 'Pet',
@@ -383,7 +383,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('resolveType on Union yields useful error')
      */
-    public function testResolveTypeOnUnionYieldsUsefulError()
+    public function testResolveTypeOnUnionYieldsUsefulError() : void
     {
 
         $HumanType = new ObjectType([
@@ -484,7 +484,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('resolveType allows resolving with type name')
      */
-    public function testResolveTypeAllowsResolvingWithTypeName()
+    public function testResolveTypeAllowsResolvingWithTypeName() : void
     {
         $PetType = new InterfaceType([
             'name' => 'Pet',
@@ -569,7 +569,7 @@ class AbstractPromiseTest extends TestCase
     /**
      * @see it('resolveType can be caught')
      */
-    public function testResolveTypeCanBeCaught()
+    public function testResolveTypeCanBeCaught() : void
     {
 
         $PetType = new InterfaceType([

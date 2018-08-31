@@ -35,14 +35,14 @@ class MixedStoreTest extends TestCase
         ];
     }
 
-    public function testAcceptsNullKeys()
+    public function testAcceptsNullKeys() : void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(null, $value);
         }
     }
 
-    public function testAcceptsBoolKeys()
+    public function testAcceptsBoolKeys() : void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(false, $value);
@@ -52,7 +52,7 @@ class MixedStoreTest extends TestCase
         }
     }
 
-    public function testAcceptsIntKeys()
+    public function testAcceptsIntKeys() : void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(-100000, $value);
@@ -63,7 +63,7 @@ class MixedStoreTest extends TestCase
         }
     }
 
-    public function testAcceptsFloatKeys()
+    public function testAcceptsFloatKeys() : void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(-100000.5, $value);
@@ -76,7 +76,7 @@ class MixedStoreTest extends TestCase
         }
     }
 
-    public function testAcceptsArrayKeys()
+    public function testAcceptsArrayKeys() : void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue([], $value);
@@ -88,7 +88,7 @@ class MixedStoreTest extends TestCase
         }
     }
 
-    public function testAcceptsObjectKeys()
+    public function testAcceptsObjectKeys() : void
     {
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(new \stdClass(), $value);

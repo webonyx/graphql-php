@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 
 class ServerConfigTest extends TestCase
 {
-    public function testDefaults()
+    public function testDefaults() : void
     {
         $config = ServerConfig::create();
         $this->assertEquals(null, $config->getSchema());
@@ -27,7 +27,7 @@ class ServerConfigTest extends TestCase
         $this->assertEquals(false, $config->getQueryBatching());
     }
 
-    public function testAllowsSettingSchema()
+    public function testAllowsSettingSchema() : void
     {
         $schema = new Schema(['query' => new ObjectType(['name' => 'a', 'fields' => []])]);
         $config = ServerConfig::create()
@@ -40,7 +40,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($schema2, $config->getSchema());
     }
 
-    public function testAllowsSettingContext()
+    public function testAllowsSettingContext() : void
     {
         $config = ServerConfig::create();
 
@@ -53,7 +53,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($context2, $config->getContext());
     }
 
-    public function testAllowsSettingRootValue()
+    public function testAllowsSettingRootValue() : void
     {
         $config = ServerConfig::create();
 
@@ -66,7 +66,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($context2, $config->getRootValue());
     }
 
-    public function testAllowsSettingErrorFormatter()
+    public function testAllowsSettingErrorFormatter() : void
     {
         $config = ServerConfig::create();
 
@@ -79,7 +79,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($formatter, $config->getErrorFormatter());
     }
 
-    public function testAllowsSettingErrorsHandler()
+    public function testAllowsSettingErrorsHandler() : void
     {
         $config = ServerConfig::create();
 
@@ -92,7 +92,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($handler, $config->getErrorsHandler());
     }
 
-    public function testAllowsSettingPromiseAdapter()
+    public function testAllowsSettingPromiseAdapter() : void
     {
         $config = ServerConfig::create();
 
@@ -105,7 +105,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($adapter2, $config->getPromiseAdapter());
     }
 
-    public function testAllowsSettingValidationRules()
+    public function testAllowsSettingValidationRules() : void
     {
         $config = ServerConfig::create();
 
@@ -122,7 +122,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($rules, $config->getValidationRules());
     }
 
-    public function testAllowsSettingDefaultFieldResolver()
+    public function testAllowsSettingDefaultFieldResolver() : void
     {
         $config = ServerConfig::create();
 
@@ -135,7 +135,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($resolver, $config->getFieldResolver());
     }
 
-    public function testAllowsSettingPersistedQueryLoader()
+    public function testAllowsSettingPersistedQueryLoader() : void
     {
         $config = ServerConfig::create();
 
@@ -148,7 +148,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame($loader, $config->getPersistentQueryLoader());
     }
 
-    public function testAllowsSettingCatchPhpErrors()
+    public function testAllowsSettingCatchPhpErrors() : void
     {
         $config = ServerConfig::create();
 
@@ -159,7 +159,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame(false, $config->getDebug());
     }
 
-    public function testAcceptsArray()
+    public function testAcceptsArray() : void
     {
         $arr = [
             'schema' => new \GraphQL\Type\Schema([
@@ -190,7 +190,7 @@ class ServerConfigTest extends TestCase
         $this->assertSame(true, $config->getQueryBatching());
     }
 
-    public function testThrowsOnInvalidArrayKey()
+    public function testThrowsOnInvalidArrayKey() : void
     {
         $arr = [
             'missingKey' => 'value'
@@ -202,7 +202,7 @@ class ServerConfigTest extends TestCase
         ServerConfig::create($arr);
     }
 
-    public function testInvalidValidationRules()
+    public function testInvalidValidationRules() : void
     {
         $rules = new \stdClass();
         $config = ServerConfig::create();

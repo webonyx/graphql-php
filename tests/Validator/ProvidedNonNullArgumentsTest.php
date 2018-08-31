@@ -12,7 +12,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('ignores unknown arguments')
      */
-    public function testIgnoresUnknownArguments()
+    public function testIgnoresUnknownArguments() : void
     {
         // ignores unknown arguments
         $this->expectPassesRule(new ProvidedNonNullArguments, '
@@ -29,7 +29,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Arg on optional arg')
      */
-    public function testArgOnOptionalArg()
+    public function testArgOnOptionalArg() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -43,7 +43,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('No Arg on optional arg')
      */
-    public function testNoArgOnOptionalArg()
+    public function testNoArgOnOptionalArg() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -57,7 +57,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Multiple args')
      */
-    public function testMultipleArgs()
+    public function testMultipleArgs() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -71,7 +71,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Multiple args reverse order')
      */
-    public function testMultipleArgsReverseOrder()
+    public function testMultipleArgsReverseOrder() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -85,7 +85,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('No args on multiple optional')
      */
-    public function testNoArgsOnMultipleOptional()
+    public function testNoArgsOnMultipleOptional() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -99,7 +99,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('One arg on multiple optional')
      */
-    public function testOneArgOnMultipleOptional()
+    public function testOneArgOnMultipleOptional() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -113,7 +113,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Second arg on multiple optional')
      */
-    public function testSecondArgOnMultipleOptional()
+    public function testSecondArgOnMultipleOptional() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -127,7 +127,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Multiple reqs on mixedList')
      */
-    public function testMultipleReqsOnMixedList()
+    public function testMultipleReqsOnMixedList() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -141,7 +141,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Multiple reqs and one opt on mixedList')
      */
-    public function testMultipleReqsAndOneOptOnMixedList()
+    public function testMultipleReqsAndOneOptOnMixedList() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -155,7 +155,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('All reqs and opts on mixedList')
      */
-    public function testAllReqsAndOptsOnMixedList()
+    public function testAllReqsAndOptsOnMixedList() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -171,7 +171,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing one non-nullable argument')
      */
-    public function testMissingOneNonNullableArgument()
+    public function testMissingOneNonNullableArgument() : void
     {
         $this->expectFailsRule(new ProvidedNonNullArguments, '
         {
@@ -187,7 +187,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Missing multiple non-nullable arguments')
      */
-    public function testMissingMultipleNonNullableArguments()
+    public function testMissingMultipleNonNullableArguments() : void
     {
         $this->expectFailsRule(new ProvidedNonNullArguments, '
         {
@@ -204,7 +204,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('Incorrect value and missing argument')
      */
-    public function testIncorrectValueAndMissingArgument()
+    public function testIncorrectValueAndMissingArgument() : void
     {
         $this->expectFailsRule(new ProvidedNonNullArguments, '
         {
@@ -222,7 +222,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('ignores unknown directives')
      */
-    public function testIgnoresUnknownDirectives()
+    public function testIgnoresUnknownDirectives() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -234,7 +234,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('with directives of valid types')
      */
-    public function testWithDirectivesOfValidTypes()
+    public function testWithDirectivesOfValidTypes() : void
     {
         $this->expectPassesRule(new ProvidedNonNullArguments, '
         {
@@ -251,7 +251,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     /**
      * @see it('with directive with missing types')
      */
-    public function testWithDirectiveWithMissingTypes()
+    public function testWithDirectiveWithMissingTypes() : void
     {
         $this->expectFailsRule(new ProvidedNonNullArguments, '
         {

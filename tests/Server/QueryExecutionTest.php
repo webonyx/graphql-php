@@ -31,7 +31,7 @@ class QueryExecutionTest extends ServerTestCase
             ->setSchema($schema);
     }
 
-    public function testSimpleQueryExecution()
+    public function testSimpleQueryExecution() : void
     {
         $query = '{f1}';
 
@@ -44,7 +44,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertQueryResultEquals($expected, $query);
     }
 
-    public function testReturnsSyntaxErrors()
+    public function testReturnsSyntaxErrors() : void
     {
         $query = '{f1';
 
@@ -57,7 +57,7 @@ class QueryExecutionTest extends ServerTestCase
         );
     }
 
-    public function testDebugExceptions()
+    public function testDebugExceptions() : void
     {
         $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
         $this->config->setDebug($debug);
@@ -87,7 +87,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertArraySubset($expected, $result);
     }
 
-    public function testPassesRootValueAndContext()
+    public function testPassesRootValueAndContext() : void
     {
         $rootValue = 'myRootValue';
         $context = new \stdClass();
@@ -107,7 +107,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertSame($rootValue, $context->testedRootValue);
     }
 
-    public function testPassesVariables()
+    public function testPassesVariables() : void
     {
         $variables = ['a' => 'a', 'b' => 'b'];
         $query = '
@@ -125,7 +125,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertQueryResultEquals($expected, $query, $variables);
     }
 
-    public function testPassesCustomValidationRules()
+    public function testPassesCustomValidationRules() : void
     {
         $query = '
             {nonExistentField}
@@ -155,7 +155,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertTrue($called);
     }
 
-    public function testAllowsValidationRulesAsClosure()
+    public function testAllowsValidationRulesAsClosure() : void
     {
         $called = false;
         $params = $doc = $operationType = null;
@@ -176,7 +176,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals('query', $operationType);
     }
 
-    public function testAllowsDifferentValidationRulesDependingOnOperation()
+    public function testAllowsDifferentValidationRulesDependingOnOperation() : void
     {
         $q1 = '{f1}';
         $q2 = '{invalid}';
@@ -210,7 +210,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertTrue($called2);
     }
 
-    public function testAllowsSkippingValidation()
+    public function testAllowsSkippingValidation() : void
     {
         $this->config->setValidationRules([]);
         $query = '{nonExistentField}';
@@ -218,7 +218,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertQueryResultEquals($expected, $query);
     }
 
-    public function testPersistedQueriesAreDisabledByDefault()
+    public function testPersistedQueriesAreDisabledByDefault() : void
     {
         $result = $this->executePersistedQuery('some-id');
 
@@ -233,7 +233,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
-    public function testBatchedQueriesAreDisabledByDefault()
+    public function testBatchedQueriesAreDisabledByDefault() : void
     {
         $batch = [
             [
@@ -269,7 +269,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals($expected[1], $result[1]->toArray());
     }
 
-    public function testMutationsAreNotAllowedInReadonlyMode()
+    public function testMutationsAreNotAllowedInReadonlyMode() : void
     {
         $mutation = 'mutation { a }';
 
@@ -286,7 +286,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
-    public function testAllowsPersistentQueries()
+    public function testAllowsPersistentQueries() : void
     {
         $called = false;
         $this->config->setPersistentQueryLoader(function($queryId, OperationParams $params) use (&$called) {
@@ -317,7 +317,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
-    public function testProhibitsInvalidPersistedQueryLoader()
+    public function testProhibitsInvalidPersistedQueryLoader() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(
@@ -330,7 +330,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->executePersistedQuery('some-id');
     }
 
-    public function testPersistedQueriesAreStillValidatedByDefault()
+    public function testPersistedQueriesAreStillValidatedByDefault() : void
     {
         $this->config->setPersistentQueryLoader(function() {
             return '{invalid}';
@@ -349,7 +349,7 @@ class QueryExecutionTest extends ServerTestCase
 
     }
 
-    public function testAllowSkippingValidationForPersistedQueries()
+    public function testAllowSkippingValidationForPersistedQueries() : void
     {
         $this->config
             ->setPersistentQueryLoader(function($queryId) {
@@ -386,7 +386,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals($expected, $result->toArray());
     }
 
-    public function testProhibitsUnexpectedValidationRules()
+    public function testProhibitsUnexpectedValidationRules() : void
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Expecting validation rules to be array or callable returning array, but got: instance of stdClass');
@@ -396,7 +396,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->executeQuery('{f1}');
     }
 
-    public function testExecutesBatchedQueries()
+    public function testExecutesBatchedQueries() : void
     {
         $this->config->setQueryBatching(true);
 
@@ -446,7 +446,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertArraySubset($expected[2], $result[2]->toArray());
     }
 
-    public function testDeferredsAreSharedAmongAllBatchedQueries()
+    public function testDeferredsAreSharedAmongAllBatchedQueries() : void
     {
         $batch = [
             [
@@ -510,7 +510,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals($expected[2], $result[2]->toArray());
     }
 
-    public function testValidatesParamsBeforeExecution()
+    public function testValidatesParamsBeforeExecution() : void
     {
         $op = OperationParams::create(['queryBad' => '{f1}']);
         $helper = new Helper();
@@ -531,7 +531,7 @@ class QueryExecutionTest extends ServerTestCase
         );
     }
 
-    public function testAllowsContextAsClosure()
+    public function testAllowsContextAsClosure() : void
     {
         $called = false;
         $params = $doc = $operationType = null;
@@ -551,7 +551,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals('query', $operationType);
     }
 
-    public function testAllowsRootValueAsClosure()
+    public function testAllowsRootValueAsClosure() : void
     {
         $called = false;
         $params = $doc = $operationType = null;
@@ -571,7 +571,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertEquals('query', $operationType);
     }
 
-    public function testAppliesErrorFormatter()
+    public function testAppliesErrorFormatter() : void
     {
         $called = false;
         $error = null;
@@ -606,7 +606,7 @@ class QueryExecutionTest extends ServerTestCase
         $this->assertArraySubset($expected, $formatted);
     }
 
-    public function testAppliesErrorsHandler()
+    public function testAppliesErrorsHandler() : void
     {
         $called = false;
         $errors = null;

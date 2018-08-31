@@ -12,7 +12,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('no fragments')
      */
-    public function testNoFragments()
+    public function testNoFragments() : void
     {
         $this->expectPassesRule(new UniqueFragmentNames(), '
       {
@@ -24,7 +24,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('one fragment')
      */
-    public function testOneFragment()
+    public function testOneFragment() : void
     {
         $this->expectPassesRule(new UniqueFragmentNames, '
       {
@@ -40,7 +40,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('many fragments')
      */
-    public function testManyFragments()
+    public function testManyFragments() : void
     {
         $this->expectPassesRule(new UniqueFragmentNames, '
       {
@@ -63,7 +63,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('inline fragments are always unique')
      */
-    public function testInlineFragmentsAreAlwaysUnique()
+    public function testInlineFragmentsAreAlwaysUnique() : void
     {
         $this->expectPassesRule(new UniqueFragmentNames, '
       {
@@ -80,7 +80,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('fragment and operation named the same')
      */
-    public function testFragmentAndOperationNamedTheSame()
+    public function testFragmentAndOperationNamedTheSame() : void
     {
         $this->expectPassesRule(new UniqueFragmentNames, '
       query Foo {
@@ -95,7 +95,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('fragments named the same')
      */
-    public function testFragmentsNamedTheSame()
+    public function testFragmentsNamedTheSame() : void
     {
         $this->expectFailsRule(new UniqueFragmentNames, '
       {
@@ -115,7 +115,7 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
     /**
      * @see it('fragments named the same without being referenced')
      */
-    public function testFragmentsNamedTheSameWithoutBeingReferenced()
+    public function testFragmentsNamedTheSameWithoutBeingReferenced() : void
     {
         $this->expectFailsRule(new UniqueFragmentNames, '
       fragment fragA on Type {

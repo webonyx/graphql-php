@@ -39,7 +39,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('coercing an array to GraphQLString produces an error')
      */
-    public function testCoercingAnArrayToGraphQLStringProducesAnError()
+    public function testCoercingAnArrayToGraphQLStringProducesAnError() : void
     {
         $result = Value::coerceValue([1, 2, 3], Type::string());
         $this->expectError(
@@ -58,7 +58,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for int input')
      */
-    public function testIntReturnsNoErrorForIntInput()
+    public function testIntReturnsNoErrorForIntInput() : void
     {
         $result = Value::coerceValue('1', Type::int());
         $this->expectNoErrors($result);
@@ -67,7 +67,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for negative int input')
      */
-    public function testIntReturnsNoErrorForNegativeIntInput()
+    public function testIntReturnsNoErrorForNegativeIntInput() : void
     {
         $result = Value::coerceValue('-1', Type::int());
         $this->expectNoErrors($result);
@@ -76,7 +76,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for exponent input')
      */
-    public function testIntReturnsNoErrorForExponentInput()
+    public function testIntReturnsNoErrorForExponentInput() : void
     {
         $result = Value::coerceValue('1e3', Type::int());
         $this->expectNoErrors($result);
@@ -85,7 +85,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for null')
      */
-    public function testIntReturnsASingleErrorNull()
+    public function testIntReturnsASingleErrorNull() : void
     {
         $result = Value::coerceValue(null, Type::int());
         $this->expectNoErrors($result);
@@ -94,7 +94,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns a single error for empty value')
      */
-    public function testIntReturnsASingleErrorForEmptyValue()
+    public function testIntReturnsASingleErrorForEmptyValue() : void
     {
         $result = Value::coerceValue('', Type::int());
         $this->expectError(
@@ -106,7 +106,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns error for float input as int')
      */
-    public function testIntReturnsErrorForFloatInputAsInt()
+    public function testIntReturnsErrorForFloatInputAsInt() : void
     {
         $result = Value::coerceValue('1.5', Type::int());
         $this->expectError(
@@ -118,7 +118,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns a single error for char input')
      */
-    public function testIntReturnsASingleErrorForCharInput()
+    public function testIntReturnsASingleErrorForCharInput() : void
     {
         $result = Value::coerceValue('a', Type::int());
         $this->expectError(
@@ -130,7 +130,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns a single error for multi char input')
      */
-    public function testIntReturnsASingleErrorForMultiCharInput()
+    public function testIntReturnsASingleErrorForMultiCharInput() : void
     {
         $result = Value::coerceValue('meow', Type::int());
         $this->expectError(
@@ -144,7 +144,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for int input')
      */
-    public function testFloatReturnsNoErrorForIntInput()
+    public function testFloatReturnsNoErrorForIntInput() : void
     {
         $result = Value::coerceValue('1', Type::float());
         $this->expectNoErrors($result);
@@ -153,7 +153,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for exponent input')
      */
-    public function testFloatReturnsNoErrorForExponentInput()
+    public function testFloatReturnsNoErrorForExponentInput() : void
     {
         $result = Value::coerceValue('1e3', Type::float());
         $this->expectNoErrors($result);
@@ -162,7 +162,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for float input')
      */
-    public function testFloatReturnsNoErrorForFloatInput()
+    public function testFloatReturnsNoErrorForFloatInput() : void
     {
         $result = Value::coerceValue('1.5', Type::float());
         $this->expectNoErrors($result);
@@ -171,7 +171,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for null')
      */
-    public function testFloatReturnsASingleErrorNull()
+    public function testFloatReturnsASingleErrorNull() : void
     {
         $result = Value::coerceValue(null, Type::float());
         $this->expectNoErrors($result);
@@ -180,7 +180,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns a single error for empty value')
      */
-    public function testFloatReturnsASingleErrorForEmptyValue()
+    public function testFloatReturnsASingleErrorForEmptyValue() : void
     {
         $result = Value::coerceValue('', Type::float());
         $this->expectError(
@@ -192,7 +192,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns a single error for char input')
      */
-    public function testFloatReturnsASingleErrorForCharInput()
+    public function testFloatReturnsASingleErrorForCharInput() : void
     {
         $result = Value::coerceValue('a', Type::float());
         $this->expectError(
@@ -204,7 +204,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns a single error for multi char input')
      */
-    public function testFloatReturnsASingleErrorForMultiCharInput()
+    public function testFloatReturnsASingleErrorForMultiCharInput() : void
     {
         $result = Value::coerceValue('meow', Type::float());
         $this->expectError(
@@ -218,7 +218,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for a known enum name')
      */
-    public function testReturnsNoErrorForAKnownEnumName()
+    public function testReturnsNoErrorForAKnownEnumName() : void
     {
         $fooResult = Value::coerceValue('FOO', $this->testEnum);
         $this->expectNoErrors($fooResult);
@@ -232,7 +232,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('results error for misspelled enum value')
      */
-    public function testReturnsErrorForMisspelledEnumValue()
+    public function testReturnsErrorForMisspelledEnumValue() : void
     {
         $result = Value::coerceValue('foo', $this->testEnum);
         $this->expectError($result, 'Expected type TestEnum; did you mean FOO?');
@@ -241,7 +241,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('results error for incorrect value type')
      */
-    public function testReturnsErrorForIncorrectValueType()
+    public function testReturnsErrorForIncorrectValueType() : void
     {
         $result1 = Value::coerceValue(123, $this->testEnum);
         $this->expectError($result1, 'Expected type TestEnum.');
@@ -255,7 +255,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for a valid input')
      */
-    public function testReturnsNoErrorForValidInput()
+    public function testReturnsNoErrorForValidInput() : void
     {
         $result = Value::coerceValue(['foo' => 123], $this->testInputObject);
         $this->expectNoErrors($result);
@@ -265,7 +265,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for a non-object type')
      */
-    public function testReturnsErrorForNonObjectType()
+    public function testReturnsErrorForNonObjectType() : void
     {
         $result = Value::coerceValue(123, $this->testInputObject);
         $this->expectError($result, 'Expected type TestInputObject to be an object.');
@@ -274,7 +274,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns no error for an invalid field')
      */
-    public function testReturnErrorForAnInvalidField()
+    public function testReturnErrorForAnInvalidField() : void
     {
         $result = Value::coerceValue(['foo' => 'abc'], $this->testInputObject);
         $this->expectError($result, 'Expected type Int at value.foo; Int cannot represent non 32-bit signed integer value: abc');
@@ -283,7 +283,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns multiple errors for multiple invalid fields')
      */
-    public function testReturnsMultipleErrorsForMultipleInvalidFields()
+    public function testReturnsMultipleErrorsForMultipleInvalidFields() : void
     {
         $result = Value::coerceValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
         $this->assertEquals([
@@ -295,7 +295,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns error for a missing required field')
      */
-    public function testReturnsErrorForAMissingRequiredField()
+    public function testReturnsErrorForAMissingRequiredField() : void
     {
         $result = Value::coerceValue(['bar' => 123], $this->testInputObject);
         $this->expectError($result, 'Field value.foo of required type Int! was not provided.');
@@ -304,7 +304,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns error for an unknown field')
      */
-    public function testReturnsErrorForAnUnknownField()
+    public function testReturnsErrorForAnUnknownField() : void
     {
         $result = Value::coerceValue(['foo' => 123, 'unknownField' => 123], $this->testInputObject);
         $this->expectError($result, 'Field "unknownField" is not defined by type TestInputObject.');
@@ -313,7 +313,7 @@ class CoerceValueTest extends TestCase
     /**
      * @see it('returns error for a misspelled field')
      */
-    public function testReturnsErrorForAMisspelledField()
+    public function testReturnsErrorForAMisspelledField() : void
     {
         $result = Value::coerceValue(['foo' => 123, 'bart' => 123], $this->testInputObject);
         $this->expectError($result, 'Field "bart" is not defined by type TestInputObject; did you mean bar?');

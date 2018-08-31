@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 class PsrResponseTest extends TestCase
 {
-    public function testConvertsResultToPsrResponse()
+    public function testConvertsResultToPsrResponse() : void
     {
         $result = new ExecutionResult(['key' => 'value']);
         $stream = new PsrStreamStub();

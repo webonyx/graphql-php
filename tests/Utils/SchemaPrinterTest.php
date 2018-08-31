@@ -40,7 +40,7 @@ class SchemaPrinterTest extends TestCase
     /**
      * @see it('Prints String Field')
      */
-    public function testPrintsStringField()
+    public function testPrintsStringField() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string()
@@ -55,7 +55,7 @@ type Query {
     /**
      * @see it('Prints [String] Field')
      */
-    public function testPrintArrayStringField()
+    public function testPrintArrayStringField() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::listOf(Type::string())
@@ -70,7 +70,7 @@ type Query {
     /**
      * @see it('Prints String! Field')
      */
-    public function testPrintNonNullStringField()
+    public function testPrintNonNullStringField() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::string())
@@ -85,7 +85,7 @@ type Query {
     /**
      * @see it('Prints [String]! Field')
      */
-    public function testPrintNonNullArrayStringField()
+    public function testPrintNonNullArrayStringField() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::string()))
@@ -100,7 +100,7 @@ type Query {
     /**
      * @see it('Prints [String!] Field')
      */
-    public function testPrintArrayNonNullStringField()
+    public function testPrintArrayNonNullStringField() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::listOf(Type::nonNull(Type::string()))
@@ -115,7 +115,7 @@ type Query {
     /**
      * @see it('Prints [String!]! Field')
      */
-    public function testPrintNonNullArrayNonNullStringField()
+    public function testPrintNonNullArrayNonNullStringField() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))
@@ -130,7 +130,7 @@ type Query {
     /**
      * @see it('Print Object Field')
      */
-    public function testPrintObjectField()
+    public function testPrintObjectField() : void
     {
         $fooType = new ObjectType([
             'name' => 'Foo',
@@ -158,7 +158,7 @@ type Query {
     /**
      * @see it('Prints String Field With Int Arg')
      */
-    public function testPrintsStringFieldWithIntArg()
+    public function testPrintsStringFieldWithIntArg() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -174,7 +174,7 @@ type Query {
     /**
      * @see it('Prints String Field With Int Arg With Default')
      */
-    public function testPrintsStringFieldWithIntArgWithDefault()
+    public function testPrintsStringFieldWithIntArgWithDefault() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -190,7 +190,7 @@ type Query {
     /**
      * @see it('Prints String Field With String Arg With Default')
      */
-    public function testPrintsStringFieldWithStringArgWithDefault()
+    public function testPrintsStringFieldWithStringArgWithDefault() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -206,7 +206,7 @@ type Query {
     /**
      * @see it('Prints String Field With Int Arg With Default Null')
      */
-    public function testPrintsStringFieldWithIntArgWithDefaultNull()
+    public function testPrintsStringFieldWithIntArgWithDefaultNull() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -222,7 +222,7 @@ type Query {
     /**
      * @see it('Prints String Field With Int! Arg')
      */
-    public function testPrintsStringFieldWithNonNullIntArg()
+    public function testPrintsStringFieldWithNonNullIntArg() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -238,7 +238,7 @@ type Query {
     /**
      * @see it('Prints String Field With Multiple Args')
      */
-    public function testPrintsStringFieldWithMultipleArgs()
+    public function testPrintsStringFieldWithMultipleArgs() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -257,7 +257,7 @@ type Query {
     /**
      * @see it('Prints String Field With Multiple Args, First is Default')
      */
-    public function testPrintsStringFieldWithMultipleArgsFirstIsDefault()
+    public function testPrintsStringFieldWithMultipleArgsFirstIsDefault() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -277,7 +277,7 @@ type Query {
     /**
      * @see it('Prints String Field With Multiple Args, Second is Default')
      */
-    public function testPrintsStringFieldWithMultipleArgsSecondIsDefault()
+    public function testPrintsStringFieldWithMultipleArgsSecondIsDefault() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -297,7 +297,7 @@ type Query {
     /**
      * @see it('Prints String Field With Multiple Args, Last is Default')
      */
-    public function testPrintsStringFieldWithMultipleArgsLastIsDefault()
+    public function testPrintsStringFieldWithMultipleArgsLastIsDefault() : void
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
@@ -317,7 +317,7 @@ type Query {
     /**
      * @see it('Prints custom query root type')
      */
-    public function testPrintsCustomQueryRootType()
+    public function testPrintsCustomQueryRootType() : void
     {
         $customQueryType = new ObjectType([
             'name' => 'CustomQueryType',
@@ -343,7 +343,7 @@ type CustomQueryType {
     /**
      * @see it('Print Interface')
      */
-    public function testPrintInterface()
+    public function testPrintInterface() : void
     {
         $fooType = new InterfaceType([
             'name' => 'Foo',
@@ -384,7 +384,7 @@ type Query {
     /**
      * @see it('Print Multiple Interface')
      */
-    public function testPrintMultipleInterface()
+    public function testPrintMultipleInterface() : void
     {
         $fooType = new InterfaceType([
             'name' => 'Foo',
@@ -438,7 +438,7 @@ type Query {
     /**
      * @see it('Print Unions')
      */
-    public function testPrintUnions()
+    public function testPrintUnions() : void
     {
         $fooType = new ObjectType([
             'name' => 'Foo',
@@ -493,7 +493,7 @@ union SingleUnion = Foo
     /**
      * @see it('Print Input Type')
      */
-    public function testInputType()
+    public function testInputType() : void
     {
         $inputType = new InputObjectType([
             'name' => 'InputType',
@@ -526,7 +526,7 @@ type Query {
     /**
      * @see it('Custom Scalar')
      */
-    public function testCustomScalar()
+    public function testCustomScalar() : void
     {
         $oddType = new CustomScalarType([
             'name' => 'Odd',
@@ -556,7 +556,7 @@ type Query {
     /**
      * @see it('Enum')
      */
-    public function testEnum()
+    public function testEnum() : void
     {
         $RGBType = new EnumType([
             'name' => 'RGB',
@@ -592,7 +592,7 @@ enum RGB {
     /**
      * @see it('Prints custom directives')
      */
-    public function testPrintsCustomDirectives()
+    public function testPrintsCustomDirectives() : void
     {
         $query = new ObjectType([
             'name' => 'Query',
@@ -626,7 +626,7 @@ type Query {
     /**
      * @see it('One-line prints a short description')
      */
-    public function testOneLinePrintsAShortDescription()
+    public function testOneLinePrintsAShortDescription() : void
     {
         $description = 'This field is awesome';
         $output = $this->printSingleFieldSchema([
@@ -649,7 +649,7 @@ type Query {
     /**
      * @see it('Does not one-line print a description that ends with a quote')
      */
-    public function testDoesNotOneLinePrintADescriptionThatEndsWithAQuote()
+    public function testDoesNotOneLinePrintADescriptionThatEndsWithAQuote() : void
     {
         $description = 'This field is "awesome"';
         $output = $this->printSingleFieldSchema([
@@ -674,7 +674,7 @@ type Query {
     /**
      * @see it('Preserves leading spaces when printing a description')
      */
-    public function testPReservesLeadingSpacesWhenPrintingADescription()
+    public function testPReservesLeadingSpacesWhenPrintingADescription() : void
     {
         $description = '    This field is "awesome"';
         $output = $this->printSingleFieldSchema([
@@ -698,7 +698,7 @@ type Query {
     /**
      * @see it('Print Introspection Schema')
      */
-    public function testPrintIntrospectionSchema()
+    public function testPrintIntrospectionSchema() : void
     {
         $query = new ObjectType([
             'name' => 'Query',
@@ -943,7 +943,7 @@ EOT;
     /**
      * @see it('Print Introspection Schema with comment descriptions')
      */
-    public function testPrintIntrospectionSchemaWithCommentDescriptions()
+    public function testPrintIntrospectionSchemaWithCommentDescriptions() : void
     {
         $query = new ObjectType([
             'name' => 'Query',

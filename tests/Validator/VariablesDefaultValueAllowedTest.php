@@ -24,7 +24,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     /**
      * @see it('variables with no default values')
      */
-    public function testVariablesWithNoDefaultValues()
+    public function testVariablesWithNoDefaultValues() : void
     {
         $this->expectPassesRule(new VariablesDefaultValueAllowed(), '
       query NullableValues($a: Int, $b: String, $c: ComplexInput) {
@@ -36,7 +36,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     /**
      * @see it('required variables without default values')
      */
-    public function testRequiredVariablesWithoutDefaultValues()
+    public function testRequiredVariablesWithoutDefaultValues() : void
     {
         $this->expectPassesRule(new VariablesDefaultValueAllowed(), '
       query RequiredValues($a: Int!, $b: String!) {
@@ -48,7 +48,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     /**
      * @see it('variables with valid default values')
      */
-    public function testVariablesWithValidDefaultValues()
+    public function testVariablesWithValidDefaultValues() : void
     {
         $this->expectPassesRule(new VariablesDefaultValueAllowed(), '
       query WithDefaultValues(
@@ -64,7 +64,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     /**
      * @see it('variables with valid default null values')
      */
-    public function testVariablesWithValidDefaultNullValues()
+    public function testVariablesWithValidDefaultNullValues() : void
     {
         $this->expectPassesRule(new VariablesDefaultValueAllowed(), '
       query WithDefaultValues(
@@ -80,7 +80,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     /**
      * @see it('no required variables with default values')
      */
-    public function testNoRequiredVariablesWithDefaultValues()
+    public function testNoRequiredVariablesWithDefaultValues() : void
     {
         $this->expectFailsRule(new VariablesDefaultValueAllowed(), '
       query UnreachableDefaultValues($a: Int! = 3, $b: String! = "default") {
@@ -95,7 +95,7 @@ class VariablesDefaultValueAllowedTest extends ValidatorTestCase
     /**
      * @see it('variables with invalid default null values')
      */
-    public function testNullIntoNullableType()
+    public function testNullIntoNullableType() : void
     {
         $this->expectFailsRule(new VariablesDefaultValueAllowed(), '
       query WithDefaultValues($a: Int! = null, $b: String! = null) {

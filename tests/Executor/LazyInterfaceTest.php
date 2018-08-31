@@ -102,7 +102,7 @@ class LazyInterfaceTest extends TestCase
     /**
      * Handles execution of a lazily created interface
      */
-    public function testReturnsFragmentsWithLazyCreatedInterface()
+    public function testReturnsFragmentsWithLazyCreatedInterface() : void
     {
         $request = '
         {

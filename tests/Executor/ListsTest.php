@@ -18,9 +18,9 @@ class ListsTest extends TestCase
     // Describe: Execute: Handles list nullability
 
     /**
-     * @describe [T]
+     * [T]
      */
-    public function testHandlesNullableListsWithArray()
+    public function testHandlesNullableListsWithArray() : void
     {
         // Contains values
         $this->checkHandlesNullableLists(
@@ -42,9 +42,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T]
+     * [T]
      */
-    public function testHandlesNullableListsWithPromiseArray()
+    public function testHandlesNullableListsWithPromiseArray() : void
     {
         // Contains values
         $this->checkHandlesNullableLists(
@@ -91,9 +91,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T]
+     * [T]
      */
-    public function testHandlesNullableListsWithArrayPromise()
+    public function testHandlesNullableListsWithArrayPromise() : void
     {
         // Contains values
         $this->checkHandlesNullableLists(
@@ -154,9 +154,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T]!
+     * [T]!
      */
-    public function testHandlesNonNullableListsWithArray()
+    public function testHandlesNonNullableListsWithArray() : void
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
@@ -187,9 +187,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T]!
+     * [T]!
      */
-    public function testHandlesNonNullableListsWithPromiseArray()
+    public function testHandlesNonNullableListsWithPromiseArray() : void
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
@@ -243,9 +243,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T]!
+     * [T]!
      */
-    public function testHandlesNonNullableListsWithArrayPromise()
+    public function testHandlesNonNullableListsWithArrayPromise() : void
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
@@ -305,9 +305,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T!]
+     * [T!]
      */
-    public function testHandlesListOfNonNullsWithArray()
+    public function testHandlesListOfNonNullsWithArray() : void
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
@@ -338,9 +338,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T!]
+     * [T!]
      */
-    public function testHandlesListOfNonNullsWithPromiseArray()
+    public function testHandlesListOfNonNullsWithPromiseArray() : void
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
@@ -396,9 +396,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T]!
+     * [T]!
      */
-    public function testHandlesListOfNonNullsWithArrayPromise()
+    public function testHandlesListOfNonNullsWithArrayPromise() : void
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
@@ -452,9 +452,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T!]!
+     * [T!]!
      */
-    public function testHandlesNonNullListOfNonNullsWithArray()
+    public function testHandlesNonNullListOfNonNullsWithArray() : void
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
@@ -495,9 +495,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T!]!
+     * [T!]!
      */
-    public function testHandlesNonNullListOfNonNullsWithPromiseArray()
+    public function testHandlesNonNullListOfNonNullsWithPromiseArray() : void
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
@@ -562,9 +562,9 @@ class ListsTest extends TestCase
     }
 
     /**
-     * @describe [T!]!
+     * [T!]!
      */
-    public function testHandlesNonNullListOfNonNullsWithArrayPromise()
+    public function testHandlesNonNullListOfNonNullsWithArrayPromise() : void
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(

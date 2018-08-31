@@ -132,7 +132,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('nulls a nullable field that throws synchronously')
      */
-    public function testNullsANullableFieldThatThrowsSynchronously()
+    public function testNullsANullableFieldThatThrowsSynchronously() : void
     {
         $doc = '
       query Q {
@@ -156,7 +156,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsANullableFieldThatThrowsInAPromise()
+    public function testNullsANullableFieldThatThrowsInAPromise() : void
     {
         $doc = '
       query Q {
@@ -181,7 +181,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsSynchronously()
+    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsSynchronously() : void
     {
         // nulls a synchronously returned object that contains a non-nullable field that throws synchronously
         $doc = '
@@ -205,7 +205,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsAsynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsInAPromise()
+    public function testNullsAsynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsInAPromise() : void
     {
         $doc = '
       query Q {
@@ -229,7 +229,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsSynchronously()
+    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsSynchronously() : void
     {
         $doc = '
       query Q {
@@ -253,7 +253,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsInAPromise()
+    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsInAPromise() : void
     {
         $doc = '
       query Q {
@@ -280,7 +280,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('nulls a complex tree of nullable fields that throw')
      */
-    public function testNullsAComplexTreeOfNullableFieldsThatThrow()
+    public function testNullsAComplexTreeOfNullableFieldsThatThrow() : void
     {
         $doc = '
       query Q {
@@ -359,7 +359,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsTheFirstNullableObjectAfterAFieldThrowsInALongChainOfFieldsThatAreNonNull()
+    public function testNullsTheFirstNullableObjectAfterAFieldThrowsInALongChainOfFieldsThatAreNonNull() : void
     {
         $doc = '
       query Q {
@@ -430,7 +430,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsANullableFieldThatSynchronouslyReturnsNull()
+    public function testNullsANullableFieldThatSynchronouslyReturnsNull() : void
     {
         $doc = '
       query Q {
@@ -448,7 +448,7 @@ class NonNullTest extends TestCase
         $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsANullableFieldThatReturnsNullInAPromise()
+    public function testNullsANullableFieldThatReturnsNullInAPromise() : void
     {
         $doc = '
       query Q {
@@ -467,7 +467,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullSynchronously()
+    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullSynchronously() : void
     {
         $doc = '
       query Q {
@@ -493,7 +493,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true));
     }
 
-    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullInAPromise()
+    public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullInAPromise() : void
     {
         $doc = '
       query Q {
@@ -523,7 +523,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullSynchronously()
+    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullSynchronously() : void
     {
         $doc = '
       query Q {
@@ -553,7 +553,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullInaAPromise()
+    public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatReturnsNullInaAPromise() : void
     {
         $doc = '
       query Q {
@@ -583,7 +583,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsAComplexTreeOfNullableFieldsThatReturnNull()
+    public function testNullsAComplexTreeOfNullableFieldsThatReturnNull() : void
     {
         $doc = '
       query Q {
@@ -649,7 +649,7 @@ class NonNullTest extends TestCase
         $this->assertEquals($expected, $actual);
     }
 
-    public function testNullsTheFirstNullableObjectAfterAFieldReturnsNullInALongChainOfFieldsThatAreNonNull()
+    public function testNullsTheFirstNullableObjectAfterAFieldReturnsNullInALongChainOfFieldsThatAreNonNull() : void
     {
         $doc = '
       query Q {
@@ -726,7 +726,7 @@ class NonNullTest extends TestCase
     /**
      * @see it('nulls the top level if sync non-nullable field throws')
      */
-    public function testNullsTheTopLevelIfSyncNonNullableFieldThrows()
+    public function testNullsTheTopLevelIfSyncNonNullableFieldThrows() : void
     {
         $doc = '
       query Q { syncNonNull }
@@ -741,7 +741,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, $actual);
     }
 
-    public function testNullsTheTopLevelIfAsyncNonNullableFieldErrors()
+    public function testNullsTheTopLevelIfAsyncNonNullableFieldErrors() : void
     {
         $doc = '
       query Q { promiseNonNull }
@@ -758,7 +758,7 @@ class NonNullTest extends TestCase
         $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
     }
 
-    public function testNullsTheTopLevelIfSyncNonNullableFieldReturnsNull()
+    public function testNullsTheTopLevelIfSyncNonNullableFieldReturnsNull() : void
     {
         // nulls the top level if sync non-nullable field returns null
         $doc = '
@@ -779,7 +779,7 @@ class NonNullTest extends TestCase
         );
     }
 
-    public function testNullsTheTopLevelIfAsyncNonNullableFieldResolvesNull()
+    public function testNullsTheTopLevelIfAsyncNonNullableFieldResolvesNull() : void
     {
         $doc = '
       query Q { promiseNonNull }

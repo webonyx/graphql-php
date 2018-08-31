@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class SerializationTest extends TestCase
 {
-    public function testSerializesAst()
+    public function testSerializesAst() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast = Parser::parse($kitchenSink);
@@ -18,7 +18,7 @@ class SerializationTest extends TestCase
         $this->assertEquals($expectedAst, $ast->toArray(true));
     }
 
-    public function testUnserializesAst()
+    public function testUnserializesAst() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $serializedAst = json_decode(file_get_contents(__DIR__ . '/kitchen-sink.ast'), true);
@@ -27,7 +27,7 @@ class SerializationTest extends TestCase
         $this->assertNodesAreEqual($parsedAst, $actualAst);
     }
 
-    public function testSerializeSupportsNoLocationOption()
+    public function testSerializeSupportsNoLocationOption() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast = Parser::parse($kitchenSink, ['noLocation' => true]);
@@ -35,7 +35,7 @@ class SerializationTest extends TestCase
         $this->assertEquals($expectedAst, $ast->toArray(true));
     }
 
-    public function testUnserializeSupportsNoLocationOption()
+    public function testUnserializeSupportsNoLocationOption() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $serializedAst = json_decode(file_get_contents(__DIR__ . '/kitchen-sink-noloc.ast'), true);

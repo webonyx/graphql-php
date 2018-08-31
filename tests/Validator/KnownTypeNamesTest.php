@@ -12,7 +12,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     /**
      * @see it('known type names are valid')
      */
-    public function testKnownTypeNamesAreValid()
+    public function testKnownTypeNamesAreValid() : void
     {
         $this->expectPassesRule(new KnownTypeNames, '
       query Foo($var: String, $required: [String!]!) {
@@ -29,7 +29,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     /**
      * @see it('unknown type names are invalid')
      */
-    public function testUnknownTypeNamesAreInvalid()
+    public function testUnknownTypeNamesAreInvalid() : void
     {
         $this->expectFailsRule(new KnownTypeNames, '
       query Foo($var: JumbledUpLetters) {
@@ -51,7 +51,7 @@ class KnownTypeNamesTest extends ValidatorTestCase
     /**
      * @see it('ignores type definitions')
      */
-    public function testIgnoresTypeDefinitions()
+    public function testIgnoresTypeDefinitions() : void
     {
         $this->expectFailsRule(new KnownTypeNames, '
       type NotInTheSchema {

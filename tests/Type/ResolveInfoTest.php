@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 class ResolveInfoTest extends TestCase
 {
-    public function testFieldSelection()
+    public function testFieldSelection() : void
     {
         $image = new ObjectType([
             'name' => 'Image',
@@ -164,7 +164,7 @@ class ResolveInfoTest extends TestCase
         $this->assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
 
-    public function testMergedFragmentsFieldSelection()
+    public function testMergedFragmentsFieldSelection() : void
     {
         $image = new ObjectType([
             'name' => 'Image',

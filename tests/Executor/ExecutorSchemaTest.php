@@ -15,7 +15,7 @@ class ExecutorSchemaTest extends TestCase
     /**
      * @see it('executes using a schema')
      */
-    public function testExecutesUsingASchema()
+    public function testExecutesUsingASchema() : void
     {
         $BlogArticle = null;
         $BlogImage = new ObjectType([

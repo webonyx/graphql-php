@@ -13,18 +13,14 @@ class DirectivesTest extends TestCase
     // Describe: Execute: handles directives
 
     /**
-     * @describe works without directives
      * @see it('basic query works')
      */
-    public function testWorksWithoutDirectives()
+    public function testWorksWithoutDirectives() : void
     {
         $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b }'));
     }
 
-    /**
-     * @describe works on scalars
-     */
-    public function testWorksOnScalars()
+    public function testWorksOnScalars() : void
     {
         // if true includes scalar
         $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @include(if: true) }'));
@@ -39,10 +35,7 @@ class DirectivesTest extends TestCase
         $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @skip(if: true) }'));
     }
 
-    /**
-     * @describe works on fragment spreads
-     */
-    public function testWorksOnFragmentSpreads()
+    public function testWorksOnFragmentSpreads() : void
     {
         // if false omits fragment spread
         $q = '
@@ -93,10 +86,7 @@ class DirectivesTest extends TestCase
         $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
-    /**
-     * @describe works on inline fragment
-     */
-    public function testWorksOnInlineFragment()
+    public function testWorksOnInlineFragment() : void
     {
         // if false omits inline fragment
         $q = '
@@ -143,10 +133,7 @@ class DirectivesTest extends TestCase
         $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
-    /**
-     * @describe works on anonymous inline fragment
-     */
-    public function testWorksOnAnonymousInlineFragment()
+    public function testWorksOnAnonymousInlineFragment() : void
     {
         // if false omits anonymous inline fragment
         $q = '
@@ -193,10 +180,7 @@ class DirectivesTest extends TestCase
         $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
-    /**
-     * @describe works with skip and include directives
-     */
-    public function testWorksWithSkipAndIncludeDirectives()
+    public function testWorksWithSkipAndIncludeDirectives() : void
     {
         // include and no skip
         $this->assertEquals(
@@ -216,9 +200,6 @@ class DirectivesTest extends TestCase
             $this->executeTestQuery('{ a, b @include(if: false) @skip(if: false) }')
         );
     }
-
-
-
 
     private static $schema;
 

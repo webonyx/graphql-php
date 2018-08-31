@@ -21,7 +21,7 @@ class AbstractTest extends TestCase
     /**
      * @see it('isTypeOf used to resolve runtime type for Interface')
      */
-    public function testIsTypeOfUsedToResolveRuntimeTypeForInterface()
+    public function testIsTypeOfUsedToResolveRuntimeTypeForInterface() : void
     {
         // isTypeOf used to resolve runtime type for Interface
         $petType = new InterfaceType([
@@ -95,7 +95,7 @@ class AbstractTest extends TestCase
     /**
      * @see it('isTypeOf used to resolve runtime type for Union')
      */
-    public function testIsTypeOfUsedToResolveRuntimeTypeForUnion()
+    public function testIsTypeOfUsedToResolveRuntimeTypeForUnion() : void
     {
         $dogType = new ObjectType([
             'name' => 'Dog',
@@ -265,7 +265,7 @@ class AbstractTest extends TestCase
     /**
      * @see it('resolveType on Union yields useful error')
      */
-    public function testResolveTypeOnUnionYieldsUsefulError()
+    public function testResolveTypeOnUnionYieldsUsefulError() : void
     {
         $HumanType = new ObjectType([
             'name' => 'Human',
@@ -360,7 +360,7 @@ class AbstractTest extends TestCase
     /**
      * @see it('returning invalid value from resolveType yields useful error')
      */
-    public function testReturningInvalidValueFromResolveTypeYieldsUsefulError()
+    public function testReturningInvalidValueFromResolveTypeYieldsUsefulError() : void
     {
         $fooInterface = new InterfaceType([
             'name' => 'FooInterface',
@@ -415,7 +415,7 @@ class AbstractTest extends TestCase
     /**
      * @see it('resolveType allows resolving with type name')
      */
-    public function testResolveTypeAllowsResolvingWithTypeName()
+    public function testResolveTypeAllowsResolvingWithTypeName() : void
     {
         $PetType = new InterfaceType([
             'name' => 'Pet',
@@ -489,7 +489,7 @@ class AbstractTest extends TestCase
         ], $result);
     }
 
-    public function testHintsOnConflictingTypeInstancesInResolveType()
+    public function testHintsOnConflictingTypeInstancesInResolveType() : void
     {
         $createTest = function() use (&$iface) {
             return new ObjectType([

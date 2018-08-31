@@ -1171,9 +1171,8 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('supports the __type root field')
      */
-    public function testSupportsThe__typeRootField()
+    public function testSupportsTheTypeRootField() : void
     {
-
         $TestType = new ObjectType([
             'name' => 'TestType',
             'fields' => [
@@ -1204,7 +1203,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('identifies deprecated fields')
      */
-    public function testIdentifiesDeprecatedFields()
+    public function testIdentifiesDeprecatedFields() : void
     {
 
         $TestType = new ObjectType([
@@ -1259,7 +1258,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('respects the includeDeprecated parameter for fields')
      */
-    public function testRespectsTheIncludeDeprecatedParameterForFields()
+    public function testRespectsTheIncludeDeprecatedParameterForFields() : void
     {
         $TestType = new ObjectType([
             'name' => 'TestType',
@@ -1324,7 +1323,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('identifies deprecated enum values')
      */
-    public function testIdentifiesDeprecatedEnumValues()
+    public function testIdentifiesDeprecatedEnumValues() : void
     {
         $TestEnum = new EnumType([
             'name' => 'TestEnum',
@@ -1388,7 +1387,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('respects the includeDeprecated parameter for enum values')
      */
-    public function testRespectsTheIncludeDeprecatedParameterForEnumValues()
+    public function testRespectsTheIncludeDeprecatedParameterForEnumValues() : void
     {
         $TestEnum = new EnumType([
             'name' => 'TestEnum',
@@ -1451,7 +1450,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('fails as expected on the __type root field without an arg')
      */
-    public function testFailsAsExpectedOnThe__typeRootFieldWithoutAnArg()
+    public function testFailsAsExpectedOnTheTypeRootFieldWithoutAnArg() : void
     {
         $TestType = new ObjectType([
             'name' => 'TestType',
@@ -1483,7 +1482,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('exposes descriptions on types and fields')
      */
-    public function testExposesDescriptionsOnTypesAndFields()
+    public function testExposesDescriptionsOnTypesAndFields() : void
     {
         $QueryRoot = new ObjectType([
             'name' => 'QueryRoot',
@@ -1543,7 +1542,7 @@ class IntrospectionTest extends TestCase
     /**
      * @see it('exposes descriptions on enums')
      */
-    public function testExposesDescriptionsOnEnums()
+    public function testExposesDescriptionsOnEnums() : void
     {
         $QueryRoot = new ObjectType([
             'name' => 'QueryRoot',

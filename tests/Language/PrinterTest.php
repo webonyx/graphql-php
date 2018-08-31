@@ -19,7 +19,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('does not alter ast')
      */
-    public function testDoesntAlterAST()
+    public function testDoesntAlterAST() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast = Parser::parse($kitchenSink);
@@ -34,7 +34,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('prints minimal ast')
      */
-    public function testPrintsMinimalAst()
+    public function testPrintsMinimalAst() : void
     {
         $ast = new FieldNode(['name' => new NameNode(['value' => 'foo'])]);
         $this->assertEquals('foo', Printer::doPrint($ast));
@@ -43,7 +43,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('produces helpful error messages')
      */
-    public function testProducesHelpfulErrorMessages()
+    public function testProducesHelpfulErrorMessages() : void
     {
         $badAst1 = new \ArrayObject(['random' => 'Data']);
         $this->expectException(\Throwable::class);
@@ -54,7 +54,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('correctly prints non-query operations without name')
      */
-    public function testCorrectlyPrintsOpsWithoutName()
+    public function testCorrectlyPrintsOpsWithoutName() : void
     {
         $queryAstShorthanded = Parser::parse('query { id, name }');
 
@@ -97,7 +97,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('correctly prints single-line with leading space')
      */
-    public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace()
+    public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace() : void
     {
         $mutationAstWithArtifacts = Parser::parse(
           '{ field(arg: """    space-led value""") }'
@@ -112,7 +112,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('correctly prints string with a first line indentation')
      */
-    public function testCorrectlyPrintsBlockStringsWithAFirstLineIndentation()
+    public function testCorrectlyPrintsBlockStringsWithAFirstLineIndentation() : void
     {
         $mutationAstWithArtifacts = Parser::parse(
             '{
@@ -137,7 +137,7 @@ class PrinterTest extends TestCase
     /**
      * @see it('correctly prints single-line with leading space and quotation')
      */
-    public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation()
+    public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation() : void
     {
         $mutationAstWithArtifacts = Parser::parse('
             {
@@ -158,7 +158,7 @@ END;
     /**
      * @see it('Experimental: correctly prints fragment defined variables')
      */
-    public function testExperimentalCorrectlyPrintsFragmentDefinedVariables()
+    public function testExperimentalCorrectlyPrintsFragmentDefinedVariables() : void
     {
         $fragmentWithVariable = Parser::parse('
           fragment Foo($a: ComplexType, $b: Boolean = false) on TestType {
@@ -180,7 +180,7 @@ END;
     /**
      * @see it('correctly prints single-line with leading space and quotation')
      */
-    public function testCorrectlyPrintsSingleLineStringsWithLeadingSpaceAndQuotation()
+    public function testCorrectlyPrintsSingleLineStringsWithLeadingSpaceAndQuotation() : void
     {
         $mutationAstWithArtifacts = Parser::parse(
             '{
@@ -199,7 +199,7 @@ END;
     /**
      * @see it('prints kitchen sink')
      */
-    public function testPrintsKitchenSink()
+    public function testPrintsKitchenSink() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $ast = Parser::parse($kitchenSink);

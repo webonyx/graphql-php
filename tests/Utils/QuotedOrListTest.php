@@ -14,7 +14,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Does not accept an empty list')
      */
-    public function testResturnsResultsWhenInputIsEmpty()
+    public function testResturnsResultsWhenInputIsEmpty() : void
     {
         $this->expectException(\LogicException::class);
         Utils::quotedOrList([]);
@@ -23,7 +23,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Returns single quoted item')
      */
-    public function testReturnsSingleQuotedItem()
+    public function testReturnsSingleQuotedItem() : void
     {
         $this->assertEquals(
             '"A"',
@@ -34,7 +34,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Returns two item list')
      */
-    public function testReturnsTwoItemList()
+    public function testReturnsTwoItemList() : void
     {
         $this->assertEquals(
             '"A" or "B"',
@@ -45,7 +45,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Returns comma separated many item list')
      */
-    public function testReturnsCommaSeparatedManyItemList()
+    public function testReturnsCommaSeparatedManyItemList() : void
     {
         $this->assertEquals(
             '"A", "B", or "C"',
@@ -56,7 +56,7 @@ class QuotedOrListTest extends TestCase
     /**
      * @see it('Limits to five items')
      */
-    public function testLimitsToFiveItems()
+    public function testLimitsToFiveItems() : void
     {
         $this->assertEquals(
             '"A", "B", "C", "D", or "E"',

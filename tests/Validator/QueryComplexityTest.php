@@ -41,49 +41,49 @@ class QueryComplexityTest extends QuerySecurityTestCase
         return self::$rule;
     }
 
-    public function testSimpleQueries()
+    public function testSimpleQueries() : void
     {
         $query = 'query MyQuery { human { firstName } }';
 
         $this->assertDocumentValidators($query, 2, 3);
     }
 
-    public function testInlineFragmentQueries()
+    public function testInlineFragmentQueries() : void
     {
         $query = 'query MyQuery { human { ... on Human { firstName } } }';
 
         $this->assertDocumentValidators($query, 2, 3);
     }
 
-    public function testFragmentQueries()
+    public function testFragmentQueries() : void
     {
         $query = 'query MyQuery { human { ...F1 } } fragment F1 on Human { firstName}';
 
         $this->assertDocumentValidators($query, 2, 3);
     }
 
-    public function testAliasesQueries()
+    public function testAliasesQueries() : void
     {
         $query = 'query MyQuery { thomas: human(name: "Thomas") { firstName } jeremy: human(name: "Jeremy") { firstName } }';
 
         $this->assertDocumentValidators($query, 4, 5);
     }
 
-    public function testCustomComplexityQueries()
+    public function testCustomComplexityQueries() : void
     {
         $query = 'query MyQuery { human { dogs { name } } }';
 
         $this->assertDocumentValidators($query, 12, 13);
     }
 
-    public function testCustomComplexityWithArgsQueries()
+    public function testCustomComplexityWithArgsQueries() : void
     {
         $query = 'query MyQuery { human { dogs(name: "Root") { name } } }';
 
         $this->assertDocumentValidators($query, 3, 4);
     }
 
-    public function testCustomComplexityWithVariablesQueries()
+    public function testCustomComplexityWithVariablesQueries() : void
     {
         $query = 'query MyQuery($dog: String!) { human { dogs(name: $dog) { name } } }';
 
@@ -92,7 +92,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 3, 4);
     }
 
-    public function testQueryWithEnabledIncludeDirectives()
+    public function testQueryWithEnabledIncludeDirectives() : void
     {
         $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
 
@@ -101,7 +101,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 3, 4);
     }
 
-    public function testQueryWithDisabledIncludeDirectives()
+    public function testQueryWithDisabledIncludeDirectives() : void
     {
         $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
 
@@ -110,7 +110,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 1, 2);
     }
 
-    public function testQueryWithEnabledSkipDirectives()
+    public function testQueryWithEnabledSkipDirectives() : void
     {
         $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if:$withoutDogs) { name } } }';
 
@@ -119,7 +119,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 1, 2);
     }
 
-    public function testQueryWithDisabledSkipDirectives()
+    public function testQueryWithDisabledSkipDirectives() : void
     {
         $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if:$withoutDogs) { name } } }';
 
@@ -128,7 +128,7 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 3, 4);
     }
 
-    public function testQueryWithMultipleDirectives()
+    public function testQueryWithMultipleDirectives() : void
     {
         $query = 'query MyQuery($withDogs: Boolean!, $withoutDogName: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name @skip(if:$withoutDogName) } } }';
 
@@ -140,22 +140,22 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
-    public function testComplexityIntrospectionQuery()
+    public function testComplexityIntrospectionQuery() : void
     {
         $this->assertIntrospectionQuery(181);
     }
 
-    public function testIntrospectionTypeMetaFieldQuery()
+    public function testIntrospectionTypeMetaFieldQuery() : void
     {
         $this->assertIntrospectionTypeMetaFieldQuery(2);
     }
 
-    public function testTypeNameMetaFieldQuery()
+    public function testTypeNameMetaFieldQuery() : void
     {
         $this->assertTypeNameMetaFieldQuery(3);
     }
 
-    public function testSkippedWhenThereAreOtherValidationErrors()
+    public function testSkippedWhenThereAreOtherValidationErrors() : void
     {
         $query = 'query MyQuery { human(name: INVALID_VALUE) { dogs {name} } }';
 

@@ -12,15 +12,14 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Execute: Handles inputs
+ * Handles objects and nullability
+ */
 class VariablesTest extends TestCase
 {
-    // Execute: Handles inputs
-    // Handles objects and nullability
 
-    /**
-     * @describe using inline structs
-     */
-    public function testUsingInlineStructs()
+    public function testUsingInlineStructs() : void
     {
         // executes with complex input:
         $result = $this->executeQuery('
@@ -95,10 +94,7 @@ class VariablesTest extends TestCase
         );
     }
 
-    /**
-     * @describe using variables
-     */
-    public function testUsingVariables()
+    public function testUsingVariables() : void
     {
         $doc = '
             query q($input:TestInputObject) {
@@ -249,7 +245,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be omitted')
      */
-    public function testAllowsNullableInputsToBeOmitted()
+    public function testAllowsNullableInputsToBeOmitted() : void
     {
         $result = $this->executeQuery('
       {
@@ -266,7 +262,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be omitted in a variable')
      */
-    public function testAllowsNullableInputsToBeOmittedInAVariable()
+    public function testAllowsNullableInputsToBeOmittedInAVariable() : void
     {
         $result = $this->executeQuery('
       query SetsNullable($value: String) {
@@ -281,7 +277,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be omitted in an unlisted variable')
      */
-    public function testAllowsNullableInputsToBeOmittedInAnUnlistedVariable()
+    public function testAllowsNullableInputsToBeOmittedInAnUnlistedVariable() : void
     {
         $result = $this->executeQuery('
       query SetsNullable {
@@ -295,7 +291,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be set to null in a variable')
      */
-    public function testAllowsNullableInputsToBeSetToNullInAVariable()
+    public function testAllowsNullableInputsToBeSetToNullInAVariable() : void
     {
         $result = $this->executeQuery('
       query SetsNullable($value: String) {
@@ -310,7 +306,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be set to a value in a variable')
      */
-    public function testAllowsNullableInputsToBeSetToAValueInAVariable()
+    public function testAllowsNullableInputsToBeSetToAValueInAVariable() : void
     {
         $doc = '
       query SetsNullable($value: String) {
@@ -325,7 +321,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows nullable inputs to be set to a value directly')
      */
-    public function testAllowsNullableInputsToBeSetToAValueDirectly()
+    public function testAllowsNullableInputsToBeSetToAValueDirectly() : void
     {
         $result = $this->executeQuery('
       {
@@ -342,7 +338,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-nullable inputs to be omitted given a default')
      */
-    public function testAllowsNonNullableInputsToBeOmittedGivenADefault()
+    public function testAllowsNonNullableInputsToBeOmittedGivenADefault() : void
     {
         $result = $this->executeQuery('
         query SetsNonNullable($value: String = "default") {
@@ -358,7 +354,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-nullable inputs to be omitted in a variable')
      */
-    public function testDoesntAllowNonNullableInputsToBeOmittedInAVariable()
+    public function testDoesntAllowNonNullableInputsToBeOmittedInAVariable() : void
     {
         $result = $this->executeQuery('
         query SetsNonNullable($value: String!) {
@@ -381,7 +377,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-nullable inputs to be set to null in a variable')
      */
-    public function testDoesNotAllowNonNullableInputsToBeSetToNullInAVariable()
+    public function testDoesNotAllowNonNullableInputsToBeSetToNullInAVariable() : void
     {
         $doc = '
         query SetsNonNullable($value: String!) {
@@ -406,7 +402,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-nullable inputs to be set to a value in a variable')
      */
-    public function testAllowsNonNullableInputsToBeSetToAValueInAVariable()
+    public function testAllowsNonNullableInputsToBeSetToAValueInAVariable() : void
     {
         $doc = '
         query SetsNonNullable($value: String!) {
@@ -421,7 +417,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-nullable inputs to be set to a value directly')
      */
-    public function testAllowsNonNullableInputsToBeSetToAValueDirectly()
+    public function testAllowsNonNullableInputsToBeSetToAValueDirectly() : void
     {
         $result = $this->executeQuery('
       {
@@ -435,7 +431,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('reports error for missing non-nullable inputs')
      */
-    public function testReportsErrorForMissingNonNullableInputs()
+    public function testReportsErrorForMissingNonNullableInputs() : void
     {
         $result = $this->executeQuery('
       {
@@ -457,7 +453,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('reports error for array passed into string input')
      */
-    public function testReportsErrorForArrayPassedIntoStringInput()
+    public function testReportsErrorForArrayPassedIntoStringInput() : void
     {
 
         $doc = '
@@ -485,7 +481,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('serializing an array via GraphQLString throws TypeError')
      */
-    public function testSerializingAnArrayViaGraphQLStringThrowsTypeError()
+    public function testSerializingAnArrayViaGraphQLStringThrowsTypeError() : void
     {
         $this->expectException(Error::class);
         $this->expectExceptionMessage('String cannot represent non scalar value: [1,2,3]');
@@ -495,7 +491,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('reports error for non-provided variables for non-nullable inputs')
      */
-    public function testReportsErrorForNonProvidedVariablesForNonNullableInputs()
+    public function testReportsErrorForNonProvidedVariablesForNonNullableInputs() : void
     {
         // Note: this test would typically fail validation before encountering
         // this execution error, however for queries which previously validated
@@ -526,7 +522,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists to be null')
      */
-    public function testAllowsListsToBeNull()
+    public function testAllowsListsToBeNull() : void
     {
         $doc = '
         query q($input:[String]) {
@@ -542,7 +538,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists to contain values')
      */
-    public function testAllowsListsToContainValues()
+    public function testAllowsListsToContainValues() : void
     {
         $doc = '
         query q($input:[String]) {
@@ -557,7 +553,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists to contain null')
      */
-    public function testAllowsListsToContainNull()
+    public function testAllowsListsToContainNull() : void
     {
         $doc = '
         query q($input:[String]) {
@@ -572,7 +568,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-null lists to be null')
      */
-    public function testDoesNotAllowNonNullListsToBeNull()
+    public function testDoesNotAllowNonNullListsToBeNull() : void
     {
         $doc = '
         query q($input:[String]!) {
@@ -597,7 +593,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-null lists to contain values')
      */
-    public function testAllowsNonNullListsToContainValues()
+    public function testAllowsNonNullListsToContainValues() : void
     {
         $doc = '
         query q($input:[String]!) {
@@ -612,7 +608,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-null lists to contain null')
      */
-    public function testAllowsNonNullListsToContainNull()
+    public function testAllowsNonNullListsToContainNull() : void
     {
         $doc = '
         query q($input:[String]!) {
@@ -627,7 +623,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists of non-nulls to be null')
      */
-    public function testAllowsListsOfNonNullsToBeNull()
+    public function testAllowsListsOfNonNullsToBeNull() : void
     {
         $doc = '
         query q($input:[String!]) {
@@ -642,7 +638,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows lists of non-nulls to contain values')
      */
-    public function testAllowsListsOfNonNullsToContainValues()
+    public function testAllowsListsOfNonNullsToContainValues() : void
     {
         $doc = '
         query q($input:[String!]) {
@@ -657,7 +653,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow lists of non-nulls to contain null')
      */
-    public function testDoesNotAllowListsOfNonNullsToContainNull()
+    public function testDoesNotAllowListsOfNonNullsToContainNull() : void
     {
         $doc = '
         query q($input:[String!]) {
@@ -682,7 +678,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-null lists of non-nulls to be null')
      */
-    public function testDoesNotAllowNonNullListsOfNonNullsToBeNull()
+    public function testDoesNotAllowNonNullListsOfNonNullsToBeNull() : void
     {
         $doc = '
         query q($input:[String!]!) {
@@ -707,7 +703,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('allows non-null lists of non-nulls to contain values')
      */
-    public function testAllowsNonNullListsOfNonNullsToContainValues()
+    public function testAllowsNonNullListsOfNonNullsToContainValues() : void
     {
         $doc = '
         query q($input:[String!]!) {
@@ -722,7 +718,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow non-null lists of non-nulls to contain null')
      */
-    public function testDoesNotAllowNonNullListsOfNonNullsToContainNull()
+    public function testDoesNotAllowNonNullListsOfNonNullsToContainNull() : void
     {
         $doc = '
         query q($input:[String!]!) {
@@ -747,7 +743,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow invalid types to be used as values')
      */
-    public function testDoesNotAllowInvalidTypesToBeUsedAsValues()
+    public function testDoesNotAllowInvalidTypesToBeUsedAsValues() : void
     {
         $doc = '
         query q($input: TestType!) {
@@ -773,7 +769,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('does not allow unknown types to be used as values')
      */
-    public function testDoesNotAllowUnknownTypesToBeUsedAsValues()
+    public function testDoesNotAllowUnknownTypesToBeUsedAsValues() : void
     {
         $doc = '
         query q($input: UnknownType!) {
@@ -801,7 +797,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('when no argument provided')
      */
-    public function testWhenNoArgumentProvided()
+    public function testWhenNoArgumentProvided() : void
     {
         $result = $this->executeQuery('{
         fieldWithDefaultArgumentValue
@@ -816,7 +812,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('when omitted variable provided')
      */
-    public function testWhenOmittedVariableProvided()
+    public function testWhenOmittedVariableProvided() : void
     {
         $result = $this->executeQuery('query optionalVariable($optional: String) {
             fieldWithDefaultArgumentValue(input: $optional)
@@ -831,7 +827,7 @@ class VariablesTest extends TestCase
     /**
      * @see it('not when argument cannot be coerced')
      */
-    public function testNotWhenArgumentCannotBeCoerced()
+    public function testNotWhenArgumentCannotBeCoerced() : void
     {
         $result = $this->executeQuery('{
             fieldWithDefaultArgumentValue(input: WRONG_TYPE)
