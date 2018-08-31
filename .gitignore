@@ -2,3 +2,4 @@ composer.phar
 composer.lock
 phpcs.xml
 vendor/
+phpstan.neon
