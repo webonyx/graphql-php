@@ -11,7 +11,7 @@ class AssertValidNameTest extends TestCase
     // Describe: assertValidName()
 
     /**
-     * @it throws for use of leading double underscores
+     * @see it('throws for use of leading double underscores')
      */
     public function testThrowsForUseOfLeadingDoubleUnderscores()
     {
@@ -21,7 +21,7 @@ class AssertValidNameTest extends TestCase
     }
 
     /**
-     * @it throws for non-strings
+     * @see it('throws for non-strings')
      */
     public function testThrowsForNonStrings()
     {
@@ -31,7 +31,7 @@ class AssertValidNameTest extends TestCase
     }
 
     /**
-     * @it throws for names with invalid characters
+     * @see it('throws for names with invalid characters')
      */
     public function testThrowsForNamesWithInvalidCharacters()
     {

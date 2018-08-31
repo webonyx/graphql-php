@@ -12,7 +12,7 @@ class QuotedOrListTest extends TestCase
     // DESCRIBE: quotedOrList
 
     /**
-     * @it Does not accept an empty list
+     * @see it('Does not accept an empty list')
      */
     public function testResturnsResultsWhenInputIsEmpty()
     {
@@ -21,7 +21,7 @@ class QuotedOrListTest extends TestCase
     }
 
     /**
-     * @it Returns single quoted item
+     * @see it('Returns single quoted item')
      */
     public function testReturnsSingleQuotedItem()
     {
@@ -32,7 +32,7 @@ class QuotedOrListTest extends TestCase
     }
 
     /**
-     * @it Returns two item list
+     * @see it('Returns two item list')
      */
     public function testReturnsTwoItemList()
     {
@@ -43,7 +43,7 @@ class QuotedOrListTest extends TestCase
     }
 
     /**
-     * @it Returns comma separated many item list
+     * @see it('Returns comma separated many item list')
      */
     public function testReturnsCommaSeparatedManyItemList()
     {
@@ -54,7 +54,7 @@ class QuotedOrListTest extends TestCase
     }
 
     /**
-     * @it Limits to five items
+     * @see it('Limits to five items')
      */
     public function testLimitsToFiveItems()
     {

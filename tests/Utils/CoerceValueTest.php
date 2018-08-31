@@ -37,7 +37,7 @@ class CoerceValueTest extends TestCase
     // Describe: coerceValue
 
     /**
-     * @it coercing an array to GraphQLString produces an error
+     * @see it('coercing an array to GraphQLString produces an error')
      */
     public function testCoercingAnArrayToGraphQLStringProducesAnError()
     {
@@ -56,7 +56,7 @@ class CoerceValueTest extends TestCase
     // Describe: for GraphQLInt
 
     /**
-     * @it returns no error for int input
+     * @see it('returns no error for int input')
      */
     public function testIntReturnsNoErrorForIntInput()
     {
@@ -65,7 +65,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns no error for negative int input
+     * @see it('returns no error for negative int input')
      */
     public function testIntReturnsNoErrorForNegativeIntInput()
     {
@@ -74,7 +74,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns no error for exponent input
+     * @see it('returns no error for exponent input')
      */
     public function testIntReturnsNoErrorForExponentInput()
     {
@@ -83,7 +83,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns no error for null
+     * @see it('returns no error for null')
      */
     public function testIntReturnsASingleErrorNull()
     {
@@ -92,7 +92,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns a single error for empty value
+     * @see it('returns a single error for empty value')
      */
     public function testIntReturnsASingleErrorForEmptyValue()
     {
@@ -104,7 +104,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns error for float input as int
+     * @see it('returns error for float input as int')
      */
     public function testIntReturnsErrorForFloatInputAsInt()
     {
@@ -116,7 +116,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns a single error for char input
+     * @see it('returns a single error for char input')
      */
     public function testIntReturnsASingleErrorForCharInput()
     {
@@ -128,7 +128,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns a single error for multi char input
+     * @see it('returns a single error for multi char input')
      */
     public function testIntReturnsASingleErrorForMultiCharInput()
     {
@@ -142,7 +142,7 @@ class CoerceValueTest extends TestCase
     // Describe: for GraphQLFloat
 
     /**
-     * @it returns no error for int input
+     * @see it('returns no error for int input')
      */
     public function testFloatReturnsNoErrorForIntInput()
     {
@@ -151,7 +151,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns no error for exponent input
+     * @see it('returns no error for exponent input')
      */
     public function testFloatReturnsNoErrorForExponentInput()
     {
@@ -160,7 +160,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns no error for float input
+     * @see it('returns no error for float input')
      */
     public function testFloatReturnsNoErrorForFloatInput()
     {
@@ -169,7 +169,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns no error for null
+     * @see it('returns no error for null')
      */
     public function testFloatReturnsASingleErrorNull()
     {
@@ -178,7 +178,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns a single error for empty value
+     * @see it('returns a single error for empty value')
      */
     public function testFloatReturnsASingleErrorForEmptyValue()
     {
@@ -190,7 +190,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns a single error for char input
+     * @see it('returns a single error for char input')
      */
     public function testFloatReturnsASingleErrorForCharInput()
     {
@@ -202,7 +202,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns a single error for multi char input
+     * @see it('returns a single error for multi char input')
      */
     public function testFloatReturnsASingleErrorForMultiCharInput()
     {
@@ -216,7 +216,7 @@ class CoerceValueTest extends TestCase
     // DESCRIBE: for GraphQLEnum
 
     /**
-     * @it returns no error for a known enum name
+     * @see it('returns no error for a known enum name')
      */
     public function testReturnsNoErrorForAKnownEnumName()
     {
@@ -230,7 +230,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it results error for misspelled enum value
+     * @see it('results error for misspelled enum value')
      */
     public function testReturnsErrorForMisspelledEnumValue()
     {
@@ -239,7 +239,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it results error for incorrect value type
+     * @see it('results error for incorrect value type')
      */
     public function testReturnsErrorForIncorrectValueType()
     {
@@ -253,7 +253,7 @@ class CoerceValueTest extends TestCase
     // DESCRIBE: for GraphQLInputObject
 
     /**
-     * @it returns no error for a valid input
+     * @see it('returns no error for a valid input')
      */
     public function testReturnsNoErrorForValidInput()
     {
@@ -263,7 +263,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns no error for a non-object type
+     * @see it('returns no error for a non-object type')
      */
     public function testReturnsErrorForNonObjectType()
     {
@@ -272,7 +272,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns no error for an invalid field
+     * @see it('returns no error for an invalid field')
      */
     public function testReturnErrorForAnInvalidField()
     {
@@ -281,7 +281,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns multiple errors for multiple invalid fields
+     * @see it('returns multiple errors for multiple invalid fields')
      */
     public function testReturnsMultipleErrorsForMultipleInvalidFields()
     {
@@ -293,7 +293,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns error for a missing required field
+     * @see it('returns error for a missing required field')
      */
     public function testReturnsErrorForAMissingRequiredField()
     {
@@ -302,7 +302,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns error for an unknown field
+     * @see it('returns error for an unknown field')
      */
     public function testReturnsErrorForAnUnknownField()
     {
@@ -311,7 +311,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @it returns error for a misspelled field
+     * @see it('returns error for a misspelled field')
      */
     public function testReturnsErrorForAMisspelledField()
     {

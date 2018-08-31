@@ -10,7 +10,7 @@ class StarWarsIntrospectionTest extends TestCase
     // Basic Introspection
 
     /**
-     * @it Allows querying the schema for types
+     * @see it('Allows querying the schema for types')
      */
     public function testAllowsQueryingTheSchemaForTypes()
     {
@@ -51,7 +51,7 @@ class StarWarsIntrospectionTest extends TestCase
     }
 
     /**
-     * @it Allows querying the schema for query type
+     * @see it('Allows querying the schema for query type')
      */
     public function testAllowsQueryingTheSchemaForQueryType()
     {
@@ -75,7 +75,7 @@ class StarWarsIntrospectionTest extends TestCase
     }
 
     /**
-     * @it Allows querying the schema for a specific type
+     * @see it('Allows querying the schema for a specific type')
      */
     public function testAllowsQueryingTheSchemaForASpecificType()
     {
@@ -95,7 +95,7 @@ class StarWarsIntrospectionTest extends TestCase
     }
 
     /**
-     * @it Allows querying the schema for an object kind
+     * @see it('Allows querying the schema for an object kind')
      */
     public function testAllowsQueryingForAnObjectKind()
     {
@@ -117,7 +117,7 @@ class StarWarsIntrospectionTest extends TestCase
     }
 
     /**
-     * @it Allows querying the schema for an interface kind
+     * @see it('Allows querying the schema for an interface kind')
      */
     public function testAllowsQueryingForInterfaceKind()
     {
@@ -139,7 +139,7 @@ class StarWarsIntrospectionTest extends TestCase
     }
 
     /**
-     * @it Allows querying the schema for object fields
+     * @see it('Allows querying the schema for object fields')
      */
     public function testAllowsQueryingForObjectFields()
     {
@@ -210,7 +210,7 @@ class StarWarsIntrospectionTest extends TestCase
     }
 
     /**
-     * @it Allows querying the schema for nested object fields
+     * @see it('Allows querying the schema for nested object fields')
      */
     public function testAllowsQueryingTheSchemaForNestedObjectFields()
     {
@@ -300,7 +300,7 @@ class StarWarsIntrospectionTest extends TestCase
     }
 
     /**
-     * @it Allows querying the schema for field args
+     * @see it('Allows querying the schema for field args')
      */
     public function testAllowsQueryingTheSchemaForFieldArgs()
     {
@@ -394,7 +394,7 @@ class StarWarsIntrospectionTest extends TestCase
     }
 
     /**
-     * @it Allows querying the schema for documentation
+     * @see it('Allows querying the schema for documentation')
      */
     public function testAllowsQueryingTheSchemaForDocumentation()
     {

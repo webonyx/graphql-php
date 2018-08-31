@@ -10,7 +10,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     // Validate: No unused fragments
 
     /**
-     * @it all fragment names are used
+     * @see it('all fragment names are used')
      */
     public function testAllFragmentNamesAreUsed()
     {
@@ -37,7 +37,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it all fragment names are used by multiple operations
+     * @see it('all fragment names are used by multiple operations')
      */
     public function testAllFragmentNamesAreUsedByMultipleOperations()
     {
@@ -66,7 +66,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it contains unknown fragments
+     * @see it('contains unknown fragments')
      */
     public function testContainsUnknownFragments()
     {
@@ -104,7 +104,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it contains unknown fragments with ref cycle
+     * @see it('contains unknown fragments with ref cycle')
      */
     public function testContainsUnknownFragmentsWithRefCycle()
     {
@@ -144,7 +144,7 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it contains unknown and undef fragments
+     * @see it('contains unknown and undef fragments')
      */
     public function testContainsUnknownAndUndefFragments()
     {

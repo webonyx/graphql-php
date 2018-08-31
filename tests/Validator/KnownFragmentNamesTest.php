@@ -10,7 +10,7 @@ class KnownFragmentNamesTest extends ValidatorTestCase
     // Validate: Known fragment names
 
     /**
-     * @it known fragment names are valid
+     * @see it('known fragment names are valid')
      */
     public function testKnownFragmentNamesAreValid()
     {
@@ -37,7 +37,7 @@ class KnownFragmentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it unknown fragment names are invalid
+     * @see it('unknown fragment names are invalid')
      */
     public function testUnknownFragmentNamesAreInvalid()
     {

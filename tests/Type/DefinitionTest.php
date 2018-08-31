@@ -170,7 +170,7 @@ class DefinitionTest extends TestCase
     // Type System: Example
 
     /**
-     * @it defines a query only schema
+     * @see it('defines a query only schema')
      */
     public function testDefinesAQueryOnlySchema()
     {
@@ -214,7 +214,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it defines a mutation schema
+     * @see it('defines a mutation schema')
      */
     public function testDefinesAMutationSchema()
     {
@@ -233,7 +233,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it defines a subscription schema
+     * @see it('defines a subscription schema')
      */
     public function testDefinesSubscriptionSchema()
     {
@@ -251,7 +251,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it defines an enum type with deprecated value
+     * @see it('defines an enum type with deprecated value')
      */
     public function testDefinesEnumTypeWithDeprecatedValue()
     {
@@ -276,7 +276,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it defines an enum type with a value of `null` and `undefined`
+     * @see it('defines an enum type with a value of `null` and `undefined`')
      */
     public function testDefinesAnEnumTypeWithAValueOfNullAndUndefined()
     {
@@ -313,7 +313,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it defines an object type with deprecated field
+     * @see it('defines an object type with deprecated field')
      */
     public function testDefinesAnObjectTypeWithDeprecatedField()
     {
@@ -337,7 +337,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it includes nested input objects in the map
+     * @see it('includes nested input objects in the map')
      */
     public function testIncludesNestedInputObjectInTheMap()
     {
@@ -367,7 +367,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it includes interface possible types in the type map
+     * @see it('includes interface possible types in the type map')
      */
     public function testIncludesInterfaceSubtypesInTheTypeMap()
     {
@@ -399,7 +399,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it includes interfaces' thunk subtypes in the type map
+     * @see it('includes interfaces' thunk subtypes in the type map')
      */
     public function testIncludesInterfacesThunkSubtypesInTheTypeMap()
     {
@@ -434,7 +434,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it stringifies simple types
+     * @see it('stringifies simple types')
      */
     public function testStringifiesSimpleTypes()
     {
@@ -455,7 +455,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it JSON stringifies simple types
+     * @see it('JSON stringifies simple types')
      */
     public function testJSONStringifiesSimpleTypes()
     {
@@ -473,7 +473,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it identifies input types
+     * @see it('identifies input types')
      */
     public function testIdentifiesInputTypes()
     {
@@ -492,7 +492,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it identifies output types
+     * @see it('identifies output types')
      */
     public function testIdentifiesOutputTypes()
     {
@@ -511,7 +511,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it prohibits nesting NonNull inside NonNull
+     * @see it('prohibits nesting NonNull inside NonNull')
      */
     public function testProhibitsNestingNonNullInsideNonNull()
     {
@@ -523,7 +523,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it allows a thunk for Union member types
+     * @see it('allows a thunk for Union member types')
      */
     public function testAllowsThunkForUnionTypes()
     {
@@ -744,7 +744,7 @@ class DefinitionTest extends TestCase
     // Field config must be object
 
     /**
-     * @it accepts an Object type with a field function
+     * @see it('accepts an Object type with a field function')
      */
     public function testAcceptsAnObjectTypeWithAFieldFunction()
     {
@@ -761,7 +761,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Object type field with undefined config
+     * @see it('rejects an Object type field with undefined config')
      */
     public function testRejectsAnObjectTypeFieldWithUndefinedConfig()
     {
@@ -779,7 +779,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Object type with incorrectly typed fields
+     * @see it('rejects an Object type with incorrectly typed fields')
      */
     public function testRejectsAnObjectTypeWithIncorrectlyTypedFields()
     {
@@ -796,7 +796,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Object type with a field function that returns incorrect type
+     * @see it('rejects an Object type with a field function that returns incorrect type')
      */
     public function testRejectsAnObjectTypeWithAFieldFunctionThatReturnsIncorrectType()
     {
@@ -817,7 +817,7 @@ class DefinitionTest extends TestCase
     // Field arg config must be object
 
     /**
-     * @it accepts an Object type with field args
+     * @see it('accepts an Object type with field args')
      */
     public function testAcceptsAnObjectTypeWithFieldArgs()
     {
@@ -840,7 +840,7 @@ class DefinitionTest extends TestCase
     // rejects an Object type with incorrectly typed field args
 
     /**
-     * @it does not allow isDeprecated without deprecationReason on field
+     * @see it('does not allow isDeprecated without deprecationReason on field')
      */
     public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnField()
     {
@@ -864,7 +864,7 @@ class DefinitionTest extends TestCase
     // Object interfaces must be array
 
     /**
-     * @it accepts an Object type with array interfaces
+     * @see it('accepts an Object type with array interfaces')
      */
     public function testAcceptsAnObjectTypeWithArrayInterfaces()
     {
@@ -877,7 +877,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts an Object type with interfaces as a function returning an array
+     * @see it('accepts an Object type with interfaces as a function returning an array')
      */
     public function testAcceptsAnObjectTypeWithInterfacesAsAFunctionReturningAnArray()
     {
@@ -892,7 +892,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Object type with incorrectly typed interfaces
+     * @see it('rejects an Object type with incorrectly typed interfaces')
      */
     public function testRejectsAnObjectTypeWithIncorrectlyTypedInterfaces()
     {
@@ -909,7 +909,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Object type with interfaces as a function returning an incorrect type
+     * @see it('rejects an Object type with interfaces as a function returning an incorrect type')
      */
     public function testRejectsAnObjectTypeWithInterfacesAsAFunctionReturningAnIncorrectType()
     {
@@ -954,7 +954,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts a lambda as an Object field resolver
+     * @see it('accepts a lambda as an Object field resolver')
      */
     public function testAcceptsALambdaAsAnObjectFieldResolver()
     {
@@ -964,7 +964,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an empty Object field resolver
+     * @see it('rejects an empty Object field resolver')
      */
     public function testRejectsAnEmptyObjectFieldResolver()
     {
@@ -976,7 +976,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a constant scalar value resolver
+     * @see it('rejects a constant scalar value resolver')
      */
     public function testRejectsAConstantScalarValueResolver()
     {
@@ -1003,7 +1003,7 @@ class DefinitionTest extends TestCase
         return $schema;
     }
     /**
-     * @it accepts an Interface type defining resolveType
+     * @see it('accepts an Interface type defining resolveType')
      */
     public function testAcceptsAnInterfaceTypeDefiningResolveType()
     {
@@ -1024,7 +1024,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts an Interface with implementing type defining isTypeOf
+     * @see it('accepts an Interface with implementing type defining isTypeOf')
      */
     public function testAcceptsAnInterfaceWithImplementingTypeDefiningIsTypeOf()
     {
@@ -1045,7 +1045,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts an Interface type defining resolveType with implementing type defining isTypeOf
+     * @see it('accepts an Interface type defining resolveType with implementing type defining isTypeOf')
      */
     public function testAcceptsAnInterfaceTypeDefiningResolveTypeWithImplementingTypeDefiningIsTypeOf()
     {
@@ -1066,7 +1066,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Interface type with an incorrect type for resolveType
+     * @see it('rejects an Interface type with an incorrect type for resolveType')
      */
     public function testRejectsAnInterfaceTypeWithAnIncorrectTypeForResolveType()
     {
@@ -1094,7 +1094,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts a Union type defining resolveType
+     * @see it('accepts a Union type defining resolveType')
      */
     public function testAcceptsAUnionTypeDefiningResolveType()
     {
@@ -1109,7 +1109,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts a Union of Object types defining isTypeOf
+     * @see it('accepts a Union of Object types defining isTypeOf')
      */
     public function testAcceptsAUnionOfObjectTypesDefiningIsTypeOf()
     {
@@ -1124,7 +1124,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts a Union type defining resolveType of Object types defining isTypeOf
+     * @see it('accepts a Union type defining resolveType of Object types defining isTypeOf')
      */
     public function testAcceptsAUnionTypeDefiningResolveTypeOfObjectTypesDefiningIsTypeOf()
     {
@@ -1139,7 +1139,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Union type with an incorrect type for resolveType
+     * @see it('rejects an Union type with an incorrect type for resolveType')
      */
     public function testRejectsAnUnionTypeWithAnIncorrectTypeForResolveType()
     {
@@ -1159,7 +1159,7 @@ class DefinitionTest extends TestCase
     // Type System: Scalar types must be serializable
 
     /**
-     * @it accepts a Scalar type defining serialize
+     * @see it('accepts a Scalar type defining serialize')
      */
     public function testAcceptsAScalarTypeDefiningSerialize()
     {
@@ -1176,7 +1176,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Scalar type not defining serialize
+     * @see it('rejects a Scalar type not defining serialize')
      */
     public function testRejectsAScalarTypeNotDefiningSerialize()
     {
@@ -1194,7 +1194,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Scalar type defining serialize with an incorrect type
+     * @see it('rejects a Scalar type defining serialize with an incorrect type')
      */
     public function testRejectsAScalarTypeDefiningSerializeWithAnIncorrectType()
     {
@@ -1213,7 +1213,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts a Scalar type defining parseValue and parseLiteral
+     * @see it('accepts a Scalar type defining parseValue and parseLiteral')
      */
     public function testAcceptsAScalarTypeDefiningParseValueAndParseLiteral()
     {
@@ -1233,7 +1233,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Scalar type defining parseValue but not parseLiteral
+     * @see it('rejects a Scalar type defining parseValue but not parseLiteral')
      */
     public function testRejectsAScalarTypeDefiningParseValueButNotParseLiteral()
     {
@@ -1253,7 +1253,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Scalar type defining parseLiteral but not parseValue
+     * @see it('rejects a Scalar type defining parseLiteral but not parseValue')
      */
     public function testRejectsAScalarTypeDefiningParseLiteralButNotParseValue()
     {
@@ -1273,7 +1273,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Scalar type defining parseValue and parseLiteral with an incorrect type
+     * @see it('rejects a Scalar type defining parseValue and parseLiteral with an incorrect type')
      */
     public function testRejectsAScalarTypeDefiningParseValueAndParseLiteralWithAnIncorrectType()
     {
@@ -1295,7 +1295,7 @@ class DefinitionTest extends TestCase
     // Type System: Object types must be assertable
 
     /**
-     * @it accepts an Object type with an isTypeOf function
+     * @see it('accepts an Object type with an isTypeOf function')
      */
     public function testAcceptsAnObjectTypeWithAnIsTypeOfFunction()
     {
@@ -1310,7 +1310,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Object type with an incorrect type for isTypeOf
+     * @see it('rejects an Object type with an incorrect type for isTypeOf')
      */
     public function testRejectsAnObjectTypeWithAnIncorrectTypeForIsTypeOf()
     {
@@ -1330,7 +1330,7 @@ class DefinitionTest extends TestCase
     // Type System: Union types must be array
 
     /**
-     * @it accepts a Union type with array types
+     * @see it('accepts a Union type with array types')
      */
     public function testAcceptsAUnionTypeWithArrayTypes()
     {
@@ -1345,7 +1345,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts a Union type with function returning an array of types
+     * @see it('accepts a Union type with function returning an array of types')
      */
     public function testAcceptsAUnionTypeWithFunctionReturningAnArrayOfTypes()
     {
@@ -1361,7 +1361,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Union type without types
+     * @see it('rejects a Union type without types')
      */
     public function testRejectsAUnionTypeWithoutTypes()
     {
@@ -1377,7 +1377,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Union type with incorrectly typed types
+     * @see it('rejects a Union type with incorrectly typed types')
      */
     public function testRejectsAUnionTypeWithIncorrectlyTypedTypes()
     {
@@ -1396,7 +1396,7 @@ class DefinitionTest extends TestCase
     // Type System: Input Objects must have fields
 
     /**
-     * @it accepts an Input Object type with fields
+     * @see it('accepts an Input Object type with fields')
      */
     public function testAcceptsAnInputObjectTypeWithFields()
     {
@@ -1411,7 +1411,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts an Input Object type with a field function
+     * @see it('accepts an Input Object type with a field function')
      */
     public function testAcceptsAnInputObjectTypeWithAFieldFunction()
     {
@@ -1428,7 +1428,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Input Object type with incorrect fields
+     * @see it('rejects an Input Object type with incorrect fields')
      */
     public function testRejectsAnInputObjectTypeWithIncorrectFields()
     {
@@ -1445,7 +1445,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Input Object type with fields function that returns incorrect type
+     * @see it('rejects an Input Object type with fields function that returns incorrect type')
      */
     public function testRejectsAnInputObjectTypeWithFieldsFunctionThatReturnsIncorrectType()
     {
@@ -1466,7 +1466,7 @@ class DefinitionTest extends TestCase
     // Type System: Input Object fields must not have resolvers
 
     /**
-     * @it rejects an Input Object type with resolvers
+     * @see it('rejects an Input Object type with resolvers')
      */
     public function testRejectsAnInputObjectTypeWithResolvers()
     {
@@ -1490,7 +1490,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Input Object type with resolver constant
+     * @see it('rejects an Input Object type with resolver constant')
      */
     public function testRejectsAnInputObjectTypeWithResolverConstant()
     {
@@ -1514,7 +1514,7 @@ class DefinitionTest extends TestCase
     // Type System: Enum types must be well defined
 
     /**
-     * @it accepts a well defined Enum type with empty value definition
+     * @see it('accepts a well defined Enum type with empty value definition')
      */
     public function testAcceptsAWellDefinedEnumTypeWithEmptyValueDefinition()
     {
@@ -1530,7 +1530,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it accepts a well defined Enum type with internal value definition
+     * @see it('accepts a well defined Enum type with internal value definition')
      */
     public function testAcceptsAWellDefinedEnumTypeWithInternalValueDefinition()
     {
@@ -1546,7 +1546,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects an Enum type with incorrectly typed values
+     * @see it('rejects an Enum type with incorrectly typed values')
      */
     public function testRejectsAnEnumTypeWithIncorrectlyTypedValues()
     {
@@ -1562,7 +1562,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it does not allow isDeprecated without deprecationReason on enum
+     * @see it('does not allow isDeprecated without deprecationReason on enum')
      */
     public function testDoesNotAllowIsDeprecatedWithoutDeprecationReasonOnEnum()
     {
@@ -1661,7 +1661,7 @@ class DefinitionTest extends TestCase
     // Type System: A Schema must contain uniquely named types
 
     /**
-     * @it rejects a Schema which redefines a built-in type
+     * @see it('rejects a Schema which redefines a built-in type')
      */
     public function testRejectsASchemaWhichRedefinesABuiltInType()
     {
@@ -1689,7 +1689,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Schema which defines an object type twice
+     * @see it('rejects a Schema which defines an object type twice')
      */
     public function testRejectsASchemaWhichDefinesAnObjectTypeTwice()
     {
@@ -1720,7 +1720,7 @@ class DefinitionTest extends TestCase
     }
 
     /**
-     * @it rejects a Schema which have same named objects implementing an interface
+     * @see it('rejects a Schema which have same named objects implementing an interface')
      */
     public function testRejectsASchemaWhichHaveSameNamedObjectsImplementingAnInterface()
     {

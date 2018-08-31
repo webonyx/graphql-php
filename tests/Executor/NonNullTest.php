@@ -130,7 +130,7 @@ class NonNullTest extends TestCase
     // Execute: handles non-nullable types
 
     /**
-     * @it nulls a nullable field that throws synchronously
+     * @see it('nulls a nullable field that throws synchronously')
      */
     public function testNullsANullableFieldThatThrowsSynchronously()
     {
@@ -278,7 +278,7 @@ class NonNullTest extends TestCase
     }
 
     /**
-     * @it nulls a complex tree of nullable fields that throw
+     * @see it('nulls a complex tree of nullable fields that throw')
      */
     public function testNullsAComplexTreeOfNullableFieldsThatThrow()
     {
@@ -724,7 +724,7 @@ class NonNullTest extends TestCase
     }
 
     /**
-     * @it nulls the top level if sync non-nullable field throws
+     * @see it('nulls the top level if sync non-nullable field throws')
      */
     public function testNullsTheTopLevelIfSyncNonNullableFieldThrows()
     {

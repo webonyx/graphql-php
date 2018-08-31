@@ -10,7 +10,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     // Validate: Known argument names:
 
     /**
-     * @it single arg is known
+     * @see it('single arg is known')
      */
     public function testSingleArgIsKnown()
     {
@@ -22,7 +22,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple args are known
+     * @see it('multiple args are known')
      */
     public function testMultipleArgsAreKnown()
     {
@@ -34,7 +34,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it ignores args of unknown fields
+     * @see it('ignores args of unknown fields')
      */
     public function testIgnoresArgsOfUnknownFields()
     {
@@ -46,7 +46,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it multiple args in reverse order are known
+     * @see it('multiple args in reverse order are known')
      */
     public function testMultipleArgsInReverseOrderAreKnown()
     {
@@ -58,7 +58,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no args on optional arg
+     * @see it('no args on optional arg')
      */
     public function testNoArgsOnOptionalArg()
     {
@@ -70,7 +70,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it args are known deeply
+     * @see it('args are known deeply')
      */
     public function testArgsAreKnownDeeply()
     {
@@ -91,7 +91,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it directive args are known
+     * @see it('directive args are known')
      */
     public function testDirectiveArgsAreKnown()
     {
@@ -103,7 +103,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it undirective args are invalid
+     * @see it('undirective args are invalid')
      */
     public function testUndirectiveArgsAreInvalid()
     {
@@ -117,7 +117,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it misspelled directive args are reported
+     * @see it('misspelled directive args are reported')
      */
     public function testMisspelledDirectiveArgsAreReported()
     {
@@ -131,7 +131,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it invalid arg name
+     * @see it('invalid arg name')
      */
     public function testInvalidArgName()
     {
@@ -145,7 +145,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it misspelled arg name is reported
+     * @see it('misspelled arg name is reported')
      */
     public function testMisspelledArgNameIsReported()
     {
@@ -159,7 +159,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it unknown args amongst known args
+     * @see it('unknown args amongst known args')
      */
     public function testUnknownArgsAmongstKnownArgs()
     {
@@ -174,7 +174,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     }
 
     /**
-     * @it unknown args deeply
+     * @see it('unknown args deeply')
      */
     public function testUnknownArgsDeeply()
     {

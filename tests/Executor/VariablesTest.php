@@ -247,7 +247,7 @@ class VariablesTest extends TestCase
     // Describe: Handles nullable scalars
 
     /**
-     * @it allows nullable inputs to be omitted
+     * @see it('allows nullable inputs to be omitted')
      */
     public function testAllowsNullableInputsToBeOmitted()
     {
@@ -264,7 +264,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows nullable inputs to be omitted in a variable
+     * @see it('allows nullable inputs to be omitted in a variable')
      */
     public function testAllowsNullableInputsToBeOmittedInAVariable()
     {
@@ -279,7 +279,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows nullable inputs to be omitted in an unlisted variable
+     * @see it('allows nullable inputs to be omitted in an unlisted variable')
      */
     public function testAllowsNullableInputsToBeOmittedInAnUnlistedVariable()
     {
@@ -293,7 +293,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows nullable inputs to be set to null in a variable
+     * @see it('allows nullable inputs to be set to null in a variable')
      */
     public function testAllowsNullableInputsToBeSetToNullInAVariable()
     {
@@ -308,7 +308,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows nullable inputs to be set to a value in a variable
+     * @see it('allows nullable inputs to be set to a value in a variable')
      */
     public function testAllowsNullableInputsToBeSetToAValueInAVariable()
     {
@@ -323,7 +323,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows nullable inputs to be set to a value directly
+     * @see it('allows nullable inputs to be set to a value directly')
      */
     public function testAllowsNullableInputsToBeSetToAValueDirectly()
     {
@@ -340,7 +340,7 @@ class VariablesTest extends TestCase
     // Describe: Handles non-nullable scalars
 
     /**
-     * @it allows non-nullable inputs to be omitted given a default
+     * @see it('allows non-nullable inputs to be omitted given a default')
      */
     public function testAllowsNonNullableInputsToBeOmittedGivenADefault()
     {
@@ -356,7 +356,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it does not allow non-nullable inputs to be omitted in a variable
+     * @see it('does not allow non-nullable inputs to be omitted in a variable')
      */
     public function testDoesntAllowNonNullableInputsToBeOmittedInAVariable()
     {
@@ -379,7 +379,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it does not allow non-nullable inputs to be set to null in a variable
+     * @see it('does not allow non-nullable inputs to be set to null in a variable')
      */
     public function testDoesNotAllowNonNullableInputsToBeSetToNullInAVariable()
     {
@@ -404,7 +404,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows non-nullable inputs to be set to a value in a variable
+     * @see it('allows non-nullable inputs to be set to a value in a variable')
      */
     public function testAllowsNonNullableInputsToBeSetToAValueInAVariable()
     {
@@ -419,7 +419,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows non-nullable inputs to be set to a value directly
+     * @see it('allows non-nullable inputs to be set to a value directly')
      */
     public function testAllowsNonNullableInputsToBeSetToAValueDirectly()
     {
@@ -433,7 +433,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it reports error for missing non-nullable inputs
+     * @see it('reports error for missing non-nullable inputs')
      */
     public function testReportsErrorForMissingNonNullableInputs()
     {
@@ -455,7 +455,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it reports error for array passed into string input
+     * @see it('reports error for array passed into string input')
      */
     public function testReportsErrorForArrayPassedIntoStringInput()
     {
@@ -483,7 +483,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it serializing an array via GraphQLString throws TypeError
+     * @see it('serializing an array via GraphQLString throws TypeError')
      */
     public function testSerializingAnArrayViaGraphQLStringThrowsTypeError()
     {
@@ -493,7 +493,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it reports error for non-provided variables for non-nullable inputs
+     * @see it('reports error for non-provided variables for non-nullable inputs')
      */
     public function testReportsErrorForNonProvidedVariablesForNonNullableInputs()
     {
@@ -524,7 +524,7 @@ class VariablesTest extends TestCase
     // Describe: Handles lists and nullability
 
     /**
-     * @it allows lists to be null
+     * @see it('allows lists to be null')
      */
     public function testAllowsListsToBeNull()
     {
@@ -540,7 +540,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows lists to contain values
+     * @see it('allows lists to contain values')
      */
     public function testAllowsListsToContainValues()
     {
@@ -555,7 +555,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows lists to contain null
+     * @see it('allows lists to contain null')
      */
     public function testAllowsListsToContainNull()
     {
@@ -570,7 +570,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it does not allow non-null lists to be null
+     * @see it('does not allow non-null lists to be null')
      */
     public function testDoesNotAllowNonNullListsToBeNull()
     {
@@ -595,7 +595,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows non-null lists to contain values
+     * @see it('allows non-null lists to contain values')
      */
     public function testAllowsNonNullListsToContainValues()
     {
@@ -610,7 +610,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows non-null lists to contain null
+     * @see it('allows non-null lists to contain null')
      */
     public function testAllowsNonNullListsToContainNull()
     {
@@ -625,7 +625,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows lists of non-nulls to be null
+     * @see it('allows lists of non-nulls to be null')
      */
     public function testAllowsListsOfNonNullsToBeNull()
     {
@@ -640,7 +640,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows lists of non-nulls to contain values
+     * @see it('allows lists of non-nulls to contain values')
      */
     public function testAllowsListsOfNonNullsToContainValues()
     {
@@ -655,7 +655,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it does not allow lists of non-nulls to contain null
+     * @see it('does not allow lists of non-nulls to contain null')
      */
     public function testDoesNotAllowListsOfNonNullsToContainNull()
     {
@@ -680,7 +680,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it does not allow non-null lists of non-nulls to be null
+     * @see it('does not allow non-null lists of non-nulls to be null')
      */
     public function testDoesNotAllowNonNullListsOfNonNullsToBeNull()
     {
@@ -705,7 +705,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it allows non-null lists of non-nulls to contain values
+     * @see it('allows non-null lists of non-nulls to contain values')
      */
     public function testAllowsNonNullListsOfNonNullsToContainValues()
     {
@@ -720,7 +720,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it does not allow non-null lists of non-nulls to contain null
+     * @see it('does not allow non-null lists of non-nulls to contain null')
      */
     public function testDoesNotAllowNonNullListsOfNonNullsToContainNull()
     {
@@ -745,7 +745,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it does not allow invalid types to be used as values
+     * @see it('does not allow invalid types to be used as values')
      */
     public function testDoesNotAllowInvalidTypesToBeUsedAsValues()
     {
@@ -771,7 +771,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it does not allow unknown types to be used as values
+     * @see it('does not allow unknown types to be used as values')
      */
     public function testDoesNotAllowUnknownTypesToBeUsedAsValues()
     {
@@ -799,7 +799,7 @@ class VariablesTest extends TestCase
 
     // Describe: Execute: Uses argument default values
     /**
-     * @it when no argument provided
+     * @see it('when no argument provided')
      */
     public function testWhenNoArgumentProvided()
     {
@@ -814,7 +814,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it when omitted variable provided
+     * @see it('when omitted variable provided')
      */
     public function testWhenOmittedVariableProvided()
     {
@@ -829,7 +829,7 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @it not when argument cannot be coerced
+     * @see it('not when argument cannot be coerced')
      */
     public function testNotWhenArgumentCannotBeCoerced()
     {

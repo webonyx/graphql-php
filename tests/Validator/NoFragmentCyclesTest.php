@@ -10,7 +10,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     // Validate: No circular fragment spreads
 
     /**
-     * @it single reference is valid
+     * @see it('single reference is valid')
      */
     public function testSingleReferenceIsValid()
     {
@@ -21,7 +21,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it spreading twice is not circular
+     * @see it('spreading twice is not circular')
      */
     public function testSpreadingTwiceIsNotCircular()
     {
@@ -32,7 +32,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it spreading twice indirectly is not circular
+     * @see it('spreading twice indirectly is not circular')
      */
     public function testSpreadingTwiceIndirectlyIsNotCircular()
     {
@@ -44,7 +44,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it double spread within abstract types
+     * @see it('double spread within abstract types')
      */
     public function testDoubleSpreadWithinAbstractTypes()
     {
@@ -62,7 +62,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it does not false positive on unknown fragment
+     * @see it('does not false positive on unknown fragment')
      */
     public function testDoesNotFalsePositiveOnUnknownFragment()
     {
@@ -74,7 +74,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it spreading recursively within field fails
+     * @see it('spreading recursively within field fails')
      */
     public function testSpreadingRecursivelyWithinFieldFails()
     {
@@ -86,7 +86,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself directly
+     * @see it('no spreading itself directly')
      */
     public function testNoSpreadingItselfDirectly()
     {
@@ -98,7 +98,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself directly within inline fragment
+     * @see it('no spreading itself directly within inline fragment')
      */
     public function testNoSpreadingItselfDirectlyWithinInlineFragment()
     {
@@ -114,7 +114,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself indirectly
+     * @see it('no spreading itself indirectly')
      */
     public function testNoSpreadingItselfIndirectly()
     {
@@ -130,7 +130,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself indirectly reports opposite order
+     * @see it('no spreading itself indirectly reports opposite order')
      */
     public function testNoSpreadingItselfIndirectlyReportsOppositeOrder()
     {
@@ -146,7 +146,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself indirectly within inline fragment
+     * @see it('no spreading itself indirectly within inline fragment')
      */
     public function testNoSpreadingItselfIndirectlyWithinInlineFragment()
     {
@@ -170,7 +170,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself deeply
+     * @see it('no spreading itself deeply')
      */
     public function testNoSpreadingItselfDeeply()
     {
@@ -208,7 +208,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself deeply two paths
+     * @see it('no spreading itself deeply two paths')
      */
     public function testNoSpreadingItselfDeeplyTwoPaths()
     {
@@ -229,7 +229,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself deeply two paths -- alt traverse order
+     * @see it('no spreading itself deeply two paths -- alt traverse order')
      */
     public function testNoSpreadingItselfDeeplyTwoPathsTraverseOrder()
     {
@@ -250,7 +250,7 @@ class NoFragmentCyclesTest extends ValidatorTestCase
     }
 
     /**
-     * @it no spreading itself deeply and immediately
+     * @see it('no spreading itself deeply and immediately')
      */
     public function testNoSpreadingItselfDeeplyAndImmediately()
     {

@@ -12,7 +12,7 @@ class SuggestionListTest extends TestCase
     // DESCRIBE: suggestionList
 
     /**
-     * @it Returns results when input is empty
+     * @see it('Returns results when input is empty')
      */
     public function testResturnsResultsWhenInputIsEmpty()
     {
@@ -23,7 +23,7 @@ class SuggestionListTest extends TestCase
     }
 
     /**
-     * @it Returns empty array when there are no options
+     * @see it('Returns empty array when there are no options')
      */
     public function testReturnsEmptyArrayWhenThereAreNoOptions()
     {
@@ -34,7 +34,7 @@ class SuggestionListTest extends TestCase
     }
 
     /**
-     * @it Returns options sorted based on similarity
+     * @see it('Returns options sorted based on similarity')
      */
     public function testReturnsOptionsSortedBasedOnSimilarity()
     {

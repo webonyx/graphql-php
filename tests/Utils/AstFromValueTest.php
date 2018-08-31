@@ -22,7 +22,7 @@ class AstFromValueTest extends TestCase
     // Describe: astFromValue
 
     /**
-     * @it converts boolean values to ASTs
+     * @see it('converts boolean values to ASTs')
      */
     public function testConvertsBooleanValueToASTs()
     {
@@ -36,7 +36,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts Int values to Int ASTs
+     * @see it('converts Int values to Int ASTs')
      */
     public function testConvertsIntValuesToASTs()
     {
@@ -63,7 +63,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts Float values to Int/Float ASTs
+     * @see it('converts Float values to Int/Float ASTs')
      */
     public function testConvertsFloatValuesToIntOrFloatASTs()
     {
@@ -77,7 +77,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts String values to String ASTs
+     * @see it('converts String values to String ASTs')
      */
     public function testConvertsStringValuesToASTs()
     {
@@ -91,7 +91,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts ID values to Int/String ASTs
+     * @see it('converts ID values to Int/String ASTs')
      */
     public function testConvertIdValuesToIntOrStringASTs()
     {
@@ -108,7 +108,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it does not converts NonNull values to NullValue
+     * @see it('does not converts NonNull values to NullValue')
      */
     public function testDoesNotConvertsNonNullValuestoNullValue()
     {
@@ -116,7 +116,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts string values to Enum ASTs if possible
+     * @see it('converts string values to Enum ASTs if possible')
      */
     public function testConvertsStringValuesToEnumASTsIfPossible()
     {
@@ -131,7 +131,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts array values to List ASTs
+     * @see it('converts array values to List ASTs')
      */
     public function testConvertsArrayValuesToListASTs()
     {
@@ -153,7 +153,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts list singletons
+     * @see it('converts list singletons')
      */
     public function testConvertsListSingletons()
     {
@@ -161,7 +161,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts input objects
+     * @see it('converts input objects')
      */
     public function testConvertsInputObjects()
     {
@@ -186,7 +186,7 @@ class AstFromValueTest extends TestCase
     }
 
     /**
-     * @it converts input objects with explicit nulls
+     * @see it('converts input objects with explicit nulls')
      */
     public function testConvertsInputObjectsWithExplicitNulls()
     {

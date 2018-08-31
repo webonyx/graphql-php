@@ -10,7 +10,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     // Validate: Variables are in allowed positions
 
     /**
-     * @it Boolean => Boolean
+     * @see it('Boolean => Boolean')
      */
     public function testBooleanXBoolean()
     {
@@ -26,7 +26,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean => Boolean within fragment
+     * @see it('Boolean => Boolean within fragment')
      */
     public function testBooleanXBooleanWithinFragment()
     {
@@ -57,7 +57,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean! => Boolean
+     * @see it('Boolean! => Boolean')
      */
     public function testBooleanNonNullXBoolean()
     {
@@ -73,7 +73,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean! => Boolean within fragment
+     * @see it('Boolean! => Boolean within fragment')
      */
     public function testBooleanNonNullXBooleanWithinFragment()
     {
@@ -93,7 +93,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Int => Int! with default
+     * @see it('Int => Int! with default')
      */
     public function testIntXIntNonNullWithDefault()
     {
@@ -109,7 +109,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it [String] => [String]
+     * @see it('[String] => [String]')
      */
     public function testListOfStringXListOfString()
     {
@@ -124,7 +124,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it [String!] => [String]
+     * @see it('[String!] => [String]')
      */
     public function testListOfStringNonNullXListOfString()
     {
@@ -139,7 +139,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it String => [String] in item position
+     * @see it('String => [String] in item position')
      */
     public function testStringXListOfStringInItemPosition()
     {
@@ -154,7 +154,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it String! => [String] in item position
+     * @see it('String! => [String] in item position')
      */
     public function testStringNonNullXListOfStringInItemPosition()
     {
@@ -169,7 +169,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it ComplexInput => ComplexInput
+     * @see it('ComplexInput => ComplexInput')
      */
     public function testComplexInputXComplexInput()
     {
@@ -184,7 +184,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it ComplexInput => ComplexInput in field position
+     * @see it('ComplexInput => ComplexInput in field position')
      */
     public function testComplexInputXComplexInputInFieldPosition()
     {
@@ -199,7 +199,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean! => Boolean! in directive
+     * @see it('Boolean! => Boolean! in directive')
      */
     public function testBooleanNonNullXBooleanNonNullInDirective()
     {
@@ -212,7 +212,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean => Boolean! in directive with default
+     * @see it('Boolean => Boolean! in directive with default')
      */
     public function testBooleanXBooleanNonNullInDirectiveWithDefault()
     {
@@ -225,7 +225,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Int => Int!
+     * @see it('Int => Int!')
      */
     public function testIntXIntNonNull()
     {
@@ -244,7 +244,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Int => Int! within fragment
+     * @see it('Int => Int! within fragment')
      */
     public function testIntXIntNonNullWithinFragment()
     {
@@ -267,7 +267,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Int => Int! within nested fragment
+     * @see it('Int => Int! within nested fragment')
      */
     public function testIntXIntNonNullWithinNestedFragment()
     {
@@ -296,7 +296,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it String over Boolean
+     * @see it('String over Boolean')
      */
     public function testStringOverBoolean()
     {
@@ -315,7 +315,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it String => [String]
+     * @see it('String => [String]')
      */
     public function testStringXListOfString()
     {
@@ -334,7 +334,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean => Boolean! in directive
+     * @see it('Boolean => Boolean! in directive')
      */
     public function testBooleanXBooleanNonNullInDirective()
     {
@@ -351,7 +351,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it String => Boolean! in directive
+     * @see it('String => Boolean! in directive')
      */
     public function testStringXBooleanNonNullInDirective()
     {
@@ -369,7 +369,7 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @it [String] => [String!]
+     * @see it('[String] => [String!]')
      */
     public function testStringArrayXStringNonNullArray()
     {

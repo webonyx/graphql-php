@@ -17,7 +17,7 @@ use PHPUnit\Framework\TestCase;
 class PrinterTest extends TestCase
 {
     /**
-     * @it does not alter ast
+     * @see it('does not alter ast')
      */
     public function testDoesntAlterAST()
     {
@@ -32,7 +32,7 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @it prints minimal ast
+     * @see it('prints minimal ast')
      */
     public function testPrintsMinimalAst()
     {
@@ -41,7 +41,7 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @it produces helpful error messages
+     * @see it('produces helpful error messages')
      */
     public function testProducesHelpfulErrorMessages()
     {
@@ -52,7 +52,7 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @it correctly prints non-query operations without name
+     * @see it('correctly prints non-query operations without name')
      */
     public function testCorrectlyPrintsOpsWithoutName()
     {
@@ -95,7 +95,7 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @it correctly prints single-line with leading space
+     * @see it('correctly prints single-line with leading space')
      */
     public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace()
     {
@@ -110,7 +110,7 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @it correctly prints string with a first line indentation
+     * @see it('correctly prints string with a first line indentation')
      */
     public function testCorrectlyPrintsBlockStringsWithAFirstLineIndentation()
     {
@@ -135,7 +135,7 @@ class PrinterTest extends TestCase
     }
 
     /**
-     * @it correctly prints single-line with leading space and quotation
+     * @see it('correctly prints single-line with leading space and quotation')
      */
     public function testCorrectlyPrintsSingleLineWithLeadingSpaceAndQuotation()
     {
@@ -156,7 +156,7 @@ END;
     }
 
     /**
-     * @it Experimental: correctly prints fragment defined variables
+     * @see it('Experimental: correctly prints fragment defined variables')
      */
     public function testExperimentalCorrectlyPrintsFragmentDefinedVariables()
     {
@@ -178,7 +178,7 @@ END;
     }
 
     /**
-     * @it correctly prints single-line with leading space and quotation
+     * @see it('correctly prints single-line with leading space and quotation')
      */
     public function testCorrectlyPrintsSingleLineStringsWithLeadingSpaceAndQuotation()
     {
@@ -197,7 +197,7 @@ END;
     }
 
     /**
-     * @it prints kitchen sink
+     * @see it('prints kitchen sink')
      */
     public function testPrintsKitchenSink()
     {

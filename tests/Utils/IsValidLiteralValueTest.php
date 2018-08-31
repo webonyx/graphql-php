@@ -13,7 +13,7 @@ class IsValidLiteralValueTest extends TestCase
     // DESCRIBE: isValidLiteralValue
 
     /**
-     * @it Returns no errors for a valid value
+     * @see it('Returns no errors for a valid value')
      */
     public function testReturnsNoErrorsForAValidValue()
     {
@@ -24,7 +24,7 @@ class IsValidLiteralValueTest extends TestCase
     }
 
     /**
-     * @it Returns errors for an invalid value
+     * @see it('Returns errors for an invalid value')
      */
     public function testReturnsErrorsForForInvalidValue()
     {

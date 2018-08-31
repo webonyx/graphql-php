@@ -11,7 +11,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     // Validate: Executable definitions
 
     /**
-     * @it with only operation
+     * @see it('with only operation')
      */
     public function testWithOnlyOperation()
     {
@@ -25,7 +25,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     }
 
     /**
-     * @it with operation and fragment
+     * @see it('with operation and fragment')
      */
     public function testWithOperationAndFragment()
     {
@@ -44,7 +44,7 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
     }
 
     /**
-     * @it with typeDefinition
+     * @see it('with typeDefinition')
      */
     public function testWithTypeDefinition()
     {

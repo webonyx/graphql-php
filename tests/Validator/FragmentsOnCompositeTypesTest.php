@@ -10,7 +10,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     // Validate: Fragments on composite types
 
     /**
-     * @it object is valid fragment type
+     * @see it('object is valid fragment type')
      */
     public function testObjectIsValidFragmentType()
     {
@@ -22,7 +22,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface is valid fragment type
+     * @see it('interface is valid fragment type')
      */
     public function testInterfaceIsValidFragmentType()
     {
@@ -34,7 +34,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it object is valid inline fragment type
+     * @see it('object is valid inline fragment type')
      */
     public function testObjectIsValidInlineFragmentType()
     {
@@ -48,7 +48,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it inline fragment without type is valid
+     * @see it('inline fragment without type is valid')
      */
     public function testInlineFragmentWithoutTypeIsValid()
     {
@@ -62,7 +62,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it union is valid fragment type
+     * @see it('union is valid fragment type')
      */
     public function testUnionIsValidFragmentType()
     {
@@ -74,7 +74,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it scalar is invalid fragment type
+     * @see it('scalar is invalid fragment type')
      */
     public function testScalarIsInvalidFragmentType()
     {
@@ -87,7 +87,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it enum is invalid fragment type
+     * @see it('enum is invalid fragment type')
      */
     public function testEnumIsInvalidFragmentType()
     {
@@ -100,7 +100,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it input object is invalid fragment type
+     * @see it('input object is invalid fragment type')
      */
     public function testInputObjectIsInvalidFragmentType()
     {
@@ -113,7 +113,7 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it scalar is invalid inline fragment type
+     * @see it('scalar is invalid inline fragment type')
      */
     public function testScalarIsInvalidInlineFragmentType()
     {

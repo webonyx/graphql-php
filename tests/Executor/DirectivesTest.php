@@ -14,7 +14,7 @@ class DirectivesTest extends TestCase
 
     /**
      * @describe works without directives
-     * @it basic query works
+     * @see it('basic query works')
      */
     public function testWorksWithoutDirectives()
     {

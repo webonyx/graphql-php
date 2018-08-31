@@ -10,7 +10,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     // Validate: Scalar leafs
 
     /**
-     * @it valid scalar selection
+     * @see it('valid scalar selection')
      */
     public function testValidScalarSelection()
     {
@@ -22,7 +22,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     }
 
     /**
-     * @it object type missing selection
+     * @see it('object type missing selection')
      */
     public function testObjectTypeMissingSelection()
     {
@@ -34,7 +34,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     }
 
     /**
-     * @it interface type missing selection
+     * @see it('interface type missing selection')
      */
     public function testInterfaceTypeMissingSelection()
     {
@@ -46,7 +46,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     }
 
     /**
-     * @it valid scalar selection with args
+     * @see it('valid scalar selection with args')
      */
     public function testValidScalarSelectionWithArgs()
     {
@@ -58,7 +58,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     }
 
     /**
-     * @it scalar selection not allowed on Boolean
+     * @see it('scalar selection not allowed on Boolean')
      */
     public function testScalarSelectionNotAllowedOnBoolean()
     {
@@ -71,7 +71,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     }
 
     /**
-     * @it scalar selection not allowed on Enum
+     * @see it('scalar selection not allowed on Enum')
      */
     public function testScalarSelectionNotAllowedOnEnum()
     {
@@ -85,7 +85,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     }
 
     /**
-     * @it scalar selection not allowed with args
+     * @see it('scalar selection not allowed with args')
      */
     public function testScalarSelectionNotAllowedWithArgs()
     {
@@ -99,7 +99,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Scalar selection not allowed with directives
+     * @see it('Scalar selection not allowed with directives')
      */
     public function testScalarSelectionNotAllowedWithDirectives()
     {
@@ -113,7 +113,7 @@ class ScalarLeafsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Scalar selection not allowed with directives and args
+     * @see it('Scalar selection not allowed with directives and args')
      */
     public function testScalarSelectionNotAllowedWithDirectivesAndArgs()
     {

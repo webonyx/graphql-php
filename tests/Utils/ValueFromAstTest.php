@@ -23,7 +23,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it rejects empty input
+     * @see it('rejects empty input')
      */
     public function testRejectsEmptyInput()
     {
@@ -31,7 +31,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it converts according to input coercion rules
+     * @see it('converts according to input coercion rules')
      */
     public function testConvertsAccordingToInputCoercionRules()
     {
@@ -46,7 +46,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it does not convert when input coercion rules reject a value
+     * @see it('does not convert when input coercion rules reject a value')
      */
     public function testDoesNotConvertWhenInputCoercionRulesRejectAValue()
     {
@@ -63,7 +63,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it converts enum values according to input coercion rules
+     * @see it('converts enum values according to input coercion rules')
      */
     public function testConvertsEnumValuesAccordingToInputCoercionRules()
     {
@@ -86,7 +86,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it coerces to null unless non-null
+     * @see it('coerces to null unless non-null')
      */
     public function testCoercesToNullUnlessNonNull()
     {
@@ -95,7 +95,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it coerces lists of values
+     * @see it('coerces lists of values')
      */
     public function testCoercesListsOfValues()
     {
@@ -112,7 +112,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it coerces non-null lists of values
+     * @see it('coerces non-null lists of values')
      */
     public function testCoercesNonNullListsOfValues()
     {
@@ -128,7 +128,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it coerces lists of non-null values
+     * @see it('coerces lists of non-null values')
      */
     public function testCoercesListsOfNonNullValues()
     {
@@ -144,7 +144,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it coerces non-null lists of non-null values
+     * @see it('coerces non-null lists of non-null values')
      */
     public function testCoercesNonNullListsOfNonNullValues()
     {
@@ -174,7 +174,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it coerces input objects according to input coercion rules
+     * @see it('coerces input objects according to input coercion rules')
      */
     public function testCoercesInputObjectsAccordingToInputCoercionRules()
     {
@@ -192,7 +192,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it accepts variable values assuming already coerced
+     * @see it('accepts variable values assuming already coerced')
      */
     public function testAcceptsVariableValuesAssumingAlreadyCoerced()
     {
@@ -202,7 +202,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it asserts variables are provided as items in lists
+     * @see it('asserts variables are provided as items in lists')
      */
     public function testAssertsVariablesAreProvidedAsItemsInLists()
     {
@@ -219,7 +219,7 @@ class ValueFromAstTest extends TestCase
     }
 
     /**
-     * @it omits input object fields for unprovided variables
+     * @see it('omits input object fields for unprovided variables')
      */
     public function testOmitsInputObjectFieldsForUnprovidedVariables()
     {

@@ -19,7 +19,7 @@ class AbstractPromiseTest extends TestCase
     // DESCRIBE: Execute: Handles execution of abstract types with promises
 
     /**
-     * @it isTypeOf used to resolve runtime type for Interface
+     * @see it('isTypeOf used to resolve runtime type for Interface')
      */
     public function testIsTypeOfUsedToResolveRuntimeTypeForInterface()
     {
@@ -103,7 +103,7 @@ class AbstractPromiseTest extends TestCase
     }
 
     /**
-     * @it isTypeOf can be rejected
+     * @see it('isTypeOf can be rejected')
      */
     public function testIsTypeOfCanBeRejected()
     {
@@ -197,7 +197,7 @@ class AbstractPromiseTest extends TestCase
     }
 
     /**
-     * @it isTypeOf used to resolve runtime type for Union
+     * @see it('isTypeOf used to resolve runtime type for Union')
      */
     public function testIsTypeOfUsedToResolveRuntimeTypeForUnion()
     {
@@ -275,7 +275,7 @@ class AbstractPromiseTest extends TestCase
     }
 
     /**
-     * @it resolveType on Interface yields useful error
+     * @see it('resolveType on Interface yields useful error')
      */
     public function testResolveTypeOnInterfaceYieldsUsefulError()
     {
@@ -381,7 +381,7 @@ class AbstractPromiseTest extends TestCase
     }
 
     /**
-     * @it resolveType on Union yields useful error
+     * @see it('resolveType on Union yields useful error')
      */
     public function testResolveTypeOnUnionYieldsUsefulError()
     {
@@ -482,7 +482,7 @@ class AbstractPromiseTest extends TestCase
     }
 
     /**
-     * @it resolveType allows resolving with type name
+     * @see it('resolveType allows resolving with type name')
      */
     public function testResolveTypeAllowsResolvingWithTypeName()
     {
@@ -567,7 +567,7 @@ class AbstractPromiseTest extends TestCase
     }
 
     /**
-     * @it resolveType can be caught
+     * @see it('resolveType can be caught')
      */
     public function testResolveTypeCanBeCaught()
     {

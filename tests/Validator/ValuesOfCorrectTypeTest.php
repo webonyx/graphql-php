@@ -45,7 +45,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Valid values
 
     /**
-     * @it Good int value
+     * @see it('Good int value')
      */
     public function testGoodIntValue()
     {
@@ -59,7 +59,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Good negative int value
+     * @see it('Good negative int value')
      */
     public function testGoodNegativeIntValue()
     {
@@ -73,7 +73,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Good boolean value
+     * @see it('Good boolean value')
      */
     public function testGoodBooleanValue()
     {
@@ -87,7 +87,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Good string value
+     * @see it('Good string value')
      */
     public function testGoodStringValue()
     {
@@ -101,7 +101,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Good float value
+     * @see it('Good float value')
      */
     public function testGoodFloatValue()
     {
@@ -126,7 +126,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Int into Float
+     * @see it('Int into Float')
      */
     public function testIntIntoFloat()
     {
@@ -140,7 +140,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Int into ID
+     * @see it('Int into ID')
      */
     public function testIntIntoID()
     {
@@ -154,7 +154,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it String into ID
+     * @see it('String into ID')
      */
     public function testStringIntoID()
     {
@@ -168,7 +168,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Good enum value
+     * @see it('Good enum value')
      */
     public function testGoodEnumValue()
     {
@@ -182,7 +182,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Enum with null value
+     * @see it('Enum with null value')
      */
     public function testEnumWithNullValue()
     {
@@ -196,7 +196,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it null into nullable type
+     * @see it('null into nullable type')
      */
     public function testNullIntoNullableType()
     {
@@ -220,7 +220,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Invalid String values
 
     /**
-     * @it Int into String
+     * @see it('Int into String')
      */
     public function testIntIntoString()
     {
@@ -236,7 +236,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Float into String
+     * @see it('Float into String')
      */
     public function testFloatIntoString()
     {
@@ -252,7 +252,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean into String
+     * @see it('Boolean into String')
      */
     public function testBooleanIntoString()
     {
@@ -268,7 +268,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Unquoted String into String
+     * @see it('Unquoted String into String')
      */
     public function testUnquotedStringIntoString()
     {
@@ -286,7 +286,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Invalid Int values
 
     /**
-     * @it String into Int
+     * @see it('String into Int')
      */
     public function testStringIntoInt()
     {
@@ -302,7 +302,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Big Int into Int
+     * @see it('Big Int into Int')
      */
     public function testBigIntIntoInt()
     {
@@ -318,7 +318,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Unquoted String into Int
+     * @see it('Unquoted String into Int')
      */
     public function testUnquotedStringIntoInt()
     {
@@ -334,7 +334,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Simple Float into Int
+     * @see it('Simple Float into Int')
      */
     public function testSimpleFloatIntoInt()
     {
@@ -350,7 +350,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Float into Int
+     * @see it('Float into Int')
      */
     public function testFloatIntoInt()
     {
@@ -368,7 +368,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Invalid Float values
 
     /**
-     * @it String into Float
+     * @see it('String into Float')
      */
     public function testStringIntoFloat()
     {
@@ -384,7 +384,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean into Float
+     * @see it('Boolean into Float')
      */
     public function testBooleanIntoFloat()
     {
@@ -400,7 +400,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Unquoted into Float
+     * @see it('Unquoted into Float')
      */
     public function testUnquotedIntoFloat()
     {
@@ -418,7 +418,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Invalid Boolean value
 
     /**
-     * @it Int into Boolean
+     * @see it('Int into Boolean')
      */
     public function testIntIntoBoolean()
     {
@@ -434,7 +434,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Float into Boolean
+     * @see it('Float into Boolean')
      */
     public function testFloatIntoBoolean()
     {
@@ -450,7 +450,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it String into Boolean
+     * @see it('String into Boolean')
      */
     public function testStringIntoBoolean()
     {
@@ -466,7 +466,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Unquoted into Boolean
+     * @see it('Unquoted into Boolean')
      */
     public function testUnquotedIntoBoolean()
     {
@@ -484,7 +484,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Invalid ID value
 
     /**
-     * @it Float into ID
+     * @see it('Float into ID')
      */
     public function testFloatIntoID()
     {
@@ -500,7 +500,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean into ID
+     * @see it('Boolean into ID')
      */
     public function testBooleanIntoID()
     {
@@ -516,7 +516,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Unquoted into ID
+     * @see it('Unquoted into ID')
      */
     public function testUnquotedIntoID()
     {
@@ -534,7 +534,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Invalid Enum value
 
     /**
-     * @it Int into Enum
+     * @see it('Int into Enum')
      */
     public function testIntIntoEnum()
     {
@@ -550,7 +550,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Float into Enum
+     * @see it('Float into Enum')
      */
     public function testFloatIntoEnum()
     {
@@ -566,7 +566,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it String into Enum
+     * @see it('String into Enum')
      */
     public function testStringIntoEnum()
     {
@@ -588,7 +588,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Boolean into Enum
+     * @see it('Boolean into Enum')
      */
     public function testBooleanIntoEnum()
     {
@@ -604,7 +604,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Unknown Enum Value into Enum
+     * @see it('Unknown Enum Value into Enum')
      */
     public function testUnknownEnumValueIntoEnum()
     {
@@ -620,7 +620,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Different case Enum Value into Enum
+     * @see it('Different case Enum Value into Enum')
      */
     public function testDifferentCaseEnumValueIntoEnum()
     {
@@ -644,7 +644,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Valid List value
 
     /**
-     * @it Good list value
+     * @see it('Good list value')
      */
     public function testGoodListValue()
     {
@@ -658,7 +658,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Empty list value
+     * @see it('Empty list value')
      */
     public function testEmptyListValue()
     {
@@ -672,7 +672,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Null value
+     * @see it('Null value')
      */
     public function testNullValue()
     {
@@ -686,7 +686,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Single value into List
+     * @see it('Single value into List')
      */
     public function testSingleValueIntoList()
     {
@@ -702,7 +702,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Invalid List value
 
     /**
-     * @it Incorrect item type
+     * @see it('Incorrect item type')
      */
     public function testIncorrectItemtype()
     {
@@ -718,7 +718,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Single value of incorrect type
+     * @see it('Single value of incorrect type')
      */
     public function testSingleValueOfIncorrectType()
     {
@@ -736,7 +736,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Valid non-nullable value
 
     /**
-     * @it Arg on optional arg
+     * @see it('Arg on optional arg')
      */
     public function testArgOnOptionalArg()
     {
@@ -750,7 +750,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it No Arg on optional arg
+     * @see it('No Arg on optional arg')
      */
     public function testNoArgOnOptionalArg()
     {
@@ -764,7 +764,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Multiple args
+     * @see it('Multiple args')
      */
     public function testMultipleArgs()
     {
@@ -778,7 +778,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Multiple args reverse order
+     * @see it('Multiple args reverse order')
      */
     public function testMultipleArgsReverseOrder()
     {
@@ -792,7 +792,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it No args on multiple optional
+     * @see it('No args on multiple optional')
      */
     public function testNoArgsOnMultipleOptional()
     {
@@ -806,7 +806,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it One arg on multiple optional
+     * @see it('One arg on multiple optional')
      */
     public function testOneArgOnMultipleOptional()
     {
@@ -820,7 +820,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Second arg on multiple optional
+     * @see it('Second arg on multiple optional')
      */
     public function testSecondArgOnMultipleOptional()
     {
@@ -834,7 +834,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Multiple reqs on mixedList
+     * @see it('Multiple reqs on mixedList')
      */
     public function testMultipleReqsOnMixedList()
     {
@@ -848,7 +848,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Multiple reqs and one opt on mixedList
+     * @see it('Multiple reqs and one opt on mixedList')
      */
     public function testMultipleReqsAndOneOptOnMixedList()
     {
@@ -862,7 +862,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it All reqs and opts on mixedList
+     * @see it('All reqs and opts on mixedList')
      */
     public function testAllReqsAndOptsOnMixedList()
     {
@@ -878,7 +878,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // Invalid non-nullable value
 
     /**
-     * @it Incorrect value type
+     * @see it('Incorrect value type')
      */
     public function testIncorrectValueType()
     {
@@ -895,7 +895,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Incorrect value and missing argument (ProvidedNonNullArguments)
+     * @see it('Incorrect value and missing argument (ProvidedNonNullArguments)')
      */
     public function testIncorrectValueAndMissingArgumentProvidedNonNullArguments()
     {
@@ -911,7 +911,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Null value
+     * @see it('Null value')
      */
     public function testNullValue2()
     {
@@ -930,7 +930,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // DESCRIBE: Valid input object value
 
     /**
-     * @it Optional arg, despite required field in type
+     * @see it('Optional arg, despite required field in type')
      */
     public function testOptionalArgDespiteRequiredFieldInType()
     {
@@ -944,7 +944,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Partial object, only required
+     * @see it('Partial object, only required')
      */
     public function testPartialObjectOnlyRequired()
     {
@@ -958,7 +958,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Partial object, required field can be falsey
+     * @see it('Partial object, required field can be falsey')
      */
     public function testPartialObjectRequiredFieldCanBeFalsey()
     {
@@ -972,7 +972,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Partial object, including required
+     * @see it('Partial object, including required')
      */
     public function testPartialObjectIncludingRequired()
     {
@@ -986,7 +986,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Full object
+     * @see it('Full object')
      */
     public function testFullObject()
     {
@@ -1006,7 +1006,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Full object with fields in different order
+     * @see it('Full object with fields in different order')
      */
     public function testFullObjectWithFieldsInDifferentOrder()
     {
@@ -1028,7 +1028,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // DESCRIBE: Invalid input object value
 
     /**
-     * @it Partial object, missing required
+     * @see it('Partial object, missing required')
      */
     public function testPartialObjectMissingRequired()
     {
@@ -1044,7 +1044,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Partial object, invalid field type
+     * @see it('Partial object, invalid field type')
      */
     public function testPartialObjectInvalidFieldType()
     {
@@ -1063,7 +1063,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it Partial object, unknown field arg
+     * @see it('Partial object, unknown field arg')
      *
      * The sorting of equal elements has changed so that the test fails on php < 7
      * @requires PHP 7.0
@@ -1093,7 +1093,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
 
 
     /**
-     * @it reports original error for custom scalar which throws
+     * @see it('reports original error for custom scalar which throws')
      */
     public function testReportsOriginalErrorForCustomScalarWhichThrows()
     {
@@ -1118,7 +1118,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it allows custom scalar to accept complex literals
+     * @see it('allows custom scalar to accept complex literals')
      */
     public function testAllowsCustomScalarToAcceptComplexLiterals()
     {
@@ -1135,7 +1135,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // DESCRIBE: Directive arguments
 
     /**
-     * @it with directives of valid types
+     * @see it('with directives of valid types')
      */
     public function testWithDirectivesOfValidTypes()
     {
@@ -1152,7 +1152,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it with directive with incorrect types
+     * @see it('with directive with incorrect types')
      */
     public function testWithDirectiveWithIncorrectTypes()
     {
@@ -1171,7 +1171,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     // DESCRIBE: Variable default values
 
     /**
-     * @it variables with valid default values
+     * @see it('variables with valid default values')
      */
     public function testVariablesWithValidDefaultValues()
     {
@@ -1187,7 +1187,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it variables with valid default null values
+     * @see it('variables with valid default null values')
      */
     public function testVariablesWithValidDefaultNullValues()
     {
@@ -1203,7 +1203,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it variables with invalid default null values
+     * @see it('variables with invalid default null values')
      */
     public function testVariablesWithInvalidDefaultNullValues()
     {
@@ -1223,7 +1223,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it variables with invalid default values
+     * @see it('variables with invalid default values')
      */
     public function testVariablesWithInvalidDefaultValues()
     {
@@ -1243,7 +1243,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it variables with complex invalid default values
+     * @see it('variables with complex invalid default values')
      */
     public function testVariablesWithComplexInvalidDefaultValues()
     {
@@ -1260,7 +1260,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it complex variables missing required field
+     * @see it('complex variables missing required field')
      */
     public function testComplexVariablesMissingRequiredField()
     {
@@ -1274,7 +1274,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @it list variables with invalid item
+     * @see it('list variables with invalid item')
      */
     public function testListVariablesWithInvalidItem()
     {

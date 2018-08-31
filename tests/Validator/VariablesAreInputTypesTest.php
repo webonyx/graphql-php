@@ -10,7 +10,7 @@ class VariablesAreInputTypesTest extends ValidatorTestCase
     // Validate: Variables are input types
 
     /**
-     * @it input types are valid
+     * @see it('input types are valid')
      */
     public function testInputTypesAreValid()
     {
@@ -22,7 +22,7 @@ class VariablesAreInputTypesTest extends ValidatorTestCase
     }
 
     /**
-     * @it output types are invalid
+     * @see it('output types are invalid')
      */
     public function testOutputTypesAreInvalid()
     {

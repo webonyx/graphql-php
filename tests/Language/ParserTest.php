@@ -55,7 +55,7 @@ fragment MissingOn Type
 
     /**
      * @dataProvider parseProvidesUsefulErrors
-     * @it parse provides useful errors
+     * @see it('parse provides useful errors')
      */
     public function testParseProvidesUsefulErrors($str, $expectedMessage, $stringRepresentation, $expectedPositions = null, $expectedLocations = null)
     {
@@ -77,7 +77,7 @@ fragment MissingOn Type
     }
 
     /**
-     * @it parse provides useful error when using source
+     * @see it('parse provides useful error when using source')
      */
     public function testParseProvidesUsefulErrorWhenUsingSource()
     {
@@ -93,7 +93,7 @@ fragment MissingOn Type
     }
 
     /**
-     * @it parses variable inline values
+     * @see it('parses variable inline values')
      */
     public function testParsesVariableInlineValues()
     {
@@ -103,7 +103,7 @@ fragment MissingOn Type
     }
 
     /**
-     * @it parses constant default values
+     * @see it('parses constant default values')
      */
     public function testParsesConstantDefaultValues()
     {
@@ -115,7 +115,7 @@ fragment MissingOn Type
     }
 
     /**
-     * @it does not accept fragments spread of "on"
+     * @see it('does not accept fragments spread of "on"')
      */
     public function testDoesNotAcceptFragmentsNamedOn()
     {
@@ -127,7 +127,7 @@ fragment MissingOn Type
     }
 
     /**
-     * @it does not accept fragments spread of "on"
+     * @see it('does not accept fragments spread of "on"')
      */
     public function testDoesNotAcceptFragmentSpreadOfOn()
     {
@@ -139,7 +139,7 @@ fragment MissingOn Type
     }
 
     /**
-     * @it parses multi-byte characters
+     * @see it('parses multi-byte characters')
      */
     public function testParsesMultiByteCharacters()
     {
@@ -174,7 +174,7 @@ HEREDOC;
     }
 
     /**
-     * @it parses kitchen sink
+     * @see it('parses kitchen sink')
      */
     public function testParsesKitchenSink()
     {
@@ -218,7 +218,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses anonymous mutation operations
+     * @see it('parses anonymous mutation operations')
      */
     public function testParsessAnonymousMutationOperations()
     {
@@ -232,7 +232,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses anonymous subscription operations
+     * @see it('parses anonymous subscription operations')
      */
     public function testParsesAnonymousSubscriptionOperations()
     {
@@ -246,7 +246,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses named mutation operations
+     * @see it('parses named mutation operations')
      */
     public function testParsesNamedMutationOperations()
     {
@@ -260,7 +260,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses named subscription operations
+     * @see it('parses named subscription operations')
      */
     public function testParsesNamedSubscriptionOperations()
     {
@@ -273,7 +273,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it creates ast
+     * @see it('creates ast')
      */
     public function testParseCreatesAst()
     {
@@ -377,7 +377,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it creates ast from nameless query without variables
+     * @see it('creates ast from nameless query without variables')
      */
     public function testParseCreatesAstFromNamelessQueryWithoutVariables()
     {
@@ -452,7 +452,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it allows parsing without source location information
+     * @see it('allows parsing without source location information')
      */
     public function testAllowsParsingWithoutSourceLocationInformation()
     {
@@ -463,7 +463,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it Experimental: allows parsing fragment defined variables
+     * @see it('Experimental: allows parsing fragment defined variables')
      */
     public function testExperimentalAllowsParsingFragmentDefinedVariables()
     {
@@ -476,7 +476,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it contains location information that only stringifys start/end
+     * @see it('contains location information that only stringifys start/end')
      */
     public function testContainsLocationInformationThatOnlyStringifysStartEnd()
     {
@@ -486,7 +486,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it contains references to source
+     * @see it('contains references to source')
      */
     public function testContainsReferencesToSource()
     {
@@ -496,7 +496,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it contains references to start and end tokens
+     * @see it('contains references to start and end tokens')
      */
     public function testContainsReferencesToStartAndEndTokens()
     {
@@ -509,7 +509,7 @@ fragment $fragmentName on Type {
     // Describe: parseValue
 
     /**
-     * @it parses null value
+     * @see it('parses null value')
      */
     public function testParsesNullValues()
     {
@@ -520,7 +520,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses list values
+     * @see it('parses list values')
      */
     public function testParsesListValues()
     {
@@ -546,7 +546,7 @@ fragment $fragmentName on Type {
     // Describe: parseType
 
     /**
-     * @it parses well known types
+     * @see it('parses well known types')
      */
     public function testParsesWellKnownTypes()
     {
@@ -562,7 +562,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses custom types
+     * @see it('parses custom types')
      */
     public function testParsesCustomTypes()
     {
@@ -578,7 +578,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses list types
+     * @see it('parses list types')
      */
     public function testParsesListTypes()
     {
@@ -598,7 +598,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses non-null types
+     * @see it('parses non-null types')
      */
     public function testParsesNonNullTypes()
     {
@@ -618,7 +618,7 @@ fragment $fragmentName on Type {
     }
 
     /**
-     * @it parses nested types
+     * @see it('parses nested types')
      */
     public function testParsesNestedTypes()
     {

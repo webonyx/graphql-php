@@ -34,7 +34,7 @@ class BreakingChangesFinderTest extends TestCase
     //DESCRIBE: findBreakingChanges
 
     /**
-     * @it should detect if a type was removed or not
+     * @see it('should detect if a type was removed or not')
      */
     public function testShouldDetectIfTypeWasRemovedOrNot()
     {
@@ -75,7 +75,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a type changed its type
+     * @see it('should detect if a type changed its type')
      */
     public function testShouldDetectIfATypeChangedItsType()
     {
@@ -122,7 +122,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a field on a type was deleted or changed type
+     * @see it('should detect if a field on a type was deleted or changed type')
      */
     public function testShouldDetectIfAFieldOnATypeWasDeletedOrChangedType()
     {
@@ -266,7 +266,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if fields on input types changed kind or were removed
+     * @see it('should detect if fields on input types changed kind or were removed')
      */
     public function testShouldDetectIfFieldsOnInputTypesChangedKindOrWereRemoved()
     {
@@ -430,7 +430,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a non-null field is added to an input type
+     * @see it('should detect if a non-null field is added to an input type')
      */
     public function testShouldDetectIfANonNullFieldIsAddedToAnInputType()
     {
@@ -474,7 +474,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a type was removed from a union type
+     * @see it('should detect if a type was removed from a union type')
      */
     public function testShouldRetectIfATypeWasRemovedFromAUnionType()
     {
@@ -537,7 +537,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a value was removed from an enum type
+     * @see it('should detect if a value was removed from an enum type')
      */
     public function testShouldDetectIfAValueWasRemovedFromAnEnumType()
     {
@@ -582,7 +582,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a field argument was removed
+     * @see it('should detect if a field argument was removed')
      */
     public function testShouldDetectIfAFieldArgumentWasRemoved()
     {
@@ -664,7 +664,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a field argument has changed type
+     * @see it('should detect if a field argument has changed type')
      */
     public function testShouldDetectIfAFieldArgumentHasChangedType()
     {
@@ -785,7 +785,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a non-null field argument was added
+     * @see it('should detect if a non-null field argument was added')
      */
     public function testShouldDetectIfANonNullFieldArgumentWasAdded()
     {
@@ -834,7 +834,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should not flag args with the same type signature as breaking
+     * @see it('should not flag args with the same type signature as breaking')
      */
     public function testShouldNotFlagArgsWithTheSameTypeSignatureAsBreaking()
     {
@@ -891,7 +891,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should consider args that move away from NonNull as non-breaking
+     * @see it('should consider args that move away from NonNull as non-breaking')
      */
     public function testShouldConsiderArgsThatMoveAwayFromNonNullAsNonBreaking()
     {
@@ -931,7 +931,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect interfaces removed from types
+     * @see it('should detect interfaces removed from types')
      */
     public function testShouldDetectInterfacesRemovedFromTypes()
     {
@@ -978,7 +978,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect all breaking changes
+     * @see it('should detect all breaking changes')
      */
     public function testShouldDetectAllBreakingChanges()
     {
@@ -1244,7 +1244,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a directive was explicitly removed
+     * @see it('should detect if a directive was explicitly removed')
      */
     public function testShouldDetectIfADirectiveWasExplicitlyRemoved()
     {
@@ -1269,7 +1269,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a directive was implicitly removed
+     * @see it('should detect if a directive was implicitly removed')
      */
     public function testShouldDetectIfADirectiveWasImplicitlyRemoved()
     {
@@ -1292,7 +1292,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a directive argument was removed
+     * @see it('should detect if a directive argument was removed')
      */
     public function testShouldDetectIfADirectiveArgumentWasRemoved()
     {
@@ -1330,7 +1330,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a non-nullable directive argument was added
+     * @see it('should detect if a non-nullable directive argument was added')
      */
     public function testShouldDetectIfANonNullableDirectiveArgumentWasAdded()
     {
@@ -1369,7 +1369,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect locations removed from a directive
+     * @see it('should detect locations removed from a directive')
      */
     public function testShouldDetectLocationsRemovedFromADirective()
     {
@@ -1387,7 +1387,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect locations removed directives within a schema
+     * @see it('should detect locations removed directives within a schema')
      */
     public function testShouldDetectLocationsRemovedDirectiveWithinASchema()
     {
@@ -1426,7 +1426,7 @@ class BreakingChangesFinderTest extends TestCase
     // DESCRIBE: findArgChanges
 
     /**
-     * @it should detect if an argument's defaultValue has changed
+     * @see it('should detect if an argument's defaultValue has changed')
      */
     public function testShouldDetectIfAnArgumentsDefaultValueHasChanged()
     {
@@ -1484,7 +1484,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a value was added to an enum type
+     * @see it('should detect if a value was added to an enum type')
      */
     public function testShouldDetectIfAValueWasAddedToAnEnumType()
     {
@@ -1528,7 +1528,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect interfaces added to types
+     * @see it('should detect interfaces added to types')
      */
     public function testShouldDetectInterfacesAddedToTypes()
     {
@@ -1577,7 +1577,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a type was added to a union type
+     * @see it('should detect if a type was added to a union type')
      */
     public function testShouldDetectIfATypeWasAddedToAUnionType()
     {
@@ -1635,7 +1635,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a nullable field was added to an input
+     * @see it('should detect if a nullable field was added to an input')
      */
     public function testShouldDetectIfANullableFieldWasAddedToAnInput()
     {
@@ -1684,7 +1684,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should find all dangerous changes
+     * @see it('should find all dangerous changes')
      */
     public function testShouldFindAllDangerousChanges()
     {
@@ -1820,7 +1820,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @it should detect if a nullable field argument was added
+     * @see it('should detect if a nullable field argument was added')
      */
     public function testShouldDetectIfANullableFieldArgumentWasAdded()
     {

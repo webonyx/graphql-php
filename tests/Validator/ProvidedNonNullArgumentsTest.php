@@ -10,7 +10,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     // Validate: Provided required arguments
 
     /**
-     * @it ignores unknown arguments
+     * @see it('ignores unknown arguments')
      */
     public function testIgnoresUnknownArguments()
     {
@@ -27,7 +27,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     // Valid non-nullable value:
 
     /**
-     * @it Arg on optional arg
+     * @see it('Arg on optional arg')
      */
     public function testArgOnOptionalArg()
     {
@@ -41,7 +41,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it No Arg on optional arg
+     * @see it('No Arg on optional arg')
      */
     public function testNoArgOnOptionalArg()
     {
@@ -55,7 +55,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Multiple args
+     * @see it('Multiple args')
      */
     public function testMultipleArgs()
     {
@@ -69,7 +69,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Multiple args reverse order
+     * @see it('Multiple args reverse order')
      */
     public function testMultipleArgsReverseOrder()
     {
@@ -83,7 +83,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it No args on multiple optional
+     * @see it('No args on multiple optional')
      */
     public function testNoArgsOnMultipleOptional()
     {
@@ -97,7 +97,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it One arg on multiple optional
+     * @see it('One arg on multiple optional')
      */
     public function testOneArgOnMultipleOptional()
     {
@@ -111,7 +111,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Second arg on multiple optional
+     * @see it('Second arg on multiple optional')
      */
     public function testSecondArgOnMultipleOptional()
     {
@@ -125,7 +125,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Multiple reqs on mixedList
+     * @see it('Multiple reqs on mixedList')
      */
     public function testMultipleReqsOnMixedList()
     {
@@ -139,7 +139,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Multiple reqs and one opt on mixedList
+     * @see it('Multiple reqs and one opt on mixedList')
      */
     public function testMultipleReqsAndOneOptOnMixedList()
     {
@@ -153,7 +153,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it All reqs and opts on mixedList
+     * @see it('All reqs and opts on mixedList')
      */
     public function testAllReqsAndOptsOnMixedList()
     {
@@ -169,7 +169,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     // Invalid non-nullable value
 
     /**
-     * @it Missing one non-nullable argument
+     * @see it('Missing one non-nullable argument')
      */
     public function testMissingOneNonNullableArgument()
     {
@@ -185,7 +185,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Missing multiple non-nullable arguments
+     * @see it('Missing multiple non-nullable arguments')
      */
     public function testMissingMultipleNonNullableArguments()
     {
@@ -202,7 +202,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it Incorrect value and missing argument
+     * @see it('Incorrect value and missing argument')
      */
     public function testIncorrectValueAndMissingArgument()
     {
@@ -220,7 +220,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     // Describe: Directive arguments
 
     /**
-     * @it ignores unknown directives
+     * @see it('ignores unknown directives')
      */
     public function testIgnoresUnknownDirectives()
     {
@@ -232,7 +232,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it with directives of valid types
+     * @see it('with directives of valid types')
      */
     public function testWithDirectivesOfValidTypes()
     {
@@ -249,7 +249,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
-     * @it with directive with missing types
+     * @see it('with directive with missing types')
      */
     public function testWithDirectiveWithMissingTypes()
     {

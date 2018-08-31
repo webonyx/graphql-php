@@ -66,7 +66,7 @@ class SyncTest extends TestCase
     // Describe: Execute: synchronously when possible
 
     /**
-     * @it does not return a Promise for initial errors
+     * @see it('does not return a Promise for initial errors')
      */
     public function testDoesNotReturnAPromiseForInitialErrors()
     {
@@ -80,7 +80,7 @@ class SyncTest extends TestCase
     }
 
     /**
-     * @it does not return a Promise if fields are all synchronous
+     * @see it('does not return a Promise if fields are all synchronous')
      */
     public function testDoesNotReturnAPromiseIfFieldsAreAllSynchronous()
     {
@@ -94,7 +94,7 @@ class SyncTest extends TestCase
     }
 
     /**
-     * @it does not return a Promise if mutation fields are all synchronous
+     * @see it('does not return a Promise if mutation fields are all synchronous')
      */
     public function testDoesNotReturnAPromiseIfMutationFieldsAreAllSynchronous()
     {
@@ -108,7 +108,7 @@ class SyncTest extends TestCase
     }
 
     /**
-     * @it returns a Promise if any field is asynchronous
+     * @see it('returns a Promise if any field is asynchronous')
      */
     public function testReturnsAPromiseIfAnyFieldIsAsynchronous()
     {
@@ -124,7 +124,7 @@ class SyncTest extends TestCase
     // Describe: graphqlSync
 
     /**
-     * @it does not return a Promise for syntax errors
+     * @see it('does not return a Promise for syntax errors')
      */
     public function testDoesNotReturnAPromiseForSyntaxErrors()
     {
@@ -142,7 +142,7 @@ class SyncTest extends TestCase
     }
 
     /**
-     * @it does not return a Promise for validation errors
+     * @see it('does not return a Promise for validation errors')
      */
     public function testDoesNotReturnAPromiseForValidationErrors()
     {
@@ -161,7 +161,7 @@ class SyncTest extends TestCase
     }
 
     /**
-     * @it does not return a Promise for sync execution
+     * @see it('does not return a Promise for sync execution')
      */
     public function testDoesNotReturnAPromiseForSyncExecution()
     {
