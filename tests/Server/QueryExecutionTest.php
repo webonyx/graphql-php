@@ -66,7 +66,7 @@ class QueryExecutionTest extends ServerTestCase
         $query = '{f1';
 
         $result = $this->executeQuery($query);
-        $this->assertSame(null, $result->data);
+        $this->assertNull($result->data);
         $this->assertCount(1, $result->errors);
         $this->assertContains(
             'Syntax Error: Expected Name, found <EOF>',

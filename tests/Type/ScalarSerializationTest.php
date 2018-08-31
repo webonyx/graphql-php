@@ -186,13 +186,13 @@ class ScalarSerializationTest extends TestCase
     {
         $boolType = Type::boolean();
 
-        $this->assertSame(true, $boolType->serialize('string'));
-        $this->assertSame(false, $boolType->serialize(''));
-        $this->assertSame(true, $boolType->serialize('1'));
-        $this->assertSame(true, $boolType->serialize(1));
-        $this->assertSame(false, $boolType->serialize(0));
-        $this->assertSame(true, $boolType->serialize(true));
-        $this->assertSame(false, $boolType->serialize(false));
+        $this->assertTrue($boolType->serialize('string'));
+        $this->assertFalse($boolType->serialize(''));
+        $this->assertTrue($boolType->serialize('1'));
+        $this->assertTrue($boolType->serialize(1));
+        $this->assertFalse($boolType->serialize(0));
+        $this->assertTrue($boolType->serialize(true));
+        $this->assertFalse($boolType->serialize(false));
         // TODO: how should it behave on '0'?
     }
 

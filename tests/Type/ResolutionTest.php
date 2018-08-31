@@ -287,7 +287,7 @@ class ResolutionTest extends TestCase
         ];
         $this->assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
 
-        $this->assertSame(null, $eagerTypeResolution->resolveType('User'));
+        $this->assertNull($eagerTypeResolution->resolveType('User'));
         $this->assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->node));
         $this->assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->content));
         $this->assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->mention));

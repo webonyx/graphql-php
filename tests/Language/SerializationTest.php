@@ -51,7 +51,7 @@ class SerializationTest extends TestCase
 
         $expectedVars = get_object_vars($expected);
         $actualVars   = get_object_vars($actual);
-        $this->assertSame(count($expectedVars), count($actualVars), $err);
+        $this->assertCount(count($expectedVars), $actualVars, $err);
         $this->assertEquals(array_keys($expectedVars), array_keys($actualVars), $err);
 
         foreach ($expectedVars as $name => $expectedValue) {

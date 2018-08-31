@@ -126,7 +126,7 @@ class AstFromValueTest extends TestCase
      */
     public function testDoesNotConvertsNonNullValuestoNullValue() : void
     {
-        $this->assertSame(null, AST::astFromValue(null, Type::nonNull(Type::boolean())));
+        $this->assertNull(AST::astFromValue(null, Type::nonNull(Type::boolean())));
     }
 
     /**
@@ -141,10 +141,10 @@ class AstFromValueTest extends TestCase
         );
 
         // Note: case sensitive
-        $this->assertEquals(null, AST::astFromValue('hello', $this->myEnum()));
+        $this->assertNull(AST::astFromValue('hello', $this->myEnum()));
 
         // Note: Not a valid enum value
-        $this->assertEquals(null, AST::astFromValue('VALUE', $this->myEnum()));
+        $this->assertNull(AST::astFromValue('VALUE', $this->myEnum()));
     }
 
     /**
