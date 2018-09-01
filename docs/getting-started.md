@@ -4,7 +4,7 @@ first learn about GraphQL on [the official website](http://graphql.org/learn/).
 
 # Installation
 
-Using [composer](https://getcomposer.org/doc/00-intro.md), simply run:
+Using [composer](https://getcomposer.org/doc/00-intro.md), run:
 
 ```sh
 composer require webonyx/graphql-php
