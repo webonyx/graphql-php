@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests;
 
 use GraphQL\Language\Token;
@@ -8,12 +11,12 @@ class TokenTest extends TestCase
 {
     public function testReturnTokenOnArray() : void
     {
-        $token = new Token('Kind', 1, 10, 3, 5);
+        $token    = new Token('Kind', 1, 10, 3, 5);
         $expected = [
-            'kind' => 'Kind',
-            'value' => null,
-            'line' => 3,
-            'column' => 5
+            'kind'   => 'Kind',
+            'value'  => null,
+            'line'   => 3,
+            'column' => 5,
         ];
 
         $this->assertEquals($expected, $token->toArray());

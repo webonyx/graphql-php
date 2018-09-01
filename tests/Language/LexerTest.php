@@ -1,13 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Language;
 
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\Lexer;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
-use GraphQL\Error\SyntaxError;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use function count;
+use function json_decode;
 
 class LexerTest extends TestCase
 {
@@ -23,17 +28,45 @@ class LexerTest extends TestCase
         );
     }
 
+    private function expectSyntaxError($text, $message, $location)
+    {
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage($message);
+        try {
+            $this->lexOne($text);
+        } catch (SyntaxError $error) {
+            $this->assertEquals([$location], $error->getLocations());
+            throw $error;
+        }
+    }
+
+    /**
+     * @param string $body
+     * @return Token
+     */
+    private function lexOne($body)
+    {
+        $lexer = new Lexer(new Source($body));
+
+        return $lexer->advance();
+    }
+
+    private function loc($line, $column)
+    {
+        return new SourceLocation($line, $column);
+    }
+
     /**
      * @see it('accepts BOM header')
      */
     public function testAcceptsBomHeader() : void
     {
-        $bom = Utils::chr(0xFEFF);
+        $bom      = Utils::chr(0xFEFF);
         $expected = [
-            'kind' => Token::NAME,
+            'kind'  => Token::NAME,
             'start' => 2,
-            'end' => 5,
-            'value' => 'foo'
+            'end'   => 5,
+            'value' => 'foo',
         ];
 
         $this->assertArraySubset($expected, (array) $this->lexOne($bom . ' foo'));
@@ -45,12 +78,12 @@ class LexerTest extends TestCase
     public function testRecordsLineAndColumn() : void
     {
         $expected = [
-            'kind' => Token::NAME,
-            'start' => 8,
-            'end' => 11,
-            'line' => 4,
+            'kind'   => Token::NAME,
+            'start'  => 8,
+            'end'    => 11,
+            'line'   => 4,
             'column' => 3,
-            'value' => 'foo'
+            'value'  => 'foo',
         ];
         $this->assertArraySubset($expected, (array) $this->lexOne("\n \r\n \r  foo\n"));
     }
@@ -67,10 +100,10 @@ class LexerTest extends TestCase
 
 ';
         $expected = [
-            'kind' => Token::NAME,
+            'kind'  => Token::NAME,
             'start' => 6,
-            'end' => 9,
-            'value' => 'foo'
+            'end'   => 9,
+            'value' => 'foo',
         ];
         $this->assertArraySubset($expected, (array) $this->lexOne($example1));
 
@@ -80,18 +113,18 @@ class LexerTest extends TestCase
 ';
 
         $expected = [
-            'kind' => Token::NAME,
+            'kind'  => Token::NAME,
             'start' => 18,
-            'end' => 21,
-            'value' => 'foo'
+            'end'   => 21,
+            'value' => 'foo',
         ];
         $this->assertArraySubset($expected, (array) $this->lexOne($example2));
 
         $expected = [
-            'kind' => Token::NAME,
+            'kind'  => Token::NAME,
             'start' => 3,
-            'end' => 6,
-            'value' => 'foo'
+            'end'   => 6,
+            'value' => 'foo',
         ];
 
         $example3 = ',,,foo,,,';
@@ -131,7 +164,7 @@ class LexerTest extends TestCase
      */
     public function testUpdatesLineNumbersInErrorForFileContext() : void
     {
-        $str = '' .
+        $str    = '' .
             "\n" .
             "\n" .
             "     ?\n" .
@@ -181,63 +214,86 @@ class LexerTest extends TestCase
      */
     public function testLexesStrings() : void
     {
-        $this->assertArraySubset([
-            'kind' => Token::STRING,
-            'start' => 0,
-            'end' => 8,
-            'value' => 'simple'
-        ], (array) $this->lexOne('"simple"'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::STRING,
+                'start' => 0,
+                'end'   => 8,
+                'value' => 'simple',
+            ],
+            (array) $this->lexOne('"simple"')
+        );
 
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::STRING,
+                'start' => 0,
+                'end'   => 15,
+                'value' => ' white space ',
+            ],
+            (array) $this->lexOne('" white space "')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::STRING,
-            'start' => 0,
-            'end' => 15,
-            'value' => ' white space '
-        ], (array) $this->lexOne('" white space "'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::STRING,
+                'start' => 0,
+                'end'   => 10,
+                'value' => 'quote "',
+            ],
+            (array) $this->lexOne('"quote \\""')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::STRING,
-            'start' => 0,
-            'end' => 10,
-            'value' => 'quote "'
-        ], (array) $this->lexOne('"quote \\""'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::STRING,
+                'start' => 0,
+                'end'   => 25,
+                'value' => 'escaped \n\r\b\t\f',
+            ],
+            (array) $this->lexOne('"escaped \\\\n\\\\r\\\\b\\\\t\\\\f"')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::STRING,
-            'start' => 0,
-            'end' => 25,
-            'value' => 'escaped \n\r\b\t\f'
-        ], (array) $this->lexOne('"escaped \\\\n\\\\r\\\\b\\\\t\\\\f"'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::STRING,
+                'start' => 0,
+                'end'   => 16,
+                'value' => 'slashes \\ \/',
+            ],
+            (array) $this->lexOne('"slashes \\\\ \\\\/"')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::STRING,
-            'start' => 0,
-            'end' => 16,
-            'value' => 'slashes \\ \/'
-        ], (array) $this->lexOne('"slashes \\\\ \\\\/"'));
-
-        $this->assertArraySubset([
-            'kind' => Token::STRING,
-            'start' => 0,
-            'end' => 13,
-            'value' => 'unicode яуц'
-        ], (array) $this->lexOne('"unicode яуц"'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::STRING,
+                'start' => 0,
+                'end'   => 13,
+                'value' => 'unicode яуц',
+            ],
+            (array) $this->lexOne('"unicode яуц"')
+        );
 
         $unicode = json_decode('"\u1234\u5678\u90AB\uCDEF"');
-        $this->assertArraySubset([
-            'kind' => Token::STRING,
-            'start' => 0,
-            'end' => 34,
-            'value' => 'unicode ' . $unicode
-        ], (array) $this->lexOne('"unicode \u1234\u5678\u90AB\uCDEF"'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::STRING,
+                'start' => 0,
+                'end'   => 34,
+                'value' => 'unicode ' . $unicode,
+            ],
+            (array) $this->lexOne('"unicode \u1234\u5678\u90AB\uCDEF"')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::STRING,
-            'start' => 0,
-            'end' => 26,
-            'value' => $unicode
-        ], (array) $this->lexOne('"\u1234\u5678\u90AB\uCDEF"'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::STRING,
+                'start' => 0,
+                'end'   => 26,
+                'value' => $unicode,
+            ],
+            (array) $this->lexOne('"\u1234\u5678\u90AB\uCDEF"')
+        );
     }
 
     /**
@@ -245,86 +301,128 @@ class LexerTest extends TestCase
      */
     public function testLexesBlockString() : void
     {
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 12,
-            'value' => 'simple'
-        ], (array) $this->lexOne('"""simple"""'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 12,
+                'value' => 'simple',
+            ],
+            (array) $this->lexOne('"""simple"""')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 19,
-            'value' => ' white space '
-        ], (array) $this->lexOne('""" white space """'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 19,
+                'value' => ' white space ',
+            ],
+            (array) $this->lexOne('""" white space """')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 22,
-            'value' => 'contains " quote'
-        ], (array) $this->lexOne('"""contains " quote"""'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 22,
+                'value' => 'contains " quote',
+            ],
+            (array) $this->lexOne('"""contains " quote"""')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 31,
-            'value' => 'contains """ triplequote'
-        ], (array) $this->lexOne('"""contains \\""" triplequote"""'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 31,
+                'value' => 'contains """ triplequote',
+            ],
+            (array) $this->lexOne('"""contains \\""" triplequote"""')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 16,
-            'value' => "multi\nline"
-        ], (array) $this->lexOne("\"\"\"multi\nline\"\"\""));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 16,
+                'value' => "multi\nline",
+            ],
+            (array) $this->lexOne("\"\"\"multi\nline\"\"\"")
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 28,
-            'value' => "multi\nline\nnormalized"
-        ], (array) $this->lexOne("\"\"\"multi\rline\r\nnormalized\"\"\""));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 28,
+                'value' => "multi\nline\nnormalized",
+            ],
+            (array) $this->lexOne("\"\"\"multi\rline\r\nnormalized\"\"\"")
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 32,
-            'value' => 'unescaped \\n\\r\\b\\t\\f\\u1234'
-        ], (array) $this->lexOne('"""unescaped \\n\\r\\b\\t\\f\\u1234"""'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 32,
+                'value' => 'unescaped \\n\\r\\b\\t\\f\\u1234',
+            ],
+            (array) $this->lexOne('"""unescaped \\n\\r\\b\\t\\f\\u1234"""')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 19,
-            'value' => 'slashes \\\\ \\/'
-        ], (array) $this->lexOne('"""slashes \\\\ \\/"""'));
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 19,
+                'value' => 'slashes \\\\ \\/',
+            ],
+            (array) $this->lexOne('"""slashes \\\\ \\/"""')
+        );
 
-        $this->assertArraySubset([
-            'kind' => Token::BLOCK_STRING,
-            'start' => 0,
-            'end' => 68,
-            'value' => "spans\n  multiple\n    lines"
-        ], (array) $this->lexOne("\"\"\"
+        $this->assertArraySubset(
+            [
+                'kind'  => Token::BLOCK_STRING,
+                'start' => 0,
+                'end'   => 68,
+                'value' => "spans\n  multiple\n    lines",
+            ],
+            (array) $this->lexOne('"""
 
         spans
           multiple
             lines
 
-        \"\"\""));
+        """')
+        );
     }
 
-    public function reportsUsefulStringErrors() {
+    public function reportsUsefulStringErrors()
+    {
         return [
-            ['"', "Unterminated string.", $this->loc(1, 2)],
-            ['"no end quote', "Unterminated string.", $this->loc(1, 14)],
-            ["'single quotes'", "Unexpected single quote character ('), did you mean to use a double quote (\")?", $this->loc(1, 1)],
-            ['"contains unescaped \u0007 control char"', "Invalid character within String: \"\\u0007\"", $this->loc(1, 21)],
+            ['"', 'Unterminated string.', $this->loc(1, 2)],
+            ['"no end quote', 'Unterminated string.', $this->loc(1, 14)],
+            [
+                "'single quotes'",
+                "Unexpected single quote character ('), did you mean to use a double quote (\")?",
+                $this->loc(
+                    1,
+                    1
+                ),
+            ],
+            [
+                '"contains unescaped \u0007 control char"',
+                "Invalid character within String: \"\\u0007\"",
+                $this->loc(
+                    1,
+                    21
+                ),
+            ],
             ['"null-byte is not \u0000 end of file"', 'Invalid character within String: "\\u0000"', $this->loc(1, 19)],
-            ['"multi' . "\n" . 'line"', "Unterminated string.", $this->loc(1, 7)],
-            ['"multi' . "\r" . 'line"', "Unterminated string.", $this->loc(1, 7)],
-            ['"bad \\z esc"', "Invalid character escape sequence: \\z", $this->loc(1, 7)],
+            ['"multi' . "\n" . 'line"', 'Unterminated string.', $this->loc(1, 7)],
+            ['"multi' . "\r" . 'line"', 'Unterminated string.', $this->loc(1, 7)],
+            ['"bad \\z esc"', 'Invalid character escape sequence: \\z', $this->loc(1, 7)],
             ['"bad \\x esc"', "Invalid character escape sequence: \\x", $this->loc(1, 7)],
             ['"bad \\u1 esc"', "Invalid character escape sequence: \\u1 es", $this->loc(1, 7)],
             ['"bad \\u0XX1 esc"', "Invalid character escape sequence: \\u0XX1", $this->loc(1, 7)],
@@ -336,25 +434,40 @@ class LexerTest extends TestCase
 
     /**
      * @dataProvider reportsUsefulStringErrors
-     * @see it('lex reports useful string errors')
+     * @see          it('lex reports useful string errors')
      */
     public function testLexReportsUsefulStringErrors($str, $expectedMessage, $location) : void
     {
         $this->expectSyntaxError($str, $expectedMessage, $location);
     }
 
-    public function reportsUsefulBlockStringErrors() {
+    public function reportsUsefulBlockStringErrors()
+    {
         return [
-            ['"""', "Unterminated string.", $this->loc(1, 4)],
-            ['"""no end quote', "Unterminated string.", $this->loc(1, 16)],
-            ['"""contains unescaped ' . json_decode('"\u0007"') . ' control char"""', "Invalid character within String: \"\\u0007\"", $this->loc(1, 23)],
-            ['"""null-byte is not ' . json_decode('"\u0000"') . ' end of file"""', "Invalid character within String: \"\\u0000\"", $this->loc(1, 21)],
+            ['"""', 'Unterminated string.', $this->loc(1, 4)],
+            ['"""no end quote', 'Unterminated string.', $this->loc(1, 16)],
+            [
+                '"""contains unescaped ' . json_decode('"\u0007"') . ' control char"""',
+                "Invalid character within String: \"\\u0007\"",
+                $this->loc(
+                    1,
+                    23
+                ),
+            ],
+            [
+                '"""null-byte is not ' . json_decode('"\u0000"') . ' end of file"""',
+                "Invalid character within String: \"\\u0000\"",
+                $this->loc(
+                    1,
+                    21
+                ),
+            ],
         ];
     }
 
     /**
      * @dataProvider reportsUsefulBlockStringErrors
-     * @see it('lex reports useful block string errors')
+     * @see          it('lex reports useful block string errors')
      */
     public function testReportsUsefulBlockStringErrors($str, $expectedMessage, $location) : void
     {
@@ -435,21 +548,21 @@ class LexerTest extends TestCase
     public function reportsUsefulNumberErrors()
     {
         return [
-            [ '00', "Invalid number, unexpected digit after 0: \"0\"", $this->loc(1, 2)],
-            [ '+1', "Cannot parse the unexpected character \"+\".", $this->loc(1, 1)],
-            [ '1.', "Invalid number, expected digit but got: <EOF>", $this->loc(1, 3)],
-            [ '1.e1', "Invalid number, expected digit but got: \"e\"", $this->loc(1, 3)],
-            [ '.123', "Cannot parse the unexpected character \".\".", $this->loc(1, 1)],
-            [ '1.A', "Invalid number, expected digit but got: \"A\"", $this->loc(1, 3)],
-            [ '-A', "Invalid number, expected digit but got: \"A\"", $this->loc(1, 2)],
-            [ '1.0e', "Invalid number, expected digit but got: <EOF>", $this->loc(1, 5)],
-            [ '1.0eA', "Invalid number, expected digit but got: \"A\"", $this->loc(1, 5)],
+            ['00', 'Invalid number, unexpected digit after 0: "0"', $this->loc(1, 2)],
+            ['+1', 'Cannot parse the unexpected character "+".', $this->loc(1, 1)],
+            ['1.', 'Invalid number, expected digit but got: <EOF>', $this->loc(1, 3)],
+            ['1.e1', 'Invalid number, expected digit but got: "e"', $this->loc(1, 3)],
+            ['.123', 'Cannot parse the unexpected character ".".', $this->loc(1, 1)],
+            ['1.A', 'Invalid number, expected digit but got: "A"', $this->loc(1, 3)],
+            ['-A', 'Invalid number, expected digit but got: "A"', $this->loc(1, 2)],
+            ['1.0e', 'Invalid number, expected digit but got: <EOF>', $this->loc(1, 5)],
+            ['1.0eA', 'Invalid number, expected digit but got: "A"', $this->loc(1, 5)],
         ];
     }
 
     /**
      * @dataProvider reportsUsefulNumberErrors
-     * @see it('lex reports useful number errors')
+     * @see          it('lex reports useful number errors')
      */
     public function testReportsUsefulNumberErrors($str, $expectedMessage, $location) : void
     {
@@ -521,8 +634,8 @@ class LexerTest extends TestCase
         $unicode2 = json_decode('"\u200b"');
 
         return [
-            ['..', "Cannot parse the unexpected character \".\".", $this->loc(1, 1)],
-            ['?', "Cannot parse the unexpected character \"?\".", $this->loc(1, 1)],
+            ['..', 'Cannot parse the unexpected character ".".', $this->loc(1, 1)],
+            ['?', 'Cannot parse the unexpected character "?".', $this->loc(1, 1)],
             [$unicode1, "Cannot parse the unexpected character \"\\u203b\".", $this->loc(1, 1)],
             [$unicode2, "Cannot parse the unexpected character \"\\u200b\".", $this->loc(1, 1)],
         ];
@@ -530,7 +643,7 @@ class LexerTest extends TestCase
 
     /**
      * @dataProvider reportsUsefulUnknownCharErrors
-     * @see it('lex reports useful unknown character error')
+     * @see          it('lex reports useful unknown character error')
      */
     public function testReportsUsefulUnknownCharErrors($str, $expectedMessage, $location) : void
     {
@@ -542,17 +655,20 @@ class LexerTest extends TestCase
      */
     public function testReportsUsefulDashesInfo() : void
     {
-        $q = 'a-b';
+        $q     = 'a-b';
         $lexer = new Lexer(new Source($q));
-        $this->assertArraySubset(['kind' => Token::NAME, 'start' => 0, 'end' => 1, 'value' => 'a'], (array) $lexer->advance());
+        $this->assertArraySubset(
+            ['kind' => Token::NAME, 'start' => 0, 'end' => 1, 'value' => 'a'],
+            (array) $lexer->advance()
+        );
 
         $this->expectException(SyntaxError::class);
         $this->expectExceptionMessage('Syntax Error: Invalid number, expected digit but got: "b"');
         try {
             $lexer->advance();
             $this->fail('Expected exception not thrown');
-        } catch(SyntaxError $error) {
-            $this->assertEquals([$this->loc(1,3)], $error->getLocations());
+        } catch (SyntaxError $error) {
+            $this->assertEquals([$this->loc(1, 3)], $error->getLocations());
             throw $error;
         }
     }
@@ -580,49 +696,28 @@ class LexerTest extends TestCase
 
         $tokens = [];
         for ($tok = $startToken; $tok; $tok = $tok->next) {
-            if (!empty($tokens)) {
+            if (! empty($tokens)) {
                 // Tokens are double-linked, prev should point to last seen token.
                 $this->assertSame($tokens[count($tokens) - 1], $tok->prev);
             }
             $tokens[] = $tok;
         }
 
-        $this->assertEquals([
-            '<SOF>',
-            '{',
-            'Comment',
-            'Name',
-            '}',
-            '<EOF>'
-        ], Utils::map($tokens, function ($tok) {
-            return $tok->kind;
-        }));
-    }
-
-    /**
-     * @param string $body
-     * @return Token
-     */
-    private function lexOne($body)
-    {
-        $lexer = new Lexer(new Source($body));
-        return $lexer->advance();
-    }
-
-    private function loc($line, $column)
-    {
-        return new SourceLocation($line, $column);
-    }
-
-    private function expectSyntaxError($text, $message, $location)
-    {
-        $this->expectException(SyntaxError::class);
-        $this->expectExceptionMessage($message);
-        try {
-            $this->lexOne($text);
-        } catch (SyntaxError $error) {
-            $this->assertEquals([$location], $error->getLocations());
-            throw $error;
-        }
+        $this->assertEquals(
+            [
+                '<SOF>',
+                '{',
+                'Comment',
+                'Name',
+                '}',
+                '<EOF>',
+            ],
+            Utils::map(
+                $tokens,
+                function ($tok) {
+                    return $tok->kind;
+                }
+            )
+        );
     }
 }
