@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Executor\Promise;
 
 use GraphQL\Deferred;
@@ -10,9 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 class SyncPromiseAdapterTest extends TestCase
 {
-    /**
-     * @var SyncPromiseAdapter
-     */
+    /** @var SyncPromiseAdapter */
     private $promises;
 
     public function setUp()
@@ -22,7 +23,11 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testIsThenable() : void
     {
-        $this->assertEquals(true, $this->promises->isThenable(new Deferred(function() {})));
+        $this->assertEquals(
+            true,
+            $this->promises->isThenable(new Deferred(function () {
+            }))
+        );
         $this->assertEquals(false, $this->promises->isThenable(false));
         $this->assertEquals(false, $this->promises->isThenable(true));
         $this->assertEquals(false, $this->promises->isThenable(1));
@@ -35,7 +40,8 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testConvert() : void
     {
-        $dfd = new Deferred(function() {});
+        $dfd    = new Deferred(function () {
+        });
         $result = $this->promises->convertThenable($dfd);
 
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
@@ -48,7 +54,8 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testThen() : void
     {
-        $dfd = new Deferred(function() {});
+        $dfd     = new Deferred(function () {
+        });
         $promise = $this->promises->convertThenable($dfd);
 
         $result = $this->promises->then($promise);
@@ -59,16 +66,53 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testCreatePromise() : void
     {
-        $promise = $this->promises->create(function($resolve, $reject) {});
+        $promise = $this->promises->create(function ($resolve, $reject) {
+        });
 
         $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
         $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
 
-        $promise = $this->promises->create(function($resolve, $reject) {
+        $promise = $this->promises->create(function ($resolve, $reject) {
             $resolve('A');
         });
 
         $this->assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
+    }
+
+    private function assertValidPromise($promise, $expectedNextReason, $expectedNextValue, $expectedNextState)
+    {
+        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
+        $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
+
+        $actualNextValue   = null;
+        $actualNextReason  = null;
+        $onFulfilledCalled = false;
+        $onRejectedCalled  = false;
+
+        $promise->then(
+            function ($nextValue) use (&$actualNextValue, &$onFulfilledCalled) {
+                $onFulfilledCalled = true;
+                $actualNextValue   = $nextValue;
+            },
+            function (\Throwable $reason) use (&$actualNextReason, &$onRejectedCalled) {
+                $onRejectedCalled = true;
+                $actualNextReason = $reason->getMessage();
+            }
+        );
+
+        $this->assertSame($onFulfilledCalled, false);
+        $this->assertSame($onRejectedCalled, false);
+
+        SyncPromise::runQueue();
+
+        if ($expectedNextState !== SyncPromise::PENDING) {
+            $this->assertSame(! $expectedNextReason, $onFulfilledCalled);
+            $this->assertSame(! ! $expectedNextReason, $onRejectedCalled);
+        }
+
+        $this->assertSame($expectedNextValue, $actualNextValue);
+        $this->assertSame($expectedNextReason, $actualNextReason);
+        $this->assertSame($expectedNextState, $promise->adoptedPromise->state);
     }
 
     public function testCreateFulfilledPromise() : void
@@ -94,8 +138,8 @@ class SyncPromiseAdapterTest extends TestCase
         $promise1 = new SyncPromise();
         $promise2 = new SyncPromise();
         $promise3 = $promise2->then(
-            function($value) {
-                return $value .'-value3';
+            function ($value) {
+                return $value . '-value3';
             }
         );
 
@@ -105,7 +149,7 @@ class SyncPromiseAdapterTest extends TestCase
             new Promise($promise2, $this->promises),
             3,
             new Promise($promise3, $this->promises),
-            []
+            [],
         ];
 
         $promise = $this->promises->all($data);
@@ -114,36 +158,46 @@ class SyncPromiseAdapterTest extends TestCase
         $promise1->resolve('value1');
         $this->assertValidPromise($promise, null, null, SyncPromise::PENDING);
         $promise2->resolve('value2');
-        $this->assertValidPromise($promise, null, ['1', 'value1', 'value2', 3, 'value2-value3', []], SyncPromise::FULFILLED);
+        $this->assertValidPromise(
+            $promise,
+            null,
+            ['1', 'value1', 'value2', 3, 'value2-value3', []],
+            SyncPromise::FULFILLED
+        );
     }
 
     public function testWait() : void
     {
         $called = [];
 
-        $deferred1 = new Deferred(function() use (&$called) {
+        $deferred1 = new Deferred(function () use (&$called) {
             $called[] = 1;
+
             return 1;
         });
-        $deferred2 = new Deferred(function() use (&$called) {
+        $deferred2 = new Deferred(function () use (&$called) {
             $called[] = 2;
+
             return 2;
         });
 
         $p1 = $this->promises->convertThenable($deferred1);
         $p2 = $this->promises->convertThenable($deferred2);
 
-        $p3 = $p2->then(function() use (&$called) {
-            $dfd = new Deferred(function() use (&$called) {
+        $p3 = $p2->then(function () use (&$called) {
+            $dfd = new Deferred(function () use (&$called) {
                 $called[] = 3;
+
                 return 3;
             });
+
             return $this->promises->convertThenable($dfd);
         });
 
-        $p4 = $p3->then(function() use (&$called) {
-            return new Deferred(function() use (&$called) {
+        $p4 = $p3->then(function () use (&$called) {
+            return new Deferred(function () use (&$called) {
                 $called[] = 4;
+
                 return 4;
             });
         });
@@ -156,46 +210,10 @@ class SyncPromiseAdapterTest extends TestCase
         $this->assertEquals(SyncPromise::PENDING, $all->adoptedPromise->state);
         $this->assertEquals([1, 2], $called);
 
-        $expectedResult = [0,1,2,3,4];
-        $result = $this->promises->wait($all);
+        $expectedResult = [0, 1, 2, 3, 4];
+        $result         = $this->promises->wait($all);
         $this->assertEquals($expectedResult, $result);
         $this->assertEquals([1, 2, 3, 4], $called);
-        $this->assertValidPromise($all, null, [0,1,2,3,4], SyncPromise::FULFILLED);
-    }
-
-    private function assertValidPromise($promise, $expectedNextReason, $expectedNextValue, $expectedNextState)
-    {
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
-
-        $actualNextValue = null;
-        $actualNextReason = null;
-        $onFulfilledCalled = false;
-        $onRejectedCalled = false;
-
-        $promise->then(
-            function($nextValue) use (&$actualNextValue, &$onFulfilledCalled) {
-                $onFulfilledCalled = true;
-                $actualNextValue = $nextValue;
-            },
-            function(\Exception $reason) use (&$actualNextReason, &$onRejectedCalled) {
-                $onRejectedCalled = true;
-                $actualNextReason = $reason->getMessage();
-            }
-        );
-
-        $this->assertSame($onFulfilledCalled, false);
-        $this->assertSame($onRejectedCalled, false);
-
-        SyncPromise::runQueue();
-
-        if ($expectedNextState !== SyncPromise::PENDING) {
-            $this->assertSame(!$expectedNextReason, $onFulfilledCalled);
-            $this->assertSame(!!$expectedNextReason, $onRejectedCalled);
-        }
-
-        $this->assertSame($expectedNextValue, $actualNextValue);
-        $this->assertSame($expectedNextReason, $actualNextReason);
-        $this->assertSame($expectedNextState, $promise->adoptedPromise->state);
+        $this->assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);
     }
 }
