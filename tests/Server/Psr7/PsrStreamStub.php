@@ -1,7 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Server\Psr7;
 
 use Psr\Http\Message\StreamInterface;
+use function strlen;
+use const SEEK_SET;
 
 class PsrStreamStub implements StreamInterface
 {
@@ -33,7 +38,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function close()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -45,7 +50,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function detach()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -55,7 +60,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function getSize()
     {
-        return strlen($this->content?:'');
+        return strlen($this->content ?: '');
     }
 
     /**
@@ -66,7 +71,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function tell()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -76,7 +81,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function eof()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -86,7 +91,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function isSeekable()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -103,7 +108,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function seek($offset, $whence = SEEK_SET)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -118,7 +123,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function rewind()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -141,6 +146,7 @@ class PsrStreamStub implements StreamInterface
     public function write($string)
     {
         $this->content = $string;
+
         return strlen($string);
     }
 
@@ -151,7 +157,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function isReadable()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -166,7 +172,7 @@ class PsrStreamStub implements StreamInterface
      */
     public function read($length)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -195,6 +201,6 @@ class PsrStreamStub implements StreamInterface
      */
     public function getMetadata($key = null)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 }
