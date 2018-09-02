@@ -265,7 +265,7 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
                 }, $positions);
             } else if ($nodes) {
                 $this->locations = array_filter(array_map(function ($node) {
-                    if ($node->loc) {
+                    if ($node->loc && $node->loc->source) {
                         return $node->loc->source->getLocation($node->loc->start);
                     }
                 }, $nodes));
