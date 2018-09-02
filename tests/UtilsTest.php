@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests;
 
 use GraphQL\Utils\Utils;
@@ -8,7 +11,7 @@ class UtilsTest extends TestCase
 {
     public function testAssignThrowsExceptionOnMissingRequiredKey() : void
     {
-        $object = new \stdClass();
+        $object              = new \stdClass();
         $object->requiredKey = 'value';
 
         $this->expectException(\InvalidArgumentException::class);
