@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\Error;
@@ -9,7 +12,6 @@ use PHPUnit\Framework\TestCase;
 class AssertValidNameTest extends TestCase
 {
     // Describe: assertValidName()
-
     /**
      * @see it('throws for use of leading double underscores')
      */

@@ -1,5 +1,8 @@
 <?php
-namespace Utils;
+
+declare(strict_types=1);
+
+namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputObjectType;
@@ -12,121 +15,74 @@ use PHPUnit\Framework\TestCase;
 
 class ExtractTypesTest extends TestCase
 {
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $query;
 
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $mutation;
 
-    /**
-     * @var InterfaceType
-     */
+    /** @var InterfaceType */
     private $node;
 
-    /**
-     * @var InterfaceType
-     */
+    /** @var InterfaceType */
     private $content;
 
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $blogStory;
 
-    /**
-     * @var ObjectType
-     */
-    private $link;
-
-    /**
-     * @var ObjectType
-     */
-    private $video;
-
-    /**
-     * @var ObjectType
-     */
-    private $videoMetadata;
-
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $comment;
 
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $user;
 
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $category;
 
-    /**
-     * @var UnionType
-     */
+    /** @var UnionType */
     private $mention;
 
+    /** @var ObjectType */
     private $postStoryMutation;
 
+    /** @var InputObjectType */
     private $postStoryMutationInput;
 
+    /** @var ObjectType */
     private $postCommentMutation;
 
+    /** @var InputObjectType */
     private $postCommentMutationInput;
 
     public function setUp()
     {
         $this->node = new InterfaceType([
-            'name' => 'Node',
+            'name'   => 'Node',
             'fields' => [
-                'id' => Type::string()
-            ]
+                'id' => Type::string(),
+            ],
         ]);
 
         $this->content = new InterfaceType([
-            'name' => 'Content',
-            'fields' => function() {
+            'name'   => 'Content',
+            'fields' => function () {
                 return [
-                    'title' => Type::string(),
-                    'body' => Type::string(),
-                    'author' => $this->user,
-                    'comments' => Type::listOf($this->comment),
-                    'categories' => Type::listOf($this->category)
+                    'title'      => Type::string(),
+                    'body'       => Type::string(),
+                    'author'     => $this->user,
+                    'comments'   => Type::listOf($this->comment),
+                    'categories' => Type::listOf($this->category),
                 ];
-            }
+            },
         ]);
 
         $this->blogStory = new ObjectType([
-            'name' => 'BlogStory',
+            'name'       => 'BlogStory',
             'interfaces' => [
                 $this->node,
-                $this->content
+                $this->content,
             ],
-            'fields' => function() {
-                return [
-                    $this->node->getField('id'),
-                    $this->content->getField('title'),
-                    $this->content->getField('body'),
-                    $this->content->getField('author'),
-                    $this->content->getField('comments'),
-                    $this->content->getField('categories')
-                ];
-            },
-        ]);
-
-        $this->link = new ObjectType([
-            'name' => 'Link',
-            'interfaces' => [
-                $this->node,
-                $this->content
-            ],
-            'fields' => function() {
+            'fields'     => function () {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -134,156 +90,176 @@ class ExtractTypesTest extends TestCase
                     $this->content->getField('author'),
                     $this->content->getField('comments'),
                     $this->content->getField('categories'),
-                    'url' => Type::string()
                 ];
             },
         ]);
 
-        $this->video = new ObjectType([
-            'name' => 'Video',
+        new ObjectType([
+            'name'       => 'Link',
             'interfaces' => [
                 $this->node,
-                $this->content
+                $this->content,
             ],
-            'fields' => function() {
+            'fields'     => function () {
                 return [
-                    $this->node->getField('id'),
-                    $this->content->getField('title'),
-                    $this->content->getField('body'),
-                    $this->content->getField('author'),
-                    $this->content->getField('comments'),
-                    $this->content->getField('categories'),
-                    'streamUrl' => Type::string(),
+                    'id'         => $this->node->getField('id'),
+                    'title'      => $this->content->getField('title'),
+                    'body'       => $this->content->getField('body'),
+                    'author'     => $this->content->getField('author'),
+                    'comments'   => $this->content->getField('comments'),
+                    'categories' => $this->content->getField('categories'),
+                    'url'        => Type::string(),
+                ];
+            },
+        ]);
+
+        new ObjectType([
+            'name'       => 'Video',
+            'interfaces' => [
+                $this->node,
+                $this->content,
+            ],
+            'fields'     => function () {
+                return [
+                    'id'          => $this->node->getField('id'),
+                    'title'       => $this->content->getField('title'),
+                    'body'        => $this->content->getField('body'),
+                    'author'      => $this->content->getField('author'),
+                    'comments'    => $this->content->getField('comments'),
+                    'categories'  => $this->content->getField('categories'),
+                    'streamUrl'   => Type::string(),
                     'downloadUrl' => Type::string(),
-                    'metadata' => $this->videoMetadata = new ObjectType([
-                        'name' => 'VideoMetadata',
+                    'metadata'    => new ObjectType([
+                        'name'   => 'VideoMetadata',
                         'fields' => [
                             'lat' => Type::float(),
-                            'lng' => Type::float()
-                        ]
-                    ])
+                            'lng' => Type::float(),
+                        ],
+                    ]),
                 ];
-            }
+            },
         ]);
 
         $this->comment = new ObjectType([
-            'name' => 'Comment',
+            'name'       => 'Comment',
             'interfaces' => [
-                $this->node
+                $this->node,
             ],
-            'fields' => function() {
+            'fields'     => function () {
                 return [
-                    $this->node->getField('id'),
-                    'author' => $this->user,
-                    'text' => Type::string(),
+                    'id'      => $this->node->getField('id'),
+                    'author'  => $this->user,
+                    'text'    => Type::string(),
                     'replies' => Type::listOf($this->comment),
-                    'parent' => $this->comment,
-                    'content' => $this->content
+                    'parent'  => $this->comment,
+                    'content' => $this->content,
                 ];
-            }
+            },
         ]);
 
         $this->user = new ObjectType([
-            'name' => 'User',
+            'name'       => 'User',
             'interfaces' => [
-                $this->node
+                $this->node,
             ],
-            'fields' => function() {
+            'fields'     => function () {
                 return [
-                    $this->node->getField('id'),
+                    'id'   => $this->node->getField('id'),
                     'name' => Type::string(),
                 ];
-            }
+            },
         ]);
 
         $this->category = new ObjectType([
-            'name' => 'Category',
+            'name'       => 'Category',
             'interfaces' => [
-                $this->node
+                $this->node,
             ],
-            'fields' => function() {
+            'fields'     => function () {
                 return [
-                    $this->node->getField('id'),
-                    'name' => Type::string()
+                    'id'   => $this->node->getField('id'),
+                    'name' => Type::string(),
                 ];
-            }
+            },
         ]);
 
         $this->mention = new UnionType([
-            'name' => 'Mention',
+            'name'  => 'Mention',
             'types' => [
                 $this->user,
-                $this->category
-            ]
+                $this->category,
+            ],
         ]);
 
         $this->query = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
-                'viewer' => $this->user,
+                'viewer'        => $this->user,
                 'latestContent' => $this->content,
-                'node' => $this->node,
-                'mentions' => Type::listOf($this->mention)
-            ]
+                'node'          => $this->node,
+                'mentions'      => Type::listOf($this->mention),
+            ],
+        ]);
+
+        $this->postStoryMutationInput = new InputObjectType([
+            'name'   => 'PostStoryMutationInput',
+            'fields' => [
+                'title'    => Type::string(),
+                'body'     => Type::string(),
+                'author'   => Type::id(),
+                'category' => Type::id(),
+            ],
         ]);
 
         $this->mutation = new ObjectType([
-            'name' => 'Mutation',
+            'name'   => 'Mutation',
             'fields' => [
-                'postStory' => [
+                'postStory'   => [
                     'type' => $this->postStoryMutation = new ObjectType([
-                        'name' => 'PostStoryMutation',
+                        'name'   => 'PostStoryMutation',
                         'fields' => [
-                            'story' => $this->blogStory
-                        ]
+                            'story' => $this->blogStory,
+                        ],
                     ]),
                     'args' => [
-                        'input' => Type::nonNull($this->postStoryMutationInput = new InputObjectType([
-                            'name' => 'PostStoryMutationInput',
-                            'fields' => [
-                                'title' => Type::string(),
-                                'body' => Type::string(),
-                                'author' => Type::id(),
-                                'category' => Type::id()
-                            ]
-                        ])),
-                        'clientRequestId' => Type::string()
-                    ]
+                        'input'           => Type::nonNull($this->postStoryMutationInput),
+                        'clientRequestId' => Type::string(),
+                    ],
                 ],
                 'postComment' => [
                     'type' => $this->postCommentMutation = new ObjectType([
-                        'name' => 'PostCommentMutation',
+                        'name'   => 'PostCommentMutation',
                         'fields' => [
-                            'comment' => $this->comment
-                        ]
+                            'comment' => $this->comment,
+                        ],
                     ]),
                     'args' => [
-                        'input' => Type::nonNull($this->postCommentMutationInput = new InputObjectType([
-                            'name' => 'PostCommentMutationInput',
+                        'input'           => Type::nonNull($this->postCommentMutationInput = new InputObjectType([
+                            'name'   => 'PostCommentMutationInput',
                             'fields' => [
-                                'text' => Type::nonNull(Type::string()),
-                                'author' => Type::nonNull(Type::id()),
+                                'text'    => Type::nonNull(Type::string()),
+                                'author'  => Type::nonNull(Type::id()),
                                 'content' => Type::id(),
-                                'parent' => Type::id()
-                            ]
+                                'parent'  => Type::id(),
+                            ],
                         ])),
-                        'clientRequestId' => Type::string()
-                    ]
-                ]
-            ]
+                        'clientRequestId' => Type::string(),
+                    ],
+                ],
+            ],
         ]);
     }
 
     public function testExtractTypesFromQuery() : void
     {
         $expectedTypeMap = [
-            'Query' => $this->query,
-            'User' => $this->user,
-            'Node' => $this->node,
-            'String' => Type::string(),
-            'Content' => $this->content,
-            'Comment' => $this->comment,
-            'Mention' => $this->mention,
+            'Query'    => $this->query,
+            'User'     => $this->user,
+            'Node'     => $this->node,
+            'String'   => Type::string(),
+            'Content'  => $this->content,
+            'Comment'  => $this->comment,
+            'Mention'  => $this->mention,
             'Category' => $this->category,
         ];
 
@@ -294,19 +270,19 @@ class ExtractTypesTest extends TestCase
     public function testExtractTypesFromMutation() : void
     {
         $expectedTypeMap = [
-            'Mutation' => $this->mutation,
-            'User' => $this->user,
-            'Node' => $this->node,
-            'String' => Type::string(),
-            'Content' => $this->content,
-            'Comment' => $this->comment,
-            'BlogStory' => $this->blogStory,
-            'Category' => $this->category,
-            'PostStoryMutationInput' => $this->postStoryMutationInput,
-            'ID' => Type::id(),
-            'PostStoryMutation' => $this->postStoryMutation,
+            'Mutation'                 => $this->mutation,
+            'User'                     => $this->user,
+            'Node'                     => $this->node,
+            'String'                   => Type::string(),
+            'Content'                  => $this->content,
+            'Comment'                  => $this->comment,
+            'BlogStory'                => $this->blogStory,
+            'Category'                 => $this->category,
+            'PostStoryMutationInput'   => $this->postStoryMutationInput,
+            'ID'                       => Type::id(),
+            'PostStoryMutation'        => $this->postStoryMutation,
             'PostCommentMutationInput' => $this->postCommentMutationInput,
-            'PostCommentMutation' => $this->postCommentMutation,
+            'PostCommentMutation'      => $this->postCommentMutation,
         ];
 
         $actualTypeMap = TypeInfo::extractTypes($this->mutation);
@@ -316,16 +292,16 @@ class ExtractTypesTest extends TestCase
     public function testThrowsOnMultipleTypesWithSameName() : void
     {
         $otherUserType = new ObjectType([
-            'name' => 'User',
-            'fields' => ['a' => Type::string()]
+            'name'   => 'User',
+            'fields' => ['a' => Type::string()],
         ]);
 
         $queryType = new ObjectType([
-            'name' => 'Test',
+            'name'   => 'Test',
             'fields' => [
                 'otherUser' => $otherUserType,
-                'user' => $this->user
-            ]
+                'user'      => $this->user,
+            ],
         ]);
 
         $this->expectException(InvariantViolation::class);

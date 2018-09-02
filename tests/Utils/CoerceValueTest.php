@@ -1,8 +1,9 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Error\Error;
-use GraphQL\Executor\Values;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
@@ -12,13 +13,16 @@ use PHPUnit\Framework\TestCase;
 
 class CoerceValueTest extends TestCase
 {
+    /** @var EnumType */
     private $testEnum;
+
+    /** @var InputObjectType */
     private $testInputObject;
 
     public function setUp()
     {
         $this->testEnum = new EnumType([
-            'name' => 'TestEnum',
+            'name'   => 'TestEnum',
             'values' => [
                 'FOO' => 'InternalFoo',
                 'BAR' => 123456789,
@@ -26,7 +30,7 @@ class CoerceValueTest extends TestCase
         ]);
 
         $this->testInputObject = new InputObjectType([
-            'name' => 'TestInputObject',
+            'name'   => 'TestInputObject',
             'fields' => [
                 'foo' => Type::nonNull(Type::int()),
                 'bar' => Type::int(),
@@ -34,9 +38,9 @@ class CoerceValueTest extends TestCase
         ]);
     }
 
-    // Describe: coerceValue
-
     /**
+     * Describe: coerceValue
+     *
      * @see it('coercing an array to GraphQLString produces an error')
      */
     public function testCoercingAnArrayToGraphQLStringProducesAnError() : void
@@ -53,7 +57,17 @@ class CoerceValueTest extends TestCase
         );
     }
 
-    // Describe: for GraphQLInt
+    /**
+     * Describe: for GraphQLInt
+     */
+    private function expectError($result, $expected)
+    {
+        $this->assertInternalType('array', $result);
+        $this->assertInternalType('array', $result['errors']);
+        $this->assertCount(1, $result['errors']);
+        $this->assertEquals($expected, $result['errors'][0]->getMessage());
+        $this->assertEquals(Utils::undefined(), $result['value']);
+    }
 
     /**
      * @see it('returns no error for int input')
@@ -62,6 +76,13 @@ class CoerceValueTest extends TestCase
     {
         $result = Value::coerceValue('1', Type::int());
         $this->expectNoErrors($result);
+    }
+
+    private function expectNoErrors($result)
+    {
+        $this->assertInternalType('array', $result);
+        $this->assertNull($result['errors']);
+        $this->assertNotEquals(Utils::undefined(), $result['value']);
     }
 
     /**
@@ -115,6 +136,8 @@ class CoerceValueTest extends TestCase
         );
     }
 
+    // Describe: for GraphQLFloat
+
     /**
      * @see it('returns a single error for char input')
      */
@@ -138,8 +161,6 @@ class CoerceValueTest extends TestCase
             'Expected type Int; Int cannot represent non 32-bit signed integer value: meow'
         );
     }
-
-    // Describe: for GraphQLFloat
 
     /**
      * @see it('returns no error for int input')
@@ -189,6 +210,8 @@ class CoerceValueTest extends TestCase
         );
     }
 
+    // DESCRIBE: for GraphQLEnum
+
     /**
      * @see it('returns a single error for char input')
      */
@@ -213,8 +236,6 @@ class CoerceValueTest extends TestCase
         );
     }
 
-    // DESCRIBE: for GraphQLEnum
-
     /**
      * @see it('returns no error for a known enum name')
      */
@@ -228,6 +249,8 @@ class CoerceValueTest extends TestCase
         $this->expectNoErrors($barResult);
         $this->assertEquals(123456789, $barResult['value']);
     }
+
+    // DESCRIBE: for GraphQLInputObject
 
     /**
      * @see it('results error for misspelled enum value')
@@ -249,8 +272,6 @@ class CoerceValueTest extends TestCase
         $result2 = Value::coerceValue(['field' => 'value'], $this->testEnum);
         $this->expectError($result2, 'Expected type TestEnum.');
     }
-
-    // DESCRIBE: for GraphQLInputObject
 
     /**
      * @see it('returns no error for a valid input')
@@ -277,7 +298,10 @@ class CoerceValueTest extends TestCase
     public function testReturnErrorForAnInvalidField() : void
     {
         $result = Value::coerceValue(['foo' => 'abc'], $this->testInputObject);
-        $this->expectError($result, 'Expected type Int at value.foo; Int cannot represent non 32-bit signed integer value: abc');
+        $this->expectError(
+            $result,
+            'Expected type Int at value.foo; Int cannot represent non 32-bit signed integer value: abc'
+        );
     }
 
     /**
@@ -286,10 +310,13 @@ class CoerceValueTest extends TestCase
     public function testReturnsMultipleErrorsForMultipleInvalidFields() : void
     {
         $result = Value::coerceValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
-        $this->assertEquals([
-            'Expected type Int at value.foo; Int cannot represent non 32-bit signed integer value: abc',
-            'Expected type Int at value.bar; Int cannot represent non 32-bit signed integer value: def',
-        ], $result['errors']);
+        $this->assertEquals(
+            [
+                'Expected type Int at value.foo; Int cannot represent non 32-bit signed integer value: abc',
+                'Expected type Int at value.bar; Int cannot represent non 32-bit signed integer value: def',
+            ],
+            $result['errors']
+        );
     }
 
     /**
@@ -317,21 +344,5 @@ class CoerceValueTest extends TestCase
     {
         $result = Value::coerceValue(['foo' => 123, 'bart' => 123], $this->testInputObject);
         $this->expectError($result, 'Field "bart" is not defined by type TestInputObject; did you mean bar?');
-    }
-
-    private function expectNoErrors($result)
-    {
-        $this->assertInternalType('array', $result);
-        $this->assertNull($result['errors']);
-        $this->assertNotEquals(Utils::undefined(), $result['value']);
-    }
-
-
-    private function expectError($result, $expected) {
-        $this->assertInternalType('array', $result);
-        $this->assertInternalType('array', $result['errors']);
-        $this->assertCount(1, $result['errors']);
-        $this->assertEquals($expected, $result['errors'][0]->getMessage());
-        $this->assertEquals(Utils::undefined(), $result['value']);
     }
 }
