@@ -148,7 +148,7 @@ class StarWarsData
     }
 
     /**
-     * @param $id
+     * @param string $id
      * @return mixed|null
      */
     public static function getHuman($id)
@@ -159,7 +159,7 @@ class StarWarsData
     }
 
     /**
-     * @param $id
+     * @param string $id
      * @return mixed|null
      */
     public static function getDroid($id)

@@ -9,6 +9,9 @@ use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 use function strtolower;
 
+/**
+ * phpcs:ignoreFile -- this is not a core file
+ */
 class PsrRequestStub implements ServerRequestInterface
 {
     public $queryParams = [];

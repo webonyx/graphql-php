@@ -47,7 +47,7 @@ class SchemaTest extends TestCase
                 'fieldName' => [
                     'type'    => Type::string(),
                     'resolve' => function () {
-                return '';
+                        return '';
                     },
                 ],
             ],

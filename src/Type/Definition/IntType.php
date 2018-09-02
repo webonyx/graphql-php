@@ -65,7 +65,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         }
         $int = intval($num);
         // int cast with == used for performance reasons
-        // @codingStandardsIgnoreLine
+        // phpcs:ignore
         if ($int != $num) {
             throw new Error(
                 'Int cannot represent non-integer value: ' .

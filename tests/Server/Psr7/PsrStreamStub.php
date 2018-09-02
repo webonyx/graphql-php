@@ -8,6 +8,9 @@ use Psr\Http\Message\StreamInterface;
 use function strlen;
 use const SEEK_SET;
 
+/**
+ * phpcs:ignoreFile -- this is not a core file
+ */
 class PsrStreamStub implements StreamInterface
 {
     public $content;
