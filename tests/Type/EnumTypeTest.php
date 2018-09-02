@@ -132,7 +132,7 @@ class EnumTypeTest extends TestCase
                             'type' => Type::boolean(),
                         ],
                     ],
-                    'resolve' => function ($value, $args) use ($Complex1, $Complex2) {
+                    'resolve' => function ($value, $args) use ($Complex2) {
                         if (! empty($args['provideGoodValue'])) {
                             // Note: this is one of the references of the internal values which
                             // ComplexEnum allows.

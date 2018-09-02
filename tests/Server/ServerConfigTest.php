@@ -17,17 +17,17 @@ class ServerConfigTest extends TestCase
     public function testDefaults() : void
     {
         $config = ServerConfig::create();
-        $this->assertEquals(null, $config->getSchema());
-        $this->assertEquals(null, $config->getContext());
-        $this->assertEquals(null, $config->getRootValue());
-        $this->assertEquals(null, $config->getErrorFormatter());
-        $this->assertEquals(null, $config->getErrorsHandler());
-        $this->assertEquals(null, $config->getPromiseAdapter());
-        $this->assertEquals(null, $config->getValidationRules());
-        $this->assertEquals(null, $config->getFieldResolver());
-        $this->assertEquals(null, $config->getPersistentQueryLoader());
-        $this->assertEquals(false, $config->getDebug());
-        $this->assertEquals(false, $config->getQueryBatching());
+        $this->assertNull($config->getSchema());
+        $this->assertNull($config->getContext());
+        $this->assertNull($config->getRootValue());
+        $this->assertNull($config->getErrorFormatter());
+        $this->assertNull($config->getErrorsHandler());
+        $this->assertNull($config->getPromiseAdapter());
+        $this->assertNull($config->getValidationRules());
+        $this->assertNull($config->getFieldResolver());
+        $this->assertNull($config->getPersistentQueryLoader());
+        $this->assertFalse($config->getDebug());
+        $this->assertFalse($config->getQueryBatching());
     }
 
     public function testAllowsSettingSchema() : void
@@ -166,10 +166,10 @@ class ServerConfigTest extends TestCase
         $config = ServerConfig::create();
 
         $config->setDebug(true);
-        $this->assertSame(true, $config->getDebug());
+        $this->assertTrue($config->getDebug());
 
         $config->setDebug(false);
-        $this->assertSame(false, $config->getDebug());
+        $this->assertFalse($config->getDebug());
     }
 
     public function testAcceptsArray() : void
@@ -204,8 +204,8 @@ class ServerConfigTest extends TestCase
         $this->assertSame($arr['validationRules'], $config->getValidationRules());
         $this->assertSame($arr['fieldResolver'], $config->getFieldResolver());
         $this->assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
-        $this->assertSame(true, $config->getDebug());
-        $this->assertSame(true, $config->getQueryBatching());
+        $this->assertTrue($config->getDebug());
+        $this->assertTrue($config->getQueryBatching());
     }
 
     public function testThrowsOnInvalidArrayKey() : void

@@ -12,7 +12,6 @@ use function is_array;
 use function is_callable;
 use function is_string;
 use function sprintf;
-use function spritnf;
 
 /**
  * Class InputObjectType
@@ -70,7 +69,7 @@ class InputObjectType extends Type implements InputType, NamedType
 
             if (! is_array($fields)) {
                 throw new InvariantViolation(
-                    spritnf('%s fields must be an array or a callable which returns such an array.', $this->name)
+                    sprintf('%s fields must be an array or a callable which returns such an array.', $this->name)
                 );
             }
 

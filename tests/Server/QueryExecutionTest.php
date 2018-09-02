@@ -66,7 +66,7 @@ class QueryExecutionTest extends ServerTestCase
         $query = '{f1';
 
         $result = $this->executeQuery($query);
-        $this->assertSame(null, $result->data);
+        $this->assertNull($result->data);
         $this->assertCount(1, $result->errors);
         $this->assertContains(
             'Syntax Error: Expected Name, found <EOF>',
@@ -202,7 +202,7 @@ class QueryExecutionTest extends ServerTestCase
         $called1 = false;
         $called2 = false;
 
-        $this->config->setValidationRules(function (OperationParams $params) use ($q1, $q2, &$called1, &$called2) {
+        $this->config->setValidationRules(function (OperationParams $params) use ($q1, &$called1, &$called2) {
             if ($params->query === $q1) {
                 $called1 = true;
 
@@ -376,7 +376,7 @@ class QueryExecutionTest extends ServerTestCase
             'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
             'but got: {"err":"err"}'
         );
-        $this->config->setPersistentQueryLoader(function ($queryId, OperationParams $params) use (&$called) {
+        $this->config->setPersistentQueryLoader(function () {
             return ['err' => 'err'];
         });
         $this->executePersistedQuery('some-id');

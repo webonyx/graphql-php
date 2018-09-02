@@ -263,7 +263,8 @@ class Visitor
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn) {
-                    $result = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
+                    $result    = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
+                    $editValue = null;
 
                     if ($result !== null) {
                         if ($result instanceof VisitorOperation) {

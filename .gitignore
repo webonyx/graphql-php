@@ -1,4 +1,6 @@
+.phpcs-cache
 composer.phar
 composer.lock
 phpcs.xml
+phpstan.neon
 vendor/

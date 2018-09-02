@@ -329,7 +329,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'a' => [
                         'type'    => Type::string(),
-                        'resolve' => function ($context) use ($doc, &$gotHere) {
+                        'resolve' => function ($context) use (&$gotHere) {
                             $this->assertEquals('thing', $context['contextThing']);
                             $gotHere = true;
                         },

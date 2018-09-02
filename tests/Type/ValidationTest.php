@@ -1974,7 +1974,7 @@ class ValidationTest extends TestCase
     public function testRejectsDifferentInstancesOfTheSameType() : void
     {
         // Invalid: always creates new instance vs returning one from registry
-        $typeLoader = function ($name) use (&$typeLoader) {
+        $typeLoader = function ($name) {
             switch ($name) {
                 case 'Query':
                     return new ObjectType([

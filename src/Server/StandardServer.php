@@ -8,7 +8,7 @@ use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
-use GraphQL\Utils;
+use GraphQL\Utils\Utils;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;

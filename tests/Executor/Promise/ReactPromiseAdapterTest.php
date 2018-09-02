@@ -31,26 +31,24 @@ class ReactPromiseAdapterTest extends TestCase
     {
         $reactAdapter = new ReactPromiseAdapter();
 
-        $this->assertSame(
-            true,
+        $this->assertTrue(
             $reactAdapter->isThenable(new ReactPromise(function () {
             }))
         );
-        $this->assertSame(true, $reactAdapter->isThenable(new FulfilledPromise()));
-        $this->assertSame(true, $reactAdapter->isThenable(new RejectedPromise()));
-        $this->assertSame(
-            true,
+        $this->assertTrue($reactAdapter->isThenable(new FulfilledPromise()));
+        $this->assertTrue($reactAdapter->isThenable(new RejectedPromise()));
+        $this->assertTrue(
             $reactAdapter->isThenable(new LazyPromise(function () {
             }))
         );
-        $this->assertSame(false, $reactAdapter->isThenable(false));
-        $this->assertSame(false, $reactAdapter->isThenable(true));
-        $this->assertSame(false, $reactAdapter->isThenable(1));
-        $this->assertSame(false, $reactAdapter->isThenable(0));
-        $this->assertSame(false, $reactAdapter->isThenable('test'));
-        $this->assertSame(false, $reactAdapter->isThenable(''));
-        $this->assertSame(false, $reactAdapter->isThenable([]));
-        $this->assertSame(false, $reactAdapter->isThenable(new \stdClass()));
+        $this->assertFalse($reactAdapter->isThenable(false));
+        $this->assertFalse($reactAdapter->isThenable(true));
+        $this->assertFalse($reactAdapter->isThenable(1));
+        $this->assertFalse($reactAdapter->isThenable(0));
+        $this->assertFalse($reactAdapter->isThenable('test'));
+        $this->assertFalse($reactAdapter->isThenable(''));
+        $this->assertFalse($reactAdapter->isThenable([]));
+        $this->assertFalse($reactAdapter->isThenable(new \stdClass()));
     }
 
     public function testConvertsReactPromisesToGraphQlOnes() : void
