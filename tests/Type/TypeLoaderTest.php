@@ -1,6 +1,8 @@
 <?php
-namespace GraphQL\Tests\Type;
 
+declare(strict_types=1);
+
+namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputObjectType;
@@ -9,52 +11,35 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use function lcfirst;
 
 class TypeLoaderTest extends TestCase
 {
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $query;
 
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $mutation;
 
-    /**
-     * @var InterfaceType
-     */
+    /** @var InterfaceType */
     private $node;
 
-    /**
-     * @var InterfaceType
-     */
+    /** @var InterfaceType */
     private $content;
 
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $blogStory;
 
-    /**
-     * @var ObjectType
-     */
+    /** @var ObjectType */
     private $postStoryMutation;
 
-    /**
-     * @var InputObjectType
-     */
+    /** @var InputObjectType */
     private $postStoryMutationInput;
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $typeLoader;
 
-    /**
-     * @var array
-     */
+    /** @var string[] */
     private $calls;
 
     public function setUp()
@@ -62,36 +47,41 @@ class TypeLoaderTest extends TestCase
         $this->calls = [];
 
         $this->node = new InterfaceType([
-            'name' => 'Node',
-            'fields' => function() {
+            'name'        => 'Node',
+            'fields'      => function () {
                 $this->calls[] = 'Node.fields';
+
                 return [
-                    'id' => Type::string()
+                    'id' => Type::string(),
                 ];
             },
-            'resolveType' => function() {}
+            'resolveType' => function () {
+            },
         ]);
 
         $this->content = new InterfaceType([
-            'name' => 'Content',
-            'fields' => function() {
+            'name'        => 'Content',
+            'fields'      => function () {
                 $this->calls[] = 'Content.fields';
+
                 return [
                     'title' => Type::string(),
-                    'body' => Type::string(),
+                    'body'  => Type::string(),
                 ];
             },
-            'resolveType' => function() {}
+            'resolveType' => function () {
+            },
         ]);
 
         $this->blogStory = new ObjectType([
-            'name' => 'BlogStory',
+            'name'       => 'BlogStory',
             'interfaces' => [
                 $this->node,
-                $this->content
+                $this->content,
             ],
-            'fields' => function() {
+            'fields'     => function () {
                 $this->calls[] = 'BlogStory.fields';
+
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -101,53 +91,56 @@ class TypeLoaderTest extends TestCase
         ]);
 
         $this->query = new ObjectType([
-            'name' => 'Query',
-            'fields' => function() {
+            'name'   => 'Query',
+            'fields' => function () {
                 $this->calls[] = 'Query.fields';
+
                 return [
                     'latestContent' => $this->content,
-                    'node' => $this->node,
+                    'node'          => $this->node,
                 ];
-            }
+            },
         ]);
 
         $this->mutation = new ObjectType([
-            'name' => 'Mutation',
-            'fields' => function() {
+            'name'   => 'Mutation',
+            'fields' => function () {
                 $this->calls[] = 'Mutation.fields';
+
                 return [
                     'postStory' => [
                         'type' => $this->postStoryMutation,
                         'args' => [
-                            'input' => Type::nonNull($this->postStoryMutationInput),
-                            'clientRequestId' => Type::string()
-                        ]
-                    ]
+                            'input'           => Type::nonNull($this->postStoryMutationInput),
+                            'clientRequestId' => Type::string(),
+                        ],
+                    ],
                 ];
-            }
+            },
         ]);
 
         $this->postStoryMutation = new ObjectType([
-            'name' => 'PostStoryMutation',
+            'name'   => 'PostStoryMutation',
             'fields' => [
-                'story' => $this->blogStory
-            ]
+                'story' => $this->blogStory,
+            ],
         ]);
 
         $this->postStoryMutationInput = new InputObjectType([
-            'name' => 'PostStoryMutationInput',
+            'name'   => 'PostStoryMutationInput',
             'fields' => [
-                'title' => Type::string(),
-                'body' => Type::string(),
-                'author' => Type::id(),
-                'category' => Type::id()
-            ]
+                'title'    => Type::string(),
+                'body'     => Type::string(),
+                'author'   => Type::id(),
+                'category' => Type::id(),
+            ],
         ]);
 
-        $this->typeLoader = function($name) {
+        $this->typeLoader = function ($name) {
             $this->calls[] = $name;
-            $prop = lcfirst($name);
-            return isset($this->{$prop}) ? $this->{$prop} : null;
+            $prop          = lcfirst($name);
+
+            return $this->{$prop} ?? null;
         };
     }
 
@@ -155,11 +148,12 @@ class TypeLoaderTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
-                'fields' => ['a' => Type::string()]
+            'query'      => new ObjectType([
+                'name'   => 'Query',
+                'fields' => ['a' => Type::string()],
             ]),
-            'typeLoader' => function() {}
+            'typeLoader' => function () {
+            },
         ]);
     }
 
@@ -169,20 +163,20 @@ class TypeLoaderTest extends TestCase
         $this->expectExceptionMessage('Schema type loader must be callable if provided but got: []');
 
         new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
-                'fields' => ['a' => Type::string()]
+            'query'      => new ObjectType([
+                'name'   => 'Query',
+                'fields' => ['a' => Type::string()],
             ]),
-            'typeLoader' => []
+            'typeLoader' => [],
         ]);
     }
 
     public function testWorksWithoutTypeLoader() : void
     {
         $schema = new Schema([
-            'query' => $this->query,
+            'query'    => $this->query,
             'mutation' => $this->mutation,
-            'types' => [$this->blogStory]
+            'types'    => [$this->blogStory],
         ]);
 
         $expected = [
@@ -203,12 +197,12 @@ class TypeLoaderTest extends TestCase
         $this->assertSame($this->postStoryMutationInput, $schema->getType('PostStoryMutationInput'));
 
         $expectedTypeMap = [
-            'Query' => $this->query,
-            'Mutation' => $this->mutation,
-            'Node' => $this->node,
-            'String' => Type::string(),
-            'Content' => $this->content,
-            'BlogStory' => $this->blogStory,
+            'Query'                  => $this->query,
+            'Mutation'               => $this->mutation,
+            'Node'                   => $this->node,
+            'String'                 => Type::string(),
+            'Content'                => $this->content,
+            'BlogStory'              => $this->blogStory,
             'PostStoryMutationInput' => $this->postStoryMutationInput,
         ];
 
@@ -218,9 +212,9 @@ class TypeLoaderTest extends TestCase
     public function testWorksWithTypeLoader() : void
     {
         $schema = new Schema([
-            'query' => $this->query,
-            'mutation' => $this->mutation,
-            'typeLoader' => $this->typeLoader
+            'query'      => $this->query,
+            'mutation'   => $this->mutation,
+            'typeLoader' => $this->typeLoader,
         ]);
         $this->assertEquals([], $this->calls);
 
@@ -244,8 +238,8 @@ class TypeLoaderTest extends TestCase
     public function testOnlyCallsLoaderOnce() : void
     {
         $schema = new Schema([
-            'query' => $this->query,
-            'typeLoader' => $this->typeLoader
+            'query'      => $this->query,
+            'typeLoader' => $this->typeLoader,
         ]);
 
         $schema->getType('Node');
@@ -258,8 +252,9 @@ class TypeLoaderTest extends TestCase
     public function testFailsOnNonExistentType() : void
     {
         $schema = new Schema([
-            'query' => $this->query,
-            'typeLoader' => function() {}
+            'query'      => $this->query,
+            'typeLoader' => function () {
+            },
         ]);
 
         $this->expectException(InvariantViolation::class);
@@ -271,10 +266,10 @@ class TypeLoaderTest extends TestCase
     public function testFailsOnNonType() : void
     {
         $schema = new Schema([
-            'query' => $this->query,
-            'typeLoader' => function() {
+            'query'      => $this->query,
+            'typeLoader' => function () {
                 return new \stdClass();
-            }
+            },
         ]);
 
         $this->expectException(InvariantViolation::class);
@@ -286,10 +281,10 @@ class TypeLoaderTest extends TestCase
     public function testFailsOnInvalidLoad() : void
     {
         $schema = new Schema([
-            'query' => $this->query,
-            'typeLoader' => function() {
+            'query'      => $this->query,
+            'typeLoader' => function () {
                 return $this->content;
-            }
+            },
         ]);
 
         $this->expectException(InvariantViolation::class);
@@ -301,10 +296,10 @@ class TypeLoaderTest extends TestCase
     public function testPassesThroughAnExceptionInLoader() : void
     {
         $schema = new Schema([
-            'query' => $this->query,
-            'typeLoader' => function() {
-                throw new \Exception("This is the exception we are looking for");
-            }
+            'query'      => $this->query,
+            'typeLoader' => function () {
+                throw new \Exception('This is the exception we are looking for');
+            },
         ]);
 
         $this->expectException(\Throwable::class);
@@ -316,14 +311,14 @@ class TypeLoaderTest extends TestCase
     public function testReturnsIdenticalResults() : void
     {
         $withoutLoader = new Schema([
-            'query' => $this->query,
-            'mutation' => $this->mutation
+            'query'    => $this->query,
+            'mutation' => $this->mutation,
         ]);
 
         $withLoader = new Schema([
-            'query' => $this->query,
-            'mutation' => $this->mutation,
-            'typeLoader' => $this->typeLoader
+            'query'      => $this->query,
+            'mutation'   => $this->mutation,
+            'typeLoader' => $this->typeLoader,
         ]);
 
         $this->assertSame($withoutLoader->getQueryType(), $withLoader->getQueryType());
@@ -335,9 +330,9 @@ class TypeLoaderTest extends TestCase
     public function testSkipsLoaderForInternalTypes() : void
     {
         $schema = new Schema([
-            'query' => $this->query,
-            'mutation' => $this->mutation,
-            'typeLoader' => $this->typeLoader
+            'query'      => $this->query,
+            'mutation'   => $this->mutation,
+            'typeLoader' => $this->typeLoader,
         ]);
 
         $type = $schema->getType('ID');

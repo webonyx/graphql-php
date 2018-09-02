@@ -1,11 +1,14 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Type;
 
 use GraphQL\GraphQL;
-use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
 class ResolveInfoTest extends TestCase
@@ -13,53 +16,56 @@ class ResolveInfoTest extends TestCase
     public function testFieldSelection() : void
     {
         $image = new ObjectType([
-            'name' => 'Image',
+            'name'   => 'Image',
             'fields' => [
-                'url' => ['type' => Type::string()],
-                'width' => ['type' => Type::int()],
-                'height' => ['type' => Type::int()]
-            ]
+                'url'    => ['type' => Type::string()],
+                'width'  => ['type' => Type::int()],
+                'height' => ['type' => Type::int()],
+            ],
         ]);
 
         $article = null;
 
         $author = new ObjectType([
-            'name' => 'Author',
-            'fields' => function() use ($image, &$article) {
+            'name'   => 'Author',
+            'fields' => function () use ($image, &$article) {
                 return [
-                    'id' => ['type' => Type::string()],
-                    'name' => ['type' => Type::string()],
-                    'pic' => [ 'type' => $image, 'args' => [
-                        'width' => ['type' => Type::int()],
-                        'height' => ['type' => Type::int()]
-                    ]],
+                    'id'            => ['type' => Type::string()],
+                    'name'          => ['type' => Type::string()],
+                    'pic'           => [
+                        'type' => $image,
+                        'args' => [
+                            'width'  => ['type' => Type::int()],
+                            'height' => ['type' => Type::int()],
+                        ],
+                    ],
                     'recentArticle' => ['type' => $article],
                 ];
             },
         ]);
 
         $reply = new ObjectType([
-            'name' => 'Reply',
+            'name'   => 'Reply',
             'fields' => [
                 'author' => ['type' => $author],
-                'body' => ['type' => Type::string()]
-            ]
+                'body'   => ['type' => Type::string()],
+            ],
         ]);
 
         $article = new ObjectType([
-            'name' => 'Article',
+            'name'   => 'Article',
             'fields' => [
-                'id' => ['type' => Type::string()],
+                'id'          => ['type' => Type::string()],
                 'isPublished' => ['type' => Type::boolean()],
-                'author' => ['type' => $author],
-                'title' => ['type' => Type::string()],
-                'body' => ['type' => Type::string()],
-                'image' => ['type' => $image],
-                'replies' => ['type' => Type::listOf($reply)]
-            ]
+                'author'      => ['type' => $author],
+                'title'       => ['type' => Type::string()],
+                'body'        => ['type' => Type::string()],
+                'image'       => ['type' => $image],
+                'replies'     => ['type' => Type::listOf($reply)],
+            ],
         ]);
 
-        $doc = '
+        $doc                      = '
       query Test {
         article {
             author {
@@ -100,59 +106,70 @@ class ResolveInfoTest extends TestCase
       }
 ';
         $expectedDefaultSelection = [
-            'author' => true,
-            'image' => true,
-            'replies' => true
+            'author'  => true,
+            'image'   => true,
+            'replies' => true,
         ];
-        $expectedDeepSelection = [
-            'author' => [
+        $expectedDeepSelection    = [
+            'author'  => [
                 'name' => true,
-                'pic' => [
-                    'url' => true,
-                    'width' => true
-                ]
+                'pic'  => [
+                    'url'   => true,
+                    'width' => true,
+                ],
             ],
-            'image' => [
-                'width' => true,
+            'image'   => [
+                'width'  => true,
                 'height' => true,
-                'url' => true
+                'url'    => true,
             ],
             'replies' => [
-                'body' => true,
+                'body'   => true,
                 'author' => [
-                    'id' => true,
-                    'name' => true,
-                    'pic' => [
-                        'url' => true,
-                        'width' => true,
-                        'height' => true
+                    'id'            => true,
+                    'name'          => true,
+                    'pic'           => [
+                        'url'    => true,
+                        'width'  => true,
+                        'height' => true,
                     ],
                     'recentArticle' => [
-                        'id' => true,
+                        'id'    => true,
                         'title' => true,
-                        'body' => true
-                    ]
-                ]
-            ]
+                        'body'  => true,
+                    ],
+                ],
+            ],
         ];
 
-        $hasCalled = false;
+        $hasCalled              = false;
         $actualDefaultSelection = null;
-        $actualDeepSelection = null;
+        $actualDeepSelection    = null;
 
         $blogQuery = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
                 'article' => [
-                    'type' => $article,
-                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDefaultSelection, &$actualDeepSelection) {
-                        $hasCalled = true;
+                    'type'    => $article,
+                    'resolve' => function (
+                        $value,
+                        $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$hasCalled,
+                        &
+                        $actualDefaultSelection,
+                        &$actualDeepSelection
+                    ) {
+                        $hasCalled              = true;
                         $actualDefaultSelection = $info->getFieldSelection();
-                        $actualDeepSelection = $info->getFieldSelection(5);
+                        $actualDeepSelection    = $info->getFieldSelection(5);
+
                         return null;
-                    }
-                ]
-            ]
+                    },
+                ],
+            ],
         ]);
 
         $schema = new Schema(['query' => $blogQuery]);
@@ -167,50 +184,53 @@ class ResolveInfoTest extends TestCase
     public function testMergedFragmentsFieldSelection() : void
     {
         $image = new ObjectType([
-            'name' => 'Image',
+            'name'   => 'Image',
             'fields' => [
-                'url' => ['type' => Type::string()],
-                'width' => ['type' => Type::int()],
-                'height' => ['type' => Type::int()]
-            ]
+                'url'    => ['type' => Type::string()],
+                'width'  => ['type' => Type::int()],
+                'height' => ['type' => Type::int()],
+            ],
         ]);
 
         $article = null;
 
         $author = new ObjectType([
-            'name' => 'Author',
-            'fields' => function() use ($image, &$article) {
+            'name'   => 'Author',
+            'fields' => function () use ($image, &$article) {
                 return [
-                    'id' => ['type' => Type::string()],
-                    'name' => ['type' => Type::string()],
-                    'pic' => [ 'type' => $image, 'args' => [
-                        'width' => ['type' => Type::int()],
-                        'height' => ['type' => Type::int()]
-                    ]],
+                    'id'            => ['type' => Type::string()],
+                    'name'          => ['type' => Type::string()],
+                    'pic'           => [
+                        'type' => $image,
+                        'args' => [
+                            'width'  => ['type' => Type::int()],
+                            'height' => ['type' => Type::int()],
+                        ],
+                    ],
                     'recentArticle' => ['type' => $article],
                 ];
             },
         ]);
 
         $reply = new ObjectType([
-            'name' => 'Reply',
+            'name'   => 'Reply',
             'fields' => [
                 'author' => ['type' => $author],
-                'body' => ['type' => Type::string()]
-            ]
+                'body'   => ['type' => Type::string()],
+            ],
         ]);
 
         $article = new ObjectType([
-            'name' => 'Article',
+            'name'   => 'Article',
             'fields' => [
-                'id' => ['type' => Type::string()],
+                'id'          => ['type' => Type::string()],
                 'isPublished' => ['type' => Type::boolean()],
-                'author' => ['type' => $author],
-                'title' => ['type' => Type::string()],
-                'body' => ['type' => Type::string()],
-                'image' => ['type' => $image],
-                'replies' => ['type' => Type::listOf($reply)]
-            ]
+                'author'      => ['type' => $author],
+                'title'       => ['type' => Type::string()],
+                'body'        => ['type' => Type::string()],
+                'image'       => ['type' => $image],
+                'replies'     => ['type' => Type::listOf($reply)],
+            ],
         ]);
 
         $doc = '
@@ -264,53 +284,63 @@ class ResolveInfoTest extends TestCase
 ';
 
         $expectedDeepSelection = [
-            'author' => [
+            'author'  => [
                 'name' => true,
-                'pic' => [
-                    'url' => true,
-                    'width' => true
-                ]
+                'pic'  => [
+                    'url'   => true,
+                    'width' => true,
+                ],
             ],
-            'image' => [
-                'width' => true,
+            'image'   => [
+                'width'  => true,
                 'height' => true,
-                'url' => true
+                'url'    => true,
             ],
             'replies' => [
-                'body' => true, //this would be missing if not for the fix https://github.com/webonyx/graphql-php/pull/98
+                'body'   => true, //this would be missing if not for the fix https://github.com/webonyx/graphql-php/pull/98
                 'author' => [
-                    'id' => true,
-                    'name' => true,
-                    'pic' => [
-                        'url' => true,
-                        'width' => true,
-                        'height' => true
+                    'id'            => true,
+                    'name'          => true,
+                    'pic'           => [
+                        'url'    => true,
+                        'width'  => true,
+                        'height' => true,
                     ],
                     'recentArticle' => [
-                        'id' => true,
+                        'id'    => true,
                         'title' => true,
-                        'body' => true
-                    ]
-                ]
-            ]
+                        'body'  => true,
+                    ],
+                ],
+            ],
         ];
 
-        $hasCalled = false;
+        $hasCalled              = false;
         $actualDefaultSelection = null;
-        $actualDeepSelection = null;
+        $actualDeepSelection    = null;
 
         $blogQuery = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
                 'article' => [
-                    'type' => $article,
-                    'resolve' => function($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$actualDeepSelection) {
-                        $hasCalled = true;
+                    'type'    => $article,
+                    'resolve' => function (
+                        $value,
+                        $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$hasCalled,
+                        &
+                        $actualDeepSelection
+                    ) {
+                        $hasCalled           = true;
                         $actualDeepSelection = $info->getFieldSelection(5);
+
                         return null;
-                    }
-                ]
-            ]
+                    },
+                ],
+            ],
         ]);
 
         $schema = new Schema(['query' => $blogQuery]);
@@ -320,6 +350,4 @@ class ResolveInfoTest extends TestCase
         $this->assertEquals(['data' => ['article' => null]], $result);
         $this->assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
-
-
 }
