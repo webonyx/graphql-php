@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,13 +11,14 @@ use GraphQL\Validator\Rules\KnownTypeNames;
 class KnownTypeNamesTest extends ValidatorTestCase
 {
     // Validate: Known type names
-
     /**
      * @see it('known type names are valid')
      */
     public function testKnownTypeNamesAreValid() : void
     {
-        $this->expectPassesRule(new KnownTypeNames, '
+        $this->expectPassesRule(
+            new KnownTypeNames(),
+            '
       query Foo($var: String, $required: [String!]!) {
         user(id: 4) {
           pets { ... on Pet { name }, ...PetFields }
@@ -23,7 +27,8 @@ class KnownTypeNamesTest extends ValidatorTestCase
       fragment PetFields on Pet {
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -31,7 +36,9 @@ class KnownTypeNamesTest extends ValidatorTestCase
      */
     public function testUnknownTypeNamesAreInvalid() : void
     {
-        $this->expectFailsRule(new KnownTypeNames, '
+        $this->expectFailsRule(
+            new KnownTypeNames(),
+            '
       query Foo($var: JumbledUpLetters) {
         user(id: 4) {
           name
@@ -41,11 +48,21 @@ class KnownTypeNamesTest extends ValidatorTestCase
       fragment PetFields on Peettt {
         name
       }
-        ', [
-            $this->unknownType('JumbledUpLetters', [], 2, 23),
-            $this->unknownType('Badger', [], 5, 25),
-            $this->unknownType('Peettt', ['Pet'], 8, 29)
-        ]);
+        ',
+            [
+                $this->unknownType('JumbledUpLetters', [], 2, 23),
+                $this->unknownType('Badger', [], 5, 25),
+                $this->unknownType('Peettt', ['Pet'], 8, 29),
+            ]
+        );
+    }
+
+    private function unknownType($typeName, $suggestedTypes, $line, $column)
+    {
+        return FormattedError::create(
+            KnownTypeNames::unknownTypeMessage($typeName, $suggestedTypes),
+            [new SourceLocation($line, $column)]
+        );
     }
 
     /**
@@ -53,7 +70,9 @@ class KnownTypeNamesTest extends ValidatorTestCase
      */
     public function testIgnoresTypeDefinitions() : void
     {
-        $this->expectFailsRule(new KnownTypeNames, '
+        $this->expectFailsRule(
+            new KnownTypeNames(),
+            '
       type NotInTheSchema {
         field: FooBar
       }
@@ -69,16 +88,10 @@ class KnownTypeNamesTest extends ValidatorTestCase
           id
         }
       }
-    ', [
-            $this->unknownType('NotInTheSchema', [], 12, 23),
-        ]);
-    }
-
-    private function unknownType($typeName, $suggestedTypes, $line, $column)
-    {
-        return FormattedError::create(
-            KnownTypeNames::unknownTypeMessage($typeName, $suggestedTypes),
-            [new SourceLocation($line, $column)]
+    ',
+            [
+                $this->unknownType('NotInTheSchema', [], 12, 23),
+            ]
         );
     }
 }

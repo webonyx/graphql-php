@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,17 +11,19 @@ use GraphQL\Validator\Rules\KnownArgumentNames;
 class KnownArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Known argument names:
-
     /**
      * @see it('single arg is known')
      */
     public function testSingleArgIsKnown() : void
     {
-        $this->expectPassesRule(new KnownArgumentNames, '
+        $this->expectPassesRule(
+            new KnownArgumentNames(),
+            '
       fragment argOnRequiredArg on Dog {
         doesKnowCommand(dogCommand: SIT)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -26,11 +31,14 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testMultipleArgsAreKnown() : void
     {
-        $this->expectPassesRule(new KnownArgumentNames, '
+        $this->expectPassesRule(
+            new KnownArgumentNames(),
+            '
       fragment multipleArgs on ComplicatedArgs {
         multipleReqs(req1: 1, req2: 2)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -38,11 +46,14 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testIgnoresArgsOfUnknownFields() : void
     {
-        $this->expectPassesRule(new KnownArgumentNames, '
+        $this->expectPassesRule(
+            new KnownArgumentNames(),
+            '
       fragment argOnUnknownField on Dog {
         unknownField(unknownArg: SIT)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -50,11 +61,14 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testMultipleArgsInReverseOrderAreKnown() : void
     {
-        $this->expectPassesRule(new KnownArgumentNames, '
+        $this->expectPassesRule(
+            new KnownArgumentNames(),
+            '
       fragment multipleArgsReverseOrder on ComplicatedArgs {
         multipleReqs(req2: 2, req1: 1)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -62,11 +76,14 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testNoArgsOnOptionalArg() : void
     {
-        $this->expectPassesRule(new KnownArgumentNames, '
+        $this->expectPassesRule(
+            new KnownArgumentNames(),
+            '
       fragment noArgOnOptionalArg on Dog {
         isHousetrained
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -74,7 +91,9 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testArgsAreKnownDeeply() : void
     {
-        $this->expectPassesRule(new KnownArgumentNames, '
+        $this->expectPassesRule(
+            new KnownArgumentNames(),
+            '
       {
         dog {
           doesKnowCommand(dogCommand: SIT)
@@ -87,7 +106,8 @@ class KnownArgumentNamesTest extends ValidatorTestCase
           }
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -95,11 +115,14 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testDirectiveArgsAreKnown() : void
     {
-        $this->expectPassesRule(new KnownArgumentNames, '
+        $this->expectPassesRule(
+            new KnownArgumentNames(),
+            '
       {
         dog @skip(if: true)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -107,13 +130,25 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testUndirectiveArgsAreInvalid() : void
     {
-        $this->expectFailsRule(new KnownArgumentNames, '
+        $this->expectFailsRule(
+            new KnownArgumentNames(),
+            '
       {
         dog @skip(unless: true)
       }
-        ', [
-            $this->unknownDirectiveArg('unless', 'skip', [], 3, 19),
-        ]);
+        ',
+            [
+                $this->unknownDirectiveArg('unless', 'skip', [], 3, 19),
+            ]
+        );
+    }
+
+    private function unknownDirectiveArg($argName, $directiveName, $suggestedArgs, $line, $column)
+    {
+        return FormattedError::create(
+            KnownArgumentNames::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
+            [new SourceLocation($line, $column)]
+        );
     }
 
     /**
@@ -121,13 +156,17 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testMisspelledDirectiveArgsAreReported() : void
     {
-        $this->expectFailsRule(new KnownArgumentNames, '
+        $this->expectFailsRule(
+            new KnownArgumentNames(),
+            '
       {
         dog @skip(iff: true)
       }
-        ', [
-            $this->unknownDirectiveArg('iff', 'skip', ['if'], 3, 19),
-        ]);
+        ',
+            [
+                $this->unknownDirectiveArg('iff', 'skip', ['if'], 3, 19),
+            ]
+        );
     }
 
     /**
@@ -135,13 +174,25 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testInvalidArgName() : void
     {
-        $this->expectFailsRule(new KnownArgumentNames, '
+        $this->expectFailsRule(
+            new KnownArgumentNames(),
+            '
       fragment invalidArgName on Dog {
         doesKnowCommand(unknown: true)
       }
-        ', [
-            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [],3, 25),
-        ]);
+        ',
+            [
+                $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 3, 25),
+            ]
+        );
+    }
+
+    private function unknownArg($argName, $fieldName, $typeName, $suggestedArgs, $line, $column)
+    {
+        return FormattedError::create(
+            KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName, $suggestedArgs),
+            [new SourceLocation($line, $column)]
+        );
     }
 
     /**
@@ -149,13 +200,17 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testMisspelledArgNameIsReported() : void
     {
-        $this->expectFailsRule(new KnownArgumentNames, '
+        $this->expectFailsRule(
+            new KnownArgumentNames(),
+            '
       fragment invalidArgName on Dog {
         doesKnowCommand(dogcommand: true)
       }
-        ', [
-            $this->unknownArg('dogcommand', 'doesKnowCommand', 'Dog', ['dogCommand'],3, 25),
-        ]);
+        ',
+            [
+                $this->unknownArg('dogcommand', 'doesKnowCommand', 'Dog', ['dogCommand'], 3, 25),
+            ]
+        );
     }
 
     /**
@@ -163,14 +218,18 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testUnknownArgsAmongstKnownArgs() : void
     {
-        $this->expectFailsRule(new KnownArgumentNames, '
+        $this->expectFailsRule(
+            new KnownArgumentNames(),
+            '
       fragment oneGoodArgOneInvalidArg on Dog {
         doesKnowCommand(whoknows: 1, dogCommand: SIT, unknown: true)
       }
-        ', [
-            $this->unknownArg('whoknows', 'doesKnowCommand', 'Dog', [], 3, 25),
-            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 3, 55),
-        ]);
+        ',
+            [
+                $this->unknownArg('whoknows', 'doesKnowCommand', 'Dog', [], 3, 25),
+                $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 3, 55),
+            ]
+        );
     }
 
     /**
@@ -178,7 +237,9 @@ class KnownArgumentNamesTest extends ValidatorTestCase
      */
     public function testUnknownArgsDeeply() : void
     {
-        $this->expectFailsRule(new KnownArgumentNames, '
+        $this->expectFailsRule(
+            new KnownArgumentNames(),
+            '
       {
         dog {
           doesKnowCommand(unknown: true)
@@ -191,25 +252,11 @@ class KnownArgumentNamesTest extends ValidatorTestCase
           }
         }
       }
-        ', [
-            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 4, 27),
-            $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 9, 31),
-        ]);
-    }
-
-    private function unknownArg($argName, $fieldName, $typeName, $suggestedArgs, $line, $column)
-    {
-        return FormattedError::create(
-            KnownArgumentNames::unknownArgMessage($argName, $fieldName, $typeName, $suggestedArgs),
-            [new SourceLocation($line, $column)]
-        );
-    }
-
-    private function unknownDirectiveArg($argName, $directiveName, $suggestedArgs, $line, $column)
-    {
-        return FormattedError::create(
-            KnownArgumentNames::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
-            [new SourceLocation($line, $column)]
+        ',
+            [
+                $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 4, 27),
+                $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 9, 31),
+            ]
         );
     }
 }

@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,17 +11,19 @@ use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 class FragmentsOnCompositeTypesTest extends ValidatorTestCase
 {
     // Validate: Fragments on composite types
-
     /**
      * @see it('object is valid fragment type')
      */
     public function testObjectIsValidFragmentType() : void
     {
-        $this->expectPassesRule(new FragmentsOnCompositeTypes, '
+        $this->expectPassesRule(
+            new FragmentsOnCompositeTypes(),
+            '
       fragment validFragment on Dog {
         barks
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -26,11 +31,14 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
      */
     public function testInterfaceIsValidFragmentType() : void
     {
-        $this->expectPassesRule(new FragmentsOnCompositeTypes, '
+        $this->expectPassesRule(
+            new FragmentsOnCompositeTypes(),
+            '
       fragment validFragment on Pet {
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -38,13 +46,16 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
      */
     public function testObjectIsValidInlineFragmentType() : void
     {
-        $this->expectPassesRule(new FragmentsOnCompositeTypes, '
+        $this->expectPassesRule(
+            new FragmentsOnCompositeTypes(),
+            '
       fragment validFragment on Pet {
         ... on Dog {
           barks
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -52,13 +63,16 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
      */
     public function testInlineFragmentWithoutTypeIsValid() : void
     {
-        $this->expectPassesRule(new FragmentsOnCompositeTypes, '
+        $this->expectPassesRule(
+            new FragmentsOnCompositeTypes(),
+            '
       fragment validFragment on Pet {
         ... {
           name
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -66,11 +80,14 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
      */
     public function testUnionIsValidFragmentType() : void
     {
-        $this->expectPassesRule(new FragmentsOnCompositeTypes, '
+        $this->expectPassesRule(
+            new FragmentsOnCompositeTypes(),
+            '
       fragment validFragment on CatOrDog {
         __typename
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -78,56 +95,14 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
      */
     public function testScalarIsInvalidFragmentType() : void
     {
-        $this->expectFailsRule(new FragmentsOnCompositeTypes, '
+        $this->expectFailsRule(
+            new FragmentsOnCompositeTypes(),
+            '
       fragment scalarFragment on Boolean {
         bad
       }
         ',
-            [$this->error('scalarFragment', 'Boolean', 2, 34)]);
-    }
-
-    /**
-     * @see it('enum is invalid fragment type')
-     */
-    public function testEnumIsInvalidFragmentType() : void
-    {
-        $this->expectFailsRule(new FragmentsOnCompositeTypes, '
-      fragment scalarFragment on FurColor {
-        bad
-      }
-        ',
-            [$this->error('scalarFragment', 'FurColor', 2, 34)]);
-    }
-
-    /**
-     * @see it('input object is invalid fragment type')
-     */
-    public function testInputObjectIsInvalidFragmentType() : void
-    {
-        $this->expectFailsRule(new FragmentsOnCompositeTypes, '
-      fragment inputFragment on ComplexInput {
-        stringField
-      }
-        ',
-            [$this->error('inputFragment', 'ComplexInput', 2, 33)]);
-    }
-
-    /**
-     * @see it('scalar is invalid inline fragment type')
-     */
-    public function testScalarIsInvalidInlineFragmentType() : void
-    {
-        $this->expectFailsRule(new FragmentsOnCompositeTypes, '
-      fragment invalidFragment on Pet {
-        ... on String {
-          barks
-        }
-      }
-        ',
-        [FormattedError::create(
-            FragmentsOnCompositeTypes::inlineFragmentOnNonCompositeErrorMessage('String'),
-            [new SourceLocation(3, 16)]
-        )]
+            [$this->error('scalarFragment', 'Boolean', 2, 34)]
         );
     }
 
@@ -135,7 +110,61 @@ class FragmentsOnCompositeTypesTest extends ValidatorTestCase
     {
         return FormattedError::create(
             FragmentsOnCompositeTypes::fragmentOnNonCompositeErrorMessage($fragName, $typeName),
-            [ new SourceLocation($line, $column) ]
+            [new SourceLocation($line, $column)]
+        );
+    }
+
+    /**
+     * @see it('enum is invalid fragment type')
+     */
+    public function testEnumIsInvalidFragmentType() : void
+    {
+        $this->expectFailsRule(
+            new FragmentsOnCompositeTypes(),
+            '
+      fragment scalarFragment on FurColor {
+        bad
+      }
+        ',
+            [$this->error('scalarFragment', 'FurColor', 2, 34)]
+        );
+    }
+
+    /**
+     * @see it('input object is invalid fragment type')
+     */
+    public function testInputObjectIsInvalidFragmentType() : void
+    {
+        $this->expectFailsRule(
+            new FragmentsOnCompositeTypes(),
+            '
+      fragment inputFragment on ComplexInput {
+        stringField
+      }
+        ',
+            [$this->error('inputFragment', 'ComplexInput', 2, 33)]
+        );
+    }
+
+    /**
+     * @see it('scalar is invalid inline fragment type')
+     */
+    public function testScalarIsInvalidInlineFragmentType() : void
+    {
+        $this->expectFailsRule(
+            new FragmentsOnCompositeTypes(),
+            '
+      fragment invalidFragment on Pet {
+        ... on String {
+          barks
+        }
+      }
+        ',
+            [FormattedError::create(
+                FragmentsOnCompositeTypes::inlineFragmentOnNonCompositeErrorMessage('String'),
+                [new SourceLocation(3, 16)]
+            ),
+            ]
         );
     }
 }

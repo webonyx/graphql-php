@@ -1,8 +1,10 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Language\Parser;
-use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -11,11 +13,27 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
+use function array_map;
 
 abstract class ValidatorTestCase extends TestCase
 {
+    protected function expectPassesRule($rule, $queryString) : void
+    {
+        $this->expectValid(self::getTestSchema(), [$rule], $queryString);
+    }
+
+    protected function expectValid($schema, $rules, $queryString) : void
+    {
+        $this->assertEquals(
+            [],
+            DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
+            'Should validate'
+        );
+    }
+
     /**
      * @return Schema
      */
@@ -24,198 +42,198 @@ abstract class ValidatorTestCase extends TestCase
         $FurColor = null;
 
         $Being = new InterfaceType([
-            'name' => 'Being',
+            'name'   => 'Being',
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'args' => ['surname' => ['type' => Type::boolean()]]
-                ]
+                    'args' => ['surname' => ['type' => Type::boolean()]],
+                ],
             ],
         ]);
 
         $Pet = new InterfaceType([
-            'name' => 'Pet',
+            'name'   => 'Pet',
             'fields' => [
                 'name' => [
                     'type' => Type::string(),
-                    'args' => ['surname' => ['type' => Type::boolean()]]
-                ]
+                    'args' => ['surname' => ['type' => Type::boolean()]],
+                ],
             ],
         ]);
 
         $Canine = new InterfaceType([
-            'name' => 'Canine',
+            'name'   => 'Canine',
             'fields' => function () {
                 return [
                     'name' => [
                         'type' => Type::string(),
-                        'args' => ['surname' => ['type' => Type::boolean()]]
-                    ]
+                        'args' => ['surname' => ['type' => Type::boolean()]],
+                    ],
                 ];
-            }
+            },
         ]);
 
         $DogCommand = new EnumType([
-            'name' => 'DogCommand',
+            'name'   => 'DogCommand',
             'values' => [
-                'SIT' => ['value' => 0],
+                'SIT'  => ['value' => 0],
                 'HEEL' => ['value' => 1],
-                'DOWN' => ['value' => 2]
-            ]
+                'DOWN' => ['value' => 2],
+            ],
         ]);
 
         $Dog = new ObjectType([
-            'name' => 'Dog',
-            'fields' => [
-                'name' => [
+            'name'       => 'Dog',
+            'fields'     => [
+                'name'            => [
                     'type' => Type::string(),
-                    'args' => ['surname' => ['type' => Type::boolean()]]
+                    'args' => ['surname' => ['type' => Type::boolean()]],
                 ],
-                'nickname' => ['type' => Type::string()],
-                'barkVolume' => ['type' => Type::int()],
-                'barks' => ['type' => Type::boolean()],
+                'nickname'        => ['type' => Type::string()],
+                'barkVolume'      => ['type' => Type::int()],
+                'barks'           => ['type' => Type::boolean()],
                 'doesKnowCommand' => [
                     'type' => Type::boolean(),
-                    'args' => ['dogCommand' => ['type' => $DogCommand]]
+                    'args' => ['dogCommand' => ['type' => $DogCommand]],
                 ],
-                'isHousetrained' => [
+                'isHousetrained'  => [
                     'type' => Type::boolean(),
-                    'args' => ['atOtherHomes' => ['type' => Type::boolean(), 'defaultValue' => true]]
+                    'args' => ['atOtherHomes' => ['type' => Type::boolean(), 'defaultValue' => true]],
                 ],
-                'isAtLocation' => [
+                'isAtLocation'    => [
                     'type' => Type::boolean(),
-                    'args' => ['x' => ['type' => Type::int()], 'y' => ['type' => Type::int()]]
-                ]
+                    'args' => ['x' => ['type' => Type::int()], 'y' => ['type' => Type::int()]],
+                ],
             ],
-            'interfaces' => [$Being, $Pet, $Canine]
+            'interfaces' => [$Being, $Pet, $Canine],
         ]);
 
         $Cat = new ObjectType([
-            'name' => 'Cat',
-            'fields' => function () use (&$FurColor) {
+            'name'       => 'Cat',
+            'fields'     => function () use (&$FurColor) {
                 return [
-                    'name' => [
+                    'name'       => [
                         'type' => Type::string(),
-                        'args' => ['surname' => ['type' => Type::boolean()]]
+                        'args' => ['surname' => ['type' => Type::boolean()]],
                     ],
-                    'nickname' => ['type' => Type::string()],
-                    'meows' => ['type' => Type::boolean()],
+                    'nickname'   => ['type' => Type::string()],
+                    'meows'      => ['type' => Type::boolean()],
                     'meowVolume' => ['type' => Type::int()],
-                    'furColor' => $FurColor
+                    'furColor'   => $FurColor,
                 ];
             },
-            'interfaces' => [$Being, $Pet]
+            'interfaces' => [$Being, $Pet],
         ]);
 
         $CatOrDog = new UnionType([
-            'name' => 'CatOrDog',
+            'name'  => 'CatOrDog',
             'types' => [$Dog, $Cat],
         ]);
 
         $Intelligent = new InterfaceType([
-            'name' => 'Intelligent',
+            'name'   => 'Intelligent',
             'fields' => [
-                'iq' => ['type' => Type::int()]
-            ]
+                'iq' => ['type' => Type::int()],
+            ],
         ]);
 
         $Human = null;
         $Human = new ObjectType([
-            'name' => 'Human',
+            'name'       => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields' => function () use (&$Human, $Pet) {
+            'fields'     => function () use (&$Human, $Pet) {
                 return [
-                    'name' => [
+                    'name'      => [
                         'type' => Type::string(),
-                        'args' => ['surname' => ['type' => Type::boolean()]]
+                        'args' => ['surname' => ['type' => Type::boolean()]],
                     ],
-                    'pets' => ['type' => Type::listOf($Pet)],
+                    'pets'      => ['type' => Type::listOf($Pet)],
                     'relatives' => ['type' => Type::listOf($Human)],
-                    'iq' => ['type' => Type::int()]
+                    'iq'        => ['type' => Type::int()],
                 ];
-            }
+            },
         ]);
 
         $Alien = new ObjectType([
-            'name' => 'Alien',
+            'name'       => 'Alien',
             'interfaces' => [$Being, $Intelligent],
-            'fields' => [
-                'iq' => ['type' => Type::int()],
-                'name' => [
+            'fields'     => [
+                'iq'      => ['type' => Type::int()],
+                'name'    => [
                     'type' => Type::string(),
-                    'args' => ['surname' => ['type' => Type::boolean()]]
+                    'args' => ['surname' => ['type' => Type::boolean()]],
                 ],
-                'numEyes' => ['type' => Type::int()]
-            ]
+                'numEyes' => ['type' => Type::int()],
+            ],
         ]);
 
         $DogOrHuman = new UnionType([
-            'name' => 'DogOrHuman',
+            'name'  => 'DogOrHuman',
             'types' => [$Dog, $Human],
         ]);
 
         $HumanOrAlien = new UnionType([
-            'name' => 'HumanOrAlien',
+            'name'  => 'HumanOrAlien',
             'types' => [$Human, $Alien],
         ]);
 
         $FurColor = new EnumType([
-            'name' => 'FurColor',
+            'name'   => 'FurColor',
             'values' => [
-                'BROWN' => ['value' => 0],
-                'BLACK' => ['value' => 1],
-                'TAN' => ['value' => 2],
+                'BROWN'   => ['value' => 0],
+                'BLACK'   => ['value' => 1],
+                'TAN'     => ['value' => 2],
                 'SPOTTED' => ['value' => 3],
-                'NO_FUR' => ['value' => null],
+                'NO_FUR'  => ['value' => null],
             ],
         ]);
 
         $ComplexInput = new InputObjectType([
-            'name' => 'ComplexInput',
+            'name'   => 'ComplexInput',
             'fields' => [
-                'requiredField' => ['type' => Type::nonNull(Type::boolean())],
-                'intField' => ['type' => Type::int()],
-                'stringField' => ['type' => Type::string()],
-                'booleanField' => ['type' => Type::boolean()],
-                'stringListField' => ['type' => Type::listOf(Type::string())]
-            ]
+                'requiredField'   => ['type' => Type::nonNull(Type::boolean())],
+                'intField'        => ['type' => Type::int()],
+                'stringField'     => ['type' => Type::string()],
+                'booleanField'    => ['type' => Type::boolean()],
+                'stringListField' => ['type' => Type::listOf(Type::string())],
+            ],
         ]);
 
         $ComplicatedArgs = new ObjectType([
-            'name' => 'ComplicatedArgs',
+            'name'   => 'ComplicatedArgs',
             // TODO List
             // TODO Coercion
             // TODO NotNulls
             'fields' => [
-                'intArgField' => [
+                'intArgField'               => [
                     'type' => Type::string(),
                     'args' => ['intArg' => ['type' => Type::int()]],
                 ],
-                'nonNullIntArgField' => [
+                'nonNullIntArgField'        => [
                     'type' => Type::string(),
                     'args' => ['nonNullIntArg' => ['type' => Type::nonNull(Type::int())]],
                 ],
-                'stringArgField' => [
+                'stringArgField'            => [
                     'type' => Type::string(),
                     'args' => ['stringArg' => ['type' => Type::string()]],
                 ],
-                'booleanArgField' => [
+                'booleanArgField'           => [
                     'type' => Type::string(),
                     'args' => ['booleanArg' => ['type' => Type::boolean()]],
                 ],
-                'enumArgField' => [
+                'enumArgField'              => [
                     'type' => Type::string(),
                     'args' => ['enumArg' => ['type' => $FurColor]],
                 ],
-                'floatArgField' => [
+                'floatArgField'             => [
                     'type' => Type::string(),
                     'args' => ['floatArg' => ['type' => Type::float()]],
                 ],
-                'idArgField' => [
+                'idArgField'                => [
                     'type' => Type::string(),
                     'args' => ['idArg' => ['type' => Type::id()]],
                 ],
-                'stringListArgField' => [
+                'stringListArgField'        => [
                     'type' => Type::string(),
                     'args' => ['stringListArg' => ['type' => Type::listOf(Type::string())]],
                 ],
@@ -227,194 +245,191 @@ abstract class ValidatorTestCase extends TestCase
                         ],
                     ],
                 ],
-                'complexArgField' => [
+                'complexArgField'           => [
                     'type' => Type::string(),
                     'args' => ['complexArg' => ['type' => $ComplexInput]],
                 ],
-                'multipleReqs' => [
+                'multipleReqs'              => [
                     'type' => Type::string(),
                     'args' => [
                         'req1' => ['type' => Type::nonNull(Type::int())],
                         'req2' => ['type' => Type::nonNull(Type::int())],
                     ],
                 ],
-                'multipleOpts' => [
+                'multipleOpts'              => [
                     'type' => Type::string(),
                     'args' => [
                         'opt1' => [
-                            'type' => Type::int(),
+                            'type'         => Type::int(),
                             'defaultValue' => 0,
                         ],
                         'opt2' => [
-                            'type' => Type::int(),
+                            'type'         => Type::int(),
                             'defaultValue' => 0,
                         ],
                     ],
                 ],
-                'multipleOptAndReq' => [
+                'multipleOptAndReq'         => [
                     'type' => Type::string(),
                     'args' => [
                         'req1' => ['type' => Type::nonNull(Type::int())],
                         'req2' => ['type' => Type::nonNull(Type::int())],
                         'opt1' => [
-                            'type' => Type::int(),
+                            'type'         => Type::int(),
                             'defaultValue' => 0,
                         ],
                         'opt2' => [
-                            'type' => Type::int(),
+                            'type'         => Type::int(),
                             'defaultValue' => 0,
                         ],
                     ],
                 ],
-            ]
+            ],
         ]);
 
         $invalidScalar = new CustomScalarType([
-            'name' => 'Invalid',
-            'serialize' => function ($value) {
+            'name'         => 'Invalid',
+            'serialize'    => function ($value) {
                 return $value;
             },
             'parseLiteral' => function ($node) {
                 throw new \Exception('Invalid scalar is always invalid: ' . $node->value);
             },
-            'parseValue' => function ($node) {
+            'parseValue'   => function ($node) {
                 throw new \Exception('Invalid scalar is always invalid: ' . $node);
             },
         ]);
 
         $anyScalar = new CustomScalarType([
-            'name' => 'Any',
-            'serialize' => function ($value) {
+            'name'         => 'Any',
+            'serialize'    => function ($value) {
                 return $value;
             },
             'parseLiteral' => function ($node) {
                 return $node;
             }, // Allows any value
-            'parseValue' => function ($value) {
+            'parseValue'   => function ($value) {
                 return $value;
             }, // Allows any value
         ]);
 
         $queryRoot = new ObjectType([
-            'name' => 'QueryRoot',
+            'name'   => 'QueryRoot',
             'fields' => [
-                'human' => [
+                'human'           => [
                     'args' => ['id' => ['type' => Type::id()]],
-                    'type' => $Human
+                    'type' => $Human,
                 ],
-                'alien' => ['type' => $Alien],
-                'dog' => ['type' => $Dog],
-                'cat' => ['type' => $Cat],
-                'pet' => ['type' => $Pet],
-                'catOrDog' => ['type' => $CatOrDog],
-                'dogOrHuman' => ['type' => $DogOrHuman],
-                'humanOrAlien' => ['type' => $HumanOrAlien],
+                'alien'           => ['type' => $Alien],
+                'dog'             => ['type' => $Dog],
+                'cat'             => ['type' => $Cat],
+                'pet'             => ['type' => $Pet],
+                'catOrDog'        => ['type' => $CatOrDog],
+                'dogOrHuman'      => ['type' => $DogOrHuman],
+                'humanOrAlien'    => ['type' => $HumanOrAlien],
                 'complicatedArgs' => ['type' => $ComplicatedArgs],
-                'invalidArg' => [
+                'invalidArg'      => [
                     'args' => [
-                        'arg' => ['type' => $invalidScalar]
+                        'arg' => ['type' => $invalidScalar],
                     ],
                     'type' => Type::string(),
                 ],
-                'anyArg' => [
+                'anyArg'          => [
                     'args' => ['arg' => ['type' => $anyScalar]],
                     'type' => Type::string(),
                 ],
-            ]
+            ],
         ]);
 
         $testSchema = new Schema([
-            'query' => $queryRoot,
+            'query'      => $queryRoot,
             'directives' => [
                 Directive::includeDirective(),
                 Directive::skipDirective(),
                 new Directive([
-                    'name' => 'onQuery',
+                    'name'      => 'onQuery',
                     'locations' => ['QUERY'],
                 ]),
                 new Directive([
-                    'name' => 'onMutation',
+                    'name'      => 'onMutation',
                     'locations' => ['MUTATION'],
                 ]),
                 new Directive([
-                    'name' => 'onSubscription',
+                    'name'      => 'onSubscription',
                     'locations' => ['SUBSCRIPTION'],
                 ]),
                 new Directive([
-                    'name' => 'onField',
+                    'name'      => 'onField',
                     'locations' => ['FIELD'],
                 ]),
                 new Directive([
-                    'name' => 'onFragmentDefinition',
+                    'name'      => 'onFragmentDefinition',
                     'locations' => ['FRAGMENT_DEFINITION'],
                 ]),
                 new Directive([
-                    'name' => 'onFragmentSpread',
+                    'name'      => 'onFragmentSpread',
                     'locations' => ['FRAGMENT_SPREAD'],
                 ]),
                 new Directive([
-                    'name' => 'onInlineFragment',
+                    'name'      => 'onInlineFragment',
                     'locations' => ['INLINE_FRAGMENT'],
                 ]),
                 new Directive([
-                    'name' => 'onSchema',
+                    'name'      => 'onSchema',
                     'locations' => ['SCHEMA'],
                 ]),
                 new Directive([
-                    'name' => 'onScalar',
+                    'name'      => 'onScalar',
                     'locations' => ['SCALAR'],
                 ]),
                 new Directive([
-                    'name' => 'onObject',
+                    'name'      => 'onObject',
                     'locations' => ['OBJECT'],
                 ]),
                 new Directive([
-                    'name' => 'onFieldDefinition',
+                    'name'      => 'onFieldDefinition',
                     'locations' => ['FIELD_DEFINITION'],
                 ]),
                 new Directive([
-                    'name' => 'onArgumentDefinition',
+                    'name'      => 'onArgumentDefinition',
                     'locations' => ['ARGUMENT_DEFINITION'],
                 ]),
                 new Directive([
-                    'name' => 'onInterface',
+                    'name'      => 'onInterface',
                     'locations' => ['INTERFACE'],
                 ]),
                 new Directive([
-                    'name' => 'onUnion',
+                    'name'      => 'onUnion',
                     'locations' => ['UNION'],
                 ]),
                 new Directive([
-                    'name' => 'onEnum',
+                    'name'      => 'onEnum',
                     'locations' => ['ENUM'],
                 ]),
                 new Directive([
-                    'name' => 'onEnumValue',
+                    'name'      => 'onEnumValue',
                     'locations' => ['ENUM_VALUE'],
                 ]),
                 new Directive([
-                    'name' => 'onInputObject',
+                    'name'      => 'onInputObject',
                     'locations' => ['INPUT_OBJECT'],
                 ]),
                 new Directive([
-                    'name' => 'onInputFieldDefinition',
+                    'name'      => 'onInputFieldDefinition',
                     'locations' => ['INPUT_FIELD_DEFINITION'],
                 ]),
             ],
         ]);
+
         return $testSchema;
     }
 
-    function expectValid($schema, $rules, $queryString)
+    protected function expectFailsRule($rule, $queryString, $errors)
     {
-        $this->assertEquals(
-            [],
-            DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
-            'Should validate'
-        );
+        return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors);
     }
 
-    function expectInvalid($schema, $rules, $queryString, $expectedErrors)
+    protected function expectInvalid($schema, $rules, $queryString, $expectedErrors)
     {
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
 
@@ -424,33 +439,23 @@ abstract class ValidatorTestCase extends TestCase
         return $errors;
     }
 
-    function expectPassesRule($rule, $queryString)
-    {
-        $this->expectValid($this->getTestSchema(), [$rule], $queryString);
-    }
-
-    function expectFailsRule($rule, $queryString, $errors)
-    {
-        return $this->expectInvalid($this->getTestSchema(), [$rule], $queryString, $errors);
-    }
-
-    function expectPassesRuleWithSchema($schema, $rule, $queryString)
+    protected function expectPassesRuleWithSchema($schema, $rule, $queryString) : void
     {
         $this->expectValid($schema, [$rule], $queryString);
     }
 
-    function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors)
+    protected function expectFailsRuleWithSchema($schema, $rule, $queryString, $errors) : void
     {
         $this->expectInvalid($schema, [$rule], $queryString, $errors);
     }
 
-    function expectPassesCompleteValidation($queryString)
+    protected function expectPassesCompleteValidation($queryString) : void
     {
-        $this->expectValid($this->getTestSchema(), DocumentValidator::allRules(), $queryString);
+        $this->expectValid(self::getTestSchema(), DocumentValidator::allRules(), $queryString);
     }
 
-    function expectFailsCompleteValidation($queryString, $errors)
+    protected function expectFailsCompleteValidation($queryString, $errors) : void
     {
-        $this->expectInvalid($this->getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
+        $this->expectInvalid(self::getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
     }
 }

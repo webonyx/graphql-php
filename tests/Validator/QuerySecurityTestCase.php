@@ -1,30 +1,20 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use PHPUnit\Framework\TestCase;
+use function array_map;
 
 abstract class QuerySecurityTestCase extends TestCase
 {
-    /**
-     * @param $max
-     *
-     * @return QuerySecurityRule
-     */
-    abstract protected function getRule($max);
-
-    /**
-     * @param $max
-     * @param $count
-     *
-     * @return string
-     */
-    abstract protected function getErrorMessage($max, $count);
-
     /**
      * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage argument must be greater or equal to 0.
@@ -34,23 +24,12 @@ abstract class QuerySecurityTestCase extends TestCase
         $this->getRule(-1);
     }
 
-    protected function createFormattedError($max, $count, $locations = [])
-    {
-        return FormattedError::create($this->getErrorMessage($max, $count), $locations);
-    }
-
-    protected function assertDocumentValidator($queryString, $max, array $expectedErrors = [])
-    {
-        $errors = DocumentValidator::validate(
-            QuerySecuritySchema::buildSchema(),
-            Parser::parse($queryString),
-            [$this->getRule($max)]
-        );
-
-        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors), $queryString);
-
-        return $errors;
-    }
+    /**
+     * @param int $max
+     *
+     * @return QuerySecurityRule
+     */
+    abstract protected function getRule($max);
 
     protected function assertIntrospectionQuery($maxExpected)
     {
@@ -58,6 +37,48 @@ abstract class QuerySecurityTestCase extends TestCase
 
         $this->assertMaxValue($query, $maxExpected);
     }
+
+    protected function assertMaxValue($query, $maxExpected)
+    {
+        $this->assertDocumentValidator($query, $maxExpected);
+        $newMax = $maxExpected - 1;
+        if ($newMax === QuerySecurityRule::DISABLED) {
+            return;
+        }
+        $this->assertDocumentValidator($query, $newMax, [$this->createFormattedError($newMax, $maxExpected)]);
+    }
+
+    /**
+     * @param string     $queryString
+     * @param int        $max
+     * @param string[][] $expectedErrors
+     * @return Error[]
+     */
+    protected function assertDocumentValidator($queryString, $max, array $expectedErrors = []) : array
+    {
+        $errors = DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($queryString),
+            [$this->getRule($max)]
+        );
+
+        $this->assertEquals($expectedErrors, array_map([Error::class, 'formatError'], $errors), $queryString);
+
+        return $errors;
+    }
+
+    protected function createFormattedError($max, $count, $locations = [])
+    {
+        return FormattedError::create($this->getErrorMessage($max, $count), $locations);
+    }
+
+    /**
+     * @param int $max
+     * @param int $count
+     *
+     * @return string
+     */
+    abstract protected function getErrorMessage($max, $count);
 
     protected function assertIntrospectionTypeMetaFieldQuery($maxExpected)
     {
@@ -83,15 +104,5 @@ abstract class QuerySecurityTestCase extends TestCase
           }
         ';
         $this->assertMaxValue($query, $maxExpected);
-    }
-
-    protected function assertMaxValue($query, $maxExpected)
-    {
-        $this->assertDocumentValidator($query, $maxExpected);
-        $newMax = $maxExpected - 1;
-        if ($newMax === QuerySecurityRule::DISABLED) {
-            return;
-        }
-        $this->assertDocumentValidator($query, $newMax, [$this->createFormattedError($newMax, $maxExpected)]);
     }
 }

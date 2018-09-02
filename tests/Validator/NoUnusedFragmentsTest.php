@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,13 +11,14 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 class NoUnusedFragmentsTest extends ValidatorTestCase
 {
     // Validate: No unused fragments
-
     /**
      * @see it('all fragment names are used')
      */
     public function testAllFragmentNamesAreUsed() : void
     {
-        $this->expectPassesRule(new NoUnusedFragments(), '
+        $this->expectPassesRule(
+            new NoUnusedFragments(),
+            '
       {
         human(id: 4) {
           ...HumanFields1
@@ -33,7 +37,8 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
       fragment HumanFields3 on Human {
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -41,7 +46,9 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
      */
     public function testAllFragmentNamesAreUsedByMultipleOperations() : void
     {
-        $this->expectPassesRule(new NoUnusedFragments, '
+        $this->expectPassesRule(
+            new NoUnusedFragments(),
+            '
       query Foo {
         human(id: 4) {
           ...HumanFields1
@@ -62,7 +69,8 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
       fragment HumanFields3 on Human {
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -70,7 +78,9 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
      */
     public function testContainsUnknownFragments() : void
     {
-        $this->expectFailsRule(new NoUnusedFragments, '
+        $this->expectFailsRule(
+            new NoUnusedFragments(),
+            '
       query Foo {
         human(id: 4) {
           ...HumanFields1
@@ -97,10 +107,20 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
       fragment Unused2 on Human {
         name
       }
-    ', [
-            $this->unusedFrag('Unused1', 22, 7),
-            $this->unusedFrag('Unused2', 25, 7),
-        ]);
+    ',
+            [
+                $this->unusedFrag('Unused1', 22, 7),
+                $this->unusedFrag('Unused2', 25, 7),
+            ]
+        );
+    }
+
+    private function unusedFrag($fragName, $line, $column)
+    {
+        return FormattedError::create(
+            NoUnusedFragments::unusedFragMessage($fragName),
+            [new SourceLocation($line, $column)]
+        );
     }
 
     /**
@@ -108,7 +128,9 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
      */
     public function testContainsUnknownFragmentsWithRefCycle() : void
     {
-        $this->expectFailsRule(new NoUnusedFragments, '
+        $this->expectFailsRule(
+            new NoUnusedFragments(),
+            '
       query Foo {
         human(id: 4) {
           ...HumanFields1
@@ -137,10 +159,12 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
         name
         ...Unused1
       }
-    ', [
-            $this->unusedFrag('Unused1', 22, 7),
-            $this->unusedFrag('Unused2', 26, 7),
-        ]);
+    ',
+            [
+                $this->unusedFrag('Unused1', 22, 7),
+                $this->unusedFrag('Unused2', 26, 7),
+            ]
+        );
     }
 
     /**
@@ -148,8 +172,9 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
      */
     public function testContainsUnknownAndUndefFragments() : void
     {
-
-        $this->expectFailsRule(new NoUnusedFragments, '
+        $this->expectFailsRule(
+            new NoUnusedFragments(),
+            '
       query Foo {
         human(id: 4) {
           ...bar
@@ -158,16 +183,10 @@ class NoUnusedFragmentsTest extends ValidatorTestCase
       fragment foo on Human {
         name
       }
-    ', [
-            $this->unusedFrag('foo', 7, 7),
-        ]);
-    }
-
-    private function unusedFrag($fragName, $line, $column)
-    {
-        return FormattedError::create(
-            NoUnusedFragments::unusedFragMessage($fragName),
-            [new SourceLocation($line, $column)]
+    ',
+            [
+                $this->unusedFrag('foo', 7, 7),
+            ]
         );
     }
 }

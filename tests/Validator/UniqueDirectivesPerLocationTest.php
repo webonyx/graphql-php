@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
@@ -10,11 +13,14 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testNoDirectives() : void
     {
-        $this->expectPassesRule(new UniqueDirectivesPerLocation(), '
+        $this->expectPassesRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -22,11 +28,14 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testUniqueDirectivesInDifferentLocations() : void
     {
-        $this->expectPassesRule(new UniqueDirectivesPerLocation(), '
+        $this->expectPassesRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type @directiveA {
         field @directiveB
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -34,11 +43,14 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testUniqueDirectivesInSameLocations() : void
     {
-        $this->expectPassesRule(new UniqueDirectivesPerLocation(), '
+        $this->expectPassesRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type @directiveA @directiveB {
         field @directiveA @directiveB
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -46,11 +58,14 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testSameDirectivesInDifferentLocations() : void
     {
-        $this->expectPassesRule(new UniqueDirectivesPerLocation(), '
+        $this->expectPassesRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type @directiveA {
         field @directiveA
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -58,12 +73,15 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testSameDirectivesInSimilarLocations() : void
     {
-        $this->expectPassesRule(new UniqueDirectivesPerLocation(), '
+        $this->expectPassesRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type {
         field @directive
         field @directive
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -71,13 +89,26 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testDuplicateDirectivesInOneLocation() : void
     {
-        $this->expectFailsRule(new UniqueDirectivesPerLocation(), '
+        $this->expectFailsRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type {
         field @directive @directive
       }
-        ', [
-            $this->duplicateDirective('directive', 3, 15, 3, 26)
-        ]);
+        ',
+            [$this->duplicateDirective('directive', 3, 15, 3, 26)]
+        );
+    }
+
+    private function duplicateDirective($directiveName, $l1, $c1, $l2, $c2)
+    {
+        return [
+            'message'   => UniqueDirectivesPerLocation::duplicateDirectiveMessage($directiveName),
+            'locations' => [
+                ['line' => $l1, 'column' => $c1],
+                ['line' => $l2, 'column' => $c2],
+            ],
+        ];
     }
 
     /**
@@ -85,14 +116,18 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testManyDuplicateDirectivesInOneLocation() : void
     {
-        $this->expectFailsRule(new UniqueDirectivesPerLocation(), '
+        $this->expectFailsRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type {
         field @directive @directive @directive
       }
-        ', [
-            $this->duplicateDirective('directive', 3, 15, 3, 26),
-            $this->duplicateDirective('directive', 3, 15, 3, 37)
-        ]);
+        ',
+            [
+                $this->duplicateDirective('directive', 3, 15, 3, 26),
+                $this->duplicateDirective('directive', 3, 15, 3, 37),
+            ]
+        );
     }
 
     /**
@@ -100,14 +135,18 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testDifferentDuplicateDirectivesInOneLocation() : void
     {
-        $this->expectFailsRule(new UniqueDirectivesPerLocation, '
+        $this->expectFailsRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type {
         field @directiveA @directiveB @directiveA @directiveB
       }
-        ', [
-            $this->duplicateDirective('directiveA', 3, 15, 3, 39),
-            $this->duplicateDirective('directiveB', 3, 27, 3, 51)
-        ]);
+        ',
+            [
+                $this->duplicateDirective('directiveA', 3, 15, 3, 39),
+                $this->duplicateDirective('directiveB', 3, 27, 3, 51),
+            ]
+        );
     }
 
     /**
@@ -115,24 +154,17 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
      */
     public function testDuplicateDirectivesInManyLocations() : void
     {
-        $this->expectFailsRule(new UniqueDirectivesPerLocation(), '
+        $this->expectFailsRule(
+            new UniqueDirectivesPerLocation(),
+            '
       fragment Test on Type @directive @directive {
         field @directive @directive
       }
-        ', [
-            $this->duplicateDirective('directive', 2, 29, 2, 40),
-            $this->duplicateDirective('directive', 3, 15, 3, 26)
-        ]);
-    }
-
-    private function duplicateDirective($directiveName, $l1, $c1, $l2, $c2)
-    {
-        return [
-            'message' =>UniqueDirectivesPerLocation::duplicateDirectiveMessage($directiveName),
-            'locations' => [
-                ['line' => $l1, 'column' => $c1],
-                ['line' => $l2, 'column' => $c2]
+        ',
+            [
+                $this->duplicateDirective('directive', 2, 29, 2, 40),
+                $this->duplicateDirective('directive', 3, 15, 3, 26),
             ]
-        ];
+        );
     }
 }
