@@ -35,6 +35,7 @@ use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use function array_keys;
 use function array_merge;
+use function array_reduce;
 use function array_values;
 use function get_class;
 use function is_array;
@@ -68,7 +69,7 @@ class Executor
             self::$UNDEFINED = Utils::undefined();
         }
 
-        $this->exeContext = $context;
+        $this->exeContext    = $context;
         $this->subFieldCache = new \SplObjectStorage();
     }
 
@@ -285,7 +286,7 @@ class Executor
         // field and its descendants will be omitted, and sibling fields will still
         // be executed. An execution which encounters errors will still result in a
         // resolved Promise.
-        $data = $this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue);
+        $data   = $this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue);
         $result = $this->buildResponse($data);
 
         // Note: we deviate here from the reference implementation a bit by always returning promise
@@ -995,8 +996,7 @@ class Executor
      * If the callback does not return a Promise, then this function will also not
      * return a Promise.
      *
-     * @param mixed[] $values
-     * @param \Closure $callback
+     * @param mixed[]            $values
      * @param Promise|mixed|null $initialValue
      * @return mixed[]
      */
@@ -1291,23 +1291,18 @@ class Executor
         return $this->executeFields($returnType, $result, $path, $subFieldNodes);
     }
 
-    /**
-     * @param ObjectType $returnType
-     * @param $fieldNodes
-     * @return ArrayObject
-     */
-    private function collectSubFields(ObjectType $returnType, $fieldNodes): ArrayObject
+    private function collectSubFields(ObjectType $returnType, $fieldNodes) : ArrayObject
     {
-        if (!isset($this->subFieldCache[$returnType])) {
+        if (! isset($this->subFieldCache[$returnType])) {
             $this->subFieldCache[$returnType] = new \SplObjectStorage();
         }
-        if (!isset($this->subFieldCache[$returnType][$fieldNodes])) {
+        if (! isset($this->subFieldCache[$returnType][$fieldNodes])) {
             // Collect sub-fields to execute to complete this value.
-            $subFieldNodes = new \ArrayObject();
+            $subFieldNodes        = new \ArrayObject();
             $visitedFragmentNames = new \ArrayObject();
 
             foreach ($fieldNodes as $fieldNode) {
-                if (!isset($fieldNode->selectionSet)) {
+                if (! isset($fieldNode->selectionSet)) {
                     continue;
                 }
 
