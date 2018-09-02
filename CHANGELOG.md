@@ -1,4 +1,8 @@
 # Changelog
+#### v0.12.6
+- Bugfix: Call to a member function getLocation() on null (#336)
+- Fixed several errors discovered by static analysis (#329)
+
 #### v0.12.5
 - Execution performance optimization for lists
 

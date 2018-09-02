@@ -21,7 +21,7 @@
     "bin-dir": "bin",
     "preferred-install": "dist",
     "sort-packages": true
-},
+  },
   "autoload": {
     "psr-4": {
       "GraphQL\\": "src/"
