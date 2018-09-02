@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests;
 
 use GraphQL\Language\Parser;
@@ -15,7 +18,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testValidatesAComplexButValidQuery() : void
     {
-        $query = '
+        $query  = '
         query NestedQueryWithFragment {
           hero {
             ...NameAndAppearances
@@ -38,11 +41,21 @@ class StarWarsValidationTest extends TestCase
     }
 
     /**
+     * Helper function to test a query and the expected response.
+     */
+    private function validationErrors($query)
+    {
+        $ast = Parser::parse($query);
+
+        return DocumentValidator::validate(StarWarsSchema::build(), $ast);
+    }
+
+    /**
      * @see it('Notes that non-existent fields are invalid')
      */
     public function testThatNonExistentFieldsAreInvalid() : void
     {
-        $query = '
+        $query  = '
         query HeroSpaceshipQuery {
           hero {
             favoriteSpaceship
@@ -73,7 +86,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testDisallowsFieldsOnScalars() : void
     {
-      $query = '
+        $query  = '
         query HeroFieldsOnScalarQuery {
           hero {
             name {
@@ -91,7 +104,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testDisallowsObjectFieldsOnInterfaces() : void
     {
-        $query = '
+        $query  = '
         query DroidFieldOnCharacter {
           hero {
             name
@@ -108,7 +121,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testAllowsObjectFieldsInFragments() : void
     {
-        $query = '
+        $query  = '
         query DroidFieldInFragment {
           hero {
             name
@@ -129,7 +142,7 @@ class StarWarsValidationTest extends TestCase
      */
     public function testAllowsObjectFieldsInInlineFragments() : void
     {
-        $query = '
+        $query  = '
         query DroidFieldInFragment {
           hero {
             name
@@ -141,14 +154,5 @@ class StarWarsValidationTest extends TestCase
         ';
         $errors = $this->validationErrors($query);
         $this->assertEquals(true, empty($errors));
-    }
-
-    /**
-     * Helper function to test a query and the expected response.
-     */
-    private function validationErrors($query)
-    {
-        $ast = Parser::parse($query);
-        return DocumentValidator::validate(StarWarsSchema::build(), $ast);
     }
 }
