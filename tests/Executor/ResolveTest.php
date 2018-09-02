@@ -1,29 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\GraphQL;
-use GraphQL\Type\Schema;
+use GraphQL\Tests\Executor\TestClasses\Adder;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-
-require_once __DIR__ . '/TestClasses.php';
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use function json_encode;
+use function uniqid;
 
 class ResolveTest extends TestCase
 {
     // Execute: resolve function
-
-    private function buildSchema($testField)
-    {
-        return new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
-                'fields' => [
-                    'test' => $testField
-                ]
-            ])
-        ]);
-    }
 
     /**
      * @see it('default function accesses properties')
@@ -32,9 +24,7 @@ class ResolveTest extends TestCase
     {
         $schema = $this->buildSchema(['type' => Type::string()]);
 
-        $source = [
-            'test' => 'testValue'
-        ];
+        $source = ['test' => 'testValue'];
 
         $this->assertEquals(
             ['data' => ['test' => 'testValue']],
@@ -42,18 +32,28 @@ class ResolveTest extends TestCase
         );
     }
 
+    private function buildSchema($testField)
+    {
+        return new Schema([
+            'query' => new ObjectType([
+                'name'   => 'Query',
+                'fields' => ['test' => $testField],
+            ]),
+        ]);
+    }
+
     /**
      * @see it('default function calls methods')
      */
     public function testDefaultFunctionCallsClosures() : void
     {
-        $schema = $this->buildSchema(['type' => Type::string()]);
+        $schema  = $this->buildSchema(['type' => Type::string()]);
         $_secret = 'secretValue' . uniqid();
 
         $source = [
-            'test' => function() use ($_secret) {
+            'test' => function () use ($_secret) {
                 return $_secret;
-            }
+            },
         ];
         $this->assertEquals(
             ['data' => ['test' => $_secret]],
@@ -69,7 +69,7 @@ class ResolveTest extends TestCase
         $schema = $this->buildSchema([
             'type' => Type::int(),
             'args' => [
-                'addend1' => [ 'type' => Type::int() ],
+                'addend1' => ['type' => Type::int()],
             ],
         ]);
 
@@ -85,14 +85,14 @@ class ResolveTest extends TestCase
     public function testUsesProvidedResolveFunction() : void
     {
         $schema = $this->buildSchema([
-            'type' => Type::string(),
-            'args' => [
+            'type'    => Type::string(),
+            'args'    => [
                 'aStr' => ['type' => Type::string()],
                 'aInt' => ['type' => Type::int()],
             ],
             'resolve' => function ($source, $args) {
                 return json_encode([$source, $args]);
-            }
+            },
         ]);
 
         $this->assertEquals(

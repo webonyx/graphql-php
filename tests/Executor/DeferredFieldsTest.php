@@ -1,33 +1,44 @@
 <?php
-namespace GraphQL\Tests\Executor;
 
+declare(strict_types=1);
+
+namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
-use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use function in_array;
 
 class DeferredFieldsTest extends TestCase
 {
+    /** @var ObjectType */
     private $userType;
 
+    /** @var ObjectType */
     private $storyType;
 
+    /** @var ObjectType */
     private $categoryType;
 
+    /** @var  */
     private $path;
 
+    /** @var mixed[][] */
     private $storyDataSource;
 
+    /** @var mixed[][] */
     private $userDataSource;
 
+    /** @var mixed[][] */
     private $categoryDataSource;
 
+    /** @var ObjectType */
     private $queryType;
 
     public function setUp()
@@ -54,127 +65,152 @@ class DeferredFieldsTest extends TestCase
         $this->categoryDataSource = [
             ['id' => 1, 'name' => 'Category #1', 'topStoryId' => 8],
             ['id' => 2, 'name' => 'Category #2', 'topStoryId' => 3],
-            ['id' => 3, 'name' => 'Category #3', 'topStoryId' => 9]
+            ['id' => 3, 'name' => 'Category #3', 'topStoryId' => 9],
         ];
 
-        $this->path = [];
+        $this->path     = [];
         $this->userType = new ObjectType([
-            'name' => 'User',
-            'fields' => function() {
+            'name'   => 'User',
+            'fields' => function () {
                 return [
-                    'name' => [
-                        'type' => Type::string(),
+                    'name'       => [
+                        'type'    => Type::string(),
                         'resolve' => function ($user, $args, $context, ResolveInfo $info) {
                             $this->path[] = $info->path;
+
                             return $user['name'];
-                        }
+                        },
                     ],
                     'bestFriend' => [
-                        'type' => $this->userType,
-                        'resolve' => function($user, $args, $context, ResolveInfo $info) {
+                        'type'    => $this->userType,
+                        'resolve' => function ($user, $args, $context, ResolveInfo $info) {
                             $this->path[] = $info->path;
 
-                            return new Deferred(function() use ($user) {
+                            return new Deferred(function () use ($user) {
                                 $this->path[] = 'deferred-for-best-friend-of-' . $user['id'];
-                                return Utils::find($this->userDataSource, function($entry) use ($user) {
-                                    return $entry['id'] === $user['bestFriendId'];
-                                });
+
+                                return Utils::find(
+                                    $this->userDataSource,
+                                    function ($entry) use ($user) {
+                                        return $entry['id'] === $user['bestFriendId'];
+                                    }
+                                );
                             });
-                        }
-                    ]
+                        },
+                    ],
                 ];
-            }
+            },
         ]);
 
         $this->storyType = new ObjectType([
-            'name' => 'Story',
+            'name'   => 'Story',
             'fields' => [
-                'title' => [
-                    'type' => Type::string(),
-                    'resolve' => function($entry, $args, $context, ResolveInfo $info) {
-                        $this->path[] = $info->path;
-                        return $entry['title'];
-                    }
-                ],
-                'author' => [
-                    'type' => $this->userType,
-                    'resolve' => function($story, $args, $context, ResolveInfo $info) {
+                'title'  => [
+                    'type'    => Type::string(),
+                    'resolve' => function ($entry, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
 
-                        return new Deferred(function() use ($story) {
+                        return $entry['title'];
+                    },
+                ],
+                'author' => [
+                    'type'    => $this->userType,
+                    'resolve' => function ($story, $args, $context, ResolveInfo $info) {
+                        $this->path[] = $info->path;
+
+                        return new Deferred(function () use ($story) {
                             $this->path[] = 'deferred-for-story-' . $story['id'] . '-author';
-                            return Utils::find($this->userDataSource, function($entry) use ($story) {
-                                return $entry['id'] === $story['authorId'];
-                            });
+
+                            return Utils::find(
+                                $this->userDataSource,
+                                function ($entry) use ($story) {
+                                    return $entry['id'] === $story['authorId'];
+                                }
+                            );
                         });
-                    }
-                ]
-            ]
+                    },
+                ],
+            ],
         ]);
 
         $this->categoryType = new ObjectType([
-            'name' => 'Category',
+            'name'   => 'Category',
             'fields' => [
                 'name' => [
-                    'type' => Type::string(),
-                    'resolve' => function($category, $args, $context, ResolveInfo $info) {
+                    'type'    => Type::string(),
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
+
                         return $category['name'];
-                    }
+                    },
                 ],
 
-                'stories' => [
-                    'type' => Type::listOf($this->storyType),
-                    'resolve' => function($category, $args, $context, ResolveInfo $info) {
+                'stories'  => [
+                    'type'    => Type::listOf($this->storyType),
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
-                        return Utils::filter($this->storyDataSource, function($story) use ($category) {
-                            return in_array($category['id'], $story['categoryIds']);
-                        });
-                    }
+
+                        return Utils::filter(
+                            $this->storyDataSource,
+                            function ($story) use ($category) {
+                                return in_array($category['id'], $story['categoryIds']);
+                            }
+                        );
+                    },
                 ],
                 'topStory' => [
-                    'type' => $this->storyType,
-                    'resolve' => function($category, $args, $context, ResolveInfo $info) {
+                    'type'    => $this->storyType,
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
 
                         return new Deferred(function () use ($category) {
                             $this->path[] = 'deferred-for-category-' . $category['id'] . '-topStory';
-                            return Utils::find($this->storyDataSource, function($story) use ($category) {
-                                return $story['id'] === $category['topStoryId'];
-                            });
+
+                            return Utils::find(
+                                $this->storyDataSource,
+                                function ($story) use ($category) {
+                                    return $story['id'] === $category['topStoryId'];
+                                }
+                            );
                         });
-                    }
-                ]
-            ]
+                    },
+                ],
+            ],
         ]);
 
         $this->queryType = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
-                'topStories' => [
-                    'type' => Type::listOf($this->storyType),
-                    'resolve' => function($val, $args, $context, ResolveInfo $info) {
+                'topStories'       => [
+                    'type'    => Type::listOf($this->storyType),
+                    'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
-                        return Utils::filter($this->storyDataSource, function($story) {
-                            return $story['id'] % 2 === 1;
-                        });
-                    }
+
+                        return Utils::filter(
+                            $this->storyDataSource,
+                            function ($story) {
+                                return $story['id'] % 2 === 1;
+                            }
+                        );
+                    },
                 ],
                 'featuredCategory' => [
-                    'type' => $this->categoryType,
-                    'resolve' => function($val, $args, $context, ResolveInfo $info) {
+                    'type'    => $this->categoryType,
+                    'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
+
                         return $this->categoryDataSource[0];
-                    }
+                    },
                 ],
-                'categories' => [
-                    'type' => Type::listOf($this->categoryType),
-                    'resolve' => function($val, $args, $context, ResolveInfo $info) {
+                'categories'       => [
+                    'type'    => Type::listOf($this->categoryType),
+                    'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                         $this->path[] = $info->path;
+
                         return $this->categoryDataSource;
-                    }
-                ]
-            ]
+                    },
+                ],
+            ],
         ]);
 
         parent::setUp();
@@ -202,12 +238,12 @@ class DeferredFieldsTest extends TestCase
         ');
 
         $schema = new Schema([
-            'query' => $this->queryType
+            'query' => $this->queryType,
         ]);
 
         $expected = [
             'data' => [
-                'topStories' => [
+                'topStories'       => [
                     ['title' => 'Story #1', 'author' => ['name' => 'John']],
                     ['title' => 'Story #3', 'author' => ['name' => 'Joe']],
                     ['title' => 'Story #5', 'author' => ['name' => 'John']],
@@ -220,9 +256,9 @@ class DeferredFieldsTest extends TestCase
                         ['title' => 'Story #4', 'author' => ['name' => 'Joe']],
                         ['title' => 'Story #6', 'author' => ['name' => 'Jane']],
                         ['title' => 'Story #8', 'author' => ['name' => 'John']],
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         $result = Executor::execute($schema, $query);
@@ -292,12 +328,12 @@ class DeferredFieldsTest extends TestCase
         ');
 
         $schema = new Schema([
-            'query' => $this->queryType
+            'query' => $this->queryType,
         ]);
 
         $author1 = ['name' => 'John', 'bestFriend' => ['name' => 'Dirk']];
         $author2 = ['name' => 'Jane', 'bestFriend' => ['name' => 'Joe']];
-        $author3 = ['name' => 'Joe',  'bestFriend' => ['name' => 'Jane']];
+        $author3 = ['name' => 'Joe', 'bestFriend' => ['name' => 'Jane']];
         $author4 = ['name' => 'Dirk', 'bestFriend' => ['name' => 'John']];
 
         $expected = [
@@ -306,8 +342,8 @@ class DeferredFieldsTest extends TestCase
                     ['name' => 'Category #1', 'topStory' => ['title' => 'Story #8', 'author' => $author1]],
                     ['name' => 'Category #2', 'topStory' => ['title' => 'Story #3', 'author' => $author3]],
                     ['name' => 'Category #3', 'topStory' => ['title' => 'Story #9', 'author' => $author2]],
-                ]
-            ]
+                ],
+            ],
         ];
 
         $result = Executor::execute($schema, $query);
@@ -352,54 +388,56 @@ class DeferredFieldsTest extends TestCase
     public function testComplexRecursiveDeferredFields() : void
     {
         $complexType = new ObjectType([
-            'name' => 'ComplexType',
-            'fields' => function() use (&$complexType) {
+            'name'   => 'ComplexType',
+            'fields' => function () use (&$complexType) {
                 return [
-                    'sync' => [
-                        'type' => Type::string(),
-                        'resolve' => function($v, $a, $c, ResolveInfo $info) {
-                            $this->path[] = $info->path;
-                            return 'sync';
-                        }
-                    ],
-                    'deferred' => [
-                        'type' => Type::string(),
-                        'resolve' => function($v, $a, $c, ResolveInfo $info) {
+                    'sync'         => [
+                        'type'    => Type::string(),
+                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
                             $this->path[] = $info->path;
 
-                            return new Deferred(function() use ($info) {
+                            return 'sync';
+                        },
+                    ],
+                    'deferred'     => [
+                        'type'    => Type::string(),
+                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
+                            $this->path[] = $info->path;
+
+                            return new Deferred(function () use ($info) {
                                 $this->path[] = ['!dfd for: ', $info->path];
+
                                 return 'deferred';
                             });
-                        }
+                        },
                     ],
-                    'nest' => [
-                        'type' => $complexType,
-                        'resolve' => function($v, $a, $c, ResolveInfo $info) {
+                    'nest'         => [
+                        'type'    => $complexType,
+                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
                             $this->path[] = $info->path;
+
                             return [];
-                        }
+                        },
                     ],
                     'deferredNest' => [
-                        'type' => $complexType,
-                        'resolve' => function($v, $a, $c, ResolveInfo $info) {
+                        'type'    => $complexType,
+                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
                             $this->path[] = $info->path;
 
-                            return new Deferred(function() use ($info) {
+                            return new Deferred(function () use ($info) {
                                 $this->path[] = ['!dfd nest for: ', $info->path];
+
                                 return [];
                             });
-                        }
-                    ]
+                        },
+                    ],
                 ];
-            }
+            },
         ]);
 
-        $schema = new Schema([
-            'query' => $complexType
-        ]);
+        $schema = new Schema(['query' => $complexType]);
 
-        $query = Parser::parse('
+        $query    = Parser::parse('
             {
                 nest {
                     sync
@@ -427,34 +465,34 @@ class DeferredFieldsTest extends TestCase
                 }
             }
         ');
-        $result = Executor::execute($schema, $query);
+        $result   = Executor::execute($schema, $query);
         $expected = [
             'data' => [
-                'nest' => [
-                    'sync' => 'sync',
-                    'deferred' => 'deferred',
-                    'nest' => [
-                        'sync' => 'sync',
-                        'deferred' => 'deferred'
+                'nest'         => [
+                    'sync'         => 'sync',
+                    'deferred'     => 'deferred',
+                    'nest'         => [
+                        'sync'     => 'sync',
+                        'deferred' => 'deferred',
                     ],
                     'deferredNest' => [
-                        'sync' => 'sync',
-                        'deferred' => 'deferred'
-                    ]
+                        'sync'     => 'sync',
+                        'deferred' => 'deferred',
+                    ],
                 ],
                 'deferredNest' => [
-                    'sync' => 'sync',
-                    'deferred' => 'deferred',
-                    'nest' => [
-                        'sync' => 'sync',
-                        'deferred' => 'deferred'
+                    'sync'         => 'sync',
+                    'deferred'     => 'deferred',
+                    'nest'         => [
+                        'sync'     => 'sync',
+                        'deferred' => 'deferred',
                     ],
                     'deferredNest' => [
-                        'sync' => 'sync',
-                        'deferred' => 'deferred'
-                    ]
-                ]
-            ]
+                        'sync'     => 'sync',
+                        'deferred' => 'deferred',
+                    ],
+                ],
+            ],
         ];
 
         $this->assertEquals($expected, $result->toArray());

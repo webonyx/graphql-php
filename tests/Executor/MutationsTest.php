@@ -1,27 +1,26 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Executor;
 
-use GraphQL\Deferred;
-use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
-use GraphQL\Language\SourceLocation;
-use GraphQL\Type\Schema;
+use GraphQL\Tests\Executor\TestClasses\Root;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
 class MutationsTest extends TestCase
 {
     // Execute: Handles mutation execution ordering
-
     /**
      * @see it('evaluates mutations serially')
      */
     public function testEvaluatesMutationsSerially() : void
     {
-        $doc = 'mutation M {
+        $doc            = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
         theNumber
       },
@@ -38,28 +37,71 @@ class MutationsTest extends TestCase
         theNumber
       }
     }';
-        $ast = Parser::parse($doc);
+        $ast            = Parser::parse($doc);
         $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
-        $expected = [
+        $expected       = [
             'data' => [
-                'first' => [
-                    'theNumber' => 1
-                ],
-                'second' => [
-                    'theNumber' => 2
-                ],
-                'third' => [
-                    'theNumber' => 3
-                ],
-                'fourth' => [
-                    'theNumber' => 4
-                ],
-                'fifth' => [
-                    'theNumber' => 5
-                ]
-            ]
+                'first'  => ['theNumber' => 1],
+                'second' => ['theNumber' => 2],
+                'third'  => ['theNumber' => 3],
+                'fourth' => ['theNumber' => 4],
+                'fifth'  => ['theNumber' => 5],
+            ],
         ];
         $this->assertEquals($expected, $mutationResult->toArray());
+    }
+
+    private function schema() : Schema
+    {
+        $numberHolderType = new ObjectType([
+            'fields' => [
+                'theNumber' => ['type' => Type::int()],
+            ],
+            'name'   => 'NumberHolder',
+        ]);
+        $schema           = new Schema([
+            'query'    => new ObjectType([
+                'fields' => [
+                    'numberHolder' => ['type' => $numberHolderType],
+                ],
+                'name'   => 'Query',
+            ]),
+            'mutation' => new ObjectType([
+                'fields' => [
+                    'immediatelyChangeTheNumber'      => [
+                        'type'    => $numberHolderType,
+                        'args'    => ['newNumber' => ['type' => Type::int()]],
+                        'resolve' => function (Root $obj, $args) {
+                            return $obj->immediatelyChangeTheNumber($args['newNumber']);
+                        },
+                    ],
+                    'promiseToChangeTheNumber'        => [
+                        'type'    => $numberHolderType,
+                        'args'    => ['newNumber' => ['type' => Type::int()]],
+                        'resolve' => function (Root $obj, $args) {
+                            return $obj->promiseToChangeTheNumber($args['newNumber']);
+                        },
+                    ],
+                    'failToChangeTheNumber'           => [
+                        'type'    => $numberHolderType,
+                        'args'    => ['newNumber' => ['type' => Type::int()]],
+                        'resolve' => function (Root $obj, $args) {
+                            $obj->failToChangeTheNumber();
+                        },
+                    ],
+                    'promiseAndFailToChangeTheNumber' => [
+                        'type'    => $numberHolderType,
+                        'args'    => ['newNumber' => ['type' => Type::int()]],
+                        'resolve' => function (Root $obj, $args) {
+                            return $obj->promiseAndFailToChangeTheNumber();
+                        },
+                    ],
+                ],
+                'name'   => 'Mutation',
+            ]),
+        ]);
+
+        return $schema;
     }
 
     /**
@@ -67,7 +109,7 @@ class MutationsTest extends TestCase
      */
     public function testEvaluatesMutationsCorrectlyInThePresenseOfAFailedMutation() : void
     {
-        $doc = 'mutation M {
+        $doc            = 'mutation M {
       first: immediatelyChangeTheNumber(newNumber: 1) {
         theNumber
       },
@@ -87,147 +129,28 @@ class MutationsTest extends TestCase
         theNumber
       }
     }';
-        $ast = Parser::parse($doc);
+        $ast            = Parser::parse($doc);
         $mutationResult = Executor::execute($this->schema(), $ast, new Root(6));
-        $expected = [
-            'data' => [
-                'first' => [
-                    'theNumber' => 1
-                ],
-                'second' => [
-                    'theNumber' => 2
-                ],
-                'third' => null,
-                'fourth' => [
-                    'theNumber' => 4
-                ],
-                'fifth' => [
-                    'theNumber' => 5
-                ],
-                'sixth' => null,
+        $expected       = [
+            'data'   => [
+                'first'  => ['theNumber' => 1],
+                'second' => ['theNumber' => 2],
+                'third'  => null,
+                'fourth' => ['theNumber' => 4],
+                'fifth'  => ['theNumber' => 5],
+                'sixth'  => null,
             ],
             'errors' => [
                 [
                     'debugMessage' => 'Cannot change the number',
-                    'locations' => [['line' => 8, 'column' => 7]]
+                    'locations'    => [['line' => 8, 'column' => 7]],
                 ],
                 [
                     'debugMessage' => 'Cannot change the number',
-                    'locations' => [['line' => 17, 'column' => 7]]
-                ]
-            ]
+                    'locations'    => [['line' => 17, 'column' => 7]],
+                ],
+            ],
         ];
         $this->assertArraySubset($expected, $mutationResult->toArray(true));
-    }
-
-    private function schema()
-    {
-        $numberHolderType = new ObjectType([
-            'fields' => [
-                'theNumber' => ['type' => Type::int()],
-            ],
-            'name' => 'NumberHolder',
-        ]);
-        $schema = new Schema([
-            'query' => new ObjectType([
-                'fields' => [
-                    'numberHolder' => ['type' => $numberHolderType],
-                ],
-                'name' => 'Query',
-            ]),
-            'mutation' => new ObjectType([
-                'fields' => [
-                    'immediatelyChangeTheNumber' => [
-                        'type' => $numberHolderType,
-                        'args' => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => (function (Root $obj, $args) {
-                            return $obj->immediatelyChangeTheNumber($args['newNumber']);
-                        })
-                    ],
-                    'promiseToChangeTheNumber' => [
-                        'type' => $numberHolderType,
-                        'args' => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => (function (Root $obj, $args) {
-                            return $obj->promiseToChangeTheNumber($args['newNumber']);
-                        })
-                    ],
-                    'failToChangeTheNumber' => [
-                        'type' => $numberHolderType,
-                        'args' => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => (function (Root $obj, $args) {
-                            return $obj->failToChangeTheNumber($args['newNumber']);
-                        })
-                    ],
-                    'promiseAndFailToChangeTheNumber' => [
-                        'type' => $numberHolderType,
-                        'args' => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => (function (Root $obj, $args) {
-                            return $obj->promiseAndFailToChangeTheNumber($args['newNumber']);
-                        })
-                    ]
-                ],
-                'name' => 'Mutation',
-            ])
-        ]);
-        return $schema;
-    }
-}
-
-class NumberHolder
-{
-    public $theNumber;
-
-    public function __construct($originalNumber)
-    {
-        $this->theNumber = $originalNumber;
-    }
-}
-
-class Root {
-    public $numberHolder;
-
-    public function __construct($originalNumber)
-    {
-        $this->numberHolder = new NumberHolder($originalNumber);
-    }
-
-    /**
-     * @param $newNumber
-     * @return NumberHolder
-     */
-    public function immediatelyChangeTheNumber($newNumber)
-    {
-        $this->numberHolder->theNumber = $newNumber;
-        return $this->numberHolder;
-    }
-
-    /**
-     * @param $newNumber
-     *
-     * @return Deferred
-     */
-    public function promiseToChangeTheNumber($newNumber)
-    {
-        return new Deferred(function () use ($newNumber) {
-            return $this->immediatelyChangeTheNumber($newNumber);
-        });
-    }
-
-    /**
-     * @throws \Exception
-     */
-    public function failToChangeTheNumber()
-    {
-        throw new \Exception('Cannot change the number');
-    }
-
-    /**
-     * @return Deferred
-     */
-    public function promiseAndFailToChangeTheNumber()
-    {
-        return new Deferred(function () {
-            throw new \Exception("Cannot change the number");
-        });
     }
 }

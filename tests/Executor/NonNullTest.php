@@ -1,16 +1,18 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
-use GraphQL\Error\FormattedError;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
 class NonNullTest extends TestCase
@@ -27,41 +29,46 @@ class NonNullTest extends TestCase
     /** @var  \Exception */
     public $promiseNonNullError;
 
+    /** @var callable[] */
     public $throwingData;
+
+    /** @var callable[] */
     public $nullingData;
+
+    /** @var Schema */
     public $schema;
 
     public function setUp()
     {
-        $this->syncError = new UserError('sync');
-        $this->syncNonNullError = new UserError('syncNonNull');
-        $this->promiseError = new UserError('promise');
+        $this->syncError           = new UserError('sync');
+        $this->syncNonNullError    = new UserError('syncNonNull');
+        $this->promiseError        = new UserError('promise');
         $this->promiseNonNullError = new UserError('promiseNonNull');
 
         $this->throwingData = [
-            'sync' => function () {
+            'sync'               => function () {
                 throw $this->syncError;
             },
-            'syncNonNull' => function () {
+            'syncNonNull'        => function () {
                 throw $this->syncNonNullError;
             },
-            'promise' => function () {
+            'promise'            => function () {
                 return new Deferred(function () {
                     throw $this->promiseError;
                 });
             },
-            'promiseNonNull' => function () {
+            'promiseNonNull'     => function () {
                 return new Deferred(function () {
                     throw $this->promiseNonNullError;
                 });
             },
-            'syncNest' => function () {
+            'syncNest'           => function () {
                 return $this->throwingData;
             },
-            'syncNonNullNest' => function () {
+            'syncNonNullNest'    => function () {
                 return $this->throwingData;
             },
-            'promiseNest' => function () {
+            'promiseNest'        => function () {
                 return new Deferred(function () {
                     return $this->throwingData;
                 });
@@ -74,29 +81,29 @@ class NonNullTest extends TestCase
         ];
 
         $this->nullingData = [
-            'sync' => function () {
+            'sync'               => function () {
                 return null;
             },
-            'syncNonNull' => function () {
+            'syncNonNull'        => function () {
                 return null;
             },
-            'promise' => function () {
+            'promise'            => function () {
                 return new Deferred(function () {
                     return null;
                 });
             },
-            'promiseNonNull' => function () {
+            'promiseNonNull'     => function () {
                 return new Deferred(function () {
                     return null;
                 });
             },
-            'syncNest' => function () {
+            'syncNest'           => function () {
                 return $this->nullingData;
             },
-            'syncNonNullNest' => function () {
+            'syncNonNullNest'    => function () {
                 return $this->nullingData;
             },
-            'promiseNest' => function () {
+            'promiseNest'        => function () {
                 return new Deferred(function () {
                     return $this->nullingData;
                 });
@@ -109,19 +116,19 @@ class NonNullTest extends TestCase
         ];
 
         $dataType = new ObjectType([
-            'name' => 'DataType',
-            'fields' => function() use (&$dataType) {
+            'name'   => 'DataType',
+            'fields' => function () use (&$dataType) {
                 return [
-                    'sync' => ['type' => Type::string()],
-                    'syncNonNull' => ['type' => Type::nonNull(Type::string())],
-                    'promise' => Type::string(),
-                    'promiseNonNull' => Type::nonNull(Type::string()),
-                    'syncNest' => $dataType,
-                    'syncNonNullNest' => Type::nonNull($dataType),
-                    'promiseNest' => $dataType,
+                    'sync'               => ['type' => Type::string()],
+                    'syncNonNull'        => ['type' => Type::nonNull(Type::string())],
+                    'promise'            => Type::string(),
+                    'promiseNonNull'     => Type::nonNull(Type::string()),
+                    'syncNest'           => $dataType,
+                    'syncNonNullNest'    => Type::nonNull($dataType),
+                    'promiseNest'        => $dataType,
                     'promiseNonNullNest' => Type::nonNull($dataType),
                 ];
-            }
+            },
         ]);
 
         $this->schema = new Schema(['query' => $dataType]);
@@ -143,17 +150,18 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'sync' => null,
-            ],
+            'data'   => ['sync' => null],
             'errors' => [
                 FormattedError::create(
                     $this->syncError->getMessage(),
                     [new SourceLocation(3, 9)]
-                )
-            ]
+                ),
+            ],
         ];
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsANullableFieldThatThrowsInAPromise() : void
@@ -167,18 +175,19 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'promise' => null,
-            ],
+            'data'   => ['promise' => null],
             'errors' => [
                 FormattedError::create(
                     $this->promiseError->getMessage(),
                     [new SourceLocation(3, 9)]
-                )
-            ]
+                ),
+            ],
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsSynchronously() : void
@@ -195,14 +204,15 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'syncNest' => null
-            ],
+            'data'   => ['syncNest' => null],
             'errors' => [
-                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)])
-            ]
+                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
+            ],
         ];
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsAsynchronouslyReturnedObjectThatContainsANonNullableFieldThatThrowsInAPromise() : void
@@ -218,15 +228,16 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'syncNest' => null
-            ],
+            'data'   => ['syncNest' => null],
             'errors' => [
-                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)])
-            ]
+                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)]),
+            ],
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsSynchronously() : void
@@ -242,15 +253,16 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'promiseNest' => null
-            ],
+            'data'   => ['promiseNest' => null],
             'errors' => [
-                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)])
-            ]
+                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
+            ],
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsAnObjectReturnedInAPromiseThatContainsANonNullableFieldThatThrowsInAPromise() : void
@@ -266,15 +278,16 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'promiseNest' => null
-            ],
+            'data'   => ['promiseNest' => null],
             'errors' => [
-                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)])
-            ]
+                FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(4, 11)]),
+            ],
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     /**
@@ -314,28 +327,28 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'syncNest' => [
-                    'sync' => null,
-                    'promise' => null,
-                    'syncNest' => [
-                        'sync' => null,
+            'data'   => [
+                'syncNest'    => [
+                    'sync'        => null,
+                    'promise'     => null,
+                    'syncNest'    => [
+                        'sync'    => null,
                         'promise' => null,
                     ],
                     'promiseNest' => [
-                        'sync' => null,
+                        'sync'    => null,
                         'promise' => null,
                     ],
                 ],
                 'promiseNest' => [
-                    'sync' => null,
-                    'promise' => null,
-                    'syncNest' => [
-                        'sync' => null,
+                    'sync'        => null,
+                    'promise'     => null,
+                    'syncNest'    => [
+                        'sync'    => null,
                         'promise' => null,
                     ],
                     'promiseNest' => [
-                        'sync' => null,
+                        'sync'    => null,
                         'promise' => null,
                     ],
                 ],
@@ -353,10 +366,13 @@ class NonNullTest extends TestCase
                 FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(17, 11)]),
                 FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(20, 13)]),
                 FormattedError::create($this->promiseError->getMessage(), [new SourceLocation(24, 13)]),
-            ]
+            ],
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsTheFirstNullableObjectAfterAFieldThrowsInALongChainOfFieldsThatAreNonNull() : void
@@ -413,10 +429,10 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'syncNest' => null,
-                'promiseNest' => null,
-                'anotherNest' => null,
+            'data'   => [
+                'syncNest'           => null,
+                'promiseNest'        => null,
+                'anotherNest'        => null,
                 'anotherPromiseNest' => null,
             ],
             'errors' => [
@@ -424,10 +440,13 @@ class NonNullTest extends TestCase
                 FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(19, 19)]),
                 FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(30, 19)]),
                 FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(41, 19)]),
-            ]
+            ],
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsANullableFieldThatSynchronouslyReturnsNull() : void
@@ -441,11 +460,12 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'sync' => null,
-            ]
+            'data' => ['sync' => null],
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
+        $this->assertEquals(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsANullableFieldThatReturnsNullInAPromise() : void
@@ -459,12 +479,13 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'promise' => null,
-            ]
+            'data' => ['promise' => null],
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullSynchronously() : void
@@ -480,17 +501,18 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'syncNest' => null
-            ],
+            'data'   => ['syncNest' => null],
             'errors' => [
                 [
                     'debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.',
-                    'locations' => [['line' => 4, 'column' => 11]]
-                ]
-            ]
+                    'locations'    => [['line' => 4, 'column' => 11]],
+                ],
+            ],
         ];
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true));
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+        );
     }
 
     public function testNullsASynchronouslyReturnedObjectThatContainsANonNullableFieldThatReturnsNullInAPromise() : void
@@ -506,15 +528,13 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'syncNest' => null,
-            ],
+            'data'   => ['syncNest' => null],
             'errors' => [
                 [
                     'debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.',
-                    'locations' => [['line' => 4, 'column' => 11]]
+                    'locations'    => [['line' => 4, 'column' => 11]],
                 ],
-            ]
+            ],
         ];
 
         $this->assertArraySubset(
@@ -536,15 +556,13 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'promiseNest' => null,
-            ],
+            'data'   => ['promiseNest' => null],
             'errors' => [
                 [
                     'debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.',
-                    'locations' => [['line' => 4, 'column' => 11]]
+                    'locations'    => [['line' => 4, 'column' => 11]],
                 ],
-            ]
+            ],
         ];
 
         $this->assertArraySubset(
@@ -566,15 +584,13 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'promiseNest' => null,
-            ],
+            'data'   => ['promiseNest' => null],
             'errors' => [
                 [
                     'debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.',
-                    'locations' => [['line' => 4, 'column' => 11]]
+                    'locations'    => [['line' => 4, 'column' => 11]],
                 ],
-            ]
+            ],
         ];
 
         $this->assertArraySubset(
@@ -618,31 +634,31 @@ class NonNullTest extends TestCase
 
         $expected = [
             'data' => [
-                'syncNest' => [
-                    'sync' => null,
-                    'promise' => null,
-                    'syncNest' => [
-                        'sync' => null,
+                'syncNest'    => [
+                    'sync'        => null,
+                    'promise'     => null,
+                    'syncNest'    => [
+                        'sync'    => null,
                         'promise' => null,
                     ],
                     'promiseNest' => [
-                        'sync' => null,
+                        'sync'    => null,
                         'promise' => null,
-                    ]
+                    ],
                 ],
                 'promiseNest' => [
-                    'sync' => null,
-                    'promise' => null,
-                    'syncNest' => [
-                        'sync' => null,
+                    'sync'        => null,
+                    'promise'     => null,
+                    'syncNest'    => [
+                        'sync'    => null,
                         'promise' => null,
                     ],
                     'promiseNest' => [
-                        'sync' => null,
+                        'sync'    => null,
                         'promise' => null,
-                    ]
-                ]
-            ]
+                    ],
+                ],
+            ],
         ];
 
         $actual = Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray();
@@ -703,18 +719,18 @@ class NonNullTest extends TestCase
         $ast = Parser::parse($doc);
 
         $expected = [
-            'data' => [
-                'syncNest' => null,
-                'promiseNest' => null,
-                'anotherNest' => null,
+            'data'   => [
+                'syncNest'           => null,
+                'promiseNest'        => null,
+                'anotherNest'        => null,
                 'anotherPromiseNest' => null,
             ],
             'errors' => [
-                ['debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.', 'locations' => [ ['line' => 8, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.', 'locations' => [ ['line' => 19, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.', 'locations' => [ ['line' => 30, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.', 'locations' => [ ['line' => 41, 'column' => 19]]],
-            ]
+                ['debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.', 'locations' => [['line' => 8, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.', 'locations' => [['line' => 19, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.', 'locations' => [['line' => 30, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.', 'locations' => [['line' => 41, 'column' => 19]]],
+            ],
         ];
 
         $this->assertArraySubset(
@@ -734,10 +750,10 @@ class NonNullTest extends TestCase
 
         $expected = [
             'errors' => [
-                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(2, 17)])
-            ]
+                FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(2, 17)]),
+            ],
         ];
-        $actual = Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray();
+        $actual   = Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray();
         $this->assertArraySubset($expected, $actual);
     }
 
@@ -752,10 +768,13 @@ class NonNullTest extends TestCase
         $expected = [
             'errors' => [
                 FormattedError::create($this->promiseNonNullError->getMessage(), [new SourceLocation(2, 17)]),
-            ]
+            ],
         ];
 
-        $this->assertArraySubset($expected, Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray());
+        $this->assertArraySubset(
+            $expected,
+            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
+        );
     }
 
     public function testNullsTheTopLevelIfSyncNonNullableFieldReturnsNull() : void
@@ -769,9 +788,9 @@ class NonNullTest extends TestCase
             'errors' => [
                 [
                     'debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.',
-                    'locations' => [['line' => 2, 'column' => 17]]
+                    'locations'    => [['line' => 2, 'column' => 17]],
                 ],
-            ]
+            ],
         ];
         $this->assertArraySubset(
             $expected,
@@ -791,9 +810,9 @@ class NonNullTest extends TestCase
             'errors' => [
                 [
                     'debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.',
-                    'locations' => [['line' => 2, 'column' => 17]]
+                    'locations'    => [['line' => 2, 'column' => 17]],
                 ],
-            ]
+            ],
         ];
 
         $this->assertArraySubset(

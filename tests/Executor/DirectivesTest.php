@@ -1,16 +1,27 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
-use GraphQL\Type\Schema;
+use GraphQL\Language\Source;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Describe: Execute: handles directives
+ */
 class DirectivesTest extends TestCase
 {
-    // Describe: Execute: handles directives
+    /** @var Schema */
+    private static $schema;
+
+    /** @var string[] */
+    private static $data;
 
     /**
      * @see it('basic query works')
@@ -20,10 +31,50 @@ class DirectivesTest extends TestCase
         $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b }'));
     }
 
+    /**
+     * @param Source|string $doc
+     * @return mixed[]
+     */
+    private function executeTestQuery($doc) : array
+    {
+        return Executor::execute(self::getSchema(), Parser::parse($doc), self::getData())->toArray();
+    }
+
+    private static function getSchema() : Schema
+    {
+        if (! self::$schema) {
+            self::$schema = new Schema([
+                'query' => new ObjectType([
+                    'name'   => 'TestType',
+                    'fields' => [
+                        'a' => ['type' => Type::string()],
+                        'b' => ['type' => Type::string()],
+                    ],
+                ]),
+            ]);
+        }
+
+        return self::$schema;
+    }
+
+    /**
+     * @return string[]
+     */
+    private static function getData() : array
+    {
+        return self::$data ?: (self::$data = [
+            'a' => 'a',
+            'b' => 'b',
+        ]);
+    }
+
     public function testWorksOnScalars() : void
     {
         // if true includes scalar
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @include(if: true) }'));
+        $this->assertEquals(
+            ['data' => ['a' => 'a', 'b' => 'b']],
+            $this->executeTestQuery('{ a, b @include(if: true) }')
+        );
 
         // if false omits on scalar
         $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @include(if: false) }'));
@@ -199,38 +250,5 @@ class DirectivesTest extends TestCase
             ['data' => ['a' => 'a']],
             $this->executeTestQuery('{ a, b @include(if: false) @skip(if: false) }')
         );
-    }
-
-    private static $schema;
-
-    private static $data;
-
-    private static function getSchema()
-    {
-        if (!self::$schema) {
-            self::$schema = new Schema([
-                'query' => new ObjectType([
-                    'name' => 'TestType',
-                    'fields' => [
-                        'a' => ['type' => Type::string()],
-                        'b' => ['type' => Type::string()]
-                    ]
-                ])
-            ]);
-        }
-        return self::$schema;
-    }
-
-    private static function getData()
-    {
-        return self::$data ?: (self::$data = [
-            'a' => 'a',
-            'b' => 'b'
-        ]);
-    }
-
-    private function executeTestQuery($doc)
-    {
-        return Executor::execute(self::getSchema(), Parser::parse($doc), self::getData())->toArray();
     }
 }
