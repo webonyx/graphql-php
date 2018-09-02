@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\Error;
@@ -8,44 +11,31 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\ValidationContext;
+use function count;
 
 class QueryComplexityTest extends QuerySecurityTestCase
 {
-    /** @var QueryComplexity  */
+    /** @var QueryComplexity */
     private static $rule;
-
-    /**
-     * @param $max
-     * @param $count
-     *
-     * @return string
-     */
-    protected function getErrorMessage($max, $count)
-    {
-        return QueryComplexity::maxQueryComplexityErrorMessage($max, $count);
-    }
-
-    /**
-     * @param $maxDepth
-     *
-     * @return QueryComplexity
-     */
-    protected function getRule($maxDepth = null)
-    {
-        if (null === self::$rule) {
-            self::$rule = new QueryComplexity($maxDepth);
-        } elseif (null !== $maxDepth) {
-            self::$rule->setMaxQueryComplexity($maxDepth);
-        }
-
-        return self::$rule;
-    }
 
     public function testSimpleQueries() : void
     {
         $query = 'query MyQuery { human { firstName } }';
 
         $this->assertDocumentValidators($query, 2, 3);
+    }
+
+    private function assertDocumentValidators($query, $queryComplexity, $startComplexity)
+    {
+        for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
+            $positions = [];
+
+            if ($maxComplexity < $queryComplexity && $maxComplexity !== QueryComplexity::DISABLED) {
+                $positions = [$this->createFormattedError($maxComplexity, $queryComplexity)];
+            }
+
+            $this->assertDocumentValidator($query, $maxComplexity, $positions);
+        }
     }
 
     public function testInlineFragmentQueries() : void
@@ -92,6 +82,22 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 3, 4);
     }
 
+    /**
+     * @param int $maxDepth
+     *
+     * @return QueryComplexity
+     */
+    protected function getRule($maxDepth = null)
+    {
+        if (self::$rule === null) {
+            self::$rule = new QueryComplexity($maxDepth);
+        } elseif ($maxDepth !== null) {
+            self::$rule->setMaxQueryComplexity($maxDepth);
+        }
+
+        return self::$rule;
+    }
+
     public function testQueryWithEnabledIncludeDirectives() : void
     {
         $query = 'query MyQuery($withDogs: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name } } }';
@@ -133,8 +139,8 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $query = 'query MyQuery($withDogs: Boolean!, $withoutDogName: Boolean!) { human { dogs(name: "Root") @include(if:$withDogs) { name @skip(if:$withoutDogName) } } }';
 
         $this->getRule()->setRawVariableValues([
-            'withDogs' => true,
-            'withoutDogName' => true
+            'withDogs'       => true,
+            'withoutDogName' => true,
         ]);
 
         $this->assertDocumentValidators($query, 2, 3);
@@ -159,16 +165,19 @@ class QueryComplexityTest extends QuerySecurityTestCase
     {
         $query = 'query MyQuery { human(name: INVALID_VALUE) { dogs {name} } }';
 
-        $reportedError = new Error("OtherValidatorError");
-        $otherRule = new CustomValidationRule('otherRule', function(ValidationContext $context) use ($reportedError) {
-            return [
-                NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function() use ($context, $reportedError) {
-                        $context->reportError($reportedError);
-                    }
-                ]
-            ];
-        });
+        $reportedError = new Error('OtherValidatorError');
+        $otherRule     = new CustomValidationRule(
+            'otherRule',
+            function (ValidationContext $context) use ($reportedError) {
+                return [
+                    NodeKind::OPERATION_DEFINITION => [
+                        'leave' => function () use ($context, $reportedError) {
+                            $context->reportError($reportedError);
+                        },
+                    ],
+                ];
+            }
+        );
 
         $errors = DocumentValidator::validate(
             QuerySecuritySchema::buildSchema(),
@@ -187,16 +196,14 @@ class QueryComplexityTest extends QuerySecurityTestCase
         );
     }
 
-    private function assertDocumentValidators($query, $queryComplexity, $startComplexity)
+    /**
+     * @param int $max
+     * @param int $count
+     *
+     * @return string
+     */
+    protected function getErrorMessage($max, $count)
     {
-        for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {
-            $positions = [];
-
-            if ($maxComplexity < $queryComplexity && $maxComplexity !== QueryComplexity::DISABLED) {
-                $positions = [$this->createFormattedError($maxComplexity, $queryComplexity)];
-            }
-
-            $this->assertDocumentValidator($query, $maxComplexity, $positions);
-        }
+        return QueryComplexity::maxQueryComplexityErrorMessage($max, $count);
     }
 }

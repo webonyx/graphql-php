@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,17 +11,19 @@ use GraphQL\Validator\Rules\UniqueInputFieldNames;
 class UniqueInputFieldNamesTest extends ValidatorTestCase
 {
     // Validate: Unique input field names
-
     /**
      * @see it('input object with fields')
      */
     public function testInputObjectWithFields() : void
     {
-        $this->expectPassesRule(new UniqueInputFieldNames(), '
+        $this->expectPassesRule(
+            new UniqueInputFieldNames(),
+            '
       {
         field(arg: { f: true })
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -26,11 +31,14 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
      */
     public function testSameInputObjectWithinTwoArgs() : void
     {
-        $this->expectPassesRule(new UniqueInputFieldNames, '
+        $this->expectPassesRule(
+            new UniqueInputFieldNames(),
+            '
       {
         field(arg1: { f: true }, arg2: { f: true })
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -38,11 +46,14 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
      */
     public function testMultipleInputObjectFields() : void
     {
-        $this->expectPassesRule(new UniqueInputFieldNames, '
+        $this->expectPassesRule(
+            new UniqueInputFieldNames(),
+            '
       {
         field(arg: { f1: "value", f2: "value", f3: "value" })
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -50,7 +61,9 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
      */
     public function testAllowsForNestedInputObjectsWithSimilarFields() : void
     {
-        $this->expectPassesRule(new UniqueInputFieldNames, '
+        $this->expectPassesRule(
+            new UniqueInputFieldNames(),
+            '
       {
         field(arg: {
           deep: {
@@ -62,7 +75,8 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
           id: 1
         })
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -70,28 +84,15 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
      */
     public function testDuplicateInputObjectFields() : void
     {
-        $this->expectFailsRule(new UniqueInputFieldNames, '
+        $this->expectFailsRule(
+            new UniqueInputFieldNames(),
+            '
       {
         field(arg: { f1: "value", f1: "value" })
       }
-        ', [
-            $this->duplicateField('f1', 3, 22, 3, 35)
-        ]);
-    }
-
-    /**
-     * @see it('many duplicate input object fields')
-     */
-    public function testManyDuplicateInputObjectFields() : void
-    {
-        $this->expectFailsRule(new UniqueInputFieldNames, '
-      {
-        field(arg: { f1: "value", f1: "value", f1: "value" })
-      }
-        ', [
-            $this->duplicateField('f1', 3, 22, 3, 35),
-            $this->duplicateField('f1', 3, 22, 3, 48)
-        ]);
+        ',
+            [$this->duplicateField('f1', 3, 22, 3, 35)]
+        );
     }
 
     private function duplicateField($name, $l1, $c1, $l2, $c2)
@@ -99,6 +100,25 @@ class UniqueInputFieldNamesTest extends ValidatorTestCase
         return FormattedError::create(
             UniqueInputFieldNames::duplicateInputFieldMessage($name),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
+        );
+    }
+
+    /**
+     * @see it('many duplicate input object fields')
+     */
+    public function testManyDuplicateInputObjectFields() : void
+    {
+        $this->expectFailsRule(
+            new UniqueInputFieldNames(),
+            '
+      {
+        field(arg: { f1: "value", f1: "value", f1: "value" })
+      }
+        ',
+            [
+                $this->duplicateField('f1', 3, 22, 3, 35),
+                $this->duplicateField('f1', 3, 22, 3, 48),
+            ]
         );
     }
 }

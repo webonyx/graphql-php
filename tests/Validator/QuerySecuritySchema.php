@@ -1,18 +1,25 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 
 class QuerySecuritySchema
 {
+    /** @var Schema */
     private static $schema;
 
+    /** @var ObjectType */
     private static $dogType;
 
+    /** @var ObjectType */
     private static $humanType;
 
+    /** @var ObjectType */
     private static $queryRootType;
 
     /**
@@ -20,12 +27,12 @@ class QuerySecuritySchema
      */
     public static function buildSchema()
     {
-        if (null !== self::$schema) {
+        if (self::$schema !== null) {
             return self::$schema;
         }
 
         self::$schema = new Schema([
-            'query' => static::buildQueryRootType()
+            'query' => static::buildQueryRootType(),
         ]);
 
         return self::$schema;
@@ -33,12 +40,12 @@ class QuerySecuritySchema
 
     public static function buildQueryRootType()
     {
-        if (null !== self::$queryRootType) {
+        if (self::$queryRootType !== null) {
             return self::$queryRootType;
         }
 
         self::$queryRootType = new ObjectType([
-            'name' => 'QueryRoot',
+            'name'   => 'QueryRoot',
             'fields' => [
                 'human' => [
                     'type' => self::buildHumanType(),
@@ -52,18 +59,18 @@ class QuerySecuritySchema
 
     public static function buildHumanType()
     {
-        if (null !== self::$humanType) {
+        if (self::$humanType !== null) {
             return self::$humanType;
         }
 
         self::$humanType = new ObjectType(
             [
-                'name' => 'Human',
-                'fields' => function() {
+                'name'   => 'Human',
+                'fields' => function () {
                     return [
                         'firstName' => ['type' => Type::nonNull(Type::string())],
-                        'dogs' => [
-                            'type' => Type::nonNull(
+                        'dogs'      => [
+                            'type'       => Type::nonNull(
                                 Type::listOf(
                                     Type::nonNull(self::buildDogType())
                                 )
@@ -73,7 +80,7 @@ class QuerySecuritySchema
 
                                 return $childrenComplexity + $complexity;
                             },
-                            'args' => ['name' => ['type' => Type::string()]],
+                            'args'       => ['name' => ['type' => Type::string()]],
                         ],
                     ];
                 },
@@ -85,15 +92,15 @@ class QuerySecuritySchema
 
     public static function buildDogType()
     {
-        if (null !== self::$dogType) {
+        if (self::$dogType !== null) {
             return self::$dogType;
         }
 
         self::$dogType = new ObjectType(
             [
-                'name' => 'Dog',
+                'name'   => 'Dog',
                 'fields' => [
-                    'name' => ['type' => Type::nonNull(Type::string())],
+                    'name'   => ['type' => Type::nonNull(Type::string())],
                     'master' => [
                         'type' => self::buildHumanType(),
                     ],

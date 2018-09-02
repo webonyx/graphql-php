@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,17 +11,19 @@ use GraphQL\Validator\Rules\UniqueFragmentNames;
 class UniqueFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique fragment names
-
     /**
      * @see it('no fragments')
      */
     public function testNoFragments() : void
     {
-        $this->expectPassesRule(new UniqueFragmentNames(), '
+        $this->expectPassesRule(
+            new UniqueFragmentNames(),
+            '
       {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -26,7 +31,9 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
      */
     public function testOneFragment() : void
     {
-        $this->expectPassesRule(new UniqueFragmentNames, '
+        $this->expectPassesRule(
+            new UniqueFragmentNames(),
+            '
       {
         ...fragA
       }
@@ -34,7 +41,8 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
       fragment fragA on Type {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -42,7 +50,9 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
      */
     public function testManyFragments() : void
     {
-        $this->expectPassesRule(new UniqueFragmentNames, '
+        $this->expectPassesRule(
+            new UniqueFragmentNames(),
+            '
       {
         ...fragA
         ...fragB
@@ -57,7 +67,8 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
       fragment fragC on Type {
         fieldC
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -65,7 +76,9 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
      */
     public function testInlineFragmentsAreAlwaysUnique() : void
     {
-        $this->expectPassesRule(new UniqueFragmentNames, '
+        $this->expectPassesRule(
+            new UniqueFragmentNames(),
+            '
       {
         ...on Type {
           fieldA
@@ -74,7 +87,8 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
           fieldB
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -82,14 +96,17 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
      */
     public function testFragmentAndOperationNamedTheSame() : void
     {
-        $this->expectPassesRule(new UniqueFragmentNames, '
+        $this->expectPassesRule(
+            new UniqueFragmentNames(),
+            '
       query Foo {
         ...Foo
       }
       fragment Foo on Type {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -97,7 +114,9 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
      */
     public function testFragmentsNamedTheSame() : void
     {
-        $this->expectFailsRule(new UniqueFragmentNames, '
+        $this->expectFailsRule(
+            new UniqueFragmentNames(),
+            '
       {
         ...fragA
       }
@@ -107,26 +126,9 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
       fragment fragA on Type {
         fieldB
       }
-        ', [
-            $this->duplicateFrag('fragA', 5, 16, 8, 16)
-        ]);
-    }
-
-    /**
-     * @see it('fragments named the same without being referenced')
-     */
-    public function testFragmentsNamedTheSameWithoutBeingReferenced() : void
-    {
-        $this->expectFailsRule(new UniqueFragmentNames, '
-      fragment fragA on Type {
-        fieldA
-      }
-      fragment fragA on Type {
-        fieldB
-      }
-        ', [
-            $this->duplicateFrag('fragA', 2, 16, 5, 16)
-        ]);
+        ',
+            [$this->duplicateFrag('fragA', 5, 16, 8, 16)]
+        );
     }
 
     private function duplicateFrag($fragName, $l1, $c1, $l2, $c2)
@@ -134,6 +136,25 @@ class UniqueFragmentNamesTest extends ValidatorTestCase
         return FormattedError::create(
             UniqueFragmentNames::duplicateFragmentNameMessage($fragName),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
+        );
+    }
+
+    /**
+     * @see it('fragments named the same without being referenced')
+     */
+    public function testFragmentsNamedTheSameWithoutBeingReferenced() : void
+    {
+        $this->expectFailsRule(
+            new UniqueFragmentNames(),
+            '
+      fragment fragA on Type {
+        fieldA
+      }
+      fragment fragA on Type {
+        fieldB
+      }
+        ',
+            [$this->duplicateFrag('fragA', 2, 16, 5, 16)]
         );
     }
 }

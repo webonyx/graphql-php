@@ -1,27 +1,31 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Validator\Rules\ExecutableDefinitions;
-use GraphQL\Validator\Rules\KnownDirectives;
 
 class ExecutableDefinitionsTest extends ValidatorTestCase
 {
     // Validate: Executable definitions
-
     /**
      * @see it('with only operation')
      */
     public function testWithOnlyOperation() : void
     {
-        $this->expectPassesRule(new ExecutableDefinitions, '
+        $this->expectPassesRule(
+            new ExecutableDefinitions(),
+            '
       query Foo {
         dog {
           name
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -29,7 +33,9 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
      */
     public function testWithOperationAndFragment() : void
     {
-        $this->expectPassesRule(new ExecutableDefinitions, '
+        $this->expectPassesRule(
+            new ExecutableDefinitions(),
+            '
       query Foo {
         dog {
           name
@@ -40,7 +46,8 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
       fragment Frag on Dog {
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -48,7 +55,9 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
      */
     public function testWithTypeDefinition() : void
     {
-        $this->expectFailsRule(new ExecutableDefinitions, '
+        $this->expectFailsRule(
+            new ExecutableDefinitions(),
+            '
       query Foo {
         dog {
           name
@@ -66,14 +75,15 @@ class ExecutableDefinitionsTest extends ValidatorTestCase
             [
                 $this->nonExecutableDefinition('Cow', 8, 12),
                 $this->nonExecutableDefinition('Dog', 12, 19),
-            ]);
+            ]
+        );
     }
 
     private function nonExecutableDefinition($defName, $line, $column)
     {
         return FormattedError::create(
             ExecutableDefinitions::nonExecutableDefinitionMessage($defName),
-            [ new SourceLocation($line, $column) ]
+            [new SourceLocation($line, $column)]
         );
     }
 }

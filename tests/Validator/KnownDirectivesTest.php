@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,13 +11,14 @@ use GraphQL\Validator\Rules\KnownDirectives;
 class KnownDirectivesTest extends ValidatorTestCase
 {
     // Validate: Known directives
-
     /**
      * @see it('with no directives')
      */
     public function testWithNoDirectives() : void
     {
-        $this->expectPassesRule(new KnownDirectives, '
+        $this->expectPassesRule(
+            new KnownDirectives(),
+            '
       query Foo {
         name
         ...Frag
@@ -23,7 +27,8 @@ class KnownDirectivesTest extends ValidatorTestCase
       fragment Frag on Dog {
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -31,7 +36,9 @@ class KnownDirectivesTest extends ValidatorTestCase
      */
     public function testWithKnownDirectives() : void
     {
-        $this->expectPassesRule(new KnownDirectives, '
+        $this->expectPassesRule(
+            new KnownDirectives(),
+            '
       {
         dog @include(if: true) {
           name
@@ -40,7 +47,8 @@ class KnownDirectivesTest extends ValidatorTestCase
           name
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -48,15 +56,25 @@ class KnownDirectivesTest extends ValidatorTestCase
      */
     public function testWithUnknownDirective() : void
     {
-        $this->expectFailsRule(new KnownDirectives, '
+        $this->expectFailsRule(
+            new KnownDirectives(),
+            '
       {
         dog @unknown(directive: "value") {
           name
         }
       }
-        ', [
-            $this->unknownDirective('unknown', 3, 13)
-        ]);
+        ',
+            [$this->unknownDirective('unknown', 3, 13)]
+        );
+    }
+
+    private function unknownDirective($directiveName, $line, $column)
+    {
+        return FormattedError::create(
+            KnownDirectives::unknownDirectiveMessage($directiveName),
+            [new SourceLocation($line, $column)]
+        );
     }
 
     /**
@@ -64,7 +82,9 @@ class KnownDirectivesTest extends ValidatorTestCase
      */
     public function testWithManyUnknownDirectives() : void
     {
-        $this->expectFailsRule(new KnownDirectives, '
+        $this->expectFailsRule(
+            new KnownDirectives(),
+            '
       {
         dog @unknown(directive: "value") {
           name
@@ -76,11 +96,13 @@ class KnownDirectivesTest extends ValidatorTestCase
           }
         }
       }
-        ', [
-            $this->unknownDirective('unknown', 3, 13),
-            $this->unknownDirective('unknown', 6, 15),
-            $this->unknownDirective('unknown', 8, 16)
-        ]);
+        ',
+            [
+                $this->unknownDirective('unknown', 3, 13),
+                $this->unknownDirective('unknown', 6, 15),
+                $this->unknownDirective('unknown', 8, 16),
+            ]
+        );
     }
 
     /**
@@ -88,7 +110,9 @@ class KnownDirectivesTest extends ValidatorTestCase
      */
     public function testWithWellPlacedDirectives() : void
     {
-        $this->expectPassesRule(new KnownDirectives, '
+        $this->expectPassesRule(
+            new KnownDirectives(),
+            '
       query Foo @onQuery {
         name @include(if: true)
         ...Frag @include(if: true)
@@ -99,15 +123,20 @@ class KnownDirectivesTest extends ValidatorTestCase
       mutation Bar @onMutation {
         someField
       }
-        ');
+        '
+        );
     }
+
+    // within schema language
 
     /**
      * @see it('with misplaced directives')
      */
     public function testWithMisplacedDirectives() : void
     {
-        $this->expectFailsRule(new KnownDirectives, '
+        $this->expectFailsRule(
+            new KnownDirectives(),
+            '
       query Foo @include(if: true) {
         name @onQuery
         ...Frag @onQuery
@@ -116,22 +145,32 @@ class KnownDirectivesTest extends ValidatorTestCase
       mutation Bar @onQuery {
         someField
       }
-        ', [
-            $this->misplacedDirective('include', 'QUERY', 2, 17),
-            $this->misplacedDirective('onQuery', 'FIELD', 3, 14),
-            $this->misplacedDirective('onQuery', 'FRAGMENT_SPREAD', 4, 17),
-            $this->misplacedDirective('onQuery', 'MUTATION', 7, 20),
-        ]);
+        ',
+            [
+                $this->misplacedDirective('include', 'QUERY', 2, 17),
+                $this->misplacedDirective('onQuery', 'FIELD', 3, 14),
+                $this->misplacedDirective('onQuery', 'FRAGMENT_SPREAD', 4, 17),
+                $this->misplacedDirective('onQuery', 'MUTATION', 7, 20),
+            ]
+        );
     }
 
-    // within schema language
+    private function misplacedDirective($directiveName, $placement, $line, $column)
+    {
+        return FormattedError::create(
+            KnownDirectives::misplacedDirectiveMessage($directiveName, $placement),
+            [new SourceLocation($line, $column)]
+        );
+    }
 
     /**
      * @see it('with well placed directives')
      */
     public function testWSLWithWellPlacedDirectives() : void
     {
-        $this->expectPassesRule(new KnownDirectives, '
+        $this->expectPassesRule(
+            new KnownDirectives(),
+            '
         type MyObj implements MyInterface @onObject {
           myField(myArg: Int @onArgumentDefinition): String @onFieldDefinition
         }
@@ -167,7 +206,8 @@ class KnownDirectivesTest extends ValidatorTestCase
         schema @onSchema {
           query: MyQuery
         }
-        ');
+        '
+        );
     }
 
     /**
@@ -175,7 +215,9 @@ class KnownDirectivesTest extends ValidatorTestCase
      */
     public function testWSLWithMisplacedDirectives() : void
     {
-        $this->expectFailsRule(new KnownDirectives, '
+        $this->expectFailsRule(
+            new KnownDirectives(),
+            '
         type MyObj implements MyInterface @onInterface {
           myField(myArg: Int @onInputFieldDefinition): String @onInputFieldDefinition
         }
@@ -215,22 +257,6 @@ class KnownDirectivesTest extends ValidatorTestCase
                 $this->misplacedDirective('onArgumentDefinition', 'INPUT_FIELD_DEFINITION', 19, 24),
                 $this->misplacedDirective('onObject', 'SCHEMA', 22, 16),
             ]
-        );
-    }
-
-    private function unknownDirective($directiveName, $line, $column)
-    {
-        return FormattedError::create(
-            KnownDirectives::unknownDirectiveMessage($directiveName),
-            [ new SourceLocation($line, $column) ]
-        );
-    }
-
-    function misplacedDirective($directiveName, $placement, $line, $column)
-    {
-        return FormattedError::create(
-            KnownDirectives::misplacedDirectiveMessage($directiveName, $placement),
-            [new SourceLocation($line, $column)]
         );
     }
 }

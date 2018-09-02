@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,17 +11,19 @@ use GraphQL\Validator\Rules\NoUnusedVariables;
 class NoUnusedVariablesTest extends ValidatorTestCase
 {
     // Validate: No unused variables
-
     /**
      * @see it('uses all variables')
      */
     public function testUsesAllVariables() : void
     {
-        $this->expectPassesRule(new NoUnusedVariables(), '
+        $this->expectPassesRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         field(a: $a, b: $b, c: $c)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -26,7 +31,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testUsesAllVariablesDeeply() : void
     {
-        $this->expectPassesRule(new NoUnusedVariables, '
+        $this->expectPassesRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         field(a: $a) {
           field(b: $b) {
@@ -34,7 +41,8 @@ class NoUnusedVariablesTest extends ValidatorTestCase
           }
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -42,7 +50,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testUsesAllVariablesDeeplyInInlineFragments() : void
     {
-        $this->expectPassesRule(new NoUnusedVariables, '
+        $this->expectPassesRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         ... on Type {
           field(a: $a) {
@@ -54,7 +64,8 @@ class NoUnusedVariablesTest extends ValidatorTestCase
           }
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -62,7 +73,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testUsesAllVariablesInFragments() : void
     {
-        $this->expectPassesRule(new NoUnusedVariables, '
+        $this->expectPassesRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         ...FragA
       }
@@ -79,7 +92,8 @@ class NoUnusedVariablesTest extends ValidatorTestCase
       fragment FragC on Type {
         field(c: $c)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -87,7 +101,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testVariableUsedByFragmentInMultipleOperations() : void
     {
-        $this->expectPassesRule(new NoUnusedVariables, '
+        $this->expectPassesRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String) {
         ...FragA
       }
@@ -100,7 +116,8 @@ class NoUnusedVariablesTest extends ValidatorTestCase
       fragment FragB on Type {
         field(b: $b)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -108,7 +125,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testVariableUsedByRecursiveFragment() : void
     {
-        $this->expectPassesRule(new NoUnusedVariables, '
+        $this->expectPassesRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String) {
         ...FragA
       }
@@ -117,7 +136,8 @@ class NoUnusedVariablesTest extends ValidatorTestCase
           ...FragA
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -125,13 +145,25 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testVariableNotUsed() : void
     {
-        $this->expectFailsRule(new NoUnusedVariables, '
+        $this->expectFailsRule(
+            new NoUnusedVariables(),
+            '
       query ($a: String, $b: String, $c: String) {
         field(a: $a, b: $b)
       }
-        ', [
-            $this->unusedVar('c', null, 2, 38)
-        ]);
+        ',
+            [
+                $this->unusedVar('c', null, 2, 38),
+            ]
+        );
+    }
+
+    private function unusedVar($varName, $opName, $line, $column)
+    {
+        return FormattedError::create(
+            NoUnusedVariables::unusedVariableMessage($varName, $opName),
+            [new SourceLocation($line, $column)]
+        );
     }
 
     /**
@@ -139,14 +171,18 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testMultipleVariablesNotUsed() : void
     {
-        $this->expectFailsRule(new NoUnusedVariables, '
+        $this->expectFailsRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         field(b: $b)
       }
-        ', [
-            $this->unusedVar('a', 'Foo', 2, 17),
-            $this->unusedVar('c', 'Foo', 2, 41)
-        ]);
+        ',
+            [
+                $this->unusedVar('a', 'Foo', 2, 17),
+                $this->unusedVar('c', 'Foo', 2, 41),
+            ]
+        );
     }
 
     /**
@@ -154,7 +190,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testVariableNotUsedInFragments() : void
     {
-        $this->expectFailsRule(new NoUnusedVariables, '
+        $this->expectFailsRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         ...FragA
       }
@@ -171,9 +209,11 @@ class NoUnusedVariablesTest extends ValidatorTestCase
       fragment FragC on Type {
         field
       }
-        ', [
-            $this->unusedVar('c', 'Foo', 2, 41)
-        ]);
+        ',
+            [
+                $this->unusedVar('c', 'Foo', 2, 41),
+            ]
+        );
     }
 
     /**
@@ -181,7 +221,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testMultipleVariablesNotUsed2() : void
     {
-        $this->expectFailsRule(new NoUnusedVariables, '
+        $this->expectFailsRule(
+            new NoUnusedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         ...FragA
       }
@@ -198,10 +240,12 @@ class NoUnusedVariablesTest extends ValidatorTestCase
       fragment FragC on Type {
         field
       }
-        ', [
-            $this->unusedVar('a', 'Foo', 2, 17),
-            $this->unusedVar('c', 'Foo', 2, 41)
-        ]);
+        ',
+            [
+                $this->unusedVar('a', 'Foo', 2, 17),
+                $this->unusedVar('c', 'Foo', 2, 41),
+            ]
+        );
     }
 
     /**
@@ -209,7 +253,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testVariableNotUsedByUnreferencedFragment() : void
     {
-        $this->expectFailsRule(new NoUnusedVariables, '
+        $this->expectFailsRule(
+            new NoUnusedVariables(),
+            '
       query Foo($b: String) {
         ...FragA
       }
@@ -219,9 +265,11 @@ class NoUnusedVariablesTest extends ValidatorTestCase
       fragment FragB on Type {
         field(b: $b)
       }
-        ', [
-            $this->unusedVar('b', 'Foo', 2, 17)
-        ]);
+        ',
+            [
+                $this->unusedVar('b', 'Foo', 2, 17),
+            ]
+        );
     }
 
     /**
@@ -229,7 +277,9 @@ class NoUnusedVariablesTest extends ValidatorTestCase
      */
     public function testVariableNotUsedByFragmentUsedByOtherOperation() : void
     {
-        $this->expectFailsRule(new NoUnusedVariables, '
+        $this->expectFailsRule(
+            new NoUnusedVariables(),
+            '
       query Foo($b: String) {
         ...FragA
       }
@@ -242,17 +292,11 @@ class NoUnusedVariablesTest extends ValidatorTestCase
       fragment FragB on Type {
         field(b: $b)
       }
-        ', [
-            $this->unusedVar('b', 'Foo', 2, 17),
-            $this->unusedVar('a', 'Bar', 5, 17)
-        ]);
-    }
-
-    private function unusedVar($varName, $opName, $line, $column)
-    {
-        return FormattedError::create(
-            NoUnusedVariables::unusedVariableMessage($varName, $opName),
-            [new SourceLocation($line, $column)]
+        ',
+            [
+                $this->unusedVar('b', 'Foo', 2, 17),
+                $this->unusedVar('a', 'Bar', 5, 17),
+            ]
         );
     }
 }
