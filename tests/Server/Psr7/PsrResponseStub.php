@@ -1,6 +1,8 @@
 <?php
-namespace GraphQL\Tests\Server\Psr7;
 
+declare(strict_types=1);
+
+namespace GraphQL\Tests\Server\Psr7;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -22,7 +24,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function getProtocolVersion()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -40,7 +42,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function withProtocolVersion($version)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -70,7 +72,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function getHeaders()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -83,7 +85,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function hasHeader($name)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -102,7 +104,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function getHeader($name)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -126,7 +128,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function getHeaderLine($name)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -139,15 +141,16 @@ class PsrResponseStub implements ResponseInterface
      * immutability of the message, and MUST return an instance that has the
      * new and/or updated header and value.
      *
-     * @param string $name Case-insensitive header field name.
+     * @param string          $name  Case-insensitive header field name.
      * @param string|string[] $value Header value(s).
      * @return static
      * @throws \InvalidArgumentException for invalid header names or values.
      */
     public function withHeader($name, $value)
     {
-        $tmp = clone $this;
+        $tmp                   = clone $this;
         $tmp->headers[$name][] = $value;
+
         return $tmp;
     }
 
@@ -162,14 +165,14 @@ class PsrResponseStub implements ResponseInterface
      * immutability of the message, and MUST return an instance that has the
      * new header and/or value.
      *
-     * @param string $name Case-insensitive header field name to add.
+     * @param string          $name  Case-insensitive header field name to add.
      * @param string|string[] $value Header value(s).
      * @return static
      * @throws \InvalidArgumentException for invalid header names or values.
      */
     public function withAddedHeader($name, $value)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -186,7 +189,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function withoutHeader($name)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -196,7 +199,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function getBody()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -214,8 +217,9 @@ class PsrResponseStub implements ResponseInterface
      */
     public function withBody(StreamInterface $body)
     {
-        $tmp = clone $this;
+        $tmp       = clone $this;
         $tmp->body = $body;
+
         return $tmp;
     }
 
@@ -229,7 +233,7 @@ class PsrResponseStub implements ResponseInterface
      */
     public function getStatusCode()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -245,7 +249,7 @@ class PsrResponseStub implements ResponseInterface
      *
      * @link http://tools.ietf.org/html/rfc7231#section-6
      * @link http://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
-     * @param int $code The 3-digit integer result code to set.
+     * @param int    $code         The 3-digit integer result code to set.
      * @param string $reasonPhrase The reason phrase to use with the
      *     provided status code; if none is provided, implementations MAY
      *     use the defaults as suggested in the HTTP specification.
@@ -254,8 +258,9 @@ class PsrResponseStub implements ResponseInterface
      */
     public function withStatus($code, $reasonPhrase = '')
     {
-        $tmp = clone $this;
+        $tmp             = clone $this;
         $tmp->statusCode = $code;
+
         return $tmp;
     }
 
@@ -274,6 +279,6 @@ class PsrResponseStub implements ResponseInterface
      */
     public function getReasonPhrase()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 }

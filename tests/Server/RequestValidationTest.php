@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Server;
 
 use GraphQL\Server\Helper;
@@ -9,28 +12,35 @@ class RequestValidationTest extends TestCase
 {
     public function testSimpleRequestShouldValidate() : void
     {
-        $query = '{my q}';
+        $query     = '{my q}';
         $variables = ['a' => 'b', 'c' => 'd'];
         $operation = 'op';
 
         $parsedBody = OperationParams::create([
-            'query' => $query,
-            'variables' => $variables,
+            'query'         => $query,
+            'variables'     => $variables,
             'operationName' => $operation,
         ]);
 
         $this->assertValid($parsedBody);
     }
 
+    private function assertValid($parsedRequest)
+    {
+        $helper = new Helper();
+        $errors = $helper->validateOperationParams($parsedRequest);
+        $this->assertEmpty($errors, isset($errors[0]) ? $errors[0]->getMessage() : '');
+    }
+
     public function testRequestWithQueryIdShouldValidate() : void
     {
-        $queryId = 'some-query-id';
+        $queryId   = 'some-query-id';
         $variables = ['a' => 'b', 'c' => 'd'];
         $operation = 'op';
 
         $parsedBody = OperationParams::create([
-            'queryId' => $queryId,
-            'variables' => $variables,
+            'queryId'       => $queryId,
+            'variables'     => $variables,
             'operationName' => $operation,
         ]);
 
@@ -40,7 +50,7 @@ class RequestValidationTest extends TestCase
     public function testRequiresQueryOrQueryId() : void
     {
         $parsedBody = OperationParams::create([
-            'variables' => ['foo' => 'bar'],
+            'variables'     => ['foo' => 'bar'],
             'operationName' => 'op',
         ]);
 
@@ -50,10 +60,21 @@ class RequestValidationTest extends TestCase
         );
     }
 
+    private function assertInputError($parsedRequest, $expectedMessage)
+    {
+        $helper = new Helper();
+        $errors = $helper->validateOperationParams($parsedRequest);
+        if (! empty($errors[0])) {
+            $this->assertEquals($expectedMessage, $errors[0]->getMessage());
+        } else {
+            $this->fail('Expected error not returned');
+        }
+    }
+
     public function testFailsWhenBothQueryAndQueryIdArePresent() : void
     {
         $parsedBody = OperationParams::create([
-            'query' => '{my query}',
+            'query'   => '{my query}',
             'queryId' => 'my-query-id',
         ]);
 
@@ -66,7 +87,7 @@ class RequestValidationTest extends TestCase
     public function testFailsWhenQueryParameterIsNotString() : void
     {
         $parsedBody = OperationParams::create([
-            'query' => ['t' => '{my query}']
+            'query' => ['t' => '{my query}'],
         ]);
 
         $this->assertInputError(
@@ -78,7 +99,7 @@ class RequestValidationTest extends TestCase
     public function testFailsWhenQueryIdParameterIsNotString() : void
     {
         $parsedBody = OperationParams::create([
-            'queryId' => ['t' => '{my query}']
+            'queryId' => ['t' => '{my query}'],
         ]);
 
         $this->assertInputError(
@@ -90,8 +111,8 @@ class RequestValidationTest extends TestCase
     public function testFailsWhenOperationParameterIsNotString() : void
     {
         $parsedBody = OperationParams::create([
-            'query' => '{my query}',
-            'operationName' => []
+            'query'         => '{my query}',
+            'operationName' => [],
         ]);
 
         $this->assertInputError(
@@ -105,17 +126,17 @@ class RequestValidationTest extends TestCase
      */
     public function testIgnoresNullAndEmptyStringVariables() : void
     {
-        $query = '{my q}';
+        $query      = '{my q}';
         $parsedBody = OperationParams::create([
-            'query' => $query,
-            'variables' => null
+            'query'     => $query,
+            'variables' => null,
         ]);
         $this->assertValid($parsedBody);
 
-        $variables = "";
+        $variables  = '';
         $parsedBody = OperationParams::create([
-            'query' => $query,
-            'variables' => $variables
+            'query'     => $query,
+            'variables' => $variables,
         ]);
         $this->assertValid($parsedBody);
     }
@@ -123,31 +144,13 @@ class RequestValidationTest extends TestCase
     public function testFailsWhenVariablesParameterIsNotObject() : void
     {
         $parsedBody = OperationParams::create([
-            'query' => '{my query}',
-            'variables' => 0
+            'query'     => '{my query}',
+            'variables' => 0,
         ]);
 
         $this->assertInputError(
             $parsedBody,
             'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got 0'
         );
-    }
-
-    private function assertValid($parsedRequest)
-    {
-        $helper = new Helper();
-        $errors = $helper->validateOperationParams($parsedRequest);
-        $this->assertEmpty($errors, isset($errors[0]) ? $errors[0]->getMessage() : '');
-    }
-
-    private function assertInputError($parsedRequest, $expectedMessage)
-    {
-        $helper = new Helper();
-        $errors = $helper->validateOperationParams($parsedRequest);
-        if (!empty($errors[0])) {
-            $this->assertEquals($expectedMessage, $errors[0]->getMessage());
-        } else {
-            $this->fail('Expected error not returned');
-        }
     }
 }
