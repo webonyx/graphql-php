@@ -2,26 +2,26 @@ dist: trusty
 language: php
 
 php:
-    - 7.1
-    - 7.2
-    - nightly
+  - 7.1
+  - 7.2
+  - nightly
 
 matrix:
-    allow_failures:
-        - php: nightly
+  allow_failures:
+    - php: nightly
 
 cache:
-    directories:
-        - $HOME/.composer/cache
+  directories:
+    - $HOME/.composer/cache
 
 before_install:
-    - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
-    - travis_retry composer self-update
+  - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{,.disabled} || echo "xdebug not available"
+  - travis_retry composer self-update
 
 install:
-    - composer require react/promise:2.*
-    - composer require psr/http-message:1.*
-    - travis_retry composer update --prefer-dist
+  - composer require react/promise:2.*
+  - composer require psr/http-message:1.*
+  - travis_retry composer update --prefer-dist
 
 script: ./vendor/bin/phpunit --group default,ReactPromise
 
@@ -45,21 +45,9 @@ jobs:
       after_script:
         - wget https://scrutinizer-ci.com/ocular.phar
         - php ocular.phar code-coverage:upload --format=php-clover clover.xml
-    - stage: Pull request coding standard
-      if: type = pull_request
+
+    - stage: Coding standard
+      php: 7.1
       install: travis_retry composer install --prefer-dist
       script:
-        - |
-          if [ $TRAVIS_BRANCH != "master" ]; then
-            git remote set-branches --add origin $TRAVIS_BRANCH;
-            git fetch origin $TRAVIS_BRANCH;
-          fi
-        - git merge-base origin/$TRAVIS_BRANCH $TRAVIS_PULL_REQUEST_SHA || git fetch origin +refs/pull/$TRAVIS_PULL_REQUEST/merge --unshallow
-        - wget https://github.com/diff-sniffer/git/releases/download/0.1.0/git-phpcs.phar
-        - php git-phpcs.phar origin/$TRAVIS_BRANCH...$TRAVIS_PULL_REQUEST_SHA
-#    - stage: Coding standard
-#      if: NOT type = pull_request
-#      php: 7.1
-#      install: travis_retry composer install --prefer-dist
-#      script:
-#        - ./vendor/bin/phpcs
+        - ./vendor/bin/phpcs

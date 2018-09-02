@@ -7,6 +7,9 @@ namespace GraphQL\Tests\Server\Psr7;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
+/**
+ * phpcs:ignoreFile -- this is not a core file
+ */
 class PsrResponseStub implements ResponseInterface
 {
     public $headers = [];
