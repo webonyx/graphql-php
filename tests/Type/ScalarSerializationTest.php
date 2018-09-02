@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\Error;
@@ -8,7 +11,6 @@ use PHPUnit\Framework\TestCase;
 class ScalarSerializationTest extends TestCase
 {
     // Type System: Scalar coercion
-
     /**
      * @see it('serializes output int')
      */
@@ -42,7 +44,6 @@ class ScalarSerializationTest extends TestCase
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Int cannot represent non-integer value: 1.1');
         $intType->serialize(1.1);
-
     }
 
     public function testSerializesOutputIntCannotRepresentNegativeFloat() : void
@@ -51,7 +52,6 @@ class ScalarSerializationTest extends TestCase
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Int cannot represent non-integer value: -1.1');
         $intType->serialize(-1.1);
-
     }
 
     public function testSerializesOutputIntCannotRepresentNumericString() : void
@@ -60,7 +60,6 @@ class ScalarSerializationTest extends TestCase
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: Int cannot represent non-integer value: "-1.1"');
         $intType->serialize('Int cannot represent non-integer value: "-1.1"');
-
     }
 
     public function testSerializesOutputIntCannotRepresentBiggerThan32Bits() : void
@@ -71,7 +70,6 @@ class ScalarSerializationTest extends TestCase
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: 9876504321');
         $intType->serialize(9876504321);
-
     }
 
     public function testSerializesOutputIntCannotRepresentLowerThan32Bits() : void
@@ -104,7 +102,6 @@ class ScalarSerializationTest extends TestCase
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: one');
         $intType->serialize('one');
-
     }
 
     public function testSerializesOutputIntCannotRepresentEmptyString() : void
@@ -196,7 +193,6 @@ class ScalarSerializationTest extends TestCase
         $this->assertSame(false, $boolType->serialize(0));
         $this->assertSame(true, $boolType->serialize(true));
         $this->assertSame(false, $boolType->serialize(false));
-
         // TODO: how should it behave on '0'?
     }
 
