@@ -47,7 +47,7 @@ jobs:
         - ./vendor/bin/phpcs
 
     - stage: Code Quality
-      php: 7.2
+      php: 7.1
       env: STATIC_ANALYSIS
       install: travis_retry composer install --prefer-dist
       script: composer static-analysis
