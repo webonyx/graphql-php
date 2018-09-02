@@ -1,18 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Language;
 
-use GraphQL\Language\AST\DocumentNode;
-use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
-use GraphQL\Language\AST\OperationDefinitionNode;
-use GraphQL\Language\AST\SelectionSetNode;
-use GraphQL\Language\AST\StringValueNode;
-use GraphQL\Language\AST\VariableNode;
-use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use PHPUnit\Framework\TestCase;
+use function file_get_contents;
 
 class PrinterTest extends TestCase
 {
@@ -22,7 +19,7 @@ class PrinterTest extends TestCase
     public function testDoesntAlterAST() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast = Parser::parse($kitchenSink);
+        $ast         = Parser::parse($kitchenSink);
 
         $astCopy = $ast->cloneDeep();
         $this->assertEquals($astCopy, $ast);
@@ -66,7 +63,7 @@ class PrinterTest extends TestCase
         $this->assertEquals($expected, Printer::doPrint($queryAstShorthanded));
 
         $mutationAst = Parser::parse('mutation { id, name }');
-        $expected = 'mutation {
+        $expected    = 'mutation {
   id
   name
 }
@@ -76,7 +73,7 @@ class PrinterTest extends TestCase
         $queryAstWithArtifacts = Parser::parse(
             'query ($foo: TestType) @testDirective { id, name }'
         );
-        $expected = 'query ($foo: TestType) @testDirective {
+        $expected              = 'query ($foo: TestType) @testDirective {
   id
   name
 }
@@ -86,7 +83,7 @@ class PrinterTest extends TestCase
         $mutationAstWithArtifacts = Parser::parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
         );
-        $expected = 'mutation ($foo: TestType) @testDirective {
+        $expected                 = 'mutation ($foo: TestType) @testDirective {
   id
   name
 }
@@ -100,13 +97,13 @@ class PrinterTest extends TestCase
     public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace() : void
     {
         $mutationAstWithArtifacts = Parser::parse(
-          '{ field(arg: """    space-led value""") }'
+            '{ field(arg: """    space-led value""") }'
         );
-        $expected = '{
+        $expected                 = '{
   field(arg: """    space-led value""")
 }
 ';
-    $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -122,8 +119,8 @@ class PrinterTest extends TestCase
     indentation
   """)
 }'
-          );
-          $expected = '{
+        );
+        $expected                 = '{
   field(arg: """
         first
       line
@@ -131,7 +128,7 @@ class PrinterTest extends TestCase
   """)
 }
 ';
-      $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -145,7 +142,7 @@ class PrinterTest extends TestCase
               """)
             }
         ');
-        $expected = <<<END
+        $expected                 = <<<END
 {
   field(arg: """    space-led value "quoted string"
   """)
@@ -160,7 +157,8 @@ END;
      */
     public function testExperimentalCorrectlyPrintsFragmentDefinedVariables() : void
     {
-        $fragmentWithVariable = Parser::parse('
+        $fragmentWithVariable = Parser::parse(
+            '
           fragment Foo($a: ComplexType, $b: Boolean = false) on TestType {
             id
           }
@@ -187,13 +185,13 @@ END;
   field(arg: """    space-led value "quoted string"
   """)
 }'
-          );
-          $expected = '{
+        );
+        $expected                 = '{
   field(arg: """    space-led value "quoted string"
   """)
 }
 ';
-      $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -202,7 +200,7 @@ END;
     public function testPrintsKitchenSink() : void
     {
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $ast = Parser::parse($kitchenSink);
+        $ast         = Parser::parse($kitchenSink);
 
         $printed = Printer::doPrint($ast);
 
