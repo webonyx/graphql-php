@@ -25,6 +25,8 @@ composer install
 ./vendor/bin/phpunit
 ```
 
+Some tests have annotation `@see it('<description>')`. It is used for reference to same tests in [graphql-js implementation](https://github.com/graphql/graphql-js) with the same description.
+
 ## Coding Standard
 Coding standard of this project is based on [Doctrine CS](https://github.com/doctrine/coding-standard). To run the inspection:
 
