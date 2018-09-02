@@ -1,16 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Language\DirectiveLocation;
-use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
@@ -19,37 +22,40 @@ class SchemaPrinterTest extends TestCase
 {
     // Describe: Type System Printer
 
-    private function printForTest($schema)
-    {
-        $schemaText = SchemaPrinter::doPrint($schema);
-        $this->assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
-        return "\n" . $schemaText;
-    }
-
-    private function printSingleFieldSchema($fieldConfig)
-    {
-        $query = new ObjectType([
-            'name' => 'Query',
-            'fields' => [
-                'singleField' => $fieldConfig
-            ]
-        ]);
-        return $this->printForTest(new Schema(['query' => $query]));
-    }
-
     /**
      * @see it('Prints String Field')
      */
     public function testPrintsStringField() : void
     {
         $output = $this->printSingleFieldSchema([
-            'type' => Type::string()
+            'type' => Type::string(),
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField: String
 }
-', $output);
+',
+            $output
+        );
+    }
+
+    private function printSingleFieldSchema($fieldConfig)
+    {
+        $query = new ObjectType([
+            'name'   => 'Query',
+            'fields' => ['singleField' => $fieldConfig],
+        ]);
+
+        return $this->printForTest(new Schema(['query' => $query]));
+    }
+
+    private function printForTest($schema)
+    {
+        $schemaText = SchemaPrinter::doPrint($schema);
+        $this->assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
+
+        return "\n" . $schemaText;
     }
 
     /**
@@ -58,13 +64,16 @@ type Query {
     public function testPrintArrayStringField() : void
     {
         $output = $this->printSingleFieldSchema([
-            'type' => Type::listOf(Type::string())
+            'type' => Type::listOf(Type::string()),
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField: [String]
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -73,13 +82,16 @@ type Query {
     public function testPrintNonNullStringField() : void
     {
         $output = $this->printSingleFieldSchema([
-            'type' => Type::nonNull(Type::string())
+            'type' => Type::nonNull(Type::string()),
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField: String!
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -88,13 +100,16 @@ type Query {
     public function testPrintNonNullArrayStringField() : void
     {
         $output = $this->printSingleFieldSchema([
-            'type' => Type::nonNull(Type::listOf(Type::string()))
+            'type' => Type::nonNull(Type::listOf(Type::string())),
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField: [String]!
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -103,13 +118,16 @@ type Query {
     public function testPrintArrayNonNullStringField() : void
     {
         $output = $this->printSingleFieldSchema([
-            'type' => Type::listOf(Type::nonNull(Type::string()))
+            'type' => Type::listOf(Type::nonNull(Type::string())),
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField: [String!]
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -118,13 +136,16 @@ type Query {
     public function testPrintNonNullArrayNonNullStringField() : void
     {
         $output = $this->printSingleFieldSchema([
-            'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string())))
+            'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField: [String!]!
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -133,18 +154,19 @@ type Query {
     public function testPrintObjectField() : void
     {
         $fooType = new ObjectType([
-            'name' => 'Foo',
-            'fields' => ['str' => ['type' => Type::string()]]
+            'name'   => 'Foo',
+            'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
         $root = new ObjectType([
-            'name' => 'Query',
-            'fields' => ['foo' => ['type' => $fooType]]
+            'name'   => 'Query',
+            'fields' => ['foo' => ['type' => $fooType]],
         ]);
 
         $schema = new Schema(['query' => $root]);
         $output = $this->printForTest($schema);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Foo {
   str: String
 }
@@ -152,7 +174,9 @@ type Foo {
 type Query {
   foo: Foo
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -162,13 +186,16 @@ type Query {
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
-            'args' => ['argOne' => ['type' => Type::int()]]
+            'args' => ['argOne' => ['type' => Type::int()]],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: Int): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -178,13 +205,16 @@ type Query {
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
-            'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]]
+            'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: Int = 2): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -196,11 +226,14 @@ type Query {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::string(), 'defaultValue' => "tes\t de\fault"]],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: String = "tes\t de\fault"): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -210,13 +243,16 @@ type Query {
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
-            'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]]
+            'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: Int = null): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -226,13 +262,16 @@ type Query {
     {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
-            'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]]
+            'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: Int!): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -244,14 +283,17 @@ type Query {
             'type' => Type::string(),
             'args' => [
                 'argOne' => ['type' => Type::int()],
-                'argTwo' => ['type' => Type::string()]
-            ]
+                'argTwo' => ['type' => Type::string()],
+            ],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: Int, argTwo: String): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -262,16 +304,19 @@ type Query {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
-                'argOne' => ['type' => Type::int(), 'defaultValue' => 1],
-                'argTwo' => ['type' => Type::string()],
-                'argThree' => ['type' => Type::boolean()]
-            ]
+                'argOne'   => ['type' => Type::int(), 'defaultValue' => 1],
+                'argTwo'   => ['type' => Type::string()],
+                'argThree' => ['type' => Type::boolean()],
+            ],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: Int = 1, argTwo: String, argThree: Boolean): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -282,16 +327,19 @@ type Query {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
-                'argOne' => ['type' => Type::int()],
-                'argTwo' => ['type' => Type::string(), 'defaultValue' => 'foo'],
-                'argThree' => ['type' => Type::boolean()]
-            ]
+                'argOne'   => ['type' => Type::int()],
+                'argTwo'   => ['type' => Type::string(), 'defaultValue' => 'foo'],
+                'argThree' => ['type' => Type::boolean()],
+            ],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: Int, argTwo: String = "foo", argThree: Boolean): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -302,16 +350,19 @@ type Query {
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
             'args' => [
-                'argOne' => ['type' => Type::int()],
-                'argTwo' => ['type' => Type::string()],
-                'argThree' => ['type' => Type::boolean(), 'defaultValue' => false]
-            ]
+                'argOne'   => ['type' => Type::int()],
+                'argTwo'   => ['type' => Type::string()],
+                'argThree' => ['type' => Type::boolean(), 'defaultValue' => false],
+            ],
         ]);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   singleField(argOne: Int, argTwo: String, argThree: Boolean = false): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -320,14 +371,12 @@ type Query {
     public function testPrintsCustomQueryRootType() : void
     {
         $customQueryType = new ObjectType([
-            'name' => 'CustomQueryType',
+            'name'   => 'CustomQueryType',
             'fields' => ['bar' => ['type' => Type::string()]],
         ]);
 
-        $schema = new Schema([
-            'query' => $customQueryType,
-        ]);
-        $output = $this->printForTest($schema);
+        $schema   = new Schema(['query' => $customQueryType]);
+        $output   = $this->printForTest($schema);
         $expected = '
 schema {
   query: CustomQueryType
@@ -346,27 +395,28 @@ type CustomQueryType {
     public function testPrintInterface() : void
     {
         $fooType = new InterfaceType([
-            'name' => 'Foo',
-            'fields' => ['str' => ['type' => Type::string()]]
+            'name'   => 'Foo',
+            'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
         $barType = new ObjectType([
-            'name' => 'Bar',
-            'fields' => ['str' => ['type' => Type::string()]],
-            'interfaces' => [$fooType]
+            'name'       => 'Bar',
+            'fields'     => ['str' => ['type' => Type::string()]],
+            'interfaces' => [$fooType],
         ]);
 
         $query = new ObjectType([
-            'name' => 'Query',
-            'fields' => ['bar' => ['type' => $barType]]
+            'name'   => 'Query',
+            'fields' => ['bar' => ['type' => $barType]],
         ]);
 
         $schema = new Schema([
             'query' => $query,
-            'types' => [$barType]
+            'types' => [$barType],
         ]);
         $output = $this->printForTest($schema);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Bar implements Foo {
   str: String
 }
@@ -378,7 +428,9 @@ interface Foo {
 type Query {
   bar: Bar
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -387,35 +439,36 @@ type Query {
     public function testPrintMultipleInterface() : void
     {
         $fooType = new InterfaceType([
-            'name' => 'Foo',
-            'fields' => ['str' => ['type' => Type::string()]]
+            'name'   => 'Foo',
+            'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
         $baazType = new InterfaceType([
-            'name' => 'Baaz',
-            'fields' => ['int' => ['type' => Type::int()]]
+            'name'   => 'Baaz',
+            'fields' => ['int' => ['type' => Type::int()]],
         ]);
 
         $barType = new ObjectType([
-            'name' => 'Bar',
-            'fields' => [
+            'name'       => 'Bar',
+            'fields'     => [
                 'str' => ['type' => Type::string()],
-                'int' => ['type' => Type::int()]
+                'int' => ['type' => Type::int()],
             ],
-            'interfaces' => [$fooType, $baazType]
+            'interfaces' => [$fooType, $baazType],
         ]);
 
         $query = new ObjectType([
-            'name' => 'Query',
-            'fields' => ['bar' => ['type' => $barType]]
+            'name'   => 'Query',
+            'fields' => ['bar' => ['type' => $barType]],
         ]);
 
         $schema = new Schema([
             'query' => $query,
-            'types' => [$barType]
+            'types' => [$barType],
         ]);
         $output = $this->printForTest($schema);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 interface Baaz {
   int: Int
 }
@@ -432,7 +485,9 @@ interface Foo {
 type Query {
   bar: Bar
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -441,36 +496,37 @@ type Query {
     public function testPrintUnions() : void
     {
         $fooType = new ObjectType([
-            'name' => 'Foo',
-            'fields' => ['bool' => ['type' => Type::boolean()]]
+            'name'   => 'Foo',
+            'fields' => ['bool' => ['type' => Type::boolean()]],
         ]);
 
         $barType = new ObjectType([
-            'name' => 'Bar',
-            'fields' => ['str' => ['type' => Type::string()]]
+            'name'   => 'Bar',
+            'fields' => ['str' => ['type' => Type::string()]],
         ]);
 
         $singleUnion = new UnionType([
-            'name' => 'SingleUnion',
-            'types' => [$fooType]
+            'name'  => 'SingleUnion',
+            'types' => [$fooType],
         ]);
 
         $multipleUnion = new UnionType([
-            'name' => 'MultipleUnion',
-            'types' => [$fooType, $barType]
+            'name'  => 'MultipleUnion',
+            'types' => [$fooType, $barType],
         ]);
 
         $query = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
-                'single' => ['type' => $singleUnion],
-                'multiple' => ['type' => $multipleUnion]
-            ]
+                'single'   => ['type' => $singleUnion],
+                'multiple' => ['type' => $multipleUnion],
+            ],
         ]);
 
         $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Bar {
   str: String
 }
@@ -487,7 +543,9 @@ type Query {
 }
 
 union SingleUnion = Foo
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -496,23 +554,24 @@ union SingleUnion = Foo
     public function testInputType() : void
     {
         $inputType = new InputObjectType([
-            'name' => 'InputType',
-            'fields' => ['int' => ['type' => Type::int()]]
+            'name'   => 'InputType',
+            'fields' => ['int' => ['type' => Type::int()]],
         ]);
 
         $query = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
                 'str' => [
                     'type' => Type::string(),
-                    'args' => ['argOne' => ['type' => $inputType]]
-                ]
-            ]
+                    'args' => ['argOne' => ['type' => $inputType]],
+                ],
+            ],
         ]);
 
         $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 input InputType {
   int: Int
 }
@@ -520,7 +579,9 @@ input InputType {
 type Query {
   str(argOne: InputType): String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -529,28 +590,31 @@ type Query {
     public function testCustomScalar() : void
     {
         $oddType = new CustomScalarType([
-            'name' => 'Odd',
-            'serialize' => function($value) {
+            'name'      => 'Odd',
+            'serialize' => function ($value) {
                 return $value % 2 === 1 ? $value : null;
-            }
+            },
         ]);
 
         $query = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
-                'odd' => ['type' => $oddType]
-            ]
+                'odd' => ['type' => $oddType],
+            ],
         ]);
 
         $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 scalar Odd
 
 type Query {
   odd: Odd
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -559,24 +623,25 @@ type Query {
     public function testEnum() : void
     {
         $RGBType = new EnumType([
-            'name' => 'RGB',
+            'name'   => 'RGB',
             'values' => [
-                'RED' => ['value' => 0],
+                'RED'   => ['value' => 0],
                 'GREEN' => ['value' => 1],
-                'BLUE' => ['value' => 2]
-            ]
+                'BLUE'  => ['value' => 2],
+            ],
         ]);
 
         $query = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
-                'rgb' => ['type' => $RGBType]
-            ]
+                'rgb' => ['type' => $RGBType],
+            ],
         ]);
 
         $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   rgb: RGB
 }
@@ -586,7 +651,9 @@ enum RGB {
   GREEN
   BLUE
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -595,32 +662,35 @@ enum RGB {
     public function testPrintsCustomDirectives() : void
     {
         $query = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
                 'field' => ['type' => Type::string()],
-            ]
+            ],
         ]);
 
         $customDirectives = new Directive([
-            'name' => 'customDirective',
+            'name'      => 'customDirective',
             'locations' => [
-                DirectiveLocation::FIELD
-            ]
+                DirectiveLocation::FIELD,
+            ],
         ]);
 
         $schema = new Schema([
-            'query' => $query,
+            'query'      => $query,
             'directives' => [$customDirectives],
         ]);
 
         $output = $this->printForTest($schema);
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 directive @customDirective on FIELD
 
 type Query {
   field: String
 }
-', $output);
+',
+            $output
+        );
     }
 
     /**
@@ -629,19 +699,22 @@ type Query {
     public function testOneLinePrintsAShortDescription() : void
     {
         $description = 'This field is awesome';
-        $output = $this->printSingleFieldSchema([
-            "type" => Type::string(),
-            "description" => $description
+        $output      = $this->printSingleFieldSchema([
+            'type'        => Type::string(),
+            'description' => $description,
         ]);
 
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   """This field is awesome"""
   singleField: String
 }
-', $output);
+',
+            $output
+        );
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }
@@ -652,21 +725,24 @@ type Query {
     public function testDoesNotOneLinePrintADescriptionThatEndsWithAQuote() : void
     {
         $description = 'This field is "awesome"';
-        $output = $this->printSingleFieldSchema([
-            "type" => Type::string(),
-            "description" => $description
+        $output      = $this->printSingleFieldSchema([
+            'type'        => Type::string(),
+            'description' => $description,
         ]);
 
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   """
   This field is "awesome"
   """
   singleField: String
 }
-', $output);
+',
+            $output
+        );
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }
@@ -677,20 +753,23 @@ type Query {
     public function testPReservesLeadingSpacesWhenPrintingADescription() : void
     {
         $description = '    This field is "awesome"';
-        $output = $this->printSingleFieldSchema([
-            "type" => Type::string(),
-            "description" => $description
+        $output      = $this->printSingleFieldSchema([
+            'type'        => Type::string(),
+            'description' => $description,
         ]);
 
-        $this->assertEquals('
+        $this->assertEquals(
+            '
 type Query {
   """    This field is "awesome"
   """
   singleField: String
 }
-', $output);
+',
+            $output
+        );
 
-        $recreatedRoot = BuildSchema::build($output)->getTypeMap()['Query'];
+        $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         $this->assertEquals($description, $recreatedField->description);
     }
@@ -701,14 +780,14 @@ type Query {
     public function testPrintIntrospectionSchema() : void
     {
         $query = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
-                'onlyField' => ['type' => Type::string()]
-            ]
+                'onlyField' => ['type' => Type::string()],
+            ],
         ]);
 
-        $schema = new Schema(['query' => $query]);
-        $output = SchemaPrinter::printIntrosepctionSchema($schema);
+        $schema              = new Schema(['query' => $query]);
+        $output              = SchemaPrinter::printIntrosepctionSchema($schema);
         $introspectionSchema = <<<'EOT'
 """
 Directs the executor to include this field or fragment only when the `if` argument is true.
@@ -946,16 +1025,17 @@ EOT;
     public function testPrintIntrospectionSchemaWithCommentDescriptions() : void
     {
         $query = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
-                'onlyField' => ['type' => Type::string()]
-            ]
+                'onlyField' => ['type' => Type::string()],
+            ],
         ]);
 
-        $schema = new Schema(['query' => $query]);
-        $output = SchemaPrinter::printIntrosepctionSchema($schema, [
-            'commentDescriptions' => true
-        ]);
+        $schema              = new Schema(['query' => $query]);
+        $output              = SchemaPrinter::printIntrosepctionSchema(
+            $schema,
+            ['commentDescriptions' => true]
+        );
         $introspectionSchema = <<<'EOT'
 # Directs the executor to include this field or fragment only when the `if` argument is true.
 directive @include(

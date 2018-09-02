@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Language\Parser;
@@ -8,14 +11,6 @@ use PHPUnit\Framework\TestCase;
 class AstFromValueUntypedTest extends TestCase
 {
     // Describe: valueFromASTUntyped
-
-    private function assertTestCase($valueText, $expected, array $variables = null) {
-        $this->assertEquals(
-            $expected,
-            AST::valueFromASTUntyped(Parser::parseValue($valueText), $variables)
-        );
-    }
-
     /**
      * @see it('parses simple values')
      */
@@ -27,6 +22,17 @@ class AstFromValueUntypedTest extends TestCase
         $this->assertTestCase('123', 123);
         $this->assertTestCase('123.456', 123.456);
         $this->assertTestCase('abc123', 'abc123');
+    }
+
+    /**
+     * @param mixed[]|null $variables
+     */
+    private function assertTestCase($valueText, $expected, ?array $variables = null) : void
+    {
+        $this->assertEquals(
+            $expected,
+            AST::valueFromASTUntyped(Parser::parseValue($valueText), $variables)
+        );
     }
 
     /**
