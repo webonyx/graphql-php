@@ -41,6 +41,7 @@ jobs:
 
     - stage: Code Quality
       php: 7.1
+      env: CODING_STANDARD
       install: travis_retry composer install --prefer-dist
       script:
         - ./vendor/bin/phpcs
