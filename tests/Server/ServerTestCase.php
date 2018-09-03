@@ -3,6 +3,7 @@ namespace GraphQL\Tests\Server;
 
 
 use GraphQL\Deferred;
+use GraphQL\Error\ClientAware;
 use GraphQL\Error\UserError;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -34,10 +35,16 @@ abstract class ServerTestCase extends TestCase
                             return $info->fieldName;
                         }
                     ],
-                    'fieldWithException' => [
+                    'fieldWithSafeException' => [
                         'type' => Type::string(),
-                        'resolve' => function($root, $args, $context, $info) {
-                            throw new UserError("This is the exception we want");
+                        'resolve' => function() {
+                            throw new UserError('This is the exception we want');
+                        }
+                    ],
+                    'fieldWithUnsafeException' => [
+                        'type' => Type::string(),
+                        'resolve' => function() {
+                            throw new UnsafeException('This exception should not be shown to the user');
                         }
                     ],
                     'testContextAndRootValue' => [
@@ -90,5 +97,32 @@ abstract class ServerTestCase extends TestCase
             ])
         ]);
         return $schema;
+    }
+}
+
+class UnsafeException extends \Exception implements ClientAware
+{
+    /**
+     * Returns true when exception message is safe to be displayed to a client.
+     *
+     * @api
+     * @return bool
+     */
+    public function isClientSafe()
+    {
+        return false;
+    }
+    
+    /**
+     * Returns string describing a category of the error.
+     *
+     * Value "graphql" is reserved for errors produced by query parsing or validation, do not use it.
+     *
+     * @api
+     * @return string
+     */
+    public function getCategory()
+    {
+        return 'unsafe';
     }
 }

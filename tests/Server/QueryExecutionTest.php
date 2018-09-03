@@ -1,11 +1,9 @@
 <?php
 namespace GraphQL\Tests\Server;
 
-use GraphQL\Deferred;
 use GraphQL\Error\Debug;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\UserError;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
@@ -64,20 +62,20 @@ class QueryExecutionTest extends ServerTestCase
 
         $query = '
         {
-            fieldWithException
+            fieldWithSafeException
             f1
         }
         ';
 
         $expected = [
             'data' => [
-                'fieldWithException' => null,
+                'fieldWithSafeException' => null,
                 'f1' => 'f1'
             ],
             'errors' => [
                 [
                     'message' => 'This is the exception we want',
-                    'path' => ['fieldWithException'],
+                    'path' => ['fieldWithSafeException'],
                     'trace' => []
                 ]
             ]
@@ -85,6 +83,18 @@ class QueryExecutionTest extends ServerTestCase
 
         $result = $this->executeQuery($query)->toArray();
         $this->assertArraySubset($expected, $result);
+    }
+    
+    public function testRethrowUnsafeExceptions() : void
+    {
+        $this->config->setDebug(Debug::RETHROW_UNSAFE_EXCEPTIONS);
+        $this->expectException(UnsafeException::class);
+
+        $this->executeQuery('
+        {
+            fieldWithUnsafeException
+        }
+        ')->toArray();
     }
 
     public function testPassesRootValueAndContext() : void
@@ -240,7 +250,7 @@ class QueryExecutionTest extends ServerTestCase
                 'query' => '{invalid}'
             ],
             [
-                'query' => '{f1,fieldWithException}'
+                'query' => '{f1,fieldWithSafeException}'
             ]
         ];
 
@@ -405,7 +415,7 @@ class QueryExecutionTest extends ServerTestCase
                 'query' => '{invalid}'
             ],
             [
-                'query' => '{f1,fieldWithException}'
+                'query' => '{f1,fieldWithSafeException}'
             ],
             [
                 'query' => '
@@ -427,7 +437,7 @@ class QueryExecutionTest extends ServerTestCase
             [
                 'data' => [
                     'f1' => 'f1',
-                    'fieldWithException' => null
+                    'fieldWithSafeException' => null
                 ],
                 'errors' => [
                     ['message' => 'This is the exception we want']
@@ -581,7 +591,7 @@ class QueryExecutionTest extends ServerTestCase
             return ['test' => 'formatted'];
         });
 
-        $result = $this->executeQuery('{fieldWithException}');
+        $result = $this->executeQuery('{fieldWithSafeException}');
         $this->assertFalse($called);
         $formatted = $result->toArray();
         $expected = [
@@ -620,7 +630,7 @@ class QueryExecutionTest extends ServerTestCase
             ];
         });
 
-        $result = $this->executeQuery('{fieldWithException,test: fieldWithException}');
+        $result = $this->executeQuery('{fieldWithSafeException,test: fieldWithSafeException}');
 
         $this->assertFalse($called);
         $formatted = $result->toArray();
