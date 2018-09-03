@@ -247,7 +247,7 @@ class FormattedError
 
         $isUnsafe = ! $e instanceof ClientAware || ! $e->isClientSafe();
 
-        if(($debug & Debug::RETHROW_UNSAFE_EXCEPTIONS) && $isUnsafe){
+        if (($debug & Debug::RETHROW_UNSAFE_EXCEPTIONS) && $isUnsafe) {
             if ($e->getPrevious()) {
                 throw $e->getPrevious();
             }

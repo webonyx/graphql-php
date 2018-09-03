@@ -19,6 +19,7 @@ use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
 use function count;
 use function sprintf;
+use Unsafe;
 
 class QueryExecutionTest extends ServerTestCase
 {
@@ -94,21 +95,20 @@ class QueryExecutionTest extends ServerTestCase
             'errors' => [
                 [
                     'message' => 'This is the exception we want',
-
                     'path' => ['fieldWithSafeException'],
-                    'trace' => []
-                ]
-            ]
+                    'trace' => [],
+                ],
+            ],
         ];
 
         $result = $this->executeQuery($query)->toArray();
         $this->assertArraySubset($expected, $result);
     }
-    
+
     public function testRethrowUnsafeExceptions() : void
     {
         $this->config->setDebug(Debug::RETHROW_UNSAFE_EXCEPTIONS);
-        $this->expectException(UnsafeException::class);
+        $this->expectException(Unsafe::class);
 
         $this->executeQuery('
         {
@@ -487,7 +487,7 @@ class QueryExecutionTest extends ServerTestCase
             [
                 'data' => [
                     'f1' => 'f1',
-                    'fieldWithSafeException' => null
+                    'fieldWithSafeException' => null,
                 ],
                 'errors' => [
                     ['message' => 'This is the exception we want'],
