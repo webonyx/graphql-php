@@ -1,5 +1,7 @@
 <?php
 
+namespace GraphQL\Tests\Server;
+
 use GraphQL\Error\ClientAware;
 
 class Unsafe extends \Exception implements ClientAware

@@ -19,7 +19,6 @@ use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
 use function count;
 use function sprintf;
-use Unsafe;
 
 class QueryExecutionTest extends ServerTestCase
 {

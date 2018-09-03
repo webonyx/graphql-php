@@ -14,7 +14,6 @@ use function trigger_error;
 use const E_USER_DEPRECATED;
 use const E_USER_NOTICE;
 use const E_USER_WARNING;
-use Unsafe;
 
 abstract class ServerTestCase extends TestCase
 {
