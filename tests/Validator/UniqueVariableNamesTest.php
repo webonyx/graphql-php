@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,16 +11,18 @@ use GraphQL\Validator\Rules\UniqueVariableNames;
 class UniqueVariableNamesTest extends ValidatorTestCase
 {
     // Validate: Unique variable names
-
     /**
      * @see it('unique variable names')
      */
     public function testUniqueVariableNames() : void
     {
-        $this->expectPassesRule(new UniqueVariableNames(), '
+        $this->expectPassesRule(
+            new UniqueVariableNames(),
+            '
       query A($x: Int, $y: String) { __typename }
       query B($x: String, $y: Int) { __typename }
-        ');
+        '
+        );
     }
 
     /**
@@ -25,16 +30,20 @@ class UniqueVariableNamesTest extends ValidatorTestCase
      */
     public function testDuplicateVariableNames() : void
     {
-        $this->expectFailsRule(new UniqueVariableNames, '
+        $this->expectFailsRule(
+            new UniqueVariableNames(),
+            '
       query A($x: Int, $x: Int, $x: String) { __typename }
       query B($x: String, $x: Int) { __typename }
       query C($x: Int, $x: Int) { __typename }
-        ', [
-            $this->duplicateVariable('x', 2, 16, 2, 25),
-            $this->duplicateVariable('x', 2, 16, 2, 34),
-            $this->duplicateVariable('x', 3, 16, 3, 28),
-            $this->duplicateVariable('x', 4, 16, 4, 25)
-        ]);
+        ',
+            [
+                $this->duplicateVariable('x', 2, 16, 2, 25),
+                $this->duplicateVariable('x', 2, 16, 2, 34),
+                $this->duplicateVariable('x', 3, 16, 3, 28),
+                $this->duplicateVariable('x', 4, 16, 4, 25),
+            ]
+        );
     }
 
     private function duplicateVariable($name, $l1, $c1, $l2, $c2)

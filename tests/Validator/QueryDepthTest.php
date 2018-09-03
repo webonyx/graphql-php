@@ -1,35 +1,19 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Validator\Rules\QueryDepth;
+use function sprintf;
+use function str_replace;
 
 class QueryDepthTest extends QuerySecurityTestCase
 {
     /**
-     * @param $max
-     * @param $count
-     *
-     * @return string
-     */
-    protected function getErrorMessage($max, $count)
-    {
-        return QueryDepth::maxQueryDepthErrorMessage($max, $count);
-    }
-
-    /**
-     * @param $maxDepth
-     *
-     * @return QueryDepth
-     */
-    protected function getRule($maxDepth)
-    {
-        return new QueryDepth($maxDepth);
-    }
-
-    /**
-     * @param $queryDepth
-     * @param int   $maxQueryDepth
-     * @param array $expectedErrors
+     * @param int        $queryDepth
+     * @param int        $maxQueryDepth
+     * @param string[][] $expectedErrors
      * @dataProvider queryDataProvider
      */
     public function testSimpleQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
@@ -37,26 +21,81 @@ class QueryDepthTest extends QuerySecurityTestCase
         $this->assertDocumentValidator($this->buildRecursiveQuery($queryDepth), $maxQueryDepth, $expectedErrors);
     }
 
+    private function buildRecursiveQuery($depth)
+    {
+        $query = sprintf('query MyQuery { human%s }', $this->buildRecursiveQueryPart($depth));
+
+        return $query;
+    }
+
+    private function buildRecursiveQueryPart($depth)
+    {
+        $templates = [
+            'human' => ' { firstName%s } ',
+            'dog'   => ' dogs { name%s } ',
+        ];
+
+        $part = $templates['human'];
+
+        for ($i = 1; $i <= $depth; ++$i) {
+            $key      = ($i % 2 === 1) ? 'human' : 'dog';
+            $template = $templates[$key];
+
+            $part = sprintf($part, ($key === 'human' ? ' owner ' : '') . $template);
+        }
+        $part = str_replace('%s', '', $part);
+
+        return $part;
+    }
+
     /**
-     * @param $queryDepth
-     * @param int   $maxQueryDepth
-     * @param array $expectedErrors
+     * @param int        $queryDepth
+     * @param int        $maxQueryDepth
+     * @param string[][] $expectedErrors
      * @dataProvider queryDataProvider
      */
     public function testFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
     {
-        $this->assertDocumentValidator($this->buildRecursiveUsingFragmentQuery($queryDepth), $maxQueryDepth, $expectedErrors);
+        $this->assertDocumentValidator(
+            $this->buildRecursiveUsingFragmentQuery($queryDepth),
+            $maxQueryDepth,
+            $expectedErrors
+        );
+    }
+
+    private function buildRecursiveUsingFragmentQuery($depth)
+    {
+        $query = sprintf(
+            'query MyQuery { human { ...F1 } } fragment F1 on Human %s',
+            $this->buildRecursiveQueryPart($depth)
+        );
+
+        return $query;
     }
 
     /**
-     * @param $queryDepth
-     * @param int   $maxQueryDepth
-     * @param array $expectedErrors
+     * @param int        $queryDepth
+     * @param int        $maxQueryDepth
+     * @param string[][] $expectedErrors
      * @dataProvider queryDataProvider
      */
     public function testInlineFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
     {
-        $this->assertDocumentValidator($this->buildRecursiveUsingInlineFragmentQuery($queryDepth), $maxQueryDepth, $expectedErrors);
+        $this->assertDocumentValidator(
+            $this->buildRecursiveUsingInlineFragmentQuery($queryDepth),
+            $maxQueryDepth,
+            $expectedErrors
+        );
+    }
+
+    private function buildRecursiveUsingInlineFragmentQuery($depth)
+    {
+        $query = sprintf(
+            'query MyQuery { human { ...on Human %s } }',
+            $this->buildRecursiveQueryPart($depth)
+        );
+
+        return $query;
     }
 
     public function testComplexityIntrospectionQuery() : void
@@ -99,50 +138,24 @@ class QueryDepthTest extends QuerySecurityTestCase
         ];
     }
 
-    private function buildRecursiveQuery($depth)
+    /**
+     * @param int $max
+     * @param int $count
+     *
+     * @return string
+     */
+    protected function getErrorMessage($max, $count)
     {
-        $query = sprintf('query MyQuery { human%s }', $this->buildRecursiveQueryPart($depth));
-
-        return $query;
+        return QueryDepth::maxQueryDepthErrorMessage($max, $count);
     }
 
-    private function buildRecursiveUsingFragmentQuery($depth)
+    /**
+     * @param int $maxDepth
+     *
+     * @return QueryDepth
+     */
+    protected function getRule($maxDepth)
     {
-        $query = sprintf(
-            'query MyQuery { human { ...F1 } } fragment F1 on Human %s',
-            $this->buildRecursiveQueryPart($depth)
-        );
-
-        return $query;
-    }
-
-    private function buildRecursiveUsingInlineFragmentQuery($depth)
-    {
-        $query = sprintf(
-            'query MyQuery { human { ...on Human %s } }',
-            $this->buildRecursiveQueryPart($depth)
-        );
-
-        return $query;
-    }
-
-    private function buildRecursiveQueryPart($depth)
-    {
-        $templates = [
-            'human' => ' { firstName%s } ',
-            'dog' => ' dogs { name%s } ',
-        ];
-
-        $part = $templates['human'];
-
-        for ($i = 1; $i <= $depth; ++$i) {
-            $key = ($i % 2 == 1) ? 'human' : 'dog';
-            $template = $templates[$key];
-
-            $part = sprintf($part, ('human' == $key ? ' owner ' : '').$template);
-        }
-        $part = str_replace('%s', '', $part);
-
-        return $part;
+        return new QueryDepth($maxDepth);
     }
 }

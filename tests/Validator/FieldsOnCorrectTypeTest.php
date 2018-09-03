@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,18 +11,20 @@ use GraphQL\Validator\Rules\FieldsOnCorrectType;
 class FieldsOnCorrectTypeTest extends ValidatorTestCase
 {
     // Validate: Fields on correct type
-
     /**
      * @see it('Object field selection')
      */
     public function testObjectFieldSelection() : void
     {
-        $this->expectPassesRule(new FieldsOnCorrectType(), '
+        $this->expectPassesRule(
+            new FieldsOnCorrectType(),
+            '
       fragment objectFieldSelection on Dog {
         __typename
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -27,12 +32,15 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testAliasedObjectFieldSelection() : void
     {
-        $this->expectPassesRule(new FieldsOnCorrectType, '
+        $this->expectPassesRule(
+            new FieldsOnCorrectType(),
+            '
       fragment aliasedObjectFieldSelection on Dog {
         tn : __typename
         otherName : name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -40,12 +48,15 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testInterfaceFieldSelection() : void
     {
-        $this->expectPassesRule(new FieldsOnCorrectType, '
+        $this->expectPassesRule(
+            new FieldsOnCorrectType(),
+            '
       fragment interfaceFieldSelection on Pet {
         __typename
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -53,11 +64,14 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testAliasedInterfaceFieldSelection() : void
     {
-        $this->expectPassesRule(new FieldsOnCorrectType, '
+        $this->expectPassesRule(
+            new FieldsOnCorrectType(),
+            '
       fragment interfaceFieldSelection on Pet {
         otherName : name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -65,11 +79,14 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testLyingAliasSelection() : void
     {
-        $this->expectPassesRule(new FieldsOnCorrectType, '
+        $this->expectPassesRule(
+            new FieldsOnCorrectType(),
+            '
       fragment lyingAliasSelection on Dog {
         name : nickname
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -77,11 +94,14 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testIgnoresFieldsOnUnknownType() : void
     {
-        $this->expectPassesRule(new FieldsOnCorrectType, '
+        $this->expectPassesRule(
+            new FieldsOnCorrectType(),
+            '
       fragment unknownSelection on UnknownType {
         unknownField
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -89,7 +109,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testReportsErrorsWhenTypeIsKnownAgain() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment typeKnownAgain on Pet {
         unknown_pet_field {
           ... on Cat {
@@ -99,8 +121,16 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
       }',
             [
                 $this->undefinedField('unknown_pet_field', 'Pet', [], [], 3, 9),
-                $this->undefinedField('unknown_cat_field', 'Cat', [], [], 5, 13)
+                $this->undefinedField('unknown_cat_field', 'Cat', [], [], 5, 13),
             ]
+        );
+    }
+
+    private function undefinedField($field, $type, $suggestedTypes, $suggestedFields, $line, $column)
+    {
+        return FormattedError::create(
+            FieldsOnCorrectType::undefinedFieldMessage($field, $type, $suggestedTypes, $suggestedFields),
+            [new SourceLocation($line, $column)]
         );
     }
 
@@ -109,7 +139,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testFieldNotDefinedOnFragment() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment fieldNotDefined on Dog {
         meowVolume
       }',
@@ -122,7 +154,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testIgnoresDeeplyUnknownField() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment deepFieldNotDefined on Dog {
         unknown_field {
           deeper_unknown_field
@@ -137,7 +171,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testSubFieldNotDefined() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment subFieldNotDefined on Human {
         pets {
           unknown_field
@@ -152,7 +188,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testFieldNotDefinedOnInlineFragment() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment fieldNotDefined on Pet {
         ... on Dog {
           meowVolume
@@ -167,7 +205,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testAliasedFieldTargetNotDefined() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment aliasedFieldTargetNotDefined on Dog {
         volume : mooVolume
       }',
@@ -180,7 +220,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testAliasedLyingFieldTargetNotDefined() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment aliasedLyingFieldTargetNotDefined on Dog {
         barkVolume : kawVolume
       }',
@@ -193,7 +235,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testNotDefinedOnInterface() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment notDefinedOnInterface on Pet {
         tailLength
       }',
@@ -206,7 +250,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testDefinedOnImplmentorsButNotOnInterface() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment definedOnImplementorsButNotInterface on Pet {
         nickname
       }',
@@ -219,7 +265,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testMetaFieldSelectionOnUnion() : void
     {
-        $this->expectPassesRule(new FieldsOnCorrectType, '
+        $this->expectPassesRule(
+            new FieldsOnCorrectType(),
+            '
       fragment directFieldSelectionOnUnion on CatOrDog {
         __typename
       }'
@@ -231,7 +279,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testDirectFieldSelectionOnUnion() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment directFieldSelectionOnUnion on CatOrDog {
         directField
       }',
@@ -244,7 +294,9 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testDefinedOnImplementorsQueriedOnUnion() : void
     {
-        $this->expectFailsRule(new FieldsOnCorrectType, '
+        $this->expectFailsRule(
+            new FieldsOnCorrectType(),
+            '
       fragment definedOnImplementorsQueriedOnUnion on CatOrDog {
         name
       }',
@@ -255,32 +307,39 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
                 [],
                 3,
                 9
-            )]
+            ),
+            ]
         );
     }
+
+    // Describe: Fields on correct type error message
 
     /**
      * @see it('valid field in inline fragment')
      */
     public function testValidFieldInInlineFragment() : void
     {
-        $this->expectPassesRule(new FieldsOnCorrectType, '
+        $this->expectPassesRule(
+            new FieldsOnCorrectType(),
+            '
       fragment objectFieldSelection on Pet {
         ... on Dog {
           name
         }
       }
-        ');
+        '
+        );
     }
-
-    // Describe: Fields on correct type error message
 
     /**
      * @see it('Works with no suggestions')
      */
     public function testWorksWithNoSuggestions() : void
     {
-        $this->assertEquals('Cannot query field "f" on type "T".', FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], []));
+        $this->assertEquals(
+            'Cannot query field "f" on type "T".',
+            FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], [])
+        );
     }
 
     /**
@@ -324,12 +383,15 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean to use an inline fragment on "A", "B", "C", "D", or "E"?';
 
-        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage(
-            'f',
-            'T',
-            ['A', 'B', 'C', 'D', 'E', 'F'],
-            []
-        ));
+        $this->assertEquals(
+            $expected,
+            FieldsOnCorrectType::undefinedFieldMessage(
+                'f',
+                'T',
+                ['A', 'B', 'C', 'D', 'E', 'F'],
+                []
+            )
+        );
     }
 
     /**
@@ -340,19 +402,14 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean "z", "y", "x", "w", or "v"?';
 
-        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage(
-            'f',
-            'T',
-            [],
-            ['z', 'y', 'x', 'w', 'v', 'u']
-        ));
-    }
-
-    private function undefinedField($field, $type, $suggestedTypes, $suggestedFields, $line, $column)
-    {
-        return FormattedError::create(
-            FieldsOnCorrectType::undefinedFieldMessage($field, $type, $suggestedTypes, $suggestedFields),
-            [new SourceLocation($line, $column)]
+        $this->assertEquals(
+            $expected,
+            FieldsOnCorrectType::undefinedFieldMessage(
+                'f',
+                'T',
+                [],
+                ['z', 'y', 'x', 'w', 'v', 'u']
+            )
         );
     }
 }

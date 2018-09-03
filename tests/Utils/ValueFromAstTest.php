@@ -1,26 +1,21 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils\Utils;
 use GraphQL\Utils\AST;
+use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
 class ValueFromAstTest extends TestCase
 {
-    private function runTestCase($type, $valueText, $expected)
-    {
-        $this->assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type));
-    }
-
-    private function runTestCaseWithVars($variables, $type, $valueText, $expected)
-    {
-        $this->assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type, $variables));
-    }
+    /** @var InputObjectType */
+    private $inputObj;
 
     /**
      * @see it('rejects empty input')
@@ -43,6 +38,11 @@ class ValueFromAstTest extends TestCase
         $this->runTestCase(Type::string(), '"abc123"', 'abc123');
         $this->runTestCase(Type::id(), '123456', '123456');
         $this->runTestCase(Type::id(), '"123456"', '123456');
+    }
+
+    private function runTestCase($type, $valueText, $expected)
+    {
+        $this->assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type));
     }
 
     /**
@@ -68,13 +68,13 @@ class ValueFromAstTest extends TestCase
     public function testConvertsEnumValuesAccordingToInputCoercionRules() : void
     {
         $testEnum = new EnumType([
-            'name' => 'TestColor',
+            'name'   => 'TestColor',
             'values' => [
-                'RED' => ['value' => 1],
+                'RED'   => ['value' => 1],
                 'GREEN' => ['value' => 2],
-                'BLUE' => ['value' => 3],
-                'NULL' => ['value' => null],
-            ]
+                'BLUE'  => ['value' => 3],
+                'NULL'  => ['value' => null],
+            ],
         ]);
 
         $this->runTestCase($testEnum, 'RED', 1);
@@ -100,14 +100,14 @@ class ValueFromAstTest extends TestCase
     public function testCoercesListsOfValues() : void
     {
         $listOfBool = Type::listOf(Type::boolean());
-        $undefined = Utils::undefined();
+        $undefined  = Utils::undefined();
 
-        $this->runTestCase($listOfBool, 'true', [ true ]);
+        $this->runTestCase($listOfBool, 'true', [true]);
         $this->runTestCase($listOfBool, '123', $undefined);
         $this->runTestCase($listOfBool, 'null', null);
-        $this->runTestCase($listOfBool, '[true, false]', [ true, false ]);
+        $this->runTestCase($listOfBool, '[true, false]', [true, false]);
         $this->runTestCase($listOfBool, '[true, 123]', $undefined);
-        $this->runTestCase($listOfBool, '[true, null]', [ true, null ]);
+        $this->runTestCase($listOfBool, '[true, null]', [true, null]);
         $this->runTestCase($listOfBool, '{ true: true }', $undefined);
     }
 
@@ -117,14 +117,14 @@ class ValueFromAstTest extends TestCase
     public function testCoercesNonNullListsOfValues() : void
     {
         $nonNullListOfBool = Type::nonNull(Type::listOf(Type::boolean()));
-        $undefined = Utils::undefined();
+        $undefined         = Utils::undefined();
 
-        $this->runTestCase($nonNullListOfBool, 'true', [ true ]);
+        $this->runTestCase($nonNullListOfBool, 'true', [true]);
         $this->runTestCase($nonNullListOfBool, '123', $undefined);
         $this->runTestCase($nonNullListOfBool, 'null', $undefined);
-        $this->runTestCase($nonNullListOfBool, '[true, false]', [ true, false ]);
+        $this->runTestCase($nonNullListOfBool, '[true, false]', [true, false]);
         $this->runTestCase($nonNullListOfBool, '[true, 123]', $undefined);
-        $this->runTestCase($nonNullListOfBool, '[true, null]', [ true, null ]);
+        $this->runTestCase($nonNullListOfBool, '[true, null]', [true, null]);
     }
 
     /**
@@ -133,12 +133,12 @@ class ValueFromAstTest extends TestCase
     public function testCoercesListsOfNonNullValues() : void
     {
         $listOfNonNullBool = Type::listOf(Type::nonNull(Type::boolean()));
-        $undefined = Utils::undefined();
+        $undefined         = Utils::undefined();
 
-        $this->runTestCase($listOfNonNullBool, 'true', [ true ]);
+        $this->runTestCase($listOfNonNullBool, 'true', [true]);
         $this->runTestCase($listOfNonNullBool, '123', $undefined);
         $this->runTestCase($listOfNonNullBool, 'null', null);
-        $this->runTestCase($listOfNonNullBool, '[true, false]', [ true, false ]);
+        $this->runTestCase($listOfNonNullBool, '[true, false]', [true, false]);
         $this->runTestCase($listOfNonNullBool, '[true, 123]', $undefined);
         $this->runTestCase($listOfNonNullBool, '[true, null]', $undefined);
     }
@@ -149,28 +149,14 @@ class ValueFromAstTest extends TestCase
     public function testCoercesNonNullListsOfNonNullValues() : void
     {
         $nonNullListOfNonNullBool = Type::nonNull(Type::listOf(Type::nonNull(Type::boolean())));
-        $undefined = Utils::undefined();
+        $undefined                = Utils::undefined();
 
-        $this->runTestCase($nonNullListOfNonNullBool, 'true', [ true ]);
+        $this->runTestCase($nonNullListOfNonNullBool, 'true', [true]);
         $this->runTestCase($nonNullListOfNonNullBool, '123', $undefined);
         $this->runTestCase($nonNullListOfNonNullBool, 'null', $undefined);
-        $this->runTestCase($nonNullListOfNonNullBool, '[true, false]', [ true, false ]);
+        $this->runTestCase($nonNullListOfNonNullBool, '[true, false]', [true, false]);
         $this->runTestCase($nonNullListOfNonNullBool, '[true, 123]', $undefined);
         $this->runTestCase($nonNullListOfNonNullBool, '[true, null]', $undefined);
-    }
-
-    private $inputObj;
-
-    private function inputObj()
-    {
-        return $this->inputObj ?: $this->inputObj = new InputObjectType([
-            'name' => 'TestInput',
-            'fields' => [
-                'int' => [ 'type' => Type::int(), 'defaultValue' => 42 ],
-                'bool' => [ 'type' => Type::boolean() ],
-                'requiredBool' => [ 'type' => Type::nonNull(Type::boolean()) ],
-            ]
-        ]);
     }
 
     /**
@@ -179,16 +165,32 @@ class ValueFromAstTest extends TestCase
     public function testCoercesInputObjectsAccordingToInputCoercionRules() : void
     {
         $testInputObj = $this->inputObj();
-        $undefined = Utils::undefined();
+        $undefined    = Utils::undefined();
 
         $this->runTestCase($testInputObj, 'null', null);
         $this->runTestCase($testInputObj, '123', $undefined);
         $this->runTestCase($testInputObj, '[]', $undefined);
         $this->runTestCase($testInputObj, '{ int: 123, requiredBool: false }', ['int' => 123, 'requiredBool' => false]);
-        $this->runTestCase($testInputObj, '{ bool: true, requiredBool: false }', [ 'int' => 42, 'bool' => true, 'requiredBool' => false ]);
+        $this->runTestCase(
+            $testInputObj,
+            '{ bool: true, requiredBool: false }',
+            ['int' => 42, 'bool' => true, 'requiredBool' => false]
+        );
         $this->runTestCase($testInputObj, '{ int: true, requiredBool: true }', $undefined);
         $this->runTestCase($testInputObj, '{ requiredBool: null }', $undefined);
         $this->runTestCase($testInputObj, '{ bool: true }', $undefined);
+    }
+
+    private function inputObj()
+    {
+        return $this->inputObj ?: $this->inputObj = new InputObjectType([
+            'name'   => 'TestInput',
+            'fields' => [
+                'int'          => ['type' => Type::int(), 'defaultValue' => 42],
+                'bool'         => ['type' => Type::boolean()],
+                'requiredBool' => ['type' => Type::nonNull(Type::boolean())],
+            ],
+        ]);
     }
 
     /**
@@ -197,8 +199,13 @@ class ValueFromAstTest extends TestCase
     public function testAcceptsVariableValuesAssumingAlreadyCoerced() : void
     {
         $this->runTestCaseWithVars([], Type::boolean(), '$var', Utils::undefined());
-        $this->runTestCaseWithVars([ 'var' => true ], Type::boolean(), '$var', true);
-        $this->runTestCaseWithVars([ 'var' => null ], Type::boolean(), '$var', null);
+        $this->runTestCaseWithVars(['var' => true], Type::boolean(), '$var', true);
+        $this->runTestCaseWithVars(['var' => null], Type::boolean(), '$var', null);
+    }
+
+    private function runTestCaseWithVars($variables, $type, $valueText, $expected)
+    {
+        $this->assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type, $variables));
     }
 
     /**
@@ -206,16 +213,16 @@ class ValueFromAstTest extends TestCase
      */
     public function testAssertsVariablesAreProvidedAsItemsInLists() : void
     {
-        $listOfBool = Type::listOf(Type::boolean());
+        $listOfBool        = Type::listOf(Type::boolean());
         $listOfNonNullBool = Type::listOf(Type::nonNull(Type::boolean()));
 
-        $this->runTestCaseWithVars([], $listOfBool, '[ $foo ]', [ null ]);
+        $this->runTestCaseWithVars([], $listOfBool, '[ $foo ]', [null]);
         $this->runTestCaseWithVars([], $listOfNonNullBool, '[ $foo ]', Utils::undefined());
-        $this->runTestCaseWithVars([ 'foo' => true ], $listOfNonNullBool, '[ $foo ]', [ true ]);
+        $this->runTestCaseWithVars(['foo' => true], $listOfNonNullBool, '[ $foo ]', [true]);
         // Note: variables are expected to have already been coerced, so we
         // do not expect the singleton wrapping behavior for variables.
-        $this->runTestCaseWithVars([ 'foo' => true ], $listOfNonNullBool, '$foo', true);
-        $this->runTestCaseWithVars([ 'foo' => [ true ] ], $listOfNonNullBool, '$foo', [ true ]);
+        $this->runTestCaseWithVars(['foo' => true], $listOfNonNullBool, '$foo', true);
+        $this->runTestCaseWithVars(['foo' => [true]], $listOfNonNullBool, '$foo', [true]);
     }
 
     /**
@@ -229,7 +236,7 @@ class ValueFromAstTest extends TestCase
             [],
             $testInputObj,
             '{ int: $foo, bool: $foo, requiredBool: true }',
-            [ 'int' => 42, 'requiredBool' => true ]
+            ['int' => 42, 'requiredBool' => true]
         );
         $this->runTestCaseWithVars(
             [],
@@ -238,10 +245,10 @@ class ValueFromAstTest extends TestCase
             Utils::undefined()
         );
         $this->runTestCaseWithVars(
-            [ 'foo' => true ],
+            ['foo' => true],
             $testInputObj,
             '{ requiredBool: $foo }',
-            [ 'int' => 42, 'requiredBool' => true ]
+            ['int' => 42, 'requiredBool' => true]
         );
     }
 }

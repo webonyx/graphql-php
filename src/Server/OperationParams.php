@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
-use const CASE_LOWER;
 use function array_change_key_case;
 use function is_string;
 use function json_decode;
 use function json_last_error;
+use const CASE_LOWER;
 
 /**
  * Structure representing parsed HTTP parameters for GraphQL operation

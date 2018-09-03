@@ -1,5 +1,8 @@
 <?php
-namespace GraphQL\Tests;
+
+declare(strict_types=1);
+
+namespace GraphQL\Tests\Language;
 
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
@@ -7,6 +10,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use function file_get_contents;
 
 class SchemaPrinterTest extends TestCase
 {
@@ -16,7 +20,7 @@ class SchemaPrinterTest extends TestCase
     public function testPrintsMinimalAst() : void
     {
         $ast = new ScalarTypeDefinitionNode([
-            'name' => new NameNode(['value' => 'foo'])
+            'name' => new NameNode(['value' => 'foo']),
         ]);
         $this->assertEquals('scalar foo', Printer::doPrint($ast));
     }
@@ -41,7 +45,7 @@ class SchemaPrinterTest extends TestCase
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
-        $ast = Parser::parse($kitchenSink);
+        $ast     = Parser::parse($kitchenSink);
         $astCopy = $ast->cloneDeep();
         Printer::doPrint($ast);
 
@@ -52,7 +56,7 @@ class SchemaPrinterTest extends TestCase
     {
         $kitchenSink = file_get_contents(__DIR__ . '/schema-kitchen-sink.graphql');
 
-        $ast = Parser::parse($kitchenSink);
+        $ast     = Parser::parse($kitchenSink);
         $printed = Printer::doPrint($ast);
 
         $expected = 'schema {

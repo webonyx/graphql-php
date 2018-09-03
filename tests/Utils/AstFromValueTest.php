@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Language\AST\BooleanValueNode;
@@ -16,10 +19,12 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class AstFromValueTest extends TestCase
 {
-    // Describe: astFromValue
+    /** @var stdClass */
+    private $complexValue;
 
     /**
      * @see it('converts boolean values to ASTs')
@@ -31,8 +36,14 @@ class AstFromValueTest extends TestCase
         $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::boolean()));
         $this->assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(0, Type::boolean()));
         $this->assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(1, Type::boolean()));
-        $this->assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(0, Type::nonNull(Type::boolean())));
-        $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::boolean()))); // Note: null means that AST cannot
+        $this->assertEquals(
+            new BooleanValueNode(['value' => false]),
+            AST::astFromValue(0, Type::nonNull(Type::boolean()))
+        );
+        $this->assertEquals(
+            null,
+            AST::astFromValue(null, Type::nonNull(Type::boolean()))
+        ); // Note: null means that AST cannot
     }
 
     /**
@@ -59,7 +70,10 @@ class AstFromValueTest extends TestCase
     {
         $this->expectException(\Throwable::class);
         $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: 1.0E+40');
-        AST::astFromValue(1e40, Type::int()); // Note: js version will produce 1e+40, both values are valid GraphQL floats
+        AST::astFromValue(
+            1e40,
+            Type::int()
+        ); // Note: js version will produce 1e+40, both values are valid GraphQL floats
     }
 
     /**
@@ -112,7 +126,7 @@ class AstFromValueTest extends TestCase
      */
     public function testDoesNotConvertsNonNullValuestoNullValue() : void
     {
-        $this->assertSame(null, AST::astFromValue(null, Type::nonNull(Type::boolean())));
+        $this->assertNull(AST::astFromValue(null, Type::nonNull(Type::boolean())));
     }
 
     /**
@@ -121,13 +135,41 @@ class AstFromValueTest extends TestCase
     public function testConvertsStringValuesToEnumASTsIfPossible() : void
     {
         $this->assertEquals(new EnumValueNode(['value' => 'HELLO']), AST::astFromValue('HELLO', $this->myEnum()));
-        $this->assertEquals(new EnumValueNode(['value' => 'COMPLEX']), AST::astFromValue($this->complexValue(), $this->myEnum()));
+        $this->assertEquals(
+            new EnumValueNode(['value' => 'COMPLEX']),
+            AST::astFromValue($this->complexValue(), $this->myEnum())
+        );
 
         // Note: case sensitive
-        $this->assertEquals(null, AST::astFromValue('hello', $this->myEnum()));
+        $this->assertNull(AST::astFromValue('hello', $this->myEnum()));
 
         // Note: Not a valid enum value
-        $this->assertEquals(null, AST::astFromValue('VALUE', $this->myEnum()));
+        $this->assertNull(AST::astFromValue('VALUE', $this->myEnum()));
+    }
+
+    /**
+     * @return EnumType
+     */
+    private function myEnum()
+    {
+        return new EnumType([
+            'name'   => 'MyEnum',
+            'values' => [
+                'HELLO'   => [],
+                'GOODBYE' => [],
+                'COMPLEX' => ['value' => $this->complexValue()],
+            ],
+        ]);
+    }
+
+    private function complexValue()
+    {
+        if (! $this->complexValue) {
+            $this->complexValue                = new \stdClass();
+            $this->complexValue->someArbitrary = 'complexValue';
+        }
+
+        return $this->complexValue;
     }
 
     /**
@@ -138,8 +180,8 @@ class AstFromValueTest extends TestCase
         $value1 = new ListValueNode([
             'values' => [
                 new StringValueNode(['value' => 'FOO']),
-                new StringValueNode(['value' => 'BAR'])
-            ]
+                new StringValueNode(['value' => 'BAR']),
+            ],
         ]);
         $this->assertEquals($value1, AST::astFromValue(['FOO', 'BAR'], Type::listOf(Type::string())));
 
@@ -147,7 +189,7 @@ class AstFromValueTest extends TestCase
             'values' => [
                 new EnumValueNode(['value' => 'HELLO']),
                 new EnumValueNode(['value' => 'GOODBYE']),
-            ]
+            ],
         ]);
         $this->assertEquals($value2, AST::astFromValue(['HELLO', 'GOODBYE'], Type::listOf($this->myEnum())));
     }
@@ -157,7 +199,10 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsListSingletons() : void
     {
-        $this->assertEquals(new StringValueNode(['value' => 'FOO']), AST::astFromValue('FOO', Type::listOf(Type::string())));
+        $this->assertEquals(
+            new StringValueNode(['value' => 'FOO']),
+            AST::astFromValue('FOO', Type::listOf(Type::string()))
+        );
     }
 
     /**
@@ -166,18 +211,18 @@ class AstFromValueTest extends TestCase
     public function testConvertsInputObjects() : void
     {
         $inputObj = new InputObjectType([
-            'name' => 'MyInputObj',
+            'name'   => 'MyInputObj',
             'fields' => [
                 'foo' => Type::float(),
-                'bar' => $this->myEnum()
-            ]
+                'bar' => $this->myEnum(),
+            ],
         ]);
 
         $expected = new ObjectValueNode([
             'fields' => [
                 $this->objectField('foo', new IntValueNode(['value' => '3'])),
-                $this->objectField('bar', new EnumValueNode(['value' => 'HELLO']))
-            ]
+                $this->objectField('bar', new EnumValueNode(['value' => 'HELLO'])),
+            ],
         ]);
 
         $data = ['foo' => 3, 'bar' => 'HELLO'];
@@ -186,61 +231,37 @@ class AstFromValueTest extends TestCase
     }
 
     /**
+     * @param mixed $value
+     * @return ObjectFieldNode
+     */
+    private function objectField(string $name, $value)
+    {
+        return new ObjectFieldNode([
+            'name'  => new NameNode(['value' => $name]),
+            'value' => $value,
+        ]);
+    }
+
+    /**
      * @see it('converts input objects with explicit nulls')
      */
     public function testConvertsInputObjectsWithExplicitNulls() : void
     {
         $inputObj = new InputObjectType([
-            'name' => 'MyInputObj',
+            'name'   => 'MyInputObj',
             'fields' => [
                 'foo' => Type::float(),
-                'bar' => $this->myEnum()
-            ]
+                'bar' => $this->myEnum(),
+            ],
         ]);
 
-        $this->assertEquals(new ObjectValueNode([
+        $this->assertEquals(
+            new ObjectValueNode([
             'fields' => [
-                $this->objectField('foo', new NullValueNode([]))
-            ]
-        ]), AST::astFromValue(['foo' => null], $inputObj));
-    }
-
-    private $complexValue;
-
-    private function complexValue()
-    {
-        if (!$this->complexValue) {
-            $this->complexValue = new \stdClass();
-            $this->complexValue->someArbitrary = 'complexValue';
-        }
-        return $this->complexValue;
-    }
-
-    /**
-     * @return EnumType
-     */
-    private function myEnum()
-    {
-        return new EnumType([
-            'name' => 'MyEnum',
-            'values' => [
-                'HELLO' => [],
-                'GOODBYE' => [],
-                'COMPLEX' => ['value' => $this->complexValue()]
-            ]
-        ]);
-    }
-
-    /**
-     * @param $name
-     * @param $value
-     * @return ObjectFieldNode
-     */
-    private function objectField($name, $value)
-    {
-        return new ObjectFieldNode([
-            'name' => new NameNode(['value' => $name]),
-            'value' => $value
-        ]);
+                $this->objectField('foo', new NullValueNode([])),
+            ],
+            ]),
+            AST::astFromValue(['foo' => null], $inputObj)
+        );
     }
 }

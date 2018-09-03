@@ -1,20 +1,24 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
-use GraphQL\Validator\Rules\KnownFragmentNames;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Validator\Rules\KnownFragmentNames;
 
 class KnownFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Known fragment names
-
     /**
      * @see it('known fragment names are valid')
      */
     public function testKnownFragmentNamesAreValid() : void
     {
-        $this->expectPassesRule(new KnownFragmentNames, '
+        $this->expectPassesRule(
+            new KnownFragmentNames(),
+            '
       {
         human(id: 4) {
           ...HumanFields1
@@ -33,7 +37,8 @@ class KnownFragmentNamesTest extends ValidatorTestCase
       fragment HumanFields3 on Human {
         name
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -41,7 +46,9 @@ class KnownFragmentNamesTest extends ValidatorTestCase
      */
     public function testUnknownFragmentNamesAreInvalid() : void
     {
-        $this->expectFailsRule(new KnownFragmentNames, '
+        $this->expectFailsRule(
+            new KnownFragmentNames(),
+            '
       {
         human(id: 4) {
           ...UnknownFragment1
@@ -54,11 +61,13 @@ class KnownFragmentNamesTest extends ValidatorTestCase
         name
         ...UnknownFragment3
       }
-        ', [
-            $this->undefFrag('UnknownFragment1', 4, 14),
-            $this->undefFrag('UnknownFragment2', 6, 16),
-            $this->undefFrag('UnknownFragment3', 12, 12)
-        ]);
+        ',
+            [
+                $this->undefFrag('UnknownFragment1', 4, 14),
+                $this->undefFrag('UnknownFragment2', 6, 16),
+                $this->undefFrag('UnknownFragment3', 12, 12),
+            ]
+        );
     }
 
     private function undefFrag($fragName, $line, $column)

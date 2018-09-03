@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,17 +11,19 @@ use GraphQL\Validator\Rules\UniqueOperationNames;
 class UniqueOperationNamesTest extends ValidatorTestCase
 {
     // Validate: Unique operation names
-
     /**
      * @see it('no operations')
      */
     public function testNoOperations() : void
     {
-        $this->expectPassesRule(new UniqueOperationNames(), '
+        $this->expectPassesRule(
+            new UniqueOperationNames(),
+            '
       fragment fragA on Type {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -26,11 +31,14 @@ class UniqueOperationNamesTest extends ValidatorTestCase
      */
     public function testOneAnonOperation() : void
     {
-        $this->expectPassesRule(new UniqueOperationNames, '
+        $this->expectPassesRule(
+            new UniqueOperationNames(),
+            '
       {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -38,11 +46,14 @@ class UniqueOperationNamesTest extends ValidatorTestCase
      */
     public function testOneNamedOperation() : void
     {
-        $this->expectPassesRule(new UniqueOperationNames, '
+        $this->expectPassesRule(
+            new UniqueOperationNames(),
+            '
       query Foo {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -50,7 +61,9 @@ class UniqueOperationNamesTest extends ValidatorTestCase
      */
     public function testMultipleOperations() : void
     {
-        $this->expectPassesRule(new UniqueOperationNames, '
+        $this->expectPassesRule(
+            new UniqueOperationNames(),
+            '
       query Foo {
         field
       }
@@ -58,7 +71,8 @@ class UniqueOperationNamesTest extends ValidatorTestCase
       query Bar {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -66,7 +80,9 @@ class UniqueOperationNamesTest extends ValidatorTestCase
      */
     public function testMultipleOperationsOfDifferentTypes() : void
     {
-        $this->expectPassesRule(new UniqueOperationNames, '
+        $this->expectPassesRule(
+            new UniqueOperationNames(),
+            '
       query Foo {
         field
       }
@@ -78,7 +94,8 @@ class UniqueOperationNamesTest extends ValidatorTestCase
       subscription Baz {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -86,14 +103,17 @@ class UniqueOperationNamesTest extends ValidatorTestCase
      */
     public function testFragmentAndOperationNamedTheSame() : void
     {
-        $this->expectPassesRule(new UniqueOperationNames, '
+        $this->expectPassesRule(
+            new UniqueOperationNames(),
+            '
       query Foo {
         ...Foo
       }
       fragment Foo on Type {
         field
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -101,50 +121,18 @@ class UniqueOperationNamesTest extends ValidatorTestCase
      */
     public function testMultipleOperationsOfSameName() : void
     {
-        $this->expectFailsRule(new UniqueOperationNames, '
+        $this->expectFailsRule(
+            new UniqueOperationNames(),
+            '
       query Foo {
         fieldA
       }
       query Foo {
         fieldB
       }
-        ', [
-            $this->duplicateOp('Foo', 2, 13, 5, 13)
-        ]);
-    }
-
-    /**
-     * @see it('multiple ops of same name of different types (mutation)')
-     */
-    public function testMultipleOpsOfSameNameOfDifferentTypesMutation() : void
-    {
-        $this->expectFailsRule(new UniqueOperationNames, '
-      query Foo {
-        fieldA
-      }
-      mutation Foo {
-        fieldB
-      }
-        ', [
-            $this->duplicateOp('Foo', 2, 13, 5, 16)
-        ]);
-    }
-
-    /**
-     * @see it('multiple ops of same name of different types (subscription)')
-     */
-    public function testMultipleOpsOfSameNameOfDifferentTypesSubscription() : void
-    {
-        $this->expectFailsRule(new UniqueOperationNames, '
-      query Foo {
-        fieldA
-      }
-      subscription Foo {
-        fieldB
-      }
-        ', [
-            $this->duplicateOp('Foo', 2, 13, 5, 20)
-        ]);
+        ',
+            [$this->duplicateOp('Foo', 2, 13, 5, 13)]
+        );
     }
 
     private function duplicateOp($opName, $l1, $c1, $l2, $c2)
@@ -152,6 +140,44 @@ class UniqueOperationNamesTest extends ValidatorTestCase
         return FormattedError::create(
             UniqueOperationNames::duplicateOperationNameMessage($opName),
             [new SourceLocation($l1, $c1), new SourceLocation($l2, $c2)]
+        );
+    }
+
+    /**
+     * @see it('multiple ops of same name of different types (mutation)')
+     */
+    public function testMultipleOpsOfSameNameOfDifferentTypesMutation() : void
+    {
+        $this->expectFailsRule(
+            new UniqueOperationNames(),
+            '
+      query Foo {
+        fieldA
+      }
+      mutation Foo {
+        fieldB
+      }
+        ',
+            [$this->duplicateOp('Foo', 2, 13, 5, 16)]
+        );
+    }
+
+    /**
+     * @see it('multiple ops of same name of different types (subscription)')
+     */
+    public function testMultipleOpsOfSameNameOfDifferentTypesSubscription() : void
+    {
+        $this->expectFailsRule(
+            new UniqueOperationNames(),
+            '
+      query Foo {
+        fieldA
+      }
+      subscription Foo {
+        fieldB
+      }
+        ',
+            [$this->duplicateOp('Foo', 2, 13, 5, 20)]
         );
     }
 }

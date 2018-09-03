@@ -1,16 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Executor\Values;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
-use GraphQL\Utils\Value;
 use PHPUnit\Framework\TestCase;
 
 class QuotedOrListTest extends TestCase
 {
     // DESCRIBE: quotedOrList
-
     /**
      * @see it('Does not accept an empty list')
      */

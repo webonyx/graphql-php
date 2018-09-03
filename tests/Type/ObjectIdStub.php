@@ -1,11 +1,12 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Type;
 
 class ObjectIdStub
 {
-    /**
-     * @var int
-     */
+    /** @var int */
     private $id;
 
     /**

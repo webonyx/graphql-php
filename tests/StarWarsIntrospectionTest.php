@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests;
 
 use GraphQL\GraphQL;
@@ -14,7 +17,7 @@ class StarWarsIntrospectionTest extends TestCase
      */
     public function testAllowsQueryingTheSchemaForTypes() : void
     {
-        $query = '
+        $query    = '
         query IntrospectionTypeQuery {
           __schema {
             types {
@@ -44,10 +47,18 @@ class StarWarsIntrospectionTest extends TestCase
                     ['name' => '__EnumValue'],
                     ['name' => '__Directive'],
                     ['name' => '__DirectiveLocation'],
-                ]
-            ]
+                ],
+            ],
         ];
         $this->assertValidQuery($query, $expected);
+    }
+
+    /**
+     * Helper function to test a query and the expected response.
+     */
+    private function assertValidQuery($query, $expected) : void
+    {
+        $this->assertEquals(['data' => $expected], GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray());
     }
 
     /**
@@ -55,7 +66,7 @@ class StarWarsIntrospectionTest extends TestCase
      */
     public function testAllowsQueryingTheSchemaForQueryType() : void
     {
-        $query = '
+        $query    = '
         query IntrospectionQueryTypeQuery {
           __schema {
             queryType {
@@ -66,10 +77,8 @@ class StarWarsIntrospectionTest extends TestCase
         ';
         $expected = [
             '__schema' => [
-                'queryType' => [
-                    'name' => 'Query'
-                ],
-            ]
+                'queryType' => ['name' => 'Query'],
+            ],
         ];
         $this->assertValidQuery($query, $expected);
     }
@@ -79,7 +88,7 @@ class StarWarsIntrospectionTest extends TestCase
      */
     public function testAllowsQueryingTheSchemaForASpecificType() : void
     {
-        $query = '
+        $query    = '
         query IntrospectionDroidTypeQuery {
           __type(name: "Droid") {
             name
@@ -87,9 +96,7 @@ class StarWarsIntrospectionTest extends TestCase
         }
         ';
         $expected = [
-            '__type' => [
-                'name' => 'Droid'
-            ]
+            '__type' => ['name' => 'Droid'],
         ];
         $this->assertValidQuery($query, $expected);
     }
@@ -99,7 +106,7 @@ class StarWarsIntrospectionTest extends TestCase
      */
     public function testAllowsQueryingForAnObjectKind() : void
     {
-        $query = '
+        $query    = '
         query IntrospectionDroidKindQuery {
           __type(name: "Droid") {
             name
@@ -110,8 +117,8 @@ class StarWarsIntrospectionTest extends TestCase
         $expected = [
             '__type' => [
                 'name' => 'Droid',
-                'kind' => 'OBJECT'
-            ]
+                'kind' => 'OBJECT',
+            ],
         ];
         $this->assertValidQuery($query, $expected);
     }
@@ -121,7 +128,7 @@ class StarWarsIntrospectionTest extends TestCase
      */
     public function testAllowsQueryingForInterfaceKind() : void
     {
-        $query = '
+        $query    = '
         query IntrospectionCharacterKindQuery {
           __type(name: "Character") {
             name
@@ -132,8 +139,8 @@ class StarWarsIntrospectionTest extends TestCase
         $expected = [
             '__type' => [
                 'name' => 'Character',
-                'kind' => 'INTERFACE'
-            ]
+                'kind' => 'INTERFACE',
+            ],
         ];
         $this->assertValidQuery($query, $expected);
     }
@@ -143,7 +150,7 @@ class StarWarsIntrospectionTest extends TestCase
      */
     public function testAllowsQueryingForObjectFields() : void
     {
-        $query = '
+        $query    = '
         query IntrospectionDroidFieldsQuery {
           __type(name: "Droid") {
             name
@@ -159,52 +166,52 @@ class StarWarsIntrospectionTest extends TestCase
         ';
         $expected = [
             '__type' => [
-                'name' => 'Droid',
+                'name'   => 'Droid',
                 'fields' => [
                     [
                         'name' => 'id',
                         'type' => [
                             'name' => null,
-                            'kind' => 'NON_NULL'
-                        ]
+                            'kind' => 'NON_NULL',
+                        ],
                     ],
                     [
                         'name' => 'name',
                         'type' => [
                             'name' => 'String',
-                            'kind' => 'SCALAR'
-                        ]
+                            'kind' => 'SCALAR',
+                        ],
                     ],
                     [
                         'name' => 'friends',
                         'type' => [
                             'name' => null,
-                            'kind' => 'LIST'
-                        ]
+                            'kind' => 'LIST',
+                        ],
                     ],
                     [
                         'name' => 'appearsIn',
                         'type' => [
                             'name' => null,
-                            'kind' => 'LIST'
-                        ]
+                            'kind' => 'LIST',
+                        ],
                     ],
                     [
                         'name' => 'secretBackstory',
                         'type' => [
                             'name' => 'String',
-                            'kind' => 'SCALAR'
-                        ]
+                            'kind' => 'SCALAR',
+                        ],
                     ],
                     [
                         'name' => 'primaryFunction',
                         'type' => [
                             'name' => 'String',
-                            'kind' => 'SCALAR'
-                        ]
-                    ]
-                ]
-            ]
+                            'kind' => 'SCALAR',
+                        ],
+                    ],
+                ],
+            ],
         ];
         $this->assertValidQuery($query, $expected);
     }
@@ -214,7 +221,7 @@ class StarWarsIntrospectionTest extends TestCase
      */
     public function testAllowsQueryingTheSchemaForNestedObjectFields() : void
     {
-        $query = '
+        $query    = '
         query IntrospectionDroidNestedFieldsQuery {
           __type(name: "Droid") {
             name
@@ -234,67 +241,67 @@ class StarWarsIntrospectionTest extends TestCase
         ';
         $expected = [
             '__type' => [
-                'name' => 'Droid',
+                'name'   => 'Droid',
                 'fields' => [
                     [
                         'name' => 'id',
                         'type' => [
-                            'name' => null,
-                            'kind' => 'NON_NULL',
+                            'name'   => null,
+                            'kind'   => 'NON_NULL',
                             'ofType' => [
                                 'name' => 'String',
-                                'kind' => 'SCALAR'
-                            ]
-                        ]
+                                'kind' => 'SCALAR',
+                            ],
+                        ],
                     ],
                     [
                         'name' => 'name',
                         'type' => [
-                            'name' => 'String',
-                            'kind' => 'SCALAR',
-                            'ofType' => null
-                        ]
+                            'name'   => 'String',
+                            'kind'   => 'SCALAR',
+                            'ofType' => null,
+                        ],
                     ],
                     [
                         'name' => 'friends',
                         'type' => [
-                            'name' => null,
-                            'kind' => 'LIST',
+                            'name'   => null,
+                            'kind'   => 'LIST',
                             'ofType' => [
                                 'name' => 'Character',
-                                'kind' => 'INTERFACE'
-                            ]
-                        ]
+                                'kind' => 'INTERFACE',
+                            ],
+                        ],
                     ],
                     [
                         'name' => 'appearsIn',
                         'type' => [
-                            'name' => null,
-                            'kind' => 'LIST',
+                            'name'   => null,
+                            'kind'   => 'LIST',
                             'ofType' => [
                                 'name' => 'Episode',
-                                'kind' => 'ENUM'
-                            ]
-                        ]
+                                'kind' => 'ENUM',
+                            ],
+                        ],
                     ],
                     [
                         'name' => 'secretBackstory',
                         'type' => [
-                            'name' => 'String',
-                            'kind' => 'SCALAR',
-                            'ofType' => null
-                        ]
+                            'name'   => 'String',
+                            'kind'   => 'SCALAR',
+                            'ofType' => null,
+                        ],
                     ],
                     [
                         'name' => 'primaryFunction',
                         'type' => [
-                            'name' => 'String',
-                            'kind' => 'SCALAR',
-                            'ofType' => null
-                        ]
-                    ]
-                ]
-            ]
+                            'name'   => 'String',
+                            'kind'   => 'SCALAR',
+                            'ofType' => null,
+                        ],
+                    ],
+                ],
+            ],
         ];
         $this->assertValidQuery($query, $expected);
     }
@@ -329,7 +336,7 @@ class StarWarsIntrospectionTest extends TestCase
         }
         ';
 
-        $expected = array(
+        $expected = [
             '__schema' => [
                 'queryType' => [
                     'fields' => [
@@ -337,13 +344,13 @@ class StarWarsIntrospectionTest extends TestCase
                             'name' => 'hero',
                             'args' => [
                                 [
-                                    'defaultValue' => NULL,
-                                    'description' => 'If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.',
-                                    'name' => 'episode',
-                                    'type' => [
-                                        'kind' => 'ENUM',
-                                        'name' => 'Episode',
-                                        'ofType' => NULL,
+                                    'defaultValue' => null,
+                                    'description'  => 'If omitted, returns the hero of the whole saga. If provided, returns the hero of that particular episode.',
+                                    'name'         => 'episode',
+                                    'type'         => [
+                                        'kind'   => 'ENUM',
+                                        'name'   => 'Episode',
+                                        'ofType' => null,
                                     ],
                                 ],
                             ],
@@ -352,17 +359,17 @@ class StarWarsIntrospectionTest extends TestCase
                             'name' => 'human',
                             'args' => [
                                 [
-                                    'name' => 'id',
-                                    'description' => 'id of the human',
-                                    'type' => [
-                                        'kind' => 'NON_NULL',
-                                        'name' => NULL,
+                                    'name'         => 'id',
+                                    'description'  => 'id of the human',
+                                    'type'         => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
                                         'ofType' => [
                                             'kind' => 'SCALAR',
                                             'name' => 'String',
                                         ],
                                     ],
-                                    'defaultValue' => NULL,
+                                    'defaultValue' => null,
                                 ],
                             ],
                         ],
@@ -370,25 +377,25 @@ class StarWarsIntrospectionTest extends TestCase
                             'name' => 'droid',
                             'args' => [
                                 [
-                                    'name' => 'id',
-                                    'description' => 'id of the droid',
-                                    'type' => [
-                                        'kind' => 'NON_NULL',
-                                        'name' => NULL,
+                                    'name'         => 'id',
+                                    'description'  => 'id of the droid',
+                                    'type'         => [
+                                        'kind'   => 'NON_NULL',
+                                        'name'   => null,
                                         'ofType' =>
                                             [
                                                 'kind' => 'SCALAR',
                                                 'name' => 'String',
                                             ],
                                     ],
-                                    'defaultValue' => NULL,
+                                    'defaultValue' => null,
                                 ],
                             ],
                         ],
                     ],
                 ],
             ],
-        );
+        ];
 
         $this->assertValidQuery($query, $expected);
     }
@@ -398,7 +405,7 @@ class StarWarsIntrospectionTest extends TestCase
      */
     public function testAllowsQueryingTheSchemaForDocumentation() : void
     {
-        $query = '
+        $query    = '
         query IntrospectionDroidDescriptionQuery {
           __type(name: "Droid") {
             name
@@ -408,18 +415,10 @@ class StarWarsIntrospectionTest extends TestCase
         ';
         $expected = [
             '__type' => [
-                'name' => 'Droid',
-                'description' => 'A mechanical creature in the Star Wars universe.'
-            ]
+                'name'        => 'Droid',
+                'description' => 'A mechanical creature in the Star Wars universe.',
+            ],
         ];
         $this->assertValidQuery($query, $expected);
-    }
-
-    /**
-     * Helper function to test a query and the expected response.
-     */
-    private function assertValidQuery($query, $expected)
-    {
-        $this->assertEquals(['data' => $expected], GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray());
     }
 }

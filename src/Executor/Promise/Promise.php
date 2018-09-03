@@ -6,6 +6,7 @@ namespace GraphQL\Executor\Promise;
 
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use GraphQL\Utils\Utils;
+use React\Promise\Promise as ReactPromise;
 
 /**
  * Convenience wrapper for promises represented by Promise Adapter

@@ -1,99 +1,119 @@
 <?php
-namespace GraphQL\Tests\Executor;
 
-require_once __DIR__ . '/TestClasses.php';
+declare(strict_types=1);
+
+namespace GraphQL\Tests\Executor;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
+use GraphQL\Tests\Executor\TestClasses\Cat;
+use GraphQL\Tests\Executor\TestClasses\Dog;
 use GraphQL\Type\Definition\CustomScalarType;
+use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
+use function count;
 
 class ExecutorLazySchemaTest extends TestCase
 {
-    public $SomeScalarType;
+    /** @var ScalarType */
+    public $someScalarType;
 
-    public $SomeObjectType;
+    /** @var ObjectType */
+    public $someObjectType;
 
-    public $OtherObjectType;
+    /** @var ObjectType */
+    public $otherObjectType;
 
-    public $DeeperObjectType;
+    /** @var ObjectType */
+    public $deeperObjectType;
 
-    public $SomeUnionType;
+    /** @var UnionType */
+    public $someUnionType;
 
-    public $SomeInterfaceType;
+    /** @var InterfaceType */
+    public $someInterfaceType;
 
-    public $SomeEnumType;
+    /** @var EnumType */
+    public $someEnumType;
 
-    public $SomeInputObjectType;
+    /** @var InputObjectType */
+    public $someInputObjectType;
 
-    public $QueryType;
+    /** @var ObjectType */
+    public $queryType;
 
+    /** @var string[] */
     public $calls = [];
 
+    /** @var bool[] */
     public $loadedTypes = [];
 
     public function testWarnsAboutSlowIsTypeOfForLazySchema() : void
     {
         // isTypeOf used to resolve runtime type for Interface
         $petType = new InterfaceType([
-            'name' => 'Pet',
-            'fields' => function() {
+            'name'   => 'Pet',
+            'fields' => function () {
                 return [
-                    'name' => ['type' => Type::string()]
+                    'name' => ['type' => Type::string()],
                 ];
-            }
+            },
         ]);
 
         // Added to interface type when defined
         $dogType = new ObjectType([
-            'name' => 'Dog',
+            'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf' => function($obj) { return $obj instanceof Dog; },
-            'fields' => function() {
+            'isTypeOf'   => function ($obj) {
+                return $obj instanceof Dog;
+            },
+            'fields'     => function () {
                 return [
-                    'name' => ['type' => Type::string()],
-                    'woofs' => ['type' => Type::boolean()]
+                    'name'  => ['type' => Type::string()],
+                    'woofs' => ['type' => Type::boolean()],
                 ];
-            }
+            },
         ]);
 
         $catType = new ObjectType([
-            'name' => 'Cat',
+            'name'       => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf' => function ($obj) {
+            'isTypeOf'   => function ($obj) {
                 return $obj instanceof Cat;
             },
-            'fields' => function() {
+            'fields'     => function () {
                 return [
-                    'name' => ['type' => Type::string()],
+                    'name'  => ['type' => Type::string()],
                     'meows' => ['type' => Type::boolean()],
                 ];
-            }
+            },
         ]);
 
         $schema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
+            'query'      => new ObjectType([
+                'name'   => 'Query',
                 'fields' => [
                     'pets' => [
-                        'type' => Type::listOf($petType),
+                        'type'    => Type::listOf($petType),
                         'resolve' => function () {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
-                        }
-                    ]
-                ]
+                        },
+                    ],
+                ],
             ]),
-            'types' => [$catType, $dogType],
-            'typeLoader' => function($name) use ($dogType, $petType, $catType) {
+            'types'      => [$catType, $dogType],
+            'typeLoader' => function ($name) use ($dogType, $petType, $catType) {
                 switch ($name) {
                     case 'Dog':
                         return $dogType;
@@ -102,7 +122,7 @@ class ExecutorLazySchemaTest extends TestCase
                     case 'Cat':
                         return $catType;
                 }
-            }
+            },
         ]);
 
         $query = '{
@@ -120,7 +140,7 @@ class ExecutorLazySchemaTest extends TestCase
         $expected = new ExecutionResult([
             'pets' => [
                 ['name' => 'Odie', 'woofs' => true],
-                ['name' => 'Garfield', 'meows' => false]
+                ['name' => 'Garfield', 'meows' => false],
             ],
         ]);
 
@@ -134,43 +154,46 @@ class ExecutorLazySchemaTest extends TestCase
         $this->assertInstanceOf(Error::class, $result->errors[0]->getPrevious());
 
         $this->assertEquals(
-            'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: instance of '.
-            'GraphQL\Tests\Executor\Dog. Switching to slow resolution method using `isTypeOf` of all possible '.
-            'implementations. It requires full schema scan and degrades query performance significantly.  '.
+            'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: instance of ' .
+            'GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible ' .
+            'implementations. It requires full schema scan and degrades query performance significantly.  ' .
             'Make sure your `resolveType` always returns valid implementation or throws.',
-            $result->errors[0]->getMessage());
+            $result->errors[0]->getMessage()
+        );
     }
 
     public function testHintsOnConflictingTypeInstancesInDefinitions() : void
     {
-        $calls = [];
-        $typeLoader = function($name) use (&$calls) {
+        $calls      = [];
+        $typeLoader = function ($name) use (&$calls) {
             $calls[] = $name;
             switch ($name) {
                 case 'Test':
                     return new ObjectType([
-                        'name' => 'Test',
-                        'fields' => function() {
+                        'name'   => 'Test',
+                        'fields' => function () {
                             return [
                                 'test' => Type::string(),
                             ];
-                        }
+                        },
                     ]);
                 default:
                     return null;
             }
         };
+
         $query = new ObjectType([
-            'name' => 'Query',
-            'fields' => function() use ($typeLoader) {
+            'name'   => 'Query',
+            'fields' => function () use ($typeLoader) {
                 return [
-                    'test' => $typeLoader('Test')
+                    'test' => $typeLoader('Test'),
                 ];
-            }
+            },
         ]);
+
         $schema = new Schema([
-            'query' => $query,
-            'typeLoader' => $typeLoader
+            'query'      => $query,
+            'typeLoader' => $typeLoader,
         ]);
 
         $query = '
@@ -186,8 +209,8 @@ class ExecutorLazySchemaTest extends TestCase
         $this->assertEquals(['Test', 'Test'], $calls);
 
         $this->assertEquals(
-            'Schema must contain unique named types but contains multiple types named "Test". '.
-            'Make sure that type loader returns the same instance as defined in Query.test '.
+            'Schema must contain unique named types but contains multiple types named "Test". ' .
+            'Make sure that type loader returns the same instance as defined in Query.test ' .
             '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
             $result->errors[0]->getMessage()
         );
@@ -200,54 +223,161 @@ class ExecutorLazySchemaTest extends TestCase
     public function testSimpleQuery() : void
     {
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
-            'typeLoader' => function($name) {
+            'query'      => $this->loadType('Query'),
+            'typeLoader' => function ($name) {
                 return $this->loadType($name, true);
-            }
+            },
         ]);
 
-        $query = '{ object { string } }';
+        $query  = '{ object { string } }';
         $result = Executor::execute(
             $schema,
             Parser::parse($query),
             ['object' => ['string' => 'test']]
         );
 
-        $expected = [
+        $expected              = [
             'data' => ['object' => ['string' => 'test']],
         ];
         $expectedExecutorCalls = [
             'Query.fields',
             'SomeObject',
-            'SomeObject.fields'
+            'SomeObject.fields',
         ];
         $this->assertEquals($expected, $result->toArray(true));
         $this->assertEquals($expectedExecutorCalls, $this->calls);
     }
 
+    public function loadType($name, $isExecutorCall = false)
+    {
+        if ($isExecutorCall) {
+            $this->calls[] = $name;
+        }
+        $this->loadedTypes[$name] = true;
+
+        switch ($name) {
+            case 'Query':
+                return $this->queryType ?: $this->queryType = new ObjectType([
+                    'name'   => 'Query',
+                    'fields' => function () {
+                        $this->calls[] = 'Query.fields';
+
+                        return [
+                            'object' => ['type' => $this->loadType('SomeObject')],
+                            'other'  => ['type' => $this->loadType('OtherObject')],
+                        ];
+                    },
+                ]);
+            case 'SomeObject':
+                return $this->someObjectType ?: $this->someObjectType = new ObjectType([
+                    'name'       => 'SomeObject',
+                    'fields'     => function () {
+                        $this->calls[] = 'SomeObject.fields';
+
+                        return [
+                            'string' => ['type' => Type::string()],
+                            'object' => ['type' => $this->someObjectType],
+                        ];
+                    },
+                    'interfaces' => function () {
+                        $this->calls[] = 'SomeObject.interfaces';
+
+                        return [
+                            $this->loadType('SomeInterface'),
+                        ];
+                    },
+                ]);
+            case 'OtherObject':
+                return $this->otherObjectType ?: $this->otherObjectType = new ObjectType([
+                    'name'   => 'OtherObject',
+                    'fields' => function () {
+                        $this->calls[] = 'OtherObject.fields';
+
+                        return [
+                            'union' => ['type' => $this->loadType('SomeUnion')],
+                            'iface' => ['type' => Type::nonNull($this->loadType('SomeInterface'))],
+                        ];
+                    },
+                ]);
+            case 'DeeperObject':
+                return $this->deeperObjectType ?: $this->deeperObjectType = new ObjectType([
+                    'name'   => 'DeeperObject',
+                    'fields' => function () {
+                        return [
+                            'scalar' => ['type' => $this->loadType('SomeScalar')],
+                        ];
+                    },
+                ]);
+            case 'SomeScalar':
+                return $this->someScalarType ?: $this->someScalarType = new CustomScalarType([
+                    'name'         => 'SomeScalar',
+                    'serialize'    => function ($value) {
+                        return $value;
+                    },
+                    'parseValue'   => function ($value) {
+                        return $value;
+                    },
+                    'parseLiteral' => function () {
+                    },
+                ]);
+            case 'SomeUnion':
+                return $this->someUnionType ?: $this->someUnionType = new UnionType([
+                    'name'        => 'SomeUnion',
+                    'resolveType' => function () {
+                        $this->calls[] = 'SomeUnion.resolveType';
+
+                        return $this->loadType('DeeperObject');
+                    },
+                    'types'       => function () {
+                        $this->calls[] = 'SomeUnion.types';
+
+                        return [$this->loadType('DeeperObject')];
+                    },
+                ]);
+            case 'SomeInterface':
+                return $this->someInterfaceType ?: $this->someInterfaceType = new InterfaceType([
+                    'name'        => 'SomeInterface',
+                    'resolveType' => function () {
+                        $this->calls[] = 'SomeInterface.resolveType';
+
+                        return $this->loadType('SomeObject');
+                    },
+                    'fields'      => function () {
+                        $this->calls[] = 'SomeInterface.fields';
+
+                        return [
+                            'string' => ['type' => Type::string()],
+                        ];
+                    },
+                ]);
+            default:
+                return null;
+        }
+    }
+
     public function testDeepQuery() : void
     {
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
-            'typeLoader' => function($name) {
+            'query'      => $this->loadType('Query'),
+            'typeLoader' => function ($name) {
                 return $this->loadType($name, true);
-            }
+            },
         ]);
 
-        $query = '{ object { object { object { string } } } }';
+        $query  = '{ object { object { object { string } } } }';
         $result = Executor::execute(
             $schema,
             Parser::parse($query),
             ['object' => ['object' => ['object' => ['string' => 'test']]]]
         );
 
-        $expected = [
-            'data' => ['object' => ['object' => ['object' => ['string' => 'test']]]]
+        $expected            = [
+            'data' => ['object' => ['object' => ['object' => ['string' => 'test']]]],
         ];
         $expectedLoadedTypes = [
-            'Query' => true,
-            'SomeObject' => true,
-            'OtherObject' => true
+            'Query'       => true,
+            'SomeObject'  => true,
+            'OtherObject' => true,
         ];
 
         $this->assertEquals($expected, $result->toArray(true));
@@ -256,7 +386,7 @@ class ExecutorLazySchemaTest extends TestCase
         $expectedExecutorCalls = [
             'Query.fields',
             'SomeObject',
-            'SomeObject.fields'
+            'SomeObject.fields',
         ];
         $this->assertEquals($expectedExecutorCalls, $this->calls);
     }
@@ -264,13 +394,13 @@ class ExecutorLazySchemaTest extends TestCase
     public function testResolveUnion() : void
     {
         $schema = new Schema([
-            'query' => $this->loadType('Query'),
-            'typeLoader' => function($name) {
+            'query'      => $this->loadType('Query'),
+            'typeLoader' => function ($name) {
                 return $this->loadType($name, true);
-            }
+            },
         ]);
 
-        $query = '
+        $query  = '
             { 
                 other { 
                     union {
@@ -285,17 +415,17 @@ class ExecutorLazySchemaTest extends TestCase
             ['other' => ['union' => ['scalar' => 'test']]]
         );
 
-        $expected = [
+        $expected            = [
             'data' => ['other' => ['union' => ['scalar' => 'test']]],
         ];
         $expectedLoadedTypes = [
-            'Query' => true,
-            'SomeObject' => true,
-            'OtherObject' => true,
-            'SomeUnion' => true,
+            'Query'         => true,
+            'SomeObject'    => true,
+            'OtherObject'   => true,
+            'SomeUnion'     => true,
             'SomeInterface' => true,
-            'DeeperObject' => true,
-            'SomeScalar' => true,
+            'DeeperObject'  => true,
+            'SomeScalar'    => true,
         ];
 
         $this->assertEquals($expected, $result->toArray(true));
@@ -312,99 +442,5 @@ class ExecutorLazySchemaTest extends TestCase
             'SomeScalar',
         ];
         $this->assertEquals($expectedCalls, $this->calls);
-    }
-
-    public function loadType($name, $isExecutorCall = false)
-    {
-        if ($isExecutorCall) {
-            $this->calls[] = $name;
-        }
-        $this->loadedTypes[$name] = true;
-
-        switch ($name) {
-            case 'Query':
-                return $this->QueryType ?: $this->QueryType = new ObjectType([
-                    'name' => 'Query',
-                    'fields' => function() {
-                        $this->calls[] = 'Query.fields';
-                        return [
-                            'object' => ['type' => $this->loadType('SomeObject')],
-                            'other' => ['type' => $this->loadType('OtherObject')],
-                        ];
-                    }
-                ]);
-            case 'SomeObject':
-                return $this->SomeObjectType ?: $this->SomeObjectType = new ObjectType([
-                    'name' => 'SomeObject',
-                    'fields' => function() {
-                        $this->calls[] = 'SomeObject.fields';
-                        return [
-                            'string' => ['type' => Type::string()],
-                            'object' => ['type' => $this->SomeObjectType]
-                        ];
-                    },
-                    'interfaces' => function() {
-                        $this->calls[] = 'SomeObject.interfaces';
-                        return [
-                            $this->loadType('SomeInterface')
-                        ];
-                    }
-                ]);
-            case 'OtherObject':
-                return $this->OtherObjectType ?: $this->OtherObjectType =  new ObjectType([
-                    'name' => 'OtherObject',
-                    'fields' => function() {
-                        $this->calls[] = 'OtherObject.fields';
-                        return [
-                            'union' => ['type' => $this->loadType('SomeUnion')],
-                            'iface' => ['type' => Type::nonNull($this->loadType('SomeInterface'))],
-                        ];
-                    }
-                ]);
-            case 'DeeperObject':
-                return $this->DeeperObjectType ?: $this->DeeperObjectType = new ObjectType([
-                    'name' => 'DeeperObject',
-                    'fields' => function() {
-                        return [
-                            'scalar' => ['type' => $this->loadType('SomeScalar')],
-                        ];
-                    }
-                ]);
-            case 'SomeScalar';
-                return $this->SomeScalarType ?: $this->SomeScalarType = new CustomScalarType([
-                    'name' => 'SomeScalar',
-                    'serialize' => function($value) {return $value;},
-                    'parseValue' => function($value) {return $value;},
-                    'parseLiteral' => function() {}
-                ]);
-            case 'SomeUnion':
-                return $this->SomeUnionType ?: $this->SomeUnionType = new UnionType([
-                    'name' => 'SomeUnion',
-                    'resolveType' => function() {
-                        $this->calls[] = 'SomeUnion.resolveType';
-                        return $this->loadType('DeeperObject');
-                    },
-                    'types' => function() {
-                        $this->calls[] = 'SomeUnion.types';
-                        return [ $this->loadType('DeeperObject') ];
-                    }
-                ]);
-            case 'SomeInterface':
-                return $this->SomeInterfaceType ?: $this->SomeInterfaceType = new InterfaceType([
-                    'name' => 'SomeInterface',
-                    'resolveType' => function() {
-                        $this->calls[] = 'SomeInterface.resolveType';
-                        return $this->loadType('SomeObject');
-                    },
-                    'fields' => function() {
-                        $this->calls[] = 'SomeInterface.fields';
-                        return  [
-                            'string' => ['type' => Type::string() ]
-                        ];
-                    }
-                ]);
-            default:
-                return null;
-        }
     }
 }

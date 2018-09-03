@@ -1,21 +1,28 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
-
-use GraphQL\Utils\Utils;
 use GraphQL\Utils\MixedStore;
+use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
 class MixedStoreTest extends TestCase
 {
-    /**
-     * @var MixedStore
-     */
+    /** @var MixedStore */
     private $mixedStore;
 
     public function setUp()
     {
         $this->mixedStore = new MixedStore();
+    }
+
+    public function testAcceptsNullKeys() : void
+    {
+        foreach ($this->getPossibleValues() as $value) {
+            $this->assertAcceptsKeyValue(null, $value);
+        }
     }
 
     public function getPossibleValues()
@@ -30,16 +37,38 @@ class MixedStoreTest extends TestCase
             'a',
             [],
             new \stdClass(),
-            function() {},
-            new MixedStore()
+            function () {
+            },
+            new MixedStore(),
         ];
     }
 
-    public function testAcceptsNullKeys() : void
+    private function assertAcceptsKeyValue($key, $value)
     {
-        foreach ($this->getPossibleValues() as $value) {
-            $this->assertAcceptsKeyValue(null, $value);
-        }
+        $err = 'Failed assertion that MixedStore accepts key ' .
+            Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
+
+        $this->assertFalse($this->mixedStore->offsetExists($key), $err);
+        $this->mixedStore->offsetSet($key, $value);
+        $this->assertTrue($this->mixedStore->offsetExists($key), $err);
+        $this->assertSame($value, $this->mixedStore->offsetGet($key), $err);
+        $this->mixedStore->offsetUnset($key);
+        $this->assertFalse($this->mixedStore->offsetExists($key), $err);
+        $this->assertProvidesArrayAccess($key, $value);
+    }
+
+    private function assertProvidesArrayAccess($key, $value)
+    {
+        $err = 'Failed assertion that MixedStore provides array access for key ' .
+            Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
+
+        $this->assertFalse(isset($this->mixedStore[$key]), $err);
+        $this->mixedStore[$key] = $value;
+        $this->assertTrue(isset($this->mixedStore[$key]), $err);
+        $this->assertEquals(! empty($value), ! empty($this->mixedStore[$key]), $err);
+        $this->assertSame($value, $this->mixedStore[$key], $err);
+        unset($this->mixedStore[$key]);
+        $this->assertFalse(isset($this->mixedStore[$key]), $err);
     }
 
     public function testAcceptsBoolKeys() : void
@@ -93,35 +122,11 @@ class MixedStoreTest extends TestCase
         foreach ($this->getPossibleValues() as $value) {
             $this->assertAcceptsKeyValue(new \stdClass(), $value);
             $this->assertAcceptsKeyValue(new MixedStore(), $value);
-            $this->assertAcceptsKeyValue(function() {}, $value);
+            $this->assertAcceptsKeyValue(
+                function () {
+                },
+                $value
+            );
         }
-    }
-
-    private function assertAcceptsKeyValue($key, $value)
-    {
-        $err = 'Failed assertion that MixedStore accepts key ' .
-            Utils::printSafe($key) . ' with value ' .  Utils::printSafe($value);
-
-        $this->assertFalse($this->mixedStore->offsetExists($key), $err);
-        $this->mixedStore->offsetSet($key, $value);
-        $this->assertTrue($this->mixedStore->offsetExists($key), $err);
-        $this->assertSame($value, $this->mixedStore->offsetGet($key), $err);
-        $this->mixedStore->offsetUnset($key);
-        $this->assertFalse($this->mixedStore->offsetExists($key), $err);
-        $this->assertProvidesArrayAccess($key, $value);
-    }
-
-    private function assertProvidesArrayAccess($key, $value)
-    {
-        $err = 'Failed assertion that MixedStore provides array access for key ' .
-            Utils::printSafe($key) . ' with value ' .  Utils::printSafe($value);
-
-        $this->assertFalse(isset($this->mixedStore[$key]), $err);
-        $this->mixedStore[$key] = $value;
-        $this->assertTrue(isset($this->mixedStore[$key]), $err);
-        $this->assertEquals(!empty($value), !empty($this->mixedStore[$key]), $err);
-        $this->assertSame($value, $this->mixedStore[$key], $err);
-        unset($this->mixedStore[$key]);
-        $this->assertFalse(isset($this->mixedStore[$key]), $err);
     }
 }

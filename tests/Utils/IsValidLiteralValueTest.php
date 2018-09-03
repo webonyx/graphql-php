@@ -1,17 +1,18 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\Type;
-use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
 
 class IsValidLiteralValueTest extends TestCase
 {
     // DESCRIBE: isValidLiteralValue
-
     /**
      * @see it('Returns no errors for a valid value')
      */

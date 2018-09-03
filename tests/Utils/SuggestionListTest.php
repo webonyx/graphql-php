@@ -1,16 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Utils;
 
-use GraphQL\Executor\Values;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
-use GraphQL\Utils\Value;
 use PHPUnit\Framework\TestCase;
 
 class SuggestionListTest extends TestCase
 {
     // DESCRIBE: suggestionList
-
     /**
      * @see it('Returns results when input is empty')
      */

@@ -1,68 +1,77 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Type;
 
+use ArrayObject;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Type\Schema;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use function count;
+use function is_array;
 
 class EnumTypeTest extends TestCase
 {
-    /**
-     * @var Schema
-     */
+    /** @var Schema */
     private $schema;
 
-    /**
-     * @var EnumType
-     */
+    /** @var EnumType */
     private $ComplexEnum;
 
+    /** @var mixed[] */
     private $Complex1;
 
+    /** @var ArrayObject */
     private $Complex2;
 
     public function setUp()
     {
         $ColorType = new EnumType([
-            'name' => 'Color',
+            'name'   => 'Color',
             'values' => [
-                'RED' => ['value' => 0],
+                'RED'   => ['value' => 0],
                 'GREEN' => ['value' => 1],
-                'BLUE' => ['value' => 2],
-            ]
+                'BLUE'  => ['value' => 2],
+            ],
         ]);
 
         $simpleEnum = new EnumType([
-            'name' => 'SimpleEnum',
+            'name'   => 'SimpleEnum',
             'values' => [
-                'ONE', 'TWO', 'THREE'
-            ]
+                'ONE',
+                'TWO',
+                'THREE',
+            ],
         ]);
 
-        $Complex1 = ['someRandomFunction' => function() {}];
+        $Complex1 = [
+            'someRandomFunction' => function () {
+            },
+        ];
         $Complex2 = new \ArrayObject(['someRandomValue' => 123]);
 
         $ComplexEnum = new EnumType([
-            'name' => 'Complex',
+            'name'   => 'Complex',
             'values' => [
                 'ONE' => ['value' => $Complex1],
-                'TWO' => ['value' => $Complex2]
-            ]
+                'TWO' => ['value' => $Complex2],
+            ],
         ]);
 
         $QueryType = new ObjectType([
-            'name' => 'Query',
+            'name'   => 'Query',
             'fields' => [
-                'colorEnum' => [
-                    'type' => $ColorType,
-                    'args' => [
-                        'fromEnum' => ['type' => $ColorType],
-                        'fromInt' => ['type' => Type::int()],
+                'colorEnum'   => [
+                    'type'    => $ColorType,
+                    'args'    => [
+                        'fromEnum'   => ['type' => $ColorType],
+                        'fromInt'    => ['type' => Type::int()],
                         'fromString' => ['type' => Type::string()],
                     ],
                     'resolve' => function ($value, $args) {
@@ -75,28 +84,28 @@ class EnumTypeTest extends TestCase
                         if (isset($args['fromEnum'])) {
                             return $args['fromEnum'];
                         }
-                    }
+                    },
                 ],
-                'simpleEnum' => [
-                    'type' => $simpleEnum,
-                    'args' => [
-                        'fromName' => ['type' => Type::string()],
-                        'fromValue' => ['type' => Type::string()]
+                'simpleEnum'  => [
+                    'type'    => $simpleEnum,
+                    'args'    => [
+                        'fromName'  => ['type' => Type::string()],
+                        'fromValue' => ['type' => Type::string()],
                     ],
-                    'resolve' => function($value, $args) {
+                    'resolve' => function ($value, $args) {
                         if (isset($args['fromName'])) {
                             return $args['fromName'];
                         }
                         if (isset($args['fromValue'])) {
                             return $args['fromValue'];
                         }
-                    }
+                    },
                 ],
-                'colorInt' => [
-                    'type' => Type::int(),
-                    'args' => [
+                'colorInt'    => [
+                    'type'    => Type::int(),
+                    'args'    => [
                         'fromEnum' => ['type' => $ColorType],
-                        'fromInt' => ['type' => Type::int()],
+                        'fromInt'  => ['type' => Type::int()],
                     ],
                     'resolve' => function ($value, $args) {
                         if (isset($args['fromInt'])) {
@@ -105,75 +114,76 @@ class EnumTypeTest extends TestCase
                         if (isset($args['fromEnum'])) {
                             return $args['fromEnum'];
                         }
-                    }
+                    },
                 ],
                 'complexEnum' => [
-                    'type' => $ComplexEnum,
-                    'args' => [
-                        'fromEnum' => [
-                            'type' => $ComplexEnum,
+                    'type'    => $ComplexEnum,
+                    'args'    => [
+                        'fromEnum'         => [
+                            'type'         => $ComplexEnum,
                             // Note: defaultValue is provided an *internal* representation for
                             // Enums, rather than the string name.
-                            'defaultValue' => $Complex1
+                            'defaultValue' => $Complex1,
                         ],
                         'provideGoodValue' => [
                             'type' => Type::boolean(),
                         ],
-                        'provideBadValue' => [
-                            'type' => Type::boolean()
-                        ]
+                        'provideBadValue'  => [
+                            'type' => Type::boolean(),
+                        ],
                     ],
-                    'resolve' => function($value, $args) use ($Complex1, $Complex2) {
-                        if (!empty($args['provideGoodValue'])) {
+                    'resolve' => function ($value, $args) use ($Complex2) {
+                        if (! empty($args['provideGoodValue'])) {
                             // Note: this is one of the references of the internal values which
                             // ComplexEnum allows.
                             return $Complex2;
                         }
-                        if (!empty($args['provideBadValue'])) {
+                        if (! empty($args['provideBadValue'])) {
                             // Note: similar shape, but not the same *reference*
                             // as Complex2 above. Enum internal values require === equality.
                             return new \ArrayObject(['someRandomValue' => 123]);
                         }
+
                         return $args['fromEnum'];
-                    }
-                ]
-            ]
+                    },
+                ],
+            ],
         ]);
 
         $MutationType = new ObjectType([
-            'name' => 'Mutation',
+            'name'   => 'Mutation',
             'fields' => [
                 'favoriteEnum' => [
-                    'type' => $ColorType,
-                    'args' => ['color' => ['type' => $ColorType]],
+                    'type'    => $ColorType,
+                    'args'    => ['color' => ['type' => $ColorType]],
                     'resolve' => function ($value, $args) {
-                        return isset($args['color']) ? $args['color'] : null;
-                    }
-                ]
-            ]
+                        return $args['color'] ?? null;
+                    },
+                ],
+            ],
         ]);
 
         $SubscriptionType = new ObjectType([
-            'name' => 'Subscription',
+            'name'   => 'Subscription',
             'fields' => [
                 'subscribeToEnum' => [
-                    'type' => $ColorType,
-                    'args' => ['color' => ['type' => $ColorType]],
+                    'type'    => $ColorType,
+                    'args'    => ['color' => ['type' => $ColorType]],
                     'resolve' => function ($value, $args) {
-                        return isset($args['color']) ? $args['color'] : null;
-                    }
-                ]
-            ]
+                        return $args['color'] ?? null;
+                    },
+                ],
+            ],
         ]);
 
-        $this->Complex1 = $Complex1;
-        $this->Complex2 = $Complex2;
+        $this->Complex1    = $Complex1;
+        $this->Complex2    = $Complex2;
         $this->ComplexEnum = $ComplexEnum;
 
         $this->schema = new Schema([
-            'query' => $QueryType,
-            'mutation' => $MutationType,
-            'subscription' => $SubscriptionType
+            'query'        => $QueryType,
+            'mutation'     => $MutationType,
+            'subscription' => $SubscriptionType,
         ]);
     }
 
@@ -221,10 +231,32 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: "GREEN") }',
             null,
             [
-                'message' => "Expected type Color, found \"GREEN\"; Did you mean the enum value GREEN?",
-                'locations' => [new SourceLocation(1, 23)]
+                'message'   => 'Expected type Color, found "GREEN"; Did you mean the enum value GREEN?',
+                'locations' => [new SourceLocation(1, 23)],
             ]
         );
+    }
+
+    private function expectFailure($query, $vars, $err)
+    {
+        $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
+        $this->assertEquals(1, count($result->errors));
+
+        if (is_array($err)) {
+            $this->assertEquals(
+                $err['message'],
+                $result->errors[0]->getMessage()
+            );
+            $this->assertEquals(
+                $err['locations'],
+                $result->errors[0]->getLocations()
+            );
+        } else {
+            $this->assertEquals(
+                $err,
+                $result->errors[0]->getMessage()
+            );
+        }
     }
 
     /**
@@ -236,8 +268,8 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: GREENISH) }',
             null,
             [
-                'message' => "Expected type Color, found GREENISH; Did you mean the enum value GREEN?",
-                'locations' => [new SourceLocation(1, 23)]
+                'message'   => 'Expected type Color, found GREENISH; Did you mean the enum value GREEN?',
+                'locations' => [new SourceLocation(1, 23)],
             ]
         );
     }
@@ -251,8 +283,8 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromEnum: green) }',
             null,
             [
-                'message' => "Expected type Color, found green; Did you mean the enum value GREEN?",
-                'locations' => [new SourceLocation(1, 23)]
+                'message'   => 'Expected type Color, found green; Did you mean the enum value GREEN?',
+                'locations' => [new SourceLocation(1, 23)],
             ]
         );
     }
@@ -266,9 +298,9 @@ class EnumTypeTest extends TestCase
             '{ colorEnum(fromString: "GREEN") }',
             null,
             [
-                'message' => 'Expected a value of type "Color" but received: GREEN',
+                'message'   => 'Expected a value of type "Color" but received: GREEN',
                 'locations' => [new SourceLocation(1, 3)],
-                'path' => ['colorEnum'],
+                'path'      => ['colorEnum'],
             ]
         );
     }
@@ -281,7 +313,7 @@ class EnumTypeTest extends TestCase
         $this->expectFailure(
             '{ colorEnum(fromEnum: 1) }',
             null,
-            "Expected type Color, found 1."
+            'Expected type Color, found 1.'
         );
     }
 
@@ -293,7 +325,7 @@ class EnumTypeTest extends TestCase
         $this->expectFailure(
             '{ colorEnum(fromInt: GREEN) }',
             null,
-            "Expected type Int, found GREEN."
+            'Expected type Int, found GREEN.'
         );
     }
 
@@ -381,7 +413,7 @@ class EnumTypeTest extends TestCase
         $this->expectFailure(
             'query test($color: Int!) { colorEnum(fromEnum: $color) }',
             ['color' => 2],
-            'Variable "$color" of type "Int!" used in position ' . 'expecting type "Color".'
+            'Variable "$color" of type "Int!" used in position expecting type "Color".'
         );
     }
 
@@ -392,10 +424,13 @@ class EnumTypeTest extends TestCase
     {
         $this->assertEquals(
             ['data' => ['colorEnum' => 'RED', 'colorInt' => 0]],
-            GraphQL::executeQuery($this->schema, "{
+            GraphQL::executeQuery(
+                $this->schema,
+                '{
                 colorEnum(fromEnum: RED)
                 colorInt(fromEnum: RED)
-            }")->toArray()
+            }'
+            )->toArray()
         );
     }
 
@@ -406,10 +441,13 @@ class EnumTypeTest extends TestCase
     {
         $this->assertEquals(
             ['data' => ['colorEnum' => null, 'colorInt' => null]],
-            GraphQL::executeQuery($this->schema, "{
+            GraphQL::executeQuery(
+                $this->schema,
+                '{
                 colorEnum
                 colorInt
-            }")->toArray()
+            }'
+            )->toArray()
         );
     }
 
@@ -419,7 +457,7 @@ class EnumTypeTest extends TestCase
     public function testPresentsGetValuesAPIForComplexEnums() : void
     {
         $ComplexEnum = $this->ComplexEnum;
-        $values = $ComplexEnum->getValues();
+        $values      = $ComplexEnum->getValues();
 
         $this->assertEquals(2, count($values));
         $this->assertEquals('ONE', $values[0]->name);
@@ -446,25 +484,29 @@ class EnumTypeTest extends TestCase
      */
     public function testMayBeInternallyRepresentedWithComplexValues() : void
     {
-        $result = GraphQL::executeQuery($this->schema, '{
+        $result = GraphQL::executeQuery(
+            $this->schema,
+            '{
         first: complexEnum
         second: complexEnum(fromEnum: TWO)
         good: complexEnum(provideGoodValue: true)
         bad: complexEnum(provideBadValue: true)
-        }')->toArray(true);
+        }'
+        )->toArray(true);
 
         $expected = [
-            'data' => [
-                'first' => 'ONE',
+            'data'   => [
+                'first'  => 'ONE',
                 'second' => 'TWO',
-                'good' => 'TWO',
-                'bad' => null
+                'good'   => 'TWO',
+                'bad'    => null,
             ],
             'errors' => [[
                 'debugMessage' =>
                     'Expected a value of type "Complex" but received: instance of ArrayObject',
-                'locations' => [['line' => 5, 'column' => 9]]
-            ]]
+                'locations'    => [['line' => 5, 'column' => 9]],
+            ],
+            ],
         ];
 
         $this->assertArraySubset($expected, $result);
@@ -489,35 +531,14 @@ class EnumTypeTest extends TestCase
 
         $this->assertArraySubset(
             [
-                'data' => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
+                'data'   => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [[
                     'debugMessage' => 'Expected a value of type "SimpleEnum" but received: WRONG',
-                    'locations' => [['line' => 4, 'column' => 13]]
-                ]]
+                    'locations'    => [['line' => 4, 'column' => 13]],
+                ],
+                ],
             ],
             GraphQL::executeQuery($this->schema, $q)->toArray(true)
         );
-    }
-
-    private function expectFailure($query, $vars, $err)
-    {
-        $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
-        $this->assertEquals(1, count($result->errors));
-
-        if (is_array($err)) {
-            $this->assertEquals(
-                $err['message'],
-                $result->errors[0]->getMessage()
-            );
-            $this->assertEquals(
-                $err['locations'],
-                $result->errors[0]->getLocations()
-            );
-        } else {
-            $this->assertEquals(
-                $err,
-                $result->errors[0]->getMessage()
-            );
-        }
     }
 }

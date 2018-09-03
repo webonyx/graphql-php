@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,13 +11,14 @@ use GraphQL\Validator\Rules\DisableIntrospection;
 class DisableIntrospectionTest extends ValidatorTestCase
 {
     // Validate: Disable Introspection
-
     /**
      * @see it('fails if the query contains __schema')
      */
     public function testQueryContainsSchema() : void
     {
-        $this->expectFailsRule(new DisableIntrospection(DisableIntrospection::ENABLED), '
+        $this->expectFailsRule(
+            new DisableIntrospection(DisableIntrospection::ENABLED),
+            '
       query { 
         __schema {
           queryType {
@@ -23,16 +27,26 @@ class DisableIntrospectionTest extends ValidatorTestCase
         }
       }
         ',
-            [$this->error(3, 9)] 
+            [$this->error(3, 9)]
         );
     }
-    
+
+    private function error($line, $column)
+    {
+        return FormattedError::create(
+            DisableIntrospection::introspectionDisabledMessage(),
+            [new SourceLocation($line, $column)]
+        );
+    }
+
     /**
      * @see it('fails if the query contains __type')
      */
     public function testQueryContainsType() : void
     {
-        $this->expectFailsRule(new DisableIntrospection(DisableIntrospection::ENABLED), '
+        $this->expectFailsRule(
+            new DisableIntrospection(DisableIntrospection::ENABLED),
+            '
       query { 
         __type(
           name: "Query"
@@ -50,7 +64,9 @@ class DisableIntrospectionTest extends ValidatorTestCase
      */
     public function testValidQuery() : void
     {
-        $this->expectPassesRule(new DisableIntrospection(DisableIntrospection::ENABLED), '
+        $this->expectPassesRule(
+            new DisableIntrospection(DisableIntrospection::ENABLED),
+            '
       query {
         user {
           name
@@ -60,7 +76,8 @@ class DisableIntrospectionTest extends ValidatorTestCase
           }
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -68,7 +85,9 @@ class DisableIntrospectionTest extends ValidatorTestCase
      */
     public function testQueryWhenDisabled() : void
     {
-        $this->expectPassesRule(new DisableIntrospection(DisableIntrospection::DISABLED), '
+        $this->expectPassesRule(
+            new DisableIntrospection(DisableIntrospection::DISABLED),
+            '
       query { 
         __type(
           name: "Query"
@@ -76,7 +95,8 @@ class DisableIntrospectionTest extends ValidatorTestCase
           name
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -86,7 +106,9 @@ class DisableIntrospectionTest extends ValidatorTestCase
     {
         $disableIntrospection = new DisableIntrospection(DisableIntrospection::DISABLED);
         $disableIntrospection->setEnabled(DisableIntrospection::ENABLED);
-        $this->expectFailsRule($disableIntrospection, '
+        $this->expectFailsRule(
+            $disableIntrospection,
+            '
       query { 
         __type(
           name: "Query"
@@ -106,7 +128,9 @@ class DisableIntrospectionTest extends ValidatorTestCase
     {
         $disableIntrospection = new DisableIntrospection(DisableIntrospection::ENABLED);
         $disableIntrospection->setEnabled(DisableIntrospection::DISABLED);
-        $this->expectPassesRule($disableIntrospection, '
+        $this->expectPassesRule(
+            $disableIntrospection,
+            '
       query { 
         __type(
           name: "Query"
@@ -114,15 +138,7 @@ class DisableIntrospectionTest extends ValidatorTestCase
           name
         }
       }
-        ');
-    }
-
-
-    private function error($line, $column)
-    {
-        return FormattedError::create(
-            DisableIntrospection::introspectionDisabledMessage(),
-            [ new SourceLocation($line, $column) ]
+        '
         );
     }
 }

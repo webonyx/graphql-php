@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,17 +11,19 @@ use GraphQL\Validator\Rules\NoUndefinedVariables;
 class NoUndefinedVariablesTest extends ValidatorTestCase
 {
     // Validate: No undefined variables
-
     /**
      * @see it('all variables defined')
      */
     public function testAllVariablesDefined() : void
     {
-        $this->expectPassesRule(new NoUndefinedVariables(), '
+        $this->expectPassesRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         field(a: $a, b: $b, c: $c)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -26,7 +31,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testAllVariablesDeeplyDefined() : void
     {
-        $this->expectPassesRule(new NoUndefinedVariables, '
+        $this->expectPassesRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         field(a: $a) {
           field(b: $b) {
@@ -34,7 +41,8 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
           }
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -42,7 +50,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testAllVariablesDeeplyInInlineFragmentsDefined() : void
     {
-        $this->expectPassesRule(new NoUndefinedVariables, '
+        $this->expectPassesRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         ... on Type {
           field(a: $a) {
@@ -54,7 +64,8 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
           }
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -62,7 +73,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testAllVariablesInFragmentsDeeplyDefined() : void
     {
-        $this->expectPassesRule(new NoUndefinedVariables, '
+        $this->expectPassesRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         ...FragA
       }
@@ -79,7 +92,8 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragC on Type {
         field(c: $c)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -88,7 +102,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
     public function testVariableWithinSingleFragmentDefinedInMultipleOperations() : void
     {
         // variable within single fragment defined in multiple operations
-        $this->expectPassesRule(new NoUndefinedVariables, '
+        $this->expectPassesRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String) {
         ...FragA
       }
@@ -98,7 +114,8 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragA on Type {
         field(a: $a)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -106,7 +123,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testVariableWithinFragmentsDefinedInOperations() : void
     {
-        $this->expectPassesRule(new NoUndefinedVariables, '
+        $this->expectPassesRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String) {
         ...FragA
       }
@@ -119,7 +138,8 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragB on Type {
         field(b: $b)
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -127,7 +147,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testVariableWithinRecursiveFragmentDefined() : void
     {
-        $this->expectPassesRule(new NoUndefinedVariables, '
+        $this->expectPassesRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String) {
         ...FragA
       }
@@ -136,7 +158,8 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
           ...FragA
         }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -144,13 +167,31 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testVariableNotDefined() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String, $b: String, $c: String) {
         field(a: $a, b: $b, c: $c, d: $d)
       }
-        ', [
-            $this->undefVar('d', 3, 39, 'Foo', 2, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('d', 3, 39, 'Foo', 2, 7),
+            ]
+        );
+    }
+
+    private function undefVar($varName, $line, $column, $opName = null, $l2 = null, $c2 = null)
+    {
+        $locs = [new SourceLocation($line, $column)];
+
+        if ($l2 && $c2) {
+            $locs[] = new SourceLocation($l2, $c2);
+        }
+
+        return FormattedError::create(
+            NoUndefinedVariables::undefinedVarMessage($varName, $opName),
+            $locs
+        );
     }
 
     /**
@@ -158,13 +199,17 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testVariableNotDefinedByUnNamedQuery() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       {
         field(a: $a)
       }
-        ', [
-            $this->undefVar('a', 3, 18, '', 2, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('a', 3, 18, '', 2, 7),
+            ]
+        );
     }
 
     /**
@@ -172,14 +217,18 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testMultipleVariablesNotDefined() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($b: String) {
         field(a: $a, b: $b, c: $c)
       }
-        ', [
-            $this->undefVar('a', 3, 18, 'Foo', 2, 7),
-            $this->undefVar('c', 3, 32, 'Foo', 2, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('a', 3, 18, 'Foo', 2, 7),
+                $this->undefVar('c', 3, 32, 'Foo', 2, 7),
+            ]
+        );
     }
 
     /**
@@ -187,16 +236,20 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testVariableInFragmentNotDefinedByUnNamedQuery() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       {
         ...FragA
       }
       fragment FragA on Type {
         field(a: $a)
       }
-        ', [
-            $this->undefVar('a', 6, 18, '', 2, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('a', 6, 18, '', 2, 7),
+            ]
+        );
     }
 
     /**
@@ -204,7 +257,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testVariableInFragmentNotDefinedByOperation() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String, $b: String) {
         ...FragA
       }
@@ -221,9 +276,11 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragC on Type {
         field(c: $c)
       }
-        ', [
-            $this->undefVar('c', 16, 18, 'Foo', 2, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('c', 16, 18, 'Foo', 2, 7),
+            ]
+        );
     }
 
     /**
@@ -231,7 +288,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testMultipleVariablesInFragmentsNotDefined() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($b: String) {
         ...FragA
       }
@@ -248,10 +307,12 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragC on Type {
         field(c: $c)
       }
-        ', [
-            $this->undefVar('a', 6, 18, 'Foo', 2, 7),
-            $this->undefVar('c', 16, 18, 'Foo', 2, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('a', 6, 18, 'Foo', 2, 7),
+                $this->undefVar('c', 16, 18, 'Foo', 2, 7),
+            ]
+        );
     }
 
     /**
@@ -259,7 +320,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testSingleVariableInFragmentNotDefinedByMultipleOperations() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($a: String) {
         ...FragAB
       }
@@ -269,10 +332,12 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragAB on Type {
         field(a: $a, b: $b)
       }
-        ', [
-            $this->undefVar('b', 9, 25, 'Foo', 2, 7),
-            $this->undefVar('b', 9, 25, 'Bar', 5, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('b', 9, 25, 'Foo', 2, 7),
+                $this->undefVar('b', 9, 25, 'Bar', 5, 7),
+            ]
+        );
     }
 
     /**
@@ -280,7 +345,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testVariablesInFragmentNotDefinedByMultipleOperations() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($b: String) {
         ...FragAB
       }
@@ -290,10 +357,12 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragAB on Type {
         field(a: $a, b: $b)
       }
-        ', [
-            $this->undefVar('a', 9, 18, 'Foo', 2, 7),
-            $this->undefVar('b', 9, 25, 'Bar', 5, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('a', 9, 18, 'Foo', 2, 7),
+                $this->undefVar('b', 9, 25, 'Bar', 5, 7),
+            ]
+        );
     }
 
     /**
@@ -301,7 +370,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testVariableInFragmentUsedByOtherOperation() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($b: String) {
         ...FragA
       }
@@ -314,10 +385,12 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragB on Type {
         field(b: $b)
       }
-        ', [
-            $this->undefVar('a', 9, 18, 'Foo', 2, 7),
-            $this->undefVar('b', 12, 18, 'Bar', 5, 7)
-        ]);
+        ',
+            [
+                $this->undefVar('a', 9, 18, 'Foo', 2, 7),
+                $this->undefVar('b', 12, 18, 'Bar', 5, 7),
+            ]
+        );
     }
 
     /**
@@ -325,7 +398,9 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
      */
     public function testMultipleUndefinedVariablesProduceMultipleErrors() : void
     {
-        $this->expectFailsRule(new NoUndefinedVariables, '
+        $this->expectFailsRule(
+            new NoUndefinedVariables(),
+            '
       query Foo($b: String) {
         ...FragAB
       }
@@ -340,28 +415,15 @@ class NoUndefinedVariablesTest extends ValidatorTestCase
       fragment FragC on Type {
         field2(c: $c)
       }
-    ', [
-            $this->undefVar('a', 9, 19, 'Foo', 2, 7),
-            $this->undefVar('a', 11, 19, 'Foo', 2, 7),
-            $this->undefVar('c', 14, 19, 'Foo', 2, 7),
-            $this->undefVar('b', 9, 26, 'Bar', 5, 7),
-            $this->undefVar('b', 11, 26, 'Bar', 5, 7),
-            $this->undefVar('c', 14, 19, 'Bar', 5, 7),
-        ]);
-    }
-
-
-    private function undefVar($varName, $line, $column, $opName = null, $l2 = null, $c2 = null)
-    {
-        $locs = [new SourceLocation($line, $column)];
-
-        if ($l2 && $c2) {
-            $locs[] = new SourceLocation($l2, $c2);
-        }
-
-        return FormattedError::create(
-            NoUndefinedVariables::undefinedVarMessage($varName, $opName),
-            $locs
+    ',
+            [
+                $this->undefVar('a', 9, 19, 'Foo', 2, 7),
+                $this->undefVar('a', 11, 19, 'Foo', 2, 7),
+                $this->undefVar('c', 14, 19, 'Foo', 2, 7),
+                $this->undefVar('b', 9, 26, 'Bar', 5, 7),
+                $this->undefVar('b', 11, 26, 'Bar', 5, 7),
+                $this->undefVar('c', 14, 19, 'Bar', 5, 7),
+            ]
         );
     }
 }

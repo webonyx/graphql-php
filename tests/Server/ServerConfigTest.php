@@ -1,12 +1,15 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Server;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
-use GraphQL\Type\Schema;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
 class ServerConfigTest extends TestCase
@@ -14,17 +17,17 @@ class ServerConfigTest extends TestCase
     public function testDefaults() : void
     {
         $config = ServerConfig::create();
-        $this->assertEquals(null, $config->getSchema());
-        $this->assertEquals(null, $config->getContext());
-        $this->assertEquals(null, $config->getRootValue());
-        $this->assertEquals(null, $config->getErrorFormatter());
-        $this->assertEquals(null, $config->getErrorsHandler());
-        $this->assertEquals(null, $config->getPromiseAdapter());
-        $this->assertEquals(null, $config->getValidationRules());
-        $this->assertEquals(null, $config->getFieldResolver());
-        $this->assertEquals(null, $config->getPersistentQueryLoader());
-        $this->assertEquals(false, $config->getDebug());
-        $this->assertEquals(false, $config->getQueryBatching());
+        $this->assertNull($config->getSchema());
+        $this->assertNull($config->getContext());
+        $this->assertNull($config->getRootValue());
+        $this->assertNull($config->getErrorFormatter());
+        $this->assertNull($config->getErrorsHandler());
+        $this->assertNull($config->getPromiseAdapter());
+        $this->assertNull($config->getValidationRules());
+        $this->assertNull($config->getFieldResolver());
+        $this->assertNull($config->getPersistentQueryLoader());
+        $this->assertFalse($config->getDebug());
+        $this->assertFalse($config->getQueryBatching());
     }
 
     public function testAllowsSettingSchema() : void
@@ -70,7 +73,8 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $formatter = function() {};
+        $formatter = function () {
+        };
         $config->setErrorFormatter($formatter);
         $this->assertSame($formatter, $config->getErrorFormatter());
 
@@ -83,7 +87,8 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $handler = function() {};
+        $handler = function () {
+        };
         $config->setErrorsHandler($handler);
         $this->assertSame($handler, $config->getErrorsHandler());
 
@@ -113,11 +118,17 @@ class ServerConfigTest extends TestCase
         $config->setValidationRules($rules);
         $this->assertSame($rules, $config->getValidationRules());
 
-        $rules = [function() {}];
+        $rules = [function () {
+        },
+        ];
         $config->setValidationRules($rules);
         $this->assertSame($rules, $config->getValidationRules());
 
-        $rules = function() {return [function() {}];};
+        $rules = function () {
+            return [function () {
+            },
+            ];
+        };
         $config->setValidationRules($rules);
         $this->assertSame($rules, $config->getValidationRules());
     }
@@ -126,7 +137,8 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $resolver = function() {};
+        $resolver = function () {
+        };
         $config->setFieldResolver($resolver);
         $this->assertSame($resolver, $config->getFieldResolver());
 
@@ -139,7 +151,8 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $loader = function() {};
+        $loader = function () {
+        };
         $config->setPersistentQueryLoader($loader);
         $this->assertSame($loader, $config->getPersistentQueryLoader());
 
@@ -153,27 +166,32 @@ class ServerConfigTest extends TestCase
         $config = ServerConfig::create();
 
         $config->setDebug(true);
-        $this->assertSame(true, $config->getDebug());
+        $this->assertTrue($config->getDebug());
 
         $config->setDebug(false);
-        $this->assertSame(false, $config->getDebug());
+        $this->assertFalse($config->getDebug());
     }
 
     public function testAcceptsArray() : void
     {
         $arr = [
-            'schema' => new \GraphQL\Type\Schema([
-                'query' => new ObjectType(['name' => 't', 'fields' => ['a' => Type::string()]])
+            'schema'                => new Schema([
+                'query' => new ObjectType(['name' => 't', 'fields' => ['a' => Type::string()]]),
             ]),
-            'context' => new \stdClass(),
-            'rootValue' => new \stdClass(),
-            'errorFormatter' => function() {},
-            'promiseAdapter' => new SyncPromiseAdapter(),
-            'validationRules' => [function() {}],
-            'fieldResolver' => function() {},
-            'persistentQueryLoader' => function() {},
-            'debug' => true,
-            'queryBatching' => true,
+            'context'               => new \stdClass(),
+            'rootValue'             => new \stdClass(),
+            'errorFormatter'        => function () {
+            },
+            'promiseAdapter'        => new SyncPromiseAdapter(),
+            'validationRules'       => [function () {
+            },
+            ],
+            'fieldResolver'         => function () {
+            },
+            'persistentQueryLoader' => function () {
+            },
+            'debug'                 => true,
+            'queryBatching'         => true,
         ];
 
         $config = ServerConfig::create($arr);
@@ -186,15 +204,13 @@ class ServerConfigTest extends TestCase
         $this->assertSame($arr['validationRules'], $config->getValidationRules());
         $this->assertSame($arr['fieldResolver'], $config->getFieldResolver());
         $this->assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
-        $this->assertSame(true, $config->getDebug());
-        $this->assertSame(true, $config->getQueryBatching());
+        $this->assertTrue($config->getDebug());
+        $this->assertTrue($config->getQueryBatching());
     }
 
     public function testThrowsOnInvalidArrayKey() : void
     {
-        $arr = [
-            'missingKey' => 'value'
-        ];
+        $arr = ['missingKey' => 'value'];
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Unknown server config option "missingKey"');
@@ -204,7 +220,7 @@ class ServerConfigTest extends TestCase
 
     public function testInvalidValidationRules() : void
     {
-        $rules = new \stdClass();
+        $rules  = new \stdClass();
         $config = ServerConfig::create();
 
         $this->expectException(InvariantViolation::class);

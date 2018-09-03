@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
@@ -8,16 +11,18 @@ use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 class PossibleFragmentSpreadsTest extends ValidatorTestCase
 {
     // Validate: Possible fragment spreads
-
     /**
      * @see it('of the same object')
      */
     public function testOfTheSameObject() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads(), '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment objectWithinObject on Dog { ...dogFragment }
       fragment dogFragment on Dog { barkVolume }
-        ');
+        '
+        );
     }
 
     /**
@@ -25,9 +30,12 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testOfTheSameObjectWithInlineFragment() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment objectWithinObjectAnon on Dog { ... on Dog { barkVolume } }
-        ');
+        '
+        );
     }
 
     /**
@@ -35,10 +43,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testObjectIntoAnImplementedInterface() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment objectWithinInterface on Pet { ...dogFragment }
       fragment dogFragment on Dog { barkVolume }
-        ');
+        '
+        );
     }
 
     /**
@@ -46,10 +57,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testObjectIntoContainingUnion() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment objectWithinUnion on CatOrDog { ...dogFragment }
       fragment dogFragment on Dog { barkVolume }
-        ');
+        '
+        );
     }
 
     /**
@@ -57,10 +71,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testUnionIntoContainedObject() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment unionWithinObject on Dog { ...catOrDogFragment }
       fragment catOrDogFragment on CatOrDog { __typename }
-        ');
+        '
+        );
     }
 
     /**
@@ -68,10 +85,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testUnionIntoOverlappingInterface() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment unionWithinInterface on Pet { ...catOrDogFragment }
       fragment catOrDogFragment on CatOrDog { __typename }
-        ');
+        '
+        );
     }
 
     /**
@@ -79,10 +99,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testUnionIntoOverlappingUnion() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment unionWithinUnion on DogOrHuman { ...catOrDogFragment }
       fragment catOrDogFragment on CatOrDog { __typename }
-        ');
+        '
+        );
     }
 
     /**
@@ -90,10 +113,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testInterfaceIntoImplementedObject() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment interfaceWithinObject on Dog { ...petFragment }
       fragment petFragment on Pet { name }
-        ');
+        '
+        );
     }
 
     /**
@@ -101,10 +127,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testInterfaceIntoOverlappingInterface() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment interfaceWithinInterface on Pet { ...beingFragment }
       fragment beingFragment on Being { name }
-        ');
+        '
+        );
     }
 
     /**
@@ -112,9 +141,12 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testInterfaceIntoOverlappingInterfaceInInlineFragment() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment interfaceWithinInterface on Pet { ... on Being { name } }
-        ');
+        '
+        );
     }
 
     /**
@@ -122,10 +154,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testInterfaceIntoOverlappingUnion() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment interfaceWithinUnion on CatOrDog { ...petFragment }
       fragment petFragment on Pet { name }
-        ');
+        '
+        );
     }
 
     /**
@@ -133,10 +168,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testIgnoresIncorrectTypeCaughtByFragmentsOnCompositeTypes() : void
     {
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment petFragment on Pet { ...badInADifferentWay }
       fragment badInADifferentWay on String { name }
-        ');
+        '
+        );
     }
 
     /**
@@ -144,11 +182,21 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testDifferentObjectIntoObject() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidObjectWithinObject on Cat { ...dogFragment }
       fragment dogFragment on Dog { barkVolume }
         ',
             [$this->error('dogFragment', 'Cat', 'Dog', 2, 51)]
+        );
+    }
+
+    private function error($fragName, $parentType, $fragType, $line, $column)
+    {
+        return FormattedError::create(
+            PossibleFragmentSpreads::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
+            [new SourceLocation($line, $column)]
         );
     }
 
@@ -157,7 +205,9 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testDifferentObjectIntoObjectInInlineFragment() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidObjectWithinObjectAnon on Cat {
         ... on Dog { barkVolume }
       }
@@ -166,12 +216,22 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
         );
     }
 
+    private function errorAnon($parentType, $fragType, $line, $column)
+    {
+        return FormattedError::create(
+            PossibleFragmentSpreads::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
+            [new SourceLocation($line, $column)]
+        );
+    }
+
     /**
      * @see it('object into not implementing interface')
      */
     public function testObjectIntoNotImplementingInterface() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidObjectWithinInterface on Pet { ...humanFragment }
       fragment humanFragment on Human { pets { name } }
         ',
@@ -184,7 +244,9 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testObjectIntoNotContainingUnion() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidObjectWithinUnion on CatOrDog { ...humanFragment }
       fragment humanFragment on Human { pets { name } }
         ',
@@ -197,7 +259,9 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testUnionIntoNotContainedObject() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidUnionWithinObject on Human { ...catOrDogFragment }
       fragment catOrDogFragment on CatOrDog { __typename }
         ',
@@ -210,7 +274,9 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testUnionIntoNonOverlappingInterface() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidUnionWithinInterface on Pet { ...humanOrAlienFragment }
       fragment humanOrAlienFragment on HumanOrAlien { __typename }
         ',
@@ -223,7 +289,9 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testUnionIntoNonOverlappingUnion() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidUnionWithinUnion on CatOrDog { ...humanOrAlienFragment }
       fragment humanOrAlienFragment on HumanOrAlien { __typename }
         ',
@@ -236,7 +304,9 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testInterfaceIntoNonImplementingObject() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidInterfaceWithinObject on Cat { ...intelligentFragment }
       fragment intelligentFragment on Intelligent { iq }
         ',
@@ -252,12 +322,15 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
         // Ideally this should fail, but our new lazy schema doesn't scan through all types and fields
         // So we don't have enough knowledge to check interface intersection and always allow this to pass:
 
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidInterfaceWithinInterface on Pet {
         ...intelligentFragment
       }
       fragment intelligentFragment on Intelligent { iq }
-        ');
+        '
+        );
     }
 
     /**
@@ -268,11 +341,14 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
         // Ideally this should fail, but our new lazy schema doesn't scan through all types and fields
         // So we don't have enough knowledge to check interface intersection and always allow this to pass:
 
-        $this->expectPassesRule(new PossibleFragmentSpreads, '
+        $this->expectPassesRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidInterfaceWithinInterfaceAnon on Pet {
         ...on Intelligent { iq }
       }
-        ');
+        '
+        );
     }
 
     /**
@@ -280,27 +356,13 @@ class PossibleFragmentSpreadsTest extends ValidatorTestCase
      */
     public function testInterfaceIntoNonOverlappingUnion() : void
     {
-        $this->expectFailsRule(new PossibleFragmentSpreads, '
+        $this->expectFailsRule(
+            new PossibleFragmentSpreads(),
+            '
       fragment invalidInterfaceWithinUnion on HumanOrAlien { ...petFragment }
       fragment petFragment on Pet { name }
         ',
             [$this->error('petFragment', 'HumanOrAlien', 'Pet', 2, 62)]
-        );
-    }
-
-    private function error($fragName, $parentType, $fragType, $line, $column)
-    {
-        return FormattedError::create(
-            PossibleFragmentSpreads::typeIncompatibleSpreadMessage($fragName, $parentType, $fragType),
-            [new SourceLocation($line, $column)]
-        );
-    }
-
-    private function errorAnon($parentType, $fragType, $line, $column)
-    {
-        return FormattedError::create(
-            PossibleFragmentSpreads::typeIncompatibleAnonSpreadMessage($parentType, $fragType),
-            [new SourceLocation($line, $column)]
         );
     }
 }

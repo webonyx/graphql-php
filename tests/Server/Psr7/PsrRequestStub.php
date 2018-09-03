@@ -1,10 +1,17 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Server\Psr7;
 
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
+use function strtolower;
 
+/**
+ * phpcs:ignoreFile -- this is not a core file
+ */
 class PsrRequestStub implements ServerRequestInterface
 {
     public $queryParams = [];
@@ -13,14 +20,10 @@ class PsrRequestStub implements ServerRequestInterface
 
     public $method;
 
-    /**
-     * @var PsrStreamStub
-     */
+    /** @var PsrStreamStub */
     public $body;
 
-    /**
-     * @var array
-     */
+    /** @var mixed[] */
     public $parsedBody;
 
     /**
@@ -32,7 +35,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getProtocolVersion()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -50,7 +53,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withProtocolVersion($version)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -80,7 +83,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getHeaders()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -93,7 +96,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function hasHeader($name)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -113,7 +116,8 @@ class PsrRequestStub implements ServerRequestInterface
     public function getHeader($name)
     {
         $name = strtolower($name);
-        return isset($this->headers[$name]) ? $this->headers[$name] : [];
+
+        return $this->headers[$name] ?? [];
     }
 
     /**
@@ -137,7 +141,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getHeaderLine($name)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -150,14 +154,14 @@ class PsrRequestStub implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * new and/or updated header and value.
      *
-     * @param string $name Case-insensitive header field name.
+     * @param string          $name  Case-insensitive header field name.
      * @param string|string[] $value Header value(s).
      * @return static
      * @throws \InvalidArgumentException for invalid header names or values.
      */
     public function withHeader($name, $value)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -171,14 +175,14 @@ class PsrRequestStub implements ServerRequestInterface
      * immutability of the message, and MUST return an instance that has the
      * new header and/or value.
      *
-     * @param string $name Case-insensitive header field name to add.
+     * @param string          $name  Case-insensitive header field name to add.
      * @param string|string[] $value Header value(s).
      * @return static
      * @throws \InvalidArgumentException for invalid header names or values.
      */
     public function withAddedHeader($name, $value)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -195,7 +199,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withoutHeader($name)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -223,7 +227,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withBody(StreamInterface $body)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -244,7 +248,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getRequestTarget()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -266,7 +270,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withRequestTarget($requestTarget)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -296,7 +300,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withMethod($method)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -339,13 +343,13 @@ class PsrRequestStub implements ServerRequestInterface
      * new UriInterface instance.
      *
      * @link http://tools.ietf.org/html/rfc3986#section-4.3
-     * @param UriInterface $uri New request URI to use.
-     * @param bool $preserveHost Preserve the original state of the Host header.
+     * @param UriInterface $uri          New request URI to use.
+     * @param bool         $preserveHost Preserve the original state of the Host header.
      * @return static
      */
     public function withUri(UriInterface $uri, $preserveHost = false)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -359,7 +363,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getServerParams()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -374,7 +378,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getCookieParams()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -396,7 +400,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withCookieParams(array $cookies)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -440,7 +444,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withQueryParams(array $query)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -457,7 +461,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getUploadedFiles()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -473,7 +477,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withUploadedFiles(array $uploadedFiles)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -526,7 +530,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withParsedBody($data)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -542,7 +546,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getAttributes()
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -556,13 +560,13 @@ class PsrRequestStub implements ServerRequestInterface
      * specifying a default value to return if the attribute is not found.
      *
      * @see getAttributes()
-     * @param string $name The attribute name.
-     * @param mixed $default Default value to return if the attribute does not exist.
+     * @param string $name    The attribute name.
+     * @param mixed  $default Default value to return if the attribute does not exist.
      * @return mixed
      */
     public function getAttribute($name, $default = null)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -576,13 +580,13 @@ class PsrRequestStub implements ServerRequestInterface
      * updated attribute.
      *
      * @see getAttributes()
-     * @param string $name The attribute name.
-     * @param mixed $value The value of the attribute.
+     * @param string $name  The attribute name.
+     * @param mixed  $value The value of the attribute.
      * @return static
      */
     public function withAttribute($name, $value)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 
     /**
@@ -601,6 +605,6 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function withoutAttribute($name)
     {
-        throw new \Exception("Not implemented");
+        throw new \Exception('Not implemented');
     }
 }

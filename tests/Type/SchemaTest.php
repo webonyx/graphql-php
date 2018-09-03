@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
@@ -12,14 +15,19 @@ use PHPUnit\Framework\TestCase;
 
 class SchemaTest extends TestCase
 {
+    /** @var InterfaceType */
     private $interfaceType;
 
+    /** @var ObjectType */
     private $implementingType;
 
+    /** @var InputObjectType */
     private $directiveInputType;
 
+    /** @var InputObjectType */
     private $wrappedDirectiveInputType;
 
+    /** @var Directive */
     private $directive;
 
     /** @var Schema */
@@ -28,20 +36,25 @@ class SchemaTest extends TestCase
     public function setUp()
     {
         $this->interfaceType = new InterfaceType([
-            'name' => 'Interface',
+            'name'   => 'Interface',
             'fields' => ['fieldName' => ['type' => Type::string()]],
         ]);
 
         $this->implementingType = new ObjectType([
-            'name' => 'Object',
+            'name'       => 'Object',
             'interfaces' => [$this->interfaceType],
-            'fields' => ['fieldName' => ['type' => Type::string(), 'resolve' => function () {
-                return '';
-            }]],
+            'fields'     => [
+                'fieldName' => [
+                    'type'    => Type::string(),
+                    'resolve' => function () {
+                        return '';
+                    },
+                ],
+            ],
         ]);
 
         $this->directiveInputType = new InputObjectType([
-            'name' => 'DirInput',
+            'name'   => 'DirInput',
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -50,7 +63,7 @@ class SchemaTest extends TestCase
         ]);
 
         $this->wrappedDirectiveInputType = new InputObjectType([
-            'name' => 'WrappedDirInput',
+            'name'   => 'WrappedDirInput',
             'fields' => [
                 'field' => [
                     'type' => Type::string(),
@@ -59,10 +72,10 @@ class SchemaTest extends TestCase
         ]);
 
         $this->directive = new Directive([
-            'name' => 'dir',
+            'name'      => 'dir',
             'locations' => ['OBJECT'],
-            'args' => [
-                'arg' => [
+            'args'      => [
+                'arg'     => [
                     'type' => $this->directiveInputType,
                 ],
                 'argList' => [
@@ -72,11 +85,11 @@ class SchemaTest extends TestCase
         ]);
 
         $this->schema = new Schema([
-            'query' => new ObjectType([
-                'name' => 'Query',
+            'query'      => new ObjectType([
+                'name'   => 'Query',
                 'fields' => [
                     'getObject' => [
-                        'type' => $this->interfaceType,
+                        'type'    => $this->interfaceType,
                         'resolve' => function () {
                             return [];
                         },

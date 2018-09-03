@@ -1,7 +1,11 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Tests\Language;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
@@ -13,9 +17,10 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Error\SyntaxError;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use function file_get_contents;
+use function sprintf;
 
 class ParserTest extends TestCase
 {
@@ -43,22 +48,40 @@ class ParserTest extends TestCase
     public function parseProvidesUsefulErrors()
     {
         return [
-            ['{', "Syntax Error: Expected Name, found <EOF>", "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n", [1], [new SourceLocation(1, 2)]],
-            ['{ ...MissingOn }
+            [
+                '{',
+                'Syntax Error: Expected Name, found <EOF>',
+                "Syntax Error: Expected Name, found <EOF>\n\nGraphQL request (1:2)\n1: {\n    ^\n",
+                [1],
+                [new SourceLocation(
+                    1,
+                    2
+                ),
+                ],
+            ],
+            [
+                '{ ...MissingOn }
 fragment MissingOn Type
-', "Syntax Error: Expected \"on\", found Name \"Type\"", "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",],
-            ['{ field: {} }', "Syntax Error: Expected Name, found {", "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n"],
-            ['notanoperation Foo { field }', "Syntax Error: Unexpected Name \"notanoperation\"", "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n"],
-            ['...', "Syntax Error: Unexpected ...", "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n"],
+', 'Syntax Error: Expected "on", found Name "Type"',
+                "Syntax Error: Expected \"on\", found Name \"Type\"\n\nGraphQL request (2:20)\n1: { ...MissingOn }\n2: fragment MissingOn Type\n                      ^\n3: \n",
+            ],
+            ['{ field: {} }', 'Syntax Error: Expected Name, found {', "Syntax Error: Expected Name, found {\n\nGraphQL request (1:10)\n1: { field: {} }\n            ^\n"],
+            ['notanoperation Foo { field }', 'Syntax Error: Unexpected Name "notanoperation"', "Syntax Error: Unexpected Name \"notanoperation\"\n\nGraphQL request (1:1)\n1: notanoperation Foo { field }\n   ^\n"],
+            ['...', 'Syntax Error: Unexpected ...', "Syntax Error: Unexpected ...\n\nGraphQL request (1:1)\n1: ...\n   ^\n"],
         ];
     }
 
     /**
      * @dataProvider parseProvidesUsefulErrors
-     * @see it('parse provides useful errors')
+     * @see          it('parse provides useful errors')
      */
-    public function testParseProvidesUsefulErrors($str, $expectedMessage, $stringRepresentation, $expectedPositions = null, $expectedLocations = null) : void
-    {
+    public function testParseProvidesUsefulErrors(
+        $str,
+        $expectedMessage,
+        $stringRepresentation,
+        $expectedPositions = null,
+        $expectedLocations = null
+    ) : void {
         try {
             Parser::parse($str);
             $this->fail('Expected exception not thrown');
@@ -110,8 +133,25 @@ fragment MissingOn Type
         $this->expectSyntaxError(
             'query Foo($x: Complex = { a: { b: [ $var ] } }) { field }',
             'Unexpected $',
-            $this->loc(1,37)
+            $this->loc(1, 37)
         );
+    }
+
+    private function expectSyntaxError($text, $message, $location)
+    {
+        $this->expectException(SyntaxError::class);
+        $this->expectExceptionMessage($message);
+        try {
+            Parser::parse($text);
+        } catch (SyntaxError $error) {
+            $this->assertEquals([$location], $error->getLocations());
+            throw $error;
+        }
+    }
+
+    private function loc($line, $column)
+    {
+        return new SourceLocation($line, $column);
     }
 
     /**
@@ -122,7 +162,7 @@ fragment MissingOn Type
         $this->expectSyntaxError(
             'fragment on on on { on }',
             'Unexpected Name "on"',
-            $this->loc(1,10)
+            $this->loc(1, 10)
         );
     }
 
@@ -134,7 +174,7 @@ fragment MissingOn Type
         $this->expectSyntaxError(
             '{ ...on }',
             'Expected Name, found }',
-            $this->loc(1,9)
+            $this->loc(1, 9)
         );
     }
 
@@ -145,7 +185,7 @@ fragment MissingOn Type
     {
         // Note: \u0A0A could be naively interpretted as two line-feed chars.
 
-        $char = Utils::chr(0x0A0A);
+        $char  = Utils::chr(0x0A0A);
         $query = <<<HEREDOC
         # This comment has a $char multi-byte character.
         { field(arg: "Has a $char multi-byte character.") }
@@ -156,18 +196,18 @@ HEREDOC;
         $expected = new SelectionSetNode([
             'selections' => new NodeList([
                 new FieldNode([
-                    'name' => new NameNode(['value' => 'field']),
-                    'arguments' => new NodeList([
+                    'name'       => new NameNode(['value' => 'field']),
+                    'arguments'  => new NodeList([
                         new ArgumentNode([
-                            'name' => new NameNode(['value' => 'arg']),
-                            'value' => new StringValueNode([
-                                'value' => "Has a $char multi-byte character."
-                            ])
-                        ])
+                            'name'  => new NameNode(['value' => 'arg']),
+                            'value' => new StringValueNode(
+                                ['value' => sprintf('Has a %s multi-byte character.', $char)]
+                            ),
+                        ]),
                     ]),
-                    'directives' => new NodeList([])
-                ])
-            ])
+                    'directives' => new NodeList([]),
+                ]),
+            ]),
         ]);
 
         $this->assertEquals($expected, $result->definitions[0]->selectionSet);
@@ -180,7 +220,7 @@ HEREDOC;
     {
         // Following should not throw:
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
-        $result = Parser::parse($kitchenSink);
+        $result      = Parser::parse($kitchenSink);
         $this->assertNotEmpty($result);
     }
 
@@ -196,7 +236,7 @@ HEREDOC;
             'mutation',
             'subscription',
             'true',
-            'false'
+            'false',
         ];
         foreach ($nonKeywords as $keyword) {
             $fragmentName = $keyword;
@@ -205,14 +245,19 @@ HEREDOC;
             }
 
             // Expected not to throw:
-            $result = Parser::parse("query $keyword {
-  ... $fragmentName
-  ... on $keyword { field }
+            $result = Parser::parse(<<<GRAPHQL
+query $keyword {
+... $fragmentName
+... on $keyword { field }
 }
 fragment $fragmentName on Type {
-  $keyword($keyword: \$$keyword) @$keyword($keyword: $keyword)
+$keyword($keyword: \$$keyword) @$keyword($keyword: $keyword)
 }
-");
+fragment $fragmentName on Type {
+  $keyword($keyword: \$$keyword) @$keyword($keyword: $keyword)	
+}
+GRAPHQL
+            );
             $this->assertNotEmpty($result);
         }
     }
@@ -286,94 +331,102 @@ fragment $fragmentName on Type {
 ');
         $result = Parser::parse($source);
 
-        $loc = function($start, $end) use ($source) {
+        $loc = function ($start, $end) {
             return [
                 'start' => $start,
-                'end' => $end
+                'end'   => $end,
             ];
         };
 
         $expected = [
-            'kind' => NodeKind::DOCUMENT,
-            'loc' => $loc(0, 41),
+            'kind'        => NodeKind::DOCUMENT,
+            'loc'         => $loc(0, 41),
             'definitions' => [
                 [
-                    'kind' => NodeKind::OPERATION_DEFINITION,
-                    'loc' => $loc(0, 40),
-                    'operation' => 'query',
-                    'name' => null,
+                    'kind'                => NodeKind::OPERATION_DEFINITION,
+                    'loc'                 => $loc(0, 40),
+                    'operation'           => 'query',
+                    'name'                => null,
                     'variableDefinitions' => [],
-                    'directives' => [],
-                    'selectionSet' => [
-                        'kind' => NodeKind::SELECTION_SET,
-                        'loc' => $loc(0, 40),
+                    'directives'          => [],
+                    'selectionSet'        => [
+                        'kind'       => NodeKind::SELECTION_SET,
+                        'loc'        => $loc(0, 40),
                         'selections' => [
                             [
-                                'kind' => NodeKind::FIELD,
-                                'loc' => $loc(4, 38),
-                                'alias' => null,
-                                'name' => [
-                                    'kind' => NodeKind::NAME,
-                                    'loc' => $loc(4, 8),
-                                    'value' => 'node'
+                                'kind'         => NodeKind::FIELD,
+                                'loc'          => $loc(4, 38),
+                                'alias'        => null,
+                                'name'         => [
+                                    'kind'  => NodeKind::NAME,
+                                    'loc'   => $loc(4, 8),
+                                    'value' => 'node',
                                 ],
-                                'arguments' => [
+                                'arguments'    => [
                                     [
-                                        'kind' => NodeKind::ARGUMENT,
-                                        'name' => [
-                                            'kind' => NodeKind::NAME,
-                                            'loc' => $loc(9, 11),
-                                            'value' => 'id'
+                                        'kind'  => NodeKind::ARGUMENT,
+                                        'name'  => [
+                                            'kind'  => NodeKind::NAME,
+                                            'loc'   => $loc(9, 11),
+                                            'value' => 'id',
                                         ],
                                         'value' => [
-                                            'kind' => NodeKind::INT,
-                                            'loc' => $loc(13, 14),
-                                            'value' => '4'
+                                            'kind'  => NodeKind::INT,
+                                            'loc'   => $loc(13, 14),
+                                            'value' => '4',
                                         ],
-                                        'loc' => $loc(9, 14, $source)
-                                    ]
+                                        'loc'   => $loc(9, 14, $source),
+                                    ],
                                 ],
-                                'directives' => [],
+                                'directives'   => [],
                                 'selectionSet' => [
-                                    'kind' => NodeKind::SELECTION_SET,
-                                    'loc' => $loc(16, 38),
+                                    'kind'       => NodeKind::SELECTION_SET,
+                                    'loc'        => $loc(16, 38),
                                     'selections' => [
                                         [
-                                            'kind' => NodeKind::FIELD,
-                                            'loc' => $loc(22, 24),
-                                            'alias' => null,
-                                            'name' => [
-                                                'kind' => NodeKind::NAME,
-                                                'loc' => $loc(22, 24),
-                                                'value' => 'id'
+                                            'kind'         => NodeKind::FIELD,
+                                            'loc'          => $loc(22, 24),
+                                            'alias'        => null,
+                                            'name'         => [
+                                                'kind'  => NodeKind::NAME,
+                                                'loc'   => $loc(22, 24),
+                                                'value' => 'id',
                                             ],
-                                            'arguments' => [],
-                                            'directives' => [],
-                                            'selectionSet' => null
+                                            'arguments'    => [],
+                                            'directives'   => [],
+                                            'selectionSet' => null,
                                         ],
                                         [
-                                            'kind' => NodeKind::FIELD,
-                                            'loc' => $loc(30, 34),
-                                            'alias' => null,
-                                            'name' => [
-                                                'kind' => NodeKind::NAME,
-                                                'loc' => $loc(30, 34),
-                                                'value' => 'name'
+                                            'kind'         => NodeKind::FIELD,
+                                            'loc'          => $loc(30, 34),
+                                            'alias'        => null,
+                                            'name'         => [
+                                                'kind'  => NodeKind::NAME,
+                                                'loc'   => $loc(30, 34),
+                                                'value' => 'name',
                                             ],
-                                            'arguments' => [],
-                                            'directives' => [],
-                                            'selectionSet' => null
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                                            'arguments'    => [],
+                                            'directives'   => [],
+                                            'selectionSet' => null,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
-        $this->assertEquals($expected, $this->nodeToArray($result));
+        $this->assertEquals($expected, self::nodeToArray($result));
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public static function nodeToArray(Node $node) : array
+    {
+        return TestUtils::nodeToArray($node);
     }
 
     /**
@@ -389,63 +442,63 @@ fragment $fragmentName on Type {
 ');
         $result = Parser::parse($source);
 
-        $loc = function($start, $end) use ($source) {
+        $loc = function ($start, $end) {
             return [
                 'start' => $start,
-                'end' => $end
+                'end'   => $end,
             ];
         };
 
         $expected = [
-            'kind' => NodeKind::DOCUMENT,
-            'loc' => $loc(0, 30),
+            'kind'        => NodeKind::DOCUMENT,
+            'loc'         => $loc(0, 30),
             'definitions' => [
                 [
-                    'kind' => NodeKind::OPERATION_DEFINITION,
-                    'loc' => $loc(0, 29),
-                    'operation' => 'query',
-                    'name' => null,
+                    'kind'                => NodeKind::OPERATION_DEFINITION,
+                    'loc'                 => $loc(0, 29),
+                    'operation'           => 'query',
+                    'name'                => null,
                     'variableDefinitions' => [],
-                    'directives' => [],
-                    'selectionSet' => [
-                        'kind' => NodeKind::SELECTION_SET,
-                        'loc' => $loc(6, 29),
+                    'directives'          => [],
+                    'selectionSet'        => [
+                        'kind'       => NodeKind::SELECTION_SET,
+                        'loc'        => $loc(6, 29),
                         'selections' => [
                             [
-                                'kind' => NodeKind::FIELD,
-                                'loc' => $loc(10, 27),
-                                'alias' => null,
-                                'name' => [
-                                    'kind' => NodeKind::NAME,
-                                    'loc' => $loc(10, 14),
-                                    'value' => 'node'
+                                'kind'         => NodeKind::FIELD,
+                                'loc'          => $loc(10, 27),
+                                'alias'        => null,
+                                'name'         => [
+                                    'kind'  => NodeKind::NAME,
+                                    'loc'   => $loc(10, 14),
+                                    'value' => 'node',
                                 ],
-                                'arguments' => [],
-                                'directives' => [],
+                                'arguments'    => [],
+                                'directives'   => [],
                                 'selectionSet' => [
-                                    'kind' => NodeKind::SELECTION_SET,
-                                    'loc' => $loc(15, 27),
+                                    'kind'       => NodeKind::SELECTION_SET,
+                                    'loc'        => $loc(15, 27),
                                     'selections' => [
                                         [
-                                            'kind' => NodeKind::FIELD,
-                                            'loc' => $loc(21, 23),
-                                            'alias' => null,
-                                            'name' => [
-                                                'kind' => NodeKind::NAME,
-                                                'loc' => $loc(21, 23),
-                                                'value' => 'id'
+                                            'kind'         => NodeKind::FIELD,
+                                            'loc'          => $loc(21, 23),
+                                            'alias'        => null,
+                                            'name'         => [
+                                                'kind'  => NodeKind::NAME,
+                                                'loc'   => $loc(21, 23),
+                                                'value' => 'id',
                                             ],
-                                            'arguments' => [],
-                                            'directives' => [],
-                                            'selectionSet' => null
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+                                            'arguments'    => [],
+                                            'directives'   => [],
+                                            'selectionSet' => null,
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
         ];
 
         $this->assertEquals($expected, $this->nodeToArray($result));
@@ -475,6 +528,8 @@ fragment $fragmentName on Type {
         Parser::parse($source);
     }
 
+    // Describe: parseValue
+
     /**
      * @see it('contains location information that only stringifys start/end')
      */
@@ -495,6 +550,8 @@ fragment $fragmentName on Type {
         $this->assertEquals($source, $result->loc->source);
     }
 
+    // Describe: parseType
+
     /**
      * @see it('contains references to start and end tokens')
      */
@@ -506,17 +563,18 @@ fragment $fragmentName on Type {
         $this->assertEquals('<EOF>', $result->loc->endToken->kind);
     }
 
-    // Describe: parseValue
-
     /**
      * @see it('parses null value')
      */
     public function testParsesNullValues() : void
     {
-        $this->assertEquals([
-            'kind' => NodeKind::NULL,
-            'loc' => ['start' => 0, 'end' => 4]
-        ], $this->nodeToArray(Parser::parseValue('null')));
+        $this->assertEquals(
+            [
+                'kind' => NodeKind::NULL,
+                'loc'  => ['start' => 0, 'end' => 4],
+            ],
+            $this->nodeToArray(Parser::parseValue('null'))
+        );
     }
 
     /**
@@ -524,41 +582,45 @@ fragment $fragmentName on Type {
      */
     public function testParsesListValues() : void
     {
-        $this->assertEquals([
-            'kind' => NodeKind::LST,
-            'loc' => ['start' => 0, 'end' => 11],
-            'values' => [
-                [
-                    'kind' => NodeKind::INT,
-                    'loc' => ['start' => 1, 'end' => 4],
-                    'value' => '123'
+        $this->assertEquals(
+            [
+                'kind'   => NodeKind::LST,
+                'loc'    => ['start' => 0, 'end' => 11],
+                'values' => [
+                    [
+                        'kind'  => NodeKind::INT,
+                        'loc'   => ['start' => 1, 'end' => 4],
+                        'value' => '123',
+                    ],
+                    [
+                        'kind'  => NodeKind::STRING,
+                        'loc'   => ['start' => 5, 'end' => 10],
+                        'value' => 'abc',
+                        'block' => false,
+                    ],
                 ],
-                [
-                    'kind' => NodeKind::STRING,
-                    'loc' => ['start' => 5, 'end' => 10],
-                    'value' => 'abc',
-                    'block' => false
-                ]
-            ]
-        ], $this->nodeToArray(Parser::parseValue('[123 "abc"]')));
+            ],
+            $this->nodeToArray(Parser::parseValue('[123 "abc"]'))
+        );
     }
-
-    // Describe: parseType
 
     /**
      * @see it('parses well known types')
      */
     public function testParsesWellKnownTypes() : void
     {
-        $this->assertEquals([
-            'kind' => NodeKind::NAMED_TYPE,
-            'loc' => ['start' => 0, 'end' => 6],
-            'name' => [
-                'kind' => NodeKind::NAME,
-                'loc' => ['start' => 0, 'end' => 6],
-                'value' => 'String'
-            ]
-        ], $this->nodeToArray(Parser::parseType('String')));
+        $this->assertEquals(
+            [
+                'kind' => NodeKind::NAMED_TYPE,
+                'loc'  => ['start' => 0, 'end' => 6],
+                'name' => [
+                    'kind'  => NodeKind::NAME,
+                    'loc'   => ['start' => 0, 'end' => 6],
+                    'value' => 'String',
+                ],
+            ],
+            $this->nodeToArray(Parser::parseType('String'))
+        );
     }
 
     /**
@@ -566,15 +628,18 @@ fragment $fragmentName on Type {
      */
     public function testParsesCustomTypes() : void
     {
-        $this->assertEquals([
-            'kind' => NodeKind::NAMED_TYPE,
-            'loc' => ['start' => 0, 'end' => 6],
-            'name' => [
-                'kind' => NodeKind::NAME,
-                'loc' => ['start' => 0, 'end' => 6],
-                'value' => 'MyType'
-            ]
-        ], $this->nodeToArray(Parser::parseType('MyType')));
+        $this->assertEquals(
+            [
+                'kind' => NodeKind::NAMED_TYPE,
+                'loc'  => ['start' => 0, 'end' => 6],
+                'name' => [
+                    'kind'  => NodeKind::NAME,
+                    'loc'   => ['start' => 0, 'end' => 6],
+                    'value' => 'MyType',
+                ],
+            ],
+            $this->nodeToArray(Parser::parseType('MyType'))
+        );
     }
 
     /**
@@ -582,19 +647,22 @@ fragment $fragmentName on Type {
      */
     public function testParsesListTypes() : void
     {
-        $this->assertEquals([
-            'kind' => NodeKind::LIST_TYPE,
-            'loc' => ['start' => 0, 'end' => 8],
-            'type' => [
-                'kind' => NodeKind::NAMED_TYPE,
-                'loc' => ['start' => 1, 'end' => 7],
-                'name' => [
-                    'kind' => NodeKind::NAME,
-                    'loc' => ['start' => 1, 'end' => 7],
-                    'value' => 'MyType'
-                ]
-            ]
-        ], $this->nodeToArray(Parser::parseType('[MyType]')));
+        $this->assertEquals(
+            [
+                'kind' => NodeKind::LIST_TYPE,
+                'loc'  => ['start' => 0, 'end' => 8],
+                'type' => [
+                    'kind' => NodeKind::NAMED_TYPE,
+                    'loc'  => ['start' => 1, 'end' => 7],
+                    'name' => [
+                        'kind'  => NodeKind::NAME,
+                        'loc'   => ['start' => 1, 'end' => 7],
+                        'value' => 'MyType',
+                    ],
+                ],
+            ],
+            $this->nodeToArray(Parser::parseType('[MyType]'))
+        );
     }
 
     /**
@@ -602,19 +670,22 @@ fragment $fragmentName on Type {
      */
     public function testParsesNonNullTypes() : void
     {
-        $this->assertEquals([
-            'kind' => NodeKind::NON_NULL_TYPE,
-            'loc' => ['start' => 0, 'end' => 7],
-            'type' => [
-                'kind' => NodeKind::NAMED_TYPE,
-                'loc' => ['start' => 0, 'end' => 6],
-                'name' => [
-                    'kind' => NodeKind::NAME,
-                    'loc' => ['start' => 0, 'end' => 6],
-                    'value' => 'MyType'
-                ]
-            ]
-        ], $this->nodeToArray(Parser::parseType('MyType!')));
+        $this->assertEquals(
+            [
+                'kind' => NodeKind::NON_NULL_TYPE,
+                'loc'  => ['start' => 0, 'end' => 7],
+                'type' => [
+                    'kind' => NodeKind::NAMED_TYPE,
+                    'loc'  => ['start' => 0, 'end' => 6],
+                    'name' => [
+                        'kind'  => NodeKind::NAME,
+                        'loc'   => ['start' => 0, 'end' => 6],
+                        'value' => 'MyType',
+                    ],
+                ],
+            ],
+            $this->nodeToArray(Parser::parseType('MyType!'))
+        );
     }
 
     /**
@@ -622,48 +693,25 @@ fragment $fragmentName on Type {
      */
     public function testParsesNestedTypes() : void
     {
-        $this->assertEquals([
-            'kind' => NodeKind::LIST_TYPE,
-            'loc' => ['start' => 0, 'end' => 9],
-            'type' => [
-                'kind' => NodeKind::NON_NULL_TYPE,
-                'loc' => ['start' => 1, 'end' => 8],
+        $this->assertEquals(
+            [
+                'kind' => NodeKind::LIST_TYPE,
+                'loc'  => ['start' => 0, 'end' => 9],
                 'type' => [
-                    'kind' => NodeKind::NAMED_TYPE,
-                    'loc' => ['start' => 1, 'end' => 7],
-                    'name' => [
-                        'kind' => NodeKind::NAME,
-                        'loc' => ['start' => 1, 'end' => 7],
-                        'value' => 'MyType'
-                    ]
-                ]
-            ]
-        ], $this->nodeToArray(Parser::parseType('[MyType!]')));
-    }
-
-    /**
-     * @param Node $node
-     * @return array
-     */
-    public static function nodeToArray(Node $node)
-    {
-        return TestUtils::nodeToArray($node);
-    }
-
-    private function loc($line, $column)
-    {
-        return new SourceLocation($line, $column);
-    }
-
-    private function expectSyntaxError($text, $message, $location)
-    {
-        $this->expectException(SyntaxError::class);
-        $this->expectExceptionMessage($message);
-        try {
-            Parser::parse($text);
-        } catch (SyntaxError $error) {
-            $this->assertEquals([$location], $error->getLocations());
-            throw $error;
-        }
+                    'kind' => NodeKind::NON_NULL_TYPE,
+                    'loc'  => ['start' => 1, 'end' => 8],
+                    'type' => [
+                        'kind' => NodeKind::NAMED_TYPE,
+                        'loc'  => ['start' => 1, 'end' => 7],
+                        'name' => [
+                            'kind'  => NodeKind::NAME,
+                            'loc'   => ['start' => 1, 'end' => 7],
+                            'value' => 'MyType',
+                        ],
+                    ],
+                ],
+            ],
+            $this->nodeToArray(Parser::parseType('[MyType!]'))
+        );
     }
 }
