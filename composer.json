@@ -43,6 +43,6 @@
   },
   "scripts": {
     "lint" : "phpcs",
-    "static-analysis": "phpstan analyse --ansi -l 1 -c phpstan.neon.dist src tests"
+    "static-analysis": "phpstan analyse --ansi"
   }
 }
