@@ -41,10 +41,16 @@ abstract class ServerTestCase extends TestCase
                             return $info->fieldName;
                         },
                     ],
-                    'fieldWithException'      => [
-                        'type'    => Type::string(),
-                        'resolve' => function ($root, $args, $context, $info) {
+                    'fieldWithSafeException' => [
+                        'type' => Type::string(),
+                        'resolve' => function () {
                             throw new UserError('This is the exception we want');
+                        },
+                    ],
+                    'fieldWithUnsafeException' => [
+                        'type' => Type::string(),
+                        'resolve' => function () {
+                            throw new Unsafe('This exception should not be shown to the user');
                         },
                     ],
                     'testContextAndRootValue' => [

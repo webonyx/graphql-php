@@ -81,27 +81,39 @@ class QueryExecutionTest extends ServerTestCase
 
         $query = '
         {
-            fieldWithException
+            fieldWithSafeException
             f1
         }
         ';
 
         $expected = [
-            'data'   => [
-                'fieldWithException' => null,
+            'data' => [
+                'fieldWithSafeException' => null,
                 'f1'                 => 'f1',
             ],
             'errors' => [
                 [
                     'message' => 'This is the exception we want',
-                    'path'    => ['fieldWithException'],
-                    'trace'   => [],
+                    'path' => ['fieldWithSafeException'],
+                    'trace' => [],
                 ],
             ],
         ];
 
         $result = $this->executeQuery($query)->toArray();
         $this->assertArraySubset($expected, $result);
+    }
+
+    public function testRethrowUnsafeExceptions() : void
+    {
+        $this->config->setDebug(Debug::RETHROW_UNSAFE_EXCEPTIONS);
+        $this->expectException(Unsafe::class);
+
+        $this->executeQuery('
+        {
+            fieldWithUnsafeException
+        }
+        ')->toArray();
     }
 
     public function testPassesRootValueAndContext() : void
@@ -268,7 +280,7 @@ class QueryExecutionTest extends ServerTestCase
     {
         $batch = [
             ['query' => '{invalid}'],
-            ['query' => '{f1,fieldWithException}'],
+            ['query' => '{f1,fieldWithSafeException}'],
         ];
 
         $result = $this->executeBatchedQuery($batch);
@@ -453,7 +465,7 @@ class QueryExecutionTest extends ServerTestCase
 
         $batch = [
             ['query' => '{invalid}'],
-            ['query' => '{f1,fieldWithException}'],
+            ['query' => '{f1,fieldWithSafeException}'],
             [
                 'query'     => '
                     query ($a: String!, $b: String!) {
@@ -472,9 +484,9 @@ class QueryExecutionTest extends ServerTestCase
                 'errors' => [['message' => 'Cannot query field "invalid" on type "Query".']],
             ],
             [
-                'data'   => [
-                    'f1'                 => 'f1',
-                    'fieldWithException' => null,
+                'data' => [
+                    'f1' => 'f1',
+                    'fieldWithSafeException' => null,
                 ],
                 'errors' => [
                     ['message' => 'This is the exception we want'],
@@ -618,7 +630,7 @@ class QueryExecutionTest extends ServerTestCase
             return ['test' => 'formatted'];
         });
 
-        $result = $this->executeQuery('{fieldWithException}');
+        $result = $this->executeQuery('{fieldWithSafeException}');
         $this->assertFalse($called);
         $formatted = $result->toArray();
         $expected  = [
@@ -658,7 +670,7 @@ class QueryExecutionTest extends ServerTestCase
             ];
         });
 
-        $result = $this->executeQuery('{fieldWithException,test: fieldWithException}');
+        $result = $this->executeQuery('{fieldWithSafeException,test: fieldWithSafeException}');
 
         $this->assertFalse($called);
         $formatted = $result->toArray();

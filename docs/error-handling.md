@@ -84,7 +84,7 @@ To change default **"Internal server error"** message to something else, use:
 GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 ```
 
-#Debugging tools
+# Debugging tools
 
 During development or debugging use `$result->toArray(true)` to add **debugMessage** key to 
 each formatted error entry. If you also want to add exception trace - pass flags instead:
@@ -116,7 +116,7 @@ This will make each error entry to look like this:
 ];
 ```
 
-If you prefer first resolver exception to be re-thrown, use following flags:
+If you prefer the first resolver exception to be re-thrown, use following flags:
 ```php
 <?php
 use GraphQL\GraphQL;
@@ -126,6 +126,9 @@ $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::RETHROW_INTERNAL_EXCEPTIONS;
 // Following will throw if there was an exception in resolver during execution:
 $result = GraphQL::executeQuery(/*args*/)->toArray($debug); 
 ```
+
+If you only want to re-throw Exceptions that are not marked as safe through the `ClientAware` interface, use
+the flag `Debug::RETHROW_UNSAFE_EXCEPTIONS`.
 
 # Custom Error Handling and Formatting
 It is possible to define custom **formatter** and **handler** for result errors.

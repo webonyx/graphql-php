@@ -245,9 +245,15 @@ class FormattedError
             }
         }
 
-        $isInternal = ! $e instanceof ClientAware || ! $e->isClientSafe();
+        $isUnsafe = ! $e instanceof ClientAware || ! $e->isClientSafe();
 
-        if (($debug & Debug::INCLUDE_DEBUG_MESSAGE) && $isInternal) {
+        if (($debug & Debug::RETHROW_UNSAFE_EXCEPTIONS) && $isUnsafe) {
+            if ($e->getPrevious()) {
+                throw $e->getPrevious();
+            }
+        }
+
+        if (($debug & Debug::INCLUDE_DEBUG_MESSAGE) && $isUnsafe) {
             // Displaying debugMessage as a first entry:
             $formattedError = ['debugMessage' => $e->getMessage()] + $formattedError;
         }
