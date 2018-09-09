@@ -787,7 +787,7 @@ type Query {
         ]);
 
         $schema              = new Schema(['query' => $query]);
-        $output              = SchemaPrinter::printIntrosepctionSchema($schema);
+        $output              = SchemaPrinter::printIntrospectionSchema($schema);
         $introspectionSchema = <<<'EOT'
 """
 Directs the executor to include this field or fragment only when the `if` argument is true.
@@ -1032,7 +1032,7 @@ EOT;
         ]);
 
         $schema              = new Schema(['query' => $query]);
-        $output              = SchemaPrinter::printIntrosepctionSchema(
+        $output              = SchemaPrinter::printIntrospectionSchema(
             $schema,
             ['commentDescriptions' => true]
         );
