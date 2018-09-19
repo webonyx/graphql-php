@@ -186,15 +186,15 @@ class TypeLoaderTest extends TestCase
             'Mutation.fields',
             'BlogStory.fields',
         ];
-        $this->assertEquals($expected, $this->calls);
+        self::assertEquals($expected, $this->calls);
 
-        $this->assertSame($this->query, $schema->getType('Query'));
-        $this->assertSame($this->mutation, $schema->getType('Mutation'));
-        $this->assertSame($this->node, $schema->getType('Node'));
-        $this->assertSame($this->content, $schema->getType('Content'));
-        $this->assertSame($this->blogStory, $schema->getType('BlogStory'));
-        $this->assertSame($this->postStoryMutation, $schema->getType('PostStoryMutation'));
-        $this->assertSame($this->postStoryMutationInput, $schema->getType('PostStoryMutationInput'));
+        self::assertSame($this->query, $schema->getType('Query'));
+        self::assertSame($this->mutation, $schema->getType('Mutation'));
+        self::assertSame($this->node, $schema->getType('Node'));
+        self::assertSame($this->content, $schema->getType('Content'));
+        self::assertSame($this->blogStory, $schema->getType('BlogStory'));
+        self::assertSame($this->postStoryMutation, $schema->getType('PostStoryMutation'));
+        self::assertSame($this->postStoryMutationInput, $schema->getType('PostStoryMutationInput'));
 
         $expectedTypeMap = [
             'Query'                  => $this->query,
@@ -206,7 +206,7 @@ class TypeLoaderTest extends TestCase
             'PostStoryMutationInput' => $this->postStoryMutationInput,
         ];
 
-        $this->assertArraySubset($expectedTypeMap, $schema->getTypeMap());
+        self::assertArraySubset($expectedTypeMap, $schema->getTypeMap());
     }
 
     public function testWorksWithTypeLoader() : void
@@ -216,23 +216,23 @@ class TypeLoaderTest extends TestCase
             'mutation'   => $this->mutation,
             'typeLoader' => $this->typeLoader,
         ]);
-        $this->assertEquals([], $this->calls);
+        self::assertEquals([], $this->calls);
 
         $node = $schema->getType('Node');
-        $this->assertSame($this->node, $node);
-        $this->assertEquals(['Node'], $this->calls);
+        self::assertSame($this->node, $node);
+        self::assertEquals(['Node'], $this->calls);
 
         $content = $schema->getType('Content');
-        $this->assertSame($this->content, $content);
-        $this->assertEquals(['Node', 'Content'], $this->calls);
+        self::assertSame($this->content, $content);
+        self::assertEquals(['Node', 'Content'], $this->calls);
 
         $input = $schema->getType('PostStoryMutationInput');
-        $this->assertSame($this->postStoryMutationInput, $input);
-        $this->assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
+        self::assertSame($this->postStoryMutationInput, $input);
+        self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
 
         $result = $schema->isPossibleType($this->node, $this->blogStory);
-        $this->assertTrue($result);
-        $this->assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
+        self::assertTrue($result);
+        self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
     }
 
     public function testOnlyCallsLoaderOnce() : void
@@ -243,10 +243,10 @@ class TypeLoaderTest extends TestCase
         ]);
 
         $schema->getType('Node');
-        $this->assertEquals(['Node'], $this->calls);
+        self::assertEquals(['Node'], $this->calls);
 
         $schema->getType('Node');
-        $this->assertEquals(['Node'], $this->calls);
+        self::assertEquals(['Node'], $this->calls);
     }
 
     public function testFailsOnNonExistentType() : void
@@ -321,10 +321,10 @@ class TypeLoaderTest extends TestCase
             'typeLoader' => $this->typeLoader,
         ]);
 
-        $this->assertSame($withoutLoader->getQueryType(), $withLoader->getQueryType());
-        $this->assertSame($withoutLoader->getMutationType(), $withLoader->getMutationType());
-        $this->assertSame($withoutLoader->getType('BlogStory'), $withLoader->getType('BlogStory'));
-        $this->assertSame($withoutLoader->getDirectives(), $withLoader->getDirectives());
+        self::assertSame($withoutLoader->getQueryType(), $withLoader->getQueryType());
+        self::assertSame($withoutLoader->getMutationType(), $withLoader->getMutationType());
+        self::assertSame($withoutLoader->getType('BlogStory'), $withLoader->getType('BlogStory'));
+        self::assertSame($withoutLoader->getDirectives(), $withLoader->getDirectives());
     }
 
     public function testSkipsLoaderForInternalTypes() : void
@@ -336,7 +336,7 @@ class TypeLoaderTest extends TestCase
         ]);
 
         $type = $schema->getType('ID');
-        $this->assertSame(Type::id(), $type);
-        $this->assertEquals([], $this->calls);
+        self::assertSame(Type::id(), $type);
+        self::assertEquals([], $this->calls);
     }
 }

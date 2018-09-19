@@ -86,15 +86,15 @@ fragment MissingOn Type
             Parser::parse($str);
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
-            $this->assertEquals($expectedMessage, $e->getMessage());
-            $this->assertEquals($stringRepresentation, (string) $e);
+            self::assertEquals($expectedMessage, $e->getMessage());
+            self::assertEquals($stringRepresentation, (string) $e);
 
             if ($expectedPositions) {
-                $this->assertEquals($expectedPositions, $e->getPositions());
+                self::assertEquals($expectedPositions, $e->getPositions());
             }
 
             if ($expectedLocations) {
-                $this->assertEquals($expectedLocations, $e->getLocations());
+                self::assertEquals($expectedLocations, $e->getLocations());
             }
         }
     }
@@ -108,7 +108,7 @@ fragment MissingOn Type
             Parser::parse(new Source('query', 'MyQuery.graphql'));
             $this->fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
-            $this->assertEquals(
+            self::assertEquals(
                 "Syntax Error: Expected {, found <EOF>\n\nMyQuery.graphql (1:6)\n1: query\n        ^\n",
                 (string) $error
             );
@@ -144,7 +144,7 @@ fragment MissingOn Type
         try {
             Parser::parse($text);
         } catch (SyntaxError $error) {
-            $this->assertEquals([$location], $error->getLocations());
+            self::assertEquals([$location], $error->getLocations());
             throw $error;
         }
     }
@@ -210,7 +210,7 @@ HEREDOC;
             ]),
         ]);
 
-        $this->assertEquals($expected, $result->definitions[0]->selectionSet);
+        self::assertEquals($expected, $result->definitions[0]->selectionSet);
     }
 
     /**
@@ -221,7 +221,7 @@ HEREDOC;
         // Following should not throw:
         $kitchenSink = file_get_contents(__DIR__ . '/kitchen-sink.graphql');
         $result      = Parser::parse($kitchenSink);
-        $this->assertNotEmpty($result);
+        self::assertNotEmpty($result);
     }
 
     /**
@@ -258,7 +258,7 @@ fragment $fragmentName on Type {
 }
 GRAPHQL
             );
-            $this->assertNotEmpty($result);
+            self::assertNotEmpty($result);
         }
     }
 
@@ -418,7 +418,7 @@ GRAPHQL
             ],
         ];
 
-        $this->assertEquals($expected, self::nodeToArray($result));
+        self::assertEquals($expected, self::nodeToArray($result));
     }
 
     /**
@@ -501,7 +501,7 @@ GRAPHQL
             ],
         ];
 
-        $this->assertEquals($expected, $this->nodeToArray($result));
+        self::assertEquals($expected, $this->nodeToArray($result));
     }
 
     /**
@@ -512,7 +512,7 @@ GRAPHQL
         $source = new Source('{ id }');
         $result = Parser::parse($source, ['noLocation' => true]);
 
-        $this->assertEquals(null, $result->loc);
+        self::assertEquals(null, $result->loc);
     }
 
     /**
@@ -537,7 +537,7 @@ GRAPHQL
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
-        $this->assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->loc));
+        self::assertEquals(['start' => 0, 'end' => '6'], TestUtils::locationToArray($result->loc));
     }
 
     /**
@@ -547,7 +547,7 @@ GRAPHQL
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
-        $this->assertEquals($source, $result->loc->source);
+        self::assertEquals($source, $result->loc->source);
     }
 
     // Describe: parseType
@@ -559,8 +559,8 @@ GRAPHQL
     {
         $source = new Source('{ id }');
         $result = Parser::parse($source);
-        $this->assertEquals('<SOF>', $result->loc->startToken->kind);
-        $this->assertEquals('<EOF>', $result->loc->endToken->kind);
+        self::assertEquals('<SOF>', $result->loc->startToken->kind);
+        self::assertEquals('<EOF>', $result->loc->endToken->kind);
     }
 
     /**
@@ -568,7 +568,7 @@ GRAPHQL
      */
     public function testParsesNullValues() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'kind' => NodeKind::NULL,
                 'loc'  => ['start' => 0, 'end' => 4],
@@ -582,7 +582,7 @@ GRAPHQL
      */
     public function testParsesListValues() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'kind'   => NodeKind::LST,
                 'loc'    => ['start' => 0, 'end' => 11],
@@ -609,7 +609,7 @@ GRAPHQL
      */
     public function testParsesWellKnownTypes() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'kind' => NodeKind::NAMED_TYPE,
                 'loc'  => ['start' => 0, 'end' => 6],
@@ -628,7 +628,7 @@ GRAPHQL
      */
     public function testParsesCustomTypes() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'kind' => NodeKind::NAMED_TYPE,
                 'loc'  => ['start' => 0, 'end' => 6],
@@ -647,7 +647,7 @@ GRAPHQL
      */
     public function testParsesListTypes() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'kind' => NodeKind::LIST_TYPE,
                 'loc'  => ['start' => 0, 'end' => 8],
@@ -670,7 +670,7 @@ GRAPHQL
      */
     public function testParsesNonNullTypes() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'kind' => NodeKind::NON_NULL_TYPE,
                 'loc'  => ['start' => 0, 'end' => 7],
@@ -693,7 +693,7 @@ GRAPHQL
      */
     public function testParsesNestedTypes() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'kind' => NodeKind::LIST_TYPE,
                 'loc'  => ['start' => 0, 'end' => 9],

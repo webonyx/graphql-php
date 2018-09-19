@@ -48,12 +48,12 @@ class MixedStoreTest extends TestCase
         $err = 'Failed assertion that MixedStore accepts key ' .
             Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
 
-        $this->assertFalse($this->mixedStore->offsetExists($key), $err);
+        self::assertFalse($this->mixedStore->offsetExists($key), $err);
         $this->mixedStore->offsetSet($key, $value);
-        $this->assertTrue($this->mixedStore->offsetExists($key), $err);
-        $this->assertSame($value, $this->mixedStore->offsetGet($key), $err);
+        self::assertTrue($this->mixedStore->offsetExists($key), $err);
+        self::assertSame($value, $this->mixedStore->offsetGet($key), $err);
         $this->mixedStore->offsetUnset($key);
-        $this->assertFalse($this->mixedStore->offsetExists($key), $err);
+        self::assertFalse($this->mixedStore->offsetExists($key), $err);
         $this->assertProvidesArrayAccess($key, $value);
     }
 
@@ -62,13 +62,13 @@ class MixedStoreTest extends TestCase
         $err = 'Failed assertion that MixedStore provides array access for key ' .
             Utils::printSafe($key) . ' with value ' . Utils::printSafe($value);
 
-        $this->assertFalse(isset($this->mixedStore[$key]), $err);
+        self::assertFalse(isset($this->mixedStore[$key]), $err);
         $this->mixedStore[$key] = $value;
-        $this->assertTrue(isset($this->mixedStore[$key]), $err);
-        $this->assertEquals(! empty($value), ! empty($this->mixedStore[$key]), $err);
-        $this->assertSame($value, $this->mixedStore[$key], $err);
+        self::assertTrue(isset($this->mixedStore[$key]), $err);
+        self::assertEquals(! empty($value), ! empty($this->mixedStore[$key]), $err);
+        self::assertSame($value, $this->mixedStore[$key], $err);
         unset($this->mixedStore[$key]);
-        $this->assertFalse(isset($this->mixedStore[$key]), $err);
+        self::assertFalse(isset($this->mixedStore[$key]), $err);
     }
 
     public function testAcceptsBoolKeys() : void

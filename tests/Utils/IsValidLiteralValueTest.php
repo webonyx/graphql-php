@@ -18,7 +18,7 @@ class IsValidLiteralValueTest extends TestCase
      */
     public function testReturnsNoErrorsForAValidValue() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [],
             DocumentValidator::isValidLiteralValue(Type::int(), Parser::parseValue('123'))
         );
@@ -31,9 +31,9 @@ class IsValidLiteralValueTest extends TestCase
     {
         $errors = DocumentValidator::isValidLiteralValue(Type::int(), Parser::parseValue('"abc"'));
 
-        $this->assertCount(1, $errors);
-        $this->assertEquals('Expected type Int, found "abc".', $errors[0]->getMessage());
-        $this->assertEquals([new SourceLocation(1, 1)], $errors[0]->getLocations());
-        $this->assertEquals(null, $errors[0]->getPath());
+        self::assertCount(1, $errors);
+        self::assertEquals('Expected type Int, found "abc".', $errors[0]->getMessage());
+        self::assertEquals([new SourceLocation(1, 1)], $errors[0]->getLocations());
+        self::assertEquals(null, $errors[0]->getPath());
     }
 }

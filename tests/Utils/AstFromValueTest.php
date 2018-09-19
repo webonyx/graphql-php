@@ -31,16 +31,16 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsBooleanValueToASTs() : void
     {
-        $this->assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(true, Type::boolean()));
-        $this->assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(false, Type::boolean()));
-        $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::boolean()));
-        $this->assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(0, Type::boolean()));
-        $this->assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(1, Type::boolean()));
-        $this->assertEquals(
+        self::assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(true, Type::boolean()));
+        self::assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(false, Type::boolean()));
+        self::assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::boolean()));
+        self::assertEquals(new BooleanValueNode(['value' => false]), AST::astFromValue(0, Type::boolean()));
+        self::assertEquals(new BooleanValueNode(['value' => true]), AST::astFromValue(1, Type::boolean()));
+        self::assertEquals(
             new BooleanValueNode(['value' => false]),
             AST::astFromValue(0, Type::nonNull(Type::boolean()))
         );
-        $this->assertEquals(
+        self::assertEquals(
             null,
             AST::astFromValue(null, Type::nonNull(Type::boolean()))
         ); // Note: null means that AST cannot
@@ -51,10 +51,10 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsIntValuesToASTs() : void
     {
-        $this->assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::int()));
-        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::int()));
-        $this->assertEquals(new IntValueNode(['value' => '10000']), AST::astFromValue(1e4, Type::int()));
-        $this->assertEquals(new IntValueNode(['value' => '0']), AST::astFromValue(0e4, Type::int()));
+        self::assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::int()));
+        self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::int()));
+        self::assertEquals(new IntValueNode(['value' => '10000']), AST::astFromValue(1e4, Type::int()));
+        self::assertEquals(new IntValueNode(['value' => '0']), AST::astFromValue(0e4, Type::int()));
     }
 
     public function testConvertsIntValuesToASTsCannotRepresentNonInteger() : void
@@ -81,13 +81,13 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsFloatValuesToIntOrFloatASTs() : void
     {
-        $this->assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::float()));
-        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::float()));
-        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::float()));
-        $this->assertEquals(new FloatValueNode(['value' => '123.5']), AST::astFromValue(123.5, Type::float()));
-        $this->assertEquals(new IntValueNode(['value' => '10000']), AST::astFromValue(1e4, Type::float()));
-        $this->assertEquals(new FloatValueNode(['value' => '1e+40']), AST::astFromValue(1e40, Type::float()));
-        $this->assertEquals(new IntValueNode(['value' => '0']), AST::astFromValue(0e40, Type::float()));
+        self::assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::float()));
+        self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::float()));
+        self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::float()));
+        self::assertEquals(new FloatValueNode(['value' => '123.5']), AST::astFromValue(123.5, Type::float()));
+        self::assertEquals(new IntValueNode(['value' => '10000']), AST::astFromValue(1e4, Type::float()));
+        self::assertEquals(new FloatValueNode(['value' => '1e+40']), AST::astFromValue(1e40, Type::float()));
+        self::assertEquals(new IntValueNode(['value' => '0']), AST::astFromValue(0e40, Type::float()));
     }
 
     /**
@@ -95,13 +95,13 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsStringValuesToASTs() : void
     {
-        $this->assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::string()));
-        $this->assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::string()));
-        $this->assertEquals(new StringValueNode(['value' => "VA\nLUE"]), AST::astFromValue("VA\nLUE", Type::string()));
-        $this->assertEquals(new StringValueNode(['value' => '123']), AST::astFromValue(123, Type::string()));
-        $this->assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::string()));
-        $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::string()));
-        $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::string())));
+        self::assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::string()));
+        self::assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::string()));
+        self::assertEquals(new StringValueNode(['value' => "VA\nLUE"]), AST::astFromValue("VA\nLUE", Type::string()));
+        self::assertEquals(new StringValueNode(['value' => '123']), AST::astFromValue(123, Type::string()));
+        self::assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::string()));
+        self::assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::string()));
+        self::assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::string())));
     }
 
     /**
@@ -109,16 +109,16 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertIdValuesToIntOrStringASTs() : void
     {
-        $this->assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::id()));
-        $this->assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::id()));
-        $this->assertEquals(new StringValueNode(['value' => "VA\nLUE"]), AST::astFromValue("VA\nLUE", Type::id()));
-        $this->assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::id()));
-        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::id()));
-        $this->assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue('123', Type::id()));
-        $this->assertEquals(new StringValueNode(['value' => '01']), AST::astFromValue('01', Type::id()));
-        $this->assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::id()));
-        $this->assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::id()));
-        $this->assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::id())));
+        self::assertEquals(new StringValueNode(['value' => 'hello']), AST::astFromValue('hello', Type::id()));
+        self::assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::id()));
+        self::assertEquals(new StringValueNode(['value' => "VA\nLUE"]), AST::astFromValue("VA\nLUE", Type::id()));
+        self::assertEquals(new IntValueNode(['value' => '-1']), AST::astFromValue(-1, Type::id()));
+        self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::id()));
+        self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue('123', Type::id()));
+        self::assertEquals(new StringValueNode(['value' => '01']), AST::astFromValue('01', Type::id()));
+        self::assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::id()));
+        self::assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::id()));
+        self::assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::id())));
     }
 
     /**
@@ -126,7 +126,7 @@ class AstFromValueTest extends TestCase
      */
     public function testDoesNotConvertsNonNullValuestoNullValue() : void
     {
-        $this->assertNull(AST::astFromValue(null, Type::nonNull(Type::boolean())));
+        self::assertNull(AST::astFromValue(null, Type::nonNull(Type::boolean())));
     }
 
     /**
@@ -134,17 +134,17 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsStringValuesToEnumASTsIfPossible() : void
     {
-        $this->assertEquals(new EnumValueNode(['value' => 'HELLO']), AST::astFromValue('HELLO', $this->myEnum()));
-        $this->assertEquals(
+        self::assertEquals(new EnumValueNode(['value' => 'HELLO']), AST::astFromValue('HELLO', $this->myEnum()));
+        self::assertEquals(
             new EnumValueNode(['value' => 'COMPLEX']),
             AST::astFromValue($this->complexValue(), $this->myEnum())
         );
 
         // Note: case sensitive
-        $this->assertNull(AST::astFromValue('hello', $this->myEnum()));
+        self::assertNull(AST::astFromValue('hello', $this->myEnum()));
 
         // Note: Not a valid enum value
-        $this->assertNull(AST::astFromValue('VALUE', $this->myEnum()));
+        self::assertNull(AST::astFromValue('VALUE', $this->myEnum()));
     }
 
     /**
@@ -183,7 +183,7 @@ class AstFromValueTest extends TestCase
                 new StringValueNode(['value' => 'BAR']),
             ],
         ]);
-        $this->assertEquals($value1, AST::astFromValue(['FOO', 'BAR'], Type::listOf(Type::string())));
+        self::assertEquals($value1, AST::astFromValue(['FOO', 'BAR'], Type::listOf(Type::string())));
 
         $value2 = new ListValueNode([
             'values' => [
@@ -191,7 +191,7 @@ class AstFromValueTest extends TestCase
                 new EnumValueNode(['value' => 'GOODBYE']),
             ],
         ]);
-        $this->assertEquals($value2, AST::astFromValue(['HELLO', 'GOODBYE'], Type::listOf($this->myEnum())));
+        self::assertEquals($value2, AST::astFromValue(['HELLO', 'GOODBYE'], Type::listOf($this->myEnum())));
     }
 
     /**
@@ -199,7 +199,7 @@ class AstFromValueTest extends TestCase
      */
     public function testConvertsListSingletons() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             new StringValueNode(['value' => 'FOO']),
             AST::astFromValue('FOO', Type::listOf(Type::string()))
         );
@@ -226,8 +226,8 @@ class AstFromValueTest extends TestCase
         ]);
 
         $data = ['foo' => 3, 'bar' => 'HELLO'];
-        $this->assertEquals($expected, AST::astFromValue($data, $inputObj));
-        $this->assertEquals($expected, AST::astFromValue((object) $data, $inputObj));
+        self::assertEquals($expected, AST::astFromValue($data, $inputObj));
+        self::assertEquals($expected, AST::astFromValue((object) $data, $inputObj));
     }
 
     /**
@@ -255,7 +255,7 @@ class AstFromValueTest extends TestCase
             ],
         ]);
 
-        $this->assertEquals(
+        self::assertEquals(
             new ObjectValueNode([
             'fields' => [
                 $this->objectField('foo', new NullValueNode([])),

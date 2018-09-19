@@ -146,14 +146,14 @@ class ExecutorLazySchemaTest extends TestCase
 
         Warning::suppress(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertEquals($expected, $result);
+        self::assertEquals($expected, $result);
 
         Warning::enable(Warning::WARNING_FULL_SCHEMA_SCAN);
         $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertEquals(1, count($result->errors));
-        $this->assertInstanceOf(Error::class, $result->errors[0]->getPrevious());
+        self::assertEquals(1, count($result->errors));
+        self::assertInstanceOf(Error::class, $result->errors[0]->getPrevious());
 
-        $this->assertEquals(
+        self::assertEquals(
             'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: instance of ' .
             'GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible ' .
             'implementations. It requires full schema scan and degrades query performance significantly.  ' .
@@ -204,17 +204,17 @@ class ExecutorLazySchemaTest extends TestCase
             }
         ';
 
-        $this->assertEquals([], $calls);
+        self::assertEquals([], $calls);
         $result = Executor::execute($schema, Parser::parse($query), ['test' => ['test' => 'value']]);
-        $this->assertEquals(['Test', 'Test'], $calls);
+        self::assertEquals(['Test', 'Test'], $calls);
 
-        $this->assertEquals(
+        self::assertEquals(
             'Schema must contain unique named types but contains multiple types named "Test". ' .
             'Make sure that type loader returns the same instance as defined in Query.test ' .
             '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
             $result->errors[0]->getMessage()
         );
-        $this->assertInstanceOf(
+        self::assertInstanceOf(
             InvariantViolation::class,
             $result->errors[0]->getPrevious()
         );
@@ -244,8 +244,8 @@ class ExecutorLazySchemaTest extends TestCase
             'SomeObject',
             'SomeObject.fields',
         ];
-        $this->assertEquals($expected, $result->toArray(true));
-        $this->assertEquals($expectedExecutorCalls, $this->calls);
+        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expectedExecutorCalls, $this->calls);
     }
 
     public function loadType($name, $isExecutorCall = false)
@@ -380,15 +380,15 @@ class ExecutorLazySchemaTest extends TestCase
             'OtherObject' => true,
         ];
 
-        $this->assertEquals($expected, $result->toArray(true));
-        $this->assertEquals($expectedLoadedTypes, $this->loadedTypes);
+        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expectedLoadedTypes, $this->loadedTypes);
 
         $expectedExecutorCalls = [
             'Query.fields',
             'SomeObject',
             'SomeObject.fields',
         ];
-        $this->assertEquals($expectedExecutorCalls, $this->calls);
+        self::assertEquals($expectedExecutorCalls, $this->calls);
     }
 
     public function testResolveUnion() : void
@@ -428,8 +428,8 @@ class ExecutorLazySchemaTest extends TestCase
             'SomeScalar'    => true,
         ];
 
-        $this->assertEquals($expected, $result->toArray(true));
-        $this->assertEquals($expectedLoadedTypes, $this->loadedTypes);
+        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expectedLoadedTypes, $this->loadedTypes);
 
         $expectedCalls = [
             'Query.fields',
@@ -441,6 +441,6 @@ class ExecutorLazySchemaTest extends TestCase
             'DeeperObject',
             'SomeScalar',
         ];
-        $this->assertEquals($expectedCalls, $this->calls);
+        self::assertEquals($expectedCalls, $this->calls);
     }
 }

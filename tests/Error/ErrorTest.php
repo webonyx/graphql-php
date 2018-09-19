@@ -20,7 +20,7 @@ class ErrorTest extends TestCase
         $prev = new \Exception('Original');
         $err  = new Error('msg', null, null, null, null, $prev);
 
-        $this->assertSame($err->getPrevious(), $prev);
+        self::assertSame($err->getPrevious(), $prev);
     }
 
     /**
@@ -35,10 +35,10 @@ class ErrorTest extends TestCase
         $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
         $e         = new Error('msg', [$fieldNode]);
 
-        $this->assertEquals([$fieldNode], $e->nodes);
-        $this->assertEquals($source, $e->getSource());
-        $this->assertEquals([8], $e->getPositions());
-        $this->assertEquals([new SourceLocation(2, 7)], $e->getLocations());
+        self::assertEquals([$fieldNode], $e->nodes);
+        self::assertEquals($source, $e->getSource());
+        self::assertEquals([8], $e->getPositions());
+        self::assertEquals([new SourceLocation(2, 7)], $e->getLocations());
     }
 
     /**
@@ -53,10 +53,10 @@ class ErrorTest extends TestCase
         $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
         $e         = new Error('msg', $fieldNode); // Non-array value.
 
-        $this->assertEquals([$fieldNode], $e->nodes);
-        $this->assertEquals($source, $e->getSource());
-        $this->assertEquals([8], $e->getPositions());
-        $this->assertEquals([new SourceLocation(2, 7)], $e->getLocations());
+        self::assertEquals([$fieldNode], $e->nodes);
+        self::assertEquals($source, $e->getSource());
+        self::assertEquals([8], $e->getPositions());
+        self::assertEquals([new SourceLocation(2, 7)], $e->getLocations());
     }
 
     /**
@@ -71,10 +71,10 @@ class ErrorTest extends TestCase
         $operationNode = $ast->definitions[0];
         $e             = new Error('msg', [$operationNode]);
 
-        $this->assertEquals([$operationNode], $e->nodes);
-        $this->assertEquals($source, $e->getSource());
-        $this->assertEquals([0], $e->getPositions());
-        $this->assertEquals([new SourceLocation(1, 1)], $e->getLocations());
+        self::assertEquals([$operationNode], $e->nodes);
+        self::assertEquals($source, $e->getSource());
+        self::assertEquals([0], $e->getPositions());
+        self::assertEquals([new SourceLocation(1, 1)], $e->getLocations());
     }
 
     /**
@@ -87,10 +87,10 @@ class ErrorTest extends TestCase
     }');
         $e      = new Error('msg', null, $source, [10]);
 
-        $this->assertEquals(null, $e->nodes);
-        $this->assertEquals($source, $e->getSource());
-        $this->assertEquals([10], $e->getPositions());
-        $this->assertEquals([new SourceLocation(2, 9)], $e->getLocations());
+        self::assertEquals(null, $e->nodes);
+        self::assertEquals($source, $e->getSource());
+        self::assertEquals([10], $e->getPositions());
+        self::assertEquals([new SourceLocation(2, 9)], $e->getLocations());
     }
 
     /**
@@ -99,7 +99,7 @@ class ErrorTest extends TestCase
     public function testSerializesToIncludeMessage() : void
     {
         $e = new Error('msg');
-        $this->assertEquals(['message' => 'msg'], $e->toSerializableArray());
+        self::assertEquals(['message' => 'msg'], $e->toSerializableArray());
     }
 
     /**
@@ -110,7 +110,7 @@ class ErrorTest extends TestCase
         $node = Parser::parse('{ field }')->definitions[0]->selectionSet->selections[0];
         $e    = new Error('msg', [$node]);
 
-        $this->assertEquals(
+        self::assertEquals(
             ['message' => 'msg', 'locations' => [['line' => 1, 'column' => 3]]],
             $e->toSerializableArray()
         );
@@ -129,8 +129,8 @@ class ErrorTest extends TestCase
             ['path', 3, 'to', 'field']
         );
 
-        $this->assertEquals(['path', 3, 'to', 'field'], $e->path);
-        $this->assertEquals(['message' => 'msg', 'path' => ['path', 3, 'to', 'field']], $e->toSerializableArray());
+        self::assertEquals(['path', 3, 'to', 'field'], $e->path);
+        self::assertEquals(['message' => 'msg', 'path' => ['path', 3, 'to', 'field']], $e->toSerializableArray());
     }
 
     /**
@@ -148,8 +148,8 @@ class ErrorTest extends TestCase
             ['foo' => 'bar']
         );
 
-        $this->assertEquals(['foo' => 'bar'], $e->getExtensions());
-        $this->assertEquals(
+        self::assertEquals(['foo' => 'bar'], $e->getExtensions());
+        self::assertEquals(
             [
                 'message'    => 'msg',
                 'extensions' => ['foo' => 'bar'],

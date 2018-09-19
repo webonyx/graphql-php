@@ -23,19 +23,19 @@ class SyncPromiseAdapterTest extends TestCase
 
     public function testIsThenable() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             true,
             $this->promises->isThenable(new Deferred(function () {
             }))
         );
-        $this->assertEquals(false, $this->promises->isThenable(false));
-        $this->assertEquals(false, $this->promises->isThenable(true));
-        $this->assertEquals(false, $this->promises->isThenable(1));
-        $this->assertEquals(false, $this->promises->isThenable(0));
-        $this->assertEquals(false, $this->promises->isThenable('test'));
-        $this->assertEquals(false, $this->promises->isThenable(''));
-        $this->assertEquals(false, $this->promises->isThenable([]));
-        $this->assertEquals(false, $this->promises->isThenable(new \stdClass()));
+        self::assertEquals(false, $this->promises->isThenable(false));
+        self::assertEquals(false, $this->promises->isThenable(true));
+        self::assertEquals(false, $this->promises->isThenable(1));
+        self::assertEquals(false, $this->promises->isThenable(0));
+        self::assertEquals(false, $this->promises->isThenable('test'));
+        self::assertEquals(false, $this->promises->isThenable(''));
+        self::assertEquals(false, $this->promises->isThenable([]));
+        self::assertEquals(false, $this->promises->isThenable(new \stdClass()));
     }
 
     public function testConvert() : void
@@ -44,8 +44,8 @@ class SyncPromiseAdapterTest extends TestCase
         });
         $result = $this->promises->convertThenable($dfd);
 
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Expected instance of GraphQL\Deferred, got (empty string)');
@@ -60,8 +60,8 @@ class SyncPromiseAdapterTest extends TestCase
 
         $result = $this->promises->then($promise);
 
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $result);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $result->adoptedPromise);
     }
 
     public function testCreatePromise() : void
@@ -69,20 +69,20 @@ class SyncPromiseAdapterTest extends TestCase
         $promise = $this->promises->create(function ($resolve, $reject) {
         });
 
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
 
         $promise = $this->promises->create(function ($resolve, $reject) {
             $resolve('A');
         });
 
-        $this->assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
+        self::assertValidPromise($promise, null, 'A', SyncPromise::FULFILLED);
     }
 
-    private function assertValidPromise($promise, $expectedNextReason, $expectedNextValue, $expectedNextState)
+    private static function assertValidPromise($promise, $expectedNextReason, $expectedNextValue, $expectedNextState)
     {
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Adapter\SyncPromise', $promise->adoptedPromise);
 
         $actualNextValue   = null;
         $actualNextReason  = null;
@@ -100,40 +100,40 @@ class SyncPromiseAdapterTest extends TestCase
             }
         );
 
-        $this->assertSame($onFulfilledCalled, false);
-        $this->assertSame($onRejectedCalled, false);
+        self::assertSame($onFulfilledCalled, false);
+        self::assertSame($onRejectedCalled, false);
 
         SyncPromise::runQueue();
 
         if ($expectedNextState !== SyncPromise::PENDING) {
-            $this->assertSame(! $expectedNextReason, $onFulfilledCalled);
-            $this->assertSame(! ! $expectedNextReason, $onRejectedCalled);
+            self::assertSame(! $expectedNextReason, $onFulfilledCalled);
+            self::assertSame(! ! $expectedNextReason, $onRejectedCalled);
         }
 
-        $this->assertSame($expectedNextValue, $actualNextValue);
-        $this->assertSame($expectedNextReason, $actualNextReason);
-        $this->assertSame($expectedNextState, $promise->adoptedPromise->state);
+        self::assertSame($expectedNextValue, $actualNextValue);
+        self::assertSame($expectedNextReason, $actualNextReason);
+        self::assertSame($expectedNextState, $promise->adoptedPromise->state);
     }
 
     public function testCreateFulfilledPromise() : void
     {
         $promise = $this->promises->createFulfilled('test');
-        $this->assertValidPromise($promise, null, 'test', SyncPromise::FULFILLED);
+        self::assertValidPromise($promise, null, 'test', SyncPromise::FULFILLED);
     }
 
     public function testCreateRejectedPromise() : void
     {
         $promise = $this->promises->createRejected(new \Exception('test reason'));
-        $this->assertValidPromise($promise, 'test reason', null, SyncPromise::REJECTED);
+        self::assertValidPromise($promise, 'test reason', null, SyncPromise::REJECTED);
     }
 
     public function testCreatePromiseAll() : void
     {
         $promise = $this->promises->all([]);
-        $this->assertValidPromise($promise, null, [], SyncPromise::FULFILLED);
+        self::assertValidPromise($promise, null, [], SyncPromise::FULFILLED);
 
         $promise = $this->promises->all(['1']);
-        $this->assertValidPromise($promise, null, ['1'], SyncPromise::FULFILLED);
+        self::assertValidPromise($promise, null, ['1'], SyncPromise::FULFILLED);
 
         $promise1 = new SyncPromise();
         $promise2 = new SyncPromise();
@@ -153,12 +153,12 @@ class SyncPromiseAdapterTest extends TestCase
         ];
 
         $promise = $this->promises->all($data);
-        $this->assertValidPromise($promise, null, null, SyncPromise::PENDING);
+        self::assertValidPromise($promise, null, null, SyncPromise::PENDING);
 
         $promise1->resolve('value1');
-        $this->assertValidPromise($promise, null, null, SyncPromise::PENDING);
+        self::assertValidPromise($promise, null, null, SyncPromise::PENDING);
         $promise2->resolve('value2');
-        $this->assertValidPromise(
+        self::assertValidPromise(
             $promise,
             null,
             ['1', 'value1', 'value2', 3, 'value2-value3', []],
@@ -205,15 +205,15 @@ class SyncPromiseAdapterTest extends TestCase
         $all = $this->promises->all([0, $p1, $p2, $p3, $p4]);
 
         $result = $this->promises->wait($p2);
-        $this->assertEquals(2, $result);
-        $this->assertEquals(SyncPromise::PENDING, $p3->adoptedPromise->state);
-        $this->assertEquals(SyncPromise::PENDING, $all->adoptedPromise->state);
-        $this->assertEquals([1, 2], $called);
+        self::assertEquals(2, $result);
+        self::assertEquals(SyncPromise::PENDING, $p3->adoptedPromise->state);
+        self::assertEquals(SyncPromise::PENDING, $all->adoptedPromise->state);
+        self::assertEquals([1, 2], $called);
 
         $expectedResult = [0, 1, 2, 3, 4];
         $result         = $this->promises->wait($all);
-        $this->assertEquals($expectedResult, $result);
-        $this->assertEquals([1, 2, 3, 4], $called);
-        $this->assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);
+        self::assertEquals($expectedResult, $result);
+        self::assertEquals([1, 2, 3, 4], $called);
+        self::assertValidPromise($all, null, [0, 1, 2, 3, 4], SyncPromise::FULFILLED);
     }
 }

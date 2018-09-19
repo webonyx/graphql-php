@@ -23,7 +23,7 @@ class PsrResponseTest extends TestCase
 
         /** @var PsrResponseStub $resp */
         $resp = $helper->toPsrResponse($result, $psrResponse, $stream);
-        $this->assertSame(json_encode($result), $resp->body->content);
-        $this->assertSame(['Content-Type' => ['application/json']], $resp->headers);
+        self::assertSame(json_encode($result), $resp->body->content);
+        self::assertSame(['Content-Type' => ['application/json']], $resp->headers);
     }
 }

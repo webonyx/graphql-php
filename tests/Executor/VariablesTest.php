@@ -33,7 +33,7 @@ class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}'],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // properly parses single value to list:
         $result   = $this->executeQuery('
@@ -43,7 +43,7 @@ class VariablesTest extends TestCase
         ');
         $expected = ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // properly parses null value to null
         $result   = $this->executeQuery('
@@ -53,7 +53,7 @@ class VariablesTest extends TestCase
         ');
         $expected = ['data' => ['fieldWithObjectInput' => '{"a":null,"b":null,"c":"C","d":null}']];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // properly parses null value in list
         $result   = $this->executeQuery('
@@ -63,7 +63,7 @@ class VariablesTest extends TestCase
         ');
         $expected = ['data' => ['fieldWithObjectInput' => '{"b":["A",null,"C"],"c":"C"}']];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // does not use incorrect value
         $result = $this->executeQuery('
@@ -81,7 +81,7 @@ class VariablesTest extends TestCase
             ],
             ],
         ];
-        $this->assertArraySubset($expected, $result->toArray());
+        self::assertArraySubset($expected, $result->toArray());
 
         // properly runs parseLiteral on complex scalar types
         $result = $this->executeQuery('
@@ -89,7 +89,7 @@ class VariablesTest extends TestCase
           fieldWithObjectInput(input: {c: "foo", d: "SerializedValue"})
         }
         ');
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['fieldWithObjectInput' => '{"c":"foo","d":"DeserializedValue"}']],
             $result->toArray()
         );
@@ -178,7 +178,7 @@ class VariablesTest extends TestCase
         $params = ['input' => ['a' => 'foo', 'b' => ['bar'], 'c' => 'baz']];
         $result = $this->executeQuery($doc, $params);
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']],
             $result->toArray()
         );
@@ -193,12 +193,12 @@ class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}'],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // properly parses single value to list:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']];
         $result = $this->executeQuery($doc, $params);
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']],
             $result->toArray()
         );
@@ -209,7 +209,7 @@ class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"c":"foo","d":"DeserializedValue"}'],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // errors on null for nested non-null:
         $params   = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => null]];
@@ -227,7 +227,7 @@ class VariablesTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // errors on incorrect type:
         $params   = ['input' => 'foo bar'];
@@ -243,7 +243,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // errors on omission of nested non-null:
         $params = ['input' => ['a' => 'foo', 'b' => 'bar']];
@@ -260,7 +260,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // errors on deep nested errors and with many errors
         $nestedDoc = '
@@ -289,7 +289,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // errors on addition of unknown input field
         $params   = ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => 'baz', 'extra' => 'dog']];
@@ -306,7 +306,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -323,7 +323,7 @@ class VariablesTest extends TestCase
             'data' => ['fieldWithNullableStringInput' => null],
         ];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -338,7 +338,7 @@ class VariablesTest extends TestCase
         ');
         $expected = ['data' => ['fieldWithNullableStringInput' => null]];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -352,7 +352,7 @@ class VariablesTest extends TestCase
       }
       ');
         $expected = ['data' => ['fieldWithNullableStringInput' => null]];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
 
@@ -370,7 +370,7 @@ class VariablesTest extends TestCase
         ');
         $expected = ['data' => ['fieldWithNullableStringInput' => null]];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -385,7 +385,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['value' => 'a']);
         $expected = ['data' => ['fieldWithNullableStringInput' => '"a"']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -399,7 +399,7 @@ class VariablesTest extends TestCase
       }
         ');
         $expected = ['data' => ['fieldWithNullableStringInput' => '"a"']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -415,7 +415,7 @@ class VariablesTest extends TestCase
         $expected = [
             'data' => ['fieldWithNonNullableStringInput' => '"default"'],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -438,7 +438,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -463,7 +463,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -478,7 +478,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['value' => 'a']);
         $expected = ['data' => ['fieldWithNonNullableStringInput' => '"a"']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -492,7 +492,7 @@ class VariablesTest extends TestCase
       }
         ');
         $expected = ['data' => ['fieldWithNonNullableStringInput' => '"a"']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -515,7 +515,7 @@ class VariablesTest extends TestCase
             ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     // Describe: Handles lists and nullability
@@ -545,7 +545,7 @@ class VariablesTest extends TestCase
             ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -585,7 +585,7 @@ class VariablesTest extends TestCase
             ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -601,7 +601,7 @@ class VariablesTest extends TestCase
         $result   = $this->executeQuery($doc, ['input' => null]);
         $expected = ['data' => ['list' => null]];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -616,7 +616,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['list' => '["A"]']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -631,7 +631,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
         $expected = ['data' => ['list' => '["A",null,"B"]']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -656,7 +656,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -671,7 +671,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['nnList' => '["A"]']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -686,7 +686,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['input' => ['A', null, 'B']]);
         $expected = ['data' => ['nnList' => '["A",null,"B"]']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -701,7 +701,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['input' => null]);
         $expected = ['data' => ['listNN' => null]];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -716,7 +716,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['listNN' => '["A"]']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -741,7 +741,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -766,7 +766,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -781,7 +781,7 @@ class VariablesTest extends TestCase
         ';
         $result   = $this->executeQuery($doc, ['input' => ['A']]);
         $expected = ['data' => ['nnListNN' => '["A"]']];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     // Describe: Execute: Uses argument default values
@@ -808,7 +808,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -834,7 +834,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -861,7 +861,7 @@ class VariablesTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     /**
@@ -873,7 +873,7 @@ class VariablesTest extends TestCase
         fieldWithDefaultArgumentValue
         }');
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['fieldWithDefaultArgumentValue' => '"Hello World"']],
             $result->toArray()
         );
@@ -888,7 +888,7 @@ class VariablesTest extends TestCase
             fieldWithDefaultArgumentValue(input: $optional)
         }');
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['fieldWithDefaultArgumentValue' => '"Hello World"']],
             $result->toArray()
         );
@@ -915,6 +915,6 @@ class VariablesTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 }

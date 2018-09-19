@@ -32,7 +32,7 @@ Test (9:1)
  9: *
     ^
 ';
-        $this->assertEquals($expected, $actual);
+        self::assertEquals($expected, $actual);
 
         $doubleDigit = new Error(
             'Left padded first line number',
@@ -48,7 +48,7 @@ Test (9:1)
     ^
 10: 
 ';
-        $this->assertEquals($expected, $actual);
+        self::assertEquals($expected, $actual);
     }
 
     /**
@@ -82,7 +82,7 @@ Test (9:1)
             ]
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             'Example error with two nodes
 
 SourceA (2:10)

@@ -272,7 +272,7 @@ class ResolutionTest extends TestCase
             'Int'     => Type::int(),
             'Boolean' => Type::boolean(),
         ];
-        $this->assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
+        self::assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
 
         $expectedDescriptor = [
             'version'         => '1.0',
@@ -285,39 +285,39 @@ class ResolutionTest extends TestCase
             ],
             'possibleTypeMap' => [],
         ];
-        $this->assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
+        self::assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
 
-        $this->assertNull($eagerTypeResolution->resolveType('User'));
-        $this->assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->node));
-        $this->assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->content));
-        $this->assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->mention));
+        self::assertNull($eagerTypeResolution->resolveType('User'));
+        self::assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->node));
+        self::assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->content));
+        self::assertSame([], $eagerTypeResolution->resolvePossibleTypes($this->mention));
 
         $eagerTypeResolution = new EagerResolution([$this->query, $this->mutation]);
 
-        $this->assertSame($this->query, $eagerTypeResolution->resolveType('Query'));
-        $this->assertSame($this->mutation, $eagerTypeResolution->resolveType('Mutation'));
-        $this->assertSame($this->user, $eagerTypeResolution->resolveType('User'));
-        $this->assertSame($this->node, $eagerTypeResolution->resolveType('Node'));
-        $this->assertSame($this->node, $eagerTypeResolution->resolveType('Node'));
-        $this->assertSame($this->content, $eagerTypeResolution->resolveType('Content'));
-        $this->assertSame($this->comment, $eagerTypeResolution->resolveType('Comment'));
-        $this->assertSame($this->mention, $eagerTypeResolution->resolveType('Mention'));
-        $this->assertSame($this->blogStory, $eagerTypeResolution->resolveType('BlogStory'));
-        $this->assertSame($this->category, $eagerTypeResolution->resolveType('Category'));
-        $this->assertSame($this->postStoryMutation, $eagerTypeResolution->resolveType('PostStoryMutation'));
-        $this->assertSame($this->postStoryMutationInput, $eagerTypeResolution->resolveType('PostStoryMutationInput'));
-        $this->assertSame($this->postCommentMutation, $eagerTypeResolution->resolveType('PostCommentMutation'));
-        $this->assertSame(
+        self::assertSame($this->query, $eagerTypeResolution->resolveType('Query'));
+        self::assertSame($this->mutation, $eagerTypeResolution->resolveType('Mutation'));
+        self::assertSame($this->user, $eagerTypeResolution->resolveType('User'));
+        self::assertSame($this->node, $eagerTypeResolution->resolveType('Node'));
+        self::assertSame($this->node, $eagerTypeResolution->resolveType('Node'));
+        self::assertSame($this->content, $eagerTypeResolution->resolveType('Content'));
+        self::assertSame($this->comment, $eagerTypeResolution->resolveType('Comment'));
+        self::assertSame($this->mention, $eagerTypeResolution->resolveType('Mention'));
+        self::assertSame($this->blogStory, $eagerTypeResolution->resolveType('BlogStory'));
+        self::assertSame($this->category, $eagerTypeResolution->resolveType('Category'));
+        self::assertSame($this->postStoryMutation, $eagerTypeResolution->resolveType('PostStoryMutation'));
+        self::assertSame($this->postStoryMutationInput, $eagerTypeResolution->resolveType('PostStoryMutationInput'));
+        self::assertSame($this->postCommentMutation, $eagerTypeResolution->resolveType('PostCommentMutation'));
+        self::assertSame(
             $this->postCommentMutationInput,
             $eagerTypeResolution->resolveType('PostCommentMutationInput')
         );
 
-        $this->assertEquals([$this->blogStory], $eagerTypeResolution->resolvePossibleTypes($this->content));
-        $this->assertEquals(
+        self::assertEquals([$this->blogStory], $eagerTypeResolution->resolvePossibleTypes($this->content));
+        self::assertEquals(
             [$this->user, $this->comment, $this->category, $this->blogStory],
             $eagerTypeResolution->resolvePossibleTypes($this->node)
         );
-        $this->assertEquals([$this->user, $this->category], $eagerTypeResolution->resolvePossibleTypes($this->mention));
+        self::assertEquals([$this->user, $this->category], $eagerTypeResolution->resolvePossibleTypes($this->mention));
 
         $expectedTypeMap = [
             'Query'                    => $this->query,
@@ -340,7 +340,7 @@ class ResolutionTest extends TestCase
             'Boolean'                  => Type::boolean(),
         ];
 
-        $this->assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
+        self::assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
 
         $expectedDescriptor = [
             'version'         => '1.0',
@@ -379,35 +379,35 @@ class ResolutionTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
+        self::assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
 
         // Ignores duplicates and nulls in initialTypes:
         $eagerTypeResolution = new EagerResolution([null, $this->query, null, $this->query, $this->mutation, null]);
-        $this->assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
-        $this->assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
+        self::assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
+        self::assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
 
         // Those types are only part of interface
-        $this->assertEquals(null, $eagerTypeResolution->resolveType('Link'));
-        $this->assertEquals(null, $eagerTypeResolution->resolveType('Video'));
-        $this->assertEquals(null, $eagerTypeResolution->resolveType('VideoMetadata'));
+        self::assertEquals(null, $eagerTypeResolution->resolveType('Link'));
+        self::assertEquals(null, $eagerTypeResolution->resolveType('Video'));
+        self::assertEquals(null, $eagerTypeResolution->resolveType('VideoMetadata'));
 
-        $this->assertEquals([$this->blogStory], $eagerTypeResolution->resolvePossibleTypes($this->content));
-        $this->assertEquals(
+        self::assertEquals([$this->blogStory], $eagerTypeResolution->resolvePossibleTypes($this->content));
+        self::assertEquals(
             [$this->user, $this->comment, $this->category, $this->blogStory],
             $eagerTypeResolution->resolvePossibleTypes($this->node)
         );
-        $this->assertEquals([$this->user, $this->category], $eagerTypeResolution->resolvePossibleTypes($this->mention));
+        self::assertEquals([$this->user, $this->category], $eagerTypeResolution->resolvePossibleTypes($this->mention));
 
         $eagerTypeResolution = new EagerResolution([null, $this->video, null]);
-        $this->assertEquals($this->videoMetadata, $eagerTypeResolution->resolveType('VideoMetadata'));
-        $this->assertEquals($this->video, $eagerTypeResolution->resolveType('Video'));
+        self::assertEquals($this->videoMetadata, $eagerTypeResolution->resolveType('VideoMetadata'));
+        self::assertEquals($this->video, $eagerTypeResolution->resolveType('Video'));
 
-        $this->assertEquals([$this->video], $eagerTypeResolution->resolvePossibleTypes($this->content));
-        $this->assertEquals(
+        self::assertEquals([$this->video], $eagerTypeResolution->resolvePossibleTypes($this->content));
+        self::assertEquals(
             [$this->video, $this->user, $this->comment, $this->category],
             $eagerTypeResolution->resolvePossibleTypes($this->node)
         );
-        $this->assertEquals([], $eagerTypeResolution->resolvePossibleTypes($this->mention));
+        self::assertEquals([], $eagerTypeResolution->resolvePossibleTypes($this->mention));
 
         $expectedTypeMap = [
             'Video'         => $this->video,
@@ -423,7 +423,7 @@ class ResolutionTest extends TestCase
             'Int'           => Type::int(),
             'Boolean'       => Type::boolean(),
         ];
-        $this->assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
+        self::assertEquals($expectedTypeMap, $eagerTypeResolution->getTypeMap());
 
         $expectedDescriptor = [
             'version'         => '1.0',
@@ -451,7 +451,7 @@ class ResolutionTest extends TestCase
                 'Content' => ['Video' => 1],
             ],
         ];
-        $this->assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
+        self::assertEquals($expectedDescriptor, $eagerTypeResolution->getDescriptor());
     }
 
     public function testLazyResolutionFollowsEagerResolution() : void
@@ -465,10 +465,10 @@ class ResolutionTest extends TestCase
         };
 
         $lazy = new LazyResolution($emptyDescriptor, $typeLoader);
-        $this->assertSame($eager->resolveType('User'), $lazy->resolveType('User'));
-        $this->assertSame($eager->resolvePossibleTypes($this->node), $lazy->resolvePossibleTypes($this->node));
-        $this->assertSame($eager->resolvePossibleTypes($this->content), $lazy->resolvePossibleTypes($this->content));
-        $this->assertSame($eager->resolvePossibleTypes($this->mention), $lazy->resolvePossibleTypes($this->mention));
+        self::assertSame($eager->resolveType('User'), $lazy->resolveType('User'));
+        self::assertSame($eager->resolvePossibleTypes($this->node), $lazy->resolvePossibleTypes($this->node));
+        self::assertSame($eager->resolvePossibleTypes($this->content), $lazy->resolvePossibleTypes($this->content));
+        self::assertSame($eager->resolvePossibleTypes($this->mention), $lazy->resolvePossibleTypes($this->mention));
 
         $eager = new EagerResolution([$this->query, $this->mutation]);
 
@@ -483,46 +483,46 @@ class ResolutionTest extends TestCase
 
         $lazy = new LazyResolution($descriptor, $typeLoader);
 
-        $this->assertSame($eager->resolveType('Query'), $lazy->resolveType('Query'));
-        $this->assertSame(1, $called);
-        $this->assertSame($eager->resolveType('Mutation'), $lazy->resolveType('Mutation'));
-        $this->assertSame(2, $called);
-        $this->assertSame($eager->resolveType('User'), $lazy->resolveType('User'));
-        $this->assertSame(3, $called);
-        $this->assertSame($eager->resolveType('User'), $lazy->resolveType('User'));
-        $this->assertSame(3, $called);
-        $this->assertSame($eager->resolveType('Node'), $lazy->resolveType('Node'));
-        $this->assertSame($eager->resolveType('Node'), $lazy->resolveType('Node'));
-        $this->assertSame(4, $called);
-        $this->assertSame($eager->resolveType('Content'), $lazy->resolveType('Content'));
-        $this->assertSame($eager->resolveType('Comment'), $lazy->resolveType('Comment'));
-        $this->assertSame($eager->resolveType('Mention'), $lazy->resolveType('Mention'));
-        $this->assertSame($eager->resolveType('BlogStory'), $lazy->resolveType('BlogStory'));
-        $this->assertSame($eager->resolveType('Category'), $lazy->resolveType('Category'));
-        $this->assertSame($eager->resolveType('PostStoryMutation'), $lazy->resolveType('PostStoryMutation'));
-        $this->assertSame($eager->resolveType('PostStoryMutationInput'), $lazy->resolveType('PostStoryMutationInput'));
-        $this->assertSame($eager->resolveType('PostCommentMutation'), $lazy->resolveType('PostCommentMutation'));
-        $this->assertSame(
+        self::assertSame($eager->resolveType('Query'), $lazy->resolveType('Query'));
+        self::assertSame(1, $called);
+        self::assertSame($eager->resolveType('Mutation'), $lazy->resolveType('Mutation'));
+        self::assertSame(2, $called);
+        self::assertSame($eager->resolveType('User'), $lazy->resolveType('User'));
+        self::assertSame(3, $called);
+        self::assertSame($eager->resolveType('User'), $lazy->resolveType('User'));
+        self::assertSame(3, $called);
+        self::assertSame($eager->resolveType('Node'), $lazy->resolveType('Node'));
+        self::assertSame($eager->resolveType('Node'), $lazy->resolveType('Node'));
+        self::assertSame(4, $called);
+        self::assertSame($eager->resolveType('Content'), $lazy->resolveType('Content'));
+        self::assertSame($eager->resolveType('Comment'), $lazy->resolveType('Comment'));
+        self::assertSame($eager->resolveType('Mention'), $lazy->resolveType('Mention'));
+        self::assertSame($eager->resolveType('BlogStory'), $lazy->resolveType('BlogStory'));
+        self::assertSame($eager->resolveType('Category'), $lazy->resolveType('Category'));
+        self::assertSame($eager->resolveType('PostStoryMutation'), $lazy->resolveType('PostStoryMutation'));
+        self::assertSame($eager->resolveType('PostStoryMutationInput'), $lazy->resolveType('PostStoryMutationInput'));
+        self::assertSame($eager->resolveType('PostCommentMutation'), $lazy->resolveType('PostCommentMutation'));
+        self::assertSame(
             $eager->resolveType('PostCommentMutationInput'),
             $lazy->resolveType('PostCommentMutationInput')
         );
-        $this->assertSame(13, $called);
+        self::assertSame(13, $called);
 
-        $this->assertEquals($eager->resolvePossibleTypes($this->content), $lazy->resolvePossibleTypes($this->content));
-        $this->assertEquals($eager->resolvePossibleTypes($this->node), $lazy->resolvePossibleTypes($this->node));
-        $this->assertEquals($eager->resolvePossibleTypes($this->mention), $lazy->resolvePossibleTypes($this->mention));
+        self::assertEquals($eager->resolvePossibleTypes($this->content), $lazy->resolvePossibleTypes($this->content));
+        self::assertEquals($eager->resolvePossibleTypes($this->node), $lazy->resolvePossibleTypes($this->node));
+        self::assertEquals($eager->resolvePossibleTypes($this->mention), $lazy->resolvePossibleTypes($this->mention));
 
         $called = 0;
         $eager  = new EagerResolution([$this->video]);
         $lazy   = new LazyResolution($eager->getDescriptor(), $typeLoader);
 
-        $this->assertEquals($eager->resolveType('VideoMetadata'), $lazy->resolveType('VideoMetadata'));
-        $this->assertEquals($eager->resolveType('Video'), $lazy->resolveType('Video'));
-        $this->assertEquals(2, $called);
+        self::assertEquals($eager->resolveType('VideoMetadata'), $lazy->resolveType('VideoMetadata'));
+        self::assertEquals($eager->resolveType('Video'), $lazy->resolveType('Video'));
+        self::assertEquals(2, $called);
 
-        $this->assertEquals($eager->resolvePossibleTypes($this->content), $lazy->resolvePossibleTypes($this->content));
-        $this->assertEquals($eager->resolvePossibleTypes($this->node), $lazy->resolvePossibleTypes($this->node));
-        $this->assertEquals($eager->resolvePossibleTypes($this->mention), $lazy->resolvePossibleTypes($this->mention));
+        self::assertEquals($eager->resolvePossibleTypes($this->content), $lazy->resolvePossibleTypes($this->content));
+        self::assertEquals($eager->resolvePossibleTypes($this->node), $lazy->resolvePossibleTypes($this->node));
+        self::assertEquals($eager->resolvePossibleTypes($this->mention), $lazy->resolvePossibleTypes($this->mention));
     }
 
     public function testLazyThrowsOnInvalidLoadedType() : void
@@ -558,7 +558,7 @@ class ResolutionTest extends TestCase
 
         $lazy  = new LazyResolution($descriptor, $invalidTypeLoader);
         $value = $lazy->resolveType('null');
-        $this->assertEquals(null, $value);
+        self::assertEquals(null, $value);
 
         return $lazy;
     }

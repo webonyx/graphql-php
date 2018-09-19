@@ -70,12 +70,12 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findRemovedTypes($oldSchema, $newSchema)
         );
 
-        $this->assertEquals([], BreakingChangesFinder::findRemovedTypes($oldSchema, $oldSchema));
+        self::assertEquals([], BreakingChangesFinder::findRemovedTypes($oldSchema, $oldSchema));
     }
 
     /**
@@ -119,7 +119,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findTypesThatChangedKind($oldSchema, $newSchema)
         );
@@ -268,7 +268,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema)
         );
@@ -435,7 +435,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
@@ -482,7 +482,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
@@ -548,7 +548,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findTypesRemovedFromUnions($oldSchema, $newSchema)
         );
@@ -593,7 +593,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findValuesRemovedFromEnums($oldSchema, $newSchema)
         );
@@ -678,7 +678,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
@@ -802,7 +802,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
@@ -853,7 +853,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']
         );
@@ -913,7 +913,7 @@ class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $this->assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        self::assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -953,7 +953,7 @@ class BreakingChangesFinderTest extends TestCase
             'types' => [$newType],
         ]);
 
-        $this->assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
+        self::assertEquals([], BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['breakingChanges']);
     }
 
     /**
@@ -997,7 +997,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findInterfacesRemovedFromObjectTypes($oldSchema, $newSchema)
         );
@@ -1264,7 +1264,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedBreakingChanges,
             BreakingChangesFinder::findBreakingChanges($oldSchema, $newSchema)
         );
@@ -1292,7 +1292,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedBreakingChanges,
             BreakingChangesFinder::findRemovedDirectives($oldSchema, $newSchema)
         );
@@ -1318,7 +1318,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedBreakingChanges,
             BreakingChangesFinder::findRemovedDirectives($oldSchema, $newSchema)
         );
@@ -1357,7 +1357,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedBreakingChanges,
             BreakingChangesFinder::findRemovedDirectiveArgs($oldSchema, $newSchema)
         );
@@ -1399,7 +1399,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedBreakingChanges,
             BreakingChangesFinder::findAddedNonNullDirectiveArgs($oldSchema, $newSchema)
         );
@@ -1420,7 +1420,7 @@ class BreakingChangesFinderTest extends TestCase
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
         ]);
 
-        $this->assertEquals(
+        self::assertEquals(
             [DirectiveLocation::QUERY],
             BreakingChangesFinder::findRemovedLocationsForDirective($d1, $d2)
         );
@@ -1459,7 +1459,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedBreakingChanges,
             BreakingChangesFinder::findRemovedDirectiveLocations($oldSchema, $newSchema)
         );
@@ -1520,7 +1520,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
         );
@@ -1564,7 +1564,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findValuesAddedToEnums($oldSchema, $newSchema)
         );
@@ -1613,7 +1613,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findInterfacesAddedToObjectTypes($oldSchema, $newSchema)
         );
@@ -1671,7 +1671,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             BreakingChangesFinder::findTypesAddedToUnions($oldSchema, $newSchema)
         );
@@ -1719,7 +1719,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedFieldChanges,
             BreakingChangesFinder::findFieldsThatChangedTypeOnInputObjectTypes(
                 $oldSchema,
@@ -1861,7 +1861,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedDangerousChanges,
             BreakingChangesFinder::findDangerousChanges($oldSchema, $newSchema)
         );
@@ -1920,7 +1920,7 @@ class BreakingChangesFinderTest extends TestCase
             ],
         ];
 
-        $this->assertEquals(
+        self::assertEquals(
             $expectedFieldChanges,
             BreakingChangesFinder::findArgChanges($oldSchema, $newSchema)['dangerousChanges']
         );

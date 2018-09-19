@@ -46,7 +46,7 @@ class QueryExecutionTest extends ServerTestCase
     private function assertQueryResultEquals($expected, $query, $variables = null)
     {
         $result = $this->executeQuery($query, $variables);
-        $this->assertArraySubset($expected, $result->toArray(true));
+        self::assertArraySubset($expected, $result->toArray(true));
 
         return $result;
     }
@@ -56,7 +56,7 @@ class QueryExecutionTest extends ServerTestCase
         $op     = OperationParams::create(['query' => $query, 'variables' => $variables], $readonly);
         $helper = new Helper();
         $result = $helper->executeOperation($this->config, $op);
-        $this->assertInstanceOf(ExecutionResult::class, $result);
+        self::assertInstanceOf(ExecutionResult::class, $result);
 
         return $result;
     }
@@ -66,9 +66,9 @@ class QueryExecutionTest extends ServerTestCase
         $query = '{f1';
 
         $result = $this->executeQuery($query);
-        $this->assertNull($result->data);
-        $this->assertCount(1, $result->errors);
-        $this->assertContains(
+        self::assertNull($result->data);
+        self::assertCount(1, $result->errors);
+        self::assertContains(
             'Syntax Error: Expected Name, found <EOF>',
             $result->errors[0]->getMessage()
         );
@@ -101,7 +101,7 @@ class QueryExecutionTest extends ServerTestCase
         ];
 
         $result = $this->executeQuery($query)->toArray();
-        $this->assertArraySubset($expected, $result);
+        self::assertArraySubset($expected, $result);
     }
 
     public function testRethrowUnsafeExceptions() : void
@@ -131,9 +131,9 @@ class QueryExecutionTest extends ServerTestCase
         }
         ';
 
-        $this->assertTrue(! isset($context->testedRootValue));
+        self::assertTrue(! isset($context->testedRootValue));
         $this->executeQuery($query);
-        $this->assertSame($rootValue, $context->testedRootValue);
+        self::assertSame($rootValue, $context->testedRootValue);
     }
 
     public function testPassesVariables() : void
@@ -182,7 +182,7 @@ class QueryExecutionTest extends ServerTestCase
             'data' => [],
         ];
         $this->assertQueryResultEquals($expected, $query);
-        $this->assertTrue($called);
+        self::assertTrue($called);
     }
 
     public function testAllowsValidationRulesAsClosure() : void
@@ -199,12 +199,12 @@ class QueryExecutionTest extends ServerTestCase
             return [];
         });
 
-        $this->assertFalse($called);
+        self::assertFalse($called);
         $this->executeQuery('{f1}');
-        $this->assertTrue($called);
-        $this->assertInstanceOf(OperationParams::class, $params);
-        $this->assertInstanceOf(DocumentNode::class, $doc);
-        $this->assertEquals('query', $operationType);
+        self::assertTrue($called);
+        self::assertInstanceOf(OperationParams::class, $params);
+        self::assertInstanceOf(DocumentNode::class, $doc);
+        self::assertEquals('query', $operationType);
     }
 
     public function testAllowsDifferentValidationRulesDependingOnOperation() : void
@@ -232,15 +232,15 @@ class QueryExecutionTest extends ServerTestCase
 
         $expected = ['data' => ['f1' => 'f1']];
         $this->assertQueryResultEquals($expected, $q1);
-        $this->assertTrue($called1);
-        $this->assertFalse($called2);
+        self::assertTrue($called1);
+        self::assertFalse($called2);
 
         $called1  = false;
         $called2  = false;
         $expected = ['errors' => [['message' => 'This is the error we are looking for!']]];
         $this->assertQueryResultEquals($expected, $q2);
-        $this->assertFalse($called1);
-        $this->assertTrue($called2);
+        self::assertFalse($called1);
+        self::assertTrue($called2);
     }
 
     public function testAllowsSkippingValidation() : void
@@ -263,7 +263,7 @@ class QueryExecutionTest extends ServerTestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     private function executePersistedQuery($queryId, $variables = null)
@@ -271,7 +271,7 @@ class QueryExecutionTest extends ServerTestCase
         $op     = OperationParams::create(['queryId' => $queryId, 'variables' => $variables]);
         $helper = new Helper();
         $result = $helper->executeOperation($this->config, $op);
-        $this->assertInstanceOf(ExecutionResult::class, $result);
+        self::assertInstanceOf(ExecutionResult::class, $result);
 
         return $result;
     }
@@ -304,8 +304,8 @@ class QueryExecutionTest extends ServerTestCase
             ],
         ];
 
-        $this->assertEquals($expected[0], $result[0]->toArray());
-        $this->assertEquals($expected[1], $result[1]->toArray());
+        self::assertEquals($expected[0], $result[0]->toArray());
+        self::assertEquals($expected[1], $result[1]->toArray());
     }
 
     /**
@@ -319,11 +319,11 @@ class QueryExecutionTest extends ServerTestCase
         }
         $helper = new Helper();
         $result = $helper->executeBatch($this->config, $batch);
-        $this->assertInternalType('array', $result);
-        $this->assertCount(count($qs), $result);
+        self::assertInternalType('array', $result);
+        self::assertCount(count($qs), $result);
 
         foreach ($result as $index => $entry) {
-            $this->assertInstanceOf(
+            self::assertInstanceOf(
                 ExecutionResult::class,
                 $entry,
                 sprintf('Result at %s is not an instance of %s', $index, ExecutionResult::class)
@@ -347,7 +347,7 @@ class QueryExecutionTest extends ServerTestCase
         ];
 
         $result = $this->executeQuery($mutation, null, true);
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     public function testAllowsPersistentQueries() : void
@@ -355,30 +355,30 @@ class QueryExecutionTest extends ServerTestCase
         $called = false;
         $this->config->setPersistentQueryLoader(function ($queryId, OperationParams $params) use (&$called) {
             $called = true;
-            $this->assertEquals('some-id', $queryId);
+            self::assertEquals('some-id', $queryId);
 
             return '{f1}';
         });
 
         $result = $this->executePersistedQuery('some-id');
-        $this->assertTrue($called);
+        self::assertTrue($called);
 
         $expected = [
             'data' => ['f1' => 'f1'],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         // Make sure it allows returning document node:
         $called = false;
         $this->config->setPersistentQueryLoader(function ($queryId, OperationParams $params) use (&$called) {
             $called = true;
-            $this->assertEquals('some-id', $queryId);
+            self::assertEquals('some-id', $queryId);
 
             return Parser::parse('{f1}');
         });
         $result = $this->executePersistedQuery('some-id');
-        $this->assertTrue($called);
-        $this->assertEquals($expected, $result->toArray());
+        self::assertTrue($called);
+        self::assertEquals($expected, $result->toArray());
     }
 
     public function testProhibitsInvalidPersistedQueryLoader() : void
@@ -409,7 +409,7 @@ class QueryExecutionTest extends ServerTestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     public function testAllowSkippingValidationForPersistedQueries() : void
@@ -434,7 +434,7 @@ class QueryExecutionTest extends ServerTestCase
         $expected = [
             'data' => [],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         $result   = $this->executePersistedQuery('some-other-id');
         $expected = [
@@ -446,7 +446,7 @@ class QueryExecutionTest extends ServerTestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
     }
 
     public function testProhibitsUnexpectedValidationRules() : void
@@ -500,9 +500,9 @@ class QueryExecutionTest extends ServerTestCase
             ],
         ];
 
-        $this->assertArraySubset($expected[0], $result[0]->toArray());
-        $this->assertArraySubset($expected[1], $result[1]->toArray());
-        $this->assertArraySubset($expected[2], $result[2]->toArray());
+        self::assertArraySubset($expected[0], $result[0]->toArray());
+        self::assertArraySubset($expected[1], $result[1]->toArray());
+        self::assertArraySubset($expected[2], $result[2]->toArray());
     }
 
     public function testDeferredsAreSharedAmongAllBatchedQueries() : void
@@ -539,7 +539,7 @@ class QueryExecutionTest extends ServerTestCase
             'load: 2',
             'load: 3',
         ];
-        $this->assertEquals($expectedCalls, $calls);
+        self::assertEquals($expectedCalls, $calls);
 
         $expected = [
             [
@@ -553,9 +553,9 @@ class QueryExecutionTest extends ServerTestCase
             ],
         ];
 
-        $this->assertEquals($expected[0], $result[0]->toArray());
-        $this->assertEquals($expected[1], $result[1]->toArray());
-        $this->assertEquals($expected[2], $result[2]->toArray());
+        self::assertEquals($expected[0], $result[0]->toArray());
+        self::assertEquals($expected[1], $result[1]->toArray());
+        self::assertEquals($expected[2], $result[2]->toArray());
     }
 
     public function testValidatesParamsBeforeExecution() : void
@@ -563,17 +563,17 @@ class QueryExecutionTest extends ServerTestCase
         $op     = OperationParams::create(['queryBad' => '{f1}']);
         $helper = new Helper();
         $result = $helper->executeOperation($this->config, $op);
-        $this->assertInstanceOf(ExecutionResult::class, $result);
+        self::assertInstanceOf(ExecutionResult::class, $result);
 
-        $this->assertEquals(null, $result->data);
-        $this->assertCount(1, $result->errors);
+        self::assertEquals(null, $result->data);
+        self::assertCount(1, $result->errors);
 
-        $this->assertEquals(
+        self::assertEquals(
             'GraphQL Request must include at least one of those two parameters: "query" or "queryId"',
             $result->errors[0]->getMessage()
         );
 
-        $this->assertInstanceOf(
+        self::assertInstanceOf(
             RequestError::class,
             $result->errors[0]->getPrevious()
         );
@@ -591,12 +591,12 @@ class QueryExecutionTest extends ServerTestCase
             $operationType = $o;
         });
 
-        $this->assertFalse($called);
+        self::assertFalse($called);
         $this->executeQuery('{f1}');
-        $this->assertTrue($called);
-        $this->assertInstanceOf(OperationParams::class, $params);
-        $this->assertInstanceOf(DocumentNode::class, $doc);
-        $this->assertEquals('query', $operationType);
+        self::assertTrue($called);
+        self::assertInstanceOf(OperationParams::class, $params);
+        self::assertInstanceOf(DocumentNode::class, $doc);
+        self::assertEquals('query', $operationType);
     }
 
     public function testAllowsRootValueAsClosure() : void
@@ -611,12 +611,12 @@ class QueryExecutionTest extends ServerTestCase
             $operationType = $o;
         });
 
-        $this->assertFalse($called);
+        self::assertFalse($called);
         $this->executeQuery('{f1}');
-        $this->assertTrue($called);
-        $this->assertInstanceOf(OperationParams::class, $params);
-        $this->assertInstanceOf(DocumentNode::class, $doc);
-        $this->assertEquals('query', $operationType);
+        self::assertTrue($called);
+        self::assertInstanceOf(OperationParams::class, $params);
+        self::assertInstanceOf(DocumentNode::class, $doc);
+        self::assertEquals('query', $operationType);
     }
 
     public function testAppliesErrorFormatter() : void
@@ -631,16 +631,16 @@ class QueryExecutionTest extends ServerTestCase
         });
 
         $result = $this->executeQuery('{fieldWithSafeException}');
-        $this->assertFalse($called);
+        self::assertFalse($called);
         $formatted = $result->toArray();
         $expected  = [
             'errors' => [
                 ['test' => 'formatted'],
             ],
         ];
-        $this->assertTrue($called);
-        $this->assertArraySubset($expected, $formatted);
-        $this->assertInstanceOf(Error::class, $error);
+        self::assertTrue($called);
+        self::assertArraySubset($expected, $formatted);
+        self::assertInstanceOf(Error::class, $error);
 
         // Assert debugging still works even with custom formatter
         $formatted = $result->toArray(Debug::INCLUDE_TRACE);
@@ -652,7 +652,7 @@ class QueryExecutionTest extends ServerTestCase
                 ],
             ],
         ];
-        $this->assertArraySubset($expected, $formatted);
+        self::assertArraySubset($expected, $formatted);
     }
 
     public function testAppliesErrorsHandler() : void
@@ -672,18 +672,18 @@ class QueryExecutionTest extends ServerTestCase
 
         $result = $this->executeQuery('{fieldWithSafeException,test: fieldWithSafeException}');
 
-        $this->assertFalse($called);
+        self::assertFalse($called);
         $formatted = $result->toArray();
         $expected  = [
             'errors' => [
                 ['test' => 'handled'],
             ],
         ];
-        $this->assertTrue($called);
-        $this->assertArraySubset($expected, $formatted);
-        $this->assertInternalType('array', $errors);
-        $this->assertCount(2, $errors);
-        $this->assertInternalType('callable', $formatter);
-        $this->assertArraySubset($expected, $formatted);
+        self::assertTrue($called);
+        self::assertArraySubset($expected, $formatted);
+        self::assertInternalType('array', $errors);
+        self::assertCount(2, $errors);
+        self::assertInternalType('callable', $formatter);
+        self::assertArraySubset($expected, $formatted);
     }
 }

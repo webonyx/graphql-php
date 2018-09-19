@@ -262,7 +262,7 @@ class DeferredFieldsTest extends TestCase
         ];
 
         $result = Executor::execute($schema, $query);
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         $expectedPath = [
             ['topStories'],
@@ -305,7 +305,7 @@ class DeferredFieldsTest extends TestCase
             ['featuredCategory', 'stories', 2, 'author', 'name'],
             ['featuredCategory', 'stories', 3, 'author', 'name'],
         ];
-        $this->assertEquals($expectedPath, $this->path);
+        self::assertEquals($expectedPath, $this->path);
     }
 
     public function testNestedDeferredFields() : void
@@ -347,7 +347,7 @@ class DeferredFieldsTest extends TestCase
         ];
 
         $result = Executor::execute($schema, $query);
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         $expectedPath = [
             ['categories'],
@@ -382,7 +382,7 @@ class DeferredFieldsTest extends TestCase
             ['categories', 1, 'topStory', 'author', 'bestFriend', 'name'],
             ['categories', 2, 'topStory', 'author', 'bestFriend', 'name'],
         ];
-        $this->assertEquals($expectedPath, $this->path);
+        self::assertEquals($expectedPath, $this->path);
     }
 
     public function testComplexRecursiveDeferredFields() : void
@@ -495,7 +495,7 @@ class DeferredFieldsTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $result->toArray());
+        self::assertEquals($expected, $result->toArray());
 
         $expectedPath = [
             ['nest'],
@@ -531,6 +531,6 @@ class DeferredFieldsTest extends TestCase
             ['!dfd for: ', ['deferredNest', 'deferredNest', 'deferred']],
         ];
 
-        $this->assertEquals($expectedPath, $this->path);
+        self::assertEquals($expectedPath, $this->path);
     }
 }

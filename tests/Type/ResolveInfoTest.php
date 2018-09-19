@@ -175,10 +175,10 @@ class ResolveInfoTest extends TestCase
         $schema = new Schema(['query' => $blogQuery]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
-        $this->assertTrue($hasCalled);
-        $this->assertEquals(['data' => ['article' => null]], $result);
-        $this->assertEquals($expectedDefaultSelection, $actualDefaultSelection);
-        $this->assertEquals($expectedDeepSelection, $actualDeepSelection);
+        self::assertTrue($hasCalled);
+        self::assertEquals(['data' => ['article' => null]], $result);
+        self::assertEquals($expectedDefaultSelection, $actualDefaultSelection);
+        self::assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
 
     public function testMergedFragmentsFieldSelection() : void
@@ -346,8 +346,8 @@ class ResolveInfoTest extends TestCase
         $schema = new Schema(['query' => $blogQuery]);
         $result = GraphQL::executeQuery($schema, $doc)->toArray();
 
-        $this->assertTrue($hasCalled);
-        $this->assertEquals(['data' => ['article' => null]], $result);
-        $this->assertEquals($expectedDeepSelection, $actualDeepSelection);
+        self::assertTrue($hasCalled);
+        self::assertEquals(['data' => ['article' => null]], $result);
+        self::assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
 }

@@ -37,7 +37,7 @@ class StarWarsValidationTest extends TestCase
         }
       ';
         $errors = $this->validationErrors($query);
-        $this->assertEquals(true, empty($errors));
+        self::assertEquals(true, empty($errors));
     }
 
     /**
@@ -63,7 +63,7 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        $this->assertEquals(false, empty($errors));
+        self::assertEquals(false, empty($errors));
     }
 
     /**
@@ -78,7 +78,7 @@ class StarWarsValidationTest extends TestCase
         ';
 
         $errors = $this->validationErrors($query);
-        $this->assertEquals(false, empty($errors));
+        self::assertEquals(false, empty($errors));
     }
 
     /**
@@ -96,7 +96,7 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        $this->assertEquals(false, empty($errors));
+        self::assertEquals(false, empty($errors));
     }
 
     /**
@@ -113,7 +113,7 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        $this->assertEquals(false, empty($errors));
+        self::assertEquals(false, empty($errors));
     }
 
     /**
@@ -134,7 +134,7 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        $this->assertEquals(true, empty($errors));
+        self::assertEquals(true, empty($errors));
     }
 
     /**
@@ -153,6 +153,6 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        $this->assertEquals(true, empty($errors));
+        self::assertEquals(true, empty($errors));
     }
 }

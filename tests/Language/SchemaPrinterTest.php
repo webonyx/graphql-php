@@ -22,7 +22,7 @@ class SchemaPrinterTest extends TestCase
         $ast = new ScalarTypeDefinitionNode([
             'name' => new NameNode(['value' => 'foo']),
         ]);
-        $this->assertEquals('scalar foo', Printer::doPrint($ast));
+        self::assertEquals('scalar foo', Printer::doPrint($ast));
     }
 
     /**
@@ -49,7 +49,7 @@ class SchemaPrinterTest extends TestCase
         $astCopy = $ast->cloneDeep();
         Printer::doPrint($ast);
 
-        $this->assertEquals($astCopy, $ast);
+        self::assertEquals($astCopy, $ast);
     }
 
     public function testPrintsKitchenSink() : void
@@ -166,6 +166,6 @@ directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @include2(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 ';
-        $this->assertEquals($expected, $printed);
+        self::assertEquals($expected, $printed);
     }
 }

@@ -1349,7 +1349,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
             ]
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             'Invalid scalar is always invalid: 123',
             $errors[0]->getPrevious()->getMessage()
         );

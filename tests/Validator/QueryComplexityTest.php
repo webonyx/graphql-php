@@ -185,8 +185,8 @@ class QueryComplexityTest extends QuerySecurityTestCase
             [$otherRule, $this->getRule(1)]
         );
 
-        $this->assertEquals(1, count($errors));
-        $this->assertSame($reportedError, $errors[0]);
+        self::assertEquals(1, count($errors));
+        self::assertSame($reportedError, $errors[0]);
 
         $this->expectException(Error::class);
         DocumentValidator::validate(

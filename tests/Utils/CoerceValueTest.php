@@ -51,7 +51,7 @@ class CoerceValueTest extends TestCase
             'Expected type String; String cannot represent an array value: [1,2,3]'
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             'String cannot represent an array value: [1,2,3]',
             $result['errors'][0]->getPrevious()->getMessage()
         );
@@ -62,11 +62,11 @@ class CoerceValueTest extends TestCase
      */
     private function expectError($result, $expected)
     {
-        $this->assertInternalType('array', $result);
-        $this->assertInternalType('array', $result['errors']);
-        $this->assertCount(1, $result['errors']);
-        $this->assertEquals($expected, $result['errors'][0]->getMessage());
-        $this->assertEquals(Utils::undefined(), $result['value']);
+        self::assertInternalType('array', $result);
+        self::assertInternalType('array', $result['errors']);
+        self::assertCount(1, $result['errors']);
+        self::assertEquals($expected, $result['errors'][0]->getMessage());
+        self::assertEquals(Utils::undefined(), $result['value']);
     }
 
     /**
@@ -80,9 +80,9 @@ class CoerceValueTest extends TestCase
 
     private function expectNoErrors($result)
     {
-        $this->assertInternalType('array', $result);
-        $this->assertNull($result['errors']);
-        $this->assertNotEquals(Utils::undefined(), $result['value']);
+        self::assertInternalType('array', $result);
+        self::assertNull($result['errors']);
+        self::assertNotEquals(Utils::undefined(), $result['value']);
     }
 
     /**
@@ -243,11 +243,11 @@ class CoerceValueTest extends TestCase
     {
         $fooResult = Value::coerceValue('FOO', $this->testEnum);
         $this->expectNoErrors($fooResult);
-        $this->assertEquals('InternalFoo', $fooResult['value']);
+        self::assertEquals('InternalFoo', $fooResult['value']);
 
         $barResult = Value::coerceValue('BAR', $this->testEnum);
         $this->expectNoErrors($barResult);
-        $this->assertEquals(123456789, $barResult['value']);
+        self::assertEquals(123456789, $barResult['value']);
     }
 
     // DESCRIBE: for GraphQLInputObject
@@ -280,7 +280,7 @@ class CoerceValueTest extends TestCase
     {
         $result = Value::coerceValue(['foo' => 123], $this->testInputObject);
         $this->expectNoErrors($result);
-        $this->assertEquals(['foo' => 123], $result['value']);
+        self::assertEquals(['foo' => 123], $result['value']);
     }
 
     /**
@@ -310,7 +310,7 @@ class CoerceValueTest extends TestCase
     public function testReturnsMultipleErrorsForMultipleInvalidFields() : void
     {
         $result = Value::coerceValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'Expected type Int at value.foo; Int cannot represent non 32-bit signed integer value: abc',
                 'Expected type Int at value.bar; Int cannot represent non 32-bit signed integer value: def',

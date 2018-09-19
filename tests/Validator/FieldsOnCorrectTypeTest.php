@@ -336,7 +336,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
      */
     public function testWorksWithNoSuggestions() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             'Cannot query field "f" on type "T".',
             FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], [])
         );
@@ -350,7 +350,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean to use an inline fragment on "A" or "B"?';
 
-        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], []));
+        self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], []));
     }
 
     /**
@@ -361,7 +361,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean "z" or "y"?';
 
-        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], ['z', 'y']));
+        self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', [], ['z', 'y']));
     }
 
     /**
@@ -372,7 +372,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean to use an inline fragment on "A" or "B"?';
 
-        $this->assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], ['z', 'y']));
+        self::assertEquals($expected, FieldsOnCorrectType::undefinedFieldMessage('f', 'T', ['A', 'B'], ['z', 'y']));
     }
 
     /**
@@ -383,7 +383,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean to use an inline fragment on "A", "B", "C", "D", or "E"?';
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             FieldsOnCorrectType::undefinedFieldMessage(
                 'f',
@@ -402,7 +402,7 @@ class FieldsOnCorrectTypeTest extends ValidatorTestCase
         $expected = 'Cannot query field "f" on type "T". ' .
             'Did you mean "z", "y", "x", "w", or "v"?';
 
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             FieldsOnCorrectType::undefinedFieldMessage(
                 'f',

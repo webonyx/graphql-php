@@ -18,14 +18,14 @@ class ScalarSerializationTest extends TestCase
     {
         $intType = Type::int();
 
-        $this->assertSame(1, $intType->serialize(1));
-        $this->assertSame(123, $intType->serialize('123'));
-        $this->assertSame(0, $intType->serialize(0));
-        $this->assertSame(-1, $intType->serialize(-1));
-        $this->assertSame(100000, $intType->serialize(1e5));
-        $this->assertSame(0, $intType->serialize(0e5));
-        $this->assertSame(0, $intType->serialize(false));
-        $this->assertSame(1, $intType->serialize(true));
+        self::assertSame(1, $intType->serialize(1));
+        self::assertSame(123, $intType->serialize('123'));
+        self::assertSame(0, $intType->serialize(0));
+        self::assertSame(-1, $intType->serialize(-1));
+        self::assertSame(100000, $intType->serialize(1e5));
+        self::assertSame(0, $intType->serialize(0e5));
+        self::assertSame(0, $intType->serialize(false));
+        self::assertSame(1, $intType->serialize(true));
     }
 
     public function testSerializesOutputIntCannotRepresentFloat1() : void
@@ -119,16 +119,16 @@ class ScalarSerializationTest extends TestCase
     {
         $floatType = Type::float();
 
-        $this->assertSame(1.0, $floatType->serialize(1));
-        $this->assertSame(0.0, $floatType->serialize(0));
-        $this->assertSame(123.5, $floatType->serialize('123.5'));
-        $this->assertSame(-1.0, $floatType->serialize(-1));
-        $this->assertSame(0.1, $floatType->serialize(0.1));
-        $this->assertSame(1.1, $floatType->serialize(1.1));
-        $this->assertSame(-1.1, $floatType->serialize(-1.1));
-        $this->assertSame(-1.1, $floatType->serialize('-1.1'));
-        $this->assertSame(0.0, $floatType->serialize(false));
-        $this->assertSame(1.0, $floatType->serialize(true));
+        self::assertSame(1.0, $floatType->serialize(1));
+        self::assertSame(0.0, $floatType->serialize(0));
+        self::assertSame(123.5, $floatType->serialize('123.5'));
+        self::assertSame(-1.0, $floatType->serialize(-1));
+        self::assertSame(0.1, $floatType->serialize(0.1));
+        self::assertSame(1.1, $floatType->serialize(1.1));
+        self::assertSame(-1.1, $floatType->serialize(-1.1));
+        self::assertSame(-1.1, $floatType->serialize('-1.1'));
+        self::assertSame(0.0, $floatType->serialize(false));
+        self::assertSame(1.0, $floatType->serialize(true));
     }
 
     public function testSerializesOutputFloatCannotRepresentString() : void
@@ -154,13 +154,13 @@ class ScalarSerializationTest extends TestCase
     {
         $stringType = Type::string();
 
-        $this->assertSame('string', $stringType->serialize('string'));
-        $this->assertSame('1', $stringType->serialize(1));
-        $this->assertSame('-1.1', $stringType->serialize(-1.1));
-        $this->assertSame('true', $stringType->serialize(true));
-        $this->assertSame('false', $stringType->serialize(false));
-        $this->assertSame('null', $stringType->serialize(null));
-        $this->assertSame('2', $stringType->serialize(new ObjectIdStub(2)));
+        self::assertSame('string', $stringType->serialize('string'));
+        self::assertSame('1', $stringType->serialize(1));
+        self::assertSame('-1.1', $stringType->serialize(-1.1));
+        self::assertSame('true', $stringType->serialize(true));
+        self::assertSame('false', $stringType->serialize(false));
+        self::assertSame('null', $stringType->serialize(null));
+        self::assertSame('2', $stringType->serialize(new ObjectIdStub(2)));
     }
 
     public function testSerializesOutputStringsCannotRepresentArray() : void
@@ -186,13 +186,13 @@ class ScalarSerializationTest extends TestCase
     {
         $boolType = Type::boolean();
 
-        $this->assertTrue($boolType->serialize('string'));
-        $this->assertFalse($boolType->serialize(''));
-        $this->assertTrue($boolType->serialize('1'));
-        $this->assertTrue($boolType->serialize(1));
-        $this->assertFalse($boolType->serialize(0));
-        $this->assertTrue($boolType->serialize(true));
-        $this->assertFalse($boolType->serialize(false));
+        self::assertTrue($boolType->serialize('string'));
+        self::assertFalse($boolType->serialize(''));
+        self::assertTrue($boolType->serialize('1'));
+        self::assertTrue($boolType->serialize(1));
+        self::assertFalse($boolType->serialize(0));
+        self::assertTrue($boolType->serialize(true));
+        self::assertFalse($boolType->serialize(false));
         // TODO: how should it behave on '0'?
     }
 
@@ -200,14 +200,14 @@ class ScalarSerializationTest extends TestCase
     {
         $idType = Type::id();
 
-        $this->assertSame('string', $idType->serialize('string'));
-        $this->assertSame('', $idType->serialize(''));
-        $this->assertSame('1', $idType->serialize('1'));
-        $this->assertSame('1', $idType->serialize(1));
-        $this->assertSame('0', $idType->serialize(0));
-        $this->assertSame('true', $idType->serialize(true));
-        $this->assertSame('false', $idType->serialize(false));
-        $this->assertSame('2', $idType->serialize(new ObjectIdStub(2)));
+        self::assertSame('string', $idType->serialize('string'));
+        self::assertSame('', $idType->serialize(''));
+        self::assertSame('1', $idType->serialize('1'));
+        self::assertSame('1', $idType->serialize(1));
+        self::assertSame('0', $idType->serialize(0));
+        self::assertSame('true', $idType->serialize(true));
+        self::assertSame('false', $idType->serialize(false));
+        self::assertSame('2', $idType->serialize(new ObjectIdStub(2)));
     }
 
     public function testSerializesOutputIDCannotRepresentObject() : void

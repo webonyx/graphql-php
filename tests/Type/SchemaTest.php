@@ -127,7 +127,7 @@ class SchemaTest extends TestCase
     public function testIncludesInputTypesOnlyUsedInDirectives() : void
     {
         $typeMap = $this->schema->getTypeMap();
-        $this->assertArrayHasKey('DirInput', $typeMap);
-        $this->assertArrayHasKey('WrappedDirInput', $typeMap);
+        self::assertArrayHasKey('DirInput', $typeMap);
+        self::assertArrayHasKey('WrappedDirInput', $typeMap);
     }
 }

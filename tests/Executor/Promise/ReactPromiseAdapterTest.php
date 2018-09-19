@@ -31,24 +31,24 @@ class ReactPromiseAdapterTest extends TestCase
     {
         $reactAdapter = new ReactPromiseAdapter();
 
-        $this->assertTrue(
+        self::assertTrue(
             $reactAdapter->isThenable(new ReactPromise(function () {
             }))
         );
-        $this->assertTrue($reactAdapter->isThenable(new FulfilledPromise()));
-        $this->assertTrue($reactAdapter->isThenable(new RejectedPromise()));
-        $this->assertTrue(
+        self::assertTrue($reactAdapter->isThenable(new FulfilledPromise()));
+        self::assertTrue($reactAdapter->isThenable(new RejectedPromise()));
+        self::assertTrue(
             $reactAdapter->isThenable(new LazyPromise(function () {
             }))
         );
-        $this->assertFalse($reactAdapter->isThenable(false));
-        $this->assertFalse($reactAdapter->isThenable(true));
-        $this->assertFalse($reactAdapter->isThenable(1));
-        $this->assertFalse($reactAdapter->isThenable(0));
-        $this->assertFalse($reactAdapter->isThenable('test'));
-        $this->assertFalse($reactAdapter->isThenable(''));
-        $this->assertFalse($reactAdapter->isThenable([]));
-        $this->assertFalse($reactAdapter->isThenable(new \stdClass()));
+        self::assertFalse($reactAdapter->isThenable(false));
+        self::assertFalse($reactAdapter->isThenable(true));
+        self::assertFalse($reactAdapter->isThenable(1));
+        self::assertFalse($reactAdapter->isThenable(0));
+        self::assertFalse($reactAdapter->isThenable('test'));
+        self::assertFalse($reactAdapter->isThenable(''));
+        self::assertFalse($reactAdapter->isThenable([]));
+        self::assertFalse($reactAdapter->isThenable(new \stdClass()));
     }
 
     public function testConvertsReactPromisesToGraphQlOnes() : void
@@ -58,8 +58,8 @@ class ReactPromiseAdapterTest extends TestCase
 
         $promise = $reactAdapter->convertThenable($reactPromise);
 
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
-        $this->assertInstanceOf('React\Promise\FulfilledPromise', $promise->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $promise);
+        self::assertInstanceOf('React\Promise\FulfilledPromise', $promise->adoptedPromise);
     }
 
     public function testThen() : void
@@ -77,9 +77,9 @@ class ReactPromiseAdapterTest extends TestCase
             }
         );
 
-        $this->assertSame(1, $result);
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $resultPromise);
-        $this->assertInstanceOf('React\Promise\FulfilledPromise', $resultPromise->adoptedPromise);
+        self::assertSame(1, $result);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $resultPromise);
+        self::assertInstanceOf('React\Promise\FulfilledPromise', $resultPromise->adoptedPromise);
     }
 
     public function testCreate() : void
@@ -89,8 +89,8 @@ class ReactPromiseAdapterTest extends TestCase
             $resolve(1);
         });
 
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $resolvedPromise);
-        $this->assertInstanceOf('React\Promise\Promise', $resolvedPromise->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $resolvedPromise);
+        self::assertInstanceOf('React\Promise\Promise', $resolvedPromise->adoptedPromise);
 
         $result = null;
 
@@ -98,7 +98,7 @@ class ReactPromiseAdapterTest extends TestCase
             $result = $value;
         });
 
-        $this->assertSame(1, $result);
+        self::assertSame(1, $result);
     }
 
     public function testCreateFulfilled() : void
@@ -106,8 +106,8 @@ class ReactPromiseAdapterTest extends TestCase
         $reactAdapter     = new ReactPromiseAdapter();
         $fulfilledPromise = $reactAdapter->createFulfilled(1);
 
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $fulfilledPromise);
-        $this->assertInstanceOf('React\Promise\FulfilledPromise', $fulfilledPromise->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $fulfilledPromise);
+        self::assertInstanceOf('React\Promise\FulfilledPromise', $fulfilledPromise->adoptedPromise);
 
         $result = null;
 
@@ -115,7 +115,7 @@ class ReactPromiseAdapterTest extends TestCase
             $result = $value;
         });
 
-        $this->assertSame(1, $result);
+        self::assertSame(1, $result);
     }
 
     public function testCreateRejected() : void
@@ -123,8 +123,8 @@ class ReactPromiseAdapterTest extends TestCase
         $reactAdapter    = new ReactPromiseAdapter();
         $rejectedPromise = $reactAdapter->createRejected(new \Exception('I am a bad promise'));
 
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $rejectedPromise);
-        $this->assertInstanceOf('React\Promise\RejectedPromise', $rejectedPromise->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $rejectedPromise);
+        self::assertInstanceOf('React\Promise\RejectedPromise', $rejectedPromise->adoptedPromise);
 
         $exception = null;
 
@@ -135,8 +135,8 @@ class ReactPromiseAdapterTest extends TestCase
             }
         );
 
-        $this->assertInstanceOf('\Exception', $exception);
-        $this->assertEquals('I am a bad promise', $exception->getMessage());
+        self::assertInstanceOf('\Exception', $exception);
+        self::assertEquals('I am a bad promise', $exception->getMessage());
     }
 
     public function testAll() : void
@@ -146,8 +146,8 @@ class ReactPromiseAdapterTest extends TestCase
 
         $allPromise = $reactAdapter->all($promises);
 
-        $this->assertInstanceOf('GraphQL\Executor\Promise\Promise', $allPromise);
-        $this->assertInstanceOf('React\Promise\FulfilledPromise', $allPromise->adoptedPromise);
+        self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $allPromise);
+        self::assertInstanceOf('React\Promise\FulfilledPromise', $allPromise->adoptedPromise);
 
         $result = null;
 
@@ -155,7 +155,7 @@ class ReactPromiseAdapterTest extends TestCase
             $result = $values;
         });
 
-        $this->assertSame([1, 2, 3], $result);
+        self::assertSame([1, 2, 3], $result);
     }
 
     public function testAllShouldPreserveTheOrderOfTheArrayWhenResolvingAsyncPromises() : void
@@ -171,6 +171,6 @@ class ReactPromiseAdapterTest extends TestCase
 
         // Resolve the async promise
         $deferred->resolve(2);
-        $this->assertSame([1, 2, 3], $result);
+        self::assertSame([1, 2, 3], $result);
     }
 }

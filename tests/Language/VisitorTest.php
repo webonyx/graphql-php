@@ -62,7 +62,7 @@ class VisitorTest extends ValidatorTestCase
             ['leave', []],
         ];
 
-        $this->assertEquals($expected, $visited);
+        self::assertEquals($expected, $visited);
     }
 
     private function checkVisitorFnArgs($ast, $args, $isEdited = false)
@@ -72,41 +72,41 @@ class VisitorTest extends ValidatorTestCase
 
         $parentArray = $parent && ! is_array($parent) ? ($parent instanceof NodeList ? iterator_to_array($parent) : $parent->toArray()) : $parent;
 
-        $this->assertInstanceOf(Node::class, $node);
-        $this->assertContains($node->kind, array_keys(NodeKind::$classMap));
+        self::assertInstanceOf(Node::class, $node);
+        self::assertContains($node->kind, array_keys(NodeKind::$classMap));
 
         $isRoot = $key === null;
         if ($isRoot) {
             if (! $isEdited) {
-                $this->assertEquals($ast, $node);
+                self::assertEquals($ast, $node);
             }
-            $this->assertEquals(null, $parent);
-            $this->assertEquals([], $path);
-            $this->assertEquals([], $ancestors);
+            self::assertEquals(null, $parent);
+            self::assertEquals([], $path);
+            self::assertEquals([], $ancestors);
 
             return;
         }
 
-        $this->assertContains(gettype($key), ['integer', 'string']);
+        self::assertContains(gettype($key), ['integer', 'string']);
 
-        $this->assertArrayHasKey($key, $parentArray);
+        self::assertArrayHasKey($key, $parentArray);
 
-        $this->assertInternalType('array', $path);
-        $this->assertEquals($key, $path[count($path) - 1]);
+        self::assertInternalType('array', $path);
+        self::assertEquals($key, $path[count($path) - 1]);
 
-        $this->assertInternalType('array', $ancestors);
-        $this->assertCount(count($path) - 1, $ancestors);
+        self::assertInternalType('array', $ancestors);
+        self::assertCount(count($path) - 1, $ancestors);
 
         if ($isEdited) {
             return;
         }
 
-        $this->assertEquals($node, $parentArray[$key]);
-        $this->assertEquals($node, $this->getNodeByPath($ast, $path));
+        self::assertEquals($node, $parentArray[$key]);
+        self::assertEquals($node, $this->getNodeByPath($ast, $path));
         $ancestorsLength = count($ancestors);
         for ($i = 0; $i < $ancestorsLength; ++$i) {
             $ancestorPath = array_slice($path, 0, $i);
-            $this->assertEquals($ancestors[$i], $this->getNodeByPath($ast, $ancestorPath));
+            self::assertEquals($ancestors[$i], $this->getNodeByPath($ast, $ancestorPath));
         }
     }
 
@@ -115,7 +115,7 @@ class VisitorTest extends ValidatorTestCase
         $result = $ast;
         foreach ($path as $key) {
             $resultArray = $result instanceof NodeList ? iterator_to_array($result) : $result->toArray();
-            $this->assertArrayHasKey($key, $resultArray);
+            self::assertArrayHasKey($key, $resultArray);
             $result = $resultArray[$key];
         }
 
@@ -155,13 +155,13 @@ class VisitorTest extends ValidatorTestCase
             ]
         );
 
-        $this->assertNotEquals($ast, $editedAst);
+        self::assertNotEquals($ast, $editedAst);
 
         $expected                           = $ast->cloneDeep();
         $expected->definitions[0]->didEnter = true;
         $expected->definitions[0]->didLeave = true;
 
-        $this->assertEquals($expected, $editedAst);
+        self::assertEquals($expected, $editedAst);
     }
 
     public function testAllowsEditingRootNodeOnEnterAndLeave() : void
@@ -190,13 +190,13 @@ class VisitorTest extends ValidatorTestCase
             ]
         );
 
-        $this->assertNotEquals($ast, $editedAst);
+        self::assertNotEquals($ast, $editedAst);
 
         $tmp           = $ast->cloneDeep();
         $tmp->didEnter = true;
         $tmp->didLeave = true;
 
-        $this->assertEquals($tmp, $editedAst);
+        self::assertEquals($tmp, $editedAst);
     }
 
     public function testAllowsForEditingOnEnter() : void
@@ -214,11 +214,11 @@ class VisitorTest extends ValidatorTestCase
             ]
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
             $ast
         );
-        $this->assertEquals(
+        self::assertEquals(
             Parser::parse('{ a,    c { a,    c } }', ['noLocation' => true]),
             $editedAst
         );
@@ -239,12 +239,12 @@ class VisitorTest extends ValidatorTestCase
             ]
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
             $ast
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Parser::parse('{ a,    c { a,    c } }', ['noLocation' => true]),
             $editedAst
         );
@@ -281,7 +281,7 @@ class VisitorTest extends ValidatorTestCase
             ]
         );
 
-        $this->assertTrue($didVisitAddedField);
+        self::assertTrue($didVisitAddedField);
     }
 
     public function testAllowsSkippingASubTree() : void
@@ -324,7 +324,7 @@ class VisitorTest extends ValidatorTestCase
             ['leave', 'Document', null],
         ];
 
-        $this->assertEquals($expected, $visited);
+        self::assertEquals($expected, $visited);
     }
 
     public function testAllowsEarlyExitWhileVisiting() : void
@@ -365,7 +365,7 @@ class VisitorTest extends ValidatorTestCase
             ['enter', 'Name', 'x'],
         ];
 
-        $this->assertEquals($expected, $visited);
+        self::assertEquals($expected, $visited);
     }
 
     public function testAllowsEarlyExitWhileLeaving() : void
@@ -391,7 +391,7 @@ class VisitorTest extends ValidatorTestCase
             ]
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             $visited,
             [
                 ['enter', 'Document', null],
@@ -448,7 +448,7 @@ class VisitorTest extends ValidatorTestCase
             ['leave', 'SelectionSet', null],
         ];
 
-        $this->assertEquals($expected, $visited);
+        self::assertEquals($expected, $visited);
     }
 
     public function testExperimentalVisitsVariablesDefinedInFragments() : void
@@ -507,7 +507,7 @@ class VisitorTest extends ValidatorTestCase
             ['leave', 'Document', null],
         ];
 
-        $this->assertEquals($expected, $visited);
+        self::assertEquals($expected, $visited);
     }
 
     public function testVisitsKitchenSink() : void
@@ -845,7 +845,7 @@ class VisitorTest extends ValidatorTestCase
             ['leave', 'Document', null, null],
         ];
 
-        $this->assertEquals($expected, $visited);
+        self::assertEquals($expected, $visited);
     }
 
     /**
@@ -878,7 +878,7 @@ class VisitorTest extends ValidatorTestCase
             ])
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['enter', 'Document', null],
             ['enter', 'OperationDefinition', null],
@@ -937,7 +937,7 @@ class VisitorTest extends ValidatorTestCase
             ])
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['no-a', 'enter', 'Document', null],
             ['no-b', 'enter', 'Document', null],
@@ -1002,7 +1002,7 @@ class VisitorTest extends ValidatorTestCase
             ])
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['enter', 'Document', null],
             ['enter', 'OperationDefinition', null],
@@ -1061,7 +1061,7 @@ class VisitorTest extends ValidatorTestCase
             ])
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['break-a', 'enter', 'Document', null],
             ['break-b', 'enter', 'Document', null],
@@ -1112,7 +1112,7 @@ class VisitorTest extends ValidatorTestCase
             ])
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['enter', 'Document', null],
             ['enter', 'OperationDefinition', null],
@@ -1170,7 +1170,7 @@ class VisitorTest extends ValidatorTestCase
             ])
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['break-a', 'enter', 'Document', null],
             ['break-b', 'enter', 'Document', null],
@@ -1242,17 +1242,17 @@ class VisitorTest extends ValidatorTestCase
             ])
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
             $ast
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Parser::parse('{ a,    c { a,    c } }', ['noLocation' => true]),
             $editedAst
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['enter', 'Document', null],
             ['enter', 'OperationDefinition', null],
@@ -1312,17 +1312,17 @@ class VisitorTest extends ValidatorTestCase
             ])
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Parser::parse('{ a, b, c { a, b, c } }', ['noLocation' => true]),
             $ast
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Parser::parse('{ a,    c { a,    c } }', ['noLocation' => true]),
             $editedAst
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['enter', 'Document', null],
             ['enter', 'OperationDefinition', null],
@@ -1406,7 +1406,7 @@ class VisitorTest extends ValidatorTestCase
             )
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['enter', 'Document', null, null, null, null],
             ['enter', 'OperationDefinition', null, null, 'QueryRoot', null],
@@ -1518,21 +1518,21 @@ class VisitorTest extends ValidatorTestCase
             )
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets }, alien }'
             )),
             Printer::doPrint($ast)
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets { __typename } }, alien { __typename } }'
             )),
             Printer::doPrint($editedAst)
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             [
             ['enter', 'Document', null, null, null, null],
             ['enter', 'OperationDefinition', null, null, 'QueryRoot', null],

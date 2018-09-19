@@ -48,7 +48,7 @@ class MutationsTest extends TestCase
                 'fifth'  => ['theNumber' => 5],
             ],
         ];
-        $this->assertEquals($expected, $mutationResult->toArray());
+        self::assertEquals($expected, $mutationResult->toArray());
     }
 
     private function schema() : Schema
@@ -151,6 +151,6 @@ class MutationsTest extends TestCase
                 ],
             ],
         ];
-        $this->assertArraySubset($expected, $mutationResult->toArray(true));
+        self::assertArraySubset($expected, $mutationResult->toArray(true));
     }
 }

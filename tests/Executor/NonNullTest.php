@@ -158,7 +158,7 @@ class NonNullTest extends TestCase
                 ),
             ],
         ];
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -184,7 +184,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -209,7 +209,7 @@ class NonNullTest extends TestCase
                 FormattedError::create($this->syncNonNullError->getMessage(), [new SourceLocation(4, 11)]),
             ],
         ];
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -234,7 +234,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -259,7 +259,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -284,7 +284,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -369,7 +369,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -443,7 +443,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -462,7 +462,7 @@ class NonNullTest extends TestCase
         $expected = [
             'data' => ['sync' => null],
         ];
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray()
         );
@@ -482,7 +482,7 @@ class NonNullTest extends TestCase
             'data' => ['promise' => null],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray()
         );
@@ -509,7 +509,7 @@ class NonNullTest extends TestCase
                 ],
             ],
         ];
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
         );
@@ -537,7 +537,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
         );
@@ -565,7 +565,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
         );
@@ -593,7 +593,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
         );
@@ -662,7 +662,7 @@ class NonNullTest extends TestCase
         ];
 
         $actual = Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray();
-        $this->assertEquals($expected, $actual);
+        self::assertEquals($expected, $actual);
     }
 
     public function testNullsTheFirstNullableObjectAfterAFieldReturnsNullInALongChainOfFieldsThatAreNonNull() : void
@@ -733,7 +733,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
         );
@@ -754,7 +754,7 @@ class NonNullTest extends TestCase
             ],
         ];
         $actual   = Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray();
-        $this->assertArraySubset($expected, $actual);
+        self::assertArraySubset($expected, $actual);
     }
 
     public function testNullsTheTopLevelIfAsyncNonNullableFieldErrors() : void
@@ -771,7 +771,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
         );
@@ -792,7 +792,7 @@ class NonNullTest extends TestCase
                 ],
             ],
         ];
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, Parser::parse($doc), $this->nullingData)->toArray(true)
         );
@@ -815,7 +815,7 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             $expected,
             Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
         );

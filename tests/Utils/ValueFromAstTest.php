@@ -22,7 +22,7 @@ class ValueFromAstTest extends TestCase
      */
     public function testRejectsEmptyInput() : void
     {
-        $this->assertEquals(Utils::undefined(), AST::valueFromAST(null, Type::boolean()));
+        self::assertEquals(Utils::undefined(), AST::valueFromAST(null, Type::boolean()));
     }
 
     /**
@@ -42,7 +42,7 @@ class ValueFromAstTest extends TestCase
 
     private function runTestCase($type, $valueText, $expected)
     {
-        $this->assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type));
+        self::assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type));
     }
 
     /**
@@ -205,7 +205,7 @@ class ValueFromAstTest extends TestCase
 
     private function runTestCaseWithVars($variables, $type, $valueText, $expected)
     {
-        $this->assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type, $variables));
+        self::assertEquals($expected, AST::valueFromAST(Parser::parseValue($valueText), $type, $variables));
     }
 
     /**

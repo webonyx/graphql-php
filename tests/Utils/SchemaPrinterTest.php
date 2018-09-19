@@ -30,7 +30,7 @@ class SchemaPrinterTest extends TestCase
         $output = $this->printSingleFieldSchema([
             'type' => Type::string(),
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField: String
@@ -53,7 +53,7 @@ type Query {
     private function printForTest($schema)
     {
         $schemaText = SchemaPrinter::doPrint($schema);
-        $this->assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
+        self::assertEquals($schemaText, SchemaPrinter::doPrint(BuildSchema::build($schemaText)));
 
         return "\n" . $schemaText;
     }
@@ -66,7 +66,7 @@ type Query {
         $output = $this->printSingleFieldSchema([
             'type' => Type::listOf(Type::string()),
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField: [String]
@@ -84,7 +84,7 @@ type Query {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::string()),
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField: String!
@@ -102,7 +102,7 @@ type Query {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::string())),
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField: [String]!
@@ -120,7 +120,7 @@ type Query {
         $output = $this->printSingleFieldSchema([
             'type' => Type::listOf(Type::nonNull(Type::string())),
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField: [String!]
@@ -138,7 +138,7 @@ type Query {
         $output = $this->printSingleFieldSchema([
             'type' => Type::nonNull(Type::listOf(Type::nonNull(Type::string()))),
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField: [String!]!
@@ -165,7 +165,7 @@ type Query {
 
         $schema = new Schema(['query' => $root]);
         $output = $this->printForTest($schema);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Foo {
   str: String
@@ -188,7 +188,7 @@ type Query {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int()]],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: Int): String
@@ -207,7 +207,7 @@ type Query {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => 2]],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: Int = 2): String
@@ -226,7 +226,7 @@ type Query {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::string(), 'defaultValue' => "tes\t de\fault"]],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: String = "tes\t de\fault"): String
@@ -245,7 +245,7 @@ type Query {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::int(), 'defaultValue' => null]],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: Int = null): String
@@ -264,7 +264,7 @@ type Query {
             'type' => Type::string(),
             'args' => ['argOne' => ['type' => Type::nonNull(Type::int())]],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: Int!): String
@@ -286,7 +286,7 @@ type Query {
                 'argTwo' => ['type' => Type::string()],
             ],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: Int, argTwo: String): String
@@ -309,7 +309,7 @@ type Query {
                 'argThree' => ['type' => Type::boolean()],
             ],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: Int = 1, argTwo: String, argThree: Boolean): String
@@ -332,7 +332,7 @@ type Query {
                 'argThree' => ['type' => Type::boolean()],
             ],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: Int, argTwo: String = "foo", argThree: Boolean): String
@@ -355,7 +355,7 @@ type Query {
                 'argThree' => ['type' => Type::boolean(), 'defaultValue' => false],
             ],
         ]);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   singleField(argOne: Int, argTwo: String, argThree: Boolean = false): String
@@ -386,7 +386,7 @@ type CustomQueryType {
   bar: String
 }
 ';
-        $this->assertEquals($expected, $output);
+        self::assertEquals($expected, $output);
     }
 
     /**
@@ -415,7 +415,7 @@ type CustomQueryType {
             'types' => [$barType],
         ]);
         $output = $this->printForTest($schema);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Bar implements Foo {
   str: String
@@ -467,7 +467,7 @@ type Query {
             'types' => [$barType],
         ]);
         $output = $this->printForTest($schema);
-        $this->assertEquals(
+        self::assertEquals(
             '
 interface Baaz {
   int: Int
@@ -525,7 +525,7 @@ type Query {
 
         $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Bar {
   str: String
@@ -570,7 +570,7 @@ union SingleUnion = Foo
 
         $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
-        $this->assertEquals(
+        self::assertEquals(
             '
 input InputType {
   int: Int
@@ -605,7 +605,7 @@ type Query {
 
         $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
-        $this->assertEquals(
+        self::assertEquals(
             '
 scalar Odd
 
@@ -640,7 +640,7 @@ type Query {
 
         $schema = new Schema(['query' => $query]);
         $output = $this->printForTest($schema);
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   rgb: RGB
@@ -681,7 +681,7 @@ enum RGB {
         ]);
 
         $output = $this->printForTest($schema);
-        $this->assertEquals(
+        self::assertEquals(
             '
 directive @customDirective on FIELD
 
@@ -704,7 +704,7 @@ type Query {
             'description' => $description,
         ]);
 
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   """This field is awesome"""
@@ -716,7 +716,7 @@ type Query {
 
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
-        $this->assertEquals($description, $recreatedField->description);
+        self::assertEquals($description, $recreatedField->description);
     }
 
     /**
@@ -730,7 +730,7 @@ type Query {
             'description' => $description,
         ]);
 
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   """
@@ -744,7 +744,7 @@ type Query {
 
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
-        $this->assertEquals($description, $recreatedField->description);
+        self::assertEquals($description, $recreatedField->description);
     }
 
     /**
@@ -758,7 +758,7 @@ type Query {
             'description' => $description,
         ]);
 
-        $this->assertEquals(
+        self::assertEquals(
             '
 type Query {
   """    This field is "awesome"
@@ -771,7 +771,7 @@ type Query {
 
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
-        $this->assertEquals($description, $recreatedField->description);
+        self::assertEquals($description, $recreatedField->description);
     }
 
     /**
@@ -1016,7 +1016,7 @@ enum __TypeKind {
 }
 
 EOT;
-        $this->assertEquals($introspectionSchema, $output);
+        self::assertEquals($introspectionSchema, $output);
     }
 
     /**
@@ -1232,6 +1232,6 @@ enum __TypeKind {
 }
 
 EOT;
-        $this->assertEquals($introspectionSchema, $output);
+        self::assertEquals($introspectionSchema, $output);
     }
 }

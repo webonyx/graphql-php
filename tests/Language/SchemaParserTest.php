@@ -48,7 +48,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 31),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     private function nameNode($name, $loc)
@@ -128,7 +128,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 45),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -175,7 +175,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 85),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -213,7 +213,7 @@ extend type Hello {
             ],
             'loc'         => $loc(0, 39),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -243,7 +243,7 @@ extend type Hello {
             ],
             'loc'         => $loc(0, 37),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -279,7 +279,7 @@ extend type Hello {
             ],
             'loc'         => ['start' => 0, 'end' => 116],
         ];
-        $this->assertEquals($expected, $doc->toArray(true));
+        self::assertEquals($expected, $doc->toArray(true));
     }
 
     /**
@@ -301,7 +301,7 @@ extend type Hello {
         try {
             Parser::parse($text);
         } catch (SyntaxError $error) {
-            $this->assertEquals([$location], $error->getLocations());
+            self::assertEquals([$location], $error->getLocations());
             throw $error;
         }
     }
@@ -386,7 +386,7 @@ type Hello {
             'loc'         => $loc(0, 32),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -424,7 +424,7 @@ type Hello {
             'loc'         => $loc(0, 45),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -463,7 +463,7 @@ type Hello {
             'loc'         => $loc(0, 48),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -501,7 +501,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 50),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -530,7 +530,7 @@ type Hello {
             'loc'         => $loc(0, 20),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     private function enumValueNode($name, $loc)
@@ -573,7 +573,7 @@ type Hello {
             'loc'         => $loc(0, 22),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -610,7 +610,7 @@ interface Hello {
             ],
             'loc'         => $loc(0, 36),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -657,7 +657,7 @@ type Hello {
             'loc'         => $loc(0, 46),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     private function inputValueNode($name, $type, $defaultValue, $loc)
@@ -716,7 +716,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 53),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -769,7 +769,7 @@ type Hello {
             'loc'         => $loc(0, 49),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -822,7 +822,7 @@ type Hello {
             'loc'         => $loc(0, 61),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -851,7 +851,7 @@ type Hello {
             'loc'         => $loc(0, 19),
         ];
 
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -882,7 +882,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 22),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -909,7 +909,7 @@ type Hello {
             ],
             'loc'         => ['start' => 0, 'end' => 24],
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -984,7 +984,7 @@ type Hello {
             ],
             'loc'         => $loc(0, 12),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -1022,7 +1022,7 @@ input Hello {
             ],
             'loc'         => $loc(0, 32),
         ];
-        $this->assertEquals($expected, TestUtils::nodeToArray($doc));
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
@@ -1076,7 +1076,7 @@ input Hello {
                 ],
             ],
         ];
-        $this->assertArraySubset($expected, $doc->toArray(true));
+        self::assertArraySubset($expected, $doc->toArray(true));
     }
 
     public function testDoesntAllowLegacySDLImplementsInterfacesByDefault() : void
@@ -1102,6 +1102,6 @@ input Hello {
                 ],
             ],
         ];
-        $this->assertArraySubset($expected, $doc->toArray(true));
+        self::assertArraySubset($expected, $doc->toArray(true));
     }
 }

@@ -35,7 +35,7 @@ class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        $this->assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(true));
     }
 
     private function parseRawRequest($contentType, $content, $method = 'POST')
@@ -75,7 +75,7 @@ class StandardServerTest extends ServerTestCase
     private function assertPsrRequestEquals($expected, $request)
     {
         $result = $this->executePsrRequest($request);
-        $this->assertArraySubset($expected, $result->toArray(true));
+        self::assertArraySubset($expected, $result->toArray(true));
 
         return $result;
     }
@@ -84,7 +84,7 @@ class StandardServerTest extends ServerTestCase
     {
         $server = new StandardServer($this->config);
         $result = $server->executePsrRequest($psrRequest);
-        $this->assertInstanceOf(ExecutionResult::class, $result);
+        self::assertInstanceOf(ExecutionResult::class, $result);
 
         return $result;
     }

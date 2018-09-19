@@ -103,7 +103,7 @@ class AbstractPromiseTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $result);
+        self::assertEquals($expected, $result);
     }
 
     /**
@@ -196,7 +196,7 @@ class AbstractPromiseTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset($expected, $result);
+        self::assertArraySubset($expected, $result);
     }
 
     /**
@@ -273,7 +273,7 @@ class AbstractPromiseTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, $result);
+        self::assertEquals($expected, $result);
     }
 
     /**
@@ -380,7 +380,7 @@ class AbstractPromiseTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset($expected, $result);
+        self::assertArraySubset($expected, $result);
     }
 
     /**
@@ -481,7 +481,7 @@ class AbstractPromiseTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset($expected, $result);
+        self::assertArraySubset($expected, $result);
     }
 
     /**
@@ -566,7 +566,7 @@ class AbstractPromiseTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result);
+        self::assertEquals($expected, $result);
     }
 
     /**
@@ -654,6 +654,6 @@ class AbstractPromiseTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset($expected, $result);
+        self::assertArraySubset($expected, $result);
     }
 }

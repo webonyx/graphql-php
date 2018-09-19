@@ -1276,7 +1276,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         $error = OverlappingFieldsCanBeMerged::fieldsConflictMessage('x', 'a and b are different fields');
         $hint  = 'Use different aliases on the fields to fetch both if this was intentional.';
 
-        $this->assertStringEndsWith($hint, $error);
+        self::assertStringEndsWith($hint, $error);
     }
 
     /**

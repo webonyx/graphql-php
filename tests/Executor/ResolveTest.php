@@ -26,7 +26,7 @@ class ResolveTest extends TestCase
 
         $source = ['test' => 'testValue'];
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['test' => 'testValue']],
             GraphQL::executeQuery($schema, '{ test }', $source)->toArray()
         );
@@ -55,7 +55,7 @@ class ResolveTest extends TestCase
                 return $_secret;
             },
         ];
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['test' => $_secret]],
             GraphQL::executeQuery($schema, '{ test }', $source)->toArray()
         );
@@ -76,7 +76,7 @@ class ResolveTest extends TestCase
         $source = new Adder(700);
 
         $result = GraphQL::executeQuery($schema, '{ test(addend1: 80) }', $source, ['addend2' => 9])->toArray();
-        $this->assertEquals(['data' => ['test' => 789]], $result);
+        self::assertEquals(['data' => ['test' => 789]], $result);
     }
 
     /**
@@ -95,22 +95,22 @@ class ResolveTest extends TestCase
             },
         ]);
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['test' => '[null,[]]']],
             GraphQL::executeQuery($schema, '{ test }')->toArray()
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['test' => '["Source!",[]]']],
             GraphQL::executeQuery($schema, '{ test }', 'Source!')->toArray()
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['test' => '["Source!",{"aStr":"String!"}]']],
             GraphQL::executeQuery($schema, '{ test(aStr: "String!") }', 'Source!')->toArray()
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['test' => '["Source!",{"aStr":"String!","aInt":-123}]']],
             GraphQL::executeQuery($schema, '{ test(aInt: -123, aStr: "String!") }', 'Source!')->toArray()
         );
