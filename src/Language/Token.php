@@ -85,7 +85,6 @@ class Token
     public $next;
 
     /**
-     *
      * @param string     $kind
      * @param int        $start
      * @param int        $end

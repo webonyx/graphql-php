@@ -4,19 +4,24 @@ declare(strict_types=1);
 
 namespace GraphQL\Language\AST;
 
+use ArrayAccess;
+use Countable;
+use Generator;
 use GraphQL\Utils\AST;
+use IteratorAggregate;
 use function array_merge;
 use function array_splice;
 use function count;
 use function is_array;
 
-class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
+class NodeList implements ArrayAccess, IteratorAggregate, Countable
 {
     /** @var Node[]|mixed[] */
     private $nodes;
 
     /**
      * @param Node[]|mixed[] $nodes
+     *
      * @return static
      */
     public static function create(array $nodes)
@@ -25,7 +30,6 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     *
      * @param Node[]|mixed[] $nodes
      */
     public function __construct(array $nodes)
@@ -35,6 +39,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * @param mixed $offset
+     *
      * @return bool
      */
     public function offsetExists($offset)
@@ -44,6 +49,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * @param mixed $offset
+     *
      * @return mixed
      */
     public function offsetGet($offset)
@@ -81,6 +87,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
      * @param int   $offset
      * @param int   $length
      * @param mixed $replacement
+     *
      * @return NodeList
      */
     public function splice($offset, $length, $replacement = null)
@@ -90,6 +97,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
 
     /**
      * @param NodeList|Node[] $list
+     *
      * @return NodeList
      */
     public function merge($list)
@@ -101,7 +109,7 @@ class NodeList implements \ArrayAccess, \IteratorAggregate, \Countable
     }
 
     /**
-     * @return \Generator
+     * @return Generator
      */
     public function getIterator()
     {

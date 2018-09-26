@@ -61,6 +61,7 @@ abstract class Node
 
     /**
      * @param string|NodeList|Location|Node|(Node|NodeList|Location)[] $value
+     *
      * @return string|NodeList|Location|Node
      */
     private function cloneValue($value)
@@ -94,6 +95,7 @@ abstract class Node
 
     /**
      * @param bool $recursive
+     *
      * @return mixed[]
      */
     public function toArray($recursive = false)

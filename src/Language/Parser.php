@@ -102,11 +102,14 @@ class Parser
      *   Note: this feature is experimental and may change or be removed in the
      *   future.)
      *
-     * @api
      * @param Source|string $source
      * @param bool[]        $options
+     *
      * @return DocumentNode
+     *
      * @throws SyntaxError
+     *
+     * @api
      */
     public static function parse($source, array $options = [])
     {
@@ -126,10 +129,12 @@ class Parser
      *
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
      *
-     * @api
      * @param Source|string $source
      * @param bool[]        $options
+     *
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode
+     *
+     * @api
      */
     public static function parseValue($source, array $options = [])
     {
@@ -152,10 +157,12 @@ class Parser
      *
      * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
      *
-     * @api
      * @param Source|string $source
      * @param bool[]        $options
+     *
      * @return ListTypeNode|NameNode|NonNullTypeNode
+     *
+     * @api
      */
     public static function parseType($source, array $options = [])
     {
@@ -172,7 +179,6 @@ class Parser
     private $lexer;
 
     /**
-     *
      * @param bool[] $options
      */
     public function __construct(Source $source, array $options = [])
@@ -199,6 +205,7 @@ class Parser
      * Determines if the next token is of a given kind
      *
      * @param string $kind
+     *
      * @return bool
      */
     private function peek($kind)
@@ -211,6 +218,7 @@ class Parser
      * the parser. Otherwise, do not change the parser state and return false.
      *
      * @param string $kind
+     *
      * @return bool
      */
     private function skip($kind)
@@ -227,8 +235,11 @@ class Parser
     /**
      * If the next token is of the given kind, return that token after advancing
      * the parser. Otherwise, do not change the parser state and return false.
+     *
      * @param string $kind
+     *
      * @return Token
+     *
      * @throws SyntaxError
      */
     private function expect($kind)
@@ -254,7 +265,9 @@ class Parser
      * false.
      *
      * @param string $value
+     *
      * @return Token
+     *
      * @throws SyntaxError
      */
     private function expectKeyword($value)
@@ -292,7 +305,9 @@ class Parser
      * @param string   $openKind
      * @param callable $parseFn
      * @param string   $closeKind
+     *
      * @return NodeList
+     *
      * @throws SyntaxError
      */
     private function any($openKind, $parseFn, $closeKind)
@@ -316,7 +331,9 @@ class Parser
      * @param string   $openKind
      * @param callable $parseFn
      * @param string   $closeKind
+     *
      * @return NodeList
+     *
      * @throws SyntaxError
      */
     private function many($openKind, $parseFn, $closeKind)
@@ -335,6 +352,7 @@ class Parser
      * Converts a name lex token into a name parse node.
      *
      * @return NameNode
+     *
      * @throws SyntaxError
      */
     private function parseName()
@@ -351,6 +369,7 @@ class Parser
      * Implements the parsing rules in the Document section.
      *
      * @return DocumentNode
+     *
      * @throws SyntaxError
      */
     private function parseDocument()
@@ -371,6 +390,7 @@ class Parser
 
     /**
      * @return ExecutableDefinitionNode|TypeSystemDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseDefinition()
@@ -408,6 +428,7 @@ class Parser
 
     /**
      * @return ExecutableDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseExecutableDefinition()
@@ -433,6 +454,7 @@ class Parser
 
     /**
      * @return OperationDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseOperationDefinition()
@@ -468,6 +490,7 @@ class Parser
 
     /**
      * @return string
+     *
      * @throws SyntaxError
      */
     private function parseOperationType()
@@ -503,6 +526,7 @@ class Parser
 
     /**
      * @return VariableDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseVariableDefinition()
@@ -524,6 +548,7 @@ class Parser
 
     /**
      * @return VariableNode
+     *
      * @throws SyntaxError
      */
     private function parseVariable()
@@ -575,6 +600,7 @@ class Parser
 
     /**
      * @return FieldNode
+     *
      * @throws SyntaxError
      */
     private function parseField()
@@ -602,7 +628,9 @@ class Parser
 
     /**
      * @param bool $isConst
+     *
      * @return ArgumentNode[]|NodeList
+     *
      * @throws SyntaxError
      */
     private function parseArguments($isConst)
@@ -622,6 +650,7 @@ class Parser
 
     /**
      * @return ArgumentNode
+     *
      * @throws SyntaxError
      */
     private function parseArgument()
@@ -641,6 +670,7 @@ class Parser
 
     /**
      * @return ArgumentNode
+     *
      * @throws SyntaxError
      */
     private function parseConstArgument()
@@ -662,6 +692,7 @@ class Parser
 
     /**
      * @return FragmentSpreadNode|InlineFragmentNode
+     *
      * @throws SyntaxError
      */
     private function parseFragment()
@@ -693,6 +724,7 @@ class Parser
 
     /**
      * @return FragmentDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseFragmentDefinition()
@@ -724,6 +756,7 @@ class Parser
 
     /**
      * @return NameNode
+     *
      * @throws SyntaxError
      */
     private function parseFragmentName()
@@ -756,7 +789,9 @@ class Parser
      * EnumValue : Name but not `true`, `false` or `null`
      *
      * @param bool $isConst
+     *
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode|VariableNode|ListValueNode|ObjectValueNode|NullValueNode
+     *
      * @throws SyntaxError
      */
     private function parseValueLiteral($isConst)
@@ -834,6 +869,7 @@ class Parser
 
     /**
      * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode|VariableNode
+     *
      * @throws SyntaxError
      */
     private function parseConstValue()
@@ -851,6 +887,7 @@ class Parser
 
     /**
      * @param bool $isConst
+     *
      * @return ListValueNode
      */
     private function parseArray($isConst)
@@ -872,6 +909,7 @@ class Parser
 
     /**
      * @param bool $isConst
+     *
      * @return ObjectValueNode
      */
     private function parseObject($isConst)
@@ -891,6 +929,7 @@ class Parser
 
     /**
      * @param bool $isConst
+     *
      * @return ObjectFieldNode
      */
     private function parseObjectField($isConst)
@@ -911,7 +950,9 @@ class Parser
 
     /**
      * @param bool $isConst
+     *
      * @return DirectiveNode[]|NodeList
+     *
      * @throws SyntaxError
      */
     private function parseDirectives($isConst)
@@ -926,7 +967,9 @@ class Parser
 
     /**
      * @param bool $isConst
+     *
      * @return DirectiveNode
+     *
      * @throws SyntaxError
      */
     private function parseDirective($isConst)
@@ -947,6 +990,7 @@ class Parser
      * Handles the Type: TypeName, ListType, and NonNullType parsing rules.
      *
      * @return ListTypeNode|NameNode|NonNullTypeNode
+     *
      * @throws SyntaxError
      */
     private function parseTypeReference()
@@ -1001,6 +1045,7 @@ class Parser
      *   - InputObjectTypeDefinition
      *
      * @return TypeSystemDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseTypeSystemDefinition()
@@ -1056,6 +1101,7 @@ class Parser
 
     /**
      * @return SchemaDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseSchemaDefinition()
@@ -1081,6 +1127,7 @@ class Parser
 
     /**
      * @return OperationTypeDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseOperationTypeDefinition()
@@ -1099,6 +1146,7 @@ class Parser
 
     /**
      * @return ScalarTypeDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseScalarTypeDefinition()
@@ -1119,6 +1167,7 @@ class Parser
 
     /**
      * @return ObjectTypeDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseObjectTypeDefinition()
@@ -1168,6 +1217,7 @@ class Parser
 
     /**
      * @return FieldDefinitionNode[]|NodeList
+     *
      * @throws SyntaxError
      */
     private function parseFieldsDefinition()
@@ -1196,6 +1246,7 @@ class Parser
 
     /**
      * @return FieldDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseFieldDefinition()
@@ -1220,6 +1271,7 @@ class Parser
 
     /**
      * @return InputValueDefinitionNode[]|NodeList
+     *
      * @throws SyntaxError
      */
     private function parseArgumentDefs()
@@ -1239,6 +1291,7 @@ class Parser
 
     /**
      * @return InputValueDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseInputValueDef()
@@ -1266,6 +1319,7 @@ class Parser
 
     /**
      * @return InterfaceTypeDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseInterfaceTypeDefinition()
@@ -1291,6 +1345,7 @@ class Parser
      *   - Description? union Name Directives[Const]? UnionMemberTypes?
      *
      * @return UnionTypeDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseUnionTypeDefinition()
@@ -1334,6 +1389,7 @@ class Parser
 
     /**
      * @return EnumTypeDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseEnumTypeDefinition()
@@ -1356,6 +1412,7 @@ class Parser
 
     /**
      * @return EnumValueDefinitionNode[]|NodeList
+     *
      * @throws SyntaxError
      */
     private function parseEnumValuesDefinition()
@@ -1373,6 +1430,7 @@ class Parser
 
     /**
      * @return EnumValueDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseEnumValueDefinition()
@@ -1392,6 +1450,7 @@ class Parser
 
     /**
      * @return InputObjectTypeDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseInputObjectTypeDefinition()
@@ -1414,6 +1473,7 @@ class Parser
 
     /**
      * @return InputValueDefinitionNode[]|NodeList
+     *
      * @throws SyntaxError
      */
     private function parseInputFieldsDefinition()
@@ -1439,6 +1499,7 @@ class Parser
      *   - InputObjectTypeDefinition
      *
      * @return TypeExtensionNode
+     *
      * @throws SyntaxError
      */
     private function parseTypeExtension()
@@ -1469,6 +1530,7 @@ class Parser
 
     /**
      * @return SchemaTypeExtensionNode
+     *
      * @throws SyntaxError
      */
     private function parseSchemaTypeExtension()
@@ -1496,6 +1558,7 @@ class Parser
 
     /**
      * @return ScalarTypeExtensionNode
+     *
      * @throws SyntaxError
      */
     private function parseScalarTypeExtension()
@@ -1518,6 +1581,7 @@ class Parser
 
     /**
      * @return ObjectTypeExtensionNode
+     *
      * @throws SyntaxError
      */
     private function parseObjectTypeExtension()
@@ -1548,6 +1612,7 @@ class Parser
 
     /**
      * @return InterfaceTypeExtensionNode
+     *
      * @throws SyntaxError
      */
     private function parseInterfaceTypeExtension()
@@ -1578,6 +1643,7 @@ class Parser
      *   - extend union Name Directives[Const]
      *
      * @return UnionTypeExtensionNode
+     *
      * @throws SyntaxError
      */
     private function parseUnionTypeExtension()
@@ -1604,6 +1670,7 @@ class Parser
 
     /**
      * @return EnumTypeExtensionNode
+     *
      * @throws SyntaxError
      */
     private function parseEnumTypeExtension()
@@ -1630,6 +1697,7 @@ class Parser
 
     /**
      * @return InputObjectTypeExtensionNode
+     *
      * @throws SyntaxError
      */
     private function parseInputObjectTypeExtension()
@@ -1659,6 +1727,7 @@ class Parser
      *   - directive @ Name ArgumentsDefinition? on DirectiveLocations
      *
      * @return DirectiveDefinitionNode
+     *
      * @throws SyntaxError
      */
     private function parseDirectiveDefinition()
@@ -1683,6 +1752,7 @@ class Parser
 
     /**
      * @return NameNode[]
+     *
      * @throws SyntaxError
      */
     private function parseDirectiveLocations()
@@ -1699,6 +1769,7 @@ class Parser
 
     /**
      * @return NameNode
+     *
      * @throws SyntaxError
      */
     private function parseDirectiveLocation()

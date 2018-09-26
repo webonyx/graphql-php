@@ -51,6 +51,7 @@ class Location
     /**
      * @param int $start
      * @param int $end
+     *
      * @return static
      */
     public static function create($start, $end)
