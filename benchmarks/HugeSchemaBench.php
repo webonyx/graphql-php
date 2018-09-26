@@ -57,13 +57,13 @@ class HugeSchemaBench
 
     public function benchSmallQuery()
     {
-        $result = GraphQL::execute($this->schema, $this->smallQuery);
+        $result = GraphQL::executeQuery($this->schema, $this->smallQuery);
     }
 
     public function benchSmallQueryLazy()
     {
         $schema = $this->createLazySchema();
-        $result = GraphQL::execute($schema, $this->smallQuery);
+        $result = GraphQL::executeQuery($schema, $this->smallQuery);
     }
 
     private function createLazySchema()

@@ -33,3 +33,11 @@ Coding standard of this project is based on [Doctrine CS](https://github.com/doc
 ```sh
 ./vendor/bin/phpcs
 ```
+
+## Running benchmarks
+
+Benchmarks are run via phpbench:
+
+```sh
+./vendor/bin/phpbench run
+```

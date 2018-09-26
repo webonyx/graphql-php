@@ -18,7 +18,7 @@ try {
     $query = $input['query'];
     $variableValues = isset($input['variables']) ? $input['variables'] : null;
 
-    $result = GraphQL::execute($schema, $query, $rootValue, null, $variableValues);
+    $result = GraphQL::executeQuery($schema, $query, $rootValue, null, $variableValues);
 } catch (\Exception $e) {
     $result = [
         'error' => [
