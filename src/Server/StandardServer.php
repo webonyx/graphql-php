@@ -12,6 +12,7 @@ use GraphQL\Utils\Utils;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use Throwable;
 use function is_array;
 
 /**
@@ -34,7 +35,6 @@ use function is_array;
  *     $server->handleRequest();
  *
  * See [dedicated section in docs](executing-queries.md#using-server) for details.
- *
  */
 class StandardServer
 {
@@ -49,10 +49,11 @@ class StandardServer
      * Useful when an exception is thrown somewhere outside of server execution context
      * (e.g. during schema instantiation).
      *
+     * @param Throwable $error
+     * @param bool      $debug
+     * @param bool      $exitWhenDone
+     *
      * @api
-     * @param \Throwable $error
-     * @param bool       $debug
-     * @param bool       $exitWhenDone
      */
     public static function send500Error($error, $debug = false, $exitWhenDone = false)
     {
@@ -66,8 +67,9 @@ class StandardServer
     /**
      * Creates new instance of a standard GraphQL HTTP server
      *
-     * @api
      * @param ServerConfig|mixed[] $config
+     *
+     * @api
      */
     public function __construct($config)
     {
@@ -91,9 +93,10 @@ class StandardServer
      * See `executeRequest()` if you prefer to emit response yourself
      * (e.g. using Response object of some framework)
      *
-     * @api
      * @param OperationParams|OperationParams[] $parsedBody
      * @param bool                              $exitWhenDone
+     *
+     * @api
      */
     public function handleRequest($parsedBody = null, $exitWhenDone = false)
     {
@@ -111,10 +114,13 @@ class StandardServer
      *
      * PSR-7 compatible method executePsrRequest() does exactly this.
      *
-     * @api
      * @param OperationParams|OperationParams[] $parsedBody
+     *
      * @return ExecutionResult|ExecutionResult[]|Promise
+     *
      * @throws InvariantViolation
+     *
+     * @api
      */
     public function executeRequest($parsedBody = null)
     {
@@ -135,8 +141,9 @@ class StandardServer
      * See `executePsrRequest()` if you prefer to create response yourself
      * (e.g. using specific JsonResponse instance of some framework).
      *
-     * @api
      * @return ResponseInterface|Promise
+     *
+     * @api
      */
     public function processPsrRequest(
         ServerRequestInterface $request,
@@ -151,8 +158,9 @@ class StandardServer
      * Executes GraphQL operation and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter)
      *
-     * @api
      * @return ExecutionResult|ExecutionResult[]|Promise
+     *
+     * @api
      */
     public function executePsrRequest(ServerRequestInterface $request)
     {
@@ -164,8 +172,9 @@ class StandardServer
      * Returns an instance of Server helper, which contains most of the actual logic for
      * parsing / validating / executing request (which could be re-used by other server implementations)
      *
-     * @api
      * @return Helper
+     *
+     * @api
      */
     public function getHelper()
     {

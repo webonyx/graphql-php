@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
+use Exception;
 use GraphQL\Error\ClientAware;
 
-class RequestError extends \Exception implements ClientAware
+class RequestError extends Exception implements ClientAware
 {
     /**
      * Returns true when exception message is safe to be displayed to client
