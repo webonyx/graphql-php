@@ -64,7 +64,7 @@ class ExecutorLazySchemaTest extends TestCase
         // isTypeOf used to resolve runtime type for Interface
         $petType = new InterfaceType([
             'name'   => 'Pet',
-            'fields' => function () {
+            'fields' => static function () {
                 return [
                     'name' => ['type' => Type::string()],
                 ];
@@ -75,10 +75,10 @@ class ExecutorLazySchemaTest extends TestCase
         $dogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => function ($obj) {
+            'isTypeOf'   => static function ($obj) {
                 return $obj instanceof Dog;
             },
-            'fields'     => function () {
+            'fields'     => static function () {
                 return [
                     'name'  => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
@@ -89,10 +89,10 @@ class ExecutorLazySchemaTest extends TestCase
         $catType = new ObjectType([
             'name'       => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf'   => function ($obj) {
+            'isTypeOf'   => static function ($obj) {
                 return $obj instanceof Cat;
             },
-            'fields'     => function () {
+            'fields'     => static function () {
                 return [
                     'name'  => ['type' => Type::string()],
                     'meows' => ['type' => Type::boolean()],
@@ -106,14 +106,14 @@ class ExecutorLazySchemaTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
                 ],
             ]),
             'types'      => [$catType, $dogType],
-            'typeLoader' => function ($name) use ($dogType, $petType, $catType) {
+            'typeLoader' => static function ($name) use ($dogType, $petType, $catType) {
                 switch ($name) {
                     case 'Dog':
                         return $dogType;
@@ -165,13 +165,13 @@ class ExecutorLazySchemaTest extends TestCase
     public function testHintsOnConflictingTypeInstancesInDefinitions() : void
     {
         $calls      = [];
-        $typeLoader = function ($name) use (&$calls) {
+        $typeLoader = static function ($name) use (&$calls) {
             $calls[] = $name;
             switch ($name) {
                 case 'Test':
                     return new ObjectType([
                         'name'   => 'Test',
-                        'fields' => function () {
+                        'fields' => static function () {
                             return [
                                 'test' => Type::string(),
                             ];
@@ -184,7 +184,7 @@ class ExecutorLazySchemaTest extends TestCase
 
         $query = new ObjectType([
             'name'   => 'Query',
-            'fields' => function () use ($typeLoader) {
+            'fields' => static function () use ($typeLoader) {
                 return [
                     'test' => $typeLoader('Test'),
                 ];
@@ -311,13 +311,13 @@ class ExecutorLazySchemaTest extends TestCase
             case 'SomeScalar':
                 return $this->someScalarType ?: $this->someScalarType = new CustomScalarType([
                     'name'         => 'SomeScalar',
-                    'serialize'    => function ($value) {
+                    'serialize'    => static function ($value) {
                         return $value;
                     },
-                    'parseValue'   => function ($value) {
+                    'parseValue'   => static function ($value) {
                         return $value;
                     },
-                    'parseLiteral' => function () {
+                    'parseLiteral' => static function () {
                     },
                 ]);
             case 'SomeUnion':

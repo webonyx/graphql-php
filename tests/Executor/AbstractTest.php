@@ -40,7 +40,7 @@ class AbstractTest extends TestCase
         $dogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => function ($obj) {
+            'isTypeOf'   => static function ($obj) {
                 return $obj instanceof Dog;
             },
             'fields'     => [
@@ -52,7 +52,7 @@ class AbstractTest extends TestCase
         $catType = new ObjectType([
             'name'       => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf'   => function ($obj) {
+            'isTypeOf'   => static function ($obj) {
                 return $obj instanceof Cat;
             },
             'fields'     => [
@@ -67,7 +67,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -106,7 +106,7 @@ class AbstractTest extends TestCase
     {
         $dogType = new ObjectType([
             'name'     => 'Dog',
-            'isTypeOf' => function ($obj) {
+            'isTypeOf' => static function ($obj) {
                 return $obj instanceof Dog;
             },
             'fields'   => [
@@ -117,7 +117,7 @@ class AbstractTest extends TestCase
 
         $catType = new ObjectType([
             'name'     => 'Cat',
-            'isTypeOf' => function ($obj) {
+            'isTypeOf' => static function ($obj) {
                 return $obj instanceof Cat;
             },
             'fields'   => [
@@ -137,7 +137,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -178,7 +178,7 @@ class AbstractTest extends TestCase
 
         $PetType = new InterfaceType([
             'name'        => 'Pet',
-            'resolveType' => function ($obj) use (&$DogType, &$CatType, &$HumanType) {
+            'resolveType' => static function ($obj) use (&$DogType, &$CatType, &$HumanType) {
                 if ($obj instanceof Dog) {
                     return $DogType;
                 }
@@ -227,7 +227,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -302,7 +302,7 @@ class AbstractTest extends TestCase
 
         $PetType = new UnionType([
             'name'        => 'Pet',
-            'resolveType' => function ($obj) use ($DogType, $CatType, $HumanType) {
+            'resolveType' => static function ($obj) use ($DogType, $CatType, $HumanType) {
                 if ($obj instanceof Dog) {
                     return $DogType;
                 }
@@ -322,7 +322,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -380,7 +380,7 @@ class AbstractTest extends TestCase
         $fooInterface = new InterfaceType([
             'name'        => 'FooInterface',
             'fields'      => ['bar' => ['type' => Type::string()]],
-            'resolveType' => function () {
+            'resolveType' => static function () {
                 return [];
             },
         ]);
@@ -397,7 +397,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'foo' => [
                         'type'    => $fooInterface,
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return 'dummy';
                         },
                     ],
@@ -434,7 +434,7 @@ class AbstractTest extends TestCase
     {
         $PetType = new InterfaceType([
             'name'        => 'Pet',
-            'resolveType' => function ($obj) {
+            'resolveType' => static function ($obj) {
                 if ($obj instanceof Dog) {
                     return 'Dog';
                 }
@@ -473,7 +473,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -514,13 +514,13 @@ class AbstractTest extends TestCase
 
     public function testHintsOnConflictingTypeInstancesInResolveType() : void
     {
-        $createTest = function () use (&$iface) {
+        $createTest = static function () use (&$iface) {
             return new ObjectType([
                 'name'       => 'Test',
                 'fields'     => [
                     'a' => Type::string(),
                 ],
-                'interfaces' => function () use ($iface) {
+                'interfaces' => static function () use ($iface) {
                     return [$iface];
                 },
             ]);
@@ -531,7 +531,7 @@ class AbstractTest extends TestCase
             'fields'      => [
                 'a' => Type::string(),
             ],
-            'resolveType' => function () use (&$createTest) {
+            'resolveType' => static function () use (&$createTest) {
                 return $createTest();
             },
         ]);

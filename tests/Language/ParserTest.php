@@ -19,6 +19,7 @@ use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use function file_get_contents;
 use function sprintf;
 
@@ -42,7 +43,7 @@ class ParserTest extends TestCase
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('GraphQL query body is expected to be string, but got stdClass');
-        Parser::parse(new \stdClass());
+        Parser::parse(new stdClass());
     }
 
     public function parseProvidesUsefulErrors()
@@ -72,8 +73,9 @@ fragment MissingOn Type
     }
 
     /**
-     * @dataProvider parseProvidesUsefulErrors
      * @see          it('parse provides useful errors')
+     *
+     * @dataProvider parseProvidesUsefulErrors
      */
     public function testParseProvidesUsefulErrors(
         $str,
@@ -331,7 +333,7 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = function ($start, $end) {
+        $loc = static function ($start, $end) {
             return [
                 'start' => $start,
                 'end'   => $end,
@@ -442,7 +444,7 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = function ($start, $end) {
+        $loc = static function ($start, $end) {
             return [
                 'start' => $start,
                 'end'   => $end,

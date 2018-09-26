@@ -17,6 +17,7 @@ use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 use function array_keys;
 use function count;
 use function json_encode;
@@ -38,52 +39,52 @@ class ExecutorTest extends TestCase
         $deepData = null;
         $data     = null;
 
-        $promiseData = function () use (&$data) {
-            return new Deferred(function () use (&$data) {
+        $promiseData = static function () use (&$data) {
+            return new Deferred(static function () use (&$data) {
                 return $data;
             });
         };
 
         $data = [
-            'a'       => function () {
+            'a'       => static function () {
                 return 'Apple';
             },
-            'b'       => function () {
+            'b'       => static function () {
                 return 'Banana';
             },
-            'c'       => function () {
+            'c'       => static function () {
                 return 'Cookie';
             },
-            'd'       => function () {
+            'd'       => static function () {
                 return 'Donut';
             },
-            'e'       => function () {
+            'e'       => static function () {
                 return 'Egg';
             },
             'f'       => 'Fish',
-            'pic'     => function ($size = 50) {
+            'pic'     => static function ($size = 50) {
                 return 'Pic of size: ' . $size;
             },
-            'promise' => function () use ($promiseData) {
+            'promise' => static function () use ($promiseData) {
                 return $promiseData();
             },
-            'deep'    => function () use (&$deepData) {
+            'deep'    => static function () use (&$deepData) {
                 return $deepData;
             },
         ];
 
         // Required for that & reference above
         $deepData = [
-            'a'      => function () {
+            'a'      => static function () {
                 return 'Already Been Done';
             },
-            'b'      => function () {
+            'b'      => static function () {
                 return 'Boring';
             },
-            'c'      => function () {
+            'c'      => static function () {
                 return ['Contrived', null, 'Confusing'];
             },
-            'deeper' => function () use (&$data) {
+            'deeper' => static function () use (&$data) {
                 return [$data, null, $data];
             },
         ];
@@ -145,7 +146,7 @@ class ExecutorTest extends TestCase
         $deepDataType = null;
         $dataType     = new ObjectType([
             'name'   => 'DataType',
-            'fields' => function () use (&$dataType, &$deepDataType) {
+            'fields' => static function () use (&$dataType, &$deepDataType) {
                 return [
                     'a'       => ['type' => Type::string()],
                     'b'       => ['type' => Type::string()],
@@ -156,7 +157,7 @@ class ExecutorTest extends TestCase
                     'pic'     => [
                         'args'    => ['size' => ['type' => Type::int()]],
                         'type'    => Type::string(),
-                        'resolve' => function ($obj, $args) {
+                        'resolve' => static function ($obj, $args) {
                             return $obj['pic']($args['size']);
                         },
                     ],
@@ -205,29 +206,29 @@ class ExecutorTest extends TestCase
 
         $Type = new ObjectType([
             'name'   => 'Type',
-            'fields' => function () use (&$Type) {
+            'fields' => static function () use (&$Type) {
                 return [
                     'a'    => [
                         'type'    => Type::string(),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return 'Apple';
                         },
                     ],
                     'b'    => [
                         'type'    => Type::string(),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return 'Banana';
                         },
                     ],
                     'c'    => [
                         'type'    => Type::string(),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return 'Cherry';
                         },
                     ],
                     'deep' => [
                         'type'    => $Type,
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             return [];
                         },
                     ],
@@ -270,7 +271,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'test' => [
                         'type'    => Type::string(),
-                        'resolve' => function ($val, $args, $ctx, $_info) use (&$info) {
+                        'resolve' => static function ($val, $args, $ctx, $_info) use (&$info) {
                             $info = $_info;
                         },
                     ],
@@ -329,7 +330,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'a' => [
                         'type'    => Type::string(),
-                        'resolve' => function ($context) use (&$gotHere) {
+                        'resolve' => static function ($context) use (&$gotHere) {
                             self::assertEquals('thing', $context['contextThing']);
                             $gotHere = true;
                         },
@@ -366,7 +367,7 @@ class ExecutorTest extends TestCase
                             'stringArg' => ['type' => Type::string()],
                         ],
                         'type'    => Type::string(),
-                        'resolve' => function ($_, $args) use (&$gotHere) {
+                        'resolve' => static function ($_, $args) use (&$gotHere) {
                             self::assertEquals(123, $args['numArg']);
                             self::assertEquals('foo', $args['stringArg']);
                             $gotHere = true;
@@ -400,21 +401,21 @@ class ExecutorTest extends TestCase
         }';
 
         $data = [
-            'sync'                => function () {
+            'sync'                => static function () {
                 return 'sync';
             },
-            'syncError'           => function () {
+            'syncError'           => static function () {
                 throw new UserError('Error getting syncError');
             },
-            'syncRawError'        => function () {
+            'syncRawError'        => static function () {
                 throw new UserError('Error getting syncRawError');
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
-            'syncReturnError'     => function () {
+            'syncReturnError'     => static function () {
                 return new UserError('Error getting syncReturnError');
             },
-            'syncReturnErrorList' => function () {
+            'syncReturnErrorList' => static function () {
                 return [
                     'sync0',
                     new UserError('Error getting syncReturnErrorList1'),
@@ -422,40 +423,40 @@ class ExecutorTest extends TestCase
                     new UserError('Error getting syncReturnErrorList3'),
                 ];
             },
-            'async'               => function () {
-                return new Deferred(function () {
+            'async'               => static function () {
+                return new Deferred(static function () {
                     return 'async';
                 });
             },
-            'asyncReject'         => function () {
-                return new Deferred(function () {
+            'asyncReject'         => static function () {
+                return new Deferred(static function () {
                     throw new UserError('Error getting asyncReject');
                 });
             },
-            'asyncRawReject'      => function () {
-                return new Deferred(function () {
+            'asyncRawReject'      => static function () {
+                return new Deferred(static function () {
                     throw new UserError('Error getting asyncRawReject');
                 });
             },
-            'asyncEmptyReject'    => function () {
-                return new Deferred(function () {
+            'asyncEmptyReject'    => static function () {
+                return new Deferred(static function () {
                     throw new UserError();
                 });
             },
-            'asyncError'          => function () {
-                return new Deferred(function () {
+            'asyncError'          => static function () {
+                return new Deferred(static function () {
                     throw new UserError('Error getting asyncError');
                 });
             },
             // inherited from JS reference implementation, but make no sense in this PHP impl
             // leaving it just to simplify migrations from newer js versions
-            'asyncRawError'       => function () {
-                return new Deferred(function () {
+            'asyncRawError'       => static function () {
+                return new Deferred(static function () {
                     throw new UserError('Error getting asyncRawError');
                 });
             },
-            'asyncReturnError'    => function () {
-                return new Deferred(function () {
+            'asyncReturnError'    => static function () {
+                return new Deferred(static function () {
                     throw new UserError('Error getting asyncReturnError');
                 });
             },
@@ -805,23 +806,23 @@ class ExecutorTest extends TestCase
       e
     }';
         $data = [
-            'a' => function () {
+            'a' => static function () {
                 return 'a';
             },
-            'b' => function () {
-                return new Deferred(function () {
+            'b' => static function () {
+                return new Deferred(static function () {
                     return 'b';
                 });
             },
-            'c' => function () {
+            'c' => static function () {
                 return 'c';
             },
-            'd' => function () {
-                return new Deferred(function () {
+            'd' => static function () {
+                return new Deferred(static function () {
                     return 'd';
                 });
             },
-            'e' => function () {
+            'e' => static function () {
                 return 'e';
             },
         ];
@@ -923,7 +924,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'field' => [
                         'type'    => Type::string(),
-                        'resolve' => function ($data, $args) {
+                        'resolve' => static function ($data, $args) {
                             return $args ? json_encode($args) : '';
                         },
                         'args'    => [
@@ -954,7 +955,7 @@ class ExecutorTest extends TestCase
     {
         $SpecialType = new ObjectType([
             'name'     => 'SpecialType',
-            'isTypeOf' => function ($obj) {
+            'isTypeOf' => static function ($obj) {
                 return $obj instanceof Special;
             },
             'fields'   => [
@@ -968,7 +969,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'specials' => [
                         'type'    => Type::listOf($SpecialType),
-                        'resolve' => function ($rootValue) {
+                        'resolve' => static function ($rootValue) {
                             return $rootValue['specials'];
                         },
                     ],
@@ -1049,7 +1050,7 @@ class ExecutorTest extends TestCase
         ]);
 
         // For the purposes of test, just return the name of the field!
-        $customResolver = function ($source, $args, $context, ResolveInfo $info) {
+        $customResolver = static function ($source, $args, $context, ResolveInfo $info) {
             return $info->fieldName;
         };
 
@@ -1078,7 +1079,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'field' => [
                         'type'    => Type::string(),
-                        'resolve' => function ($data, $args) {
+                        'resolve' => static function ($data, $args) {
                             return $args ? json_encode($args) : '';
                         },
                         'args'    => [
@@ -1125,7 +1126,7 @@ class ExecutorTest extends TestCase
             'fields'     => [
                 'id' => Type::id(),
             ],
-            'interfaces' => function () use (&$iface) {
+            'interfaces' => static function () use (&$iface) {
                 return [$iface];
             },
         ]);
@@ -1135,7 +1136,7 @@ class ExecutorTest extends TestCase
             'fields'     => [
                 'id' => Type::id(),
             ],
-            'interfaces' => function () use (&$iface) {
+            'interfaces' => static function () use (&$iface) {
                 return [$iface];
             },
         ]);
@@ -1145,7 +1146,7 @@ class ExecutorTest extends TestCase
             'fields'      => [
                 'id' => Type::id(),
             ],
-            'resolveType' => function ($v) use ($a, $b) {
+            'resolveType' => static function ($v) use ($a, $b) {
                 return $v['type'] === 'A' ? $a : $b;
             },
         ]);
@@ -1187,8 +1188,8 @@ class ExecutorTest extends TestCase
                     'ab' => [
                         ['id' => '1'],
                         ['id' => '2'],
-                        new \stdClass(),
-                        new \stdClass(),
+                        new stdClass(),
+                        new stdClass(),
                     ],
                 ],
             ],

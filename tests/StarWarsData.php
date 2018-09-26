@@ -129,11 +129,12 @@ class StarWarsData
      */
     public static function getFriends($character)
     {
-        return array_map([__CLASS__, 'getCharacter'], $character['friends']);
+        return array_map([self::class, 'getCharacter'], $character['friends']);
     }
 
     /**
      * @param int $episode
+     *
      * @return mixed[]
      */
     public static function getHero($episode)
@@ -149,6 +150,7 @@ class StarWarsData
 
     /**
      * @param string $id
+     *
      * @return mixed|null
      */
     public static function getHuman($id)
@@ -160,6 +162,7 @@ class StarWarsData
 
     /**
      * @param string $id
+     *
      * @return mixed|null
      */
     public static function getDroid($id)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor\Promise;
 
+use Exception;
 use GraphQL\Executor\Promise\Adapter\ReactPromiseAdapter;
 use PHPUnit\Framework\TestCase;
 use React\Promise\Deferred;
@@ -11,6 +12,7 @@ use React\Promise\FulfilledPromise;
 use React\Promise\LazyPromise;
 use React\Promise\Promise as ReactPromise;
 use React\Promise\RejectedPromise;
+use stdClass;
 use function class_exists;
 
 /**
@@ -32,13 +34,13 @@ class ReactPromiseAdapterTest extends TestCase
         $reactAdapter = new ReactPromiseAdapter();
 
         self::assertTrue(
-            $reactAdapter->isThenable(new ReactPromise(function () {
+            $reactAdapter->isThenable(new ReactPromise(static function () {
             }))
         );
         self::assertTrue($reactAdapter->isThenable(new FulfilledPromise()));
         self::assertTrue($reactAdapter->isThenable(new RejectedPromise()));
         self::assertTrue(
-            $reactAdapter->isThenable(new LazyPromise(function () {
+            $reactAdapter->isThenable(new LazyPromise(static function () {
             }))
         );
         self::assertFalse($reactAdapter->isThenable(false));
@@ -48,7 +50,7 @@ class ReactPromiseAdapterTest extends TestCase
         self::assertFalse($reactAdapter->isThenable('test'));
         self::assertFalse($reactAdapter->isThenable(''));
         self::assertFalse($reactAdapter->isThenable([]));
-        self::assertFalse($reactAdapter->isThenable(new \stdClass()));
+        self::assertFalse($reactAdapter->isThenable(new stdClass()));
     }
 
     public function testConvertsReactPromisesToGraphQlOnes() : void
@@ -72,7 +74,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $resultPromise = $reactAdapter->then(
             $promise,
-            function ($value) use (&$result) {
+            static function ($value) use (&$result) {
                 $result = $value;
             }
         );
@@ -85,7 +87,7 @@ class ReactPromiseAdapterTest extends TestCase
     public function testCreate() : void
     {
         $reactAdapter    = new ReactPromiseAdapter();
-        $resolvedPromise = $reactAdapter->create(function ($resolve) {
+        $resolvedPromise = $reactAdapter->create(static function ($resolve) {
             $resolve(1);
         });
 
@@ -94,7 +96,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $resolvedPromise->then(function ($value) use (&$result) {
+        $resolvedPromise->then(static function ($value) use (&$result) {
             $result = $value;
         });
 
@@ -111,7 +113,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $fulfilledPromise->then(function ($value) use (&$result) {
+        $fulfilledPromise->then(static function ($value) use (&$result) {
             $result = $value;
         });
 
@@ -121,7 +123,7 @@ class ReactPromiseAdapterTest extends TestCase
     public function testCreateRejected() : void
     {
         $reactAdapter    = new ReactPromiseAdapter();
-        $rejectedPromise = $reactAdapter->createRejected(new \Exception('I am a bad promise'));
+        $rejectedPromise = $reactAdapter->createRejected(new Exception('I am a bad promise'));
 
         self::assertInstanceOf('GraphQL\Executor\Promise\Promise', $rejectedPromise);
         self::assertInstanceOf('React\Promise\RejectedPromise', $rejectedPromise->adoptedPromise);
@@ -130,7 +132,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $rejectedPromise->then(
             null,
-            function ($error) use (&$exception) {
+            static function ($error) use (&$exception) {
                 $exception = $error;
             }
         );
@@ -151,7 +153,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $allPromise->then(function ($values) use (&$result) {
+        $allPromise->then(static function ($values) use (&$result) {
             $result = $values;
         });
 
@@ -165,7 +167,7 @@ class ReactPromiseAdapterTest extends TestCase
         $promises     = [new FulfilledPromise(1), $deferred->promise(), new FulfilledPromise(3)];
         $result       = null;
 
-        $reactAdapter->all($promises)->then(function ($values) use (&$result) {
+        $reactAdapter->all($promises)->then(static function ($values) use (&$result) {
             $result = $values;
         });
 

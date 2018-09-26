@@ -36,14 +36,14 @@ class SyncTest extends TestCase
                 'fields' => [
                     'syncField'  => [
                         'type'    => Type::string(),
-                        'resolve' => function ($rootValue) {
+                        'resolve' => static function ($rootValue) {
                             return $rootValue;
                         },
                     ],
                     'asyncField' => [
                         'type'    => Type::string(),
-                        'resolve' => function ($rootValue) {
-                            return new Deferred(function () use ($rootValue) {
+                        'resolve' => static function ($rootValue) {
+                            return new Deferred(static function () use ($rootValue) {
                                 return $rootValue;
                             });
                         },
@@ -55,7 +55,7 @@ class SyncTest extends TestCase
                 'fields' => [
                     'syncMutationField' => [
                         'type'    => Type::string(),
-                        'resolve' => function ($rootValue) {
+                        'resolve' => static function ($rootValue) {
                             return $rootValue;
                         },
                     ],
@@ -199,7 +199,7 @@ class SyncTest extends TestCase
         $expected         = [
             'errors' => Utils::map(
                 $validationErrors,
-                function ($e) {
+                static function ($e) {
                     return FormattedError::createFromException($e);
                 }
             ),

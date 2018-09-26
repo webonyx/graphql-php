@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -460,8 +461,8 @@ class ResolutionTest extends TestCase
         $eager           = new EagerResolution([]);
         $emptyDescriptor = $eager->getDescriptor();
 
-        $typeLoader = function ($name) {
-            throw new \Exception('This should be never called for empty descriptor');
+        $typeLoader = static function () {
+            throw new Exception('This should be never called for empty descriptor');
         };
 
         $lazy = new LazyResolution($emptyDescriptor, $typeLoader);
@@ -547,7 +548,7 @@ class ResolutionTest extends TestCase
             ],
         ];
 
-        $invalidTypeLoader = function ($name) {
+        $invalidTypeLoader = static function ($name) {
             switch ($name) {
                 case 'null':
                     return null;

@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\Error;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class ScalarSerializationTest extends TestCase
 {
@@ -176,7 +177,7 @@ class ScalarSerializationTest extends TestCase
         $stringType = Type::string();
         $this->expectException(Error::class);
         $this->expectExceptionMessage('String cannot represent non scalar value: instance of stdClass');
-        $stringType->serialize(new \stdClass());
+        $stringType->serialize(new stdClass());
     }
 
     /**
@@ -215,6 +216,6 @@ class ScalarSerializationTest extends TestCase
         $idType = Type::id();
         $this->expectException(Error::class);
         $this->expectExceptionMessage('ID type cannot represent non scalar value: instance of stdClass');
-        $idType->serialize(new \stdClass());
+        $idType->serialize(new stdClass());
     }
 }

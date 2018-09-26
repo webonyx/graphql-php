@@ -14,6 +14,7 @@ class QueryDepthTest extends QuerySecurityTestCase
      * @param int        $queryDepth
      * @param int        $maxQueryDepth
      * @param string[][] $expectedErrors
+     *
      * @dataProvider queryDataProvider
      */
     public function testSimpleQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
@@ -23,9 +24,7 @@ class QueryDepthTest extends QuerySecurityTestCase
 
     private function buildRecursiveQuery($depth)
     {
-        $query = sprintf('query MyQuery { human%s }', $this->buildRecursiveQueryPart($depth));
-
-        return $query;
+        return sprintf('query MyQuery { human%s }', $this->buildRecursiveQueryPart($depth));
     }
 
     private function buildRecursiveQueryPart($depth)
@@ -38,7 +37,7 @@ class QueryDepthTest extends QuerySecurityTestCase
         $part = $templates['human'];
 
         for ($i = 1; $i <= $depth; ++$i) {
-            $key      = ($i % 2 === 1) ? 'human' : 'dog';
+            $key      = $i % 2 === 1 ? 'human' : 'dog';
             $template = $templates[$key];
 
             $part = sprintf($part, ($key === 'human' ? ' owner ' : '') . $template);
@@ -52,6 +51,7 @@ class QueryDepthTest extends QuerySecurityTestCase
      * @param int        $queryDepth
      * @param int        $maxQueryDepth
      * @param string[][] $expectedErrors
+     *
      * @dataProvider queryDataProvider
      */
     public function testFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
@@ -65,18 +65,17 @@ class QueryDepthTest extends QuerySecurityTestCase
 
     private function buildRecursiveUsingFragmentQuery($depth)
     {
-        $query = sprintf(
+        return sprintf(
             'query MyQuery { human { ...F1 } } fragment F1 on Human %s',
             $this->buildRecursiveQueryPart($depth)
         );
-
-        return $query;
     }
 
     /**
      * @param int        $queryDepth
      * @param int        $maxQueryDepth
      * @param string[][] $expectedErrors
+     *
      * @dataProvider queryDataProvider
      */
     public function testInlineFragmentQueries($queryDepth, $maxQueryDepth = 7, $expectedErrors = []) : void
@@ -90,12 +89,10 @@ class QueryDepthTest extends QuerySecurityTestCase
 
     private function buildRecursiveUsingInlineFragmentQuery($depth)
     {
-        $query = sprintf(
+        return sprintf(
             'query MyQuery { human { ...on Human %s } }',
             $this->buildRecursiveQueryPart($depth)
         );
-
-        return $query;
     }
 
     public function testComplexityIntrospectionQuery() : void

@@ -51,7 +51,7 @@ class UnionInterfaceTest extends TestCase
                 'name'  => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()],
             ],
-            'isTypeOf'   => function ($value) {
+            'isTypeOf'   => static function ($value) {
                 return $value instanceof Dog;
             },
         ]);
@@ -63,7 +63,7 @@ class UnionInterfaceTest extends TestCase
                 'name'  => ['type' => Type::string()],
                 'meows' => ['type' => Type::boolean()],
             ],
-            'isTypeOf'   => function ($value) {
+            'isTypeOf'   => static function ($value) {
                 return $value instanceof Cat;
             },
         ]);
@@ -71,7 +71,7 @@ class UnionInterfaceTest extends TestCase
         $PetType = new UnionType([
             'name'        => 'Pet',
             'types'       => [$DogType, $CatType],
-            'resolveType' => function ($value) use ($DogType, $CatType) {
+            'resolveType' => static function ($value) use ($DogType, $CatType) {
                 if ($value instanceof Dog) {
                     return $DogType;
                 }
@@ -89,7 +89,7 @@ class UnionInterfaceTest extends TestCase
                 'pets'    => ['type' => Type::listOf($PetType)],
                 'friends' => ['type' => Type::listOf($NamedType)],
             ],
-            'isTypeOf'   => function ($value) {
+            'isTypeOf'   => static function ($value) {
                 return $value instanceof Person;
             },
         ]);
@@ -376,7 +376,7 @@ class UnionInterfaceTest extends TestCase
             'fields'      => [
                 'name' => ['type' => Type::string()],
             ],
-            'resolveType' => function (
+            'resolveType' => static function (
                 $obj,
                 $context,
                 ResolveInfo $info

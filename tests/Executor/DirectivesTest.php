@@ -33,6 +33,7 @@ class DirectivesTest extends TestCase
 
     /**
      * @param Source|string $doc
+     *
      * @return mixed[]
      */
     private function executeTestQuery($doc) : array

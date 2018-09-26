@@ -66,7 +66,7 @@ class QuerySecuritySchema
         self::$humanType = new ObjectType(
             [
                 'name'   => 'Human',
-                'fields' => function () {
+                'fields' => static function () {
                     return [
                         'firstName' => ['type' => Type::nonNull(Type::string())],
                         'dogs'      => [
@@ -75,7 +75,7 @@ class QuerySecuritySchema
                                     Type::nonNull(self::buildDogType())
                                 )
                             ),
-                            'complexity' => function ($childrenComplexity, $args) {
+                            'complexity' => static function ($childrenComplexity, $args) {
                                 $complexity = isset($args['name']) ? 1 : 10;
 
                                 return $childrenComplexity + $complexity;

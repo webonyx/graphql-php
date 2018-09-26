@@ -52,6 +52,7 @@ abstract class QuerySecurityTestCase extends TestCase
      * @param string     $queryString
      * @param int        $max
      * @param string[][] $expectedErrors
+     *
      * @return Error[]
      */
     protected function assertDocumentValidator($queryString, $max, array $expectedErrors = []) : array

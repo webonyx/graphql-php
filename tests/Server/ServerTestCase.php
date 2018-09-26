@@ -19,19 +19,19 @@ abstract class ServerTestCase extends TestCase
 {
     protected function buildSchema()
     {
-        $schema = new Schema([
+        return new Schema([
             'query'    => new ObjectType([
                 'name'   => 'Query',
                 'fields' => [
                     'f1'                      => [
                         'type'    => Type::string(),
-                        'resolve' => function ($root, $args, $context, $info) {
+                        'resolve' => static function ($root, $args, $context, $info) {
                             return $info->fieldName;
                         },
                     ],
                     'fieldWithPhpError'       => [
                         'type'    => Type::string(),
-                        'resolve' => function ($root, $args, $context, $info) {
+                        'resolve' => static function ($root, $args, $context, $info) {
                             trigger_error('deprecated', E_USER_DEPRECATED);
                             trigger_error('notice', E_USER_NOTICE);
                             trigger_error('warning', E_USER_WARNING);
@@ -43,19 +43,19 @@ abstract class ServerTestCase extends TestCase
                     ],
                     'fieldWithSafeException' => [
                         'type' => Type::string(),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             throw new UserError('This is the exception we want');
                         },
                     ],
                     'fieldWithUnsafeException' => [
                         'type' => Type::string(),
-                        'resolve' => function () {
+                        'resolve' => static function () {
                             throw new Unsafe('This exception should not be shown to the user');
                         },
                     ],
                     'testContextAndRootValue' => [
                         'type'    => Type::string(),
-                        'resolve' => function ($root, $args, $context, $info) {
+                        'resolve' => static function ($root, $args, $context, $info) {
                             $context->testedRootValue = $root;
 
                             return $info->fieldName;
@@ -68,7 +68,7 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => function ($root, $args) {
+                        'resolve' => static function ($root, $args) {
                             return $args['arg'];
                         },
                     ],
@@ -79,10 +79,10 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::int()),
                             ],
                         ],
-                        'resolve' => function ($root, $args, $context) {
+                        'resolve' => static function ($root, $args, $context) {
                             $context['buffer']($args['num']);
 
-                            return new Deferred(function () use ($args, $context) {
+                            return new Deferred(static function () use ($args, $context) {
                                 return $context['load']($args['num']);
                             });
                         },
@@ -103,7 +103,5 @@ abstract class ServerTestCase extends TestCase
                 ],
             ]),
         ]);
-
-        return $schema;
     }
 }
