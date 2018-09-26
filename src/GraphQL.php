@@ -64,12 +64,13 @@ class GraphQL
      *    Empty array would allow to skip query validation (may be convenient for persisted
      *    queries which are validated before persisting and assumed valid during execution)
      *
-     * @api
      * @param string|DocumentNode $source
      * @param mixed               $rootValue
      * @param mixed               $context
      * @param mixed[]|null        $variableValues
      * @param ValidationRule[]    $validationRules
+     *
+     * @api
      */
     public static function executeQuery(
         SchemaType $schema,
@@ -102,12 +103,13 @@ class GraphQL
      * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
      * Useful for Async PHP platforms.
      *
-     * @api
      * @param string|DocumentNode   $source
      * @param mixed                 $rootValue
      * @param mixed                 $context
      * @param mixed[]|null          $variableValues
      * @param ValidationRule[]|null $validationRules
+     *
+     * @api
      */
     public static function promiseToExecute(
         PromiseAdapter $promiseAdapter,
@@ -174,6 +176,7 @@ class GraphQL
      * @param mixed               $rootValue
      * @param mixed               $contextValue
      * @param mixed[]|null        $variableValues
+     *
      * @return Promise|mixed[]
      */
     public static function execute(
@@ -203,7 +206,7 @@ class GraphQL
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
             $result = $promiseAdapter->wait($result)->toArray();
         } else {
-            $result = $result->then(function (ExecutionResult $r) {
+            $result = $result->then(static function (ExecutionResult $r) {
                 return $r->toArray();
             });
         }
@@ -255,8 +258,9 @@ class GraphQL
     /**
      * Returns directives defined in GraphQL spec
      *
-     * @api
      * @return Directive[]
+     *
+     * @api
      */
     public static function getStandardDirectives() : array
     {
@@ -266,8 +270,9 @@ class GraphQL
     /**
      * Returns types defined in GraphQL spec
      *
-     * @api
      * @return Type[]
+     *
+     * @api
      */
     public static function getStandardTypes() : array
     {
@@ -277,8 +282,9 @@ class GraphQL
     /**
      * Returns standard validation rules implementing GraphQL spec
      *
-     * @api
      * @return ValidationRule[]
+     *
+     * @api
      */
     public static function getStandardValidationRules() : array
     {
@@ -299,6 +305,7 @@ class GraphQL
      * Returns directives defined in GraphQL spec
      *
      * @deprecated Renamed to getStandardDirectives
+     *
      * @return Directive[]
      */
     public static function getInternalDirectives() : array
