@@ -24,14 +24,13 @@ class Promise
      */
     public function __construct($adoptedPromise, PromiseAdapter $adapter)
     {
-        Utils::invariant(! $adoptedPromise instanceof self, 'Expecting promise from adapted system, got ' . __CLASS__);
+        Utils::invariant(! $adoptedPromise instanceof self, 'Expecting promise from adapted system, got ' . self::class);
 
         $this->adapter        = $adapter;
         $this->adoptedPromise = $adoptedPromise;
     }
 
     /**
-     *
      * @return Promise
      */
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null)

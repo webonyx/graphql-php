@@ -6,6 +6,7 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
+use JsonSerializable;
 use function array_map;
 
 /**
@@ -16,7 +17,7 @@ use function array_map;
  * Could be converted to [spec-compliant](https://facebook.github.io/graphql/#sec-Response-Format)
  * serializable array using `toArray()`
  */
-class ExecutionResult implements \JsonSerializable
+class ExecutionResult implements JsonSerializable
 {
     /**
      * Data collected from resolvers during query execution
@@ -77,8 +78,9 @@ class ExecutionResult implements \JsonSerializable
      *    // ... other keys
      * );
      *
-     * @api
      * @return self
+     *
+     * @api
      */
     public function setErrorFormatter(callable $errorFormatter)
     {
@@ -97,8 +99,9 @@ class ExecutionResult implements \JsonSerializable
      *     return array_map($formatter, $errors);
      * }
      *
-     * @api
      * @return self
+     *
+     * @api
      */
     public function setErrorsHandler(callable $handler)
     {
@@ -125,16 +128,18 @@ class ExecutionResult implements \JsonSerializable
      * $debug argument must be either bool (only adds "debugMessage" to result) or sum of flags from
      * GraphQL\Error\Debug
      *
-     * @api
      * @param bool|int $debug
+     *
      * @return mixed[]
+     *
+     * @api
      */
     public function toArray($debug = false)
     {
         $result = [];
 
         if (! empty($this->errors)) {
-            $errorsHandler = $this->errorsHandler ?: function (array $errors, callable $formatter) {
+            $errorsHandler = $this->errorsHandler ?: static function (array $errors, callable $formatter) {
                 return array_map($formatter, $errors);
             };
 

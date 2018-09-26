@@ -27,6 +27,7 @@ use GraphQL\Utils\AST;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
+use stdClass;
 use Throwable;
 use function array_key_exists;
 use function array_map;
@@ -41,6 +42,7 @@ class Values
      *
      * @param VariableDefinitionNode[] $varDefNodes
      * @param mixed[]                  $inputs
+     *
      * @return mixed[]
      */
     public static function getVariableValues(Schema $schema, $varDefNodes, array $inputs)
@@ -125,7 +127,7 @@ class Values
         if (isset($node->directives) && $node->directives instanceof NodeList) {
             $directiveNode = Utils::find(
                 $node->directives,
-                function (DirectiveNode $directive) use ($directiveDef) {
+                static function (DirectiveNode $directive) use ($directiveDef) {
                     return $directive->name->value === $directiveDef->name;
                 }
             );
@@ -145,7 +147,9 @@ class Values
      * @param FieldDefinition|Directive $def
      * @param FieldNode|DirectiveNode   $node
      * @param mixed[]                   $variableValues
+     *
      * @return mixed[]
+     *
      * @throws Error
      */
     public static function getArgumentValues($def, $node, $variableValues = null)
@@ -162,7 +166,7 @@ class Values
         /** @var ArgumentNode[] $argNodeMap */
         $argNodeMap = $argNodes ? Utils::keyMap(
             $argNodes,
-            function (ArgumentNode $arg) {
+            static function (ArgumentNode $arg) {
                 return $arg->name->value;
             }
         ) : [];
@@ -222,18 +226,21 @@ class Values
     /**
      * @deprecated as of 8.0 (Moved to \GraphQL\Utils\AST::valueFromAST)
      *
-     * @param ValueNode $valueNode
-     * @param null      $variables
-     * @return mixed[]|null|\stdClass
+     * @param ValueNode    $valueNode
+     * @param mixed[]|null $variables
+     *
+     * @return mixed[]|stdClass|null
      */
-    public static function valueFromAST($valueNode, InputType $type, $variables = null)
+    public static function valueFromAST($valueNode, InputType $type, ?array $variables = null)
     {
         return AST::valueFromAST($valueNode, $type, $variables);
     }
 
     /**
      * @deprecated as of 0.12 (Use coerceValue() directly for richer information)
+     *
      * @param mixed[] $value
+     *
      * @return string[]
      */
     public static function isValidPHPValue($value, InputType $type)
@@ -242,7 +249,7 @@ class Values
 
         return $errors
             ? array_map(
-                function (Throwable $error) {
+                static function (Throwable $error) {
                     return $error->getMessage();
                 },
                 $errors
