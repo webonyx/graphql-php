@@ -22,12 +22,13 @@ class PairSet
      * @param string $a
      * @param string $b
      * @param bool   $areMutuallyExclusive
+     *
      * @return bool
      */
     public function has($a, $b, $areMutuallyExclusive)
     {
         $first  = $this->data[$a] ?? null;
-        $result = ($first && isset($first[$b])) ? $first[$b] : null;
+        $result = $first && isset($first[$b]) ? $first[$b] : null;
         if ($result === null) {
             return false;
         }
