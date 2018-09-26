@@ -74,6 +74,7 @@ class FieldsOnCorrectType extends ValidationRule
      *
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
+     *
      * @return string[]
      */
     private function getSuggestedTypeNames(Schema $schema, $type, $fieldName)
@@ -120,6 +121,7 @@ class FieldsOnCorrectType extends ValidationRule
      *
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
+     *
      * @return array|string[]
      */
     private function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
@@ -139,6 +141,7 @@ class FieldsOnCorrectType extends ValidationRule
      * @param string   $type
      * @param string[] $suggestedTypeNames
      * @param string[] $suggestedFieldNames
+     *
      * @return string
      */
     public static function undefinedFieldMessage(

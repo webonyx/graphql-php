@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -27,6 +28,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+use Throwable;
 use function array_combine;
 use function array_keys;
 use function array_map;
@@ -45,7 +47,7 @@ class ValuesOfCorrectType extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::NULL         => function (NullValueNode $node) use ($context) {
+            NodeKind::NULL         => static function (NullValueNode $node) use ($context) {
                 $type = $context->getInputType();
                 if (! ($type instanceof NonNull)) {
                     return;
@@ -82,7 +84,7 @@ class ValuesOfCorrectType extends ValidationRule
                 $nodeFields   = iterator_to_array($node->fields);
                 $fieldNodeMap = array_combine(
                     array_map(
-                        function ($field) {
+                        static function ($field) {
                             return $field->name->value;
                         },
                         $nodeFields
@@ -103,7 +105,7 @@ class ValuesOfCorrectType extends ValidationRule
                     );
                 }
             },
-            NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context) {
+            NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context) {
                 $parentType = Type::getNamedType($context->getParentInputType());
                 $fieldType  = $context->getInputType();
                 if ($fieldType || ! ($parentType instanceof InputObjectType)) {
@@ -193,7 +195,7 @@ class ValuesOfCorrectType extends ValidationRule
         // may throw to indicate failure.
         try {
             $type->parseLiteral($node);
-        } catch (\Exception $error) {
+        } catch (Exception $error) {
             // Ensure a reference to the original error is maintained.
             $context->reportError(
                 new Error(
@@ -209,7 +211,7 @@ class ValuesOfCorrectType extends ValidationRule
                     $error
                 )
             );
-        } catch (\Throwable $error) {
+        } catch (Throwable $error) {
             // Ensure a reference to the original error is maintained.
             $context->reportError(
                 new Error(
@@ -234,7 +236,7 @@ class ValuesOfCorrectType extends ValidationRule
             $suggestions = Utils::suggestionList(
                 Printer::doPrint($node),
                 array_map(
-                    function (EnumValueDefinition $value) {
+                    static function (EnumValueDefinition $value) {
                         return $value->name;
                     },
                     $type->getValues()

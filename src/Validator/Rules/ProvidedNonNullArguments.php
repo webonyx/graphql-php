@@ -19,7 +19,7 @@ class ProvidedNonNullArguments extends ValidationRule
     {
         return [
             NodeKind::FIELD     => [
-                'leave' => function (FieldNode $fieldNode) use ($context) {
+                'leave' => static function (FieldNode $fieldNode) use ($context) {
                     $fieldDef = $context->getFieldDef();
 
                     if (! $fieldDef) {
@@ -45,7 +45,7 @@ class ProvidedNonNullArguments extends ValidationRule
                 },
             ],
             NodeKind::DIRECTIVE => [
-                'leave' => function (DirectiveNode $directiveNode) use ($context) {
+                'leave' => static function (DirectiveNode $directiveNode) use ($context) {
                     $directiveDef = $context->getDirective();
                     if (! $directiveDef) {
                         return Visitor::skipNode();

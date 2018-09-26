@@ -15,7 +15,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            'enter' => function (Node $node) use ($context) {
+            'enter' => static function (Node $node) use ($context) {
                 if (! isset($node->directives)) {
                     return;
                 }

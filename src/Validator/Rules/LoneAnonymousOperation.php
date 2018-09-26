@@ -26,17 +26,17 @@ class LoneAnonymousOperation extends ValidationRule
         $operationCount = 0;
 
         return [
-            NodeKind::DOCUMENT             => function (DocumentNode $node) use (&$operationCount) {
+            NodeKind::DOCUMENT             => static function (DocumentNode $node) use (&$operationCount) {
                 $tmp = Utils::filter(
                     $node->definitions,
-                    function (Node $definition) {
+                    static function (Node $definition) {
                         return $definition->kind === NodeKind::OPERATION_DEFINITION;
                     }
                 );
 
                 $operationCount = count($tmp);
             },
-            NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) use (
+            NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
                 &$operationCount,
                 $context
             ) {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Visitor;
@@ -41,6 +42,7 @@ use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesDefaultValueAllowed;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
+use Throwable;
 use function array_filter;
 use function array_merge;
 use function count;
@@ -82,9 +84,11 @@ class DocumentValidator
     /**
      * Primary method for query validation. See class description for details.
      *
-     * @api
      * @param ValidationRule[]|null $rules
+     *
      * @return Error[]
+     *
+     * @api
      */
     public static function validate(
         Schema $schema,
@@ -109,8 +113,9 @@ class DocumentValidator
     /**
      * Returns all global validation rules.
      *
-     * @api
      * @return ValidationRule[]
+     *
+     * @api
      */
     public static function allRules()
     {
@@ -183,6 +188,7 @@ class DocumentValidator
      * while maintaining the visitor skip and break API.
      *
      * @param ValidationRule[] $rules
+     *
      * @return Error[]
      */
     public static function visitUsingRules(Schema $schema, TypeInfo $typeInfo, DocumentNode $documentNode, array $rules)
@@ -203,9 +209,11 @@ class DocumentValidator
      *
      * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
      *
-     * @api
      * @param string $name
+     *
      * @return ValidationRule
+     *
+     * @api
      */
     public static function getRule($name)
     {
@@ -235,11 +243,11 @@ class DocumentValidator
         return is_array($value)
             ? count(array_filter(
                 $value,
-                function ($item) {
-                    return $item instanceof \Exception || $item instanceof \Throwable;
+                static function ($item) {
+                    return $item instanceof Exception || $item instanceof Throwable;
                 }
             )) === count($value)
-            : ($value instanceof \Exception || $value instanceof \Throwable);
+            : ($value instanceof Exception || $value instanceof Throwable);
     }
 
     public static function append(&$arr, $items)
@@ -259,6 +267,7 @@ class DocumentValidator
      * Deprecated. Rely on validation for documents containing literal values.
      *
      * @deprecated
+     *
      * @return Error[]
      */
     public static function isValidLiteralValue(Type $type, $valueNode)

@@ -23,7 +23,7 @@ class KnownTypeNames extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
-        $skip = function () {
+        $skip = static function () {
             return Visitor::skipNode();
         };
 
@@ -35,7 +35,7 @@ class KnownTypeNames extends ValidationRule
             NodeKind::INTERFACE_TYPE_DEFINITION    => $skip,
             NodeKind::UNION_TYPE_DEFINITION        => $skip,
             NodeKind::INPUT_OBJECT_TYPE_DEFINITION => $skip,
-            NodeKind::NAMED_TYPE                   => function (NamedTypeNode $node) use ($context) {
+            NodeKind::NAMED_TYPE                   => static function (NamedTypeNode $node) use ($context) {
                 $schema   = $context->getSchema();
                 $typeName = $node->name->value;
                 $type     = $schema->getType($typeName);

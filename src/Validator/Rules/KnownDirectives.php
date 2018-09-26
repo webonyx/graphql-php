@@ -37,7 +37,7 @@ class KnownDirectives extends ValidationRule
                 continue;
             }
 
-            $locationsMap[$def->name->value] = array_map(function ($name) {
+            $locationsMap[$def->name->value] = array_map(static function ($name) {
                 return $name->value;
             }, $def->locations);
         }

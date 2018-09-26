@@ -38,7 +38,7 @@ class UniqueOperationNames extends ValidationRule
 
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION  => function () {
+            NodeKind::FRAGMENT_DEFINITION  => static function () {
                 return Visitor::skipNode();
             },
         ];
