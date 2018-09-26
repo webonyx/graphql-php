@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
@@ -18,6 +19,7 @@ class CustomScalarType extends ScalarType
 {
     /**
      * @param mixed $value
+     *
      * @return mixed
      */
     public function serialize($value)
@@ -27,6 +29,7 @@ class CustomScalarType extends ScalarType
 
     /**
      * @param mixed $value
+     *
      * @return mixed
      */
     public function parseValue($value)
@@ -41,8 +44,10 @@ class CustomScalarType extends ScalarType
     /**
      * @param Node         $valueNode
      * @param mixed[]|null $variables
+     *
      * @return mixed
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function parseLiteral(/* GraphQL\Language\AST\ValueNode */
         $valueNode,

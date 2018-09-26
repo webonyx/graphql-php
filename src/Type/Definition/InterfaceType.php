@@ -27,7 +27,6 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     private $fields;
 
     /**
-     *
      * @param mixed[] $config
      */
     public function __construct(array $config)
@@ -47,6 +46,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
     /**
      * @param mixed $type
+     *
      * @return self
      */
     public static function assertInterfaceType($type)
@@ -61,6 +61,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
 
     /**
      * @param string $name
+     *
      * @return FieldDefinition
      */
     public function getField($name)
@@ -91,6 +92,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      *
      * @param object  $objectValue
      * @param mixed[] $context
+     *
      * @return callable|null
      */
     public function resolveType($objectValue, $context, ResolveInfo $info)

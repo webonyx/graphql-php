@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
@@ -27,7 +28,9 @@ values as specified by
 
     /**
      * @param mixed $value
+     *
      * @return float|null
+     *
      * @throws Error
      */
     public function serialize($value)
@@ -55,7 +58,9 @@ values as specified by
 
     /**
      * @param mixed $value
+     *
      * @return float|null
+     *
      * @throws Error
      */
     public function parseValue($value)
@@ -66,8 +71,10 @@ values as specified by
     /**
      * @param Node         $valueNode
      * @param mixed[]|null $variables
+     *
      * @return float|null
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
@@ -76,6 +83,6 @@ values as specified by
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new \Exception();
+        throw new Exception();
     }
 }

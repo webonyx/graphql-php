@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\Node;
@@ -23,6 +24,7 @@ class BooleanType extends ScalarType
 
     /**
      * @param mixed $value
+     *
      * @return bool
      */
     public function serialize($value)
@@ -32,7 +34,9 @@ class BooleanType extends ScalarType
 
     /**
      * @param mixed $value
+     *
      * @return bool
+     *
      * @throws Error
      */
     public function parseValue($value)
@@ -47,8 +51,10 @@ class BooleanType extends ScalarType
     /**
      * @param Node         $valueNode
      * @param mixed[]|null $variables
+     *
      * @return bool|null
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
@@ -57,6 +63,6 @@ class BooleanType extends ScalarType
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new \Exception();
+        throw new Exception();
     }
 }

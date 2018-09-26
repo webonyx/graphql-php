@@ -42,7 +42,6 @@ class LazyResolution implements Resolution
     private $loadedPossibleTypes;
 
     /**
-     *
      * @param mixed[] $descriptor
      */
     public function __construct(array $descriptor, callable $typeLoader)

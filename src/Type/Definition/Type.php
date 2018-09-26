@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
+use JsonSerializable;
+use ReflectionClass;
+use Throwable;
 use function array_keys;
 use function array_merge;
 use function in_array;
@@ -17,7 +21,7 @@ use function preg_replace;
  * Registry of standard GraphQL types
  * and a base class for all other types.
  */
-abstract class Type implements \JsonSerializable
+abstract class Type implements JsonSerializable
 {
     public const STRING  = 'String';
     public const INT     = 'Int';
@@ -44,8 +48,9 @@ abstract class Type implements \JsonSerializable
     public $config;
 
     /**
-     * @api
      * @return IDType
+     *
+     * @api
      */
     public static function id()
     {
@@ -54,6 +59,7 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @param string $name
+     *
      * @return (IDType|StringType|FloatType|IntType|BooleanType)[]|IDType|StringType|FloatType|IntType|BooleanType
      */
     private static function getInternalType($name = null)
@@ -72,8 +78,9 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @return StringType
+     *
+     * @api
      */
     public static function string()
     {
@@ -81,8 +88,9 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @return BooleanType
+     *
+     * @api
      */
     public static function boolean()
     {
@@ -90,8 +98,9 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @return IntType
+     *
+     * @api
      */
     public static function int()
     {
@@ -99,8 +108,9 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @return FloatType
+     *
+     * @api
      */
     public static function float()
     {
@@ -108,9 +118,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
+     *
      * @return ListOfType
+     *
+     * @api
      */
     public static function listOf($wrappedType)
     {
@@ -118,9 +130,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $wrappedType
+     *
      * @return NonNull
+     *
+     * @api
      */
     public static function nonNull($wrappedType)
     {
@@ -166,9 +180,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isInputType($type)
     {
@@ -180,9 +196,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
+     *
+     * @api
      */
     public static function getNamedType($type)
     {
@@ -197,9 +215,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isOutputType($type)
     {
@@ -211,9 +231,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isLeafType($type)
     {
@@ -221,9 +243,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isCompositeType($type)
     {
@@ -231,9 +255,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isAbstractType($type)
     {
@@ -242,6 +268,7 @@ abstract class Type implements \JsonSerializable
 
     /**
      * @param mixed $type
+     *
      * @return mixed
      */
     public static function assertType($type)
@@ -255,9 +282,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return bool
+     *
+     * @api
      */
     public static function isType($type)
     {
@@ -265,9 +294,11 @@ abstract class Type implements \JsonSerializable
     }
 
     /**
-     * @api
      * @param Type $type
+     *
      * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
+     *
+     * @api
      */
     public static function getNullableType($type)
     {
@@ -305,15 +336,15 @@ abstract class Type implements \JsonSerializable
     {
         try {
             return $this->toString();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             echo $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             echo $e;
         }
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     protected function tryInferName()
     {
@@ -324,7 +355,7 @@ abstract class Type implements \JsonSerializable
         // If class is extended - infer name from className
         // QueryType -> Type
         // SomeOtherType -> SomeOther
-        $tmp  = new \ReflectionClass($this);
+        $tmp  = new ReflectionClass($this);
         $name = $tmp->getShortName();
 
         if ($tmp->getNamespaceName() !== __NAMESPACE__) {
