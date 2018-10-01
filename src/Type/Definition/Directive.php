@@ -50,7 +50,7 @@ class Directive
             $args = [];
             foreach ($config['args'] as $name => $arg) {
                 if (is_array($arg)) {
-                    $args[] = FieldDefinition::create($arg + ['name' => $name]);
+                    $args[] = new FieldArgument($arg + ['name' => $name]);
                 } else {
                     $args[] = $arg;
                 }
