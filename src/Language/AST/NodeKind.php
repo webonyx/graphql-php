@@ -69,6 +69,9 @@ class NodeKind
 
     const DIRECTIVE_DEFINITION = 'DirectiveDefinition';
 
+    // Type System Extensions
+    const SCHEMA_EXTENSION = 'SchemaExtension';
+
     /** @var string[] */
     public static $classMap = [
         self::NAME                         => NameNode::class,

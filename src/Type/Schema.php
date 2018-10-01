@@ -8,6 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\InterfaceType;
@@ -67,6 +68,9 @@ class Schema
     /** @var InvariantViolation[]|null */
     private $validationErrors;
 
+    /** @var SchemaTypeExtensionNode[] */
+    public $extensionASTNodes;
+
     /**
      * @api
      * @param mixed[]|SchemaConfig $config
@@ -111,6 +115,8 @@ class Schema
         }
 
         $this->config = $config;
+        $this->extensionASTNodes = $config->extensionASTNodes;
+
         if ($config->query) {
             $this->resolvedTypes[$config->query->name] = $config->query;
         }
