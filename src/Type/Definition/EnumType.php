@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\MixedStore;
@@ -33,6 +34,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
     /** @var \ArrayObject<string, EnumValueDefinition> */
     private $nameLookup;
 
+    /** @var EnumTypeExtensionNode[] */
+    public $extensionASTNodes;
+
     public function __construct($config)
     {
         if (! isset($config['name'])) {
@@ -41,10 +45,11 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
 
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        $this->name        = $config['name'];
-        $this->description = $config['description'] ?? null;
-        $this->astNode     = $config['astNode'] ?? null;
-        $this->config      = $config;
+        $this->name              = $config['name'];
+        $this->description       = $config['description'] ?? null;
+        $this->astNode           = $config['astNode'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->config            = $config;
     }
 
     /**
