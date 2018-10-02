@@ -13,19 +13,17 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Validator\ValidationContext;
+use function array_map;
 use function count;
 use function in_array;
 use function sprintf;
-use function array_map;
 
 class KnownDirectives extends ValidationRule
 {
-
     public function getVisitor(ValidationContext $context)
     {
         $locationsMap = [];
-        $schema = $context->getSchema();
-
+        $schema            = $context->getSchema();
         $definedDirectives = $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {
@@ -35,15 +33,17 @@ class KnownDirectives extends ValidationRule
         $astDefinition = $context->getDocument()->definitions;
 
         foreach ($astDefinition as $def) {
-            if ($def instanceof DirectiveDefinitionNode) {
-                $locationsMap[$def->name->value] = array_map(function ($name) {
-                    return $name->value;
-                }, $def->locations);
+            if (! ($def instanceof DirectiveDefinitionNode)) {
+                continue;
             }
+
+            $locationsMap[$def->name->value] = array_map(function ($name) {
+                return $name->value;
+            }, $def->locations);
         }
         return [
             NodeKind::DIRECTIVE => function (DirectiveNode $node, $key, $parent, $path, $ancestors) use ($context, $locationsMap) {
-                $name = $node->name->value;
+                $name      = $node->name->value;
                 $locations = $locationsMap[$name] ?? null;
 
                 if (! $locations) {
@@ -56,15 +56,17 @@ class KnownDirectives extends ValidationRule
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if ($candidateLocation && ! in_array($candidateLocation, $locations)) {
-                    $context->reportError(
-                        new Error(
-                            self::misplacedDirectiveMessage($name, $candidateLocation),
-                            [$node]
-                        )
-                    );
+                if (! $candidateLocation || in_array($candidateLocation, $locations)) {
+                    return;
                 }
-            }
+                
+                $context->reportError(
+                    new Error(
+                        self::misplacedDirectiveMessage($name, $candidateLocation),
+                        [$node]
+                    )
+                );
+            },
         ];
     }
 
