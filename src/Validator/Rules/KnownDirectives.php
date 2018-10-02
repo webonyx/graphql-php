@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\Node;
@@ -12,6 +13,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Validator\ValidationContext;
+use function array_map;
 use function count;
 use function in_array;
 use function sprintf;
@@ -20,37 +22,49 @@ class KnownDirectives extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
-        return [
-            NodeKind::DIRECTIVE => function (DirectiveNode $node, $key, $parent, $path, $ancestors) use ($context) {
-                $directiveDef = null;
-                foreach ($context->getSchema()->getDirectives() as $def) {
-                    if ($def->name === $node->name->value) {
-                        $directiveDef = $def;
-                        break;
-                    }
-                }
+        $locationsMap      = [];
+        $schema            = $context->getSchema();
+        $definedDirectives = $schema->getDirectives();
 
-                if (! $directiveDef) {
+        foreach ($definedDirectives as $directive) {
+            $locationsMap[$directive->name] = $directive->locations;
+        }
+
+        $astDefinition = $context->getDocument()->definitions;
+
+        foreach ($astDefinition as $def) {
+            if (! ($def instanceof DirectiveDefinitionNode)) {
+                continue;
+            }
+
+            $locationsMap[$def->name->value] = array_map(function ($name) {
+                return $name->value;
+            }, $def->locations);
+        }
+        return [
+            NodeKind::DIRECTIVE => function (DirectiveNode $node, $key, $parent, $path, $ancestors) use ($context, $locationsMap) {
+                $name      = $node->name->value;
+                $locations = $locationsMap[$name] ?? null;
+
+                if (! $locations) {
                     $context->reportError(new Error(
-                        self::unknownDirectiveMessage($node->name->value),
+                        self::unknownDirectiveMessage($name),
                         [$node]
                     ));
-
                     return;
                 }
+
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if (! $candidateLocation) {
-                    $context->reportError(new Error(
-                        self::misplacedDirectiveMessage($node->name->value, $node->type),
-                        [$node]
-                    ));
-                } elseif (! in_array($candidateLocation, $directiveDef->locations)) {
-                    $context->reportError(new Error(
-                        self::misplacedDirectiveMessage($node->name->value, $candidateLocation),
-                        [$node]
-                    ));
+                if (! $candidateLocation || in_array($candidateLocation, $locations)) {
+                    return;
                 }
+                $context->reportError(
+                    new Error(
+                        self::misplacedDirectiveMessage($name, $candidateLocation),
+                        [$node]
+                    )
+                );
             },
         ];
     }
@@ -88,6 +102,7 @@ class KnownDirectives extends ValidationRule
             case NodeKind::FRAGMENT_DEFINITION:
                 return DirectiveLocation::FRAGMENT_DEFINITION;
             case NodeKind::SCHEMA_DEFINITION:
+            case NodeKind::SCHEMA_EXTENSION:
                 return DirectiveLocation::SCHEMA;
             case NodeKind::SCALAR_TYPE_DEFINITION:
             case NodeKind::SCALAR_TYPE_EXTENSION:

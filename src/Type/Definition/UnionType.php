@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Utils\Utils;
 use function call_user_func;
 use function is_array;
@@ -27,6 +28,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /** @var ObjectType[] */
     private $possibleTypeNames;
 
+    /** @var UnionTypeExtensionNode[] */
+    public $extensionASTNodes;
+
     public function __construct($config)
     {
         if (! isset($config['name'])) {
@@ -40,10 +44,11 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
          * the default implemenation will call `isTypeOf` on each implementing
          * Object type.
          */
-        $this->name        = $config['name'];
-        $this->description = $config['description'] ?? null;
-        $this->astNode     = $config['astNode'] ?? null;
-        $this->config      = $config;
+        $this->name              = $config['name'];
+        $this->description       = $config['description'] ?? null;
+        $this->astNode           = $config['astNode'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
+        $this->config            = $config;
     }
 
     /**

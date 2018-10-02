@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
 use function call_user_func;
 use function is_array;
@@ -24,6 +25,9 @@ class InputObjectType extends Type implements InputType, NamedType
     /** @var InputObjectField[] */
     private $fields;
 
+    /** @var InputObjectTypeExtensionNode[] */
+    public $extensionASTNodes;
+
     /**
      *
      * @param mixed[] $config
@@ -36,10 +40,11 @@ class InputObjectType extends Type implements InputType, NamedType
 
         Utils::invariant(is_string($config['name']), 'Must provide name.');
 
-        $this->config      = $config;
-        $this->name        = $config['name'];
-        $this->astNode     = $config['astNode'] ?? null;
-        $this->description = $config['description'] ?? null;
+        $this->config            = $config;
+        $this->name              = $config['name'];
+        $this->astNode           = $config['astNode'] ?? null;
+        $this->description       = $config['description'] ?? null;
+        $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
     }
 
     /**

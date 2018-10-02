@@ -44,6 +44,7 @@ use GraphQL\Language\AST\OperationTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\TypeExtensionNode;
@@ -1446,6 +1447,8 @@ class Parser
 
         if ($keywordToken->kind === Token::NAME) {
             switch ($keywordToken->value) {
+                case 'schema':
+                    return $this->parseSchemaTypeExtension();
                 case 'scalar':
                     return $this->parseScalarTypeExtension();
                 case 'type':
@@ -1462,6 +1465,33 @@ class Parser
         }
 
         throw $this->unexpected($keywordToken);
+    }
+
+    /**
+     * @return SchemaTypeExtensionNode
+     * @throws SyntaxError
+     */
+    private function parseSchemaTypeExtension()
+    {
+        $start = $this->lexer->token;
+        $this->expectKeyword('extend');
+        $this->expectKeyword('schema');
+        $directives     = $this->parseDirectives(true);
+        $operationTypes = $this->peek(Token::BRACE_L)
+            ? $this->many(
+                Token::BRACE_L,
+                [$this, 'parseOperationTypeDefinition'],
+                Token::BRACE_R
+            ) : [];
+        if (count($directives) === 0 && count($operationTypes) === 0) {
+            $this->unexpected();
+        }
+
+        return new SchemaTypeExtensionNode([
+            'directives' => $directives,
+            'operationTypes' => $operationTypes,
+            'loc' => $this->loc($start),
+        ]);
     }
 
     /**

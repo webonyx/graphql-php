@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type;
 
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -50,6 +51,9 @@ class SchemaConfig
 
     /** @var bool */
     public $assumeValid;
+
+    /** @var SchemaTypeExtensionNode[] */
+    public $extensionASTNodes;
 
     /**
      * Converts an array of options to instance of SchemaConfig
@@ -99,6 +103,10 @@ class SchemaConfig
 
             if (isset($options['assumeValid'])) {
                 $config->setAssumeValid((bool) $options['assumeValid']);
+            }
+
+            if (isset($options['extensionASTNodes'])) {
+                $config->setExtensionASTNodes($options['extensionASTNodes']);
             }
         }
 
@@ -265,5 +273,21 @@ class SchemaConfig
         $this->assumeValid = $assumeValid;
 
         return $this;
+    }
+
+    /**
+     * @return SchemaTypeExtensionNode[]
+     */
+    public function getExtensionASTNodes()
+    {
+        return $this->extensionASTNodes;
+    }
+
+    /**
+     * @param SchemaTypeExtensionNode[] $extensionASTNodes
+     */
+    public function setExtensionASTNodes(array $extensionASTNodes)
+    {
+        $this->extensionASTNodes = $extensionASTNodes;
     }
 }
