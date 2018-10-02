@@ -1476,7 +1476,7 @@ class Parser
         $start = $this->lexer->token;
         $this->expectKeyword('extend');
         $this->expectKeyword('schema');
-        $directives = $this->parseDirectives(true);
+        $directives     = $this->parseDirectives(true);
         $operationTypes = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
@@ -1490,7 +1490,7 @@ class Parser
         return new SchemaTypeExtensionNode([
             'directives' => $directives,
             'operationTypes' => $operationTypes,
-            'loc' => $this->loc($start)
+            'loc' => $this->loc($start),
         ]);
     }
 

@@ -166,7 +166,7 @@ class Visitor
 
         NodeKind::DIRECTIVE_DEFINITION => ['description', 'name', 'arguments', 'locations'],
 
-        NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes']
+        NodeKind::SCHEMA_EXTENSION => ['directives', 'operationTypes'],
     ];
 
     /**

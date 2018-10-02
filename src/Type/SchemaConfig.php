@@ -278,7 +278,7 @@ class SchemaConfig
     /**
      * @return SchemaTypeExtensionNode[]
      */
-    public function getExtensionASTNodes(): array
+    public function getExtensionASTNodes()
     {
         return $this->extensionASTNodes;
     }
@@ -286,7 +286,7 @@ class SchemaConfig
     /**
      * @param SchemaTypeExtensionNode[] $extensionASTNodes
      */
-    public function setExtensionASTNodes(array $extensionASTNodes): void
+    public function setExtensionASTNodes(array $extensionASTNodes)
     {
         $this->extensionASTNodes = $extensionASTNodes;
     }

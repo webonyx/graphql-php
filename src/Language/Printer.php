@@ -341,7 +341,7 @@ class Printer
                             [
                                 'extend schema',
                                 $this->join($def->directives, ' '),
-                                $this->block($def->operationTypes)
+                                $this->block($def->operationTypes),
                             ],
                             ' '
                         );

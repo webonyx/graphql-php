@@ -114,7 +114,7 @@ class Schema
             );
         }
 
-        $this->config = $config;
+        $this->config            = $config;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
         if ($config->query) {
