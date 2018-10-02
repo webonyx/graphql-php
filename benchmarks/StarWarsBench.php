@@ -35,7 +35,7 @@ class StarWarsBench
         }
         ';
 
-        GraphQL::execute(
+        GraphQL::executeQuery(
             StarWarsSchema::build(),
             $q
         );
@@ -57,7 +57,7 @@ class StarWarsBench
           }
         }
         ';
-        GraphQL::execute(
+        GraphQL::executeQuery(
             StarWarsSchema::build(),
             $q
         );
@@ -81,7 +81,7 @@ class StarWarsBench
         }
         ';
 
-        GraphQL::execute(
+        GraphQL::executeQuery(
             StarWarsSchema::build(),
             $q
         );
@@ -89,7 +89,7 @@ class StarWarsBench
 
     public function benchStarWarsIntrospectionQuery()
     {
-        GraphQL::execute(
+        GraphQL::executeQuery(
             StarWarsSchema::build(),
             $this->introQuery
         );
