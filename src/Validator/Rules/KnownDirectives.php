@@ -22,7 +22,7 @@ class KnownDirectives extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
-        $locationsMap = [];
+        $locationsMap      = [];
         $schema            = $context->getSchema();
         $definedDirectives = $schema->getDirectives();
 
@@ -59,7 +59,6 @@ class KnownDirectives extends ValidationRule
                 if (! $candidateLocation || in_array($candidateLocation, $locations)) {
                     return;
                 }
-                
                 $context->reportError(
                     new Error(
                         self::misplacedDirectiveMessage($name, $candidateLocation),
