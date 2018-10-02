@@ -50,15 +50,15 @@ class StarWarsIntrospectionTest extends TestCase
                 ],
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
      * Helper function to test a query and the expected response.
      */
-    private function assertValidQuery($query, $expected) : void
+    private static function assertValidQuery($query, $expected) : void
     {
-        $this->assertEquals(['data' => $expected], GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray());
+        self::assertEquals(['data' => $expected], GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray());
     }
 
     /**
@@ -80,7 +80,7 @@ class StarWarsIntrospectionTest extends TestCase
                 'queryType' => ['name' => 'Query'],
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -98,7 +98,7 @@ class StarWarsIntrospectionTest extends TestCase
         $expected = [
             '__type' => ['name' => 'Droid'],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -120,7 +120,7 @@ class StarWarsIntrospectionTest extends TestCase
                 'kind' => 'OBJECT',
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -142,7 +142,7 @@ class StarWarsIntrospectionTest extends TestCase
                 'kind' => 'INTERFACE',
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -213,7 +213,7 @@ class StarWarsIntrospectionTest extends TestCase
                 ],
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -303,7 +303,7 @@ class StarWarsIntrospectionTest extends TestCase
                 ],
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -397,7 +397,7 @@ class StarWarsIntrospectionTest extends TestCase
             ],
         ];
 
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -419,6 +419,6 @@ class StarWarsIntrospectionTest extends TestCase
                 'description' => 'A mechanical creature in the Star Wars universe.',
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 }

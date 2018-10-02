@@ -24,15 +24,15 @@ class StarWarsQueryTest extends TestCase
         $expected = [
             'hero' => ['name' => 'R2-D2'],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
      * Helper function to test a query and the expected response.
      */
-    private function assertValidQuery($query, $expected) : void
+    private static function assertValidQuery($query, $expected) : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => $expected],
             GraphQL::executeQuery(StarWarsSchema::build(), $query)->toArray()
         );
@@ -67,7 +67,7 @@ class StarWarsQueryTest extends TestCase
                 ],
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     // Describe: Using IDs and query parameters to refetch objects
@@ -128,7 +128,7 @@ class StarWarsQueryTest extends TestCase
                 ],
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -147,7 +147,7 @@ class StarWarsQueryTest extends TestCase
             'human' => ['name' => 'Luke Skywalker'],
         ];
 
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -167,15 +167,15 @@ class StarWarsQueryTest extends TestCase
             'human' => ['name' => 'Luke Skywalker'],
         ];
 
-        $this->assertValidQueryWithParams($query, $params, $expected);
+        self::assertValidQueryWithParams($query, $params, $expected);
     }
 
     /**
      * Helper function to test a query with params and the expected response.
      */
-    private function assertValidQueryWithParams($query, $params, $expected)
+    private static function assertValidQueryWithParams($query, $params, $expected)
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => $expected],
             GraphQL::executeQuery(StarWarsSchema::build(), $query, null, null, $params)->toArray()
         );
@@ -199,7 +199,7 @@ class StarWarsQueryTest extends TestCase
         $expected = [
             'human' => ['name' => 'Han Solo'],
         ];
-        $this->assertValidQueryWithParams($query, $params, $expected);
+        self::assertValidQueryWithParams($query, $params, $expected);
     }
 
     /**
@@ -216,7 +216,7 @@ class StarWarsQueryTest extends TestCase
         ';
         $params   = ['id' => 'not a valid id'];
         $expected = ['human' => null];
-        $this->assertValidQueryWithParams($query, $params, $expected);
+        self::assertValidQueryWithParams($query, $params, $expected);
     }
 
     // Uses fragments to express more complex queries
@@ -236,7 +236,7 @@ class StarWarsQueryTest extends TestCase
         $expected = [
             'luke' => ['name' => 'Luke Skywalker'],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -258,7 +258,7 @@ class StarWarsQueryTest extends TestCase
             'luke' => ['name' => 'Luke Skywalker'],
             'leia' => ['name' => 'Leia Organa'],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -288,7 +288,7 @@ class StarWarsQueryTest extends TestCase
                 'homePlanet' => 'Alderaan',
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -322,7 +322,7 @@ class StarWarsQueryTest extends TestCase
                 'homePlanet' => 'Alderaan',
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -344,7 +344,7 @@ class StarWarsQueryTest extends TestCase
                 'name'       => 'R2-D2',
             ],
         ];
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 
     /**
@@ -368,6 +368,6 @@ class StarWarsQueryTest extends TestCase
             ],
         ];
 
-        $this->assertValidQuery($query, $expected);
+        self::assertValidQuery($query, $expected);
     }
 }

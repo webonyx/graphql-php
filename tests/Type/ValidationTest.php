@@ -203,7 +203,7 @@ class ValidationTest extends TestCase
                 $factory();
                 $this->fail('Expected exception not thrown for entry ' . $index);
             } catch (InvariantViolation $e) {
-                $this->assertEquals($expectedError, $e->getMessage(), 'Error in callable #' . $index);
+                self::assertEquals($expectedError, $e->getMessage(), 'Error in callable #' . $index);
             }
         }
     }
@@ -218,7 +218,7 @@ class ValidationTest extends TestCase
         test: String
       }
         ');
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
 
         $schemaWithDef = BuildSchema::build('
       schema {
@@ -228,7 +228,7 @@ class ValidationTest extends TestCase
         test: String
       }
     ');
-        $this->assertEquals([], $schemaWithDef->validate());
+        self::assertEquals([], $schemaWithDef->validate());
     }
 
     /**
@@ -245,7 +245,7 @@ class ValidationTest extends TestCase
         test: String
       }
         ');
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
 
         $schema = BuildSchema::build('
       schema {
@@ -261,7 +261,7 @@ class ValidationTest extends TestCase
         test: String
       }
         ');
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**
@@ -278,7 +278,7 @@ class ValidationTest extends TestCase
         test: String
       }
         ');
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
 
         $schema = BuildSchema::build('
       schema {
@@ -294,7 +294,7 @@ class ValidationTest extends TestCase
         test: String
       }
         ');
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**
@@ -339,7 +339,7 @@ class ValidationTest extends TestCase
      */
     private function assertContainsValidationMessage($array, $messages)
     {
-        $this->assertCount(
+        self::assertCount(
             count($messages),
             $array,
             sprintf('For messages: %s', $messages[0]['message']) . "\n" .
@@ -358,12 +358,12 @@ class ValidationTest extends TestCase
             if (! isset($messages[$index]) || ! $error instanceof Error) {
                 $this->fail('Received unexpected error: ' . $error->getMessage());
             }
-            $this->assertEquals($messages[$index]['message'], $error->getMessage());
+            self::assertEquals($messages[$index]['message'], $error->getMessage());
             $errorLocations = [];
             foreach ($error->getLocations() as $location) {
                 $errorLocations[] = $location->toArray();
             }
-            $this->assertEquals(
+            self::assertEquals(
                 $messages[$index]['locations'] ?? [],
                 $errorLocations
             );
@@ -541,7 +541,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**
@@ -664,7 +664,7 @@ class ValidationTest extends TestCase
                 ],
             ],
         ]));
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**
@@ -714,7 +714,7 @@ class ValidationTest extends TestCase
         | TypeB
         ');
 
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     // DESCRIBE: Type System: Input Objects must have fields
@@ -848,7 +848,7 @@ class ValidationTest extends TestCase
         field: String
       }
         ');
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**
@@ -1021,7 +1021,7 @@ class ValidationTest extends TestCase
     {
         foreach ($this->outputTypes as $type) {
             $schema = $this->schemaWithObjectFieldOfType($type);
-            $this->assertEquals([], $schema->validate());
+            self::assertEquals([], $schema->validate());
         }
     }
 
@@ -1223,7 +1223,7 @@ class ValidationTest extends TestCase
     {
         foreach ($this->outputTypes as $type) {
             $schema = $this->schemaWithInterfaceFieldOfType($type);
-            $this->assertEquals([], $schema->validate());
+            self::assertEquals([], $schema->validate());
         }
     }
 
@@ -1314,7 +1314,7 @@ class ValidationTest extends TestCase
     {
         foreach ($this->inputTypes as $type) {
             $schema = $this->schemaWithArgOfType($type);
-            $this->assertEquals([], $schema->validate());
+            self::assertEquals([], $schema->validate());
         }
     }
 
@@ -1405,7 +1405,7 @@ class ValidationTest extends TestCase
     {
         foreach ($this->inputTypes as $type) {
             $schema = $this->schemaWithInputFieldOfType($type);
-            $this->assertEquals([], $schema->validate());
+            self::assertEquals([], $schema->validate());
         }
     }
 
@@ -1510,7 +1510,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertEquals(
+        self::assertEquals(
             [],
             $schema->validate()
         );
@@ -1536,7 +1536,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertEquals(
+        self::assertEquals(
             [],
             $schema->validate()
         );
@@ -1561,7 +1561,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertEquals(
+        self::assertEquals(
             [],
             $schema->validate()
         );
@@ -1679,7 +1679,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**
@@ -1707,7 +1707,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**
@@ -1856,7 +1856,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**
@@ -1938,7 +1938,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertEquals([], $schema->validate());
+        self::assertEquals([], $schema->validate());
     }
 
     /**

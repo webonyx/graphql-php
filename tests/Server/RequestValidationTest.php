@@ -22,14 +22,14 @@ class RequestValidationTest extends TestCase
             'operationName' => $operation,
         ]);
 
-        $this->assertValid($parsedBody);
+        self::assertValid($parsedBody);
     }
 
-    private function assertValid($parsedRequest)
+    private static function assertValid($parsedRequest)
     {
         $helper = new Helper();
         $errors = $helper->validateOperationParams($parsedRequest);
-        $this->assertEmpty($errors, isset($errors[0]) ? $errors[0]->getMessage() : '');
+        self::assertEmpty($errors, isset($errors[0]) ? $errors[0]->getMessage() : '');
     }
 
     public function testRequestWithQueryIdShouldValidate() : void
@@ -44,7 +44,7 @@ class RequestValidationTest extends TestCase
             'operationName' => $operation,
         ]);
 
-        $this->assertValid($parsedBody);
+        self::assertValid($parsedBody);
     }
 
     public function testRequiresQueryOrQueryId() : void
@@ -65,7 +65,7 @@ class RequestValidationTest extends TestCase
         $helper = new Helper();
         $errors = $helper->validateOperationParams($parsedRequest);
         if (! empty($errors[0])) {
-            $this->assertEquals($expectedMessage, $errors[0]->getMessage());
+            self::assertEquals($expectedMessage, $errors[0]->getMessage());
         } else {
             $this->fail('Expected error not returned');
         }
@@ -131,14 +131,14 @@ class RequestValidationTest extends TestCase
             'query'     => $query,
             'variables' => null,
         ]);
-        $this->assertValid($parsedBody);
+        self::assertValid($parsedBody);
 
         $variables  = '';
         $parsedBody = OperationParams::create([
             'query'     => $query,
             'variables' => $variables,
         ]);
-        $this->assertValid($parsedBody);
+        self::assertValid($parsedBody);
     }
 
     public function testFailsWhenVariablesParameterIsNotObject() : void

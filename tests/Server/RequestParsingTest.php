@@ -25,8 +25,8 @@ class RequestParsingTest extends TestCase
         ];
 
         foreach ($parsed as $source => $parsedBody) {
-            $this->assertValidOperationParams($parsedBody, $query, null, null, null, $source);
-            $this->assertFalse($parsedBody->isReadOnly(), $source);
+            self::assertValidOperationParams($parsedBody, $query, null, null, null, $source);
+            self::assertFalse($parsedBody->isReadOnly(), $source);
         }
     }
 
@@ -85,7 +85,7 @@ class RequestParsingTest extends TestCase
      * @param mixed|null      $variables
      * @param string          $operation
      */
-    private function assertValidOperationParams(
+    private static function assertValidOperationParams(
         $params,
         $query,
         $queryId = null,
@@ -93,12 +93,12 @@ class RequestParsingTest extends TestCase
         $operation = null,
         $message = ''
     ) {
-        $this->assertInstanceOf(OperationParams::class, $params, $message);
+        self::assertInstanceOf(OperationParams::class, $params, $message);
 
-        $this->assertSame($query, $params->query, $message);
-        $this->assertSame($queryId, $params->queryId, $message);
-        $this->assertSame($variables, $params->variables, $message);
-        $this->assertSame($operation, $params->operation, $message);
+        self::assertSame($query, $params->query, $message);
+        self::assertSame($queryId, $params->queryId, $message);
+        self::assertSame($variables, $params->variables, $message);
+        self::assertSame($operation, $params->operation, $message);
     }
 
     public function testParsesUrlencodedRequest() : void
@@ -118,8 +118,8 @@ class RequestParsingTest extends TestCase
         ];
 
         foreach ($parsed as $method => $parsedBody) {
-            $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
-            $this->assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
 
@@ -173,8 +173,8 @@ class RequestParsingTest extends TestCase
         ];
 
         foreach ($parsed as $method => $parsedBody) {
-            $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
-            $this->assertTrue($parsedBody->isReadonly(), $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertTrue($parsedBody->isReadonly(), $method);
         }
     }
 
@@ -226,8 +226,8 @@ class RequestParsingTest extends TestCase
         ];
 
         foreach ($parsed as $method => $parsedBody) {
-            $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
-            $this->assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
 
@@ -280,8 +280,8 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
-            $this->assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
 
@@ -301,8 +301,8 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
-            $this->assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
 
@@ -322,8 +322,8 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            $this->assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
-            $this->assertFalse($parsedBody->isReadOnly(), $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
 
@@ -346,9 +346,9 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            $this->assertInternalType('array', $parsedBody, $method);
-            $this->assertCount(2, $parsedBody, $method);
-            $this->assertValidOperationParams(
+            self::assertInternalType('array', $parsedBody, $method);
+            self::assertCount(2, $parsedBody, $method);
+            self::assertValidOperationParams(
                 $parsedBody[0],
                 $body[0]['query'],
                 null,
@@ -356,7 +356,7 @@ class RequestParsingTest extends TestCase
                 $body[0]['operationName'],
                 $method
             );
-            $this->assertValidOperationParams(
+            self::assertValidOperationParams(
                 $parsedBody[1],
                 null,
                 $body[1]['queryId'],
@@ -392,7 +392,7 @@ class RequestParsingTest extends TestCase
             $this->fail('Expected exception not thrown');
         } catch (InvariantViolation $e) {
             // Expecting parsing exception to be thrown somewhere else:
-            $this->assertEquals(
+            self::assertEquals(
                 'PSR-7 request is expected to provide parsed body for "application/json" requests but got null',
                 $e->getMessage()
             );

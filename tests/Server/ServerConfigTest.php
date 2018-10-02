@@ -17,17 +17,17 @@ class ServerConfigTest extends TestCase
     public function testDefaults() : void
     {
         $config = ServerConfig::create();
-        $this->assertNull($config->getSchema());
-        $this->assertNull($config->getContext());
-        $this->assertNull($config->getRootValue());
-        $this->assertNull($config->getErrorFormatter());
-        $this->assertNull($config->getErrorsHandler());
-        $this->assertNull($config->getPromiseAdapter());
-        $this->assertNull($config->getValidationRules());
-        $this->assertNull($config->getFieldResolver());
-        $this->assertNull($config->getPersistentQueryLoader());
-        $this->assertFalse($config->getDebug());
-        $this->assertFalse($config->getQueryBatching());
+        self::assertNull($config->getSchema());
+        self::assertNull($config->getContext());
+        self::assertNull($config->getRootValue());
+        self::assertNull($config->getErrorFormatter());
+        self::assertNull($config->getErrorsHandler());
+        self::assertNull($config->getPromiseAdapter());
+        self::assertNull($config->getValidationRules());
+        self::assertNull($config->getFieldResolver());
+        self::assertNull($config->getPersistentQueryLoader());
+        self::assertFalse($config->getDebug());
+        self::assertFalse($config->getQueryBatching());
     }
 
     public function testAllowsSettingSchema() : void
@@ -36,11 +36,11 @@ class ServerConfigTest extends TestCase
         $config = ServerConfig::create()
             ->setSchema($schema);
 
-        $this->assertSame($schema, $config->getSchema());
+        self::assertSame($schema, $config->getSchema());
 
         $schema2 = new Schema(['query' => new ObjectType(['name' => 'a', 'fields' => []])]);
         $config->setSchema($schema2);
-        $this->assertSame($schema2, $config->getSchema());
+        self::assertSame($schema2, $config->getSchema());
     }
 
     public function testAllowsSettingContext() : void
@@ -49,11 +49,11 @@ class ServerConfigTest extends TestCase
 
         $context = [];
         $config->setContext($context);
-        $this->assertSame($context, $config->getContext());
+        self::assertSame($context, $config->getContext());
 
         $context2 = new \stdClass();
         $config->setContext($context2);
-        $this->assertSame($context2, $config->getContext());
+        self::assertSame($context2, $config->getContext());
     }
 
     public function testAllowsSettingRootValue() : void
@@ -62,11 +62,11 @@ class ServerConfigTest extends TestCase
 
         $rootValue = [];
         $config->setRootValue($rootValue);
-        $this->assertSame($rootValue, $config->getRootValue());
+        self::assertSame($rootValue, $config->getRootValue());
 
         $context2 = new \stdClass();
         $config->setRootValue($context2);
-        $this->assertSame($context2, $config->getRootValue());
+        self::assertSame($context2, $config->getRootValue());
     }
 
     public function testAllowsSettingErrorFormatter() : void
@@ -76,11 +76,11 @@ class ServerConfigTest extends TestCase
         $formatter = function () {
         };
         $config->setErrorFormatter($formatter);
-        $this->assertSame($formatter, $config->getErrorFormatter());
+        self::assertSame($formatter, $config->getErrorFormatter());
 
         $formatter = 'date'; // test for callable
         $config->setErrorFormatter($formatter);
-        $this->assertSame($formatter, $config->getErrorFormatter());
+        self::assertSame($formatter, $config->getErrorFormatter());
     }
 
     public function testAllowsSettingErrorsHandler() : void
@@ -90,11 +90,11 @@ class ServerConfigTest extends TestCase
         $handler = function () {
         };
         $config->setErrorsHandler($handler);
-        $this->assertSame($handler, $config->getErrorsHandler());
+        self::assertSame($handler, $config->getErrorsHandler());
 
         $handler = 'date'; // test for callable
         $config->setErrorsHandler($handler);
-        $this->assertSame($handler, $config->getErrorsHandler());
+        self::assertSame($handler, $config->getErrorsHandler());
     }
 
     public function testAllowsSettingPromiseAdapter() : void
@@ -103,11 +103,11 @@ class ServerConfigTest extends TestCase
 
         $adapter1 = new SyncPromiseAdapter();
         $config->setPromiseAdapter($adapter1);
-        $this->assertSame($adapter1, $config->getPromiseAdapter());
+        self::assertSame($adapter1, $config->getPromiseAdapter());
 
         $adapter2 = new SyncPromiseAdapter();
         $config->setPromiseAdapter($adapter2);
-        $this->assertSame($adapter2, $config->getPromiseAdapter());
+        self::assertSame($adapter2, $config->getPromiseAdapter());
     }
 
     public function testAllowsSettingValidationRules() : void
@@ -116,13 +116,13 @@ class ServerConfigTest extends TestCase
 
         $rules = [];
         $config->setValidationRules($rules);
-        $this->assertSame($rules, $config->getValidationRules());
+        self::assertSame($rules, $config->getValidationRules());
 
         $rules = [function () {
         },
         ];
         $config->setValidationRules($rules);
-        $this->assertSame($rules, $config->getValidationRules());
+        self::assertSame($rules, $config->getValidationRules());
 
         $rules = function () {
             return [function () {
@@ -130,7 +130,7 @@ class ServerConfigTest extends TestCase
             ];
         };
         $config->setValidationRules($rules);
-        $this->assertSame($rules, $config->getValidationRules());
+        self::assertSame($rules, $config->getValidationRules());
     }
 
     public function testAllowsSettingDefaultFieldResolver() : void
@@ -140,11 +140,11 @@ class ServerConfigTest extends TestCase
         $resolver = function () {
         };
         $config->setFieldResolver($resolver);
-        $this->assertSame($resolver, $config->getFieldResolver());
+        self::assertSame($resolver, $config->getFieldResolver());
 
         $resolver = 'date'; // test for callable
         $config->setFieldResolver($resolver);
-        $this->assertSame($resolver, $config->getFieldResolver());
+        self::assertSame($resolver, $config->getFieldResolver());
     }
 
     public function testAllowsSettingPersistedQueryLoader() : void
@@ -154,11 +154,11 @@ class ServerConfigTest extends TestCase
         $loader = function () {
         };
         $config->setPersistentQueryLoader($loader);
-        $this->assertSame($loader, $config->getPersistentQueryLoader());
+        self::assertSame($loader, $config->getPersistentQueryLoader());
 
         $loader = 'date'; // test for callable
         $config->setPersistentQueryLoader($loader);
-        $this->assertSame($loader, $config->getPersistentQueryLoader());
+        self::assertSame($loader, $config->getPersistentQueryLoader());
     }
 
     public function testAllowsSettingCatchPhpErrors() : void
@@ -166,10 +166,10 @@ class ServerConfigTest extends TestCase
         $config = ServerConfig::create();
 
         $config->setDebug(true);
-        $this->assertTrue($config->getDebug());
+        self::assertTrue($config->getDebug());
 
         $config->setDebug(false);
-        $this->assertFalse($config->getDebug());
+        self::assertFalse($config->getDebug());
     }
 
     public function testAcceptsArray() : void
@@ -196,16 +196,16 @@ class ServerConfigTest extends TestCase
 
         $config = ServerConfig::create($arr);
 
-        $this->assertSame($arr['schema'], $config->getSchema());
-        $this->assertSame($arr['context'], $config->getContext());
-        $this->assertSame($arr['rootValue'], $config->getRootValue());
-        $this->assertSame($arr['errorFormatter'], $config->getErrorFormatter());
-        $this->assertSame($arr['promiseAdapter'], $config->getPromiseAdapter());
-        $this->assertSame($arr['validationRules'], $config->getValidationRules());
-        $this->assertSame($arr['fieldResolver'], $config->getFieldResolver());
-        $this->assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
-        $this->assertTrue($config->getDebug());
-        $this->assertTrue($config->getQueryBatching());
+        self::assertSame($arr['schema'], $config->getSchema());
+        self::assertSame($arr['context'], $config->getContext());
+        self::assertSame($arr['rootValue'], $config->getRootValue());
+        self::assertSame($arr['errorFormatter'], $config->getErrorFormatter());
+        self::assertSame($arr['promiseAdapter'], $config->getPromiseAdapter());
+        self::assertSame($arr['validationRules'], $config->getValidationRules());
+        self::assertSame($arr['fieldResolver'], $config->getFieldResolver());
+        self::assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
+        self::assertTrue($config->getDebug());
+        self::assertTrue($config->getQueryBatching());
     }
 
     public function testThrowsOnInvalidArrayKey() : void

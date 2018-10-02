@@ -22,10 +22,10 @@ class PrinterTest extends TestCase
         $ast         = Parser::parse($kitchenSink);
 
         $astCopy = $ast->cloneDeep();
-        $this->assertEquals($astCopy, $ast);
+        self::assertEquals($astCopy, $ast);
 
         Printer::doPrint($ast);
-        $this->assertEquals($astCopy, $ast);
+        self::assertEquals($astCopy, $ast);
     }
 
     /**
@@ -34,7 +34,7 @@ class PrinterTest extends TestCase
     public function testPrintsMinimalAst() : void
     {
         $ast = new FieldNode(['name' => new NameNode(['value' => 'foo'])]);
-        $this->assertEquals('foo', Printer::doPrint($ast));
+        self::assertEquals('foo', Printer::doPrint($ast));
     }
 
     /**
@@ -60,7 +60,7 @@ class PrinterTest extends TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($queryAstShorthanded));
+        self::assertEquals($expected, Printer::doPrint($queryAstShorthanded));
 
         $mutationAst = Parser::parse('mutation { id, name }');
         $expected    = 'mutation {
@@ -68,7 +68,7 @@ class PrinterTest extends TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAst));
+        self::assertEquals($expected, Printer::doPrint($mutationAst));
 
         $queryAstWithArtifacts = Parser::parse(
             'query ($foo: TestType) @testDirective { id, name }'
@@ -78,7 +78,7 @@ class PrinterTest extends TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($queryAstWithArtifacts));
+        self::assertEquals($expected, Printer::doPrint($queryAstWithArtifacts));
 
         $mutationAstWithArtifacts = Parser::parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
@@ -88,7 +88,7 @@ class PrinterTest extends TestCase
   name
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -103,7 +103,7 @@ class PrinterTest extends TestCase
   field(arg: """    space-led value""")
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -128,7 +128,7 @@ class PrinterTest extends TestCase
   """)
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -149,7 +149,7 @@ class PrinterTest extends TestCase
 }
 
 END;
-        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -166,7 +166,7 @@ END;
             ['experimentalFragmentVariables' => true]
         );
 
-        $this->assertEquals(
+        self::assertEquals(
             Printer::doPrint($fragmentWithVariable),
             'fragment Foo($a: ComplexType, $b: Boolean = false) on TestType {
   id
@@ -191,7 +191,7 @@ END;
   """)
 }
 ';
-        $this->assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+        self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
     }
 
     /**
@@ -259,6 +259,6 @@ fragment frag on Friend {
 }
 
 EOT;
-        $this->assertEquals($expected, $printed);
+        self::assertEquals($expected, $printed);
     }
 }

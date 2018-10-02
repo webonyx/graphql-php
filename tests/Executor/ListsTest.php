@@ -71,7 +71,7 @@ class ListsTest extends TestCase
         $ast = Parser::parse('{ nest { test } }');
 
         $result = Executor::execute($schema, $ast, $data);
-        $this->assertArraySubset($expected, $result->toArray($debug));
+        self::assertArraySubset($expected, $result->toArray($debug));
     }
 
     /**

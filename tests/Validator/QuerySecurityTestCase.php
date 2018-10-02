@@ -62,7 +62,7 @@ abstract class QuerySecurityTestCase extends TestCase
             [$this->getRule($max)]
         );
 
-        $this->assertEquals($expectedErrors, array_map([Error::class, 'formatError'], $errors), $queryString);
+        self::assertEquals($expectedErrors, array_map([Error::class, 'formatError'], $errors), $queryString);
 
         return $errors;
     }

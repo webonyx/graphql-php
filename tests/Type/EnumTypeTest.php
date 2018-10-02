@@ -194,7 +194,7 @@ class EnumTypeTest extends TestCase
      */
     public function testAcceptsEnumLiteralsAsInput() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['colorInt' => 1]],
             GraphQL::executeQuery($this->schema, '{ colorInt(fromEnum: GREEN) }')->toArray()
         );
@@ -205,7 +205,7 @@ class EnumTypeTest extends TestCase
      */
     public function testEnumMayBeOutputType() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['colorEnum' => 'GREEN']],
             GraphQL::executeQuery($this->schema, '{ colorEnum(fromInt: 1) }')->toArray()
         );
@@ -216,7 +216,7 @@ class EnumTypeTest extends TestCase
      */
     public function testEnumMayBeBothInputAndOutputType() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['colorEnum' => 'GREEN']],
             GraphQL::executeQuery($this->schema, '{ colorEnum(fromEnum: GREEN) }')->toArray()
         );
@@ -240,19 +240,19 @@ class EnumTypeTest extends TestCase
     private function expectFailure($query, $vars, $err)
     {
         $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
-        $this->assertEquals(1, count($result->errors));
+        self::assertEquals(1, count($result->errors));
 
         if (is_array($err)) {
-            $this->assertEquals(
+            self::assertEquals(
                 $err['message'],
                 $result->errors[0]->getMessage()
             );
-            $this->assertEquals(
+            self::assertEquals(
                 $err['locations'],
                 $result->errors[0]->getLocations()
             );
         } else {
-            $this->assertEquals(
+            self::assertEquals(
                 $err,
                 $result->errors[0]->getMessage()
             );
@@ -334,7 +334,7 @@ class EnumTypeTest extends TestCase
      */
     public function testAcceptsJSONStringAsEnumVariable() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['colorEnum' => 'BLUE']],
             GraphQL::executeQuery(
                 $this->schema,
@@ -351,7 +351,7 @@ class EnumTypeTest extends TestCase
      */
     public function testAcceptsEnumLiteralsAsInputArgumentsToMutations() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['favoriteEnum' => 'GREEN']],
             GraphQL::executeQuery(
                 $this->schema,
@@ -369,7 +369,7 @@ class EnumTypeTest extends TestCase
      */
     public function testAcceptsEnumLiteralsAsInputArgumentsToSubscriptions() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['subscribeToEnum' => 'GREEN']],
             GraphQL::executeQuery(
                 $this->schema,
@@ -422,7 +422,7 @@ class EnumTypeTest extends TestCase
      */
     public function testEnumValueMayHaveAnInternalValueOf0() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['colorEnum' => 'RED', 'colorInt' => 0]],
             GraphQL::executeQuery(
                 $this->schema,
@@ -439,7 +439,7 @@ class EnumTypeTest extends TestCase
      */
     public function testEnumInputsMayBeNullable() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['colorEnum' => null, 'colorInt' => null]],
             GraphQL::executeQuery(
                 $this->schema,
@@ -459,11 +459,11 @@ class EnumTypeTest extends TestCase
         $ComplexEnum = $this->ComplexEnum;
         $values      = $ComplexEnum->getValues();
 
-        $this->assertEquals(2, count($values));
-        $this->assertEquals('ONE', $values[0]->name);
-        $this->assertEquals($this->Complex1, $values[0]->value);
-        $this->assertEquals('TWO', $values[1]->name);
-        $this->assertEquals($this->Complex2, $values[1]->value);
+        self::assertEquals(2, count($values));
+        self::assertEquals('ONE', $values[0]->name);
+        self::assertEquals($this->Complex1, $values[0]->value);
+        self::assertEquals('TWO', $values[1]->name);
+        self::assertEquals($this->Complex2, $values[1]->value);
     }
 
     /**
@@ -472,11 +472,11 @@ class EnumTypeTest extends TestCase
     public function testPresentsGetValueAPIForComplexEnums() : void
     {
         $oneValue = $this->ComplexEnum->getValue('ONE');
-        $this->assertEquals('ONE', $oneValue->name);
-        $this->assertEquals($this->Complex1, $oneValue->value);
+        self::assertEquals('ONE', $oneValue->name);
+        self::assertEquals($this->Complex1, $oneValue->value);
 
         $badUsage = $this->ComplexEnum->getValue($this->Complex1);
-        $this->assertEquals(null, $badUsage);
+        self::assertEquals(null, $badUsage);
     }
 
     /**
@@ -509,7 +509,7 @@ class EnumTypeTest extends TestCase
             ],
         ];
 
-        $this->assertArraySubset($expected, $result);
+        self::assertArraySubset($expected, $result);
     }
 
     /**
@@ -518,7 +518,7 @@ class EnumTypeTest extends TestCase
     public function testCanBeIntrospectedWithoutError() : void
     {
         $result = GraphQL::executeQuery($this->schema, Introspection::getIntrospectionQuery())->toArray();
-        $this->assertArrayNotHasKey('errors', $result);
+        self::assertArrayNotHasKey('errors', $result);
     }
 
     public function testAllowsSimpleArrayAsValues() : void
@@ -529,7 +529,7 @@ class EnumTypeTest extends TestCase
             third: simpleEnum(fromValue: "WRONG")
         }';
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             [
                 'data'   => ['first' => 'ONE', 'second' => 'TWO', 'third' => null],
                 'errors' => [[

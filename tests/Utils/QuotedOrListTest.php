@@ -24,7 +24,7 @@ class QuotedOrListTest extends TestCase
      */
     public function testReturnsSingleQuotedItem() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             '"A"',
             Utils::quotedOrList(['A'])
         );
@@ -35,7 +35,7 @@ class QuotedOrListTest extends TestCase
      */
     public function testReturnsTwoItemList() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             '"A" or "B"',
             Utils::quotedOrList(['A', 'B'])
         );
@@ -46,7 +46,7 @@ class QuotedOrListTest extends TestCase
      */
     public function testReturnsCommaSeparatedManyItemList() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             '"A", "B", or "C"',
             Utils::quotedOrList(['A', 'B', 'C'])
         );
@@ -57,7 +57,7 @@ class QuotedOrListTest extends TestCase
      */
     public function testLimitsToFiveItems() : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             '"A", "B", "C", "D", or "E"',
             Utils::quotedOrList(['A', 'B', 'C', 'D', 'E', 'F'])
         );

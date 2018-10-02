@@ -96,7 +96,7 @@ class AbstractTest extends TestCase
         ]);
 
         $result = Executor::execute($schema, Parser::parse($query));
-        $this->assertEquals($expected, $result);
+        self::assertEquals($expected, $result);
     }
 
     /**
@@ -164,7 +164,7 @@ class AbstractTest extends TestCase
             ],
         ]);
 
-        $this->assertEquals($expected, Executor::execute($schema, Parser::parse($query)));
+        self::assertEquals($expected, Executor::execute($schema, Parser::parse($query)));
     }
 
     /**
@@ -269,7 +269,7 @@ class AbstractTest extends TestCase
         ];
         $actual   = GraphQL::executeQuery($schema, $query)->toArray(true);
 
-        $this->assertArraySubset($expected, $actual);
+        self::assertArraySubset($expected, $actual);
     }
 
     /**
@@ -369,7 +369,7 @@ class AbstractTest extends TestCase
             ],
             ],
         ];
-        $this->assertArraySubset($expected, $result);
+        self::assertArraySubset($expected, $result);
     }
 
     /**
@@ -424,7 +424,7 @@ class AbstractTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(true));
     }
 
     /**
@@ -499,7 +499,7 @@ class AbstractTest extends TestCase
 
         $result = GraphQL::executeQuery($schema, $query)->toArray();
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'data' => [
                     'pets' => [
@@ -557,7 +557,7 @@ class AbstractTest extends TestCase
 
         $result = Executor::execute($schema, Parser::parse($query), ['node' => ['a' => 'value']]);
 
-        $this->assertEquals(
+        self::assertEquals(
             'Schema must contain unique named types but contains multiple types named "Test". ' .
             'Make sure that `resolveType` function of abstract type "Node" returns the same type instance ' .
             'as referenced anywhere else within the schema ' .

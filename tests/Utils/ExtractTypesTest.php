@@ -264,7 +264,7 @@ class ExtractTypesTest extends TestCase
         ];
 
         $actualTypeMap = TypeInfo::extractTypes($this->query);
-        $this->assertEquals($expectedTypeMap, $actualTypeMap);
+        self::assertEquals($expectedTypeMap, $actualTypeMap);
     }
 
     public function testExtractTypesFromMutation() : void
@@ -286,7 +286,7 @@ class ExtractTypesTest extends TestCase
         ];
 
         $actualTypeMap = TypeInfo::extractTypes($this->mutation);
-        $this->assertEquals($expectedTypeMap, $actualTypeMap);
+        self::assertEquals($expectedTypeMap, $actualTypeMap);
     }
 
     public function testThrowsOnMultipleTypesWithSameName() : void

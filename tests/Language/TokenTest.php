@@ -19,6 +19,6 @@ class TokenTest extends TestCase
             'column' => 5,
         ];
 
-        $this->assertEquals($expected, $token->toArray());
+        self::assertEquals($expected, $token->toArray());
     }
 }

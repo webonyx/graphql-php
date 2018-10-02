@@ -27,7 +27,7 @@ abstract class ValidatorTestCase extends TestCase
 
     protected function expectValid($schema, $rules, $queryString) : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             [],
             DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
             'Should validate'
@@ -433,8 +433,8 @@ abstract class ValidatorTestCase extends TestCase
     {
         $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
 
-        $this->assertNotEmpty($errors, 'GraphQL should not validate');
-        $this->assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));
+        self::assertNotEmpty($errors, 'GraphQL should not validate');
+        self::assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));
 
         return $errors;
     }

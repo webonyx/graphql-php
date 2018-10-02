@@ -16,20 +16,20 @@ class AstFromValueUntypedTest extends TestCase
      */
     public function testParsesSimpleValues() : void
     {
-        $this->assertTestCase('null', null);
-        $this->assertTestCase('true', true);
-        $this->assertTestCase('false', false);
-        $this->assertTestCase('123', 123);
-        $this->assertTestCase('123.456', 123.456);
-        $this->assertTestCase('abc123', 'abc123');
+        self::assertTestCase('null', null);
+        self::assertTestCase('true', true);
+        self::assertTestCase('false', false);
+        self::assertTestCase('123', 123);
+        self::assertTestCase('123.456', 123.456);
+        self::assertTestCase('abc123', 'abc123');
     }
 
     /**
      * @param mixed[]|null $variables
      */
-    private function assertTestCase($valueText, $expected, ?array $variables = null) : void
+    private static function assertTestCase($valueText, $expected, ?array $variables = null) : void
     {
-        $this->assertEquals(
+        self::assertEquals(
             $expected,
             AST::valueFromASTUntyped(Parser::parseValue($valueText), $variables)
         );
@@ -40,10 +40,10 @@ class AstFromValueUntypedTest extends TestCase
      */
     public function testParsesListsOfValues() : void
     {
-        $this->assertTestCase('[true, false]', [true, false]);
-        $this->assertTestCase('[true, 123.45]', [true, 123.45]);
-        $this->assertTestCase('[true, null]', [true, null]);
-        $this->assertTestCase('[true, ["foo", 1.2]]', [true, ['foo', 1.2]]);
+        self::assertTestCase('[true, false]', [true, false]);
+        self::assertTestCase('[true, 123.45]', [true, 123.45]);
+        self::assertTestCase('[true, null]', [true, null]);
+        self::assertTestCase('[true, ["foo", 1.2]]', [true, ['foo', 1.2]]);
     }
 
     /**
@@ -51,12 +51,12 @@ class AstFromValueUntypedTest extends TestCase
      */
     public function testParsesInputObjects() : void
     {
-        $this->assertTestCase(
+        self::assertTestCase(
             '{ int: 123, bool: false }',
             ['int' => 123, 'bool' => false]
         );
 
-        $this->assertTestCase(
+        self::assertTestCase(
             '{ foo: [ { bar: "baz"} ] }',
             ['foo' => [['bar' => 'baz']]]
         );
@@ -67,12 +67,12 @@ class AstFromValueUntypedTest extends TestCase
      */
     public function testParsesEnumValuesAsPlainStrings() : void
     {
-        $this->assertTestCase(
+        self::assertTestCase(
             'TEST_ENUM_VALUE',
             'TEST_ENUM_VALUE'
         );
 
-        $this->assertTestCase(
+        self::assertTestCase(
             '[TEST_ENUM_VALUE]',
             ['TEST_ENUM_VALUE']
         );
@@ -83,32 +83,32 @@ class AstFromValueUntypedTest extends TestCase
      */
     public function testParsesVariables() : void
     {
-        $this->assertTestCase(
+        self::assertTestCase(
             '$testVariable',
             'foo',
             ['testVariable' => 'foo']
         );
-        $this->assertTestCase(
+        self::assertTestCase(
             '[$testVariable]',
             ['foo'],
             ['testVariable' => 'foo']
         );
-        $this->assertTestCase(
+        self::assertTestCase(
             '{a:[$testVariable]}',
             ['a' => ['foo']],
             ['testVariable' => 'foo']
         );
-        $this->assertTestCase(
+        self::assertTestCase(
             '$testVariable',
             null,
             ['testVariable' => null]
         );
-        $this->assertTestCase(
+        self::assertTestCase(
             '$testVariable',
             null,
             []
         );
-        $this->assertTestCase(
+        self::assertTestCase(
             '$testVariable',
             null,
             null

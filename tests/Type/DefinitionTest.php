@@ -168,39 +168,39 @@ class DefinitionTest extends TestCase
             'query' => $this->blogQuery,
         ]);
 
-        $this->assertSame($blogSchema->getQueryType(), $this->blogQuery);
+        self::assertSame($blogSchema->getQueryType(), $this->blogQuery);
 
         $articleField = $this->blogQuery->getField('article');
-        $this->assertSame($articleField->getType(), $this->blogArticle);
-        $this->assertSame($articleField->getType()->name, 'Article');
-        $this->assertSame($articleField->name, 'article');
+        self::assertSame($articleField->getType(), $this->blogArticle);
+        self::assertSame($articleField->getType()->name, 'Article');
+        self::assertSame($articleField->name, 'article');
 
         /** @var ObjectType $articleFieldType */
         $articleFieldType = $articleField->getType();
         $titleField       = $articleFieldType->getField('title');
 
-        $this->assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $titleField);
-        $this->assertSame('title', $titleField->name);
-        $this->assertSame(Type::string(), $titleField->getType());
+        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $titleField);
+        self::assertSame('title', $titleField->name);
+        self::assertSame(Type::string(), $titleField->getType());
 
         $authorField = $articleFieldType->getField('author');
-        $this->assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $authorField);
+        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $authorField);
 
         /** @var ObjectType $authorFieldType */
         $authorFieldType = $authorField->getType();
-        $this->assertSame($this->blogAuthor, $authorFieldType);
+        self::assertSame($this->blogAuthor, $authorFieldType);
 
         $recentArticleField = $authorFieldType->getField('recentArticle');
-        $this->assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $recentArticleField);
-        $this->assertSame($this->blogArticle, $recentArticleField->getType());
+        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $recentArticleField);
+        self::assertSame($this->blogArticle, $recentArticleField->getType());
 
         $feedField = $this->blogQuery->getField('feed');
-        $this->assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $feedField);
+        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $feedField);
 
         /** @var ListOfType $feedFieldType */
         $feedFieldType = $feedField->getType();
-        $this->assertInstanceOf('GraphQL\Type\Definition\ListOfType', $feedFieldType);
-        $this->assertSame($this->blogArticle, $feedFieldType->getWrappedType());
+        self::assertInstanceOf('GraphQL\Type\Definition\ListOfType', $feedFieldType);
+        self::assertSame($this->blogArticle, $feedFieldType->getWrappedType());
     }
 
     /**
@@ -213,13 +213,13 @@ class DefinitionTest extends TestCase
             'mutation' => $this->blogMutation,
         ]);
 
-        $this->assertSame($this->blogMutation, $schema->getMutationType());
+        self::assertSame($this->blogMutation, $schema->getMutationType());
         $writeMutation = $this->blogMutation->getField('writeArticle');
 
-        $this->assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $writeMutation);
-        $this->assertSame($this->blogArticle, $writeMutation->getType());
-        $this->assertSame('Article', $writeMutation->getType()->name);
-        $this->assertSame('writeArticle', $writeMutation->name);
+        self::assertInstanceOf('GraphQL\Type\Definition\FieldDefinition', $writeMutation);
+        self::assertSame($this->blogArticle, $writeMutation->getType());
+        self::assertSame('Article', $writeMutation->getType()->name);
+        self::assertSame('writeArticle', $writeMutation->name);
     }
 
     /**
@@ -232,12 +232,12 @@ class DefinitionTest extends TestCase
             'subscription' => $this->blogSubscription,
         ]);
 
-        $this->assertEquals($this->blogSubscription, $schema->getSubscriptionType());
+        self::assertEquals($this->blogSubscription, $schema->getSubscriptionType());
 
         $sub = $this->blogSubscription->getField('articleSubscribe');
-        $this->assertEquals($sub->getType(), $this->blogArticle);
-        $this->assertEquals($sub->getType()->name, 'Article');
-        $this->assertEquals($sub->name, 'articleSubscribe');
+        self::assertEquals($sub->getType(), $this->blogArticle);
+        self::assertEquals($sub->getType()->name, 'Article');
+        self::assertEquals($sub->name, 'articleSubscribe');
     }
 
     /**
@@ -254,7 +254,7 @@ class DefinitionTest extends TestCase
 
         $value = $enumTypeWithDeprecatedValue->getValues()[0];
 
-        $this->assertArraySubset(
+        self::assertArraySubset(
             [
                 'name'              => 'foo',
                 'description'       => null,
@@ -265,7 +265,7 @@ class DefinitionTest extends TestCase
             (array) $value
         );
 
-        $this->assertEquals(true, $value->isDeprecated());
+        self::assertEquals(true, $value->isDeprecated());
     }
 
     /**
@@ -300,9 +300,9 @@ class DefinitionTest extends TestCase
 
         $actual = $EnumTypeWithNullishValue->getValues();
 
-        $this->assertEquals(count($expected), count($actual));
-        $this->assertArraySubset($expected[0], (array) $actual[0]);
-        $this->assertArraySubset($expected[1], (array) $actual[1]);
+        self::assertEquals(count($expected), count($actual));
+        self::assertArraySubset($expected[0], (array) $actual[0]);
+        self::assertArraySubset($expected[1], (array) $actual[1]);
     }
 
     /**
@@ -322,11 +322,11 @@ class DefinitionTest extends TestCase
 
         $field = $TypeWithDeprecatedField->getField('bar');
 
-        $this->assertEquals(Type::string(), $field->getType());
-        $this->assertEquals(true, $field->isDeprecated());
-        $this->assertEquals('A terrible reason', $field->deprecationReason);
-        $this->assertEquals('bar', $field->name);
-        $this->assertEquals([], $field->args);
+        self::assertEquals(Type::string(), $field->getType());
+        self::assertEquals(true, $field->isDeprecated());
+        self::assertEquals('A terrible reason', $field->deprecationReason);
+        self::assertEquals('bar', $field->name);
+        self::assertEquals([], $field->args);
     }
 
     /**
@@ -356,7 +356,7 @@ class DefinitionTest extends TestCase
             'query'    => $this->blogQuery,
             'mutation' => $someMutation,
         ]);
-        $this->assertSame($nestedInputObject, $schema->getType('NestedInputObject'));
+        self::assertSame($nestedInputObject, $schema->getType('NestedInputObject'));
     }
 
     /**
@@ -388,7 +388,7 @@ class DefinitionTest extends TestCase
             ]),
             'types' => [$someSubtype],
         ]);
-        $this->assertSame($someSubtype, $schema->getType('SomeSubtype'));
+        self::assertSame($someSubtype, $schema->getType('SomeSubtype'));
     }
 
     /**
@@ -425,7 +425,7 @@ class DefinitionTest extends TestCase
             'types' => [$someSubtype],
         ]);
 
-        $this->assertSame($someSubtype, $schema->getType('SomeSubtype'));
+        self::assertSame($someSubtype, $schema->getType('SomeSubtype'));
     }
 
     /**
@@ -433,20 +433,20 @@ class DefinitionTest extends TestCase
      */
     public function testStringifiesSimpleTypes() : void
     {
-        $this->assertSame('Int', (string) Type::int());
-        $this->assertSame('Article', (string) $this->blogArticle);
+        self::assertSame('Int', (string) Type::int());
+        self::assertSame('Article', (string) $this->blogArticle);
 
-        $this->assertSame('Interface', (string) $this->interfaceType);
-        $this->assertSame('Union', (string) $this->unionType);
-        $this->assertSame('Enum', (string) $this->enumType);
-        $this->assertSame('InputObject', (string) $this->inputObjectType);
-        $this->assertSame('Object', (string) $this->objectType);
+        self::assertSame('Interface', (string) $this->interfaceType);
+        self::assertSame('Union', (string) $this->unionType);
+        self::assertSame('Enum', (string) $this->enumType);
+        self::assertSame('InputObject', (string) $this->inputObjectType);
+        self::assertSame('Object', (string) $this->objectType);
 
-        $this->assertSame('Int!', (string) new NonNull(Type::int()));
-        $this->assertSame('[Int]', (string) new ListOfType(Type::int()));
-        $this->assertSame('[Int]!', (string) new NonNull(new ListOfType(Type::int())));
-        $this->assertSame('[Int!]', (string) new ListOfType(new NonNull(Type::int())));
-        $this->assertSame('[[Int]]', (string) new ListOfType(new ListOfType(Type::int())));
+        self::assertSame('Int!', (string) new NonNull(Type::int()));
+        self::assertSame('[Int]', (string) new ListOfType(Type::int()));
+        self::assertSame('[Int]!', (string) new NonNull(new ListOfType(Type::int())));
+        self::assertSame('[Int!]', (string) new ListOfType(new NonNull(Type::int())));
+        self::assertSame('[[Int]]', (string) new ListOfType(new ListOfType(Type::int())));
     }
 
     /**
@@ -454,17 +454,17 @@ class DefinitionTest extends TestCase
      */
     public function testJSONStringifiesSimpleTypes() : void
     {
-        $this->assertEquals('"Int"', json_encode(Type::int()));
-        $this->assertEquals('"Article"', json_encode($this->blogArticle));
-        $this->assertEquals('"Interface"', json_encode($this->interfaceType));
-        $this->assertEquals('"Union"', json_encode($this->unionType));
-        $this->assertEquals('"Enum"', json_encode($this->enumType));
-        $this->assertEquals('"InputObject"', json_encode($this->inputObjectType));
-        $this->assertEquals('"Int!"', json_encode(Type::nonNull(Type::int())));
-        $this->assertEquals('"[Int]"', json_encode(Type::listOf(Type::int())));
-        $this->assertEquals('"[Int]!"', json_encode(Type::nonNull(Type::listOf(Type::int()))));
-        $this->assertEquals('"[Int!]"', json_encode(Type::listOf(Type::nonNull(Type::int()))));
-        $this->assertEquals('"[[Int]]"', json_encode(Type::listOf(Type::listOf(Type::int()))));
+        self::assertEquals('"Int"', json_encode(Type::int()));
+        self::assertEquals('"Article"', json_encode($this->blogArticle));
+        self::assertEquals('"Interface"', json_encode($this->interfaceType));
+        self::assertEquals('"Union"', json_encode($this->unionType));
+        self::assertEquals('"Enum"', json_encode($this->enumType));
+        self::assertEquals('"InputObject"', json_encode($this->inputObjectType));
+        self::assertEquals('"Int!"', json_encode(Type::nonNull(Type::int())));
+        self::assertEquals('"[Int]"', json_encode(Type::listOf(Type::int())));
+        self::assertEquals('"[Int]!"', json_encode(Type::nonNull(Type::listOf(Type::int()))));
+        self::assertEquals('"[Int!]"', json_encode(Type::listOf(Type::nonNull(Type::int()))));
+        self::assertEquals('"[[Int]]"', json_encode(Type::listOf(Type::listOf(Type::int()))));
     }
 
     /**
@@ -482,7 +482,7 @@ class DefinitionTest extends TestCase
         ];
 
         foreach ($expected as $index => $entry) {
-            $this->assertSame(
+            self::assertSame(
                 $entry[1],
                 Type::isInputType($entry[0]),
                 sprintf('Type %s was detected incorrectly', $entry[0])
@@ -505,7 +505,7 @@ class DefinitionTest extends TestCase
         ];
 
         foreach ($expected as $index => $entry) {
-            $this->assertSame(
+            self::assertSame(
                 $entry[1],
                 Type::isOutputType($entry[0]),
                 sprintf('Type %s was detected incorrectly', $entry[0])
@@ -538,8 +538,8 @@ class DefinitionTest extends TestCase
         ]);
 
         $types = $union->getTypes();
-        $this->assertEquals(1, count($types));
-        $this->assertSame($this->objectType, $types[0]);
+        self::assertEquals(1, count($types));
+        self::assertSame($this->objectType, $types[0]);
     }
 
     public function testAllowsRecursiveDefinitions() : void
@@ -558,7 +558,7 @@ class DefinitionTest extends TestCase
         $user = new ObjectType([
             'name'       => 'User',
             'fields'     => function () use (&$blog, &$called) {
-                $this->assertNotNull($blog, 'Blog type is expected to be defined at this point, but it is null');
+                self::assertNotNull($blog, 'Blog type is expected to be defined at this point, but it is null');
                 $called = true;
 
                 return [
@@ -594,17 +594,17 @@ class DefinitionTest extends TestCase
             'types' => [$user, $blog],
         ]);
 
-        $this->assertTrue($called);
+        self::assertTrue($called);
         $schema->getType('Blog');
 
-        $this->assertEquals([$node], $blog->getInterfaces());
-        $this->assertEquals([$node], $user->getInterfaces());
+        self::assertEquals([$node], $blog->getInterfaces());
+        self::assertEquals([$node], $user->getInterfaces());
 
-        $this->assertNotNull($user->getField('blogs'));
-        $this->assertSame($blog, $user->getField('blogs')->getType()->getWrappedType(true));
+        self::assertNotNull($user->getField('blogs'));
+        self::assertSame($blog, $user->getField('blogs')->getType()->getWrappedType(true));
 
-        $this->assertNotNull($blog->getField('owner'));
-        $this->assertSame($user, $blog->getField('owner')->getType()->getWrappedType(true));
+        self::assertNotNull($blog->getField('owner'));
+        self::assertSame($user, $blog->getField('owner')->getType()->getWrappedType(true));
     }
 
     public function testInputObjectTypeAllowsRecursiveDefinitions() : void
@@ -637,11 +637,11 @@ class DefinitionTest extends TestCase
             'mutation' => $someMutation,
         ]);
 
-        $this->assertSame($inputObject, $schema->getType('InputObject'));
-        $this->assertTrue($called);
-        $this->assertEquals(count($inputObject->getFields()), 2);
-        $this->assertSame($inputObject->getField('nested')->getType(), $inputObject);
-        $this->assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
+        self::assertSame($inputObject, $schema->getType('InputObject'));
+        self::assertTrue($called);
+        self::assertEquals(count($inputObject->getFields()), 2);
+        self::assertSame($inputObject->getField('nested')->getType(), $inputObject);
+        self::assertSame($someMutation->getField('mutateSomething')->getArg('input')->getType(), $inputObject);
     }
 
     public function testInterfaceTypeAllowsRecursiveDefinitions() : void
@@ -668,11 +668,11 @@ class DefinitionTest extends TestCase
 
         $schema = new Schema(['query' => $query]);
 
-        $this->assertSame($interface, $schema->getType('SomeInterface'));
-        $this->assertTrue($called);
-        $this->assertEquals(count($interface->getFields()), 2);
-        $this->assertSame($interface->getField('nested')->getType(), $interface);
-        $this->assertSame($interface->getField('value')->getType(), Type::string());
+        self::assertSame($interface, $schema->getType('SomeInterface'));
+        self::assertTrue($called);
+        self::assertEquals(count($interface->getFields()), 2);
+        self::assertSame($interface->getField('nested')->getType(), $interface);
+        self::assertSame($interface->getField('value')->getType(), Type::string());
     }
 
     public function testAllowsShorthandFieldDefinition() : void
@@ -703,27 +703,27 @@ class DefinitionTest extends TestCase
         $valueField  = $schema->getType('SomeInterface')->getField('value');
         $nestedField = $schema->getType('SomeInterface')->getField('nested');
 
-        $this->assertEquals(Type::string(), $valueField->getType());
-        $this->assertEquals($interface, $nestedField->getType());
+        self::assertEquals(Type::string(), $valueField->getType());
+        self::assertEquals($interface, $nestedField->getType());
 
         $withArg = $schema->getType('SomeInterface')->getField('withArg');
-        $this->assertEquals(Type::string(), $withArg->getType());
+        self::assertEquals(Type::string(), $withArg->getType());
 
-        $this->assertEquals('arg1', $withArg->args[0]->name);
-        $this->assertEquals(Type::int(), $withArg->args[0]->getType());
+        self::assertEquals('arg1', $withArg->args[0]->name);
+        self::assertEquals(Type::int(), $withArg->args[0]->getType());
 
         $testField = $schema->getType('Query')->getField('test');
-        $this->assertEquals($interface, $testField->getType());
-        $this->assertEquals('test', $testField->name);
+        self::assertEquals($interface, $testField->getType());
+        self::assertEquals('test', $testField->name);
     }
 
     public function testInfersNameFromClassname() : void
     {
         $myObj = new MyCustomType();
-        $this->assertEquals('MyCustom', $myObj->name);
+        self::assertEquals('MyCustom', $myObj->name);
 
         $otherCustom = new OtherCustom();
-        $this->assertEquals('OtherCustom', $otherCustom->name);
+        self::assertEquals('OtherCustom', $otherCustom->name);
     }
 
     public function testAllowsOverridingInternalTypes() : void
@@ -743,7 +743,7 @@ class DefinitionTest extends TestCase
             'types' => [$idType],
         ]);
 
-        $this->assertSame($idType, $schema->getType('ID'));
+        self::assertSame($idType, $schema->getType('ID'));
     }
 
     // Field config must be object
@@ -762,7 +762,7 @@ class DefinitionTest extends TestCase
             },
         ]);
         $objType->assertValid(true);
-        $this->assertSame(Type::string(), $objType->getField('f')->getType());
+        self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 
     /**
@@ -876,7 +876,7 @@ class DefinitionTest extends TestCase
             'interfaces' => [$this->interfaceType],
             'fields'     => ['f' => ['type' => Type::string()]],
         ]);
-        $this->assertSame($this->interfaceType, $objType->getInterfaces()[0]);
+        self::assertSame($this->interfaceType, $objType->getInterfaces()[0]);
     }
 
     /**
@@ -891,7 +891,7 @@ class DefinitionTest extends TestCase
             },
             'fields'     => ['f' => ['type' => Type::string()]],
         ]);
-        $this->assertSame($this->interfaceType, $objType->getInterfaces()[0]);
+        self::assertSame($this->interfaceType, $objType->getInterfaces()[0]);
     }
 
     /**
@@ -1399,7 +1399,7 @@ class DefinitionTest extends TestCase
             ],
         ]);
         $inputObjType->assertValid();
-        $this->assertSame(Type::string(), $inputObjType->getField('f')->getType());
+        self::assertSame(Type::string(), $inputObjType->getField('f')->getType());
     }
 
     // Type System: Input Objects must have fields
@@ -1418,7 +1418,7 @@ class DefinitionTest extends TestCase
             },
         ]);
         $inputObjType->assertValid();
-        $this->assertSame(Type::string(), $inputObjType->getField('f')->getType());
+        self::assertSame(Type::string(), $inputObjType->getField('f')->getType());
     }
 
     /**
@@ -1517,8 +1517,8 @@ class DefinitionTest extends TestCase
                 'BAR' => [],
             ],
         ]);
-        $this->assertEquals('FOO', $enumType->getValue('FOO')->value);
-        $this->assertEquals('BAR', $enumType->getValue('BAR')->value);
+        self::assertEquals('FOO', $enumType->getValue('FOO')->value);
+        self::assertEquals('BAR', $enumType->getValue('BAR')->value);
     }
 
     // Type System: Enum types must be well defined
@@ -1535,8 +1535,8 @@ class DefinitionTest extends TestCase
                 'BAR' => ['value' => 20],
             ],
         ]);
-        $this->assertEquals(10, $enumType->getValue('FOO')->value);
-        $this->assertEquals(20, $enumType->getValue('BAR')->value);
+        self::assertEquals(10, $enumType->getValue('FOO')->value);
+        self::assertEquals(20, $enumType->getValue('BAR')->value);
     }
 
     /**
@@ -1606,7 +1606,7 @@ class DefinitionTest extends TestCase
                 Type::listOf($badType);
                 $this->fail(sprintf('List should not accept %s', $typeStr));
             } catch (InvariantViolation $e) {
-                $this->assertEquals(sprintf('Expected %s to be a GraphQL type.', $typeStr), $e->getMessage());
+                self::assertEquals(sprintf('Expected %s to be a GraphQL type.', $typeStr), $e->getMessage());
             }
         }
     }
@@ -1647,7 +1647,7 @@ class DefinitionTest extends TestCase
                 Type::nonNull($badType);
                 $this->fail(sprintf('Nulls should not accept %s', $typeStr));
             } catch (InvariantViolation $e) {
-                $this->assertEquals(sprintf('Expected %s to be a GraphQL nullable type.', $typeStr), $e->getMessage());
+                self::assertEquals(sprintf('Expected %s to be a GraphQL nullable type.', $typeStr), $e->getMessage());
             }
         }
     }

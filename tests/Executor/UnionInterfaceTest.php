@@ -166,7 +166,7 @@ class UnionInterfaceTest extends TestCase
                 ],
             ],
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast)->toArray());
+        self::assertEquals($expected, Executor::execute($this->schema, $ast)->toArray());
     }
 
     /**
@@ -198,7 +198,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
     /**
@@ -235,7 +235,7 @@ class UnionInterfaceTest extends TestCase
 
             ],
         ];
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
     /**
@@ -267,7 +267,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
     /**
@@ -303,7 +303,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray(true));
+        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray(true));
     }
 
     /**
@@ -358,7 +358,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        $this->assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
+        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray());
     }
 
     /**
@@ -412,12 +412,12 @@ class UnionInterfaceTest extends TestCase
 
         $ast = Parser::parse('{ name, friends { name } }');
 
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['name' => 'John', 'friends' => [['name' => 'Liz']]]],
             GraphQL::executeQuery($schema2, $ast, $john2, $context)->toArray()
         );
-        $this->assertSame($context, $encounteredContext);
-        $this->assertSame($schema2, $encounteredSchema);
-        $this->assertSame($john2, $encounteredRootValue);
+        self::assertSame($context, $encounteredContext);
+        self::assertSame($schema2, $encounteredSchema);
+        self::assertSame($john2, $encounteredRootValue);
     }
 }

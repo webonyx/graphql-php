@@ -36,7 +36,7 @@ class BuildSchemaTest extends TestCase
         '));
 
         $result = GraphQL::executeQuery($schema, '{ str }', ['str' => 123]);
-        $this->assertEquals(['str' => 123], $result->toArray(true)['data']);
+        self::assertEquals(['str' => 123], $result->toArray(true)['data']);
     }
 
     /**
@@ -61,7 +61,7 @@ class BuildSchemaTest extends TestCase
             '{ add(x: 34, y: 55) }',
             $root
         );
-        $this->assertEquals(['data' => ['add' => 89]], $result->toArray(true));
+        self::assertEquals(['data' => ['add' => 89]], $result->toArray(true));
     }
 
     /**
@@ -79,7 +79,7 @@ type HelloScalars {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     private function cycleOutput($body, $options = [])
@@ -103,7 +103,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -135,7 +135,7 @@ type Query {
 ';
 
         $output = $this->cycleOutput($body);
-        $this->assertEquals($body, $output);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -166,7 +166,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body, ['commentDescriptions' => true]);
-        $this->assertEquals($body, $output);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -180,10 +180,10 @@ type Query {
 }
 ';
         $schema = BuildSchema::buildAST(Parser::parse($body));
-        $this->assertEquals(count($schema->getDirectives()), 3);
-        $this->assertEquals($schema->getDirective('skip'), Directive::skipDirective());
-        $this->assertEquals($schema->getDirective('include'), Directive::includeDirective());
-        $this->assertEquals($schema->getDirective('deprecated'), Directive::deprecatedDirective());
+        self::assertEquals(count($schema->getDirectives()), 3);
+        self::assertEquals($schema->getDirective('skip'), Directive::skipDirective());
+        self::assertEquals($schema->getDirective('include'), Directive::includeDirective());
+        self::assertEquals($schema->getDirective('deprecated'), Directive::deprecatedDirective());
     }
 
     /**
@@ -201,10 +201,10 @@ type Query {
 }
     ';
         $schema = BuildSchema::buildAST(Parser::parse($body));
-        $this->assertEquals(count($schema->getDirectives()), 3);
-        $this->assertNotEquals($schema->getDirective('skip'), Directive::skipDirective());
-        $this->assertNotEquals($schema->getDirective('include'), Directive::includeDirective());
-        $this->assertNotEquals($schema->getDirective('deprecated'), Directive::deprecatedDirective());
+        self::assertEquals(count($schema->getDirectives()), 3);
+        self::assertNotEquals($schema->getDirective('skip'), Directive::skipDirective());
+        self::assertNotEquals($schema->getDirective('include'), Directive::includeDirective());
+        self::assertNotEquals($schema->getDirective('deprecated'), Directive::deprecatedDirective());
     }
 
     /**
@@ -220,10 +220,10 @@ type Query {
       }
     ';
         $schema = BuildSchema::buildAST(Parser::parse($body));
-        $this->assertCount(4, $schema->getDirectives());
-        $this->assertNotEquals(null, $schema->getDirective('skip'));
-        $this->assertNotEquals(null, $schema->getDirective('include'));
-        $this->assertNotEquals(null, $schema->getDirective('deprecated'));
+        self::assertCount(4, $schema->getDirectives());
+        self::assertNotEquals(null, $schema->getDirective('skip'));
+        self::assertNotEquals(null, $schema->getDirective('include'));
+        self::assertNotEquals(null, $schema->getDirective('deprecated'));
     }
 
     /**
@@ -241,7 +241,7 @@ type HelloScalars {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -256,7 +256,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -280,7 +280,7 @@ type TypeTwo {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -298,7 +298,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -312,7 +312,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -330,7 +330,7 @@ interface WorldInterface {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -348,7 +348,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -366,7 +366,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($body, $output);
+        self::assertEquals($body, $output);
     }
 
     /**
@@ -385,7 +385,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -405,7 +405,7 @@ type World {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -429,7 +429,7 @@ type WorldTwo {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -486,7 +486,7 @@ type WorldTwo {
         ];
 
         $result = GraphQL::executeQuery($schema, $query, $root);
-        $this->assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(true));
     }
 
     /**
@@ -550,7 +550,7 @@ type WorldTwo {
         ];
 
         $result = GraphQL::executeQuery($schema, $query, $root);
-        $this->assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(true));
     }
 
     /**
@@ -566,7 +566,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -584,7 +584,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -598,7 +598,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -614,7 +614,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -639,7 +639,7 @@ type Mutation {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -664,7 +664,7 @@ type Subscription {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -686,7 +686,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -706,7 +706,7 @@ type Query {
 union Union = Concrete
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
     }
 
     /**
@@ -728,7 +728,7 @@ type Query {
 }
 ';
         $output = $this->cycleOutput($body);
-        $this->assertEquals($output, $body);
+        self::assertEquals($output, $body);
 
         $ast    = Parser::parse($body);
         $schema = BuildSchema::buildAST($ast);
@@ -737,22 +737,22 @@ type Query {
         $myEnum = $schema->getType('MyEnum');
 
         $value = $myEnum->getValue('VALUE');
-        $this->assertFalse($value->isDeprecated());
+        self::assertFalse($value->isDeprecated());
 
         $oldValue = $myEnum->getValue('OLD_VALUE');
-        $this->assertTrue($oldValue->isDeprecated());
-        $this->assertEquals('No longer supported', $oldValue->deprecationReason);
+        self::assertTrue($oldValue->isDeprecated());
+        self::assertEquals('No longer supported', $oldValue->deprecationReason);
 
         $otherValue = $myEnum->getValue('OTHER_VALUE');
-        $this->assertTrue($otherValue->isDeprecated());
-        $this->assertEquals('Terrible reasons', $otherValue->deprecationReason);
+        self::assertTrue($otherValue->isDeprecated());
+        self::assertEquals('Terrible reasons', $otherValue->deprecationReason);
 
         $rootFields = $schema->getType('Query')->getFields();
-        $this->assertEquals($rootFields['field1']->isDeprecated(), true);
-        $this->assertEquals($rootFields['field1']->deprecationReason, 'No longer supported');
+        self::assertEquals($rootFields['field1']->isDeprecated(), true);
+        self::assertEquals($rootFields['field1']->deprecationReason, 'No longer supported');
 
-        $this->assertEquals($rootFields['field2']->isDeprecated(), true);
-        $this->assertEquals($rootFields['field2']->deprecationReason, 'Because I said so');
+        self::assertEquals($rootFields['field2']->isDeprecated(), true);
+        self::assertEquals($rootFields['field2']->deprecationReason, 'Because I said so');
     }
 
     /**
@@ -814,22 +814,22 @@ type Query {
             Printer::doPrint($testDirective->astNode)
         ));
 
-        $this->assertEquals($restoredIDL, SchemaPrinter::doPrint($schema));
+        self::assertEquals($restoredIDL, SchemaPrinter::doPrint($schema));
 
         $testField = $query->getField('testField');
-        $this->assertEquals('testField(testArg: TestInput): TestUnion', Printer::doPrint($testField->astNode));
-        $this->assertEquals('testArg: TestInput', Printer::doPrint($testField->args[0]->astNode));
-        $this->assertEquals(
+        self::assertEquals('testField(testArg: TestInput): TestUnion', Printer::doPrint($testField->astNode));
+        self::assertEquals('testArg: TestInput', Printer::doPrint($testField->args[0]->astNode));
+        self::assertEquals(
             'testInputField: TestEnum',
             Printer::doPrint($testInput->getField('testInputField')->astNode)
         );
-        $this->assertEquals('TEST_VALUE', Printer::doPrint($testEnum->getValue('TEST_VALUE')->astNode));
-        $this->assertEquals(
+        self::assertEquals('TEST_VALUE', Printer::doPrint($testEnum->getValue('TEST_VALUE')->astNode));
+        self::assertEquals(
             'interfaceField: String',
             Printer::doPrint($testInterface->getField('interfaceField')->astNode)
         );
-        $this->assertEquals('interfaceField: String', Printer::doPrint($testType->getField('interfaceField')->astNode));
-        $this->assertEquals('arg: TestScalar', Printer::doPrint($testDirective->args[0]->astNode));
+        self::assertEquals('interfaceField: String', Printer::doPrint($testType->getField('interfaceField')->astNode));
+        self::assertEquals('arg: TestScalar', Printer::doPrint($testDirective->args[0]->astNode));
     }
 
     /**
@@ -848,9 +848,9 @@ type Query {
           type SomeSubscription { str: String }
         ');
 
-        $this->assertEquals('SomeQuery', $schema->getQueryType()->name);
-        $this->assertEquals('SomeMutation', $schema->getMutationType()->name);
-        $this->assertEquals('SomeSubscription', $schema->getSubscriptionType()->name);
+        self::assertEquals('SomeQuery', $schema->getQueryType()->name);
+        self::assertEquals('SomeMutation', $schema->getMutationType()->name);
+        self::assertEquals('SomeSubscription', $schema->getSubscriptionType()->name);
     }
 
     /**
@@ -863,9 +863,9 @@ type Query {
           type Mutation { str: String }
           type Subscription { str: String }
         ');
-        $this->assertEquals('Query', $schema->getQueryType()->name);
-        $this->assertEquals('Mutation', $schema->getMutationType()->name);
-        $this->assertEquals('Subscription', $schema->getSubscriptionType()->name);
+        self::assertEquals('Query', $schema->getQueryType()->name);
+        self::assertEquals('Mutation', $schema->getMutationType()->name);
+        self::assertEquals('Subscription', $schema->getSubscriptionType()->name);
     }
 
     /**
@@ -880,7 +880,7 @@ type Query {
           }
         ');
         $errors = $schema->validate();
-        $this->assertGreaterThan(0, $errors);
+        self::assertGreaterThan(0, $errors);
     }
 
     // Describe: Failures
@@ -1205,26 +1205,26 @@ interface Hello {
 
         $schema = BuildSchema::buildAST($doc, $typeConfigDecorator);
         $schema->getTypeMap();
-        $this->assertEquals(['Query', 'Color', 'Hello'], $decorated);
+        self::assertEquals(['Query', 'Color', 'Hello'], $decorated);
 
         list($defaultConfig, $node, $allNodesMap) = $calls[0];
-        $this->assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
-        $this->assertEquals('Query', $defaultConfig['name']);
-        $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
-        $this->assertInstanceOf(\Closure::class, $defaultConfig['interfaces']);
-        $this->assertArrayHasKey('description', $defaultConfig);
-        $this->assertCount(5, $defaultConfig);
-        $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
-        $this->assertEquals('My description of Query', $schema->getType('Query')->description);
+        self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
+        self::assertEquals('Query', $defaultConfig['name']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['fields']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['interfaces']);
+        self::assertArrayHasKey('description', $defaultConfig);
+        self::assertCount(5, $defaultConfig);
+        self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        self::assertEquals('My description of Query', $schema->getType('Query')->description);
 
         list($defaultConfig, $node, $allNodesMap) = $calls[1];
-        $this->assertInstanceOf(EnumTypeDefinitionNode::class, $node);
-        $this->assertEquals('Color', $defaultConfig['name']);
+        self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
+        self::assertEquals('Color', $defaultConfig['name']);
         $enumValue = [
             'description'       => '',
             'deprecationReason' => '',
         ];
-        $this->assertArraySubset(
+        self::assertArraySubset(
             [
                 'RED'   => $enumValue,
                 'GREEN' => $enumValue,
@@ -1232,18 +1232,18 @@ interface Hello {
             ],
             $defaultConfig['values']
         );
-        $this->assertCount(4, $defaultConfig); // 3 + astNode
-        $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
-        $this->assertEquals('My description of Color', $schema->getType('Color')->description);
+        self::assertCount(4, $defaultConfig); // 3 + astNode
+        self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        self::assertEquals('My description of Color', $schema->getType('Color')->description);
 
         list($defaultConfig, $node, $allNodesMap) = $calls[2];
-        $this->assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
-        $this->assertEquals('Hello', $defaultConfig['name']);
-        $this->assertInstanceOf(\Closure::class, $defaultConfig['fields']);
-        $this->assertArrayHasKey('description', $defaultConfig);
-        $this->assertCount(4, $defaultConfig);
-        $this->assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
-        $this->assertEquals('My description of Hello', $schema->getType('Hello')->description);
+        self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
+        self::assertEquals('Hello', $defaultConfig['name']);
+        self::assertInstanceOf(\Closure::class, $defaultConfig['fields']);
+        self::assertArrayHasKey('description', $defaultConfig);
+        self::assertCount(4, $defaultConfig);
+        self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
+        self::assertEquals('My description of Hello', $schema->getType('Hello')->description);
     }
 
     public function testCreatesTypesLazily() : void
@@ -1283,19 +1283,19 @@ type World implements Hello {
         };
 
         $schema = BuildSchema::buildAST($doc, $typeConfigDecorator);
-        $this->assertEquals(['Query'], $created);
+        self::assertEquals(['Query'], $created);
 
         $schema->getType('Color');
-        $this->assertEquals(['Query', 'Color'], $created);
+        self::assertEquals(['Query', 'Color'], $created);
 
         $schema->getType('Hello');
-        $this->assertEquals(['Query', 'Color', 'Hello'], $created);
+        self::assertEquals(['Query', 'Color', 'Hello'], $created);
 
         $types = $schema->getTypeMap();
-        $this->assertEquals(['Query', 'Color', 'Hello', 'World'], $created);
-        $this->assertArrayHasKey('Query', $types);
-        $this->assertArrayHasKey('Color', $types);
-        $this->assertArrayHasKey('Hello', $types);
-        $this->assertArrayHasKey('World', $types);
+        self::assertEquals(['Query', 'Color', 'Hello', 'World'], $created);
+        self::assertArrayHasKey('Query', $types);
+        self::assertArrayHasKey('Color', $types);
+        self::assertArrayHasKey('Hello', $types);
+        self::assertArrayHasKey('World', $types);
     }
 }

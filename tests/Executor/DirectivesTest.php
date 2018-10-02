@@ -28,7 +28,7 @@ class DirectivesTest extends TestCase
      */
     public function testWorksWithoutDirectives() : void
     {
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b }'));
+        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b }'));
     }
 
     /**
@@ -71,19 +71,19 @@ class DirectivesTest extends TestCase
     public function testWorksOnScalars() : void
     {
         // if true includes scalar
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['a' => 'a', 'b' => 'b']],
             $this->executeTestQuery('{ a, b @include(if: true) }')
         );
 
         // if false omits on scalar
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @include(if: false) }'));
+        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @include(if: false) }'));
 
         // unless false includes scalar
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @skip(if: false) }'));
+        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery('{ a, b @skip(if: false) }'));
 
         // unless true omits scalar
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @skip(if: true) }'));
+        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery('{ a, b @skip(if: true) }'));
     }
 
     public function testWorksOnFragmentSpreads() : void
@@ -98,7 +98,7 @@ class DirectivesTest extends TestCase
           b
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
 
         // if true includes fragment spread
         $q = '
@@ -110,7 +110,7 @@ class DirectivesTest extends TestCase
           b
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
 
         // unless false includes fragment spread
         $q = '
@@ -122,7 +122,7 @@ class DirectivesTest extends TestCase
           b
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
 
         // unless true omits fragment spread
         $q = '
@@ -134,7 +134,7 @@ class DirectivesTest extends TestCase
           b
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
     public function testWorksOnInlineFragment() : void
@@ -148,7 +148,7 @@ class DirectivesTest extends TestCase
           }
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
 
         // if true includes inline fragment
         $q = '
@@ -159,7 +159,7 @@ class DirectivesTest extends TestCase
           }
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
 
         // unless false includes inline fragment
         $q = '
@@ -170,7 +170,7 @@ class DirectivesTest extends TestCase
           }
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
 
         // unless true includes inline fragment
         $q = '
@@ -181,7 +181,7 @@ class DirectivesTest extends TestCase
           }
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
     public function testWorksOnAnonymousInlineFragment() : void
@@ -195,7 +195,7 @@ class DirectivesTest extends TestCase
           }
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
 
         // if true includes anonymous inline fragment
         $q = '
@@ -206,7 +206,7 @@ class DirectivesTest extends TestCase
           }
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
 
         // unless false includes anonymous inline fragment
         $q = '
@@ -217,7 +217,7 @@ class DirectivesTest extends TestCase
           }
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a', 'b' => 'b']], $this->executeTestQuery($q));
 
         // unless true includes anonymous inline fragment
         $q = '
@@ -228,25 +228,25 @@ class DirectivesTest extends TestCase
           }
         }
         ';
-        $this->assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
+        self::assertEquals(['data' => ['a' => 'a']], $this->executeTestQuery($q));
     }
 
     public function testWorksWithSkipAndIncludeDirectives() : void
     {
         // include and no skip
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['a' => 'a', 'b' => 'b']],
             $this->executeTestQuery('{ a, b @include(if: true) @skip(if: false) }')
         );
 
         // include and skip
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['a' => 'a']],
             $this->executeTestQuery('{ a, b @include(if: true) @skip(if: true) }')
         );
 
         // no include or skip
-        $this->assertEquals(
+        self::assertEquals(
             ['data' => ['a' => 'a']],
             $this->executeTestQuery('{ a, b @include(if: false) @skip(if: false) }')
         );

@@ -79,7 +79,7 @@ class SyncTest extends TestCase
             Parser::parse($doc),
             'rootValue'
         );
-        $this->assertSync(['errors' => [['message' => 'Must provide an operation.']]], $result);
+        self::assertSync(['errors' => [['message' => 'Must provide an operation.']]], $result);
     }
 
     private function execute($schema, $doc, $rootValue = null)
@@ -87,14 +87,14 @@ class SyncTest extends TestCase
         return Executor::promiseToExecute($this->promiseAdapter, $schema, $doc, $rootValue);
     }
 
-    private function assertSync($expectedFinalArray, $actualResult)
+    private static function assertSync($expectedFinalArray, $actualResult) : void
     {
         $message = 'Failed assertion that execution was synchronous';
-        $this->assertInstanceOf(Promise::class, $actualResult, $message);
-        $this->assertInstanceOf(SyncPromise::class, $actualResult->adoptedPromise, $message);
-        $this->assertEquals(SyncPromise::FULFILLED, $actualResult->adoptedPromise->state, $message);
-        $this->assertInstanceOf(ExecutionResult::class, $actualResult->adoptedPromise->result, $message);
-        $this->assertArraySubset(
+        self::assertInstanceOf(Promise::class, $actualResult, $message);
+        self::assertInstanceOf(SyncPromise::class, $actualResult->adoptedPromise, $message);
+        self::assertEquals(SyncPromise::FULFILLED, $actualResult->adoptedPromise->state, $message);
+        self::assertInstanceOf(ExecutionResult::class, $actualResult->adoptedPromise->result, $message);
+        self::assertArraySubset(
             $expectedFinalArray,
             $actualResult->adoptedPromise->result->toArray(),
             false,
@@ -113,7 +113,7 @@ class SyncTest extends TestCase
             Parser::parse($doc),
             'rootValue'
         );
-        $this->assertSync(['data' => ['syncField' => 'rootValue']], $result);
+        self::assertSync(['data' => ['syncField' => 'rootValue']], $result);
     }
 
     // Describe: graphqlSync
@@ -129,7 +129,7 @@ class SyncTest extends TestCase
             Parser::parse($doc),
             'rootValue'
         );
-        $this->assertSync(['data' => ['syncMutationField' => 'rootValue']], $result);
+        self::assertSync(['data' => ['syncMutationField' => 'rootValue']], $result);
     }
 
     /**
@@ -149,12 +149,12 @@ class SyncTest extends TestCase
     private function assertAsync($expectedFinalArray, $actualResult)
     {
         $message = 'Failed assertion that execution was asynchronous';
-        $this->assertInstanceOf(Promise::class, $actualResult, $message);
-        $this->assertInstanceOf(SyncPromise::class, $actualResult->adoptedPromise, $message);
-        $this->assertEquals(SyncPromise::PENDING, $actualResult->adoptedPromise->state, $message);
+        self::assertInstanceOf(Promise::class, $actualResult, $message);
+        self::assertInstanceOf(SyncPromise::class, $actualResult->adoptedPromise, $message);
+        self::assertEquals(SyncPromise::PENDING, $actualResult->adoptedPromise->state, $message);
         $resolvedResult = $this->promiseAdapter->wait($actualResult);
-        $this->assertInstanceOf(ExecutionResult::class, $resolvedResult, $message);
-        $this->assertArraySubset($expectedFinalArray, $resolvedResult->toArray(), false, $message);
+        self::assertInstanceOf(ExecutionResult::class, $resolvedResult, $message);
+        self::assertArraySubset($expectedFinalArray, $resolvedResult->toArray(), false, $message);
     }
 
     /**
@@ -167,7 +167,7 @@ class SyncTest extends TestCase
             $this->schema,
             $doc
         );
-        $this->assertSync(
+        self::assertSync(
             [
                 'errors' => [
                     [
@@ -204,7 +204,7 @@ class SyncTest extends TestCase
                 }
             ),
         ];
-        $this->assertSync($expected, $result);
+        self::assertSync($expected, $result);
     }
 
     /**
@@ -218,6 +218,6 @@ class SyncTest extends TestCase
             $doc,
             'rootValue'
         );
-        $this->assertSync(['data' => ['syncField' => 'rootValue']], $result);
+        self::assertSync(['data' => ['syncField' => 'rootValue']], $result);
     }
 }
