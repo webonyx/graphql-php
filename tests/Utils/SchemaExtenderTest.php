@@ -1180,7 +1180,7 @@ class ExtendSchemaTest extends TestCase
 
         $originalPrint = SchemaPrinter::doPrint($mutationSchema);
         $extendedSchema = SchemaExtender::extend($mutationSchema, $ast);
-        $this->assertNotEmpty($mutationSchema, $extendedSchema);
+        $this->assertNotEquals($mutationSchema, $extendedSchema);
         $this->assertEquals(SchemaPrinter::doPrint($mutationSchema), $originalPrint);
         $this->assertEquals(SchemaPrinter::doPrint($extendedSchema), $this->dedent('
             type Mutation {
