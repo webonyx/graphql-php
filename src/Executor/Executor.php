@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Executor;
 
 use ArrayObject;
+use ArrayAccess;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -1148,7 +1149,7 @@ class Executor
     {
         // First, look for `__typename`.
         if ($value !== null &&
-            (is_array($value) || $value instanceof \ArrayAccess) &&
+            (is_array($value) || $value instanceof ArrayAccess) &&
             isset($value['__typename']) &&
             is_string($value['__typename'])
         ) {
