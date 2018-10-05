@@ -6,7 +6,7 @@ namespace GraphQL\Executor;
 
 use ArrayAccess;
 use ArrayObject;
-use ArrayAccess;
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
