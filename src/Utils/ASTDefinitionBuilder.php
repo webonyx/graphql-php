@@ -17,7 +17,6 @@ use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
@@ -244,23 +243,20 @@ class ASTDefinitionBuilder
      *
      * @throws Error
      */
-    private function makeSchemaDef($def)
+    private function makeSchemaDef(Node $def)
     {
-        if (! $def) {
-            throw new Error('def must be defined.');
-        }
-        switch ($def->kind) {
-            case NodeKind::OBJECT_TYPE_DEFINITION:
+        switch (true) {
+            case $def instanceof ObjectTypeDefinitionNode:
                 return $this->makeTypeDef($def);
-            case NodeKind::INTERFACE_TYPE_DEFINITION:
+            case $def instanceof InterfaceTypeDefinitionNode:
                 return $this->makeInterfaceDef($def);
-            case NodeKind::ENUM_TYPE_DEFINITION:
+            case $def instanceof EnumTypeDefinitionNode:
                 return $this->makeEnumDef($def);
-            case NodeKind::UNION_TYPE_DEFINITION:
+            case $def instanceof UnionTypeDefinitionNode:
                 return $this->makeUnionDef($def);
-            case NodeKind::SCALAR_TYPE_DEFINITION:
+            case $def instanceof ScalarTypeDefinitionNode:
                 return $this->makeScalarDef($def);
-            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
+            case $def instanceof InputObjectTypeDefinitionNode:
                 return $this->makeInputObjectDef($def);
             default:
                 throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
@@ -430,62 +426,48 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|EnumTypeExtensionNode|ScalarTypeDefinitionNode|InputObjectTypeDefinitionNode $def
-     * @param mixed[]                                                                                                                           $config
+     * @param mixed[] $config
      *
      * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
      *
      * @throws Error
      */
-    private function makeSchemaDefFromConfig($def, array $config)
+    private function makeSchemaDefFromConfig(Node $def, array $config)
     {
-        if (! $def) {
-            throw new Error('def must be defined.');
-        }
-        switch ($def->kind) {
-            case NodeKind::OBJECT_TYPE_DEFINITION:
+        switch (true) {
+            case $def instanceof ObjectTypeDefinitionNode:
                 return new ObjectType($config);
-            case NodeKind::INTERFACE_TYPE_DEFINITION:
+            case $def instanceof InterfaceTypeDefinitionNode:
                 return new InterfaceType($config);
-            case NodeKind::ENUM_TYPE_DEFINITION:
+            case $def instanceof EnumTypeDefinitionNode:
                 return new EnumType($config);
-            case NodeKind::UNION_TYPE_DEFINITION:
+            case $def instanceof UnionTypeDefinitionNode:
                 return new UnionType($config);
-            case NodeKind::SCALAR_TYPE_DEFINITION:
+            case $def instanceof ScalarTypeDefinitionNode:
                 return new CustomScalarType($config);
-            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
+            case $def instanceof InputObjectTypeDefinitionNode:
                 return new InputObjectType($config);
             default:
                 throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
         }
     }
 
-    /**
-     * @param TypeNode|ListTypeNode|NonNullTypeNode $typeNode
-     *
-     * @return TypeNode
-     */
-    private function getNamedTypeNode(TypeNode $typeNode)
+    private function getNamedTypeNode(TypeNode $typeNode) : TypeNode
     {
         $namedType = $typeNode;
-        while ($namedType->kind === NodeKind::LIST_TYPE || $namedType->kind === NodeKind::NON_NULL_TYPE) {
+        while ($namedType instanceof ListTypeNode || $namedType instanceof NonNullTypeNode) {
             $namedType = $namedType->type;
         }
 
         return $namedType;
     }
 
-    /**
-     * @param TypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
-     *
-     * @return Type
-     */
-    private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)
+    private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode) : Type
     {
-        if ($inputTypeNode->kind === NodeKind::LIST_TYPE) {
+        if ($inputTypeNode instanceof ListTypeNode) {
             return Type::listOf($this->buildWrappedType($innerType, $inputTypeNode->type));
         }
-        if ($inputTypeNode->kind === NodeKind::NON_NULL_TYPE) {
+        if ($inputTypeNode instanceof NonNullTypeNode) {
             $wrappedType = $this->buildWrappedType($innerType, $inputTypeNode->type);
 
             return Type::nonNull(NonNull::assertNullableType($wrappedType));

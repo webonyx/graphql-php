@@ -64,7 +64,7 @@ class Collector
         foreach ($documentNode->definitions as $definitionNode) {
             /** @var DefinitionNode|Node $definitionNode */
 
-            if ($definitionNode->kind === NodeKind::OPERATION_DEFINITION) {
+            if ($definitionNode instanceof OperationDefinitionNode) {
                 /** @var OperationDefinitionNode $definitionNode */
                 if ($operationName === null && $this->operation !== null) {
                     $hasMultipleAssumedOperations = true;
@@ -74,7 +74,7 @@ class Collector
                 ) {
                     $this->operation = $definitionNode;
                 }
-            } elseif ($definitionNode->kind === NodeKind::FRAGMENT_DEFINITION) {
+            } elseif ($definitionNode instanceof FragmentDefinitionNode) {
                 /** @var FragmentDefinitionNode $definitionNode */
                 $this->fragments[$definitionNode->name->value] = $definitionNode;
             }
@@ -194,7 +194,7 @@ class Collector
                 }
             }
 
-            if ($selection->kind === NodeKind::FIELD) {
+            if ($selection instanceof FieldNode) {
                 /** @var FieldNode $selection */
 
                 $resultName = $selection->alias ? $selection->alias->value : $selection->name->value;
@@ -204,7 +204,7 @@ class Collector
                 }
 
                 $this->fields[$resultName][] = $selection;
-            } elseif ($selection->kind === NodeKind::FRAGMENT_SPREAD) {
+            } elseif ($selection instanceof FragmentSpreadNode) {
                 /** @var FragmentSpreadNode $selection */
 
                 $fragmentName = $selection->name->value;
@@ -245,7 +245,7 @@ class Collector
                 }
 
                 $this->doCollectFields($runtimeType, $fragmentDefinition->selectionSet);
-            } elseif ($selection->kind === NodeKind::INLINE_FRAGMENT) {
+            } elseif ($selection instanceof InlineFragmentNode) {
                 /** @var InlineFragmentNode $selection */
 
                 if ($selection->typeCondition !== null) {

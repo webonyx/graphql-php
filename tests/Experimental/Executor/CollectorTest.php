@@ -362,7 +362,7 @@ class CollectorTest extends TestCase
             $operationName = null;
             foreach ($documentNode->definitions as $definitionNode) {
                 /** @var Node $definitionNode */
-                if ($definitionNode->kind === NodeKind::OPERATION_DEFINITION) {
+                if ($definitionNode instanceof OperationDefinitionNode) {
                     /** @var OperationDefinitionNode $definitionNode */
                     self::assertNotNull($definitionNode->name);
                     $operationName = $definitionNode->name->value;

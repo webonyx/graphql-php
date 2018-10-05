@@ -30,7 +30,7 @@ class LoneAnonymousOperation extends ValidationRule
                 $tmp = Utils::filter(
                     $node->definitions,
                     static function (Node $definition) {
-                        return $definition->kind === NodeKind::OPERATION_DEFINITION;
+                        return $definition instanceof OperationDefinitionNode;
                     }
                 );
 

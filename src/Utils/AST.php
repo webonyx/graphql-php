@@ -322,7 +322,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST($valueNode, InputType $type, ?array $variables = null)
+    public static function valueFromAST($valueNode, Type $type, ?array $variables = null)
     {
         $undefined = Utils::undefined();
 

@@ -384,7 +384,7 @@ class VisitorTest extends ValidatorTestCase
                     $this->checkVisitorFnArgs($ast, func_get_args());
                     $visited[] = ['leave', $node->kind, $node->value ?? null];
 
-                    if ($node->kind === NodeKind::NAME && $node->value === 'x') {
+                    if ($node instanceof NameNode && $node->value === 'x') {
                         return Visitor::stop();
                     }
                 },

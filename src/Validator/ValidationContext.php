@@ -199,7 +199,7 @@ class ValidationContext
 
                 for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; $i++) {
                     $selection = $set->selections[$i];
-                    if ($selection->kind === NodeKind::FRAGMENT_SPREAD) {
+                    if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
                     } elseif ($selection->selectionSet) {
                         $setsToVisit[] = $selection->selectionSet;
@@ -223,7 +223,7 @@ class ValidationContext
         if (! $fragments) {
             $fragments = [];
             foreach ($this->getDocument()->definitions as $statement) {
-                if ($statement->kind !== NodeKind::FRAGMENT_DEFINITION) {
+                if (! ($statement instanceof FragmentDefinitionNode)) {
                     continue;
                 }
 

@@ -7,10 +7,31 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumTypeDefinitionNode;
+use GraphQL\Language\AST\EnumTypeExtensionNode;
+use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputObjectTypeExtensionNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\InterfaceTypeExtensionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeDefinitionNode;
+use GraphQL\Language\AST\ScalarTypeExtensionNode;
+use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\SchemaTypeExtensionNode;
+use GraphQL\Language\AST\UnionTypeDefinitionNode;
+use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
@@ -96,8 +117,8 @@ class KnownDirectives extends ValidationRule
     private function getDirectiveLocationForASTPath(array $ancestors)
     {
         $appliedTo = $ancestors[count($ancestors) - 1];
-        switch ($appliedTo->kind) {
-            case NodeKind::OPERATION_DEFINITION:
+        switch (true) {
+            case $appliedTo instanceof OperationDefinitionNode:
                 switch ($appliedTo->operation) {
                     case 'query':
                         return DirectiveLocation::QUERY;
@@ -107,40 +128,40 @@ class KnownDirectives extends ValidationRule
                         return DirectiveLocation::SUBSCRIPTION;
                 }
                 break;
-            case NodeKind::FIELD:
+            case $appliedTo instanceof FieldNode:
                 return DirectiveLocation::FIELD;
-            case NodeKind::FRAGMENT_SPREAD:
+            case $appliedTo instanceof FragmentSpreadNode:
                 return DirectiveLocation::FRAGMENT_SPREAD;
-            case NodeKind::INLINE_FRAGMENT:
+            case $appliedTo instanceof InlineFragmentNode:
                 return DirectiveLocation::INLINE_FRAGMENT;
-            case NodeKind::FRAGMENT_DEFINITION:
+            case $appliedTo instanceof FragmentDefinitionNode:
                 return DirectiveLocation::FRAGMENT_DEFINITION;
-            case NodeKind::SCHEMA_DEFINITION:
-            case NodeKind::SCHEMA_EXTENSION:
+            case $appliedTo instanceof SchemaDefinitionNode:
+            case $appliedTo instanceof SchemaTypeExtensionNode:
                 return DirectiveLocation::SCHEMA;
-            case NodeKind::SCALAR_TYPE_DEFINITION:
-            case NodeKind::SCALAR_TYPE_EXTENSION:
+            case $appliedTo instanceof ScalarTypeDefinitionNode:
+            case $appliedTo instanceof ScalarTypeExtensionNode:
                 return DirectiveLocation::SCALAR;
-            case NodeKind::OBJECT_TYPE_DEFINITION:
-            case NodeKind::OBJECT_TYPE_EXTENSION:
+            case $appliedTo instanceof ObjectTypeDefinitionNode:
+            case $appliedTo instanceof ObjectTypeExtensionNode:
                 return DirectiveLocation::OBJECT;
-            case NodeKind::FIELD_DEFINITION:
+            case $appliedTo instanceof FieldDefinitionNode:
                 return DirectiveLocation::FIELD_DEFINITION;
-            case NodeKind::INTERFACE_TYPE_DEFINITION:
-            case NodeKind::INTERFACE_TYPE_EXTENSION:
+            case $appliedTo instanceof InterfaceTypeDefinitionNode:
+            case $appliedTo instanceof InterfaceTypeExtensionNode:
                 return DirectiveLocation::IFACE;
-            case NodeKind::UNION_TYPE_DEFINITION:
-            case NodeKind::UNION_TYPE_EXTENSION:
+            case $appliedTo instanceof UnionTypeDefinitionNode:
+            case $appliedTo instanceof UnionTypeExtensionNode:
                 return DirectiveLocation::UNION;
-            case NodeKind::ENUM_TYPE_DEFINITION:
-            case NodeKind::ENUM_TYPE_EXTENSION:
+            case $appliedTo instanceof EnumTypeDefinitionNode:
+            case $appliedTo instanceof EnumTypeExtensionNode:
                 return DirectiveLocation::ENUM;
-            case NodeKind::ENUM_VALUE_DEFINITION:
+            case $appliedTo instanceof EnumValueDefinitionNode:
                 return DirectiveLocation::ENUM_VALUE;
-            case NodeKind::INPUT_OBJECT_TYPE_DEFINITION:
-            case NodeKind::INPUT_OBJECT_TYPE_EXTENSION:
+            case $appliedTo instanceof InputObjectTypeDefinitionNode:
+            case $appliedTo instanceof InputObjectTypeExtensionNode:
                 return DirectiveLocation::INPUT_OBJECT;
-            case NodeKind::INPUT_VALUE_DEFINITION:
+            case $appliedTo instanceof InputValueDefinitionNode:
                 $parentNode = $ancestors[count($ancestors) - 3];
 
                 return $parentNode instanceof InputObjectTypeDefinitionNode

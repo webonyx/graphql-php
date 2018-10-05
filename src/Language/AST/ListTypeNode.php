@@ -9,6 +9,6 @@ class ListTypeNode extends Node implements TypeNode
     /** @var string */
     public $kind = NodeKind::LIST_TYPE;
 
-    /** @var Node */
+    /** @var TypeNode */
     public $type;
 }
