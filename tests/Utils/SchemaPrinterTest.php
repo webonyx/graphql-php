@@ -591,7 +591,7 @@ type Query {
     {
         $oddType = new CustomScalarType([
             'name'      => 'Odd',
-            'serialize' => function ($value) {
+            'serialize' => static function ($value) {
                 return $value % 2 === 1 ? $value : null;
             },
         ]);

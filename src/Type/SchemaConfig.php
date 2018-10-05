@@ -24,7 +24,6 @@ use function is_callable;
  *         ->setTypeLoader($myTypeLoader);
  *
  *     $schema = new Schema($config);
- *
  */
 class SchemaConfig
 {
@@ -59,9 +58,11 @@ class SchemaConfig
      * Converts an array of options to instance of SchemaConfig
      * (or just returns empty config when array is not passed).
      *
-     * @api
      * @param mixed[] $options
+     *
      * @return SchemaConfig
+     *
+     * @api
      */
     public static function create(array $options = [])
     {
@@ -132,8 +133,9 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @return ObjectType
+     *
+     * @api
      */
     public function getQuery()
     {
@@ -141,9 +143,11 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @param ObjectType $query
+     *
      * @return SchemaConfig
+     *
+     * @api
      */
     public function setQuery($query)
     {
@@ -153,8 +157,9 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @return ObjectType
+     *
+     * @api
      */
     public function getMutation()
     {
@@ -162,9 +167,11 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @param ObjectType $mutation
+     *
      * @return SchemaConfig
+     *
+     * @api
      */
     public function setMutation($mutation)
     {
@@ -174,8 +181,9 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @return ObjectType
+     *
+     * @api
      */
     public function getSubscription()
     {
@@ -183,9 +191,11 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @param ObjectType $subscription
+     *
      * @return SchemaConfig
+     *
+     * @api
      */
     public function setSubscription($subscription)
     {
@@ -195,8 +205,9 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @return Type[]
+     *
+     * @api
      */
     public function getTypes()
     {
@@ -204,9 +215,11 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @param Type[]|callable $types
+     *
      * @return SchemaConfig
+     *
+     * @api
      */
     public function setTypes($types)
     {
@@ -216,8 +229,9 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @return Directive[]
+     *
+     * @api
      */
     public function getDirectives()
     {
@@ -225,9 +239,11 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @param Directive[] $directives
+     *
      * @return SchemaConfig
+     *
+     * @api
      */
     public function setDirectives(array $directives)
     {
@@ -237,8 +253,9 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @return callable
+     *
+     * @api
      */
     public function getTypeLoader()
     {
@@ -246,8 +263,9 @@ class SchemaConfig
     }
 
     /**
-     * @api
      * @return SchemaConfig
+     *
+     * @api
      */
     public function setTypeLoader(callable $typeLoader)
     {
@@ -266,6 +284,7 @@ class SchemaConfig
 
     /**
      * @param bool $assumeValid
+     *
      * @return SchemaConfig
      */
     public function setAssumeValid($assumeValid)

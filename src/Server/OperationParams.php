@@ -55,10 +55,12 @@ class OperationParams
     /**
      * Creates an instance from given array
      *
-     * @api
      * @param mixed[] $params
      * @param bool    $readonly
+     *
      * @return OperationParams
+     *
+     * @api
      */
     public static function create(array $params, $readonly = false)
     {
@@ -97,9 +99,11 @@ class OperationParams
     }
 
     /**
-     * @api
      * @param string $key
+     *
      * @return mixed
+     *
+     * @api
      */
     public function getOriginalInput($key)
     {
@@ -110,8 +114,9 @@ class OperationParams
      * Indicates that operation is executed in read-only context
      * (e.g. via HTTP GET request)
      *
-     * @api
      * @return bool
+     *
+     * @api
      */
     public function isReadOnly()
     {

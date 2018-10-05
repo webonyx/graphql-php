@@ -26,7 +26,7 @@ class KnownArgumentNames extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::ARGUMENT => function (ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
+            NodeKind::ARGUMENT => static function (ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
                 /** @var NodeList|Node[] $ancestors */
                 $argDef = $context->getArgument();
                 if ($argDef !== null) {
@@ -46,7 +46,7 @@ class KnownArgumentNames extends ValidationRule
                                 Utils::suggestionList(
                                     $node->name->value,
                                     array_map(
-                                        function ($arg) {
+                                        static function ($arg) {
                                             return $arg->name;
                                         },
                                         $fieldDef->args
@@ -66,7 +66,7 @@ class KnownArgumentNames extends ValidationRule
                                 Utils::suggestionList(
                                     $node->name->value,
                                     array_map(
-                                        function ($arg) {
+                                        static function ($arg) {
                                             return $arg->name;
                                         },
                                         $directive->args

@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
+use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use function file_get_contents;
 
 class PrinterTest extends TestCase
@@ -42,8 +44,8 @@ class PrinterTest extends TestCase
      */
     public function testProducesHelpfulErrorMessages() : void
     {
-        $badAst1 = new \ArrayObject(['random' => 'Data']);
-        $this->expectException(\Throwable::class);
+        $badAst1 = new ArrayObject(['random' => 'Data']);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Invalid AST Node: {"random":"Data"}');
         Printer::doPrint($badAst1);
     }

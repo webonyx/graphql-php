@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
@@ -17,7 +18,8 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
 
     /**
      * @param callable|Type $type
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function __construct($type)
     {
@@ -26,6 +28,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
 
     /**
      * @param mixed $type
+     *
      * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
      */
     public static function assertNullableType($type)
@@ -40,6 +43,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
 
     /**
      * @param mixed $type
+     *
      * @return self
      */
     public static function assertNullType($type)
@@ -62,13 +66,15 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
 
     /**
      * @param bool $recurse
+     *
      * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
+     *
      * @throws InvariantViolation
      */
     public function getWrappedType($recurse = false)
     {
         $type = $this->ofType;
 
-        return ($recurse && $type instanceof WrappingType) ? $type->getWrappedType($recurse) : $type;
+        return $recurse && $type instanceof WrappingType ? $type->getWrappedType($recurse) : $type;
     }
 }

@@ -25,7 +25,7 @@ class VariablesDefaultValueAllowed extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) use ($context) {
+            NodeKind::VARIABLE_DEFINITION => static function (VariableDefinitionNode $node) use ($context) {
                 $name         = $node->variable->name->value;
                 $defaultValue = $node->defaultValue;
                 $type         = $context->getInputType();
@@ -44,10 +44,10 @@ class VariablesDefaultValueAllowed extends ValidationRule
 
                 return Visitor::skipNode();
             },
-            NodeKind::SELECTION_SET       => function (SelectionSetNode $node) {
+            NodeKind::SELECTION_SET       => static function (SelectionSetNode $node) {
                 return Visitor::skipNode();
             },
-            NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) {
+            NodeKind::FRAGMENT_DEFINITION => static function (FragmentDefinitionNode $node) {
                 return Visitor::skipNode();
             },
         ];

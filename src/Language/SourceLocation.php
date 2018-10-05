@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Language;
 
-class SourceLocation implements \JsonSerializable
+use JsonSerializable;
+
+class SourceLocation implements JsonSerializable
 {
     /** @var int */
     public $line;

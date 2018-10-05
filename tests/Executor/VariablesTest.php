@@ -156,7 +156,7 @@ class VariablesTest extends TestCase
         return [
             'type'    => Type::string(),
             'args'    => ['input' => $inputArg],
-            'resolve' => function ($_, $args) {
+            'resolve' => static function ($_, $args) {
                 if (isset($args['input'])) {
                     return json_encode($args['input']);
                 }

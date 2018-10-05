@@ -703,7 +703,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
 
         $SomeBox = new InterfaceType([
             'name'   => 'SomeBox',
-            'fields' => function () use (&$SomeBox) {
+            'fields' => static function () use (&$SomeBox) {
                 return [
                     'deepBox'        => ['type' => $SomeBox],
                     'unrelatedField' => ['type' => Type::string()],
@@ -714,7 +714,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         $StringBox = new ObjectType([
             'name'       => 'StringBox',
             'interfaces' => [$SomeBox],
-            'fields'     => function () use (&$StringBox, &$IntBox) {
+            'fields'     => static function () use (&$StringBox, &$IntBox) {
                 return [
                     'scalar'         => ['type' => Type::string()],
                     'deepBox'        => ['type' => $StringBox],
@@ -729,7 +729,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
         $IntBox = new ObjectType([
             'name'       => 'IntBox',
             'interfaces' => [$SomeBox],
-            'fields'     => function () use (&$StringBox, &$IntBox) {
+            'fields'     => static function () use (&$StringBox, &$IntBox) {
                 return [
                     'scalar'         => ['type' => Type::int()],
                     'deepBox'        => ['type' => $IntBox],
@@ -797,7 +797,7 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
             ],
         ]);
 
-        $schema = new Schema([
+        return new Schema([
             'query' => new ObjectType([
                 'name'   => 'QueryRoot',
                 'fields' => [
@@ -807,8 +807,6 @@ class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
             ]),
             'types' => [$IntBox, $StringBox, $NonNullStringBox1Impl, $NonNullStringBox2Impl],
         ]);
-
-        return $schema;
     }
 
     /**

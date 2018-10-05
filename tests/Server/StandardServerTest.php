@@ -45,7 +45,7 @@ class StandardServerTest extends ServerTestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(function () use ($content) {
+        return $helper->parseHttpRequest(static function () use ($content) {
             return $content;
         });
     }

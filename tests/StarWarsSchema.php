@@ -15,6 +15,7 @@ namespace GraphQL\Tests;
  * Wars trilogy.
  */
 
+use Exception;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\NonNull;
@@ -108,7 +109,7 @@ class StarWarsSchema
         $characterInterface = new InterfaceType([
             'name'        => 'Character',
             'description' => 'A character in the Star Wars Trilogy',
-            'fields'      => function () use (&$characterInterface, $episodeEnum) {
+            'fields'      => static function () use (&$characterInterface, $episodeEnum) {
                 return [
                     'id'              => [
                         'type'        => Type::nonNull(Type::string()),
@@ -132,7 +133,7 @@ class StarWarsSchema
                     ],
                 ];
             },
-            'resolveType' => function ($obj) use (&$humanType, &$droidType) {
+            'resolveType' => static function ($obj) use (&$humanType, &$droidType) {
                 return StarWarsData::getHuman($obj['id']) ? $humanType : $droidType;
             },
         ]);
@@ -164,18 +165,16 @@ class StarWarsSchema
                 'friends'         => [
                     'type'        => Type::listOf($characterInterface),
                     'description' => 'The friends of the human, or an empty list if they have none.',
-                    'resolve'     => function ($human, $args, $context, ResolveInfo $info) {
+                    'resolve'     => static function ($human, $args, $context, ResolveInfo $info) {
                         $fieldSelection       = $info->getFieldSelection();
                         $fieldSelection['id'] = true;
 
-                        $friends = array_map(
-                            function ($friend) use ($fieldSelection) {
+                        return array_map(
+                            static function ($friend) use ($fieldSelection) {
                                 return array_intersect_key($friend, $fieldSelection);
                             },
                             StarWarsData::getFriends($human)
                         );
-
-                        return $friends;
                     },
                 ],
                 'appearsIn'       => [
@@ -189,9 +188,9 @@ class StarWarsSchema
                 'secretBackstory' => [
                     'type'        => Type::string(),
                     'description' => 'Where are they from and how they came to be who they are.',
-                    'resolve'     => function () {
+                    'resolve'     => static function () {
                         // This is to demonstrate error reporting
-                        throw new \Exception('secretBackstory is secret.');
+                        throw new Exception('secretBackstory is secret.');
                     },
                 ],
             ],
@@ -226,7 +225,7 @@ class StarWarsSchema
                 'friends'         => [
                     'type'        => Type::listOf($characterInterface),
                     'description' => 'The friends of the droid, or an empty list if they have none.',
-                    'resolve'     => function ($droid) {
+                    'resolve'     => static function ($droid) {
                         return StarWarsData::getFriends($droid);
                     },
                 ],
@@ -237,9 +236,9 @@ class StarWarsSchema
                 'secretBackstory' => [
                     'type'        => Type::string(),
                     'description' => 'Construction date and the name of the designer.',
-                    'resolve'     => function () {
+                    'resolve'     => static function () {
                         // This is to demonstrate error reporting
-                        throw new \Exception('secretBackstory is secret.');
+                        throw new Exception('secretBackstory is secret.');
                     },
                 ],
                 'primaryFunction' => [
@@ -262,7 +261,6 @@ class StarWarsSchema
          *     human(id: String!): Human
          *     droid(id: String!): Droid
          *   }
-         *
          */
         $queryType = new ObjectType([
             'name'   => 'Query',
@@ -275,7 +273,7 @@ class StarWarsSchema
                             'type'        => $episodeEnum,
                         ],
                     ],
-                    'resolve' => function ($root, $args) {
+                    'resolve' => static function ($root, $args) {
                         return StarWarsData::getHero($args['episode'] ?? null);
                     },
                 ],
@@ -288,7 +286,7 @@ class StarWarsSchema
                             'type'        => Type::nonNull(Type::string()),
                         ],
                     ],
-                    'resolve' => function ($root, $args) {
+                    'resolve' => static function ($root, $args) {
                         $humans = StarWarsData::humans();
 
                         return $humans[$args['id']] ?? null;
@@ -303,7 +301,7 @@ class StarWarsSchema
                             'type'        => Type::nonNull(Type::string()),
                         ],
                     ],
-                    'resolve' => function ($root, $args) {
+                    'resolve' => static function ($root, $args) {
                         $droids = StarWarsData::droids();
 
                         return $droids[$args['id']] ?? null;

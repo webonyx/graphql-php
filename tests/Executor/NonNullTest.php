@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
@@ -17,16 +18,16 @@ use PHPUnit\Framework\TestCase;
 
 class NonNullTest extends TestCase
 {
-    /** @var \Exception */
+    /** @var Exception */
     public $syncError;
 
-    /** @var \Exception */
+    /** @var Exception */
     public $syncNonNullError;
 
-    /** @var  \Exception */
+    /** @var  Exception */
     public $promiseError;
 
-    /** @var  \Exception */
+    /** @var  Exception */
     public $promiseNonNullError;
 
     /** @var callable[] */
@@ -81,19 +82,19 @@ class NonNullTest extends TestCase
         ];
 
         $this->nullingData = [
-            'sync'               => function () {
+            'sync'               => static function () {
                 return null;
             },
-            'syncNonNull'        => function () {
+            'syncNonNull'        => static function () {
                 return null;
             },
-            'promise'            => function () {
-                return new Deferred(function () {
+            'promise'            => static function () {
+                return new Deferred(static function () {
                     return null;
                 });
             },
-            'promiseNonNull'     => function () {
-                return new Deferred(function () {
+            'promiseNonNull'     => static function () {
+                return new Deferred(static function () {
                     return null;
                 });
             },
@@ -117,7 +118,7 @@ class NonNullTest extends TestCase
 
         $dataType = new ObjectType([
             'name'   => 'DataType',
-            'fields' => function () use (&$dataType) {
+            'fields' => static function () use (&$dataType) {
                 return [
                     'sync'               => ['type' => Type::string()],
                     'syncNonNull'        => ['type' => Type::nonNull(Type::string())],

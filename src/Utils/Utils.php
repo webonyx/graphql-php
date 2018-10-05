@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use ErrorException;
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
@@ -11,6 +13,8 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\WrappingType;
 use InvalidArgumentException;
+use LogicException;
+use stdClass;
 use Traversable;
 use function array_keys;
 use function array_map;
@@ -55,13 +59,14 @@ class Utils
     {
         static $undefined;
 
-        return $undefined ?: $undefined = new \stdClass();
+        return $undefined ?: $undefined = new stdClass();
     }
 
     /**
      * Check if the value is invalid
      *
      * @param mixed $value
+     *
      * @return bool
      */
     public static function isInvalid($value)
@@ -100,12 +105,13 @@ class Utils
 
     /**
      * @param mixed|Traversable $traversable
+     *
      * @return mixed|null
      */
     public static function find($traversable, callable $predicate)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof \Traversable,
+            is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -120,13 +126,15 @@ class Utils
 
     /**
      * @param mixed|Traversable $traversable
+     *
      * @return mixed[]
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public static function filter($traversable, callable $predicate)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof \Traversable,
+            is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -147,14 +155,16 @@ class Utils
     }
 
     /**
-     * @param mixed|\Traversable $traversable
+     * @param mixed|Traversable $traversable
+     *
      * @return int[][]
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public static function map($traversable, callable $fn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof \Traversable,
+            is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -168,20 +178,22 @@ class Utils
 
     /**
      * @param mixed|Traversable $traversable
+     *
      * @return mixed[]
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public static function mapKeyValue($traversable, callable $fn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof \Traversable,
+            is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
         $map = [];
         foreach ($traversable as $key => $value) {
-            list($newKey, $newValue) = $fn($value, $key);
-            $map[$newKey]            = $newValue;
+            [$newKey, $newValue] = $fn($value, $key);
+            $map[$newKey]        = $newValue;
         }
 
         return $map;
@@ -189,13 +201,15 @@ class Utils
 
     /**
      * @param mixed|Traversable $traversable
+     *
      * @return mixed[]
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public static function keyMap($traversable, callable $keyFn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof \Traversable,
+            is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -215,7 +229,7 @@ class Utils
     public static function each($traversable, callable $fn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof \Traversable,
+            is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -237,12 +251,13 @@ class Utils
      * $keyFn is also allowed to return array of keys. Then value will be added to all arrays with given keys
      *
      * @param mixed[]|Traversable $traversable
+     *
      * @return mixed[]
      */
     public static function groupBy($traversable, callable $keyFn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof \Traversable,
+            is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -259,6 +274,7 @@ class Utils
 
     /**
      * @param mixed[]|Traversable $traversable
+     *
      * @return mixed[][]
      */
     public static function keyValMap($traversable, callable $keyFn, callable $valFn)
@@ -273,6 +289,7 @@ class Utils
 
     /**
      * @param mixed[] $traversable
+     *
      * @return bool
      */
     public static function every($traversable, callable $predicate)
@@ -305,6 +322,7 @@ class Utils
 
     /**
      * @param Type|mixed $var
+     *
      * @return string
      */
     public static function getVariableType($var)
@@ -323,11 +341,12 @@ class Utils
 
     /**
      * @param mixed $var
+     *
      * @return string
      */
     public static function printSafeJson($var)
     {
-        if ($var instanceof \stdClass) {
+        if ($var instanceof stdClass) {
             $var = (array) $var;
         }
         if (is_array($var)) {
@@ -357,6 +376,7 @@ class Utils
 
     /**
      * @param Type|mixed $var
+     *
      * @return string
      */
     public static function printSafe($var)
@@ -401,6 +421,7 @@ class Utils
      *
      * @param string $ord
      * @param string $encoding
+     *
      * @return string
      */
     public static function chr($ord, $encoding = 'UTF-8')
@@ -420,6 +441,7 @@ class Utils
      *
      * @param string $char
      * @param string $encoding
+     *
      * @return mixed
      */
     public static function ord($char, $encoding = 'UTF-8')
@@ -442,6 +464,7 @@ class Utils
      *
      * @param string $string
      * @param int    $position
+     *
      * @return mixed
      */
     public static function charCodeAt($string, $position)
@@ -453,6 +476,7 @@ class Utils
 
     /**
      * @param int|null $code
+     *
      * @return string
      */
     public static function printCharCode($code)
@@ -472,6 +496,7 @@ class Utils
      * Upholds the spec rules about naming.
      *
      * @param string $name
+     *
      * @throws Error
      */
     public static function assertValidName($name)
@@ -487,6 +512,7 @@ class Utils
      *
      * @param string    $name
      * @param Node|null $node
+     *
      * @return Error|null
      */
     public static function isValidNameError($name, $node = null)
@@ -512,18 +538,19 @@ class Utils
     }
 
     /**
-     * Wraps original closure with PHP error handling (using set_error_handler).
-     * Resulting closure will collect all PHP errors that occur during the call in $errors array.
+     * Wraps original callable with PHP error handling (using set_error_handler).
+     * Resulting callable will collect all PHP errors that occur during the call in $errors array.
      *
-     * @param \ErrorException[] $errors
-     * @return \Closure
+     * @param ErrorException[] $errors
+     *
+     * @return callable
      */
     public static function withErrorHandling(callable $fn, array &$errors)
     {
-        return function () use ($fn, &$errors) {
+        return static function () use ($fn, &$errors) {
             // Catch custom errors (to report them in query results)
-            set_error_handler(function ($severity, $message, $file, $line) use (&$errors) {
-                $errors[] = new \ErrorException($message, 0, $severity, $file, $line);
+            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) {
+                $errors[] = new ErrorException($message, 0, $severity, $file, $line);
             });
 
             try {
@@ -536,12 +563,13 @@ class Utils
 
     /**
      * @param string[] $items
+     *
      * @return string
      */
     public static function quotedOrList(array $items)
     {
         $items = array_map(
-            function ($item) {
+            static function ($item) {
                 return sprintf('"%s"', $item);
             },
             $items
@@ -552,12 +580,13 @@ class Utils
 
     /**
      * @param string[] $items
+     *
      * @return string
      */
     public static function orList(array $items)
     {
         if (count($items) === 0) {
-            throw new \LogicException('items must not need to be empty.');
+            throw new LogicException('items must not need to be empty.');
         }
         $selected       = array_slice($items, 0, 5);
         $selectedLength = count($selected);
@@ -569,7 +598,7 @@ class Utils
 
         return array_reduce(
             range(1, $selectedLength - 1),
-            function ($list, $index) use ($selected, $selectedLength) {
+            static function ($list, $index) use ($selected, $selectedLength) {
                 return $list .
                     ($selectedLength > 2 ? ', ' : ' ') .
                     ($index === $selectedLength - 1 ? 'or ' : '') .
@@ -586,8 +615,10 @@ class Utils
      * Includes a custom alteration from Damerau-Levenshtein to treat case changes
      * as a single edit which helps identify mis-cased values with an edit distance
      * of 1
+     *
      * @param string   $input
      * @param string[] $options
+     *
      * @return string[]
      */
     public static function suggestionList($input, array $options)

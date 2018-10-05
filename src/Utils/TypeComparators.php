@@ -46,6 +46,7 @@ class TypeComparators
      *
      * @param AbstractType $maybeSubType
      * @param AbstractType $superType
+     *
      * @return bool
      */
     public static function isTypeSubTypeOf(Schema $schema, $maybeSubType, $superType)

@@ -168,10 +168,10 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $reportedError = new Error('OtherValidatorError');
         $otherRule     = new CustomValidationRule(
             'otherRule',
-            function (ValidationContext $context) use ($reportedError) {
+            static function (ValidationContext $context) use ($reportedError) {
                 return [
                     NodeKind::OPERATION_DEFINITION => [
-                        'leave' => function () use ($context, $reportedError) {
+                        'leave' => static function () use ($context, $reportedError) {
                             $context->reportError($reportedError);
                         },
                     ],

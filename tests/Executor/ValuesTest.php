@@ -43,6 +43,7 @@ class ValuesTest extends TestCase
 
     /**
      * @param mixed[] $variables
+     *
      * @return mixed[]
      */
     private function runTestCase($variables) : array

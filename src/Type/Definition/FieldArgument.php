@@ -38,7 +38,6 @@ class FieldArgument
     private $defaultValueExists = false;
 
     /**
-     *
      * @param mixed[] $def
      */
     public function __construct(array $def)
@@ -68,6 +67,7 @@ class FieldArgument
 
     /**
      * @param mixed[] $config
+     *
      * @return FieldArgument[]
      */
     public static function createMap(array $config)

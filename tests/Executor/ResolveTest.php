@@ -51,7 +51,7 @@ class ResolveTest extends TestCase
         $_secret = 'secretValue' . uniqid();
 
         $source = [
-            'test' => function () use ($_secret) {
+            'test' => static function () use ($_secret) {
                 return $_secret;
             },
         ];
@@ -90,7 +90,7 @@ class ResolveTest extends TestCase
                 'aStr' => ['type' => Type::string()],
                 'aInt' => ['type' => Type::int()],
             ],
-            'resolve' => function ($source, $args) {
+            'resolve' => static function ($source, $args) {
                 return json_encode([$source, $args]);
             },
         ]);

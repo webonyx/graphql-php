@@ -34,9 +34,11 @@ class ServerConfig
      * Converts an array of options to instance of ServerConfig
      * (or just returns empty config when array is not passed).
      *
-     * @api
      * @param mixed[] $config
+     *
      * @return ServerConfig
+     *
+     * @api
      */
     public static function create(array $config = [])
     {
@@ -55,10 +57,10 @@ class ServerConfig
     /** @var Schema */
     private $schema;
 
-    /** @var mixed|\Closure */
+    /** @var mixed|callable */
     private $context;
 
-    /** @var mixed|\Closure */
+    /** @var mixed|callable */
     private $rootValue;
 
     /** @var callable|null */
@@ -86,8 +88,9 @@ class ServerConfig
     private $persistentQueryLoader;
 
     /**
-     * @api
      * @return self
+     *
+     * @api
      */
     public function setSchema(Schema $schema)
     {
@@ -97,9 +100,11 @@ class ServerConfig
     }
 
     /**
-     * @api
-     * @param mixed|\Closure $context
+     * @param mixed|callable $context
+     *
      * @return self
+     *
+     * @api
      */
     public function setContext($context)
     {
@@ -109,9 +114,11 @@ class ServerConfig
     }
 
     /**
-     * @api
-     * @param mixed|\Closure $rootValue
+     * @param mixed|callable $rootValue
+     *
      * @return self
+     *
+     * @api
      */
     public function setRootValue($rootValue)
     {
@@ -123,8 +130,9 @@ class ServerConfig
     /**
      * Expects function(Throwable $e) : array
      *
-     * @api
      * @return self
+     *
+     * @api
      */
     public function setErrorFormatter(callable $errorFormatter)
     {
@@ -136,8 +144,9 @@ class ServerConfig
     /**
      * Expects function(array $errors, callable $formatter) : array
      *
-     * @api
      * @return self
+     *
+     * @api
      */
     public function setErrorsHandler(callable $handler)
     {
@@ -149,9 +158,11 @@ class ServerConfig
     /**
      * Set validation rules for this server.
      *
-     * @api
      * @param ValidationRule[]|callable $validationRules
+     *
      * @return self
+     *
+     * @api
      */
     public function setValidationRules($validationRules)
     {
@@ -168,8 +179,9 @@ class ServerConfig
     }
 
     /**
-     * @api
      * @return self
+     *
+     * @api
      */
     public function setFieldResolver(callable $fieldResolver)
     {
@@ -183,8 +195,9 @@ class ServerConfig
      *
      * This function must return query string or valid DocumentNode.
      *
-     * @api
      * @return self
+     *
+     * @api
      */
     public function setPersistentQueryLoader(callable $persistentQueryLoader)
     {
@@ -196,9 +209,11 @@ class ServerConfig
     /**
      * Set response debug flags. See GraphQL\Error\Debug class for a list of all available flags
      *
-     * @api
      * @param bool|int $set
+     *
      * @return self
+     *
+     * @api
      */
     public function setDebug($set = true)
     {
@@ -210,9 +225,11 @@ class ServerConfig
     /**
      * Allow batching queries (disabled by default)
      *
-     * @api
      * @param bool $enableBatching
+     *
      * @return self
+     *
+     * @api
      */
     public function setQueryBatching($enableBatching)
     {
@@ -222,8 +239,9 @@ class ServerConfig
     }
 
     /**
-     * @api
      * @return self
+     *
+     * @api
      */
     public function setPromiseAdapter(PromiseAdapter $promiseAdapter)
     {

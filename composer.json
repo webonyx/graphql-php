@@ -14,7 +14,7 @@
     "ext-mbstring": "*"
   },
   "require-dev": {
-    "doctrine/coding-standard": "^4.0",
+    "doctrine/coding-standard": "^5.0",
     "phpbench/phpbench": "^0.14.0",
     "phpstan/phpstan": "^0.10.3",
     "phpstan/phpstan-phpunit": "^0.10.0",

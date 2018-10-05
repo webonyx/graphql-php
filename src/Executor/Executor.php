@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor;
 
+use ArrayAccess;
 use ArrayObject;
 use ArrayAccess;
 use GraphQL\Error\Error;
@@ -34,12 +35,18 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
+use RuntimeException;
+use SplObjectStorage;
+use stdClass;
+use Throwable;
+use Traversable;
 use function array_keys;
 use function array_merge;
 use function array_reduce;
 use function array_values;
 use function get_class;
 use function is_array;
+use function is_callable;
 use function is_object;
 use function is_string;
 use function sprintf;
@@ -53,7 +60,7 @@ class Executor
     private static $UNDEFINED;
 
     /** @var callable|string[] */
-    private static $defaultFieldResolver = [__CLASS__, 'defaultFieldResolver'];
+    private static $defaultFieldResolver = [self::class, 'defaultFieldResolver'];
 
     /** @var PromiseAdapter */
     private static $promiseAdapter;
@@ -61,7 +68,7 @@ class Executor
     /** @var ExecutionContext */
     private $exeContext;
 
-    /** @var \SplObjectStorage */
+    /** @var SplObjectStorage */
     private $subFieldCache;
 
     private function __construct(ExecutionContext $context)
@@ -71,13 +78,13 @@ class Executor
         }
 
         $this->exeContext    = $context;
-        $this->subFieldCache = new \SplObjectStorage();
+        $this->subFieldCache = new SplObjectStorage();
     }
 
     /**
      * Custom default resolve function
      *
-     * @throws \Exception
+     * @throws Exception
      */
     public static function setDefaultFieldResolver(callable $fn)
     {
@@ -90,13 +97,14 @@ class Executor
      * Always returns ExecutionResult and never throws. All errors which occur during operation
      * execution are collected in `$result->errors`.
      *
-     * @api
-     * @param mixed|null                $rootValue
-     * @param mixed[]|null              $contextValue
-     * @param mixed[]|\ArrayAccess|null $variableValues
-     * @param string|null               $operationName
+     * @param mixed|null               $rootValue
+     * @param mixed[]|null             $contextValue
+     * @param mixed[]|ArrayAccess|null $variableValues
+     * @param string|null              $operationName
      *
      * @return ExecutionResult|Promise
+     *
+     * @api
      */
     public static function execute(
         Schema $schema,
@@ -147,12 +155,14 @@ class Executor
      *
      * Useful for async PHP platforms.
      *
-     * @api
      * @param mixed[]|null $rootValue
      * @param mixed[]|null $contextValue
      * @param mixed[]|null $variableValues
      * @param string|null  $operationName
+     *
      * @return Promise
+     *
+     * @api
      */
     public static function promiseToExecute(
         PromiseAdapter $promiseAdapter,
@@ -188,10 +198,10 @@ class Executor
      * Constructs an ExecutionContext object from the arguments passed to
      * execute, which we will pass throughout the other execution methods.
      *
-     * @param mixed[]              $rootValue
-     * @param mixed[]              $contextValue
-     * @param mixed[]|\Traversable $rawVariableValues
-     * @param string|null          $operationName
+     * @param mixed[]             $rootValue
+     * @param mixed[]             $contextValue
+     * @param mixed[]|Traversable $rawVariableValues
+     * @param string|null         $operationName
      *
      * @return ExecutionContext|Error[]
      */
@@ -298,7 +308,8 @@ class Executor
     }
 
     /**
-     * @param mixed|null|Promise $data
+     * @param mixed|Promise|null $data
+     *
      * @return ExecutionResult|Promise
      */
     private function buildResponse($data)
@@ -318,12 +329,13 @@ class Executor
      * Implements the "Evaluating operations" section of the spec.
      *
      * @param  mixed[] $rootValue
-     * @return Promise|\stdClass|mixed[]
+     *
+     * @return Promise|stdClass|mixed[]
      */
     private function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
         $type   = $this->getOperationRootType($this->exeContext->schema, $operation);
-        $fields = $this->collectFields($type, $operation->selectionSet, new \ArrayObject(), new \ArrayObject());
+        $fields = $this->collectFields($type, $operation->selectionSet, new ArrayObject(), new ArrayObject());
 
         $path = [];
 
@@ -358,6 +370,7 @@ class Executor
      * Extracts the root type of the operation from the schema.
      *
      * @return ObjectType
+     *
      * @throws Error
      */
     private function getOperationRootType(Schema $schema, OperationDefinitionNode $operation)
@@ -412,7 +425,7 @@ class Executor
      * @param ArrayObject $fields
      * @param ArrayObject $visitedFragmentNames
      *
-     * @return \ArrayObject
+     * @return ArrayObject
      */
     private function collectFields(
         ObjectType $runtimeType,
@@ -429,7 +442,7 @@ class Executor
                     }
                     $name = self::getFieldEntryKey($selection);
                     if (! isset($fields[$name])) {
-                        $fields[$name] = new \ArrayObject();
+                        $fields[$name] = new ArrayObject();
                     }
                     $fields[$name][] = $selection;
                     break;
@@ -476,6 +489,7 @@ class Executor
      * directives, where @skip has higher precedence than @include.
      *
      * @param FragmentSpreadNode|FieldNode|InlineFragmentNode $node
+     *
      * @return bool
      */
     private function shouldIncludeNode($node)
@@ -522,6 +536,7 @@ class Executor
      * Determines if a fragment is applicable to the given type.
      *
      * @param FragmentDefinitionNode|InlineFragmentNode $fragment
+     *
      * @return bool
      */
     private function doesFragmentConditionMatch(
@@ -552,7 +567,8 @@ class Executor
      * @param mixed[]     $sourceValue
      * @param mixed[]     $path
      * @param ArrayObject $fields
-     * @return Promise|\stdClass|mixed[]
+     *
+     * @return Promise|stdClass|mixed[]
      */
     private function executeFieldsSerially(ObjectType $parentType, $sourceValue, $path, $fields)
     {
@@ -568,7 +584,7 @@ class Executor
                 }
                 $promise = $this->getPromise($result);
                 if ($promise) {
-                    return $promise->then(function ($resolvedResult) use ($responseName, $results) {
+                    return $promise->then(static function ($resolvedResult) use ($responseName, $results) {
                         $results[$responseName] = $resolvedResult;
                         return $results;
                     });
@@ -579,7 +595,7 @@ class Executor
             []
         );
         if ($this->isPromise($result)) {
-            return $result->then(function ($resolvedResults) {
+            return $result->then(static function ($resolvedResults) {
                 return self::fixResultsIfEmptyArray($resolvedResults);
             });
         }
@@ -596,7 +612,7 @@ class Executor
      * @param FieldNode[] $fieldNodes
      * @param mixed[]     $path
      *
-     * @return mixed[]|\Exception|mixed|null
+     * @return mixed[]|Exception|mixed|null
      */
     private function resolveField(ObjectType $parentType, $source, $fieldNodes, $path)
     {
@@ -706,7 +722,8 @@ class Executor
      * @param mixed           $source
      * @param mixed           $context
      * @param ResolveInfo     $info
-     * @return \Throwable|Promise|mixed
+     *
+     * @return Throwable|Promise|mixed
      */
     private function resolveOrError($fieldDef, $fieldNode, $resolveFn, $source, $context, $info)
     {
@@ -720,9 +737,9 @@ class Executor
             );
 
             return $resolveFn($source, $args, $context, $info);
-        } catch (\Exception $error) {
+        } catch (Exception $error) {
             return $error;
-        } catch (\Throwable $error) {
+        } catch (Throwable $error) {
             return $error;
         }
     }
@@ -734,6 +751,7 @@ class Executor
      * @param FieldNode[] $fieldNodes
      * @param string[]    $path
      * @param mixed       $result
+     *
      * @return mixed[]|Promise|null
      */
     private function completeValueCatchingError(
@@ -797,7 +815,9 @@ class Executor
      * @param FieldNode[] $fieldNodes
      * @param string[]    $path
      * @param mixed       $result
+     *
      * @return mixed[]|mixed|Promise|null
+     *
      * @throws Error
      */
     public function completeValueWithLocatedError(
@@ -830,9 +850,9 @@ class Executor
             }
 
             return $completed;
-        } catch (\Exception $error) {
+        } catch (Exception $error) {
             throw Error::createLocatedError($error, $fieldNodes, $path);
-        } catch (\Throwable $error) {
+        } catch (Throwable $error) {
             throw Error::createLocatedError($error, $fieldNodes, $path);
         }
     }
@@ -861,9 +881,11 @@ class Executor
      * @param FieldNode[] $fieldNodes
      * @param string[]    $path
      * @param mixed       $result
+     *
      * @return mixed[]|mixed|Promise|null
+     *
      * @throws Error
-     * @throws \Throwable
+     * @throws Throwable
      */
     private function completeValue(
         Type $returnType,
@@ -881,7 +903,7 @@ class Executor
             });
         }
 
-        if ($result instanceof \Exception || $result instanceof \Throwable) {
+        if ($result instanceof Exception || $result instanceof Throwable) {
             throw $result;
         }
 
@@ -950,11 +972,12 @@ class Executor
             return $this->completeObjectValue($returnType, $fieldNodes, $info, $path, $result);
         }
 
-        throw new \RuntimeException(sprintf('Cannot complete value of unexpected type "%s".', $returnType));
+        throw new RuntimeException(sprintf('Cannot complete value of unexpected type "%s".', $returnType));
     }
 
     /**
      * @param mixed $value
+     *
      * @return bool
      */
     private function isPromise($value)
@@ -967,6 +990,7 @@ class Executor
      * otherwise returns null.
      *
      * @param mixed $value
+     *
      * @return Promise|null
      */
     private function getPromise($value)
@@ -999,14 +1023,15 @@ class Executor
      *
      * @param mixed[]            $values
      * @param Promise|mixed|null $initialValue
+     *
      * @return mixed[]
      */
-    private function promiseReduce(array $values, \Closure $callback, $initialValue)
+    private function promiseReduce(array $values, callable $callback, $initialValue)
     {
         return array_reduce($values, function ($previous, $value) use ($callback) {
             $promise = $this->getPromise($previous);
             if ($promise) {
-                return $promise->then(function ($resolved) use ($callback, $value) {
+                return $promise->then(static function ($resolved) use ($callback, $value) {
                     return $callback($resolved, $value);
                 });
             }
@@ -1021,14 +1046,16 @@ class Executor
      * @param FieldNode[] $fieldNodes
      * @param mixed[]     $path
      * @param mixed       $result
+     *
      * @return mixed[]|Promise
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     private function completeListValue(ListOfType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
         $itemType = $returnType->getWrappedType();
         Utils::invariant(
-            is_array($result) || $result instanceof \Traversable,
+            is_array($result) || $result instanceof Traversable,
             'User Error: expected iterable, but did not find one for field ' . $info->parentType . '.' . $info->fieldName . '.'
         );
         $containsPromise = false;
@@ -1052,20 +1079,22 @@ class Executor
      * Complete a Scalar or Enum by serializing to a valid value, throwing if serialization is not possible.
      *
      * @param  mixed $result
+     *
      * @return mixed
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     private function completeLeafValue(LeafType $returnType, &$result)
     {
         try {
             return $returnType->serialize($result);
-        } catch (\Exception $error) {
+        } catch (Exception $error) {
             throw new InvariantViolation(
                 'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
                 0,
                 $error
             );
-        } catch (\Throwable $error) {
+        } catch (Throwable $error) {
             throw new InvariantViolation(
                 'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
                 0,
@@ -1081,7 +1110,9 @@ class Executor
      * @param FieldNode[] $fieldNodes
      * @param mixed[]     $path
      * @param mixed[]     $result
+     *
      * @return mixed
+     *
      * @throws Error
      */
     private function completeAbstractValue(AbstractType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
@@ -1143,6 +1174,7 @@ class Executor
      *
      * @param mixed|null $value
      * @param mixed|null $context
+     *
      * @return ObjectType|Promise|null
      */
     private function defaultTypeResolver($value, $context, ResolveInfo $info, AbstractType $abstractType)
@@ -1191,7 +1223,7 @@ class Executor
 
         if (! empty($promisedIsTypeOfResults)) {
             return $this->exeContext->promises->all($promisedIsTypeOfResults)
-                ->then(function ($isTypeOfResults) use ($possibleTypes) {
+                ->then(static function ($isTypeOfResults) use ($possibleTypes) {
                     foreach ($isTypeOfResults as $index => $result) {
                         if ($result) {
                             return $possibleTypes[$index];
@@ -1211,7 +1243,9 @@ class Executor
      * @param FieldNode[] $fieldNodes
      * @param mixed[]     $path
      * @param mixed       $result
-     * @return mixed[]|Promise|\stdClass
+     *
+     * @return mixed[]|Promise|stdClass
+     *
      * @throws Error
      */
     private function completeObjectValue(ObjectType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
@@ -1261,6 +1295,7 @@ class Executor
     /**
      * @param mixed[]     $result
      * @param FieldNode[] $fieldNodes
+     *
      * @return Error
      */
     private function invalidReturnTypeError(
@@ -1278,7 +1313,9 @@ class Executor
      * @param FieldNode[] $fieldNodes
      * @param mixed[]     $path
      * @param mixed[]     $result
-     * @return mixed[]|Promise|\stdClass
+     *
+     * @return mixed[]|Promise|stdClass
+     *
      * @throws Error
      */
     private function collectAndExecuteSubfields(
@@ -1295,12 +1332,12 @@ class Executor
     private function collectSubFields(ObjectType $returnType, $fieldNodes) : ArrayObject
     {
         if (! isset($this->subFieldCache[$returnType])) {
-            $this->subFieldCache[$returnType] = new \SplObjectStorage();
+            $this->subFieldCache[$returnType] = new SplObjectStorage();
         }
         if (! isset($this->subFieldCache[$returnType][$fieldNodes])) {
             // Collect sub-fields to execute to complete this value.
-            $subFieldNodes        = new \ArrayObject();
-            $visitedFragmentNames = new \ArrayObject();
+            $subFieldNodes        = new ArrayObject();
+            $visitedFragmentNames = new ArrayObject();
 
             foreach ($fieldNodes as $fieldNode) {
                 if (! isset($fieldNode->selectionSet)) {
@@ -1326,7 +1363,8 @@ class Executor
      * @param mixed|null  $source
      * @param mixed[]     $path
      * @param ArrayObject $fields
-     * @return Promise|\stdClass|mixed[]
+     *
+     * @return Promise|stdClass|mixed[]
      */
     private function executeFields(ObjectType $parentType, $source, $path, $fields)
     {
@@ -1362,12 +1400,13 @@ class Executor
      * @see https://github.com/webonyx/graphql-php/issues/59
      *
      * @param mixed[] $results
-     * @return \stdClass|mixed[]
+     *
+     * @return stdClass|mixed[]
      */
     private static function fixResultsIfEmptyArray($results)
     {
         if ($results === []) {
-            return new \stdClass();
+            return new stdClass();
         }
 
         return $results;
@@ -1381,6 +1420,7 @@ class Executor
      * any promises.
      *
      * @param (string|Promise)[] $assoc
+     *
      * @return mixed
      */
     private function promiseForAssocArray(array $assoc)
@@ -1390,7 +1430,7 @@ class Executor
 
         $promise = $this->exeContext->promises->all($valuesAndPromises);
 
-        return $promise->then(function ($values) use ($keys) {
+        return $promise->then(static function ($values) use ($keys) {
             $resolvedResults = [];
             foreach ($values as $i => $value) {
                 $resolvedResults[$keys[$i]] = $value;
@@ -1404,6 +1444,7 @@ class Executor
      * @param string|ObjectType|null $runtimeTypeOrName
      * @param FieldNode[]            $fieldNodes
      * @param mixed                  $result
+     *
      * @return ObjectType
      */
     private function ensureValidRuntimeType(
@@ -1472,7 +1513,7 @@ class Executor
         $fieldName = $info->fieldName;
         $property  = null;
 
-        if (is_array($source) || $source instanceof \ArrayAccess) {
+        if (is_array($source) || $source instanceof ArrayAccess) {
             if (isset($source[$fieldName])) {
                 $property = $source[$fieldName];
             }
@@ -1482,6 +1523,6 @@ class Executor
             }
         }
 
-        return $property instanceof \Closure ? $property($source, $args, $context, $info) : $property;
+        return is_callable($property) ? $property($source, $args, $context, $info) : $property;
     }
 }

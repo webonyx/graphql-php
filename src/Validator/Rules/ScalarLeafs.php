@@ -16,7 +16,7 @@ class ScalarLeafs extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::FIELD => function (FieldNode $node) use ($context) {
+            NodeKind::FIELD => static function (FieldNode $node) use ($context) {
                 $type = $context->getType();
                 if (! $type) {
                     return;

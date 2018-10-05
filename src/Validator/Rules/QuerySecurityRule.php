@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
-use Closure;
+use ArrayObject;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
+use InvalidArgumentException;
 use function class_alias;
 use function method_exists;
 use function sprintf;
@@ -34,7 +36,7 @@ abstract class QuerySecurityRule extends ValidationRule
     protected function checkIfGreaterOrEqualToZero($name, $value)
     {
         if ($value < 0) {
-            throw new \InvalidArgumentException(sprintf('$%s argument must be greater or equal to 0.', $name));
+            throw new InvalidArgumentException(sprintf('$%s argument must be greater or equal to 0.', $name));
         }
     }
 
@@ -55,8 +57,9 @@ abstract class QuerySecurityRule extends ValidationRule
     }
 
     /**
-     * @param Closure[] $validators
-     * @return Closure[]
+     * @param callable[] $validators
+     *
+     * @return callable[]
      */
     protected function invokeIfNeeded(ValidationContext $context, array $validators)
     {
@@ -98,17 +101,17 @@ abstract class QuerySecurityRule extends ValidationRule
      *
      * @param Type|null $parentType
      *
-     * @return \ArrayObject
+     * @return ArrayObject
      */
     protected function collectFieldASTsAndDefs(
         ValidationContext $context,
         $parentType,
         SelectionSetNode $selectionSet,
-        ?\ArrayObject $visitedFragmentNames = null,
-        ?\ArrayObject $astAndDefs = null
+        ?ArrayObject $visitedFragmentNames = null,
+        ?ArrayObject $astAndDefs = null
     ) {
-        $_visitedFragmentNames = $visitedFragmentNames ?: new \ArrayObject();
-        $_astAndDefs           = $astAndDefs ?: new \ArrayObject();
+        $_visitedFragmentNames = $visitedFragmentNames ?: new ArrayObject();
+        $_astAndDefs           = $astAndDefs ?: new ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
             switch ($selection->kind) {
@@ -134,7 +137,7 @@ abstract class QuerySecurityRule extends ValidationRule
                     }
                     $responseName = $this->getFieldName($selection);
                     if (! isset($_astAndDefs[$responseName])) {
-                        $_astAndDefs[$responseName] = new \ArrayObject();
+                        $_astAndDefs[$responseName] = new ArrayObject();
                     }
                     // create field context
                     $_astAndDefs[$responseName][] = [$selection, $fieldDef];

@@ -64,7 +64,6 @@ class TypeInfo
     private $enumValue;
 
     /**
-     *
      * @param Type|null $initialType
      */
     public function __construct(Schema $schema, $initialType = null)
@@ -128,6 +127,7 @@ class TypeInfo
      *
      * @param Type|null   $type
      * @param Type[]|null $typeMap
+     *
      * @return Type[]|null
      */
     public static function extractTypes($type, ?array $typeMap = null)
@@ -175,7 +175,7 @@ class TypeInfo
             foreach ((array) $type->getFields() as $fieldName => $field) {
                 if (! empty($field->args)) {
                     $fieldArgTypes = array_map(
-                        function (FieldArgument $arg) {
+                        static function (FieldArgument $arg) {
                             return $arg->getType();
                         },
                         $field->args
@@ -200,6 +200,7 @@ class TypeInfo
 
     /**
      * @param Type[] $typeMap
+     *
      * @return Type[]
      */
     public static function extractTypesFromDirectives(Directive $directive, array $typeMap = [])
@@ -304,7 +305,7 @@ class TypeInfo
                 if ($fieldOrDirective) {
                     $argDef = Utils::find(
                         $fieldOrDirective->args,
-                        function ($arg) use ($node) {
+                        static function ($arg) use ($node) {
                             return $arg->name === $node->name->value;
                         }
                     );
@@ -406,7 +407,9 @@ class TypeInfo
 
     /**
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+     *
      * @return Type|null
+     *
      * @throws InvariantViolation
      */
     public static function typeFromAST(Schema $schema, $inputTypeNode)

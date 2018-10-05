@@ -34,6 +34,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use Throwable;
 use function array_reverse;
 use function implode;
 use function is_array;
@@ -82,7 +83,7 @@ class ASTDefinitionBuilder
             'description' => $this->getDescription($directiveNode),
             'locations'   => Utils::map(
                 $directiveNode->locations,
-                function ($node) {
+                static function ($node) {
                     return $node->value;
                 }
             ),
@@ -135,7 +136,7 @@ class ASTDefinitionBuilder
     {
         return Utils::keyValMap(
             $values,
-            function ($value) {
+            static function ($value) {
                 return $value->name->value;
             },
             function ($value) {
@@ -160,6 +161,7 @@ class ASTDefinitionBuilder
 
     /**
      * @return Type|InputType
+     *
      * @throws Error
      */
     private function internalBuildWrappedType(TypeNode $typeNode)
@@ -171,7 +173,9 @@ class ASTDefinitionBuilder
 
     /**
      * @param string|NamedTypeNode $ref
+     *
      * @return Type
+     *
      * @throws Error
      */
     public function buildType($ref)
@@ -186,7 +190,9 @@ class ASTDefinitionBuilder
     /**
      * @param string             $typeName
      * @param NamedTypeNode|null $typeNode
+     *
      * @return Type
+     *
      * @throws Error
      */
     private function internalBuildType($typeName, $typeNode = null)
@@ -198,7 +204,7 @@ class ASTDefinitionBuilder
                     $fn = $this->typeConfigDecorator;
                     try {
                         $config = $fn($type->config, $this->typeDefintionsMap[$typeName], $this->typeDefintionsMap);
-                    } catch (\Throwable $e) {
+                    } catch (Throwable $e) {
                         throw new Error(
                             sprintf('Type config decorator passed to %s threw an error ', static::class) .
                             sprintf('when building %s type: %s', $typeName, $e->getMessage()),
@@ -232,7 +238,9 @@ class ASTDefinitionBuilder
 
     /**
      * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|EnumTypeDefinitionNode|ScalarTypeDefinitionNode|InputObjectTypeDefinitionNode|UnionTypeDefinitionNode $def
+     *
      * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
+     *
      * @throws Error
      */
     private function makeSchemaDef($def)
@@ -280,7 +288,7 @@ class ASTDefinitionBuilder
         return $def->fields
             ? Utils::keyValMap(
                 $def->fields,
-                function ($field) {
+                static function ($field) {
                     return $field->name->value;
                 },
                 function ($field) {
@@ -309,6 +317,7 @@ class ASTDefinitionBuilder
      * deprecation reason.
      *
      * @param EnumValueDefinitionNode | FieldDefinitionNode $node
+     *
      * @return string
      */
     private function getDeprecationReason($node)
@@ -357,7 +366,7 @@ class ASTDefinitionBuilder
             'values'      => $def->values
                 ? Utils::keyValMap(
                     $def->values,
-                    function ($enumValue) {
+                    static function ($enumValue) {
                         return $enumValue->name->value;
                     },
                     function ($enumValue) {
@@ -399,7 +408,7 @@ class ASTDefinitionBuilder
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
             'astNode'     => $def,
-            'serialize'   => function ($value) {
+            'serialize'   => static function ($value) {
                 return $value;
             },
         ]);
@@ -422,7 +431,9 @@ class ASTDefinitionBuilder
     /**
      * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|EnumTypeExtensionNode|ScalarTypeDefinitionNode|InputObjectTypeDefinitionNode $def
      * @param mixed[]                                                                                                                           $config
+     *
      * @return CustomScalarType|EnumType|InputObjectType|InterfaceType|ObjectType|UnionType
+     *
      * @throws Error
      */
     private function makeSchemaDefFromConfig($def, array $config)
@@ -450,6 +461,7 @@ class ASTDefinitionBuilder
 
     /**
      * @param TypeNode|ListTypeNode|NonNullTypeNode $typeNode
+     *
      * @return TypeNode
      */
     private function getNamedTypeNode(TypeNode $typeNode)
@@ -464,6 +476,7 @@ class ASTDefinitionBuilder
 
     /**
      * @param TypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+     *
      * @return Type
      */
     private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode)

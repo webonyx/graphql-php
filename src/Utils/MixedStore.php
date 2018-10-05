@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use ArrayAccess;
 use GraphQL\Type\Definition\EnumValueDefinition;
+use InvalidArgumentException;
+use SplObjectStorage;
 use function array_key_exists;
 use function array_search;
 use function array_splice;
@@ -22,7 +25,7 @@ use function is_string;
  *
  * Class MixedStore
  */
-class MixedStore implements \ArrayAccess
+class MixedStore implements ArrayAccess
 {
     /** @var EnumValueDefinition[] */
     private $standardStore;
@@ -30,7 +33,7 @@ class MixedStore implements \ArrayAccess
     /** @var mixed[] */
     private $floatStore;
 
-    /** @var \SplObjectStorage */
+    /** @var SplObjectStorage */
     private $objectStore;
 
     /** @var callable[] */
@@ -67,7 +70,7 @@ class MixedStore implements \ArrayAccess
     {
         $this->standardStore   = [];
         $this->floatStore      = [];
-        $this->objectStore     = new \SplObjectStorage();
+        $this->objectStore     = new SplObjectStorage();
         $this->arrayKeys       = [];
         $this->arrayValues     = [];
         $this->nullValueIsSet  = false;
@@ -77,10 +80,13 @@ class MixedStore implements \ArrayAccess
 
     /**
      * Whether a offset exists
+     *
      * @link http://php.net/manual/en/arrayaccess.offsetexists.php
+     *
      * @param mixed $offset <p>
      * An offset to check for.
      * </p>
+     *
      * @return bool true on success or false on failure.
      * </p>
      * <p>
@@ -122,10 +128,13 @@ class MixedStore implements \ArrayAccess
 
     /**
      * Offset to retrieve
+     *
      * @link http://php.net/manual/en/arrayaccess.offsetget.php
+     *
      * @param mixed $offset <p>
      * The offset to retrieve.
      * </p>
+     *
      * @return mixed Can return all value types.
      */
     public function offsetGet($offset)
@@ -165,13 +174,16 @@ class MixedStore implements \ArrayAccess
 
     /**
      * Offset to set
+     *
      * @link http://php.net/manual/en/arrayaccess.offsetset.php
+     *
      * @param mixed $offset <p>
      * The offset to assign the value to.
      * </p>
      * @param mixed $value  <p>
      *  The value to set.
      *  </p>
+     *
      * @return void
      */
     public function offsetSet($offset, $value)
@@ -195,16 +207,19 @@ class MixedStore implements \ArrayAccess
             $this->nullValue      = $value;
             $this->nullValueIsSet = true;
         } else {
-            throw new \InvalidArgumentException('Unexpected offset type: ' . Utils::printSafe($offset));
+            throw new InvalidArgumentException('Unexpected offset type: ' . Utils::printSafe($offset));
         }
     }
 
     /**
      * Offset to unset
+     *
      * @link http://php.net/manual/en/arrayaccess.offsetunset.php
+     *
      * @param mixed $offset <p>
      * The offset to unset.
      * </p>
+     *
      * @return void
      */
     public function offsetUnset($offset)

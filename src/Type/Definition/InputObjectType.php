@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
@@ -29,7 +30,6 @@ class InputObjectType extends Type implements InputType, NamedType
     public $extensionASTNodes;
 
     /**
-     *
      * @param mixed[] $config
      */
     public function __construct(array $config)
@@ -49,8 +49,10 @@ class InputObjectType extends Type implements InputType, NamedType
 
     /**
      * @param string $name
+     *
      * @return InputObjectField
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function getField($name)
     {

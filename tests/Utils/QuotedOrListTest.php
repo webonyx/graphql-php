@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Utils\Utils;
+use LogicException;
 use PHPUnit\Framework\TestCase;
 
 class QuotedOrListTest extends TestCase
@@ -15,7 +16,7 @@ class QuotedOrListTest extends TestCase
      */
     public function testResturnsResultsWhenInputIsEmpty() : void
     {
-        $this->expectException(\LogicException::class);
+        $this->expectException(LogicException::class);
         Utils::quotedOrList([]);
     }
 

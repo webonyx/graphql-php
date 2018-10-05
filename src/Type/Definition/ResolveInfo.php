@@ -139,9 +139,11 @@ class ResolveInfo
      * Warning: this method it is a naive implementation which does not take into account
      * conditional typed fragments. So use it with care for fields of interface and union types.
      *
-     * @api
      * @param int $depth How many levels to include in output
+     *
      * @return bool[]
+     *
+     * @api
      */
     public function getFieldSelection($depth = 0)
     {

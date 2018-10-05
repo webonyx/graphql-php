@@ -25,10 +25,10 @@ class NoUndefinedVariables extends ValidationRule
 
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function () use (&$variableNameDefined) {
+                'enter' => static function () use (&$variableNameDefined) {
                     $variableNameDefined = [];
                 },
-                'leave' => function (OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
+                'leave' => static function (OperationDefinitionNode $operation) use (&$variableNameDefined, $context) {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
@@ -49,7 +49,7 @@ class NoUndefinedVariables extends ValidationRule
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $def) use (&$variableNameDefined) {
+            NodeKind::VARIABLE_DEFINITION  => static function (VariableDefinitionNode $def) use (&$variableNameDefined) {
                 $variableNameDefined[$def->variable->name->value] = true;
             },
         ];

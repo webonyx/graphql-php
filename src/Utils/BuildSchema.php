@@ -49,10 +49,12 @@ class BuildSchema
      * A helper function to build a GraphQLSchema directly from a source
      * document.
      *
-     * @api
      * @param DocumentNode|Source|string $source
      * @param bool[]                     $options
+     *
      * @return Schema
+     *
+     * @api
      */
     public static function build($source, ?callable $typeConfigDecorator = null, array $options = [])
     {
@@ -76,11 +78,13 @@ class BuildSchema
      *    - commentDescriptions:
      *        Provide true to use preceding comments as the description.
      *
+     * @param bool[] $options
+     *
+     * @return Schema
+     *
+     * @throws Error
      *
      * @api
-     * @param bool[] $options
-     * @return Schema
-     * @throws Error
      */
     public static function buildAST(DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [])
     {
@@ -134,14 +138,14 @@ class BuildSchema
         $defintionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
             $this->options,
-            function ($typeName) {
+            static function ($typeName) {
                 throw new Error('Type "' . $typeName . '" not found in document.');
             },
             $this->typeConfigDecorator
         );
 
         $directives = array_map(
-            function ($def) use ($defintionBuilder) {
+            static function ($def) use ($defintionBuilder) {
                 return $defintionBuilder->buildDirective($def);
             },
             $directiveDefs
@@ -150,7 +154,7 @@ class BuildSchema
         // If specified directives were not explicitly declared, add them.
         $skip = array_reduce(
             $directives,
-            function ($hasSkip, $directive) {
+            static function ($hasSkip, $directive) {
                 return $hasSkip || $directive->name === 'skip';
             }
         );
@@ -160,7 +164,7 @@ class BuildSchema
 
         $include = array_reduce(
             $directives,
-            function ($hasInclude, $directive) {
+            static function ($hasInclude, $directive) {
                 return $hasInclude || $directive->name === 'include';
             }
         );
@@ -170,7 +174,7 @@ class BuildSchema
 
         $deprecated = array_reduce(
             $directives,
-            function ($hasDeprecated, $directive) {
+            static function ($hasDeprecated, $directive) {
                 return $hasDeprecated || $directive->name === 'deprecated';
             }
         );
@@ -182,7 +186,7 @@ class BuildSchema
         // typed values below, that would throw immediately while type system
         // validation with validateSchema() will produce more actionable results.
 
-        $schema = new Schema([
+        return new Schema([
             'query'        => isset($operationTypes['query'])
                 ? $defintionBuilder->buildType($operationTypes['query'])
                 : null,
@@ -192,7 +196,7 @@ class BuildSchema
             'subscription' => isset($operationTypes['subscription'])
                 ? $defintionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader'   => function ($name) use ($defintionBuilder) {
+            'typeLoader'   => static function ($name) use ($defintionBuilder) {
                 return $defintionBuilder->buildType($name);
             },
             'directives'   => $directives,
@@ -206,13 +210,13 @@ class BuildSchema
                 return $types;
             },
         ]);
-
-        return $schema;
     }
 
     /**
      * @param SchemaDefinitionNode $schemaDef
+     *
      * @return string[]
+     *
      * @throws Error
      */
     private function getOperationTypes($schemaDef)

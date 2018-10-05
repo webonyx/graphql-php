@@ -42,6 +42,7 @@ class LexerTest extends TestCase
 
     /**
      * @param string $body
+     *
      * @return Token
      */
     private function lexOne($body)
@@ -433,8 +434,9 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @dataProvider reportsUsefulStringErrors
      * @see          it('lex reports useful string errors')
+     *
+     * @dataProvider reportsUsefulStringErrors
      */
     public function testLexReportsUsefulStringErrors($str, $expectedMessage, $location) : void
     {
@@ -466,8 +468,9 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @dataProvider reportsUsefulBlockStringErrors
      * @see          it('lex reports useful block string errors')
+     *
+     * @dataProvider reportsUsefulBlockStringErrors
      */
     public function testReportsUsefulBlockStringErrors($str, $expectedMessage, $location) : void
     {
@@ -561,8 +564,9 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @dataProvider reportsUsefulNumberErrors
      * @see          it('lex reports useful number errors')
+     *
+     * @dataProvider reportsUsefulNumberErrors
      */
     public function testReportsUsefulNumberErrors($str, $expectedMessage, $location) : void
     {
@@ -642,8 +646,9 @@ class LexerTest extends TestCase
     }
 
     /**
-     * @dataProvider reportsUsefulUnknownCharErrors
      * @see          it('lex reports useful unknown character error')
+     *
+     * @dataProvider reportsUsefulUnknownCharErrors
      */
     public function testReportsUsefulUnknownCharErrors($str, $expectedMessage, $location) : void
     {
@@ -714,7 +719,7 @@ class LexerTest extends TestCase
             ],
             Utils::map(
                 $tokens,
-                function ($tok) {
+                static function ($tok) {
                     return $tok->kind;
                 }
             )

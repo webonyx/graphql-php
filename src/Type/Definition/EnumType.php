@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use ArrayObject;
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -54,6 +56,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
 
     /**
      * @param string|mixed[] $name
+     *
      * @return EnumValueDefinition|null
      */
     public function getValue($name)
@@ -73,7 +76,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
     private function getNameLookup()
     {
         if (! $this->nameLookup) {
-            $lookup = new \ArrayObject();
+            $lookup = new ArrayObject();
             foreach ($this->getValues() as $value) {
                 $lookup[$value->name] = $value;
             }
@@ -123,7 +126,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
 
     /**
      * @param mixed $value
+     *
      * @return mixed
+     *
      * @throws Error
      */
     public function serialize($value)
@@ -154,7 +159,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
 
     /**
      * @param mixed $value
+     *
      * @return mixed
+     *
      * @throws Error
      */
     public function parseValue($value)
@@ -170,8 +177,10 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
     /**
      * @param Node         $valueNode
      * @param mixed[]|null $variables
+     *
      * @return null
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
@@ -186,7 +195,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new \Exception();
+        throw new Exception();
     }
 
     /**

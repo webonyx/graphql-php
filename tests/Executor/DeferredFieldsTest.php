@@ -91,7 +91,7 @@ class DeferredFieldsTest extends TestCase
 
                                 return Utils::find(
                                     $this->userDataSource,
-                                    function ($entry) use ($user) {
+                                    static function ($entry) use ($user) {
                                         return $entry['id'] === $user['bestFriendId'];
                                     }
                                 );
@@ -123,7 +123,7 @@ class DeferredFieldsTest extends TestCase
 
                             return Utils::find(
                                 $this->userDataSource,
-                                function ($entry) use ($story) {
+                                static function ($entry) use ($story) {
                                     return $entry['id'] === $story['authorId'];
                                 }
                             );
@@ -152,7 +152,7 @@ class DeferredFieldsTest extends TestCase
 
                         return Utils::filter(
                             $this->storyDataSource,
-                            function ($story) use ($category) {
+                            static function ($story) use ($category) {
                                 return in_array($category['id'], $story['categoryIds']);
                             }
                         );
@@ -168,7 +168,7 @@ class DeferredFieldsTest extends TestCase
 
                             return Utils::find(
                                 $this->storyDataSource,
-                                function ($story) use ($category) {
+                                static function ($story) use ($category) {
                                     return $story['id'] === $category['topStoryId'];
                                 }
                             );
@@ -188,7 +188,7 @@ class DeferredFieldsTest extends TestCase
 
                         return Utils::filter(
                             $this->storyDataSource,
-                            function ($story) {
+                            static function ($story) {
                                 return $story['id'] % 2 === 1;
                             }
                         );

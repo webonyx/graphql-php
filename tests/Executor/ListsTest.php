@@ -53,12 +53,12 @@ class ListsTest extends TestCase
 
         $dataType = new ObjectType([
             'name'   => 'DataType',
-            'fields' => function () use (&$testType, &$dataType, $data) {
+            'fields' => static function () use (&$testType, &$dataType, $data) {
                 return [
                     'test' => ['type' => $testType],
                     'nest' => [
                         'type'    => $dataType,
-                        'resolve' => function () use ($data) {
+                        'resolve' => static function () use ($data) {
                             return $data;
                         },
                     ],
@@ -81,7 +81,7 @@ class ListsTest extends TestCase
     {
         // Contains values
         $this->checkHandlesNullableLists(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return [1, 2];
             }),
             ['data' => ['nest' => ['test' => [1, 2]]]]
@@ -89,7 +89,7 @@ class ListsTest extends TestCase
 
         // Contains null
         $this->checkHandlesNullableLists(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return [1, null, 2];
             }),
             ['data' => ['nest' => ['test' => [1, null, 2]]]]
@@ -97,7 +97,7 @@ class ListsTest extends TestCase
 
         // Returns null
         $this->checkHandlesNullableLists(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return null;
             }),
             ['data' => ['nest' => ['test' => null]]]
@@ -105,8 +105,8 @@ class ListsTest extends TestCase
 
         // Rejected
         $this->checkHandlesNullableLists(
-            function () {
-                return new Deferred(function () {
+            static function () {
+                return new Deferred(static function () {
                     throw new UserError('bad');
                 });
             },
@@ -131,10 +131,10 @@ class ListsTest extends TestCase
         // Contains values
         $this->checkHandlesNullableLists(
             [
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 1;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 2;
                 }),
             ],
@@ -144,13 +144,13 @@ class ListsTest extends TestCase
         // Contains null
         $this->checkHandlesNullableLists(
             [
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 1;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return null;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 2;
                 }),
             ],
@@ -159,7 +159,7 @@ class ListsTest extends TestCase
 
         // Returns null
         $this->checkHandlesNullableLists(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return null;
             }),
             ['data' => ['nest' => ['test' => null]]]
@@ -167,15 +167,15 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNullableLists(
-            function () {
+            static function () {
                 return [
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         return 1;
                     }),
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         throw new UserError('bad');
                     }),
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         return 2;
                     }),
                 ];
@@ -239,7 +239,7 @@ class ListsTest extends TestCase
     {
         // Contains values
         $this->checkHandlesNonNullableLists(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return [1, 2];
             }),
             ['data' => ['nest' => ['test' => [1, 2]]]]
@@ -247,7 +247,7 @@ class ListsTest extends TestCase
 
         // Contains null
         $this->checkHandlesNonNullableLists(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return [1, null, 2];
             }),
             ['data' => ['nest' => ['test' => [1, null, 2]]]]
@@ -270,8 +270,8 @@ class ListsTest extends TestCase
 
         // Rejected
         $this->checkHandlesNonNullableLists(
-            function () {
-                return new Deferred(function () {
+            static function () {
+                return new Deferred(static function () {
                     throw new UserError('bad');
                 });
             },
@@ -296,10 +296,10 @@ class ListsTest extends TestCase
         // Contains values
         $this->checkHandlesNonNullableLists(
             [
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 1;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 2;
                 }),
             ],
@@ -309,13 +309,13 @@ class ListsTest extends TestCase
         // Contains null
         $this->checkHandlesNonNullableLists(
             [
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 1;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return null;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 2;
                 }),
             ],
@@ -324,15 +324,15 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNonNullableLists(
-            function () {
+            static function () {
                 return [
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         return 1;
                     }),
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         throw new UserError('bad');
                     }),
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         return 2;
                     }),
                 ];
@@ -396,7 +396,7 @@ class ListsTest extends TestCase
     {
         // Contains values
         $this->checkHandlesListOfNonNulls(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return [1, 2];
             }),
             ['data' => ['nest' => ['test' => [1, 2]]]]
@@ -404,7 +404,7 @@ class ListsTest extends TestCase
 
         // Contains null
         $this->checkHandlesListOfNonNulls(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return [1, null, 2];
             }),
             [
@@ -421,7 +421,7 @@ class ListsTest extends TestCase
 
         // Returns null
         $this->checkHandlesListOfNonNulls(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return null;
             }),
             ['data' => ['nest' => ['test' => null]]]
@@ -429,8 +429,8 @@ class ListsTest extends TestCase
 
         // Rejected
         $this->checkHandlesListOfNonNulls(
-            function () {
-                return new Deferred(function () {
+            static function () {
+                return new Deferred(static function () {
                     throw new UserError('bad');
                 });
             },
@@ -455,10 +455,10 @@ class ListsTest extends TestCase
         // Contains values
         $this->checkHandlesListOfNonNulls(
             [
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 1;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 2;
                 }),
             ],
@@ -468,13 +468,13 @@ class ListsTest extends TestCase
         // Contains null
         $this->checkHandlesListOfNonNulls(
             [
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 1;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return null;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 2;
                 }),
             ],
@@ -483,15 +483,15 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesListOfNonNulls(
-            function () {
+            static function () {
                 return [
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         return 1;
                     }),
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         throw new UserError('bad');
                     }),
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         return 2;
                     }),
                 ];
@@ -564,7 +564,7 @@ class ListsTest extends TestCase
     {
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return [1, 2];
             }),
             ['data' => ['nest' => ['test' => [1, 2]]]]
@@ -572,7 +572,7 @@ class ListsTest extends TestCase
 
         // Contains null
         $this->checkHandlesNonNullListOfNonNulls(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return [1, null, 2];
             }),
             [
@@ -589,7 +589,7 @@ class ListsTest extends TestCase
 
         // Returns null
         $this->checkHandlesNonNullListOfNonNulls(
-            new Deferred(function () {
+            new Deferred(static function () {
                 return null;
             }),
             [
@@ -606,8 +606,8 @@ class ListsTest extends TestCase
 
         // Rejected
         $this->checkHandlesNonNullListOfNonNulls(
-            function () {
-                return new Deferred(function () {
+            static function () {
+                return new Deferred(static function () {
                     throw new UserError('bad');
                 });
             },
@@ -632,10 +632,10 @@ class ListsTest extends TestCase
         // Contains values
         $this->checkHandlesNonNullListOfNonNulls(
             [
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 1;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 2;
                 }),
 
@@ -646,13 +646,13 @@ class ListsTest extends TestCase
         // Contains null
         $this->checkHandlesNonNullListOfNonNulls(
             [
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 1;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return null;
                 }),
-                new Deferred(function () {
+                new Deferred(static function () {
                     return 2;
                 }),
             ],
@@ -670,15 +670,15 @@ class ListsTest extends TestCase
 
         // Contains reject
         $this->checkHandlesNonNullListOfNonNulls(
-            function () {
+            static function () {
                 return [
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         return 1;
                     }),
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         throw new UserError('bad');
                     }),
-                    new Deferred(function () {
+                    new Deferred(static function () {
                         return 2;
                     }),
                 ];

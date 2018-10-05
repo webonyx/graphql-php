@@ -42,17 +42,19 @@ class SchemaPrinter
      *
      *    - commentDescriptions:
      *        Provide true to use preceding comments as the description.
-     * @api
+     *
      * @param bool[] $options
+     *
+     * @api
      */
     public static function doPrint(Schema $schema, array $options = []) : string
     {
         return self::printFilteredSchema(
             $schema,
-            function ($type) {
+            static function ($type) {
                 return ! Directive::isSpecifiedDirective($type);
             },
-            function ($type) {
+            static function ($type) {
                 return ! Type::isBuiltInType($type);
             },
             $options
@@ -66,7 +68,7 @@ class SchemaPrinter
     {
         $directives = array_filter(
             $schema->getDirectives(),
-            function ($directive) use ($directiveFilter) {
+            static function ($directive) use ($directiveFilter) {
                 return $directiveFilter($directive);
             }
         );
@@ -83,13 +85,13 @@ class SchemaPrinter
                     array_merge(
                         [self::printSchemaDefinition($schema)],
                         array_map(
-                            function ($directive) use ($options) {
+                            static function ($directive) use ($options) {
                                 return self::printDirective($directive, $options);
                             },
                             $directives
                         ),
                         array_map(
-                            function ($type) use ($options) {
+                            static function ($type) use ($options) {
                                 return self::printType($type, $options);
                             },
                             $types
@@ -175,7 +177,7 @@ class SchemaPrinter
             return self::printDescriptionWithComments($lines, $indentation, $firstInBlock);
         }
 
-        $description = ($indentation && ! $firstInBlock)
+        $description = $indentation && ! $firstInBlock
             ? "\n" . $indentation . '"""'
             : $indentation . '"""';
 
@@ -274,7 +276,7 @@ class SchemaPrinter
         // If every arg does not have a description, print them on one line.
         if (Utils::every(
             $args,
-            function ($arg) {
+            static function ($arg) {
                 return empty($arg->description);
             }
         )) {
@@ -286,7 +288,7 @@ class SchemaPrinter
             implode(
                 "\n",
                 array_map(
-                    function ($arg, $i) use ($indentation, $options) {
+                    static function ($arg, $i) use ($indentation, $options) {
                         return self::printDescription($options, $arg, '  ' . $indentation, ! $i) . '  ' . $indentation .
                             self::printInputValue($arg);
                     },
@@ -358,7 +360,7 @@ class SchemaPrinter
             ' implements ' . implode(
                 ' & ',
                 array_map(
-                    function ($i) {
+                    static function ($i) {
                         return $i->name;
                     },
                     $interfaces
@@ -379,7 +381,7 @@ class SchemaPrinter
         return implode(
             "\n",
             array_map(
-                function ($f, $i) use ($options) {
+                static function ($f, $i) use ($options) {
                     return self::printDescription($options, $f, '  ', ! $i) . '  ' .
                         $f->name . self::printArgs($options, $f->args, '  ') . ': ' .
                         (string) $f->getType() . self::printDeprecated($f);
@@ -439,7 +441,7 @@ class SchemaPrinter
         return implode(
             "\n",
             array_map(
-                function ($value, $i) use ($options) {
+                static function ($value, $i) use ($options) {
                     return self::printDescription($options, $value, '  ', ! $i) . '  ' .
                         $value->name . self::printDeprecated($value);
                 },
@@ -463,7 +465,7 @@ class SchemaPrinter
                 implode(
                     "\n",
                     array_map(
-                        function ($f, $i) use ($options) {
+                        static function ($f, $i) use ($options) {
                             return self::printDescription($options, $f, '  ', ! $i) . '  ' . self::printInputValue($f);
                         },
                         $fields,
@@ -474,8 +476,9 @@ class SchemaPrinter
     }
 
     /**
-     * @api
      * @param bool[] $options
+     *
+     * @api
      */
     public static function printIntrospectionSchema(Schema $schema, array $options = []) : string
     {

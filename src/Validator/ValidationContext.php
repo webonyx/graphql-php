@@ -128,10 +128,10 @@ class ValidationContext
                 Visitor::visitWithTypeInfo(
                     $typeInfo,
                     [
-                        NodeKind::VARIABLE_DEFINITION => function () {
+                        NodeKind::VARIABLE_DEFINITION => static function () {
                             return false;
                         },
-                        NodeKind::VARIABLE            => function (VariableNode $variable) use (
+                        NodeKind::VARIABLE            => static function (VariableNode $variable) use (
                             &$newUsages,
                             $typeInfo
                         ) {
@@ -214,6 +214,7 @@ class ValidationContext
 
     /**
      * @param string $name
+     *
      * @return FragmentDefinitionNode|null
      */
     public function getFragment($name)

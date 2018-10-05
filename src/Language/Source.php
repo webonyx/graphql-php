@@ -27,8 +27,6 @@ class Source
     public $locationOffset;
 
     /**
-     *
-     *
      * A representation of source input to GraphQL.
      * `name` and `locationOffset` are optional. They are useful for clients who
      * store GraphQL documents in source files; for example, if the GraphQL input
@@ -63,6 +61,7 @@ class Source
 
     /**
      * @param int $position
+     *
      * @return SourceLocation
      */
     public function getLocation($position)

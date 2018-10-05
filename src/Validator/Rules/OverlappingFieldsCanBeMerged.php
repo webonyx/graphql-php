@@ -24,6 +24,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\PairSet;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Validator\ValidationContext;
+use SplObjectStorage;
 use function array_keys;
 use function array_map;
 use function array_merge;
@@ -39,6 +40,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * A memoization for when two fragments are compared "between" each other for
      * conflicts. Two fragments may be compared many times, so memoizing this can
      * dramatically improve the performance of this validator.
+     *
      * @var PairSet
      */
     private $comparedFragmentPairs;
@@ -48,14 +50,14 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * selection set. Selection sets may be asked for this information multiple
      * times, so this improves the performance of this validator.
      *
-     * @var \SplObjectStorage
+     * @var SplObjectStorage
      */
     private $cachedFieldsAndFragmentNames;
 
     public function getVisitor(ValidationContext $context)
     {
         $this->comparedFragmentPairs        = new PairSet();
-        $this->cachedFieldsAndFragmentNames = new \SplObjectStorage();
+        $this->cachedFieldsAndFragmentNames = new SplObjectStorage();
 
         return [
             NodeKind::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context) {
@@ -83,6 +85,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * GraphQL Document.
      *
      * @param CompositeType $parentType
+     *
      * @return mixed[]
      */
     private function findConflictsWithinSelectionSet(
@@ -145,7 +148,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * referenced via fragment spreads.
      *
      * @param CompositeType $parentType
-     * @return mixed[]|\SplObjectStorage
+     *
+     * @return mixed[]|SplObjectStorage
      */
     private function getFieldsAndFragmentNames(
         ValidationContext $context,
@@ -224,7 +228,6 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      *
      * J) Also, if two fragments are referenced in both selection sets, then a
      * comparison is made "between" the two fragments.
-     *
      */
 
     /**
@@ -333,6 +336,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param string  $responseName
      * @param mixed[] $field1
      * @param mixed[] $field2
+     *
      * @return mixed[]|null
      */
     private function findConflict(
@@ -503,6 +507,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * @param bool          $areMutuallyExclusive
      * @param CompositeType $parentType1
      * @param CompositeType $parentType2
+     *
      * @return mixed[][]
      */
     private function findConflictsBetweenSubSelectionSets(
@@ -704,7 +709,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Given a reference to a fragment, return the represented collection of fields
      * as well as a list of nested fragment names referenced via fragment spreads.
      *
-     * @return mixed[]|\SplObjectStorage
+     * @return mixed[]|SplObjectStorage
      */
     private function getReferencedFieldsAndFragmentNames(
         ValidationContext $context,
@@ -818,6 +823,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      *
      * @param mixed[][] $conflicts
      * @param string    $responseName
+     *
      * @return mixed[]|null
      */
     private function subfieldConflicts(
@@ -834,7 +840,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             [
                 $responseName,
                 array_map(
-                    function ($conflict) {
+                    static function ($conflict) {
                         return $conflict[0];
                     },
                     $conflicts
@@ -842,14 +848,14 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             ],
             array_reduce(
                 $conflicts,
-                function ($allFields, $conflict) {
+                static function ($allFields, $conflict) {
                     return array_merge($allFields, $conflict[1]);
                 },
                 [$ast1]
             ),
             array_reduce(
                 $conflicts,
-                function ($allFields, $conflict) {
+                static function ($allFields, $conflict) {
                     return array_merge($allFields, $conflict[2]);
                 },
                 [$ast2]
@@ -876,7 +882,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     {
         if (is_array($reason)) {
             $tmp = array_map(
-                function ($tmp) {
+                static function ($tmp) {
                     [$responseName, $subReason] = $tmp;
 
                     $reasonMessage = self::reasonMessage($subReason);

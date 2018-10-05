@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Validator;
 
+use Exception;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -63,7 +64,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name'   => 'Canine',
-            'fields' => function () {
+            'fields' => static function () {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -110,7 +111,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Cat = new ObjectType([
             'name'       => 'Cat',
-            'fields'     => function () use (&$FurColor) {
+            'fields'     => static function () use (&$FurColor) {
                 return [
                     'name'       => [
                         'type' => Type::string(),
@@ -141,7 +142,7 @@ abstract class ValidatorTestCase extends TestCase
         $Human = new ObjectType([
             'name'       => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields'     => function () use (&$Human, $Pet) {
+            'fields'     => static function () use (&$Human, $Pet) {
                 return [
                     'name'      => [
                         'type' => Type::string(),
@@ -289,26 +290,26 @@ abstract class ValidatorTestCase extends TestCase
 
         $invalidScalar = new CustomScalarType([
             'name'         => 'Invalid',
-            'serialize'    => function ($value) {
+            'serialize'    => static function ($value) {
                 return $value;
             },
-            'parseLiteral' => function ($node) {
-                throw new \Exception('Invalid scalar is always invalid: ' . $node->value);
+            'parseLiteral' => static function ($node) {
+                throw new Exception('Invalid scalar is always invalid: ' . $node->value);
             },
-            'parseValue'   => function ($node) {
-                throw new \Exception('Invalid scalar is always invalid: ' . $node);
+            'parseValue'   => static function ($node) {
+                throw new Exception('Invalid scalar is always invalid: ' . $node);
             },
         ]);
 
         $anyScalar = new CustomScalarType([
             'name'         => 'Any',
-            'serialize'    => function ($value) {
+            'serialize'    => static function ($value) {
                 return $value;
             },
-            'parseLiteral' => function ($node) {
+            'parseLiteral' => static function ($node) {
                 return $node;
             }, // Allows any value
-            'parseValue'   => function ($value) {
+            'parseValue'   => static function ($value) {
                 return $value;
             }, // Allows any value
         ]);
@@ -341,7 +342,7 @@ abstract class ValidatorTestCase extends TestCase
             ],
         ]);
 
-        $testSchema = new Schema([
+        return new Schema([
             'query'      => $queryRoot,
             'directives' => [
                 Directive::includeDirective(),
@@ -420,8 +421,6 @@ abstract class ValidatorTestCase extends TestCase
                 ]),
             ],
         ]);
-
-        return $testSchema;
     }
 
     protected function expectFailsRule($rule, $queryString, $errors)

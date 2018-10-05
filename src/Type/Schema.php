@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type;
 
+use Generator;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\GraphQL;
@@ -17,6 +18,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
+use Traversable;
 use function array_values;
 use function implode;
 use function is_array;
@@ -72,8 +74,9 @@ class Schema
     public $extensionASTNodes;
 
     /**
-     * @api
      * @param mixed[]|SchemaConfig $config
+     *
+     * @api
      */
     public function __construct($config)
     {
@@ -151,7 +154,7 @@ class Schema
     }
 
     /**
-     * @return \Generator
+     * @return Generator
      */
     private function resolveAdditionalTypes()
     {
@@ -161,7 +164,7 @@ class Schema
             $types = $types();
         }
 
-        if (! is_array($types) && ! $types instanceof \Traversable) {
+        if (! is_array($types) && ! $types instanceof Traversable) {
             throw new InvariantViolation(sprintf(
                 'Schema types callable must return array or instance of Traversable but got: %s',
                 Utils::getVariableType($types)
@@ -186,8 +189,9 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @api
      * @return Type[]
+     *
+     * @api
      */
     public function getTypeMap()
     {
@@ -228,8 +232,9 @@ class Schema
     /**
      * Returns a list of directives supported by this schema
      *
-     * @api
      * @return Directive[]
+     *
+     * @api
      */
     public function getDirectives()
     {
@@ -239,8 +244,9 @@ class Schema
     /**
      * Returns schema query type
      *
-     * @api
      * @return ObjectType
+     *
+     * @api
      */
     public function getQueryType()
     {
@@ -250,8 +256,9 @@ class Schema
     /**
      * Returns schema mutation type
      *
-     * @api
      * @return ObjectType|null
+     *
+     * @api
      */
     public function getMutationType()
     {
@@ -261,8 +268,9 @@ class Schema
     /**
      * Returns schema subscription
      *
-     * @api
      * @return ObjectType|null
+     *
+     * @api
      */
     public function getSubscriptionType()
     {
@@ -270,8 +278,9 @@ class Schema
     }
 
     /**
-     * @api
      * @return SchemaConfig
+     *
+     * @api
      */
     public function getConfig()
     {
@@ -281,9 +290,11 @@ class Schema
     /**
      * Returns type by it's name
      *
-     * @api
      * @param string $name
+     *
      * @return Type|null
+     *
+     * @api
      */
     public function getType($name)
     {
@@ -300,6 +311,7 @@ class Schema
 
     /**
      * @param string $typeName
+     *
      * @return Type
      */
     private function loadType($typeName)
@@ -332,6 +344,7 @@ class Schema
 
     /**
      * @param string $typeName
+     *
      * @return Type
      */
     private function defaultTypeLoader($typeName)
@@ -348,8 +361,9 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @api
      * @return ObjectType[]
+     *
+     * @api
      */
     public function getPossibleTypes(AbstractType $abstractType)
     {
@@ -389,8 +403,9 @@ class Schema
      * Returns true if object type is concrete type of given abstract type
      * (implementation for interfaces and members of union type for unions)
      *
-     * @api
      * @return bool
+     *
+     * @api
      */
     public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType)
     {
@@ -405,9 +420,11 @@ class Schema
     /**
      * Returns instance of directive by name
      *
-     * @api
      * @param string $name
+     *
      * @return Directive
+     *
+     * @api
      */
     public function getDirective($name)
     {
@@ -433,8 +450,9 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @api
      * @throws InvariantViolation
+     *
+     * @api
      */
     public function assertValid()
     {
@@ -472,8 +490,9 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @api
      * @return InvariantViolation[]|Error[]
+     *
+     * @api
      */
     public function validate()
     {
