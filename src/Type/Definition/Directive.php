@@ -41,7 +41,6 @@ class Directive
     public $config;
 
     /**
-     *
      * @param mixed[] $config
      */
     public function __construct(array $config)

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\EnumType;
@@ -12,6 +13,8 @@ use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ScalarType;
+use Throwable;
+use Traversable;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
@@ -61,7 +64,7 @@ class Value
             // the original error.
             try {
                 return self::ofValue($type->parseValue($value));
-            } catch (\Exception $error) {
+            } catch (Exception $error) {
                 return self::ofErrors([
                     self::coercionError(
                         sprintf('Expected type %s', $type->name),
@@ -71,7 +74,7 @@ class Value
                         $error
                     ),
                 ]);
-            } catch (\Throwable $error) {
+            } catch (Throwable $error) {
                 return self::ofErrors([
                     self::coercionError(
                         sprintf('Expected type %s', $type->name),
@@ -95,7 +98,7 @@ class Value
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
                 array_map(
-                    function ($enumValue) {
+                    static function ($enumValue) {
                         return $enumValue->name;
                     },
                     $type->getValues()
@@ -118,7 +121,7 @@ class Value
 
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            if (is_array($value) || $value instanceof \Traversable) {
+            if (is_array($value) || $value instanceof Traversable) {
                 $errors       = [];
                 $coercedValue = [];
                 foreach ($value as $index => $itemValue) {
@@ -144,7 +147,7 @@ class Value
         }
 
         if ($type instanceof InputObjectType) {
-            if (! is_object($value) && ! is_array($value) && ! $value instanceof \Traversable) {
+            if (! is_object($value) && ! is_array($value) && ! $value instanceof Traversable) {
                 return self::ofErrors([
                     self::coercionError(
                         sprintf('Expected type %s to be an object', $type->name),
@@ -225,11 +228,12 @@ class Value
     }
 
     /**
-     * @param string                     $message
-     * @param Node                       $blameNode
-     * @param mixed[]|null               $path
-     * @param string                     $subMessage
-     * @param \Exception|\Throwable|null $originalError
+     * @param string                   $message
+     * @param Node                     $blameNode
+     * @param mixed[]|null             $path
+     * @param string                   $subMessage
+     * @param Exception|Throwable|null $originalError
+     *
      * @return Error
      */
     private static function coercionError(
@@ -258,6 +262,7 @@ class Value
      * Build a string describing the path into the value where the error was found
      *
      * @param mixed[]|null $path
+     *
      * @return string
      */
     private static function printPath(?array $path = null)
@@ -277,6 +282,7 @@ class Value
 
     /**
      * @param mixed $value
+     *
      * @return (mixed|null)[]
      */
     private static function ofValue($value)
@@ -287,6 +293,7 @@ class Value
     /**
      * @param mixed|null $prev
      * @param mixed|null $key
+     *
      * @return (mixed|null)[]
      */
     private static function atPath($prev, $key)
@@ -297,6 +304,7 @@ class Value
     /**
      * @param Error[]       $errors
      * @param Error|Error[] $moreErrors
+     *
      * @return Error[]
      */
     private static function add($errors, $moreErrors)

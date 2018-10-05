@@ -51,10 +51,10 @@ class EnumTypeTest extends TestCase
         ]);
 
         $Complex1 = [
-            'someRandomFunction' => function () {
+            'someRandomFunction' => static function () {
             },
         ];
-        $Complex2 = new \ArrayObject(['someRandomValue' => 123]);
+        $Complex2 = new ArrayObject(['someRandomValue' => 123]);
 
         $ComplexEnum = new EnumType([
             'name'   => 'Complex',
@@ -74,7 +74,7 @@ class EnumTypeTest extends TestCase
                         'fromInt'    => ['type' => Type::int()],
                         'fromString' => ['type' => Type::string()],
                     ],
-                    'resolve' => function ($value, $args) {
+                    'resolve' => static function ($value, $args) {
                         if (isset($args['fromInt'])) {
                             return $args['fromInt'];
                         }
@@ -92,7 +92,7 @@ class EnumTypeTest extends TestCase
                         'fromName'  => ['type' => Type::string()],
                         'fromValue' => ['type' => Type::string()],
                     ],
-                    'resolve' => function ($value, $args) {
+                    'resolve' => static function ($value, $args) {
                         if (isset($args['fromName'])) {
                             return $args['fromName'];
                         }
@@ -107,7 +107,7 @@ class EnumTypeTest extends TestCase
                         'fromEnum' => ['type' => $ColorType],
                         'fromInt'  => ['type' => Type::int()],
                     ],
-                    'resolve' => function ($value, $args) {
+                    'resolve' => static function ($value, $args) {
                         if (isset($args['fromInt'])) {
                             return $args['fromInt'];
                         }
@@ -132,7 +132,7 @@ class EnumTypeTest extends TestCase
                             'type' => Type::boolean(),
                         ],
                     ],
-                    'resolve' => function ($value, $args) use ($Complex2) {
+                    'resolve' => static function ($value, $args) use ($Complex2) {
                         if (! empty($args['provideGoodValue'])) {
                             // Note: this is one of the references of the internal values which
                             // ComplexEnum allows.
@@ -141,7 +141,7 @@ class EnumTypeTest extends TestCase
                         if (! empty($args['provideBadValue'])) {
                             // Note: similar shape, but not the same *reference*
                             // as Complex2 above. Enum internal values require === equality.
-                            return new \ArrayObject(['someRandomValue' => 123]);
+                            return new ArrayObject(['someRandomValue' => 123]);
                         }
 
                         return $args['fromEnum'];
@@ -156,7 +156,7 @@ class EnumTypeTest extends TestCase
                 'favoriteEnum' => [
                     'type'    => $ColorType,
                     'args'    => ['color' => ['type' => $ColorType]],
-                    'resolve' => function ($value, $args) {
+                    'resolve' => static function ($value, $args) {
                         return $args['color'] ?? null;
                     },
                 ],
@@ -169,7 +169,7 @@ class EnumTypeTest extends TestCase
                 'subscribeToEnum' => [
                     'type'    => $ColorType,
                     'args'    => ['color' => ['type' => $ColorType]],
-                    'resolve' => function ($value, $args) {
+                    'resolve' => static function ($value, $args) {
                         return $args['color'] ?? null;
                     },
                 ],
@@ -365,6 +365,7 @@ class EnumTypeTest extends TestCase
 
     /**
      * @see it('accepts enum literals as input arguments to subscriptions')
+     *
      * @todo
      */
     public function testAcceptsEnumLiteralsAsInputArgumentsToSubscriptions() : void

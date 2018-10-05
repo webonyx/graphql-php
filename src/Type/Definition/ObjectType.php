@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
@@ -52,7 +53,6 @@ use function sprintf;
  *          ];
  *        }
  *     ]);
- *
  */
 class ObjectType extends Type implements OutputType, CompositeType, NamedType
 {
@@ -75,7 +75,6 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
     private $interfaceMap;
 
     /**
-     *
      * @param mixed[] $config
      */
     public function __construct(array $config)
@@ -96,6 +95,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
 
     /**
      * @param mixed $type
+     *
      * @return self
      */
     public static function assertObjectType($type)
@@ -110,8 +110,10 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
 
     /**
      * @param string $name
+     *
      * @return FieldDefinition
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function getField($name)
     {
@@ -125,6 +127,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
 
     /**
      * @return FieldDefinition[]
+     *
      * @throws InvariantViolation
      */
     public function getFields()
@@ -139,6 +142,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
 
     /**
      * @param InterfaceType $iface
+     *
      * @return bool
      */
     public function implementsInterface($iface)
@@ -184,6 +188,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
     /**
      * @param mixed[]      $value
      * @param mixed[]|null $context
+     *
      * @return bool|null
      */
     public function isTypeOf($value, $context, ResolveInfo $info)

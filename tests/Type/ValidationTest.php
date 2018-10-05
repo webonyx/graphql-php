@@ -66,11 +66,11 @@ class ValidationTest extends TestCase
 
         $this->SomeScalarType = new CustomScalarType([
             'name'         => 'SomeScalar',
-            'serialize'    => function () {
+            'serialize'    => static function () {
             },
-            'parseValue'   => function () {
+            'parseValue'   => static function () {
             },
-            'parseLiteral' => function () {
+            'parseLiteral' => static function () {
             },
         ]);
 
@@ -144,19 +144,19 @@ class ValidationTest extends TestCase
             $types,
             Utils::map(
                 $types,
-                function ($type) {
+                static function ($type) {
                     return Type::listOf($type);
                 }
             ),
             Utils::map(
                 $types,
-                function ($type) {
+                static function ($type) {
                     return Type::nonNull($type);
                 }
             ),
             Utils::map(
                 $types,
-                function ($type) {
+                static function ($type) {
                     return Type::nonNull(Type::listOf($type));
                 }
             )
@@ -173,19 +173,19 @@ class ValidationTest extends TestCase
     {
         $this->assertEachCallableThrows(
             [
-                function () {
+                static function () {
                     return new ObjectType([]);
                 },
-                function () {
+                static function () {
                     return new EnumType([]);
                 },
-                function () {
+                static function () {
                     return new InputObjectType([]);
                 },
-                function () {
+                static function () {
                     return new UnionType([]);
                 },
-                function () {
+                static function () {
                     return new InterfaceType([]);
                 },
             ],
@@ -347,7 +347,7 @@ class ValidationTest extends TestCase
             implode(
                 "\n",
                 array_map(
-                    function ($error) {
+                    static function ($error) {
                         return $error->getMessage();
                     },
                     $array
@@ -581,7 +581,7 @@ class ValidationTest extends TestCase
         $manualSchema2 = $this->schemaWithFieldType(
             new ObjectType([
                 'name'   => 'IncompleteObject',
-                'fields' => function () {
+                'fields' => static function () {
                     return [];
                 },
             ])
@@ -989,6 +989,7 @@ class ValidationTest extends TestCase
 
     /**
      * @see          it('rejects an Enum type with incorrectly named values')
+     *
      * @dataProvider invalidEnumValueName
      */
     public function testRejectsAnEnumTypeWithIncorrectlyNamedValues($name, $expectedMessage) : void
@@ -1974,7 +1975,7 @@ class ValidationTest extends TestCase
     public function testRejectsDifferentInstancesOfTheSameType() : void
     {
         // Invalid: always creates new instance vs returning one from registry
-        $typeLoader = function ($name) {
+        $typeLoader = static function ($name) {
             switch ($name) {
                 case 'Query':
                     return new ObjectType([

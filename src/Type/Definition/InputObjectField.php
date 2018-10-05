@@ -38,7 +38,6 @@ class InputObjectField
     private $defaultValueExists = false;
 
     /**
-     *
      * @param mixed[] $opts
      */
     public function __construct(array $opts)

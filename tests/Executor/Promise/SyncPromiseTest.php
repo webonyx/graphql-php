@@ -4,29 +4,31 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor\Promise;
 
+use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use PHPUnit\Framework\Error\Error;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 use function uniqid;
 
 class SyncPromiseTest extends TestCase
 {
     public function getFulfilledPromiseResolveData()
     {
-        $onFulfilledReturnsNull = function () {
+        $onFulfilledReturnsNull = static function () {
             return null;
         };
 
-        $onFulfilledReturnsSameValue = function ($value) {
+        $onFulfilledReturnsSameValue = static function ($value) {
             return $value;
         };
 
-        $onFulfilledReturnsOtherValue = function ($value) {
+        $onFulfilledReturnsOtherValue = static function ($value) {
             return 'other-' . $value;
         };
 
-        $onFulfilledThrows = function ($value) {
-            throw new \Exception('onFulfilled throws this!');
+        $onFulfilledThrows = static function ($value) {
+            throw new Exception('onFulfilled throws this!');
         };
 
         return [
@@ -55,7 +57,7 @@ class SyncPromiseTest extends TestCase
         $promise->resolve($resolvedValue);
         self::assertEquals(SyncPromise::FULFILLED, $promise->state);
 
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Cannot change value of fulfilled promise');
         $promise->resolve($resolvedValue . '-other-value');
     }
@@ -76,9 +78,9 @@ class SyncPromiseTest extends TestCase
         $promise->resolve($resolvedValue);
         self::assertEquals(SyncPromise::FULFILLED, $promise->state);
 
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Cannot reject fulfilled promise');
-        $promise->reject(new \Exception('anything'));
+        $promise->reject(new Exception('anything'));
     }
 
     /**
@@ -99,7 +101,7 @@ class SyncPromiseTest extends TestCase
 
         $nextPromise = $promise->then(
             null,
-            function () {
+            static function () {
             }
         );
         self::assertSame($promise, $nextPromise);
@@ -107,7 +109,7 @@ class SyncPromiseTest extends TestCase
         $onRejectedCalled = false;
         $nextPromise      = $promise->then(
             $onFulfilled,
-            function () use (&$onRejectedCalled) {
+            static function () use (&$onRejectedCalled) {
                 $onRejectedCalled = true;
             }
         );
@@ -151,7 +153,7 @@ class SyncPromiseTest extends TestCase
                 $onFulfilledCalled = true;
                 $actualNextValue   = $nextValue;
             },
-            static function (\Throwable $reason) use (&$actualNextReason, &$onRejectedCalled) {
+            static function (Throwable $reason) use (&$actualNextReason, &$onRejectedCalled) {
                 $onRejectedCalled = true;
                 $actualNextReason = $reason->getMessage();
             }
@@ -172,29 +174,29 @@ class SyncPromiseTest extends TestCase
 
     public function getRejectedPromiseData()
     {
-        $onRejectedReturnsNull = function () {
+        $onRejectedReturnsNull = static function () {
             return null;
         };
 
-        $onRejectedReturnsSomeValue = function ($reason) {
+        $onRejectedReturnsSomeValue = static function ($reason) {
             return 'some-value';
         };
 
-        $onRejectedThrowsSameReason = function ($reason) {
+        $onRejectedThrowsSameReason = static function ($reason) {
             throw $reason;
         };
 
-        $onRejectedThrowsOtherReason = function ($value) {
-            throw new \Exception('onRejected throws other!');
+        $onRejectedThrowsOtherReason = static function ($value) {
+            throw new Exception('onRejected throws other!');
         };
 
         return [
             // $rejectedReason, $onRejected, $expectedNextValue, $expectedNextReason, $expectedNextState
-            [new \Exception('test-reason'), null, null, 'test-reason', SyncPromise::REJECTED],
-            [new \Exception('test-reason-2'), $onRejectedReturnsNull, null, null, SyncPromise::FULFILLED],
-            [new \Exception('test-reason-3'), $onRejectedReturnsSomeValue, 'some-value', null, SyncPromise::FULFILLED],
-            [new \Exception('test-reason-4'), $onRejectedThrowsSameReason, null, 'test-reason-4', SyncPromise::REJECTED],
-            [new \Exception('test-reason-5'), $onRejectedThrowsOtherReason, null, 'onRejected throws other!', SyncPromise::REJECTED],
+            [new Exception('test-reason'), null, null, 'test-reason', SyncPromise::REJECTED],
+            [new Exception('test-reason-2'), $onRejectedReturnsNull, null, null, SyncPromise::FULFILLED],
+            [new Exception('test-reason-3'), $onRejectedReturnsSomeValue, 'some-value', null, SyncPromise::FULFILLED],
+            [new Exception('test-reason-4'), $onRejectedThrowsSameReason, null, 'test-reason-4', SyncPromise::REJECTED],
+            [new Exception('test-reason-5'), $onRejectedThrowsOtherReason, null, 'onRejected throws other!', SyncPromise::REJECTED],
         ];
     }
 
@@ -214,9 +216,9 @@ class SyncPromiseTest extends TestCase
         $promise->reject($rejectedReason);
         self::assertEquals(SyncPromise::REJECTED, $promise->state);
 
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Cannot change rejection reason');
-        $promise->reject(new \Exception('other-reason'));
+        $promise->reject(new Exception('other-reason'));
     }
 
     /**
@@ -235,7 +237,7 @@ class SyncPromiseTest extends TestCase
         $promise->reject($rejectedReason);
         self::assertEquals(SyncPromise::REJECTED, $promise->state);
 
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Cannot resolve rejected promise');
         $promise->resolve('anything');
     }
@@ -257,21 +259,21 @@ class SyncPromiseTest extends TestCase
         self::assertEquals(SyncPromise::REJECTED, $promise->state);
 
         try {
-            $promise->reject(new \Exception('other-reason'));
+            $promise->reject(new Exception('other-reason'));
             $this->fail('Expected exception not thrown');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             self::assertEquals('Cannot change rejection reason', $e->getMessage());
         }
 
         try {
             $promise->resolve('anything');
             $this->fail('Expected exception not thrown');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             self::assertEquals('Cannot resolve rejected promise', $e->getMessage());
         }
 
         $nextPromise = $promise->then(
-            function () {
+            static function () {
             },
             null
         );
@@ -279,7 +281,7 @@ class SyncPromiseTest extends TestCase
 
         $onFulfilledCalled = false;
         $nextPromise       = $promise->then(
-            function () use (&$onFulfilledCalled) {
+            static function () use (&$onFulfilledCalled) {
                 $onFulfilledCalled = true;
             },
             $onRejected
@@ -315,7 +317,7 @@ class SyncPromiseTest extends TestCase
         try {
             $promise->resolve($promise);
             $this->fail('Expected exception not thrown');
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             self::assertEquals('Cannot resolve promise with self', $e->getMessage());
             self::assertEquals(SyncPromise::PENDING, $promise->state);
         }
@@ -346,26 +348,26 @@ class SyncPromiseTest extends TestCase
             $this->fail('Expected exception not thrown');
         } catch (Error $e) {
             throw $e;
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             self::assertEquals(SyncPromise::PENDING, $promise->state);
         }
 
-        $promise->reject(new \Exception('Rejected Reason'));
+        $promise->reject(new Exception('Rejected Reason'));
         self::assertValidPromise($promise, 'Rejected Reason', null, SyncPromise::REJECTED);
 
         $promise  = new SyncPromise();
         $promise2 = $promise->then(
             null,
-            function () {
+            static function () {
                 return 'value';
             }
         );
-        $promise->reject(new \Exception('Rejected Again'));
+        $promise->reject(new Exception('Rejected Again'));
         self::assertValidPromise($promise2, null, 'value', SyncPromise::FULFILLED);
 
         $promise  = new SyncPromise();
         $promise2 = $promise->then();
-        $promise->reject(new \Exception('Rejected Once Again'));
+        $promise->reject(new Exception('Rejected Once Again'));
         self::assertValidPromise($promise2, 'Rejected Once Again', null, SyncPromise::REJECTED);
     }
 
@@ -382,13 +384,13 @@ class SyncPromiseTest extends TestCase
         // Make sure that it queues derivative promises until resolution:
         $onFulfilledCount = 0;
         $onRejectedCount  = 0;
-        $onFulfilled      = function ($value) use (&$onFulfilledCount) {
+        $onFulfilled      = static function ($value) use (&$onFulfilledCount) {
             $onFulfilledCount++;
 
             return $onFulfilledCount;
         };
 
-        $onRejected = function ($reason) use (&$onRejectedCount) {
+        $onRejected = static function ($reason) use (&$onRejectedCount) {
             $onRejectedCount++;
             throw $reason;
         };

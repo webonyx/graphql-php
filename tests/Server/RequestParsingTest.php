@@ -43,7 +43,7 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(function () use ($content) {
+        return $helper->parseHttpRequest(static function () use ($content) {
             return $content;
         });
     }
@@ -125,6 +125,7 @@ class RequestParsingTest extends TestCase
 
     /**
      * @param mixed[] $postValue
+     *
      * @return OperationParams|OperationParams[]
      */
     private function parseRawFormUrlencodedRequest($postValue)
@@ -135,13 +136,14 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(function () {
+        return $helper->parseHttpRequest(static function () {
             throw new InvariantViolation("Shouldn't read from php://input for urlencoded request");
         });
     }
 
     /**
      * @param mixed[] $postValue
+     *
      * @return OperationParams[]|OperationParams
      */
     private function parsePsrFormUrlEncodedRequest($postValue)
@@ -180,6 +182,7 @@ class RequestParsingTest extends TestCase
 
     /**
      * @param mixed[] $getValue
+     *
      * @return OperationParams
      */
     private function parseRawGetRequest($getValue)
@@ -189,13 +192,14 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(function () {
+        return $helper->parseHttpRequest(static function () {
             throw new InvariantViolation("Shouldn't read from php://input for urlencoded request");
         });
     }
 
     /**
      * @param mixed[] $getValue
+     *
      * @return OperationParams[]|OperationParams
      */
     private function parsePsrGetRequest($getValue)
@@ -233,6 +237,7 @@ class RequestParsingTest extends TestCase
 
     /**
      * @param mixed[] $postValue
+     *
      * @return OperationParams|OperationParams[]
      */
     private function parseRawMultipartFormDataRequest($postValue)
@@ -243,13 +248,14 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(function () {
+        return $helper->parseHttpRequest(static function () {
             throw new InvariantViolation("Shouldn't read from php://input for multipart/form-data request");
         });
     }
 
     /**
      * @param mixed[] $postValue
+     *
      * @return OperationParams|OperationParams[]
      */
     private function parsePsrMultipartFormDataRequest($postValue)

@@ -73,9 +73,11 @@ class Printer
     /**
      * Prints AST to string. Capable of printing GraphQL queries and Type definition language.
      *
-     * @api
      * @param Node $ast
+     *
      * @return string
+     *
+     * @api
      */
     public static function doPrint($ast)
     {
@@ -95,11 +97,11 @@ class Printer
             $ast,
             [
                 'leave' => [
-                    NodeKind::NAME => function (Node $node) {
+                    NodeKind::NAME => static function (Node $node) {
                         return '' . $node->value;
                     },
 
-                    NodeKind::VARIABLE => function ($node) {
+                    NodeKind::VARIABLE => static function ($node) {
                         return '$' . $node->name;
                     },
 
@@ -143,7 +145,7 @@ class Printer
                         );
                     },
 
-                    NodeKind::ARGUMENT => function (ArgumentNode $node) {
+                    NodeKind::ARGUMENT => static function (ArgumentNode $node) {
                         return $node->name . ': ' . $node->value;
                     },
 
@@ -172,11 +174,11 @@ class Printer
                             . $node->selectionSet;
                     },
 
-                    NodeKind::INT => function (IntValueNode $node) {
+                    NodeKind::INT => static function (IntValueNode $node) {
                         return $node->value;
                     },
 
-                    NodeKind::FLOAT => function (FloatValueNode $node) {
+                    NodeKind::FLOAT => static function (FloatValueNode $node) {
                         return $node->value;
                     },
 
@@ -188,15 +190,15 @@ class Printer
                         return json_encode($node->value);
                     },
 
-                    NodeKind::BOOLEAN => function (BooleanValueNode $node) {
+                    NodeKind::BOOLEAN => static function (BooleanValueNode $node) {
                         return $node->value ? 'true' : 'false';
                     },
 
-                    NodeKind::NULL => function (NullValueNode $node) {
+                    NodeKind::NULL => static function (NullValueNode $node) {
                         return 'null';
                     },
 
-                    NodeKind::ENUM => function (EnumValueNode $node) {
+                    NodeKind::ENUM => static function (EnumValueNode $node) {
                         return $node->value;
                     },
 
@@ -208,7 +210,7 @@ class Printer
                         return '{' . $this->join($node->fields, ', ') . '}';
                     },
 
-                    NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) {
+                    NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) {
                         return $node->name . ': ' . $node->value;
                     },
 
@@ -216,15 +218,15 @@ class Printer
                         return '@' . $node->name . $this->wrap('(', $this->join($node->arguments, ', '), ')');
                     },
 
-                    NodeKind::NAMED_TYPE => function (NamedTypeNode $node) {
+                    NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) {
                         return $node->name;
                     },
 
-                    NodeKind::LIST_TYPE => function (ListTypeNode $node) {
+                    NodeKind::LIST_TYPE => static function (ListTypeNode $node) {
                         return '[' . $node->type . ']';
                     },
 
-                    NodeKind::NON_NULL_TYPE => function (NonNullTypeNode $node) {
+                    NodeKind::NON_NULL_TYPE => static function (NonNullTypeNode $node) {
                         return $node->type . '!';
                     },
 
@@ -239,7 +241,7 @@ class Printer
                         );
                     },
 
-                    NodeKind::OPERATION_TYPE_DEFINITION => function (OperationTypeDefinitionNode $def) {
+                    NodeKind::OPERATION_TYPE_DEFINITION => static function (OperationTypeDefinitionNode $def) {
                         return $def->operation . ': ' . $def->type;
                     },
 
@@ -432,7 +434,7 @@ class Printer
         );
     }
 
-    public function addDescription(\Closure $cb)
+    public function addDescription(callable $cb)
     {
         return function ($node) use ($cb) {
             return $this->join([$node->description, $cb($node)], "\n");
@@ -454,7 +456,7 @@ class Printer
      */
     public function block($array)
     {
-        return ($array && $this->length($array))
+        return $array && $this->length($array)
             ? "{\n" . $this->indent($this->join($array, "\n")) . "\n}"
             : '';
     }
@@ -481,7 +483,7 @@ class Printer
                 $separator,
                 Utils::filter(
                     $maybeArray,
-                    function ($x) {
+                    static function ($x) {
                         return (bool) $x;
                     }
                 )
@@ -498,7 +500,7 @@ class Printer
     {
         $escaped = str_replace('"""', '\\"""', $value);
 
-        return (($value[0] === ' ' || $value[0] === "\t") && strpos($value, "\n") === false)
+        return ($value[0] === ' ' || $value[0] === "\t") && strpos($value, "\n") === false
             ? ('"""' . preg_replace('/"$/', "\"\n", $escaped) . '"""')
             : ('"""' . "\n" . ($isDescription ? $escaped : $this->indent($escaped)) . "\n" . '"""');
     }

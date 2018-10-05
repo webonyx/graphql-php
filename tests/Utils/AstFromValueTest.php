@@ -20,6 +20,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use Throwable;
 
 class AstFromValueTest extends TestCase
 {
@@ -61,14 +62,14 @@ class AstFromValueTest extends TestCase
     {
         // GraphQL spec does not allow coercing non-integer values to Int to avoid
         // accidental data loss.
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Int cannot represent non-integer value: 123.5');
         AST::astFromValue(123.5, Type::int());
     }
 
     public function testConvertsIntValuesToASTsCannotRepresentNon32bitsInteger() : void
     {
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: 1.0E+40');
         AST::astFromValue(
             1e40,
@@ -165,7 +166,7 @@ class AstFromValueTest extends TestCase
     private function complexValue()
     {
         if (! $this->complexValue) {
-            $this->complexValue                = new \stdClass();
+            $this->complexValue                = new stdClass();
             $this->complexValue->someArbitrary = 'complexValue';
         }
 
@@ -232,6 +233,7 @@ class AstFromValueTest extends TestCase
 
     /**
      * @param mixed $value
+     *
      * @return ObjectFieldNode
      */
     private function objectField(string $name, $value)
@@ -257,9 +259,9 @@ class AstFromValueTest extends TestCase
 
         self::assertEquals(
             new ObjectValueNode([
-            'fields' => [
-                $this->objectField('foo', new NullValueNode([])),
-            ],
+                'fields' => [
+                    $this->objectField('foo', new NullValueNode([])),
+                ],
             ]),
             AST::astFromValue(['foo' => null], $inputObj)
         );

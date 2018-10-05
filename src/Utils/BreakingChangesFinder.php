@@ -21,6 +21,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
+use TypeError;
 use function array_flip;
 use function array_key_exists;
 use function array_keys;
@@ -141,7 +142,7 @@ class BreakingChangesFinder
     /**
      * @return string
      *
-     * @throws \TypeError
+     * @throws TypeError
      */
     private static function typeKindName(Type $type)
     {
@@ -169,7 +170,7 @@ class BreakingChangesFinder
             return 'an Input type';
         }
 
-        throw new \TypeError('unknown type ' . $type->name);
+        throw new TypeError('unknown type ' . $type->name);
     }
 
     /**
@@ -340,7 +341,6 @@ class BreakingChangesFinder
     }
 
     /**
-     *
      * @return bool
      */
     private static function isChangeSafeForInputObjectFieldOrFieldArg(
@@ -370,8 +370,8 @@ class BreakingChangesFinder
                         $newType->getWrappedType()
                     )) ||
                 // moving from non-null to nullable of the same underlying type is safe
-                (! ($newType instanceof NonNull) &&
-                    self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType));
+                ! ($newType instanceof NonNull) &&
+                    self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType);
         }
 
         return false;
@@ -492,7 +492,7 @@ class BreakingChangesFinder
                     $newArgs   = $newTypeFields[$fieldName]->args;
                     $newArgDef = Utils::find(
                         $newArgs,
-                        function ($arg) use ($oldArgDef) {
+                        static function ($arg) use ($oldArgDef) {
                             return $arg->name === $oldArgDef->name;
                         }
                     );
@@ -531,7 +531,7 @@ class BreakingChangesFinder
                         $oldArgs   = $oldTypeFields[$fieldName]->args;
                         $oldArgDef = Utils::find(
                             $oldArgs,
-                            function ($arg) use ($newArgDef) {
+                            static function ($arg) use ($newArgDef) {
                                 return $arg->name === $newArgDef->name;
                             }
                         );
@@ -586,7 +586,7 @@ class BreakingChangesFinder
             foreach ($oldInterfaces as $oldInterface) {
                 if (Utils::find(
                     $newInterfaces,
-                    function (InterfaceType $interface) use ($oldInterface) {
+                    static function (InterfaceType $interface) use ($oldInterface) {
                         return $interface->name === $oldInterface->name;
                     }
                 )) {
@@ -629,7 +629,7 @@ class BreakingChangesFinder
     {
         return Utils::keyMap(
             $schema->getDirectives(),
-            function ($dir) {
+            static function ($dir) {
                 return $dir->name;
             }
         );
@@ -678,7 +678,7 @@ class BreakingChangesFinder
     {
         return Utils::keyMap(
             $directive->args ?: [],
-            function ($arg) {
+            static function ($arg) {
                 return $arg->name;
             }
         );
@@ -831,7 +831,6 @@ class BreakingChangesFinder
     }
 
     /**
-     *
      * @return string[][]
      */
     public static function findInterfacesAddedToObjectTypes(
@@ -853,7 +852,7 @@ class BreakingChangesFinder
             foreach ($newInterfaces as $newInterface) {
                 if (Utils::find(
                     $oldInterfaces,
-                    function (InterfaceType $interface) use ($newInterface) {
+                    static function (InterfaceType $interface) use ($newInterface) {
                         return $interface->name === $newInterface->name;
                     }
                 )) {

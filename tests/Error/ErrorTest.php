@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Error;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
@@ -17,7 +18,7 @@ class ErrorTest extends TestCase
      */
     public function testUsesTheStackOfAnOriginalError() : void
     {
-        $prev = new \Exception('Original');
+        $prev = new Exception('Original');
         $err  = new Error('msg', null, null, null, null, $prev);
 
         self::assertSame($err->getPrevious(), $prev);

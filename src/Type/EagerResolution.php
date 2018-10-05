@@ -25,7 +25,6 @@ class EagerResolution implements Resolution
     private $implementations = [];
 
     /**
-     *
      * @param Type[] $initialTypes
      */
     public function __construct(array $initialTypes)

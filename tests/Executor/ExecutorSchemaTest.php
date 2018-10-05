@@ -32,14 +32,14 @@ class ExecutorSchemaTest extends TestCase
 
         $BlogAuthor = new ObjectType([
             'name'   => 'Author',
-            'fields' => function () use (&$BlogArticle, &$BlogImage) {
+            'fields' => static function () use (&$BlogArticle, &$BlogImage) {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
                     'pic'           => [
                         'args'    => ['width' => ['type' => Type::int()], 'height' => ['type' => Type::int()]],
                         'type'    => $BlogImage,
-                        'resolve' => function ($obj, $args) {
+                        'resolve' => static function ($obj, $args) {
                             return $obj['pic']($args['width'], $args['height']);
                         },
                     ],
@@ -201,7 +201,7 @@ class ExecutorSchemaTest extends TestCase
     private function article($id)
     {
         $johnSmith = null;
-        $article   = function ($id) use (&$johnSmith) {
+        $article   = static function ($id) use (&$johnSmith) {
             return [
                 'id'          => $id,
                 'isPublished' => 'true',
@@ -213,7 +213,7 @@ class ExecutorSchemaTest extends TestCase
             ];
         };
 
-        $getPic = function ($uid, $width, $height) {
+        $getPic = static function ($uid, $width, $height) {
             return [
                 'url'    => sprintf('cdn://%s', $uid),
                 'width'  => $width,
@@ -224,7 +224,7 @@ class ExecutorSchemaTest extends TestCase
         $johnSmith = [
             'id'            => 123,
             'name'          => 'John Smith',
-            'pic'           => function ($width, $height) use ($getPic) {
+            'pic'           => static function ($width, $height) use ($getPic) {
                 return $getPic(123, $width, $height);
             },
             'recentArticle' => $article(1),

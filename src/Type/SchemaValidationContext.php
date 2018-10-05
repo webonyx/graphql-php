@@ -207,6 +207,7 @@ class SchemaValidationContext
 
     /**
      * @param string $argName
+     *
      * @return InputValueDefinitionNode[]
      */
     private function getAllDirectiveArgNodes(Directive $directive, $argName)
@@ -228,6 +229,7 @@ class SchemaValidationContext
 
     /**
      * @param string $argName
+     *
      * @return TypeNode|null
      */
     private function getDirectiveArgTypeNode(Directive $directive, $argName)
@@ -358,6 +360,7 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
+     *
      * @return ObjectTypeDefinitionNode[]|ObjectTypeExtensionNode[]|InterfaceTypeDefinitionNode[]|InterfaceTypeExtensionNode[]
      */
     private function getAllObjectOrInterfaceNodes($type)
@@ -372,6 +375,7 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
+     *
      * @return FieldDefinitionNode[]
      */
     private function getAllFieldNodes($type, $fieldName)
@@ -398,6 +402,7 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
+     *
      * @return TypeNode|null
      */
     private function getFieldTypeNode($type, $fieldName)
@@ -410,6 +415,7 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
+     *
      * @return FieldDefinitionNode|null
      */
     private function getFieldNode($type, $fieldName)
@@ -423,6 +429,7 @@ class SchemaValidationContext
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
      * @param string                   $argName
+     *
      * @return InputValueDefinitionNode[]
      */
     private function getAllFieldArgNodes($type, $fieldName, $argName)
@@ -446,6 +453,7 @@ class SchemaValidationContext
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
      * @param string                   $argName
+     *
      * @return TypeNode|null
      */
     private function getFieldArgTypeNode($type, $fieldName, $argName)
@@ -459,6 +467,7 @@ class SchemaValidationContext
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
      * @param string                   $argName
+     *
      * @return InputValueDefinitionNode|null
      */
     private function getFieldArgNode($type, $fieldName, $argName)
@@ -497,6 +506,7 @@ class SchemaValidationContext
 
     /**
      * @param InterfaceType $iface
+     *
      * @return NamedTypeNode|null
      */
     private function getImplementsInterfaceNode(ObjectType $type, $iface)
@@ -508,6 +518,7 @@ class SchemaValidationContext
 
     /**
      * @param InterfaceType $iface
+     *
      * @return NamedTypeNode[]
      */
     private function getAllImplementsInterfaceNodes(ObjectType $type, $iface)
@@ -715,6 +726,7 @@ class SchemaValidationContext
 
     /**
      * @param string $typeName
+     *
      * @return NamedTypeNode[]
      */
     private function getUnionMemberTypeNodes(UnionType $union, $typeName)
@@ -722,7 +734,7 @@ class SchemaValidationContext
         if ($union->astNode && $union->astNode->types) {
             return array_filter(
                 $union->astNode->types,
-                function (NamedTypeNode $value) use ($typeName) {
+                static function (NamedTypeNode $value) use ($typeName) {
                     return $value->name->value === $typeName;
                 }
             );
@@ -770,6 +782,7 @@ class SchemaValidationContext
 
     /**
      * @param string $valueName
+     *
      * @return EnumValueDefinitionNode[]
      */
     private function getEnumValueNodes(EnumType $enum, $valueName)
@@ -777,7 +790,7 @@ class SchemaValidationContext
         if ($enum->astNode && $enum->astNode->values) {
             return array_filter(
                 iterator_to_array($enum->astNode->values),
-                function (EnumValueDefinitionNode $value) use ($valueName) {
+                static function (EnumValueDefinitionNode $value) use ($valueName) {
                     return $value->name->value === $valueName;
                 }
             );

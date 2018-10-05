@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor\Promise\Adapter;
 
+use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
+use Throwable;
 use function count;
 
 /**
@@ -67,9 +69,9 @@ class SyncPromiseAdapter implements PromiseAdapter
                     'reject',
                 ]
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $promise->reject($e);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             $promise->reject($e);
         }
 
@@ -111,7 +113,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             if ($promiseOrValue instanceof Promise) {
                 $result[$index] = null;
                 $promiseOrValue->then(
-                    function ($value) use ($index, &$count, $total, &$result, $all) {
+                    static function ($value) use ($index, &$count, $total, &$result, $all) {
                         $result[$index] = $value;
                         $count++;
                         if ($count < $total) {
@@ -167,7 +169,6 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     /**
      * Execute just before starting to run promise completion
-     *
      */
     protected function beforeWait(Promise $promise)
     {
@@ -175,7 +176,6 @@ class SyncPromiseAdapter implements PromiseAdapter
 
     /**
      * Execute while running promise completion
-     *
      */
     protected function onWait(Promise $promise)
     {

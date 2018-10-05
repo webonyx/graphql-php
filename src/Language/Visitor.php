@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace GraphQL\Language;
 
 use ArrayObject;
+use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\TypeInfo;
+use SplFixedArray;
 use stdClass;
 use function array_pop;
 use function array_splice;
@@ -172,12 +174,15 @@ class Visitor
     /**
      * Visit the AST (see class description for details)
      *
-     * @api
      * @param Node|ArrayObject|stdClass $root
      * @param callable[]                $visitor
      * @param mixed[]|null              $keyMap
+     *
      * @return Node|mixed
-     * @throws \Exception
+     *
+     * @throws Exception
+     *
+     * @api
      */
     public static function visit($root, $visitor, $keyMap = null)
     {
@@ -247,7 +252,7 @@ class Visitor
                 $stack   = $stack['prev'];
             } else {
                 $key  = $parent ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
-                $node = $parent ? (($parent instanceof NodeList || is_array($parent)) ? $parent[$key] : $parent->{$key}) : $newRoot;
+                $node = $parent ? ($parent instanceof NodeList || is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
@@ -259,7 +264,7 @@ class Visitor
             $result = null;
             if (! $node instanceof NodeList && ! is_array($node)) {
                 if (! ($node instanceof Node)) {
-                    throw new \Exception('Invalid AST Node: ' . json_encode($node));
+                    throw new Exception('Invalid AST Node: ' . json_encode($node));
                 }
 
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
@@ -333,8 +338,9 @@ class Visitor
     /**
      * Returns marker for visitor break
      *
-     * @api
      * @return VisitorOperation
+     *
+     * @api
      */
     public static function stop()
     {
@@ -347,8 +353,9 @@ class Visitor
     /**
      * Returns marker for skipping current node
      *
-     * @api
      * @return VisitorOperation
+     *
+     * @api
      */
     public static function skipNode()
     {
@@ -361,8 +368,9 @@ class Visitor
     /**
      * Returns marker for removing a node
      *
-     * @api
      * @return VisitorOperation
+     *
+     * @api
      */
     public static function removeNode()
     {
@@ -374,15 +382,16 @@ class Visitor
 
     /**
      * @param callable[][] $visitors
+     *
      * @return callable[][]
      */
     public static function visitInParallel($visitors)
     {
         $visitorsCount = count($visitors);
-        $skipping      = new \SplFixedArray($visitorsCount);
+        $skipping      = new SplFixedArray($visitorsCount);
 
         return [
-            'enter' => function (Node $node) use ($visitors, $skipping, $visitorsCount) {
+            'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if (! empty($skipping[$i])) {
                         continue;
@@ -413,7 +422,7 @@ class Visitor
                     }
                 }
             },
-            'leave' => function (Node $node) use ($visitors, $skipping, $visitorsCount) {
+            'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if (empty($skipping[$i])) {
                         $fn = self::getVisitFn(
@@ -449,7 +458,7 @@ class Visitor
     public static function visitWithTypeInfo(TypeInfo $typeInfo, $visitor)
     {
         return [
-            'enter' => function (Node $node) use ($typeInfo, $visitor) {
+            'enter' => static function (Node $node) use ($typeInfo, $visitor) {
                 $typeInfo->enter($node);
                 $fn = self::getVisitFn($visitor, $node->kind, false);
 
@@ -467,7 +476,7 @@ class Visitor
 
                 return null;
             },
-            'leave' => function (Node $node) use ($typeInfo, $visitor) {
+            'leave' => static function (Node $node) use ($typeInfo, $visitor) {
                 $fn     = self::getVisitFn($visitor, $node->kind, true);
                 $result = $fn ? call_user_func_array($fn, func_get_args()) : null;
                 $typeInfo->leave($node);
@@ -481,6 +490,7 @@ class Visitor
      * @param callable[]|null $visitor
      * @param string          $kind
      * @param bool            $isLeaving
+     *
      * @return callable|null
      */
     public static function getVisitFn($visitor, $kind, $isLeaving)

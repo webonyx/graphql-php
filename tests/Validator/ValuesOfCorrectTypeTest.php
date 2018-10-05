@@ -1286,6 +1286,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      * @see it('Partial object, unknown field arg')
      *
      * The sorting of equal elements has changed so that the test fails on php < 7
+     *
      * @requires PHP 7.0
      */
     public function testPartialObjectUnknownFieldArg() : void

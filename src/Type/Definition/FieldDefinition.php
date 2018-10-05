@@ -65,7 +65,6 @@ class FieldDefinition
     private $complexityFn;
 
     /**
-     *
      * @param mixed[] $config
      */
     protected function __construct(array $config)
@@ -140,6 +139,7 @@ class FieldDefinition
 
     /**
      * @param mixed[] $field
+     *
      * @return FieldDefinition
      */
     public static function create($field)
@@ -149,6 +149,7 @@ class FieldDefinition
 
     /**
      * @param int $childrenComplexity
+     *
      * @return mixed
      */
     public static function defaultComplexity($childrenComplexity)
@@ -158,6 +159,7 @@ class FieldDefinition
 
     /**
      * @param string $name
+     *
      * @return FieldArgument|null
      */
     public function getArg($name)
@@ -189,7 +191,7 @@ class FieldDefinition
     }
 
     /**
-     * @return callable|\Closure
+     * @return callable|callable
      */
     public function getComplexityFn()
     {

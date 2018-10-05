@@ -17,6 +17,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
+use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
@@ -52,9 +53,11 @@ class Helper
      *
      * For PSR-7 request parsing use `parsePsrRequest()` instead.
      *
-     * @api
      * @return OperationParams|OperationParams[]
+     *
      * @throws RequestError
+     *
+     * @api
      */
     public function parseHttpRequest(?callable $readRawBodyFn = null)
     {
@@ -104,12 +107,15 @@ class Helper
      *
      * Returned value is a suitable input for `executeOperation` or `executeBatch` (if array)
      *
-     * @api
      * @param string  $method
      * @param mixed[] $bodyParams
      * @param mixed[] $queryParams
+     *
      * @return OperationParams|OperationParams[]
+     *
      * @throws RequestError
+     *
+     * @api
      */
     public function parseRequestParams($method, array $bodyParams, array $queryParams)
     {
@@ -136,8 +142,9 @@ class Helper
      * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
      * if params are invalid (or empty array when params are valid)
      *
-     * @api
      * @return Error[]
+     *
+     * @api
      */
     public function validateOperationParams(OperationParams $params)
     {
@@ -185,9 +192,9 @@ class Helper
      * Executes GraphQL operation with given server configuration and returns execution result
      * (or promise when promise adapter is different from SyncPromiseAdapter)
      *
-     * @api
-     *
      * @return ExecutionResult|Promise
+     *
+     * @api
      */
     public function executeOperation(ServerConfig $config, OperationParams $op)
     {
@@ -205,9 +212,11 @@ class Helper
      * Executes batched GraphQL operations with shared promise queue
      * (thus, effectively batching deferreds|promises of all queries at once)
      *
-     * @api
      * @param OperationParams[] $operations
+     *
      * @return ExecutionResult|ExecutionResult[]|Promise
+     *
+     * @api
      */
     public function executeBatch(ServerConfig $config, array $operations)
     {
@@ -230,6 +239,7 @@ class Helper
 
     /**
      * @param bool $isBatch
+     *
      * @return Promise
      */
     private function promiseToExecuteOperation(
@@ -252,7 +262,7 @@ class Helper
             if (! empty($errors)) {
                 $errors = Utils::map(
                     $errors,
-                    function (RequestError $err) {
+                    static function (RequestError $err) {
                         return Error::createLocatedError($err, null, null);
                     }
                 );
@@ -294,7 +304,7 @@ class Helper
             );
         }
 
-        $applyErrorHandling = function (ExecutionResult $result) use ($config) {
+        $applyErrorHandling = static function (ExecutionResult $result) use ($config) {
             if ($config->getErrorsHandler()) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
@@ -315,6 +325,7 @@ class Helper
 
     /**
      * @return mixed
+     *
      * @throws RequestError
      */
     private function loadPersistedQuery(ServerConfig $config, OperationParams $operationParams)
@@ -341,6 +352,7 @@ class Helper
 
     /**
      * @param string $operationType
+     *
      * @return mixed[]|null
      */
     private function resolveValidationRules(
@@ -368,13 +380,14 @@ class Helper
 
     /**
      * @param string $operationType
+     *
      * @return mixed
      */
     private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, $operationType)
     {
         $root = $config->getRootValue();
 
-        if ($root instanceof \Closure) {
+        if (is_callable($root)) {
             $root = $root($params, $doc, $operationType);
         }
 
@@ -383,6 +396,7 @@ class Helper
 
     /**
      * @param string $operationType
+     *
      * @return mixed
      */
     private function resolveContextValue(
@@ -393,7 +407,7 @@ class Helper
     ) {
         $context = $config->getContext();
 
-        if ($context instanceof \Closure) {
+        if (is_callable($context)) {
             $context = $context($params, $doc, $operationType);
         }
 
@@ -403,9 +417,10 @@ class Helper
     /**
      * Send response using standard PHP `header()` and `echo`.
      *
-     * @api
      * @param Promise|ExecutionResult|ExecutionResult[] $result
      * @param bool                                      $exitWhenDone
+     *
+     * @api
      */
     public function sendResponse($result, $exitWhenDone = false)
     {
@@ -425,9 +440,9 @@ class Helper
     }
 
     /**
-     * @param mixed[]|\JsonSerializable $jsonSerializable
-     * @param int                       $httpStatus
-     * @param bool                      $exitWhenDone
+     * @param mixed[]|JsonSerializable $jsonSerializable
+     * @param int                      $httpStatus
+     * @param bool                     $exitWhenDone
      */
     public function emitResponse($jsonSerializable, $httpStatus, $exitWhenDone)
     {
@@ -450,6 +465,7 @@ class Helper
 
     /**
      * @param ExecutionResult|mixed[] $result
+     *
      * @return int
      */
     private function resolveHttpStatus($result)
@@ -457,7 +473,7 @@ class Helper
         if (is_array($result) && isset($result[0])) {
             Utils::each(
                 $result,
-                function ($executionResult, $index) {
+                static function ($executionResult, $index) {
                     if (! $executionResult instanceof ExecutionResult) {
                         throw new InvariantViolation(sprintf(
                             'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',
@@ -490,9 +506,11 @@ class Helper
     /**
      * Converts PSR-7 request to OperationParams[]
      *
-     * @api
      * @return OperationParams[]|OperationParams
+     *
      * @throws RequestError
+     *
+     * @api
      */
     public function parsePsrRequest(ServerRequestInterface $request)
     {
@@ -541,9 +559,11 @@ class Helper
     /**
      * Converts query execution result to PSR-7 response
      *
-     * @api
      * @param Promise|ExecutionResult|ExecutionResult[] $result
+     *
      * @return Promise|ResponseInterface
+     *
+     * @api
      */
     public function toPsrResponse($result, ResponseInterface $response, StreamInterface $writableBodyStream)
     {

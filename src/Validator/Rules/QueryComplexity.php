@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use ArrayObject;
 use GraphQL\Error\Error;
 use GraphQL\Executor\Values;
 use GraphQL\Language\AST\FieldNode;
@@ -31,10 +32,10 @@ class QueryComplexity extends QuerySecurityRule
     /** @var mixed[]|null  */
     private $rawVariableValues = [];
 
-    /** @var \ArrayObject */
+    /** @var ArrayObject */
     private $variableDefs;
 
-    /** @var \ArrayObject */
+    /** @var ArrayObject */
     private $fieldNodeAndDefs;
 
     /** @var ValidationContext */
@@ -49,8 +50,8 @@ class QueryComplexity extends QuerySecurityRule
     {
         $this->context = $context;
 
-        $this->variableDefs     = new \ArrayObject();
-        $this->fieldNodeAndDefs = new \ArrayObject();
+        $this->variableDefs     = new ArrayObject();
+        $this->fieldNodeAndDefs = new ArrayObject();
         $complexity             = 0;
 
         return $this->invokeIfNeeded(
@@ -196,7 +197,7 @@ class QueryComplexity extends QuerySecurityRule
                 throw new Error(implode(
                     "\n\n",
                     array_map(
-                        function ($error) {
+                        static function ($error) {
                             return $error->getMessage();
                         },
                         $variableValuesResult['errors']
@@ -251,7 +252,7 @@ class QueryComplexity extends QuerySecurityRule
                 throw new Error(implode(
                     "\n\n",
                     array_map(
-                        function ($error) {
+                        static function ($error) {
                             return $error->getMessage();
                         },
                         $variableValuesResult['errors']

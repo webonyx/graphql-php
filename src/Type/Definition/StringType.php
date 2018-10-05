@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
@@ -29,7 +30,9 @@ represent free-form human-readable text.';
 
     /**
      * @param mixed $value
+     *
      * @return mixed|string
+     *
      * @throws Error
      */
     public function serialize($value)
@@ -67,7 +70,9 @@ represent free-form human-readable text.';
 
     /**
      * @param mixed $value
+     *
      * @return string
+     *
      * @throws Error
      */
     public function parseValue($value)
@@ -78,8 +83,10 @@ represent free-form human-readable text.';
     /**
      * @param Node         $valueNode
      * @param mixed[]|null $variables
-     * @return null|string
-     * @throws \Exception
+     *
+     * @return string|null
+     *
+     * @throws Exception
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
@@ -88,6 +95,6 @@ represent free-form human-readable text.';
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new \Exception();
+        throw new Exception();
     }
 }

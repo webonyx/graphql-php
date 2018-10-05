@@ -20,6 +20,7 @@ interface Resolution
      * Returns instance of type with given $name for GraphQL Schema
      *
      * @param string $name
+     *
      * @return Type
      */
     public function resolveType($name);

@@ -28,7 +28,7 @@ class ResolveInfoTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => function () use ($image, &$article) {
+            'fields' => static function () use ($image, &$article) {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -151,7 +151,7 @@ class ResolveInfoTest extends TestCase
             'fields' => [
                 'article' => [
                     'type'    => $article,
-                    'resolve' => function (
+                    'resolve' => static function (
                         $value,
                         $args,
                         $context,
@@ -196,7 +196,7 @@ class ResolveInfoTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => function () use ($image, &$article) {
+            'fields' => static function () use ($image, &$article) {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -324,7 +324,7 @@ class ResolveInfoTest extends TestCase
             'fields' => [
                 'article' => [
                     'type'    => $article,
-                    'resolve' => function (
+                    'resolve' => static function (
                         $value,
                         $args,
                         $context,

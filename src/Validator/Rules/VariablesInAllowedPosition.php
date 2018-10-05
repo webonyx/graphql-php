@@ -71,7 +71,7 @@ class VariablesInAllowedPosition extends ValidationRule
 
     private function effectiveType($varType, $varDef)
     {
-        return (! $varDef->defaultValue || $varType instanceof NonNull) ? $varType : new NonNull($varType);
+        return ! $varDef->defaultValue || $varType instanceof NonNull ? $varType : new NonNull($varType);
     }
 
     /**

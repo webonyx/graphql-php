@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use Closure;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -51,7 +52,7 @@ class BuildSchemaTest extends TestCase
         ');
 
         $root = [
-            'add' => function ($root, $args) {
+            'add' => static function ($root, $args) {
                 return $args['x'] + $args['y'];
             },
         ];
@@ -1196,7 +1197,7 @@ interface Hello {
         $decorated = [];
         $calls     = [];
 
-        $typeConfigDecorator = function ($defaultConfig, $node, $allNodesMap) use (&$decorated, &$calls) {
+        $typeConfigDecorator = static function ($defaultConfig, $node, $allNodesMap) use (&$decorated, &$calls) {
             $decorated[] = $defaultConfig['name'];
             $calls[]     = [$defaultConfig, $node, $allNodesMap];
 
@@ -1207,17 +1208,17 @@ interface Hello {
         $schema->getTypeMap();
         self::assertEquals(['Query', 'Color', 'Hello'], $decorated);
 
-        list($defaultConfig, $node, $allNodesMap) = $calls[0];
+        [$defaultConfig, $node, $allNodesMap] = $calls[0];
         self::assertInstanceOf(ObjectTypeDefinitionNode::class, $node);
         self::assertEquals('Query', $defaultConfig['name']);
-        self::assertInstanceOf(\Closure::class, $defaultConfig['fields']);
-        self::assertInstanceOf(\Closure::class, $defaultConfig['interfaces']);
+        self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
+        self::assertInstanceOf(Closure::class, $defaultConfig['interfaces']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertCount(5, $defaultConfig);
         self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
         self::assertEquals('My description of Query', $schema->getType('Query')->description);
 
-        list($defaultConfig, $node, $allNodesMap) = $calls[1];
+        [$defaultConfig, $node, $allNodesMap] = $calls[1];
         self::assertInstanceOf(EnumTypeDefinitionNode::class, $node);
         self::assertEquals('Color', $defaultConfig['name']);
         $enumValue = [
@@ -1236,10 +1237,10 @@ interface Hello {
         self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
         self::assertEquals('My description of Color', $schema->getType('Color')->description);
 
-        list($defaultConfig, $node, $allNodesMap) = $calls[2];
+        [$defaultConfig, $node, $allNodesMap] = $calls[2];
         self::assertInstanceOf(InterfaceTypeDefinitionNode::class, $node);
         self::assertEquals('Hello', $defaultConfig['name']);
-        self::assertInstanceOf(\Closure::class, $defaultConfig['fields']);
+        self::assertInstanceOf(Closure::class, $defaultConfig['fields']);
         self::assertArrayHasKey('description', $defaultConfig);
         self::assertCount(4, $defaultConfig);
         self::assertEquals(array_keys($allNodesMap), ['Query', 'Color', 'Hello']);
@@ -1276,7 +1277,7 @@ type World implements Hello {
         $doc     = Parser::parse($body);
         $created = [];
 
-        $typeConfigDecorator = function ($config, $node) use (&$created) {
+        $typeConfigDecorator = static function ($config, $node) use (&$created) {
             $created[] = $node->name->value;
 
             return $config;

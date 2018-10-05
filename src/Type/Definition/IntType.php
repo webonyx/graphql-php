@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
@@ -36,7 +37,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
     /**
      * @param mixed $value
+     *
      * @return int|null
+     *
      * @throws Error
      */
     public function serialize($value)
@@ -46,6 +49,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
     /**
      * @param mixed $value
+     *
      * @return int
      */
     private function coerceInt($value)
@@ -78,7 +82,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
     /**
      * @param mixed $value
+     *
      * @return int|null
+     *
      * @throws Error
      */
     public function parseValue($value)
@@ -89,8 +95,10 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     /**
      * @param Node         $valueNode
      * @param mixed[]|null $variables
+     *
      * @return int|null
-     * @throws \Exception
+     *
+     * @throws Exception
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
@@ -102,6 +110,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new \Exception();
+        throw new Exception();
     }
 }

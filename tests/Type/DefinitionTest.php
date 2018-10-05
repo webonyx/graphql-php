@@ -19,6 +19,8 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use stdClass;
+use Throwable;
 use function count;
 use function get_class;
 use function json_encode;
@@ -80,11 +82,11 @@ class DefinitionTest extends TestCase
 
         $this->scalarType = new CustomScalarType([
             'name'         => 'Scalar',
-            'serialize'    => function () {
+            'serialize'    => static function () {
             },
-            'parseValue'   => function () {
+            'parseValue'   => static function () {
             },
-            'parseLiteral' => function () {
+            'parseLiteral' => static function () {
             },
         ]);
 
@@ -403,7 +405,7 @@ class DefinitionTest extends TestCase
             'fields'     => [
                 'f' => ['type' => Type::int()],
             ],
-            'interfaces' => function () use (&$someInterface) {
+            'interfaces' => static function () use (&$someInterface) {
                 return [$someInterface];
             },
         ]);
@@ -557,7 +559,7 @@ class DefinitionTest extends TestCase
 
         $user = new ObjectType([
             'name'       => 'User',
-            'fields'     => function () use (&$blog, &$called) {
+            'fields'     => static function () use (&$blog, &$called) {
                 self::assertNotNull($blog, 'Blog type is expected to be defined at this point, but it is null');
                 $called = true;
 
@@ -566,20 +568,20 @@ class DefinitionTest extends TestCase
                     'blogs' => ['type' => Type::nonNull(Type::listOf(Type::nonNull($blog)))],
                 ];
             },
-            'interfaces' => function () use ($node) {
+            'interfaces' => static function () use ($node) {
                 return [$node];
             },
         ]);
 
         $blog = new ObjectType([
             'name'       => 'Blog',
-            'fields'     => function () use ($user) {
+            'fields'     => static function () use ($user) {
                 return [
                     'id'    => ['type' => Type::nonNull(Type::id())],
                     'owner' => ['type' => Type::nonNull($user)],
                 ];
             },
-            'interfaces' => function () use ($node) {
+            'interfaces' => static function () use ($node) {
                 return [$node];
             },
         ]);
@@ -612,7 +614,7 @@ class DefinitionTest extends TestCase
         $called      = false;
         $inputObject = new InputObjectType([
             'name'   => 'InputObject',
-            'fields' => function () use (&$inputObject, &$called) {
+            'fields' => static function () use (&$inputObject, &$called) {
                 $called = true;
 
                 return [
@@ -649,7 +651,7 @@ class DefinitionTest extends TestCase
         $called    = false;
         $interface = new InterfaceType([
             'name'   => 'SomeInterface',
-            'fields' => function () use (&$interface, &$called) {
+            'fields' => static function () use (&$interface, &$called) {
                 $called = true;
 
                 return [
@@ -679,7 +681,7 @@ class DefinitionTest extends TestCase
     {
         $interface = new InterfaceType([
             'name'   => 'SomeInterface',
-            'fields' => function () use (&$interface) {
+            'fields' => static function () use (&$interface) {
                 return [
                     'value'   => Type::string(),
                     'nested'  => $interface,
@@ -730,11 +732,11 @@ class DefinitionTest extends TestCase
     {
         $idType = new CustomScalarType([
             'name'         => 'ID',
-            'serialize'    => function () {
+            'serialize'    => static function () {
             },
-            'parseValue'   => function () {
+            'parseValue'   => static function () {
             },
-            'parseLiteral' => function () {
+            'parseLiteral' => static function () {
             },
         ]);
 
@@ -755,7 +757,7 @@ class DefinitionTest extends TestCase
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
-            'fields' => function () {
+            'fields' => static function () {
                 return [
                     'f' => ['type' => Type::string()],
                 ];
@@ -805,7 +807,7 @@ class DefinitionTest extends TestCase
     {
         $objType = new ObjectType([
             'name'   => 'SomeObject',
-            'fields' => function () {
+            'fields' => static function () {
                 return [['field' => Type::string()]];
             },
         ]);
@@ -901,7 +903,7 @@ class DefinitionTest extends TestCase
     {
         $objType = new ObjectType([
             'name'       => 'SomeObject',
-            'interfaces' => new \stdClass(),
+            'interfaces' => new stdClass(),
             'fields'     => ['f' => ['type' => Type::string()]],
         ]);
         $this->expectException(InvariantViolation::class);
@@ -918,8 +920,8 @@ class DefinitionTest extends TestCase
     {
         $objType = new ObjectType([
             'name'       => 'SomeObject',
-            'interfaces' => function () {
-                return new \stdClass();
+            'interfaces' => static function () {
+                return new stdClass();
             },
             'fields'     => ['f' => ['type' => Type::string()]],
         ]);
@@ -939,7 +941,7 @@ class DefinitionTest extends TestCase
     {
         $this->expectNotToPerformAssertions();
         // should not throw:
-        $this->schemaWithObjectWithFieldResolver(function () {
+        $this->schemaWithObjectWithFieldResolver(static function () {
         });
     }
 
@@ -1083,7 +1085,7 @@ class DefinitionTest extends TestCase
 
         $type = new InterfaceType([
             'name'        => 'AnotherInterface',
-            'resolveType' => new \stdClass(),
+            'resolveType' => new stdClass(),
             'fields'      => ['f' => ['type' => Type::string()]],
         ]);
         $type->assertValid();
@@ -1148,7 +1150,7 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new UnionType([
                 'name'        => 'SomeUnion',
-                'resolveType' => new \stdClass(),
+                'resolveType' => new stdClass(),
                 'types'       => [$this->objectWithIsTypeOf],
             ])
         );
@@ -1164,7 +1166,7 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'      => 'SomeScalar',
-                'serialize' => function () {
+                'serialize' => static function () {
                     return null;
                 },
             ])
@@ -1203,7 +1205,7 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'      => 'SomeScalar',
-                'serialize' => new \stdClass(),
+                'serialize' => new stdClass(),
             ])
         );
     }
@@ -1218,11 +1220,11 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'         => 'SomeScalar',
-                'serialize'    => function () {
+                'serialize'    => static function () {
                 },
-                'parseValue'   => function () {
+                'parseValue'   => static function () {
                 },
-                'parseLiteral' => function () {
+                'parseLiteral' => static function () {
                 },
             ])
         );
@@ -1240,9 +1242,9 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'       => 'SomeScalar',
-                'serialize'  => function () {
+                'serialize'  => static function () {
                 },
-                'parseValue' => function () {
+                'parseValue' => static function () {
                 },
             ])
         );
@@ -1260,9 +1262,9 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'         => 'SomeScalar',
-                'serialize'    => function () {
+                'serialize'    => static function () {
                 },
-                'parseLiteral' => function () {
+                'parseLiteral' => static function () {
                 },
             ])
         );
@@ -1280,10 +1282,10 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new CustomScalarType([
                 'name'         => 'SomeScalar',
-                'serialize'    => function () {
+                'serialize'    => static function () {
                 },
-                'parseValue'   => new \stdClass(),
-                'parseLiteral' => new \stdClass(),
+                'parseValue'   => new stdClass(),
+                'parseLiteral' => new stdClass(),
             ])
         );
     }
@@ -1317,7 +1319,7 @@ class DefinitionTest extends TestCase
         $this->schemaWithFieldType(
             new ObjectType([
                 'name'     => 'AnotherObject',
-                'isTypeOf' => new \stdClass(),
+                'isTypeOf' => new stdClass(),
                 'fields'   => ['f' => ['type' => Type::string()]],
             ])
         );
@@ -1411,7 +1413,7 @@ class DefinitionTest extends TestCase
     {
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
-            'fields' => function () {
+            'fields' => static function () {
                 return [
                     'f' => ['type' => Type::string()],
                 ];
@@ -1445,7 +1447,7 @@ class DefinitionTest extends TestCase
     {
         $inputObjType = new InputObjectType([
             'name'   => 'SomeInputObject',
-            'fields' => function () {
+            'fields' => static function () {
                 return [];
             },
         ]);
@@ -1467,7 +1469,7 @@ class DefinitionTest extends TestCase
             'fields' => [
                 'f' => [
                     'type'    => Type::string(),
-                    'resolve' => function () {
+                    'resolve' => static function () {
                         return 0;
                     },
                 ],
@@ -1493,7 +1495,7 @@ class DefinitionTest extends TestCase
             'fields' => [
                 'f' => [
                     'type'    => Type::string(),
-                    'resolve' => new \stdClass(),
+                    'resolve' => new stdClass(),
                 ],
             ],
         ]);
@@ -1591,12 +1593,12 @@ class DefinitionTest extends TestCase
             Type::nonNull(Type::string()),
         ];
 
-        $badTypes = [[], new \stdClass(), '', null];
+        $badTypes = [[], new stdClass(), '', null];
 
         foreach ($types as $type) {
             try {
                 Type::listOf($type);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->fail('List is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
             }
         }
@@ -1630,14 +1632,14 @@ class DefinitionTest extends TestCase
         $notNullableTypes = [
             Type::nonNull(Type::string()),
             [],
-            new \stdClass(),
+            new stdClass(),
             '',
             null,
         ];
         foreach ($nullableTypes as $type) {
             try {
                 Type::nonNull($type);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 $this->fail('NonNull is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
             }
         }
@@ -1659,7 +1661,7 @@ class DefinitionTest extends TestCase
     {
         $FakeString = new CustomScalarType([
             'name'      => 'String',
-            'serialize' => function () {
+            'serialize' => static function () {
             },
         ]);
 

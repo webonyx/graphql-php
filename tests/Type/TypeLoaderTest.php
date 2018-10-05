@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Type;
 
+use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -11,6 +12,8 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use stdClass;
+use Throwable;
 use function lcfirst;
 
 class TypeLoaderTest extends TestCase
@@ -55,7 +58,7 @@ class TypeLoaderTest extends TestCase
                     'id' => Type::string(),
                 ];
             },
-            'resolveType' => function () {
+            'resolveType' => static function () {
             },
         ]);
 
@@ -69,7 +72,7 @@ class TypeLoaderTest extends TestCase
                     'body'  => Type::string(),
                 ];
             },
-            'resolveType' => function () {
+            'resolveType' => static function () {
             },
         ]);
 
@@ -152,7 +155,7 @@ class TypeLoaderTest extends TestCase
                 'name'   => 'Query',
                 'fields' => ['a' => Type::string()],
             ]),
-            'typeLoader' => function () {
+            'typeLoader' => static function () {
             },
         ]);
     }
@@ -253,7 +256,7 @@ class TypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => function () {
+            'typeLoader' => static function () {
             },
         ]);
 
@@ -267,8 +270,8 @@ class TypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => function () {
-                return new \stdClass();
+            'typeLoader' => static function () {
+                return new stdClass();
             },
         ]);
 
@@ -297,12 +300,12 @@ class TypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => function () {
-                throw new \Exception('This is the exception we are looking for');
+            'typeLoader' => static function () {
+                throw new Exception('This is the exception we are looking for');
             },
         ]);
 
-        $this->expectException(\Throwable::class);
+        $this->expectException(Throwable::class);
         $this->expectExceptionMessage('This is the exception we are looking for');
 
         $schema->getType('Node');

@@ -104,6 +104,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      *
      * @param object $objectValue
      * @param mixed  $context
+     *
      * @return callable|null
      */
     public function resolveType($objectValue, $context, ResolveInfo $info)

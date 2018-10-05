@@ -50,8 +50,9 @@ final class Warning
      *
      * When passing true - suppresses all warnings.
      *
-     * @api
      * @param bool|int $suppress
+     *
+     * @api
      */
     public static function suppress($suppress = true)
     {
@@ -74,8 +75,9 @@ final class Warning
      *
      * When passing true - re-enables all warnings.
      *
-     * @api
      * @param bool|int $enable
+     *
+     * @api
      */
     public static function enable($enable = true)
     {

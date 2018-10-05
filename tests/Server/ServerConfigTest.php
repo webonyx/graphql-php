@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use stdClass;
 
 class ServerConfigTest extends TestCase
 {
@@ -51,7 +52,7 @@ class ServerConfigTest extends TestCase
         $config->setContext($context);
         self::assertSame($context, $config->getContext());
 
-        $context2 = new \stdClass();
+        $context2 = new stdClass();
         $config->setContext($context2);
         self::assertSame($context2, $config->getContext());
     }
@@ -64,7 +65,7 @@ class ServerConfigTest extends TestCase
         $config->setRootValue($rootValue);
         self::assertSame($rootValue, $config->getRootValue());
 
-        $context2 = new \stdClass();
+        $context2 = new stdClass();
         $config->setRootValue($context2);
         self::assertSame($context2, $config->getRootValue());
     }
@@ -73,7 +74,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $formatter = function () {
+        $formatter = static function () {
         };
         $config->setErrorFormatter($formatter);
         self::assertSame($formatter, $config->getErrorFormatter());
@@ -87,7 +88,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $handler = function () {
+        $handler = static function () {
         };
         $config->setErrorsHandler($handler);
         self::assertSame($handler, $config->getErrorsHandler());
@@ -118,14 +119,14 @@ class ServerConfigTest extends TestCase
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
 
-        $rules = [function () {
+        $rules = [static function () {
         },
         ];
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
 
-        $rules = function () {
-            return [function () {
+        $rules = static function () {
+            return [static function () {
             },
             ];
         };
@@ -137,7 +138,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $resolver = function () {
+        $resolver = static function () {
         };
         $config->setFieldResolver($resolver);
         self::assertSame($resolver, $config->getFieldResolver());
@@ -151,7 +152,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $loader = function () {
+        $loader = static function () {
         };
         $config->setPersistentQueryLoader($loader);
         self::assertSame($loader, $config->getPersistentQueryLoader());
@@ -178,17 +179,17 @@ class ServerConfigTest extends TestCase
             'schema'                => new Schema([
                 'query' => new ObjectType(['name' => 't', 'fields' => ['a' => Type::string()]]),
             ]),
-            'context'               => new \stdClass(),
-            'rootValue'             => new \stdClass(),
-            'errorFormatter'        => function () {
+            'context'               => new stdClass(),
+            'rootValue'             => new stdClass(),
+            'errorFormatter'        => static function () {
             },
             'promiseAdapter'        => new SyncPromiseAdapter(),
-            'validationRules'       => [function () {
+            'validationRules'       => [static function () {
             },
             ],
-            'fieldResolver'         => function () {
+            'fieldResolver'         => static function () {
             },
-            'persistentQueryLoader' => function () {
+            'persistentQueryLoader' => static function () {
             },
             'debug'                 => true,
             'queryBatching'         => true,
@@ -220,7 +221,7 @@ class ServerConfigTest extends TestCase
 
     public function testInvalidValidationRules() : void
     {
-        $rules  = new \stdClass();
+        $rules  = new stdClass();
         $config = ServerConfig::create();
 
         $this->expectException(InvariantViolation::class);

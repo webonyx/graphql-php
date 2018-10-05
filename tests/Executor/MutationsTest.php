@@ -59,7 +59,7 @@ class MutationsTest extends TestCase
             ],
             'name'   => 'NumberHolder',
         ]);
-        $schema           = new Schema([
+        return new Schema([
             'query'    => new ObjectType([
                 'fields' => [
                     'numberHolder' => ['type' => $numberHolderType],
@@ -71,28 +71,28 @@ class MutationsTest extends TestCase
                     'immediatelyChangeTheNumber'      => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => function (Root $obj, $args) {
+                        'resolve' => static function (Root $obj, $args) {
                             return $obj->immediatelyChangeTheNumber($args['newNumber']);
                         },
                     ],
                     'promiseToChangeTheNumber'        => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => function (Root $obj, $args) {
+                        'resolve' => static function (Root $obj, $args) {
                             return $obj->promiseToChangeTheNumber($args['newNumber']);
                         },
                     ],
                     'failToChangeTheNumber'           => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => function (Root $obj, $args) {
+                        'resolve' => static function (Root $obj, $args) {
                             $obj->failToChangeTheNumber();
                         },
                     ],
                     'promiseAndFailToChangeTheNumber' => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => function (Root $obj, $args) {
+                        'resolve' => static function (Root $obj, $args) {
                             return $obj->promiseAndFailToChangeTheNumber();
                         },
                     ],
@@ -100,8 +100,6 @@ class MutationsTest extends TestCase
                 'name'   => 'Mutation',
             ]),
         ]);
-
-        return $schema;
     }
 
     /**
