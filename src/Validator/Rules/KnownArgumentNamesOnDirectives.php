@@ -25,7 +25,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
      * @param string $directionName
      * @return string
      */
-    static function unknownDirectiveArgMessage(string $argName, string $directionName)
+    static protected function unknownDirectiveArgMessage(string $argName, string $directionName)
     {
         return "Unknown argument \"$argName\" on directive \"@$directionName\".";
     }
@@ -53,7 +53,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         foreach ($astDefinitions as $def) {
             if ($def instanceof DirectiveDefinitionNode) {
                 $name = $def->name->value;
-                if ($def->arguments) {
+                if ($def->arguments !== null) {
 
                     $arguments = $def->arguments;
 
@@ -73,7 +73,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
                 $directiveName = $directiveNode->name->value;
                 $knownArgs = $directiveArgs[$directiveName] ?? null;
 
-                if ($directiveNode->arguments && $knownArgs) {
+                if ($directiveNode->arguments !== null && $knownArgs) {
                     foreach($directiveNode->arguments as $argNode) {
                         $argName = $argNode->name->value;
                         if (!in_array($argName, $knownArgs)) {

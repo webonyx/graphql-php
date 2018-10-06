@@ -12,7 +12,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
-use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Utils\Utils;
@@ -32,7 +31,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
      * @param string $argName
      * @return string
      */
-    static function missingDirectiveArgMessage(string $directiveName, string $argName)
+    static protected function missingDirectiveArgMessage(string $directiveName, string $argName)
     {
         return "Directive \"$directiveName\" argument \"$argName\" is required but ont provided.";
     }
@@ -45,7 +44,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
     {
         $requiredArgsMap = [];
         $schema = $context->getSchema();
-        $definedDirectives = $schema ? $schema->getDirectives() : Directive::getInternalDirectives();
+        $definedDirectives = $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(
@@ -94,7 +93,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 $directiveName = $directiveNode->name->value;
                 $requiredArgs = $requiredArgsMap[$directiveName] ?? null;
                 if ($requiredArgs) {
-                    $argNodes = $directiveNode->arguments || [];
+                    $argNodes = $directiveNode->arguments ?: [];
                     $argNodeMap = Utils::keyMap(
                         $argNodes,
                         function ($arg) {
