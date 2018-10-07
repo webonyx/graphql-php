@@ -20,20 +20,11 @@ use GraphQL\Validator\ValidationContext;
  */
 class KnownArgumentNamesOnDirectives extends ValidationRule
 {
-    /**
-     * @param string $argName
-     * @param string $directionName
-     * @return string
-     */
     static protected function unknownDirectiveArgMessage(string $argName, string $directionName)
     {
-        return "Unknown argument \"$argName\" on directive \"@$directionName\".";
+        return 'Unknown argument "' . $argName .'" on directive "@'. $directionName .'".';
     }
 
-    /**
-     * @param ValidationContext $context
-     * @return array
-     */
     public function getVisitor(ValidationContext $context)
     {
         $directiveArgs = [];
@@ -84,7 +75,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
                         }
                     }
                 }
-            }
+            },
         ];
     }
 }

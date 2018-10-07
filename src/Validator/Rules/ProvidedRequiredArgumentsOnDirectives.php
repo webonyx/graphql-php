@@ -25,21 +25,11 @@ use GraphQL\Validator\ValidationContext;
  */
 class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 {
-
-    /**
-     * @param string $directiveName
-     * @param string $argName
-     * @return string
-     */
-    static protected function missingDirectiveArgMessage(string $directiveName, string $argName)
+    protected static function missingDirectiveArgMessage(string $directiveName, string $argName)
     {
-        return "Directive \"$directiveName\" argument \"$argName\" is required but ont provided.";
+        return 'Directive "' . $directiveName .'" argument "' . $argName . '" is required but ont provided.';
     }
 
-    /**
-     * @param ValidationContext $context
-     * @return array
-     */
     public function getVisitor(ValidationContext $context)
     {
         $requiredArgsMap = [];

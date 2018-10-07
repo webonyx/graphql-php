@@ -18,7 +18,7 @@ class LoneSchemaDefinition extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
-        $oldSchema = $context->getSchema();
+        $oldSchema      = $context->getSchema();
         $alreadyDefined = $oldSchema !== null ? (
             $oldSchema->getAstNode() ||
             $oldSchema->getQueryType() ||
@@ -40,7 +40,7 @@ class LoneSchemaDefinition extends ValidationRule
                 }
 
                 ++$schemaDefinitionsCount;
-            }
+            },
         ];
     }
 }

@@ -194,7 +194,7 @@ class DocumentValidator
                 UniqueDirectivesPerLocation::class           => new UniqueDirectivesPerLocation(),
                 UniqueArgumentNames::class                   => new UniqueArgumentNames(),
                 UniqueInputFieldNames::class                 => new UniqueInputFieldNames(),
-                ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives()
+                ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives(),
             ];
         }
 
@@ -297,12 +297,7 @@ class DocumentValidator
         return $context->getErrors();
     }
 
-    /**
-     * @param DocumentNode $documentAST
-     * @param Schema $schema
-     * @throws Error
-     */
-    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema): void
+    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
     {
         $errors = DocumentValidator::visitUsingRules($schema,new TypeInfo($schema), $documentAST, DocumentValidator::sdlRules());
         if (count($errors) !== 0) {
