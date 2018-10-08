@@ -55,18 +55,14 @@ class SchemaExtender
      */
     protected static function getExtensionASTNodes(NamedType $type) : ?array
     {
-        if (! isset($type->name)) {
+        if (! $type instanceof Type) {
             return null;
         }
 
         $name = $type->name;
-        if (isset($type->extensionASTNodes)) {
+        if ($type->extensionASTNodes !== null) {
             if (isset(static::$typeExtensionsMap[$name])) {
-                if (is_array($type->extensionASTNodes)) {
-                    return array_merge($type->extensionASTNodes, static::$typeExtensionsMap[$name]);
-                }
-
-                return static::$typeExtensionsMap[$name];
+                return array_merge($type->extensionASTNodes, static::$typeExtensionsMap[$name]);
             }
 
             return $type->extensionASTNodes;
@@ -419,9 +415,9 @@ class SchemaExtender
             );
     }
 
-    protected static function extendNamedType(NamedType $type)
+    protected static function extendNamedType(Type $type)
     {
-        if (($type instanceof Type && Introspection::isIntrospectionType($type)) || static::isSpecifiedScalarType($type)) {
+        if (Introspection::isIntrospectionType($type) || static::isSpecifiedScalarType($type)) {
             return $type;
         }
 

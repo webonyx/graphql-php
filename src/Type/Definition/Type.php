@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\TypeDefinitionNode;
+use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
 use function array_keys;
@@ -42,6 +43,9 @@ abstract class Type implements \JsonSerializable
 
     /** @var mixed[] */
     public $config;
+
+    /** @var TypeExtensionNode[] */
+    public $extensionASTNodes;
 
     /**
      * @api
