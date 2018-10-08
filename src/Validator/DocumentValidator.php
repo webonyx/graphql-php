@@ -16,10 +16,12 @@ use GraphQL\Validator\Rules\ExecutableDefinitions;
 use GraphQL\Validator\Rules\FieldsOnCorrectType;
 use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 use GraphQL\Validator\Rules\KnownArgumentNames;
+use GraphQL\Validator\Rules\KnownArgumentNamesOnDirectives;
 use GraphQL\Validator\Rules\KnownDirectives;
 use GraphQL\Validator\Rules\KnownFragmentNames;
 use GraphQL\Validator\Rules\KnownTypeNames;
 use GraphQL\Validator\Rules\LoneAnonymousOperation;
+use GraphQL\Validator\Rules\LoneSchemaDefinition;
 use GraphQL\Validator\Rules\NoFragmentCycles;
 use GraphQL\Validator\Rules\NoUndefinedVariables;
 use GraphQL\Validator\Rules\NoUnusedFragments;
@@ -27,6 +29,7 @@ use GraphQL\Validator\Rules\NoUnusedVariables;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 use GraphQL\Validator\Rules\ProvidedNonNullArguments;
+use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\Rules\QuerySecurityRule;
@@ -44,10 +47,13 @@ use GraphQL\Validator\Rules\VariablesDefaultValueAllowed;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Throwable;
 use function array_filter;
+use function array_map;
 use function array_merge;
 use function count;
+use function implode;
 use function is_array;
 use function sprintf;
+use const PHP_EOL;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -77,6 +83,9 @@ class DocumentValidator
 
     /** @var QuerySecurityRule[]|null */
     private static $securityRules;
+
+    /** @var ValidationRule[]|null */
+    private static $sdlRules;
 
     /** @var bool */
     private static $initRules = false;
@@ -183,6 +192,23 @@ class DocumentValidator
         return self::$securityRules;
     }
 
+    public static function sdlRules()
+    {
+        if (self::$sdlRules === null) {
+            self::$sdlRules = [
+                LoneSchemaDefinition::class                  => new LoneSchemaDefinition(),
+                KnownDirectives::class                       => new KnownDirectives(),
+                KnownArgumentNamesOnDirectives::class        => new KnownArgumentNamesOnDirectives(),
+                UniqueDirectivesPerLocation::class           => new UniqueDirectivesPerLocation(),
+                UniqueArgumentNames::class                   => new UniqueArgumentNames(),
+                UniqueInputFieldNames::class                 => new UniqueInputFieldNames(),
+                ProvidedRequiredArgumentsOnDirectives::class => new ProvidedRequiredArgumentsOnDirectives(),
+            ];
+        }
+
+        return self::$sdlRules;
+    }
+
     /**
      * This uses a specialized visitor which runs multiple visitors in parallel,
      * while maintaining the visitor skip and break API.
@@ -264,7 +290,8 @@ class DocumentValidator
     /**
      * Utility which determines if a value literal node is valid for an input type.
      *
-     * Deprecated. Rely on validation for documents containing literal values.
+     * Deprecated. Rely on validation for documents co
+     * ntaining literal values.
      *
      * @deprecated
      *
@@ -281,5 +308,20 @@ class DocumentValidator
         Visitor::visit($valueNode, Visitor::visitWithTypeInfo($typeInfo, $visitor));
 
         return $context->getErrors();
+    }
+
+    public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
+    {
+        $errors = self::visitUsingRules($schema, new TypeInfo($schema), $documentAST, self::sdlRules());
+        if (count($errors) !== 0) {
+            throw new Error(
+                implode(
+                    PHP_EOL . PHP_EOL,
+                    array_map(static function (Error $error) : string {
+                        return $error->message;
+                    }, $errors)
+                )
+            );
+        }
     }
 }

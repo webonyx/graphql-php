@@ -12,6 +12,7 @@ use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
+use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
@@ -491,5 +492,38 @@ class ASTDefinitionBuilder
         }
 
         return $innerType;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function buildInputField(InputValueDefinitionNode $value) : array
+    {
+        $type = $this->internalBuildWrappedType($value->type);
+
+        $config = [
+            'name' => $value->name->value,
+            'type' => $type,
+            'description' => $this->getDescription($value),
+            'astNode' => $value,
+        ];
+
+        if ($value->defaultValue) {
+            $config['defaultValue'] = $value->defaultValue;
+        }
+
+        return $config;
+    }
+
+    /**
+     * @return mixed[]
+     */
+    public function buildEnumValue(EnumValueDefinitionNode $value) : array
+    {
+        return [
+            'description' => $this->getDescription($value),
+            'deprecationReason' => $this->getDeprecationReason($value),
+            'astNode' => $value,
+        ];
     }
 }
