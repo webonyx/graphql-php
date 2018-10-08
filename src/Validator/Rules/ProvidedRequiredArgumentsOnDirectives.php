@@ -41,11 +41,10 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(
-                array_filter($directive->args, function (FieldArgument $arg) {
-                    return $arg->getType() instanceof NonNull && ! isset($arg->defaultValue)
-                    ;
+                array_filter($directive->args, static function (FieldArgument $arg) {
+                    return $arg->getType() instanceof NonNull && ! isset($arg->defaultValue);
                 }),
-                function ($arg) {
+                static function ($arg) {
                     return $arg->name;
                 }
             );
@@ -66,7 +65,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
             }
 
             $requiredArgsMap[$def->name->value] = Utils::keyMap(
-                $arguments ? array_filter($arguments, function (Node $argument) {
+                $arguments ? array_filter($arguments, static function (Node $argument) {
                     return $argument instanceof NonNullTypeNode &&
                       (
                           ! isset($argument->defaultValue) ||
@@ -74,14 +73,14 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                       )
                     ;
                 }) : [],
-                function (NamedTypeNode $argument) {
+                static function (NamedTypeNode $argument) {
                     return $argument->name->value;
                 }
             );
         }
 
         return [
-            NodeKind::DIRECTIVE => function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) {
                 $directiveName = $directiveNode->name->value;
                 $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
                 if (! $requiredArgs) {
@@ -91,7 +90,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 $argNodes   = $directiveNode->arguments ?: [];
                 $argNodeMap = Utils::keyMap(
                     $argNodes,
-                    function ($arg) {
+                    static function ($arg) {
                         return $arg->name->value;
                     }
                 );

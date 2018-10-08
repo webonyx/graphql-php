@@ -306,7 +306,7 @@ class DocumentValidator
             throw new Error(
                 implode(
                     '\n\n',
-                    array_map(function (Error $error) {
+                    array_map(static function (Error $error) {
                         return $error->message;
                     }, $errors)
                 )

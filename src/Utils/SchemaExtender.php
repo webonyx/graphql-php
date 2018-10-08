@@ -141,7 +141,7 @@ class SchemaExtender
         return new UnionType([
             'name' => $type->name,
             'description' => $type->description,
-            'types' => function () use ($type) {
+            'types' => static function () use ($type) {
                 return static::extendPossibleTypes($type);
             },
             'astNode' => $type->astNode,
@@ -166,7 +166,7 @@ class SchemaExtender
         return new InputObjectType([
             'name' => $type->name,
             'description' => $type->description,
-            'fields' => function () use ($type) {
+            'fields' => static function () use ($type) {
                 return static::extendInputFieldMap($type);
             },
             'astNode' => $type->astNode,
@@ -176,7 +176,6 @@ class SchemaExtender
 
     /**
      * @return mixed[]
-     * @throws Error
      */
     protected static function extendInputFieldMap(InputObjectType $type) : array
     {
@@ -215,7 +214,6 @@ class SchemaExtender
 
     /**
      * @return mixed[]
-     * @throws Error
      */
     protected static function extendValueMap(EnumType $type) : array
     {
@@ -294,7 +292,7 @@ class SchemaExtender
         return $interfaces;
     }
 
-    protected static function extendType(Type $typeDef)
+    protected static function extendType($typeDef)
     {
         if ($typeDef instanceof ListOfType) {
             return Type::listOf(static::extendType($typeDef->ofType));
@@ -315,14 +313,14 @@ class SchemaExtender
     {
         return Utils::keyValMap(
             $args,
-            function (FieldArgument $arg) {
+            static function (FieldArgument $arg) {
                 return $arg->name;
             },
-            function (FieldArgument $arg) {
+            static function (FieldArgument $arg) {
                 $def = [
-                   'type' => static::extendType($arg->getType()),
+                   'type'        => static::extendType($arg->getType()),
                    'description' => $arg->description,
-                   'astNode' => $arg->astNode,
+                   'astNode'     => $arg->astNode,
                 ];
 
                 if ($arg->defaultValueExists()) {
@@ -380,10 +378,10 @@ class SchemaExtender
         return new ObjectType([
             'name' => $type->name,
             'description' => $type->description,
-            'interfaces' => function () use ($type) {
+            'interfaces' => static function () use ($type) {
                 return static::extendImplementedInterfaces($type);
             },
-            'fields' => function () use ($type) {
+            'fields' => static function () use ($type) {
                 return static::extendFieldMap($type);
             },
             'astNode' => $type->astNode,
@@ -397,7 +395,7 @@ class SchemaExtender
         return new InterfaceType([
             'name' => $type->name,
             'description' => $type->description,
-            'fields' => function () use ($type) {
+            'fields' => static function () use ($type) {
                 return static::extendFieldMap($type);
             },
             'astNode' => $type->astNode,
@@ -408,7 +406,8 @@ class SchemaExtender
 
     protected static function isSpecifiedScalarType(Type $type) : bool
     {
-        return $type instanceof NamedType &&
+        return (
+            $type instanceof NamedType &&
             (
                 $type->name === Type::STRING ||
                 $type->name === Type::INT ||
@@ -416,7 +415,7 @@ class SchemaExtender
                 $type->name === Type::BOOLEAN ||
                 $type->name === Type::ID
             )
-        ;
+        );
     }
 
     /**
@@ -474,7 +473,7 @@ class SchemaExtender
 
         return array_merge(
             $existingDirectives,
-            array_map(function (DirectiveDefinitionNode $directive) {
+            array_map(static function (DirectiveDefinitionNode $directive) {
                 return static::$astBuilder->buildDirective($directive);
             }, $directiveDefinitions)
         );
@@ -557,7 +556,7 @@ class SchemaExtender
         static::$astBuilder = new ASTDefinitionBuilder(
             $typeDefinitionMap,
             $options,
-            function (string $typeName) use ($schema) {
+            static function (string $typeName) use ($schema) {
                 /** @var NamedType $existingType */
                 $existingType = $schema->getType($typeName);
                 if ($existingType !== null) {

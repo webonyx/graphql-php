@@ -58,14 +58,14 @@ class SchemaExtenderTest extends TestCase
 
         $SomeScalarType = new CustomScalarType([
             'name' => 'SomeScalar',
-            'serialize' => function ($x) {
+            'serialize' => static function ($x) {
                 return $x;
             },
         ]);
 
         $SomeInterfaceType = new InterfaceType([
             'name' => 'SomeInterface',
-            'fields' => function () use (&$SomeInterfaceType) {
+            'fields' => static function () use (&$SomeInterfaceType) {
                 return [
                     'name' => [ 'type' => Type::string()],
                     'some' => [ 'type' => $SomeInterfaceType],
@@ -76,7 +76,7 @@ class SchemaExtenderTest extends TestCase
         $FooType = new ObjectType([
             'name' => 'Foo',
             'interfaces' => [$SomeInterfaceType],
-            'fields' => function () use ($SomeInterfaceType, &$FooType) {
+            'fields' => static function () use ($SomeInterfaceType, &$FooType) {
                 return [
                     'name' => [ 'type' => Type::string() ],
                     'some' => [ 'type' => $SomeInterfaceType ],
@@ -88,7 +88,7 @@ class SchemaExtenderTest extends TestCase
         $BarType = new ObjectType([
             'name' => 'Bar',
             'interfaces' => [$SomeInterfaceType],
-            'fields' => function () use ($SomeInterfaceType, $FooType) {
+            'fields' => static function () use ($SomeInterfaceType, $FooType) {
                 return [
                     'name' => [ 'type' => Type::string() ],
                     'some' => [ 'type' => $SomeInterfaceType ],
@@ -99,7 +99,7 @@ class SchemaExtenderTest extends TestCase
 
         $BizType = new ObjectType([
             'name' => 'Biz',
-            'fields' => function () {
+            'fields' => static function () {
                 return [
                     'fizz' => [ 'type' => Type::string() ],
                 ];
@@ -121,7 +121,7 @@ class SchemaExtenderTest extends TestCase
 
         $SomeInputType = new InputObjectType([
             'name' => 'SomeInput',
-            'fields' => function () {
+            'fields' => static function () {
                 return [
                     'fooArg' => [ 'type' => Type::string() ],
                 ];
@@ -130,7 +130,8 @@ class SchemaExtenderTest extends TestCase
 
         $FooDirective = new Directive([
             'name' => 'foo',
-            'args' => [new FieldArgument([
+            'args' => [
+                new FieldArgument([
                     'name' => 'input',
                     'type' => $SomeInputType,
                 ]),
@@ -153,7 +154,7 @@ class SchemaExtenderTest extends TestCase
         $this->testSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => function () use ($FooType, $SomeScalarType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType) {
+                'fields' => static function () use ($FooType, $SomeScalarType, $SomeUnionType, $SomeEnumType, $SomeInterfaceType, $SomeInputType) {
                     return [
                         'foo' => [ 'type' => $FooType ],
                         'someScalar' => [ 'type' => $SomeScalarType ],
@@ -180,7 +181,7 @@ class SchemaExtenderTest extends TestCase
 
         $testSchemaAst = Parser::parse(SchemaPrinter::doPrint($this->testSchema));
 
-        $this->testSchemaDefinitions = array_map(function ($node) {
+        $this->testSchemaDefinitions = array_map(static function ($node) {
             return Printer::doPrint($node);
         }, iterator_to_array($testSchemaAst->definitions->getIterator()));
 
@@ -195,8 +196,7 @@ class SchemaExtenderTest extends TestCase
 
         preg_match('/^[ \t]*/', $trimmedStr, $indentMatch);
         $indent = $indentMatch[0];
-        $res    = preg_replace('/^' . $indent . '/m', '', $trimmedStr);
-        return $res;
+        return preg_replace('/^' . $indent . '/m', '', $trimmedStr);
     }
 
     /**
@@ -1133,19 +1133,19 @@ class SchemaExtenderTest extends TestCase
         $mutationSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => function () {
+                'fields' => static function () {
                     return [ 'queryField' => [ 'type' => Type::string() ] ];
                 },
             ]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
-                'fields' => function () {
+                'fields' => static function () {
                     return [ 'mutationField' => ['type' => Type::string() ] ];
                 },
             ]),
             'subscription' => new ObjectType([
                 'name' => 'Subscription',
-                'fields' => function () {
+                'fields' => static function () {
                     return ['subscriptionField' => ['type' => Type::string()]];
                 },
             ]),
@@ -1335,7 +1335,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testDoesNotAllowReplacingAnExistingType()
     {
-        $existingTypeError = function ($type) {
+        $existingTypeError = static function ($type) {
             return 'Type "' . $type . '" already exists in the schema. It cannot also be defined in this type definition.';
         };
 
@@ -1411,7 +1411,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testDoesNotAllowReplacingAnExistingField()
     {
-        $existingFieldError = function (string $type, string $field) {
+        $existingFieldError = static function (string $type, string $field) {
             return 'Field "' . $type . '.' . $field . '" already exists in the schema. It cannot also be defined in this type extension.';
         };
 
@@ -1538,12 +1538,12 @@ class SchemaExtenderTest extends TestCase
     public function testDoesNotAllowExtendingAnUnknownType()
     {
         $sdls = [
-          'extend scalar UnknownType @foo',
-          'extend type UnknownType @foo',
-          'extend interface UnknownType @foo',
-          'extend enum UnknownType @foo',
-          'extend union UnknownType @foo',
-          'extend input UnknownType @foo',
+            'extend scalar UnknownType @foo',
+            'extend type UnknownType @foo',
+            'extend interface UnknownType @foo',
+            'extend enum UnknownType @foo',
+            'extend union UnknownType @foo',
+            'extend input UnknownType @foo',
         ];
 
         foreach ($sdls as $sdl) {
@@ -1567,7 +1567,7 @@ class SchemaExtenderTest extends TestCase
             [
                 'query' => new ObjectType([
                     'name' => 'Query',
-                    'fields' => function () {
+                    'fields' => static function () {
                         return ['id' => ['type' => Type::ID()]];
                     },
                 ]),
@@ -1595,7 +1595,7 @@ class SchemaExtenderTest extends TestCase
             [
                 'query' => new ObjectType([
                     'name' => 'Query',
-                    'fields' => function () {
+                    'fields' => static function () {
                         return ['__badName' => ['type' => Type::string()]];
                     },
                 ]),
@@ -1825,7 +1825,7 @@ class SchemaExtenderTest extends TestCase
             '),
             implode(
                 PHP_EOL,
-                array_map(function ($node) {
+                array_map(static function ($node) {
                     return Printer::doPrint($node) . PHP_EOL;
                 }, $nodes)
             )

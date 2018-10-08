@@ -36,7 +36,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
         foreach ($definedDirectives as $directive) {
             $directiveArgs[$directive->name] = array_map(
-                function ($arg) {
+                static function ($arg) {
                     return $arg->name;
                 },
                 $directive->args
@@ -57,7 +57,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
                     $arguments = iterator_to_array($def->arguments->getIterator());
                 }
 
-                $directiveArgs[$name] = array_map(function ($arg) {
+                $directiveArgs[$name] = array_map(static function ($arg) {
                     return $arg->name->value;
                 }, $arguments);
             } else {
@@ -66,7 +66,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         }
 
         return [
-            NodeKind::DIRECTIVE => function (DirectiveNode $directiveNode) use ($directiveArgs, $context) {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) {
                 $directiveName = $directiveNode->name->value;
                 $knownArgs     = $directiveArgs[$directiveName] ?? null;
 

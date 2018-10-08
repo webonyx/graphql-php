@@ -29,7 +29,7 @@ class LoneSchemaDefinition extends ValidationRule
         $schemaDefinitionsCount = 0;
 
         return [
-            NodeKind::SCHEMA_DEFINITION => function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount) {
+            NodeKind::SCHEMA_DEFINITION => static function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount) {
                 if ($alreadyDefined !== false) {
                     $context->reportError(new Error('Cannot define a new schema within a schema extension.', $node));
                     return;
