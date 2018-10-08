@@ -305,6 +305,10 @@ class SchemaExtender
         return static::extendNamedType($typeDef);
     }
 
+    /**
+     * @param FieldArgument[] $args
+     * @return mixed[]
+     */
     protected static function extendArgs(array $args) : array
     {
         return Utils::keyValMap(
@@ -328,6 +332,11 @@ class SchemaExtender
         );
     }
 
+    /**
+     * @param InterfaceType|ObjectType $type
+     * @return mixed[]
+     * @throws Error
+     */
     protected static function extendFieldMap($type) : array
     {
         $newFieldMap = [];
@@ -445,6 +454,11 @@ class SchemaExtender
         return null;
     }
 
+    /**
+     * @param Schema $schema
+     * @param DirectiveDefinitionNode[] $directiveDefinitions
+     * @return Directive[]
+     */
     protected static function getMergedDirectives(Schema $schema, array $directiveDefinitions) : array
     {
         $existingDirectives = array_map(static function (Directive $directive) {
@@ -472,6 +486,12 @@ class SchemaExtender
         ]);
     }
 
+    /**
+     * @param Schema $schema
+     * @param DocumentNode $documentAST
+     * @param mixed[]|null $options
+     * @return Schema
+     */
     public static function extend(Schema $schema, DocumentNode $documentAST, ?array $options = null) : Schema
     {
         if ($options === null || ! (isset($options['assumeValid']) || isset($options['assumeValidSDL']))) {
