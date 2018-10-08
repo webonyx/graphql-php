@@ -482,10 +482,9 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param InputValueDefinitionNode $value
-     * @return array
+     * @return mixed[]
      */
-    public function buildInputField(InputValueDefinitionNode $value): array
+    public function buildInputField(InputValueDefinitionNode $value) : array
     {
         $type = $this->internalBuildWrappedType($value->type);
 
@@ -493,7 +492,7 @@ class ASTDefinitionBuilder
             'name' => $value->name->value,
             'type' => $type,
             'description' => $this->getDescription($value),
-            'astNode' => $value
+            'astNode' => $value,
         ];
 
         if ($value->defaultValue) {
@@ -504,15 +503,14 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param EnumValueDefinitionNode $value
-     * @return array
+     * @return mixed[]
      */
-    public function buildEnumValue(EnumValueDefinitionNode $value): array
+    public function buildEnumValue(EnumValueDefinitionNode $value) : array
     {
         return [
             'description' => $this->getDescription($value),
             'deprecationReason' => $this->getDeprecationReason($value),
-            'astNode' => $value
+            'astNode' => $value,
         ];
     }
 }

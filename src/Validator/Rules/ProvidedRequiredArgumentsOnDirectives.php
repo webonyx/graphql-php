@@ -16,6 +16,9 @@ use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+use function array_filter;
+use function is_array;
+use function iterator_to_array;
 
 /**
  * Provided required arguments on directives
@@ -27,21 +30,20 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 {
     protected static function missingDirectiveArgMessage(string $directiveName, string $argName)
     {
-        return 'Directive "' . $directiveName .'" argument "' . $argName . '" is required but ont provided.';
+        return 'Directive "' . $directiveName . '" argument "' . $argName . '" is required but ont provided.';
     }
 
     public function getVisitor(ValidationContext $context)
     {
-        $requiredArgsMap = [];
-        $schema = $context->getSchema();
+        $requiredArgsMap   = [];
+        $schema            = $context->getSchema();
         $definedDirectives = $schema->getDirectives();
 
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(
                 array_filter($directive->args, function (FieldArgument $arg) {
-                    return (
-                        $arg->getType() instanceof NonNull && !isset($arg->defaultValue)
-                    );
+                    return $arg->getType() instanceof NonNull && ! isset($arg->defaultValue)
+                    ;
                 }),
                 function ($arg) {
                     return $arg->name;
@@ -51,55 +53,59 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 
         $astDefinition = $context->getDocument()->definitions;
         foreach ($astDefinition as $def) {
-            if ($def instanceof DirectiveDefinitionNode) {
-
-                if (is_array($def->arguments)) {
-                    $arguments = $def->arguments;
-                } else if ($def->arguments instanceof NodeList) {
-                    $arguments = iterator_to_array($def->arguments->getIterator());
-                } else {
-                    $arguments = null;
-                }
-
-                $requiredArgsMap[$def->name->value] = Utils::keyMap(
-                  $arguments ? array_filter($arguments, function (Node $argument) {
-                      return (
-                          $argument instanceof NonNullTypeNode &&
-                          (
-                              !isset($argument->defaultValue) ||
-                              $argument->defaultValue === null
-                          )
-                      );
-                  }) : [],
-                  function (NamedTypeNode $argument) {
-                    return $argument->name->value;
-                  }
-                );
+            if (! ($def instanceof DirectiveDefinitionNode)) {
+                continue;
             }
+
+            if (is_array($def->arguments)) {
+                $arguments = $def->arguments;
+            } elseif ($def->arguments instanceof NodeList) {
+                $arguments = iterator_to_array($def->arguments->getIterator());
+            } else {
+                $arguments = null;
+            }
+
+            $requiredArgsMap[$def->name->value] = Utils::keyMap(
+                $arguments ? array_filter($arguments, function (Node $argument) {
+                    return $argument instanceof NonNullTypeNode &&
+                      (
+                          ! isset($argument->defaultValue) ||
+                          $argument->defaultValue === null
+                      )
+                    ;
+                }) : [],
+                function (NamedTypeNode $argument) {
+                    return $argument->name->value;
+                }
+            );
         }
 
         return [
             NodeKind::DIRECTIVE => function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) {
                 $directiveName = $directiveNode->name->value;
-                $requiredArgs = $requiredArgsMap[$directiveName] ?? null;
-                if ($requiredArgs) {
-                    $argNodes = $directiveNode->arguments ?: [];
-                    $argNodeMap = Utils::keyMap(
-                        $argNodes,
-                        function ($arg) {
-                            return $arg->name->value;
-                        }
-                    );
-
-                    foreach ($requiredArgs as $argName => $arg) {
-                        if (!isset($argNodeMap[$argNodes])) {
-                            $context->reportError(
-                                new Error(static::missingDirectiveArgMessage($directiveName, $argName), [$directiveNode])
-                            );
-                        }
-                    }
+                $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
+                if (! $requiredArgs) {
+                    return;
                 }
-            }
+
+                $argNodes   = $directiveNode->arguments ?: [];
+                $argNodeMap = Utils::keyMap(
+                    $argNodes,
+                    function ($arg) {
+                        return $arg->name->value;
+                    }
+                );
+
+                foreach ($requiredArgs as $argName => $arg) {
+                    if (isset($argNodeMap[$argNodes])) {
+                        continue;
+                    }
+
+                    $context->reportError(
+                        new Error(static::missingDirectiveArgMessage($directiveName, $argName), [$directiveNode])
+                    );
+                }
+            },
         ];
     }
 }

@@ -45,8 +45,10 @@ use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesDefaultValueAllowed;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use function array_filter;
+use function array_map;
 use function array_merge;
 use function count;
+use function implode;
 use function is_array;
 use function sprintf;
 
@@ -186,7 +188,7 @@ class DocumentValidator
 
     public static function sdlRules()
     {
-        if (null === self::$sdlRules) {
+        if (self::$sdlRules === null) {
             self::$sdlRules = [
                 LoneSchemaDefinition::class                  => new LoneSchemaDefinition(),
                 KnownDirectives::class                       => new KnownDirectives(),
@@ -299,7 +301,7 @@ class DocumentValidator
 
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
     {
-        $errors = DocumentValidator::visitUsingRules($schema,new TypeInfo($schema), $documentAST, DocumentValidator::sdlRules());
+        $errors = self::visitUsingRules($schema, new TypeInfo($schema), $documentAST, self::sdlRules());
         if (count($errors) !== 0) {
             throw new Error(
                 implode(
