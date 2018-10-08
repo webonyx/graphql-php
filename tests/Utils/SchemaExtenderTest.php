@@ -611,16 +611,16 @@ class SchemaExtenderTest extends TestCase
             }
         ');
 
-        $deprecatedFieldDef = $extendedSchema
-            ->getType('TypeWithDeprecatedField')
-            ->getField('newDeprecatedField');
+        /** @var ObjectType $typeWithDeprecatedField */
+        $typeWithDeprecatedField = $extendedSchema->getType('TypeWithDeprecatedField');
+        $deprecatedFieldDef = $typeWithDeprecatedField->getField('newDeprecatedField');
 
         $this->assertEquals(true, $deprecatedFieldDef->isDeprecated());
         $this->assertEquals('not used anymore', $deprecatedFieldDef->deprecationReason);
 
-        $deprecatedEnumDef = $extendedSchema
-            ->getType('EnumWithDeprecatedValue')
-            ->getValue('DEPRECATED');
+        /** @var EnumType $enumWithDeprecatedValue */
+        $enumWithDeprecatedValue = $extendedSchema->getType('EnumWithDeprecatedValue');
+        $deprecatedEnumDef = $enumWithDeprecatedValue->getValue('DEPRECATED');
 
         $this->assertEquals(true, $deprecatedEnumDef->isDeprecated());
         $this->assertEquals('do not use', $deprecatedEnumDef->deprecationReason);

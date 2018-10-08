@@ -455,7 +455,6 @@ class SchemaExtender
     }
 
     /**
-     * @param Schema $schema
      * @param DirectiveDefinitionNode[] $directiveDefinitions
      * @return Directive[]
      */
@@ -487,10 +486,7 @@ class SchemaExtender
     }
 
     /**
-     * @param Schema $schema
-     * @param DocumentNode $documentAST
      * @param mixed[]|null $options
-     * @return Schema
      */
     public static function extend(Schema $schema, DocumentNode $documentAST, ?array $options = null) : Schema
     {
@@ -506,7 +502,8 @@ class SchemaExtender
         /** @var SchemaTypeExtensionNode[] $schemaExtensions */
         $schemaExtensions = [];
 
-        for ($i = 0; $i < count($documentAST->definitions); $i++) {
+        $definitionsCount = count($documentAST->definitions);
+        for ($i = 0; $i < $definitionsCount; $i++) {
 
             /** @var Node $def */
             $def = $documentAST->definitions[$i];
