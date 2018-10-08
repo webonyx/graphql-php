@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GraphQL\Tests;
+namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
