@@ -51,6 +51,7 @@ use function count;
 use function implode;
 use function is_array;
 use function sprintf;
+use const PHP_EOL;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -281,7 +282,8 @@ class DocumentValidator
     /**
      * Utility which determines if a value literal node is valid for an input type.
      *
-     * Deprecated. Rely on validation for documents containing literal values.
+     * Deprecated. Rely on validation for documents co
+     * ntaining literal values.
      *
      * @deprecated
      * @return Error[]
@@ -306,7 +308,7 @@ class DocumentValidator
             throw new Error(
                 implode(
                     PHP_EOL . PHP_EOL,
-                    array_map(static function (Error $error): string {
+                    array_map(static function (Error $error) : string {
                         return $error->message;
                     }, $errors)
                 )

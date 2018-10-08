@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\NamedTypeNode;
@@ -89,7 +90,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 $argNodes   = $directiveNode->arguments ?: [];
                 $argNodeMap = Utils::keyMap(
                     $argNodes,
-                    static function ($arg) {
+                    static function (ArgumentNode $arg) : string {
                         return $arg->name->value;
                     }
                 );
