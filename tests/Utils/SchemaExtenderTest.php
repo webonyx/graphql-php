@@ -631,12 +631,15 @@ class SchemaExtenderTest extends TestCase
      */
     public function testExtendsObjectsWithDeprecatedFields()
     {
-        $extendedSchema     = $this->extendTestSchema('
+        $extendedSchema = $this->extendTestSchema('
           extend type Foo {
             deprecatedField: String @deprecated(reason: "not used anymore")
           }
         ');
-        $deprecatedFieldDef = $extendedSchema->getType('Foo')->getField('deprecatedField');
+        /** @var ObjectType $fooType */
+        $fooType            = $extendedSchema->getType('Foo');
+        $deprecatedFieldDef = $fooType->getField('deprecatedField');
+
         $this->assertTrue($deprecatedFieldDef->isDeprecated());
         $this->assertEquals('not used anymore', $deprecatedFieldDef->deprecationReason);
     }
@@ -652,9 +655,9 @@ class SchemaExtenderTest extends TestCase
           }
         ');
 
-        $deprecatedEnumDef = $extendedSchema
-            ->getType('SomeEnum')
-            ->getValue('DEPRECATED');
+        /** @var EnumType $someEnumType */
+        $someEnumType      = $extendedSchema->getType('SomeEnum');
+        $deprecatedEnumDef = $someEnumType->getValue('DEPRECATED');
 
         $this->assertTrue($deprecatedEnumDef->isDeprecated());
         $this->assertEquals('do not use', $deprecatedEnumDef->deprecationReason);
@@ -1584,8 +1587,9 @@ class SchemaExtenderTest extends TestCase
                         return ['id' => ['type' => Type::ID()]];
                     },
                 ]),
-            ],
+            ]/*,
             [ 'allowedLegacyNames' => ['__badName'] ]
+            */
         );
 
         $ast    = Parser::parse('
@@ -1612,8 +1616,9 @@ class SchemaExtenderTest extends TestCase
                         return ['__badName' => ['type' => Type::string()]];
                     },
                 ]),
-            ],
+            ]/*,
             ['allowedLegacyNames' => ['__badName']]
+            */
         );
 
         $ast = Parser::parse('
