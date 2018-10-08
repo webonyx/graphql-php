@@ -162,9 +162,9 @@ class SchemaExtenderTest extends TestCase
                         'someEnum' => [ 'type' => $SomeEnumType ],
                         'someInterface' => [
                             'args' => [
-                    'id' => [
-                                'type' => Type::nonNull(Type::ID()),
-                            ],
+                                'id' => [
+                                    'type' => Type::nonNull(Type::ID()),
+                                ],
                             ],
                             'type' => $SomeInterfaceType,
                         ],
