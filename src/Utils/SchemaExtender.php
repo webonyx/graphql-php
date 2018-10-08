@@ -307,6 +307,7 @@ class SchemaExtender
 
     /**
      * @param FieldArgument[] $args
+     *
      * @return mixed[]
      */
     protected static function extendArgs(array $args) : array
@@ -334,7 +335,9 @@ class SchemaExtender
 
     /**
      * @param InterfaceType|ObjectType $type
+     *
      * @return mixed[]
+     *
      * @throws Error
      */
     protected static function extendFieldMap($type) : array
@@ -456,6 +459,7 @@ class SchemaExtender
 
     /**
      * @param DirectiveDefinitionNode[] $directiveDefinitions
+     *
      * @return Directive[]
      */
     protected static function getMergedDirectives(Schema $schema, array $directiveDefinitions) : array
