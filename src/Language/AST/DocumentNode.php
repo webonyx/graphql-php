@@ -9,6 +9,6 @@ class DocumentNode extends Node
     /** @var string */
     public $kind = NodeKind::DOCUMENT;
 
-    /** @var DefinitionNode[] */
+    /** @var NodeList|DefinitionNode[] */
     public $definitions;
 }
