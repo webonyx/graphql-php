@@ -1181,7 +1181,7 @@ class Executor
     {
         // First, look for `__typename`.
         if ($value !== null &&
-            is_array($value) &&
+            (is_array($value) || $value instanceof ArrayAccess) &&
             isset($value['__typename']) &&
             is_string($value['__typename'])
         ) {
