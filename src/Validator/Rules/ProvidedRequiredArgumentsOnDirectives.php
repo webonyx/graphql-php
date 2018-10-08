@@ -41,10 +41,10 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(
-                array_filter($directive->args, static function (FieldArgument $arg) {
+                array_filter($directive->args, static function (FieldArgument $arg) : bool {
                     return $arg->getType() instanceof NonNull && ! isset($arg->defaultValue);
                 }),
-                static function ($arg) {
+                static function (FieldArgument $arg) : string {
                     return $arg->name;
                 }
             );
@@ -65,14 +65,14 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
             }
 
             $requiredArgsMap[$def->name->value] = Utils::keyMap(
-                $arguments ? array_filter($arguments, static function (Node $argument) {
+                $arguments ? array_filter($arguments, static function (Node $argument) : bool {
                     return $argument instanceof NonNullTypeNode &&
                         (
                             ! isset($argument->defaultValue) ||
                             $argument->defaultValue === null
                         );
                 }) : [],
-                static function (NamedTypeNode $argument) {
+                static function (NamedTypeNode $argument) : string {
                     return $argument->name->value;
                 }
             );
@@ -95,7 +95,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 );
 
                 foreach ($requiredArgs as $argName => $arg) {
-                    if (isset($argNodeMap[$argNodes])) {
+                    if (isset($argNodeMap[$argName])) {
                         continue;
                     }
 

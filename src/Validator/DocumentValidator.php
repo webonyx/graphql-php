@@ -305,8 +305,8 @@ class DocumentValidator
         if (count($errors) !== 0) {
             throw new Error(
                 implode(
-                    '\n\n',
-                    array_map(static function (Error $error) {
+                    PHP_EOL . PHP_EOL,
+                    array_map(static function (Error $error): string {
                         return $error->message;
                     }, $errors)
                 )
