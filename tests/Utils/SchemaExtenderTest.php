@@ -519,26 +519,26 @@ class SchemaExtenderTest extends TestCase
         $extendedTwiceSchema = SchemaExtender::extend($extendedSchema, $ast);
         $query               = $extendedTwiceSchema->getQueryType();
         /** @var ScalarType $someScalar */
-        $someScalar          = $extendedTwiceSchema->getType('SomeScalar');
+        $someScalar = $extendedTwiceSchema->getType('SomeScalar');
         /** @var EnumType $someEnum */
-        $someEnum            = $extendedTwiceSchema->getType('SomeEnum');
+        $someEnum = $extendedTwiceSchema->getType('SomeEnum');
         /** @var UnionType $someUnion */
-        $someUnion           = $extendedTwiceSchema->getType('SomeUnion');
+        $someUnion = $extendedTwiceSchema->getType('SomeUnion');
         /** @var InputObjectType $someInput */
-        $someInput           = $extendedTwiceSchema->getType('SomeInput');
+        $someInput = $extendedTwiceSchema->getType('SomeInput');
         /** @var InterfaceType $someInterface */
-        $someInterface       = $extendedTwiceSchema->getType('SomeInterface');
+        $someInterface = $extendedTwiceSchema->getType('SomeInterface');
 
         /** @var InputObjectType $testInput */
-        $testInput     = $extendedTwiceSchema->getType('TestInput');
+        $testInput = $extendedTwiceSchema->getType('TestInput');
         /** @var EnumType $testEnum */
-        $testEnum      = $extendedTwiceSchema->getType('TestEnum');
+        $testEnum = $extendedTwiceSchema->getType('TestEnum');
         /** @var UnionType $testUnion */
-        $testUnion     = $extendedTwiceSchema->getType('TestUnion');
+        $testUnion = $extendedTwiceSchema->getType('TestUnion');
         /** @var InterfaceType $testInterface */
         $testInterface = $extendedTwiceSchema->getType('TestInterface');
         /** @var ObjectType $testType */
-        $testType      = $extendedTwiceSchema->getType('TestType');
+        $testType = $extendedTwiceSchema->getType('TestType');
         /** @var Directive $testDirective */
         $testDirective = $extendedTwiceSchema->getDirective('test');
 
@@ -613,14 +613,14 @@ class SchemaExtenderTest extends TestCase
 
         /** @var ObjectType $typeWithDeprecatedField */
         $typeWithDeprecatedField = $extendedSchema->getType('TypeWithDeprecatedField');
-        $deprecatedFieldDef = $typeWithDeprecatedField->getField('newDeprecatedField');
+        $deprecatedFieldDef      = $typeWithDeprecatedField->getField('newDeprecatedField');
 
         $this->assertEquals(true, $deprecatedFieldDef->isDeprecated());
         $this->assertEquals('not used anymore', $deprecatedFieldDef->deprecationReason);
 
         /** @var EnumType $enumWithDeprecatedValue */
         $enumWithDeprecatedValue = $extendedSchema->getType('EnumWithDeprecatedValue');
-        $deprecatedEnumDef = $enumWithDeprecatedValue->getValue('DEPRECATED');
+        $deprecatedEnumDef       = $enumWithDeprecatedValue->getValue('DEPRECATED');
 
         $this->assertEquals(true, $deprecatedEnumDef->isDeprecated());
         $this->assertEquals('do not use', $deprecatedEnumDef->deprecationReason);
