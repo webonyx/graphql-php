@@ -44,7 +44,7 @@ class SchemaExtender
     /** @var Type[] */
     protected static $extendTypeCache;
 
-    /** @var TypeExtensionNode[] */
+    /** @var mixed[] */
     protected static $typeExtensionsMap;
 
     /** @var ASTDefinitionBuilder */
@@ -501,7 +501,7 @@ class SchemaExtender
         $typeDefinitionMap         = [];
         static::$typeExtensionsMap = [];
         $directiveDefinitions      = [];
-        /** @var SchemaDefinitionNode $schemaDef */
+        /** @var SchemaDefinitionNode|null $schemaDef */
         $schemaDef = null;
         /** @var SchemaTypeExtensionNode[] $schemaExtensions */
         $schemaExtensions = [];

@@ -518,17 +518,28 @@ class SchemaExtenderTest extends TestCase
 
         $extendedTwiceSchema = SchemaExtender::extend($extendedSchema, $ast);
         $query               = $extendedTwiceSchema->getQueryType();
+        /** @var ScalarType $someScalar */
         $someScalar          = $extendedTwiceSchema->getType('SomeScalar');
+        /** @var EnumType $someEnum */
         $someEnum            = $extendedTwiceSchema->getType('SomeEnum');
+        /** @var UnionType $someUnion */
         $someUnion           = $extendedTwiceSchema->getType('SomeUnion');
+        /** @var InputObjectType $someInput */
         $someInput           = $extendedTwiceSchema->getType('SomeInput');
+        /** @var InterfaceType $someInterface */
         $someInterface       = $extendedTwiceSchema->getType('SomeInterface');
 
+        /** @var InputObjectType $testInput */
         $testInput     = $extendedTwiceSchema->getType('TestInput');
+        /** @var EnumType $testEnum */
         $testEnum      = $extendedTwiceSchema->getType('TestEnum');
+        /** @var UnionType $testUnion */
         $testUnion     = $extendedTwiceSchema->getType('TestUnion');
+        /** @var InterfaceType $testInterface */
         $testInterface = $extendedTwiceSchema->getType('TestInterface');
+        /** @var ObjectType $testType */
         $testType      = $extendedTwiceSchema->getType('TestType');
+        /** @var Directive $testDirective */
         $testDirective = $extendedTwiceSchema->getDirective('test');
 
         $this->assertCount(2, $query->extensionASTNodes);
@@ -1253,10 +1264,12 @@ class SchemaExtenderTest extends TestCase
 
         $arg0 = $args[0];
         $arg1 = $args[1];
+        /** @var NonNull $arg0Type */
+        $arg0Type = $arg0->getType();
 
         $this->assertEquals('enable', $arg0->name);
-        $this->assertTrue($arg0->getType() instanceof NonNull);
-        $this->assertTrue($arg0->getType()->getWrappedType() instanceof ScalarType);
+        $this->assertTrue($arg0Type instanceof NonNull);
+        $this->assertTrue($arg0Type->getWrappedType() instanceof ScalarType);
 
         $this->assertEquals('tag', $arg1->name);
         $this->assertTrue($arg1->getType() instanceof ScalarType);
