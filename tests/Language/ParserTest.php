@@ -86,7 +86,7 @@ fragment MissingOn Type
     ) : void {
         try {
             Parser::parse($str);
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (SyntaxError $e) {
             self::assertEquals($expectedMessage, $e->getMessage());
             self::assertEquals($stringRepresentation, (string) $e);
@@ -108,7 +108,7 @@ fragment MissingOn Type
     {
         try {
             Parser::parse(new Source('query', 'MyQuery.graphql'));
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
             self::assertEquals(
                 "Syntax Error: Expected {, found <EOF>\n\nMyQuery.graphql (1:6)\n1: query\n        ^\n",
@@ -503,7 +503,7 @@ GRAPHQL
             ],
         ];
 
-        self::assertEquals($expected, $this->nodeToArray($result));
+        self::assertEquals($expected, self::nodeToArray($result));
     }
 
     /**
@@ -575,7 +575,7 @@ GRAPHQL
                 'kind' => NodeKind::NULL,
                 'loc'  => ['start' => 0, 'end' => 4],
             ],
-            $this->nodeToArray(Parser::parseValue('null'))
+            self::nodeToArray(Parser::parseValue('null'))
         );
     }
 
@@ -602,7 +602,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            $this->nodeToArray(Parser::parseValue('[123 "abc"]'))
+            self::nodeToArray(Parser::parseValue('[123 "abc"]'))
         );
     }
 
@@ -621,7 +621,7 @@ GRAPHQL
                     'value' => 'String',
                 ],
             ],
-            $this->nodeToArray(Parser::parseType('String'))
+            self::nodeToArray(Parser::parseType('String'))
         );
     }
 
@@ -640,7 +640,7 @@ GRAPHQL
                     'value' => 'MyType',
                 ],
             ],
-            $this->nodeToArray(Parser::parseType('MyType'))
+            self::nodeToArray(Parser::parseType('MyType'))
         );
     }
 
@@ -663,7 +663,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            $this->nodeToArray(Parser::parseType('[MyType]'))
+            self::nodeToArray(Parser::parseType('[MyType]'))
         );
     }
 
@@ -686,7 +686,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            $this->nodeToArray(Parser::parseType('MyType!'))
+            self::nodeToArray(Parser::parseType('MyType!'))
         );
     }
 
@@ -713,7 +713,7 @@ GRAPHQL
                     ],
                 ],
             ],
-            $this->nodeToArray(Parser::parseType('[MyType!]'))
+            self::nodeToArray(Parser::parseType('[MyType!]'))
         );
     }
 }

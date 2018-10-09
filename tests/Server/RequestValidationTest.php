@@ -67,7 +67,7 @@ class RequestValidationTest extends TestCase
         if (! empty($errors[0])) {
             self::assertEquals($expectedMessage, $errors[0]->getMessage());
         } else {
-            $this->fail('Expected error not returned');
+            self::fail('Expected error not returned');
         }
     }
 

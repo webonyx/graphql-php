@@ -165,7 +165,7 @@ class SchemaExtenderTest extends TestCase
                         'someInterface' => [
                             'args' => [
                                 'id' => [
-                                    'type' => Type::nonNull(Type::ID()),
+                                    'type' => Type::nonNull(Type::id()),
                                 ],
                             ],
                             'type' => $SomeInterfaceType,
@@ -219,7 +219,7 @@ class SchemaExtenderTest extends TestCase
         $ast->definitions = array_values(array_filter(
             $ast->definitions instanceof NodeList ? iterator_to_array($ast->definitions->getIterator()) : $ast->definitions,
             function (Node $node) : bool {
-                return ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions);
+                return ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true);
             }
         ));
 
@@ -1579,14 +1579,14 @@ class SchemaExtenderTest extends TestCase
      */
     public function testMaintainsConfigurationOfTheOriginalSchemaObject()
     {
-        $this->markTestSkipped('allowedLegacyNames currently not supported');
+        self::markTestSkipped('allowedLegacyNames currently not supported');
 
         $testSchemaWithLegacyNames = new Schema(
             [
                 'query' => new ObjectType([
                     'name' => 'Query',
                     'fields' => static function () {
-                        return ['id' => ['type' => Type::ID()]];
+                        return ['id' => ['type' => Type::id()]];
                     },
                 ]),
             ]/*,
@@ -1608,7 +1608,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testAddsToTheConfigurationOfTheOriginalSchemaObject()
     {
-        $this->markTestSkipped('allowedLegacyNames currently not supported');
+        self::markTestSkipped('allowedLegacyNames currently not supported');
 
         $testSchemaWithLegacyNames = new Schema(
             [

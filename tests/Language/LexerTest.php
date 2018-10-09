@@ -145,7 +145,7 @@ class LexerTest extends TestCase
 
         try {
             $this->lexOne($str);
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
             self::assertEquals(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n" .
@@ -175,7 +175,7 @@ class LexerTest extends TestCase
         try {
             $lexer = new Lexer($source);
             $lexer->advance();
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
             self::assertEquals(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n" .
@@ -197,7 +197,7 @@ class LexerTest extends TestCase
         try {
             $lexer = new Lexer($source);
             $lexer->advance();
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
             self::assertEquals(
                 'Syntax Error: Cannot parse the unexpected character "?".' . "\n" .
@@ -671,7 +671,7 @@ class LexerTest extends TestCase
         $this->expectExceptionMessage('Syntax Error: Invalid number, expected digit but got: "b"');
         try {
             $lexer->advance();
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (SyntaxError $error) {
             self::assertEquals([$this->loc(1, 3)], $error->getLocations());
             throw $error;

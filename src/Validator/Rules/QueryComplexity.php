@@ -29,7 +29,7 @@ class QueryComplexity extends QuerySecurityRule
     /** @var int */
     private $maxQueryComplexity;
 
-    /** @var mixed[]|null  */
+    /** @var mixed[]|null */
     private $rawVariableValues = [];
 
     /** @var ArrayObject */
@@ -86,7 +86,7 @@ class QueryComplexity extends QuerySecurityRule
                         }
 
                         $context->reportError(
-                            new Error($this->maxQueryComplexityErrorMessage(
+                            new Error(self::maxQueryComplexityErrorMessage(
                                 $this->getMaxQueryComplexity(),
                                 $complexity
                             ))
@@ -193,7 +193,7 @@ class QueryComplexity extends QuerySecurityRule
                 $this->getRawVariableValues()
             );
 
-            if ($variableValuesResult['errors']) {
+            if (! empty($variableValuesResult['errors'])) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(
@@ -207,16 +207,17 @@ class QueryComplexity extends QuerySecurityRule
             $variableValues = $variableValuesResult['coerced'];
 
             if ($directiveNode->name->value === 'include') {
-                $directive     = Directive::includeDirective();
-                $directiveArgs = Values::getArgumentValues($directive, $directiveNode, $variableValues);
+                $directive = Directive::includeDirective();
+                /** @var bool $directiveArgsIf */
+                $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues)['if'];
 
-                return ! $directiveArgs['if'];
+                return ! $directiveArgsIf;
             }
 
-            $directive     = Directive::skipDirective();
-            $directiveArgs = Values::getArgumentValues($directive, $directiveNode, $variableValues);
+            $directive       = Directive::skipDirective();
+            $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues);
 
-            return $directiveArgs['if'];
+            return $directiveArgsIf['if'];
         }
     }
 
@@ -248,7 +249,7 @@ class QueryComplexity extends QuerySecurityRule
                 $rawVariableValues
             );
 
-            if ($variableValuesResult['errors']) {
+            if (! empty($variableValuesResult['errors'])) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(

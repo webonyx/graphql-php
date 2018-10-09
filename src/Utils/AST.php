@@ -414,7 +414,7 @@ class AST
                 $fieldName = $field->name;
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
-                if (! $fieldNode || self::isMissingVariable($fieldNode->value, $variables)) {
+                if ($fieldNode === null || self::isMissingVariable($fieldNode->value, $variables)) {
                     if ($field->defaultValueExists()) {
                         $coercedObj[$fieldName] = $field->defaultValue;
                     } elseif ($field->getType() instanceof NonNull) {
@@ -424,7 +424,11 @@ class AST
                     continue;
                 }
 
-                $fieldValue = self::valueFromAST($fieldNode ? $fieldNode->value : null, $field->getType(), $variables);
+                $fieldValue = self::valueFromAST(
+                    $fieldNode !== null ? $fieldNode->value : null,
+                    $field->getType(),
+                    $variables
+                );
 
                 if ($undefined === $fieldValue) {
                     // Invalid: intentionally return no value.

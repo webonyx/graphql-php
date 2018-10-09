@@ -153,7 +153,7 @@ class DeferredFieldsTest extends TestCase
                         return Utils::filter(
                             $this->storyDataSource,
                             static function ($story) use ($category) {
-                                return in_array($category['id'], $story['categoryIds']);
+                                return in_array($category['id'], $story['categoryIds'], true);
                             }
                         );
                     },

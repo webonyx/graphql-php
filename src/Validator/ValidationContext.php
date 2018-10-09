@@ -98,12 +98,12 @@ class ValidationContext
     {
         $usages = $this->recursiveVariableUsages[$operation] ?? null;
 
-        if (! $usages) {
+        if ($usages === null) {
             $usages    = $this->getVariableUsages($operation);
             $fragments = $this->getRecursivelyReferencedFragments($operation);
 
             $tmp = [$usages];
-            for ($i = 0; $i < count($fragments); $i++) {
+            foreach ($fragments as $i => $fragment) {
                 $tmp[] = $this->getVariableUsages($fragments[$i]);
             }
             $usages                                    = call_user_func_array('array_merge', $tmp);
@@ -120,7 +120,7 @@ class ValidationContext
     {
         $usages = $this->variableUsages[$node] ?? null;
 
-        if (! $usages) {
+        if ($usages === null) {
             $newUsages = [];
             $typeInfo  = new TypeInfo($this->schema);
             Visitor::visit(
@@ -154,15 +154,15 @@ class ValidationContext
     {
         $fragments = $this->recursivelyReferencedFragments[$operation] ?? null;
 
-        if (! $fragments) {
+        if ($fragments === null) {
             $fragments      = [];
             $collectedNames = [];
             $nodesToVisit   = [$operation];
             while (! empty($nodesToVisit)) {
                 $node    = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
-                for ($i = 0; $i < count($spreads); $i++) {
-                    $fragName = $spreads[$i]->name->value;
+                foreach ($spreads as $spread) {
+                    $fragName = $spread->name->value;
 
                     if (! empty($collectedNames[$fragName])) {
                         continue;
@@ -190,14 +190,14 @@ class ValidationContext
     public function getFragmentSpreads(HasSelectionSet $node)
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
-        if (! $spreads) {
+        if ($spreads === null) {
             $spreads = [];
             /** @var SelectionSetNode[] $setsToVisit */
             $setsToVisit = [$node->selectionSet];
             while (! empty($setsToVisit)) {
                 $set = array_pop($setsToVisit);
 
-                for ($i = 0; $i < count($set->selections); $i++) {
+                for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; $i++) {
                     $selection = $set->selections[$i];
                     if ($selection->kind === NodeKind::FRAGMENT_SPREAD) {
                         $spreads[] = $selection;

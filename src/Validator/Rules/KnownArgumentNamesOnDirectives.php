@@ -78,7 +78,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                 foreach ($directiveNode->arguments as $argNode) {
                     $argName = $argNode->name->value;
-                    if (in_array($argName, $knownArgs)) {
+                    if (in_array($argName, $knownArgs, true)) {
                         continue;
                     }
 

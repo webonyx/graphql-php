@@ -152,7 +152,7 @@ abstract class Type implements JsonSerializable
      */
     public static function isBuiltInType(Type $type)
     {
-        return in_array($type->name, array_keys(self::getAllBuiltInTypes()));
+        return in_array($type->name, array_keys(self::getAllBuiltInTypes()), true);
     }
 
     /**

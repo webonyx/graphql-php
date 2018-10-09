@@ -132,7 +132,7 @@ class Values
                 }
             );
 
-            if ($directiveNode) {
+            if ($directiveNode !== null) {
                 return self::getArgumentValues($directiveDef, $directiveNode, $variableValues);
             }
         }
