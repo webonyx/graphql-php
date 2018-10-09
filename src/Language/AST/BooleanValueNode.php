@@ -9,6 +9,6 @@ class BooleanValueNode extends Node implements ValueNode
     /** @var string */
     public $kind = NodeKind::BOOLEAN;
 
-    /** @var string */
+    /** @var bool */
     public $value;
 }
