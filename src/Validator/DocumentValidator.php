@@ -53,7 +53,6 @@ use function count;
 use function implode;
 use function is_array;
 use function sprintf;
-use const PHP_EOL;
 
 /**
  * Implements the "Validation" section of the spec.
@@ -316,7 +315,7 @@ class DocumentValidator
         if (count($errors) !== 0) {
             throw new Error(
                 implode(
-                    PHP_EOL . PHP_EOL,
+                    "\n\n",
                     array_map(static function (Error $error) : string {
                         return $error->message;
                     }, $errors)

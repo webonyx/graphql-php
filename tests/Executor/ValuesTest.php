@@ -15,7 +15,6 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use function count;
 use function var_export;
-use const PHP_EOL;
 
 class ValuesTest extends TestCase
 {
@@ -37,7 +36,7 @@ class ValuesTest extends TestCase
         self::assertEquals(
             $variables,
             $this->runTestCase($variables)['coerced'],
-            'Output variables did not match input variables' . PHP_EOL . var_export($variables, true) . PHP_EOL
+            'Output variables did not match input variables' . "\n" . var_export($variables, true) . "\n"
         );
     }
 

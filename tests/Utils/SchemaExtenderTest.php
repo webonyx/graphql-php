@@ -38,7 +38,6 @@ use function iterator_to_array;
 use function preg_match;
 use function preg_replace;
 use function trim;
-use const PHP_EOL;
 
 class SchemaExtenderTest extends TestCase
 {
@@ -1844,9 +1843,9 @@ class SchemaExtenderTest extends TestCase
                 extend schema @foo
             '),
             implode(
-                PHP_EOL,
+                "\n",
                 array_map(static function ($node) {
-                    return Printer::doPrint($node) . PHP_EOL;
+                    return Printer::doPrint($node) . "\n";
                 }, $nodes)
             )
         );
