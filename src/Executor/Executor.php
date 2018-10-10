@@ -6,6 +6,7 @@ namespace GraphQL\Executor;
 
 use ArrayAccess;
 use ArrayObject;
+use Closure;
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
@@ -1523,6 +1524,7 @@ class Executor
             }
         }
 
-        return is_callable($property) ? $property($source, $args, $context, $info) : $property;
+        // Using instanceof vs is_callable() because it is 2-10 times faster
+        return $property instanceof Closure ? $property($source, $args, $context, $info) : $property;
     }
 }
