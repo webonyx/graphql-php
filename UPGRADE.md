@@ -122,6 +122,10 @@ type Dog {
 }
 ```
 
+### Breaking: Cached AST of version 0.11.x is not compatible with 0.12.x.
+That's because description in AST is now a separate node, not just a string. 
+Make sure to renew caches.
+
 ### Breaking: Most of previously deprecated classes and methods were removed
 See deprecation notices for previous versions in details.
 
