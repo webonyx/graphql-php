@@ -26,7 +26,7 @@ class ReactPromiseAdapterTest extends TestCase
             return;
         }
 
-        $this->markTestSkipped('react/promise package must be installed to run GraphQL\Tests\Executor\Promise\ReactPromiseAdapterTest');
+        self::markTestSkipped('react/promise package must be installed to run GraphQL\Tests\Executor\Promise\ReactPromiseAdapterTest');
     }
 
     public function testIsThenableReturnsTrueWhenAReactPromiseIsGiven() : void

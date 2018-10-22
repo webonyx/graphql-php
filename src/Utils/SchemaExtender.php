@@ -74,7 +74,7 @@ class SchemaExtender
      */
     protected static function checkExtensionNode(Type $type, Node $node) : void
     {
-        switch ($node->kind ?? null) {
+        switch ($node->kind) {
             case NodeKind::OBJECT_TYPE_EXTENSION:
                 if (! ($type instanceof ObjectType)) {
                     throw new Error(
@@ -589,7 +589,7 @@ class SchemaExtender
 
             foreach ($schemaExtension->operationTypes as $operationType) {
                 $operation = $operationType->operation;
-                if ($operationTypes[$operation]) {
+                if (isset($operationTypes[$operation])) {
                     throw new Error('Must provide only one ' . $operation . ' type in schema.');
                 }
                 $operationTypes[$operation] = static::$astBuilder->buildType($operationType->type);

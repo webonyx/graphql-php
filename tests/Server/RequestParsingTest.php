@@ -225,8 +225,8 @@ class RequestParsingTest extends TestCase
             'operationName' => $operation,
         ];
         $parsed = [
-            'raw' => $this->parseRawMultipartFormdataRequest($post),
-            'psr' => $this->parsePsrMultipartFormdataRequest($post),
+            'raw' => $this->parseRawMultipartFormDataRequest($post),
+            'psr' => $this->parsePsrMultipartFormDataRequest($post),
         ];
 
         foreach ($parsed as $method => $parsedBody) {
@@ -395,7 +395,7 @@ class RequestParsingTest extends TestCase
     {
         try {
             $this->parsePsrRequest('application/json', json_encode(null));
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (InvariantViolation $e) {
             // Expecting parsing exception to be thrown somewhere else:
             self::assertEquals(

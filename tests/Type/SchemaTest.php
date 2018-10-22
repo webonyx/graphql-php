@@ -108,7 +108,7 @@ class SchemaTest extends TestCase
      */
     public function testThrowsHumanReableErrorIfSchemaTypesIsNotDefined() : void
     {
-        $this->markTestSkipped("Can't check interface implementations without full schema scan");
+        self::markTestSkipped("Can't check interface implementations without full schema scan");
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage(

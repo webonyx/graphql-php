@@ -1599,14 +1599,14 @@ class DefinitionTest extends TestCase
             try {
                 Type::listOf($type);
             } catch (Throwable $e) {
-                $this->fail('List is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
+                self::fail('List is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
             }
         }
         foreach ($badTypes as $badType) {
             $typeStr = Utils::printSafe($badType);
             try {
                 Type::listOf($badType);
-                $this->fail(sprintf('List should not accept %s', $typeStr));
+                self::fail(sprintf('List should not accept %s', $typeStr));
             } catch (InvariantViolation $e) {
                 self::assertEquals(sprintf('Expected %s to be a GraphQL type.', $typeStr), $e->getMessage());
             }
@@ -1640,14 +1640,14 @@ class DefinitionTest extends TestCase
             try {
                 Type::nonNull($type);
             } catch (Throwable $e) {
-                $this->fail('NonNull is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
+                self::fail('NonNull is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
             }
         }
         foreach ($notNullableTypes as $badType) {
             $typeStr = Utils::printSafe($badType);
             try {
                 Type::nonNull($badType);
-                $this->fail(sprintf('Nulls should not accept %s', $typeStr));
+                self::fail(sprintf('Nulls should not accept %s', $typeStr));
             } catch (InvariantViolation $e) {
                 self::assertEquals(sprintf('Expected %s to be a GraphQL nullable type.', $typeStr), $e->getMessage());
             }

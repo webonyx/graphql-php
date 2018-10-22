@@ -36,7 +36,7 @@ class VariablesInAllowedPosition extends ValidationRule
                         $varName = $node->name->value;
                         $varDef  = $this->varDefMap[$varName] ?? null;
 
-                        if (! $varDef || ! $type) {
+                        if ($varDef === null || $type === null) {
                             continue;
                         }
 

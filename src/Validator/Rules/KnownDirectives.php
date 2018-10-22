@@ -37,12 +37,25 @@ class KnownDirectives extends ValidationRule
                 continue;
             }
 
-            $locationsMap[$def->name->value] = array_map(static function ($name) {
-                return $name->value;
-            }, $def->locations);
+            $locationsMap[$def->name->value] = array_map(
+                static function ($name) {
+                    return $name->value;
+                },
+                $def->locations
+            );
         }
+
         return [
-            NodeKind::DIRECTIVE => function (DirectiveNode $node, $key, $parent, $path, $ancestors) use ($context, $locationsMap) {
+            NodeKind::DIRECTIVE => function (
+                DirectiveNode $node,
+                $key,
+                $parent,
+                $path,
+                $ancestors
+            ) use (
+                $context,
+                $locationsMap
+            ) {
                 $name      = $node->name->value;
                 $locations = $locationsMap[$name] ?? null;
 
@@ -51,12 +64,13 @@ class KnownDirectives extends ValidationRule
                         self::unknownDirectiveMessage($name),
                         [$node]
                     ));
+
                     return;
                 }
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if (! $candidateLocation || in_array($candidateLocation, $locations)) {
+                if (! $candidateLocation || in_array($candidateLocation, $locations, true)) {
                     return;
                 }
                 $context->reportError(

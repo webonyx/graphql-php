@@ -5,6 +5,11 @@ parameters:
         - %currentWorkingDirectory%/src
         - %currentWorkingDirectory%/tests
 
+    ignoreErrors:
+        - "~Construct empty\\(\\) is not allowed\\. Use more strict comparison~"
+        - "~(Method|Property) .+::.+(\\(\\))? (has parameter \\$\\w+ with no|has no return|has no) typehint specified~"
+
 includes:
 	- vendor/phpstan/phpstan-phpunit/extension.neon
 	- vendor/phpstan/phpstan-phpunit/rules.neon
+	- vendor/phpstan/phpstan-strict-rules/rules.neon

@@ -371,7 +371,7 @@ class BreakingChangesFinder
                     )) ||
                 // moving from non-null to nullable of the same underlying type is safe
                 ! ($newType instanceof NonNull) &&
-                    self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType);
+                self::isChangeSafeForInputObjectFieldOrFieldArg($oldType->getWrappedType(), $newType);
         }
 
         return false;
@@ -496,7 +496,7 @@ class BreakingChangesFinder
                             return $arg->name === $oldArgDef->name;
                         }
                     );
-                    if ($newArgDef) {
+                    if ($newArgDef !== null) {
                         $isSafe     = self::isChangeSafeForInputObjectFieldOrFieldArg(
                             $oldArgDef->getType(),
                             $newArgDef->getType()
@@ -536,7 +536,7 @@ class BreakingChangesFinder
                             }
                         );
 
-                        if ($oldArgDef) {
+                        if ($oldArgDef !== null) {
                             continue;
                         }
 
@@ -584,12 +584,13 @@ class BreakingChangesFinder
             $oldInterfaces = $oldType->getInterfaces();
             $newInterfaces = $newType->getInterfaces();
             foreach ($oldInterfaces as $oldInterface) {
-                if (Utils::find(
+                $interface = Utils::find(
                     $newInterfaces,
-                    static function (InterfaceType $interface) use ($oldInterface) {
+                    static function (InterfaceType $interface) use ($oldInterface) : bool {
                         return $interface->name === $oldInterface->name;
                     }
-                )) {
+                );
+                if ($interface !== null) {
                     continue;
                 }
 
@@ -850,12 +851,14 @@ class BreakingChangesFinder
             $oldInterfaces = $oldType->getInterfaces();
             $newInterfaces = $newType->getInterfaces();
             foreach ($newInterfaces as $newInterface) {
-                if (Utils::find(
+                $interface = Utils::find(
                     $oldInterfaces,
-                    static function (InterfaceType $interface) use ($newInterface) {
+                    static function (InterfaceType $interface) use ($newInterface) : bool {
                         return $interface->name === $newInterface->name;
                     }
-                )) {
+                );
+
+                if ($interface !== null) {
                     continue;
                 }
 

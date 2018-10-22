@@ -260,14 +260,14 @@ class SyncPromiseTest extends TestCase
 
         try {
             $promise->reject(new Exception('other-reason'));
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (Throwable $e) {
             self::assertEquals('Cannot change rejection reason', $e->getMessage());
         }
 
         try {
             $promise->resolve('anything');
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (Throwable $e) {
             self::assertEquals('Cannot resolve rejected promise', $e->getMessage());
         }
@@ -316,7 +316,7 @@ class SyncPromiseTest extends TestCase
 
         try {
             $promise->resolve($promise);
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (Throwable $e) {
             self::assertEquals('Cannot resolve promise with self', $e->getMessage());
             self::assertEquals(SyncPromise::PENDING, $promise->state);
@@ -345,7 +345,7 @@ class SyncPromiseTest extends TestCase
 
         try {
             $promise->reject('a');
-            $this->fail('Expected exception not thrown');
+            self::fail('Expected exception not thrown');
         } catch (Error $e) {
             throw $e;
         } catch (Throwable $e) {

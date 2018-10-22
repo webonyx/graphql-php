@@ -173,7 +173,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NamedType
             $interfaces = $this->config['interfaces'] ?? [];
             $interfaces = is_callable($interfaces) ? call_user_func($interfaces) : $interfaces;
 
-            if ($interfaces && ! is_array($interfaces)) {
+            if ($interfaces !== null && ! is_array($interfaces)) {
                 throw new InvariantViolation(
                     sprintf('%s interfaces must be an Array or a callable which returns an Array.', $this->name)
                 );

@@ -571,25 +571,25 @@ EOD;
                         'deprecationReason' => 'Use `locations`.',
                         'type'              => Type::nonNull(Type::boolean()),
                         'resolve'           => static function ($d) {
-                            return in_array(DirectiveLocation::QUERY, $d->locations) ||
-                                in_array(DirectiveLocation::MUTATION, $d->locations) ||
-                                in_array(DirectiveLocation::SUBSCRIPTION, $d->locations);
+                            return in_array(DirectiveLocation::QUERY, $d->locations, true) ||
+                                in_array(DirectiveLocation::MUTATION, $d->locations, true) ||
+                                in_array(DirectiveLocation::SUBSCRIPTION, $d->locations, true);
                         },
                     ],
                     'onFragment'  => [
                         'deprecationReason' => 'Use `locations`.',
                         'type'              => Type::nonNull(Type::boolean()),
                         'resolve'           => static function ($d) {
-                            return in_array(DirectiveLocation::FRAGMENT_SPREAD, $d->locations) ||
-                                in_array(DirectiveLocation::INLINE_FRAGMENT, $d->locations) ||
-                                in_array(DirectiveLocation::FRAGMENT_DEFINITION, $d->locations);
+                            return in_array(DirectiveLocation::FRAGMENT_SPREAD, $d->locations, true) ||
+                                in_array(DirectiveLocation::INLINE_FRAGMENT, $d->locations, true) ||
+                                in_array(DirectiveLocation::FRAGMENT_DEFINITION, $d->locations, true);
                         },
                     ],
                     'onField'     => [
                         'deprecationReason' => 'Use `locations`.',
                         'type'              => Type::nonNull(Type::boolean()),
                         'resolve'           => static function ($d) {
-                            return in_array(DirectiveLocation::FIELD, $d->locations);
+                            return in_array(DirectiveLocation::FIELD, $d->locations, true);
                         },
                     ],
                 ],

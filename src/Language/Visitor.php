@@ -251,12 +251,12 @@ class Visitor
                 $inArray = $stack['inArray'];
                 $stack   = $stack['prev'];
             } else {
-                $key  = $parent ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
-                $node = $parent ? ($parent instanceof NodeList || is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
+                $key  = $parent !== null ? ($inArray ? $index : $keys[$index]) : $UNDEFINED;
+                $node = $parent !== null ? ($parent instanceof NodeList || is_array($parent) ? $parent[$key] : $parent->{$key}) : $newRoot;
                 if ($node === null || $node === $UNDEFINED) {
                     continue;
                 }
-                if ($parent) {
+                if ($parent !== null) {
                     $path[] = $key;
                 }
             }
@@ -321,7 +321,7 @@ class Visitor
                 $keys  = ($inArray ? $node : $visitorKeys[$node->kind]) ?: [];
                 $index = -1;
                 $edits = [];
-                if ($parent) {
+                if ($parent !== null) {
                     $ancestors[] = $parent;
                 }
                 $parent = $node;
@@ -464,7 +464,7 @@ class Visitor
 
                 if ($fn) {
                     $result = call_user_func_array($fn, func_get_args());
-                    if ($result) {
+                    if ($result !== null) {
                         $typeInfo->leave($node);
                         if ($result instanceof Node) {
                             $typeInfo->enter($result);

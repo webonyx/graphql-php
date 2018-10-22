@@ -43,7 +43,7 @@ class ValidationTest extends ValidatorTestCase
         ];
 
         $this->expectInvalid(
-            $this->getTestSchema(),
+            self::getTestSchema(),
             null,
             $doc,
             [$expectedError]
@@ -59,6 +59,6 @@ class ValidationTest extends ValidatorTestCase
             'locations' => [['line' => 1, 'column' => 2]],
         ];
         $this->expectFailsCompleteValidation($query, [$expectedError]);
-        $this->expectValid($this->getTestSchema(), [], $query);
+        $this->expectValid(self::getTestSchema(), [], $query);
     }
 }

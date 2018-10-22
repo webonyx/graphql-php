@@ -201,7 +201,7 @@ class ValidationTest extends TestCase
         foreach ($closures as $index => $factory) {
             try {
                 $factory();
-                $this->fail('Expected exception not thrown for entry ' . $index);
+                self::fail('Expected exception not thrown for entry ' . $index);
             } catch (InvariantViolation $e) {
                 self::assertEquals($expectedError, $e->getMessage(), 'Error in callable #' . $index);
             }
@@ -356,7 +356,7 @@ class ValidationTest extends TestCase
         );
         foreach ($array as $index => $error) {
             if (! isset($messages[$index]) || ! $error instanceof Error) {
-                $this->fail('Received unexpected error: ' . $error->getMessage());
+                self::fail('Received unexpected error: ' . $error->getMessage());
             }
             self::assertEquals($messages[$index]['message'], $error->getMessage());
             $errorLocations = [];
@@ -1189,7 +1189,7 @@ class ValidationTest extends TestCase
     public function testRejectsAnObjectImplementingTheSameInterfaceTwiceDueToExtension() : void
     {
         $this->expectNotToPerformAssertions();
-        $this->markTestIncomplete('extend does not work this way (yet).');
+        self::markTestIncomplete('extend does not work this way (yet).');
         $schema = BuildSchema::build('
       type Query {
         field: AnotherObject

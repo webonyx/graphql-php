@@ -210,6 +210,7 @@ class TypeInfo
                 $typeMap = self::extractTypes($arg->getType(), $typeMap);
             }
         }
+
         return $typeMap;
     }
 
@@ -309,7 +310,7 @@ class TypeInfo
                             return $arg->name === $node->name->value;
                         }
                     );
-                    if ($argDef) {
+                    if ($argDef !== null) {
                         $argType = $argDef->getType();
                     }
                 }

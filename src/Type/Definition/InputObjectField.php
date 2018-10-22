@@ -21,7 +21,7 @@ class InputObjectField
     /** @var string|null */
     public $description;
 
-    /** @var callable|InputType */
+    /** @var mixed */
     public $type;
 
     /** @var InputValueDefinitionNode|null */

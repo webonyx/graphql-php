@@ -36,7 +36,7 @@ class QueryDepth extends QuerySecurityRule
                         }
 
                         $context->reportError(
-                            new Error($this->maxQueryDepthErrorMessage($this->getMaxQueryDepth(), $maxDepth))
+                            new Error(self::maxQueryDepthErrorMessage($this->getMaxQueryDepth(), $maxDepth))
                         );
                     },
                 ],
