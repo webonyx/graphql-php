@@ -123,7 +123,7 @@ class SyncPromise
 
                 if ($this->state === self::FULFILLED) {
                     try {
-                        $promise->resolve($onFulfilled ? $onFulfilled($this->result) : $this->result);
+                        $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
                     } catch (Exception $e) {
                         $promise->reject($e);
                     } catch (Throwable $e) {
@@ -131,10 +131,10 @@ class SyncPromise
                     }
                 } elseif ($this->state === self::REJECTED) {
                     try {
-                        if ($onRejected) {
-                            $promise->resolve($onRejected($this->result));
-                        } else {
+                        if ($onRejected === null) {
                             $promise->reject($this->result);
+                        } else {
+                            $promise->resolve($onRejected($this->result));
                         }
                     } catch (Exception $e) {
                         $promise->reject($e);

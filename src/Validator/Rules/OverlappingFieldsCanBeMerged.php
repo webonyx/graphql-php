@@ -366,8 +366,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             );
 
         // The return type for each field.
-        $type1 = $def1 ? $def1->getType() : null;
-        $type2 = $def2 ? $def2->getType() : null;
+        $type1 = $def1 === null ? null : $def1->getType();
+        $type2 = $def2 === null ? null : $def2->getType();
 
         if (! $areMutuallyExclusive) {
             // Two aliases must refer to the same field.
