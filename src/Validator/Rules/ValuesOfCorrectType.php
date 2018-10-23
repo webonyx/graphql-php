@@ -4,6 +4,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListValueNode;
@@ -33,10 +34,13 @@ use GraphQL\Validator\ValidationContext;
  */
 class ValuesOfCorrectType extends AbstractValidationRule
 {
-    static function badValueMessage($typeName, $valueName, $message = null)
+	private static $fieldName;
+
+    static function badValueMessage($typeName, $valueName, $message = null, $context = null)
     {
-        return "Expected type {$typeName}, found {$valueName}"  .
-            ($message ? "; ${message}" : '.');
+		$fieldName = self::$fieldName;
+		$argName = $context->getArgument()->name;
+		return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}" . ($message ? "; ${message}" : '.');
     }
 
     static function requiredFieldMessage($typeName, $fieldName, $fieldTypeName)
@@ -56,6 +60,11 @@ class ValuesOfCorrectType extends AbstractValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
+			NodeKind::FIELD => [
+				'enter' => function (FieldNode $node) {
+					self::$fieldName = $node->name->value;
+				}
+			],
             NodeKind::NULL => function(NullValueNode $node) use ($context) {
                 $type = $context->getInputType();
                 if ($type instanceof NonNull) {
@@ -183,7 +192,8 @@ class ValuesOfCorrectType extends AbstractValidationRule
                     self::badValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
-                        $error->getMessage()
+                        $error->getMessage(),
+						$context
                     ),
                     $node,
                     null,

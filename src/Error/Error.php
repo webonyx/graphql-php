@@ -182,12 +182,16 @@ class Error extends \Exception implements \JsonSerializable, ClientAware
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
             $this->category = $previous->getCategory() ?: static::CATEGORY_INTERNAL;
-        } else if ($previous) {
-            $this->isClientSafe = false;
-            $this->category = static::CATEGORY_INTERNAL;
         } else {
             $this->isClientSafe = true;
-            $this->category = static::CATEGORY_GRAPHQL;
+			while ($previous) {
+				if (!preg_match('#/webonyx/graphql-php/#u', $previous->getFile())) {
+					$this->isClientSafe = false;
+					break;
+				}
+				$previous = $previous->getPrevious();
+			}
+            $this->category = $this->isClientSafe ? self::CATEGORY_GRAPHQL : self::CATEGORY_INTERNAL;
         }
     }
 
