@@ -4,6 +4,7 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListValueNode;
@@ -15,6 +16,7 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -33,8 +35,15 @@ use GraphQL\Validator\ValidationContext;
  */
 class ValuesOfCorrectType extends AbstractValidationRule
 {
-    static function badValueMessage($typeName, $valueName, $message = null)
+    private static $fieldName;
+
+    static function badValueMessage($typeName, $valueName, $message = null, $context = null)
     {
+        if ($context && ($arg = $context->getArgument()) && $arg instanceof FieldArgument) {
+            $fieldName = self::$fieldName;
+            $argName = $arg->name;
+            return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}" . ($message ? "; ${message}" : '.');
+        }
         return "Expected type {$typeName}, found {$valueName}"  .
             ($message ? "; ${message}" : '.');
     }
@@ -56,6 +65,11 @@ class ValuesOfCorrectType extends AbstractValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
+            NodeKind::FIELD => [
+                'enter' => function (FieldNode $node) {
+                    self::$fieldName = $node->name->value;
+                }
+            ],
             NodeKind::NULL => function(NullValueNode $node) use ($context) {
                 $type = $context->getInputType();
                 if ($type instanceof NonNull) {
@@ -183,7 +197,8 @@ class ValuesOfCorrectType extends AbstractValidationRule
                     self::badValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
-                        $error->getMessage()
+                        $error->getMessage(),
+                        $context
                     ),
                     $node,
                     null,

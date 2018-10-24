@@ -36,7 +36,7 @@ class ValidationTest extends TestCase
         ';
 
         $expectedError = [
-            'message' => "Expected type Invalid, found \"bad value\"; Invalid scalar is always invalid: bad value",
+            'message' => "Field \"invalidArg\" argument \"arg\" requires type Invalid, found \"bad value\"; Invalid scalar is always invalid: bad value",
             'locations' => [ ['line' => 3, 'column' => 25] ]
         ];
 

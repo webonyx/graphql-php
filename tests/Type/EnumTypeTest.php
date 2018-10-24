@@ -292,7 +292,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             '{ colorEnum(fromInt: GREEN) }',
             null,
-            "Expected type Int, found GREEN."
+            "Field \"colorEnum\" argument \"fromInt\" requires type Int, found GREEN."
         );
     }
 
