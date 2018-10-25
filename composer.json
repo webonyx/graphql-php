@@ -16,9 +16,9 @@
   "require-dev": {
     "doctrine/coding-standard": "^5.0",
     "phpbench/phpbench": "^0.14.0",
-    "phpstan/phpstan": "^0.10.3",
-    "phpstan/phpstan-phpunit": "^0.10.0",
-    "phpstan/phpstan-strict-rules": "^0.10.1",
+    "phpstan/phpstan": "0.10.5",
+    "phpstan/phpstan-phpunit": "0.10.0",
+    "phpstan/phpstan-strict-rules": "0.10.1",
     "phpunit/phpunit": "^7.2",
     "psr/http-message": "^1.0",
     "react/promise": "2.*"

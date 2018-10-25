@@ -188,7 +188,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, NamedTyp
             $lookup = $this->getNameLookup();
             if (isset($lookup[$valueNode->value])) {
                 $enumValue = $lookup[$valueNode->value];
-                if ($enumValue) {
+                if ($enumValue !== null) {
                     return $enumValue->value;
                 }
             }
