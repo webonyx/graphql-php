@@ -350,7 +350,7 @@ class SchemaExtender
                 'type' => static::extendType($field->getType()),
                 'args' => static::extendArgs($field->args),
                 'astNode' => $field->astNode,
-                'resolveFn' => $field->resolveFn,
+                'resolve' => $field->resolveFn,
             ];
         }
 
