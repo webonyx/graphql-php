@@ -19,9 +19,9 @@ class ValuesOfCorrectTypeTest extends TestCase
         );
     }
 
-    private function badValue2($error, $line, $column)
+    private function badValueWithMessage($message, $line, $column)
     {
-        return FormattedError::create($error, [new SourceLocation($line, $column)]);
+        return FormattedError::create($message, [new SourceLocation($line, $column)]);
     }
 
     private function requiredField($typeName, $fieldName, $fieldTypeName, $line, $column) {
@@ -236,7 +236,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"stringArgField\" argument \"stringArg\" requires type String, found 1.", 4, 39)
+            $this->badValueWithMessage("Field \"stringArgField\" argument \"stringArg\" requires type String, found 1.", 4, 39)
         ]);
     }
 
@@ -252,7 +252,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"stringArgField\" argument \"stringArg\" requires type String, found 1.0.", 4, 39)
+            $this->badValueWithMessage("Field \"stringArgField\" argument \"stringArg\" requires type String, found 1.0.", 4, 39)
         ]);
     }
 
@@ -268,7 +268,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"stringArgField\" argument \"stringArg\" requires type String, found true.", 4, 39)
+            $this->badValueWithMessage("Field \"stringArgField\" argument \"stringArg\" requires type String, found true.", 4, 39)
         ]);
     }
 
@@ -284,7 +284,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"stringArgField\" argument \"stringArg\" requires type String, found BAR.", 4, 39)
+            $this->badValueWithMessage("Field \"stringArgField\" argument \"stringArg\" requires type String, found BAR.", 4, 39)
         ]);
     }
 
@@ -302,7 +302,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"intArgField\" argument \"intArg\" requires type Int, found \"3\".", 4, 33)
+            $this->badValueWithMessage("Field \"intArgField\" argument \"intArg\" requires type Int, found \"3\".", 4, 33)
         ]);
     }
 
@@ -318,7 +318,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"intArgField\" argument \"intArg\" requires type Int, found 829384293849283498239482938.", 4, 33)
+            $this->badValueWithMessage("Field \"intArgField\" argument \"intArg\" requires type Int, found 829384293849283498239482938.", 4, 33)
         ]);
     }
 
@@ -334,7 +334,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"intArgField\" argument \"intArg\" requires type Int, found FOO.", 4, 33)
+            $this->badValueWithMessage("Field \"intArgField\" argument \"intArg\" requires type Int, found FOO.", 4, 33)
         ]);
     }
 
@@ -350,7 +350,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"intArgField\" argument \"intArg\" requires type Int, found 3.0.", 4, 33)
+            $this->badValueWithMessage("Field \"intArgField\" argument \"intArg\" requires type Int, found 3.0.", 4, 33)
         ]);
     }
 
@@ -366,7 +366,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"intArgField\" argument \"intArg\" requires type Int, found 3.333.", 4, 33)
+            $this->badValueWithMessage("Field \"intArgField\" argument \"intArg\" requires type Int, found 3.333.", 4, 33)
         ]);
     }
 
@@ -384,7 +384,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"floatArgField\" argument \"floatArg\" requires type Float, found \"3.333\".", 4, 37)
+            $this->badValueWithMessage("Field \"floatArgField\" argument \"floatArg\" requires type Float, found \"3.333\".", 4, 37)
         ]);
     }
 
@@ -400,7 +400,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"floatArgField\" argument \"floatArg\" requires type Float, found true.", 4, 37)
+            $this->badValueWithMessage("Field \"floatArgField\" argument \"floatArg\" requires type Float, found true.", 4, 37)
         ]);
     }
 
@@ -416,7 +416,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"floatArgField\" argument \"floatArg\" requires type Float, found FOO.", 4, 37)
+            $this->badValueWithMessage("Field \"floatArgField\" argument \"floatArg\" requires type Float, found FOO.", 4, 37)
         ]);
     }
 
@@ -434,7 +434,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"booleanArgField\" argument \"booleanArg\" requires type Boolean, found 2.", 4, 41)
+            $this->badValueWithMessage("Field \"booleanArgField\" argument \"booleanArg\" requires type Boolean, found 2.", 4, 41)
         ]);
     }
 
@@ -450,7 +450,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"booleanArgField\" argument \"booleanArg\" requires type Boolean, found 1.0.", 4, 41)
+            $this->badValueWithMessage("Field \"booleanArgField\" argument \"booleanArg\" requires type Boolean, found 1.0.", 4, 41)
         ]);
     }
 
@@ -466,7 +466,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"booleanArgField\" argument \"booleanArg\" requires type Boolean, found \"true\".", 4, 41)
+            $this->badValueWithMessage("Field \"booleanArgField\" argument \"booleanArg\" requires type Boolean, found \"true\".", 4, 41)
         ]);
     }
 
@@ -482,7 +482,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"booleanArgField\" argument \"booleanArg\" requires type Boolean, found TRUE.", 4, 41)
+            $this->badValueWithMessage("Field \"booleanArgField\" argument \"booleanArg\" requires type Boolean, found TRUE.", 4, 41)
         ]);
     }
 
@@ -500,7 +500,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"idArgField\" argument \"idArg\" requires type ID, found 1.0.", 4, 31)
+            $this->badValueWithMessage("Field \"idArgField\" argument \"idArg\" requires type ID, found 1.0.", 4, 31)
         ]);
     }
 
@@ -516,7 +516,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"idArgField\" argument \"idArg\" requires type ID, found true.", 4, 31)
+            $this->badValueWithMessage("Field \"idArgField\" argument \"idArg\" requires type ID, found true.", 4, 31)
         ]);
     }
 
@@ -532,7 +532,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"idArgField\" argument \"idArg\" requires type ID, found SOMETHING.", 4, 31)
+            $this->badValueWithMessage("Field \"idArgField\" argument \"idArg\" requires type ID, found SOMETHING.", 4, 31)
         ]);
     }
 
@@ -550,7 +550,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue('DogCommand', '2', 4, 41)
+            $this->badValueWithMessage("Field \"doesKnowCommand\" argument \"dogCommand\" requires type DogCommand, found 2.", 4, 41)
         ]);
     }
 
@@ -566,7 +566,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue('DogCommand', '1.0', 4, 41)
+            $this->badValueWithMessage("Field \"doesKnowCommand\" argument \"dogCommand\" requires type DogCommand, found 1.0.", 4, 41)
         ]);
     }
 
@@ -582,13 +582,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue(
-                'DogCommand',
-                '"SIT"',
-                4,
-                41,
-                'Did you mean the enum value SIT?'
-            )
+            $this->badValueWithMessage("Field \"doesKnowCommand\" argument \"dogCommand\" requires type DogCommand, found \"SIT\"; Did you mean the enum value SIT?", 4, 41)
         ]);
     }
 
@@ -604,7 +598,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue('DogCommand', 'true', 4, 41)
+            $this->badValueWithMessage("Field \"doesKnowCommand\" argument \"dogCommand\" requires type DogCommand, found true.", 4, 41)
         ]);
     }
 
@@ -620,7 +614,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue('DogCommand', 'JUGGLE', 4, 41)
+            $this->badValueWithMessage("Field \"doesKnowCommand\" argument \"dogCommand\" requires type DogCommand, found JUGGLE.", 4, 41)
         ]);
     }
 
@@ -636,13 +630,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue(
-                'DogCommand',
-                'sit',
-                4,
-                41,
-                'Did you mean the enum value SIT?'
-            )
+            $this->badValueWithMessage("Field \"doesKnowCommand\" argument \"dogCommand\" requires type DogCommand, found sit; Did you mean the enum value SIT?", 4, 41)
         ]);
     }
 
@@ -718,7 +706,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"stringListArgField\" argument \"stringListArg\" requires type String, found 2.", 4, 55),
+            $this->badValueWithMessage("Field \"stringListArgField\" argument \"stringListArg\" requires type String, found 2.", 4, 55),
         ]);
     }
 
@@ -734,7 +722,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"stringListArgField\" argument \"stringListArg\" requires type [String], found 1.", 4, 47),
+            $this->badValueWithMessage("Field \"stringListArgField\" argument \"stringListArg\" requires type [String], found 1.", 4, 47),
         ]);
     }
 
@@ -894,8 +882,8 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"multipleReqs\" argument \"req2\" requires type Int!, found \"two\".", 4, 32),
-            $this->badValue2("Field \"multipleReqs\" argument \"req1\" requires type Int!, found \"one\".", 4, 45),
+            $this->badValueWithMessage("Field \"multipleReqs\" argument \"req2\" requires type Int!, found \"two\".", 4, 32),
+            $this->badValueWithMessage("Field \"multipleReqs\" argument \"req1\" requires type Int!, found \"one\".", 4, 45),
         ]);
     }
 
@@ -911,7 +899,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"multipleReqs\" argument \"req1\" requires type Int!, found \"one\".", 4, 32),
+            $this->badValueWithMessage("Field \"multipleReqs\" argument \"req1\" requires type Int!, found \"one\".", 4, 32),
         ]);
     }
 
@@ -927,7 +915,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue('Int!', 'null', 4, 32),
+            $this->badValueWithMessage("Field \"multipleReqs\" argument \"req1\" requires type Int!, found null.", 4, 32),
         ]);
     }
 
@@ -1063,7 +1051,7 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"complexArgField\" argument \"complexArg\" requires type String, found 2.", 5, 40),
+            $this->badValueWithMessage("Field \"complexArgField\" argument \"complexArg\" requires type String, found 2.", 5, 40),
         ]);
     }
 
@@ -1107,12 +1095,12 @@ class ValuesOfCorrectTypeTest extends TestCase
           invalidArg(arg: 123)
         }
         ', [
-            $this->badValue2("Field \"invalidArg\" argument \"arg\" requires type Invalid, found 123; Invalid scalar is always invalid: 123", 3, 27),
+            $this->badValueWithMessage("Field \"invalidArg\" argument \"arg\" requires type Invalid, found 123; Invalid scalar is always invalid: 123", 3, 27),
         ]);
 
         $this->assertEquals(
-            'Invalid scalar is always invalid: 123',
-            $errors[0]->getPrevious()->getMessage()
+            "Field \"invalidArg\" argument \"arg\" requires type Invalid, found 123; Invalid scalar is always invalid: 123",
+            $errors[0]->getMessage()
         );
     }
 
@@ -1162,8 +1150,8 @@ class ValuesOfCorrectTypeTest extends TestCase
           }
         }
         ', [
-            $this->badValue2("Field \"dog\" argument \"if\" requires type Boolean!, found \"yes\".", 3, 28),
-            $this->badValue2("Field \"name\" argument \"if\" requires type Boolean!, found ENUM.", 4, 28),
+            $this->badValueWithMessage("Field \"dog\" argument \"if\" requires type Boolean!, found \"yes\".", 3, 28),
+            $this->badValueWithMessage("Field \"name\" argument \"if\" requires type Boolean!, found ENUM.", 4, 28),
         ]);
     }
 

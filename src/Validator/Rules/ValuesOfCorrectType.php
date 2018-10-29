@@ -16,9 +16,9 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
+use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -39,10 +39,10 @@ class ValuesOfCorrectType extends AbstractValidationRule
 
     static function badValueMessage($typeName, $valueName, $message = null, $context = null)
     {
-        if ($context && ($arg = $context->getArgument()) && $arg instanceof FieldArgument) {
-            $fieldName = self::$fieldName;
+        $fieldName = self::$fieldName;
+        if ($context AND $arg = $context->getArgument() AND $arg instanceof FieldArgument) {
             $argName = $arg->name;
-            return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}" . ($message ? "; ${message}" : '.');
+            return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}" . ($message ? "; {$message}" : '.');
         }
         return "Expected type {$typeName}, found {$valueName}"  .
             ($message ? "; ${message}" : '.');
@@ -75,7 +75,7 @@ class ValuesOfCorrectType extends AbstractValidationRule
                 if ($type instanceof NonNull) {
                     $context->reportError(
                       new Error(
-                          self::badValueMessage((string) $type, Printer::doPrint($node)),
+                          self::badValueMessage((string) $type, Printer::doPrint($node), null, $context),
                           $node
                       )
                     );
@@ -147,7 +147,8 @@ class ValuesOfCorrectType extends AbstractValidationRule
                             self::badValueMessage(
                                 $type->name,
                                 Printer::doPrint($node),
-                                $this->enumTypeSuggestion($type, $node)
+                                $this->enumTypeSuggestion($type, $node),
+                                $context
                             ),
                             $node
                         )
@@ -178,7 +179,8 @@ class ValuesOfCorrectType extends AbstractValidationRule
                     self::badValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
-                        $this->enumTypeSuggestion($type, $node)
+                        $this->enumTypeSuggestion($type, $node),
+                        $context
                     ),
                     $node
                 )
@@ -191,7 +193,8 @@ class ValuesOfCorrectType extends AbstractValidationRule
         try {
             $type->parseLiteral($node);
         } catch (\Exception $error) {
-            // Ensure a reference to the original error is maintained.
+            // We should not pass $error to "previous" parameter of Error's constructor here,
+            // otherwise this error will be in "internal" category instead of "graphql".
             $context->reportError(
                 new Error(
                     self::badValueMessage(
@@ -200,27 +203,21 @@ class ValuesOfCorrectType extends AbstractValidationRule
                         $error->getMessage(),
                         $context
                     ),
-                    $node,
-                    null,
-                    null,
-                    null,
-                    $error
+                    $node
                 )
             );
         } catch (\Throwable $error) {
-            // Ensure a reference to the original error is maintained.
+            // We should not pass $error to "previous" parameter of Error's constructor here,
+            // otherwise this error will be in "internal" category instead of "graphql".
             $context->reportError(
                 new Error(
                     self::badValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
-                        $error->getMessage()
+                        $error->getMessage(),
+                        $context
                     ),
-                    $node,
-                    null,
-                    null,
-                    null,
-                    $error
+                    $node
                 )
             );
         }

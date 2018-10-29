@@ -220,7 +220,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             '{ colorEnum(fromEnum: "GREEN") }',
             null,
             [
-                'message' => "Expected type Color, found \"GREEN\"; Did you mean the enum value GREEN?",
+                'message' => "Field \"colorEnum\" argument \"fromEnum\" requires type Color, found \"GREEN\"; Did you mean the enum value GREEN?",
                 'locations' => [new SourceLocation(1, 23)]
             ]
         );
@@ -235,7 +235,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             '{ colorEnum(fromEnum: GREENISH) }',
             null,
             [
-                'message' => "Expected type Color, found GREENISH; Did you mean the enum value GREEN?",
+                'message' => "Field \"colorEnum\" argument \"fromEnum\" requires type Color, found GREENISH; Did you mean the enum value GREEN?",
                 'locations' => [new SourceLocation(1, 23)]
             ]
         );
@@ -250,7 +250,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
             '{ colorEnum(fromEnum: green) }',
             null,
             [
-                'message' => "Expected type Color, found green; Did you mean the enum value GREEN?",
+                'message' => "Field \"colorEnum\" argument \"fromEnum\" requires type Color, found green; Did you mean the enum value GREEN?",
                 'locations' => [new SourceLocation(1, 23)]
             ]
         );
@@ -280,7 +280,7 @@ class EnumTypeTest extends \PHPUnit_Framework_TestCase
         $this->expectFailure(
             '{ colorEnum(fromEnum: 1) }',
             null,
-            "Expected type Color, found 1."
+            "Field \"colorEnum\" argument \"fromEnum\" requires type Color, found 1."
         );
     }
 
