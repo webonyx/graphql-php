@@ -1927,4 +1927,39 @@ class SchemaExtenderTest extends TestCase
             self::assertEquals('Must provide only one mutation type in schema.', $error->getMessage());
         }
     }
+
+    /**
+     * @see https://github.com/webonyx/graphql-php/pull/381
+     */
+    public function testOriginalResolversArePreserved()
+    {
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'hello' => [
+                    'type' => Type::string(),
+                    'resolve' => static function () {
+                        return 'Hello World!';
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $queryType]);
+
+        $documentNode = Parser::parse('
+extend type Query {
+	misc: String
+}
+');
+
+        $extendedSchema = SchemaExtender::extend($schema, $documentNode);
+        $helloResolveFn = $extendedSchema->getQueryType()->getField('hello')->resolveFn;
+
+        self::assertInternalType('callable', $helloResolveFn);
+
+        $query  = '{ hello }';
+        $result = GraphQL::executeQuery($extendedSchema, $query);
+        self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
+    }
 }
