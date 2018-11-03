@@ -135,7 +135,7 @@ class BuildSchema
                 'subscription' => isset($this->nodeMap['Subscription']) ? 'Subscription' : null,
             ];
 
-        $defintionBuilder = new ASTDefinitionBuilder(
+        $DefinitionBuilder = new ASTDefinitionBuilder(
             $this->nodeMap,
             $this->options,
             static function ($typeName) {
@@ -145,8 +145,8 @@ class BuildSchema
         );
 
         $directives = array_map(
-            static function ($def) use ($defintionBuilder) {
-                return $defintionBuilder->buildDirective($def);
+            static function ($def) use ($DefinitionBuilder) {
+                return $DefinitionBuilder->buildDirective($def);
             },
             $directiveDefs
         );
@@ -188,23 +188,23 @@ class BuildSchema
 
         return new Schema([
             'query'        => isset($operationTypes['query'])
-                ? $defintionBuilder->buildType($operationTypes['query'])
+                ? $DefinitionBuilder->buildType($operationTypes['query'])
                 : null,
             'mutation'     => isset($operationTypes['mutation'])
-                ? $defintionBuilder->buildType($operationTypes['mutation'])
+                ? $DefinitionBuilder->buildType($operationTypes['mutation'])
                 : null,
             'subscription' => isset($operationTypes['subscription'])
-                ? $defintionBuilder->buildType($operationTypes['subscription'])
+                ? $DefinitionBuilder->buildType($operationTypes['subscription'])
                 : null,
-            'typeLoader'   => static function ($name) use ($defintionBuilder) {
-                return $defintionBuilder->buildType($name);
+            'typeLoader'   => static function ($name) use ($DefinitionBuilder) {
+                return $DefinitionBuilder->buildType($name);
             },
             'directives'   => $directives,
             'astNode'      => $schemaDef,
-            'types'        => function () use ($defintionBuilder) {
+            'types'        => function () use ($DefinitionBuilder) {
                 $types = [];
                 foreach ($this->nodeMap as $name => $def) {
-                    $types[] = $defintionBuilder->buildType($def->name->value);
+                    $types[] = $DefinitionBuilder->buildType($def->name->value);
                 }
 
                 return $types;
