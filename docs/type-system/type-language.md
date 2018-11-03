@@ -38,6 +38,30 @@ By default, such schema is created without any resolvers.
 We have to rely on [default field resolver](../data-fetching.md#default-field-resolver) and **root value** in 
 order to execute a query against this schema.
 
+# Defining resolvers
+Since 0.10.0
+
+In order to enable **Interfaces**, **Unions** and custom field resolvers you can pass the second argument:
+**type config decorator** to schema builder.
+
+It accepts default type config produced by the builder and is expected to add missing options like
+[**resolveType**](interfaces.md#configuration-options) for interface types or
+[**resolveField**](object-types.md#configuration-options) for object types.
+
+```php
+<?php
+use GraphQL\Utils\BuildSchema;
+
+$typeConfigDecorator = function($typeConfig, $typeDefinitionNode) {
+    $name = $typeConfig['name'];
+    // ... add missing options to $typeConfig based on type $name
+    return $typeConfig;
+};
+
+$contents = file_get_contents('schema.graphql');
+$schema = BuildSchema::build($contents, $typeConfigDecorator);
+```
+
 # Performance considerations
 Since 0.10.0
 
