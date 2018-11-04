@@ -80,28 +80,28 @@ class ValuesTest extends TestCase
      */
     private static function getVariableDefinitionNodes() : array
     {
-        $idInputDefinition    = new VariableDefinitionNode([
+        $idInputDefinition     = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'idInput'])]),
             'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'ID'])]),
         ]);
-        $boolInputDefinition  = new VariableDefinitionNode([
+        $boolInputDefinition   = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'boolInput'])]),
             'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'Boolean'])]),
         ]);
-        $intInputDefinition   = new VariableDefinitionNode([
+        $intInputDefinition    = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'intInput'])]),
             'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'Int'])]),
         ]);
-        $stringInputDefintion = new VariableDefinitionNode([
+        $stringInputDefinition = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'stringInput'])]),
             'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'String'])]),
         ]);
-        $floatInputDefinition = new VariableDefinitionNode([
+        $floatInputDefinition  = new VariableDefinitionNode([
             'variable' => new VariableNode(['name' => new NameNode(['value' => 'floatInput'])]),
             'type'     => new NamedTypeNode(['name' => new NameNode(['value' => 'Float'])]),
         ]);
 
-        return [$idInputDefinition, $boolInputDefinition, $intInputDefinition, $stringInputDefintion, $floatInputDefinition];
+        return [$idInputDefinition, $boolInputDefinition, $intInputDefinition, $stringInputDefinition, $floatInputDefinition];
     }
 
     public function testGetBooleanVariableValues() : void

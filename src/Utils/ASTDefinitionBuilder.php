@@ -45,7 +45,7 @@ use function sprintf;
 class ASTDefinitionBuilder
 {
     /** @var Node[] */
-    private $typeDefintionsMap;
+    private $typeDefinitionsMap;
 
     /** @var callable */
     private $typeConfigDecorator;
@@ -60,16 +60,16 @@ class ASTDefinitionBuilder
     private $cache;
 
     /**
-     * @param Node[] $typeDefintionsMap
+     * @param Node[] $typeDefinitionsMap
      * @param bool[] $options
      */
     public function __construct(
-        array $typeDefintionsMap,
+        array $typeDefinitionsMap,
         $options,
         callable $resolveType,
         ?callable $typeConfigDecorator = null
     ) {
-        $this->typeDefintionsMap   = $typeDefintionsMap;
+        $this->typeDefinitionsMap  = $typeDefinitionsMap;
         $this->typeConfigDecorator = $typeConfigDecorator;
         $this->options             = $options;
         $this->resolveType         = $resolveType;
@@ -199,12 +199,12 @@ class ASTDefinitionBuilder
     private function internalBuildType($typeName, $typeNode = null)
     {
         if (! isset($this->cache[$typeName])) {
-            if (isset($this->typeDefintionsMap[$typeName])) {
-                $type = $this->makeSchemaDef($this->typeDefintionsMap[$typeName]);
+            if (isset($this->typeDefinitionsMap[$typeName])) {
+                $type = $this->makeSchemaDef($this->typeDefinitionsMap[$typeName]);
                 if ($this->typeConfigDecorator) {
                     $fn = $this->typeConfigDecorator;
                     try {
-                        $config = $fn($type->config, $this->typeDefintionsMap[$typeName], $this->typeDefintionsMap);
+                        $config = $fn($type->config, $this->typeDefinitionsMap[$typeName], $this->typeDefinitionsMap);
                     } catch (Throwable $e) {
                         throw new Error(
                             sprintf('Type config decorator passed to %s threw an error ', static::class) .
@@ -225,7 +225,7 @@ class ASTDefinitionBuilder
                             )
                         );
                     }
-                    $type = $this->makeSchemaDefFromConfig($this->typeDefintionsMap[$typeName], $config);
+                    $type = $this->makeSchemaDefFromConfig($this->typeDefinitionsMap[$typeName], $config);
                 }
                 $this->cache[$typeName] = $type;
             } else {
