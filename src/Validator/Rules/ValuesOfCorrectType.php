@@ -35,17 +35,16 @@ use GraphQL\Validator\ValidationContext;
  */
 class ValuesOfCorrectType extends AbstractValidationRule
 {
-    private static $fieldName;
-
-    static function badValueMessage($typeName, $valueName, $message = null, $context = null)
+    static function badValueMessage($typeName, $valueName, $message = null)
     {
-        $fieldName = self::$fieldName;
-        if ($context AND $arg = $context->getArgument() AND $arg instanceof FieldArgument) {
-            $argName = $arg->name;
-            return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}" . ($message ? "; {$message}" : '.');
-        }
         return "Expected type {$typeName}, found {$valueName}"  .
             ($message ? "; ${message}" : '.');
+    }
+
+    static function badArgumentValueMessage($typeName, $valueName, $fieldName, $argName, $message = null)
+    {
+        return "Field \"{$fieldName}\" argument \"{$argName}\" requires type {$typeName}, found {$valueName}" .
+            ($message ? "; {$message}" : '.');
     }
 
     static function requiredFieldMessage($typeName, $fieldName, $fieldTypeName)
@@ -62,42 +61,53 @@ class ValuesOfCorrectType extends AbstractValidationRule
         );
     }
 
+    private static function getBadValueMessage($typeName, $valueName, $message = null, $context = null, $fieldName = null)
+    {
+        if ($context AND $arg = $context->getArgument()) {
+            return self::badArgumentValueMessage($typeName, $valueName, $fieldName, $arg->name, $message);
+        } else {
+            return self::badValueMessage($typeName, $valueName, $message);
+        }
+    }
+
     public function getVisitor(ValidationContext $context)
     {
+        $fieldName = '';
         return [
             NodeKind::FIELD => [
-                'enter' => function (FieldNode $node) {
-                    self::$fieldName = $node->name->value;
+                'enter' => function (FieldNode $node) use (&$fieldName) {
+                    $fieldName = $node->name->value;
                 }
             ],
-            NodeKind::NULL => function(NullValueNode $node) use ($context) {
+            NodeKind::NULL => function(NullValueNode $node) use ($context, &$fieldName) {
                 $type = $context->getInputType();
                 if ($type instanceof NonNull) {
                     $context->reportError(
                       new Error(
-                          self::badValueMessage((string) $type, Printer::doPrint($node), null, $context),
+                          self::getBadValueMessage((string) $type, Printer::doPrint($node), null, $context, $fieldName),
                           $node
                       )
                     );
                 }
             },
-            NodeKind::LST => function(ListValueNode $node) use ($context) {
+            NodeKind::LST => function(ListValueNode $node) use ($context, &$fieldName) {
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
                 $type = Type::getNullableType($context->getParentInputType());
                 if (!$type instanceof ListOfType) {
-                    $this->isValidScalar($context, $node);
+                    $this->isValidScalar($context, $node, $fieldName);
                     return Visitor::skipNode();
                 }
             },
-            NodeKind::OBJECT => function(ObjectValueNode $node) use ($context) {
+            NodeKind::OBJECT => function(ObjectValueNode $node) use ($context, &$fieldName) {
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
                 $type = Type::getNamedType($context->getInputType());
                 if (!$type instanceof InputObjectType) {
-                    $this->isValidScalar($context, $node);
+                    $this->isValidScalar($context, $node, $fieldName);
                     return Visitor::skipNode();
                 }
+                unset($fieldName);
                 // Ensure every required field exists.
                 $inputFields = $type->getFields();
                 $nodeFields = iterator_to_array($node->fields);
@@ -137,32 +147,33 @@ class ValuesOfCorrectType extends AbstractValidationRule
                     );
                 }
             },
-            NodeKind::ENUM => function(EnumValueNode $node) use ($context) {
+            NodeKind::ENUM => function(EnumValueNode $node) use ($context, &$fieldName) {
                 $type = Type::getNamedType($context->getInputType());
                 if (!$type instanceof EnumType) {
-                    $this->isValidScalar($context, $node);
+                    $this->isValidScalar($context, $node, $fieldName);
                 } else if (!$type->getValue($node->value)) {
                     $context->reportError(
                         new Error(
-                            self::badValueMessage(
+                            self::getBadValueMessage(
                                 $type->name,
                                 Printer::doPrint($node),
                                 $this->enumTypeSuggestion($type, $node),
-                                $context
+                                $context,
+                                $fieldName
                             ),
                             $node
                         )
                     );
                 }
             },
-            NodeKind::INT => function (IntValueNode $node) use ($context) { $this->isValidScalar($context, $node); },
-            NodeKind::FLOAT => function (FloatValueNode $node) use ($context) { $this->isValidScalar($context, $node); },
-            NodeKind::STRING => function (StringValueNode $node) use ($context) { $this->isValidScalar($context, $node); },
-            NodeKind::BOOLEAN => function (BooleanValueNode $node) use ($context) { $this->isValidScalar($context, $node); },
+            NodeKind::INT => function (IntValueNode $node) use ($context, &$fieldName) { $this->isValidScalar($context, $node, $fieldName); },
+            NodeKind::FLOAT => function (FloatValueNode $node) use ($context, &$fieldName) { $this->isValidScalar($context, $node, $fieldName); },
+            NodeKind::STRING => function (StringValueNode $node) use ($context, &$fieldName) { $this->isValidScalar($context, $node, $fieldName); },
+            NodeKind::BOOLEAN => function (BooleanValueNode $node) use ($context, &$fieldName) { $this->isValidScalar($context, $node, $fieldName); },
         ];
     }
 
-    private function isValidScalar(ValidationContext $context, ValueNode $node)
+    private function isValidScalar(ValidationContext $context, ValueNode $node, $fieldName)
     {
         // Report any error at the full type expected by the location.
         $locationType = $context->getInputType();
@@ -176,11 +187,12 @@ class ValuesOfCorrectType extends AbstractValidationRule
         if (!$type instanceof ScalarType) {
             $context->reportError(
                 new Error(
-                    self::badValueMessage(
+                    self::getBadValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
                         $this->enumTypeSuggestion($type, $node),
-                        $context
+                        $context,
+                        $fieldName
                     ),
                     $node
                 )
@@ -197,11 +209,12 @@ class ValuesOfCorrectType extends AbstractValidationRule
             // otherwise this error will be in "internal" category instead of "graphql".
             $context->reportError(
                 new Error(
-                    self::badValueMessage(
+                    self::getBadValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
                         $error->getMessage(),
-                        $context
+                        $context,
+                        $fieldName
                     ),
                     $node
                 )
@@ -211,11 +224,12 @@ class ValuesOfCorrectType extends AbstractValidationRule
             // otherwise this error will be in "internal" category instead of "graphql".
             $context->reportError(
                 new Error(
-                    self::badValueMessage(
+                    self::getBadValueMessage(
                         (string) $locationType,
                         Printer::doPrint($node),
                         $error->getMessage(),
-                        $context
+                        $context,
+                        $fieldName
                     ),
                     $node
                 )
