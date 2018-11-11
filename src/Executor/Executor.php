@@ -1202,7 +1202,7 @@ class Executor
         if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader) {
             Warning::warnOnce(
                 sprintf(
-                    'GraphQL Interface Type `%s` returned `null` from it`s `resolveType` function ' .
+                    'GraphQL Interface Type `%s` returned `null` from its `resolveType` function ' .
                     'for value: %s. Switching to slow resolution method using `isTypeOf` ' .
                     'of all possible implementations. It requires full schema scan and degrades query performance significantly. ' .
                     ' Make sure your `resolveType` always returns valid implementation or throws.',
