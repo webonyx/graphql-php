@@ -154,7 +154,7 @@ class ExecutorLazySchemaTest extends TestCase
         self::assertInstanceOf(Error::class, $result->errors[0]->getPrevious());
 
         self::assertEquals(
-            'GraphQL Interface Type `Pet` returned `null` from it`s `resolveType` function for value: instance of ' .
+            'GraphQL Interface Type `Pet` returned `null` from its `resolveType` function for value: instance of ' .
             'GraphQL\Tests\Executor\TestClasses\Dog. Switching to slow resolution method using `isTypeOf` of all possible ' .
             'implementations. It requires full schema scan and degrades query performance significantly.  ' .
             'Make sure your `resolveType` always returns valid implementation or throws.',
