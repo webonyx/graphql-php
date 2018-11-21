@@ -263,8 +263,14 @@ class Printer
                     }),
 
                     NodeKind::FIELD_DEFINITION => $this->addDescription(function (FieldDefinitionNode $def) {
+                        $noIndent = Utils::every($def->arguments, static function (string $arg) {
+                            return strpos($arg, "\n") === false;
+                        });
+
                         return $def->name
-                            . $this->wrap('(', $this->join($def->arguments, ', '), ')')
+                            . ($noIndent
+                                ? $this->wrap('(', $this->join($def->arguments, ', '), ')')
+                                : $this->wrap("(\n", $this->indent($this->join($def->arguments, "\n")), "\n)"))
                             . ': ' . $def->type
                             . $this->wrap(' ', $this->join($def->directives, ' '));
                     }),
@@ -424,9 +430,15 @@ class Printer
                     },
 
                     NodeKind::DIRECTIVE_DEFINITION => $this->addDescription(function (DirectiveDefinitionNode $def) {
+                        $noIndent = Utils::every($def->arguments, static function (string $arg) {
+                            return strpos($arg, "\n") === false;
+                        });
+
                         return 'directive @'
                             . $def->name
-                            . $this->wrap('(', $this->join($def->arguments, ', '), ')')
+                            . ($noIndent
+                                ? $this->wrap('(', $this->join($def->arguments, ', '), ')')
+                                : $this->wrap("(\n", $this->indent($this->join($def->arguments, "\n")), "\n"))
                             . ' on ' . $this->join($def->locations, ' | ');
                     }),
                 ],
