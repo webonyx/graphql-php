@@ -130,15 +130,6 @@ class Lexer
         // Read next char and advance string cursor:
         [, $code, $bytes] = $this->readChar(true);
 
-        // SourceCharacter
-        if ($code < 0x0020 && $code !== 0x0009 && $code !== 0x000A && $code !== 0x000D) {
-            throw new SyntaxError(
-                $this->source,
-                $position,
-                'Cannot contain the invalid character ' . Utils::printCharCode($code)
-            );
-        }
-
         switch ($code) {
             case 33: // !
                 return new Token(Token::BANG, $position, $position + 1, $line, $col, $prev);
@@ -265,15 +256,26 @@ class Lexer
                     ->readString($line, $col, $prev);
         }
 
-        $errMessage = $code === 39
-            ? "Unexpected single quote character ('), did you mean to use " . 'a double quote (")?'
-            : 'Cannot parse the unexpected character ' . Utils::printCharCode($code) . '.';
-
         throw new SyntaxError(
             $this->source,
             $position,
-            $errMessage
+            $this->unexpectedCharacterMessage($code)
         );
+    }
+
+    private function unexpectedCharacterMessage($code)
+    {
+        // SourceCharacter
+        if ($code < 0x0020 && $code !== 0x0009 && $code !== 0x000A && $code !== 0x000D) {
+            return 'Cannot contain the invalid character ' . Utils::printCharCode($code);
+        }
+
+        if ($code === 39) {
+            return "Unexpected single quote character ('), did you mean to use " .
+                'a double quote (")?';
+        }
+
+        return 'Cannot parse the unexpected character ' . Utils::printCharCode($code) . '.';
     }
 
     /**
