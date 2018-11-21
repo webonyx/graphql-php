@@ -14,7 +14,10 @@ use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
+use function count;
+use function json_encode;
 
 class NonNullTest extends TestCase
 {
@@ -370,10 +373,24 @@ class NonNullTest extends TestCase
             ],
         ];
 
-        self::assertArraySubset(
-            $expected,
-            Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray()
-        );
+        $result = Executor::execute($this->schema, $ast, $this->throwingData, null, [], 'Q')->toArray();
+
+        self::assertEquals($expected['data'], $result['data']);
+
+        self::assertCount(count($expected['errors']), $result['errors']);
+        foreach ($expected['errors'] as $expectedError) {
+            $found = false;
+            foreach ($result['errors'] as $error) {
+                try {
+                    self::assertArraySubset($expectedError, $error);
+                    $found = true;
+                    break;
+                } catch (ExpectationFailedException $e) {
+                    continue;
+                }
+            }
+            self::assertTrue($found, 'Did not find error: ' . json_encode($expectedError));
+        }
     }
 
     public function testNullsTheFirstNullableObjectAfterAFieldThrowsInALongChainOfFieldsThatAreNonNull() : void

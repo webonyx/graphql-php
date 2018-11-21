@@ -59,7 +59,7 @@ class FieldDefinition
     public $config;
 
     /** @var OutputType */
-    private $type;
+    public $type;
 
     /** @var callable|string */
     private $complexityFn;

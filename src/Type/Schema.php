@@ -310,6 +310,16 @@ class Schema
     }
 
     /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function hasType($name)
+    {
+        return $this->getType($name) !== null;
+    }
+
+    /**
      * @param string $typeName
      *
      * @return Type

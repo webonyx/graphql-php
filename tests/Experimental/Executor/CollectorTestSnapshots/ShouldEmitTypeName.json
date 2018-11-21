@@ -1,0 +1,38 @@
+{
+    "pipeline": [
+        {
+            "fieldNodes": [
+                {
+                    "kind": "Field",
+                    "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                    },
+                    "alias": {
+                        "kind": "Name",
+                        "value": "queryTypeName"
+                    },
+                    "arguments": [],
+                    "directives": []
+                }
+            ],
+            "fieldName": "__typename",
+            "resultName": "queryTypeName"
+        },
+        {
+            "fieldNodes": [
+                {
+                    "kind": "Field",
+                    "name": {
+                        "kind": "Name",
+                        "value": "__typename"
+                    },
+                    "arguments": [],
+                    "directives": []
+                }
+            ],
+            "fieldName": "__typename",
+            "resultName": "__typename"
+        }
+    ]
+}

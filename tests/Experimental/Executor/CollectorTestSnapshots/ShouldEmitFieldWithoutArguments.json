@@ -1,0 +1,33 @@
+{
+    "pipeline": [
+        {
+            "fieldNodes": [
+                {
+                    "kind": "Field",
+                    "name": {
+                        "kind": "Name",
+                        "value": "human"
+                    },
+                    "arguments": [],
+                    "directives": [],
+                    "selectionSet": {
+                        "kind": "SelectionSet",
+                        "selections": [
+                            {
+                                "kind": "Field",
+                                "name": {
+                                    "kind": "Name",
+                                    "value": "name"
+                                },
+                                "arguments": [],
+                                "directives": []
+                            }
+                        ]
+                    }
+                }
+            ],
+            "fieldName": "human",
+            "resultName": "human"
+        }
+    ]
+}

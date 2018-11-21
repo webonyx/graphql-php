@@ -12,6 +12,7 @@ use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
@@ -107,7 +108,11 @@ class Values
             }
         }
 
-        return ['errors' => $errors, 'coerced' => $errors ? null : $coercedValues];
+        if (! empty($errors)) {
+            return [$errors, null];
+        }
+
+        return [null, $coercedValues];
     }
 
     /**
@@ -154,58 +159,73 @@ class Values
      */
     public static function getArgumentValues($def, $node, $variableValues = null)
     {
-        $argDefs  = $def->args;
-        $argNodes = $node->arguments;
-
-        if (empty($argDefs) || $argNodes === null) {
+        if (empty($def->args)) {
             return [];
         }
 
-        $coercedValues = [];
+        $argumentNodes = $node->arguments;
+        if (empty($argumentNodes)) {
+            return [];
+        }
 
-        /** @var ArgumentNode[] $argNodeMap */
-        $argNodeMap = $argNodes ? Utils::keyMap(
-            $argNodes,
-            static function (ArgumentNode $arg) {
-                return $arg->name->value;
-            }
-        ) : [];
+        $argumentValueMap = [];
+        foreach ($argumentNodes as $argumentNode) {
+            $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
+        }
 
-        foreach ($argDefs as $argDef) {
-            $name         = $argDef->name;
-            $argType      = $argDef->getType();
-            $argumentNode = $argNodeMap[$name] ?? null;
+        return static::getArgumentValuesForMap($def, $argumentValueMap, $variableValues, $node);
+    }
 
-            if (! $argumentNode) {
-                if ($argDef->defaultValueExists()) {
-                    $coercedValues[$name] = $argDef->defaultValue;
+    /**
+     * @param FieldDefinition|Directive $fieldDefinition
+     * @param ArgumentNode[]            $argumentValueMap
+     * @param mixed[]                   $variableValues
+     * @param Node|null                 $referenceNode
+     *
+     * @return mixed[]
+     *
+     * @throws Error
+     */
+    public static function getArgumentValuesForMap($fieldDefinition, $argumentValueMap, $variableValues = null, $referenceNode = null)
+    {
+        $argumentDefinitions = $fieldDefinition->args;
+        $coercedValues       = [];
+
+        foreach ($argumentDefinitions as $argumentDefinition) {
+            $name              = $argumentDefinition->name;
+            $argType           = $argumentDefinition->getType();
+            $argumentValueNode = $argumentValueMap[$name] ?? null;
+
+            if (! $argumentValueNode) {
+                if ($argumentDefinition->defaultValueExists()) {
+                    $coercedValues[$name] = $argumentDefinition->defaultValue;
                 } elseif ($argType instanceof NonNull) {
                     throw new Error(
                         'Argument "' . $name . '" of required type ' .
                         '"' . Utils::printSafe($argType) . '" was not provided.',
-                        [$node]
+                        $referenceNode
                     );
                 }
-            } elseif ($argumentNode->value instanceof VariableNode) {
-                $variableName = $argumentNode->value->name->value;
+            } elseif ($argumentValueNode instanceof VariableNode) {
+                $variableName = $argumentValueNode->name->value;
 
                 if ($variableValues && array_key_exists($variableName, $variableValues)) {
                     // Note: this does not check that this variable value is correct.
                     // This assumes that this query has been validated and the variable
                     // usage here is of the correct type.
                     $coercedValues[$name] = $variableValues[$variableName];
-                } elseif ($argDef->defaultValueExists()) {
-                    $coercedValues[$name] = $argDef->defaultValue;
+                } elseif ($argumentDefinition->defaultValueExists()) {
+                    $coercedValues[$name] = $argumentDefinition->defaultValue;
                 } elseif ($argType instanceof NonNull) {
                     throw new Error(
                         'Argument "' . $name . '" of required type "' . Utils::printSafe($argType) . '" was ' .
                         'provided the variable "$' . $variableName . '" which was not provided ' .
                         'a runtime value.',
-                        [$argumentNode->value]
+                        [$argumentValueNode]
                     );
                 }
             } else {
-                $valueNode    = $argumentNode->value;
+                $valueNode    = $argumentValueNode;
                 $coercedValue = AST::valueFromAST($valueNode, $argType, $variableValues);
                 if (Utils::isInvalid($coercedValue)) {
                     // Note: ValuesOfCorrectType validation should catch this before
@@ -213,7 +233,7 @@ class Values
                     // continue with an invalid argument value.
                     throw new Error(
                         'Argument "' . $name . '" has invalid value ' . Printer::doPrint($valueNode) . '.',
-                        [$argumentNode->value]
+                        [$argumentValueNode]
                     );
                 }
                 $coercedValues[$name] = $coercedValue;
