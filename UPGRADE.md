@@ -1,5 +1,18 @@
 ## Upgrade v0.12.x > dev-master
 
+### Try it: Experimental Executor with improved performance
+It is disabled by default. To enable it, do the following
+```php
+<?php
+use GraphQL\Executor\Executor;
+use GraphQL\Experimental\Executor\CoroutineExecutor;
+
+Executor::setImplementationFactory([CoroutineExecutor::class, 'create']);
+```
+
+**Please post your feedback about new executor at https://github.com/webonyx/graphql-php/issues/397
+Especially if you had issues (because it may become the default in one of the next releases)**
+
 ### Breaking: minimum supported version of PHP
 New minimum required version of PHP is **7.1+**
 
@@ -50,6 +63,7 @@ After the change:
     ]
 ]
 ```
+
 
 ## Upgrade v0.11.x > v0.12.x
 
