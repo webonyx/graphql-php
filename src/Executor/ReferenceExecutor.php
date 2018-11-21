@@ -1105,7 +1105,6 @@ class ReferenceExecutor implements ExecutorImplementation
                 return $promise->then(function ($isTypeOfResult) use (
                     $returnType,
                     $fieldNodes,
-                    $info,
                     $path,
                     &$result
                 ) {
@@ -1115,7 +1114,6 @@ class ReferenceExecutor implements ExecutorImplementation
                     return $this->collectAndExecuteSubfields(
                         $returnType,
                         $fieldNodes,
-                        $info,
                         $path,
                         $result
                     );
@@ -1128,7 +1126,6 @@ class ReferenceExecutor implements ExecutorImplementation
         return $this->collectAndExecuteSubfields(
             $returnType,
             $fieldNodes,
-            $info,
             $path,
             $result
         );
@@ -1163,7 +1160,6 @@ class ReferenceExecutor implements ExecutorImplementation
     private function collectAndExecuteSubfields(
         ObjectType $returnType,
         $fieldNodes,
-        ResolveInfo $info,
         $path,
         &$result
     ) {
