@@ -263,6 +263,9 @@ class SchemaValidationContext
             } elseif ($type instanceof InterfaceType) {
                 // Ensure fields are valid.
                 $this->validateFields($type);
+
+                // Ensure Interfaces include at least 1 Object type.
+                $this->validateInterfaces($type);
             } elseif ($type instanceof UnionType) {
                 // Ensure Unions include valid member types.
                 $this->validateUnionMembers($type);
@@ -502,6 +505,23 @@ class SchemaValidationContext
             $implementedTypeNames[$iface->name] = true;
             $this->validateObjectImplementsInterface($object, $iface);
         }
+    }
+
+    private function validateInterfaces(InterfaceType $iface)
+    {
+        $possibleTypes = $this->schema->getPossibleTypes($iface);
+
+        if (count($possibleTypes) !== 0) {
+            return;
+        }
+
+        $this->reportError(
+            sprintf(
+                'Interface %s must be implemented by at least one Object type.',
+                $iface->name
+            ),
+            $iface->astNode
+        );
     }
 
     /**

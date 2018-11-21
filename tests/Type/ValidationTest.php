@@ -21,8 +21,8 @@ use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 use function array_map;
 use function array_merge;
-use function count;
 use function implode;
+use function print_r;
 use function sprintf;
 
 class ValidationTest extends TestCase
@@ -74,6 +74,11 @@ class ValidationTest extends TestCase
             },
         ]);
 
+        $this->SomeInterfaceType = new InterfaceType([
+            'name'   => 'SomeInterface',
+            'fields' => ['f' => ['type' => Type::string()]],
+        ]);
+
         $this->SomeObjectType = new ObjectType([
             'name'       => 'SomeObject',
             'fields'     => ['f' => ['type' => Type::string()]],
@@ -85,11 +90,6 @@ class ValidationTest extends TestCase
         $this->SomeUnionType = new UnionType([
             'name'  => 'SomeUnion',
             'types' => [$this->SomeObjectType],
-        ]);
-
-        $this->SomeInterfaceType = new InterfaceType([
-            'name'   => 'SomeInterface',
-            'fields' => ['f' => ['type' => Type::string()]],
         ]);
 
         $this->SomeEnumType = new EnumType([
@@ -339,34 +339,40 @@ class ValidationTest extends TestCase
      */
     private function assertContainsValidationMessage($array, $messages)
     {
-        self::assertCount(
-            count($messages),
-            $array,
-            sprintf('For messages: %s', $messages[0]['message']) . "\n" .
-            "Received: \n" .
-            implode(
-                "\n",
-                array_map(
-                    static function ($error) {
-                        return $error->getMessage();
-                    },
-                    $array
-                )
+        $allErrors = implode(
+            "\n",
+            array_map(
+                static function ($error) {
+                    return $error->getMessage();
+                },
+                $array
             )
         );
-        foreach ($array as $index => $error) {
-            if (! isset($messages[$index]) || ! $error instanceof Error) {
-                self::fail('Received unexpected error: ' . $error->getMessage());
+
+        foreach ($messages as $expected) {
+            $msg       = $expected['message'];
+            $locations = $expected['locations'] ?? [];
+            foreach ($array as $actual) {
+                if ($actual instanceof Error && $actual->getMessage() === $msg) {
+                    $actualLocations = [];
+                    foreach ($actual->getLocations() as $location) {
+                        $actualLocations[] = $location->toArray();
+                    }
+                    self::assertEquals(
+                        $locations,
+                        $actualLocations,
+                        sprintf(
+                            'Locations do not match for error: %s\n\nExpected:\n%s\n\nActual:\n%s',
+                            $msg,
+                            print_r($locations, true),
+                            print_r($actualLocations, true)
+                        )
+                    );
+                    // Found and valid, so check the next message (and don't fail)
+                    continue 2;
+                }
             }
-            self::assertEquals($messages[$index]['message'], $error->getMessage());
-            $errorLocations = [];
-            foreach ($error->getLocations() as $location) {
-                $errorLocations[] = $location->toArray();
-            }
-            self::assertEquals(
-                $messages[$index]['locations'] ?? [],
-                $errorLocations
-            );
+            self::fail(sprintf("Expected error not found:\n%s\n\nActual errors:\n%s", $msg, $allErrors));
         }
     }
 
@@ -598,12 +604,18 @@ class ValidationTest extends TestCase
      */
     private function schemaWithFieldType($type) : Schema
     {
+        $ifaceImplementation = new ObjectType([
+            'name' => 'SomeInterfaceImplementation',
+            'fields' => ['f' => ['type' => Type::string()]],
+            'interfaces' => [ $this->SomeInterfaceType ],
+        ]);
+
         return new Schema([
             'query' => new ObjectType([
                 'name'   => 'Query',
                 'fields' => ['f' => ['type' => $type]],
             ]),
-            'types' => [$type],
+            'types' => [$type, $ifaceImplementation],
         ]);
     }
 
@@ -1237,6 +1249,14 @@ class ValidationTest extends TestCase
             ],
         ]);
 
+        $BadImplementingType = new ObjectType([
+            'name' => 'BadImplementing',
+            'interfaces' => [ $BadInterfaceType ],
+            'fields' => [
+                'badField' => [ 'type' => $fieldType ],
+            ],
+        ]);
+
         return new Schema([
             'query' => new ObjectType([
                 'name'   => 'Query',
@@ -1244,6 +1264,7 @@ class ValidationTest extends TestCase
                     'f' => ['type' => $BadInterfaceType],
                 ],
             ]),
+            'types' => [ $BadImplementingType, $this->SomeObjectType ],
         ]);
     }
 
@@ -1303,6 +1324,30 @@ class ValidationTest extends TestCase
             [[
                 'message'   => 'The type of SomeInterface.field must be Output Type but got: SomeInputObject.',
                 'locations' => [['line' => 7, 'column' => 16]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an interface not implemented by at least one object')
+     */
+    public function testRejectsAnInterfaceNotImplementedByAtLeastOneObject()
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        test: SomeInterface
+      }
+
+      interface SomeInterface {
+        foo: String
+      }
+        ');
+        $this->assertContainsValidationMessage(
+            $schema->validate(),
+            [[
+                'message' => 'Interface SomeInterface must be implemented by at least one Object type.',
+                'locations' => [[ 'line' => 6, 'column' => 7 ]],
             ],
             ]
         );
