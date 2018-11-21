@@ -51,5 +51,12 @@ The current version (v0.10) supports all features described by GraphQL specifica
 
 Ready for real-world usage. 
 
+## Who is using graphql-php
+
+- [Siler](https://github.com/leocavalcante/siler): PHP library powered with high-level abstractions to work with GraphQL.
+- [Lighthouse](https://github.com/nuwave/lighthouse): GraphQL server for Laravel
+
+
+
 ## GitHub
 Project source code is [hosted on GitHub](https://github.com/webonyx/graphql-php).
