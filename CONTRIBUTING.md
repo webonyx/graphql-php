@@ -11,6 +11,7 @@ For smaller contributions just use this workflow:
 * Fork the project.
 * Add your features and or bug fixes.
 * Add tests. Tests are important for us.
+* Check your changes using `composer check-all`
 * Send a pull request
 
 ## Using GraphQL PHP from a Git checkout
@@ -34,10 +35,22 @@ Coding standard of this project is based on [Doctrine CS](https://github.com/doc
 ./vendor/bin/phpcs
 ```
 
+Auto-fixing:
+```sh
+./vendor/bin/phpcbf
+```
+
+## Static analysis
+Based on [PHPStan](https://github.com/phpstan/phpstan)
+```sh
+./vendor/bin/phpstan analyse --ansi --memory-limit 256M
+```
+
+
 ## Running benchmarks
 
 Benchmarks are run via phpbench:
 
 ```sh
-./vendor/bin/phpbench run
+./vendor/bin/phpbench run .
 ```

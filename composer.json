@@ -44,7 +44,12 @@
     "psr/http-message": "To use standard GraphQL server"
   },
   "scripts": {
+    "api-docs": "php tools/gendocs.php",
+    "bench": "phpbench run .",
+    "test": "phpunit",
     "lint" : "phpcs",
-    "static-analysis": "phpstan analyse --ansi"
+    "fix-style" : "phpcbf",
+    "static-analysis": "phpstan analyse --ansi --memory-limit 256M",
+    "check-all": "composer lint && composer static-analysis && composer test"
   }
 }
