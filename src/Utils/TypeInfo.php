@@ -144,12 +144,17 @@ class TypeInfo
             return self::extractTypes($type->getWrappedType(true), $typeMap);
         }
         if (! $type instanceof Type) {
-            Warning::warnOnce(
-                'One of the schema types is not a valid type definition instance. ' .
-                'Try running $schema->assertValid() to find out the cause of this warning.',
-                Warning::WARNING_NOT_A_TYPE
-            );
-
+            // Preserve these invalid types in map (at numeric index) to make them
+            // detectable during $schema->validate()
+            $i            = 0;
+            $alreadyInMap = false;
+            while (isset($typeMap[$i])) {
+                $alreadyInMap = $alreadyInMap || $typeMap[$i] === $type;
+                $i++;
+            }
+            if (! $alreadyInMap) {
+                $typeMap[$i] = $type;
+            }
             return $typeMap;
         }
 

@@ -14,6 +14,7 @@ use Throwable;
 use Traversable;
 use function array_filter;
 use function array_map;
+use function array_values;
 use function is_array;
 use function iterator_to_array;
 
@@ -232,12 +233,14 @@ class Error extends Exception implements JsonSerializable, ClientAware
                 $this->nodes
             );
 
-            $this->positions = array_filter(
+            $positions = array_filter(
                 $positions,
                 static function ($p) {
                     return $p !== null;
                 }
             );
+
+            $this->positions = array_values($positions);
         }
 
         return $this->positions;
@@ -273,7 +276,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
                     $positions
                 );
             } elseif ($nodes) {
-                $this->locations = array_filter(
+                $locations       = array_filter(
                     array_map(
                         static function ($node) {
                             if ($node->loc && $node->loc->source) {
@@ -283,6 +286,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
                         $nodes
                     )
                 );
+                $this->locations = array_values($locations);
             } else {
                 $this->locations = [];
             }

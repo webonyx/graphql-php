@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -76,12 +77,16 @@ class ValidationTest extends TestCase
 
         $this->SomeInterfaceType = new InterfaceType([
             'name'   => 'SomeInterface',
-            'fields' => ['f' => ['type' => Type::string()]],
+            'fields' => function () {
+                return ['f' => ['type' => $this->SomeObjectType]];
+            },
         ]);
 
         $this->SomeObjectType = new ObjectType([
             'name'       => 'SomeObject',
-            'fields'     => ['f' => ['type' => Type::string()]],
+            'fields'     => function () {
+                return ['f' => ['type' => $this->SomeObjectType]];
+            },
             'interfaces' => function () {
                 return [$this->SomeInterfaceType];
             },
@@ -115,10 +120,9 @@ class ValidationTest extends TestCase
             $this->SomeInterfaceType,
         ]);
 
-        $this->notOutputTypes   = $this->withModifiers([
+        $this->notOutputTypes = $this->withModifiers([
             $this->SomeInputObjectType,
         ]);
-        $this->notOutputTypes[] = $this->Number;
 
         $this->inputTypes = $this->withModifiers([
             Type::string(),
@@ -132,8 +136,6 @@ class ValidationTest extends TestCase
             $this->SomeUnionType,
             $this->SomeInterfaceType,
         ]);
-
-        $this->notInputTypes[] = $this->Number;
 
         Warning::suppress(Warning::WARNING_NOT_A_TYPE);
     }
@@ -308,7 +310,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [['message' => 'Query root type must be provided.']]
         );
@@ -323,7 +325,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schemaWithDef->validate(),
             [[
                 'message'   => 'Query root type must be provided.',
@@ -333,47 +335,45 @@ class ValidationTest extends TestCase
         );
     }
 
-    /**
-     * @param InvariantViolation[]|Error[] $array
-     * @param string[][]                   $messages
-     */
-    private function assertContainsValidationMessage($array, $messages)
+    private function formatLocations(Error $error)
     {
-        $allErrors = implode(
-            "\n",
-            array_map(
-                static function ($error) {
-                    return $error->getMessage();
-                },
-                $array
-            )
-        );
+        return Utils::map($error->getLocations(), static function (SourceLocation $loc) {
+            return ['line' => $loc->line, 'column' => $loc->column];
+        });
+    }
 
-        foreach ($messages as $expected) {
-            $msg       = $expected['message'];
-            $locations = $expected['locations'] ?? [];
-            foreach ($array as $actual) {
-                if ($actual instanceof Error && $actual->getMessage() === $msg) {
-                    $actualLocations = [];
-                    foreach ($actual->getLocations() as $location) {
-                        $actualLocations[] = $location->toArray();
-                    }
-                    self::assertEquals(
-                        $locations,
-                        $actualLocations,
-                        sprintf(
-                            'Locations do not match for error: %s\n\nExpected:\n%s\n\nActual:\n%s',
-                            $msg,
-                            print_r($locations, true),
-                            print_r($actualLocations, true)
-                        )
-                    );
-                    // Found and valid, so check the next message (and don't fail)
-                    continue 2;
-                }
+    /**
+     * @param Error[] $errors
+     * @param bool    $withLocation
+     *
+     * @return mixed[]
+     */
+    private function formatErrors(array $errors, $withLocation = true)
+    {
+        return Utils::map($errors, function (Error $error) use ($withLocation) {
+            if (! $withLocation) {
+                return [ 'message' => $error->getMessage() ];
             }
-            self::fail(sprintf("Expected error not found:\n%s\n\nActual errors:\n%s", $msg, $allErrors));
+
+            return [
+                'message' => $error->getMessage(),
+                'locations' => $this->formatLocations($error),
+            ];
+        });
+    }
+
+    private function assertMatchesValidationMessage($errors, $expected)
+    {
+        $expectedWithLocations = [];
+        foreach ($expected as $index => $err) {
+            if (! isset($err['locations']) && isset($errors[$index])) {
+                $expectedWithLocations[$index] = $err + ['locations' => $this->formatLocations($errors[$index])];
+            } else {
+                $expectedWithLocations[$index] = $err;
+            }
         }
+
+        self::assertEquals($expectedWithLocations, $this->formatErrors($errors));
     }
 
     /**
@@ -387,7 +387,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Query root type must be Object type, it cannot be Query.',
@@ -406,7 +406,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schemaWithDef->validate(),
             [[
                 'message'   => 'Query root type must be Object type, it cannot be SomeInputObject.',
@@ -431,7 +431,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Mutation root type must be Object type if provided, it cannot be Mutation.',
@@ -455,7 +455,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schemaWithDef->validate(),
             [[
                 'message'   => 'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
@@ -482,7 +482,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Subscription root type must be Object type if provided, it cannot be Subscription.',
@@ -506,7 +506,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schemaWithDef->validate(),
             [[
                 'message'   => 'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
@@ -526,7 +526,7 @@ class ValidationTest extends TestCase
             'directives' => ['somedirective'],
         ]);
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [['message' => 'Expected directive but got: somedirective.']]
         );
@@ -563,7 +563,7 @@ class ValidationTest extends TestCase
       type IncompleteObject
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Type IncompleteObject must define one or more fields.',
@@ -579,7 +579,7 @@ class ValidationTest extends TestCase
             ])
         );
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $manualSchema->validate(),
             [['message' => 'Type IncompleteObject must define one or more fields.']]
         );
@@ -593,7 +593,7 @@ class ValidationTest extends TestCase
             ])
         );
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $manualSchema2->validate(),
             [['message' => 'Type IncompleteObject must define one or more fields.']]
         );
@@ -604,18 +604,12 @@ class ValidationTest extends TestCase
      */
     private function schemaWithFieldType($type) : Schema
     {
-        $ifaceImplementation = new ObjectType([
-            'name' => 'SomeInterfaceImplementation',
-            'fields' => ['f' => ['type' => Type::string()]],
-            'interfaces' => [ $this->SomeInterfaceType ],
-        ]);
-
         return new Schema([
             'query' => new ObjectType([
                 'name'   => 'Query',
                 'fields' => ['f' => ['type' => $type]],
             ]),
-            'types' => [$type, $ifaceImplementation],
+            'types' => [$type],
         ]);
     }
 
@@ -633,7 +627,7 @@ class ValidationTest extends TestCase
             ])
         );
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message' => 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but ' .
@@ -697,7 +691,7 @@ class ValidationTest extends TestCase
         ]);
         $schema    = new Schema(['query' => $QueryType]);
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [['message' => 'Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "bad-name-with-dashes" does not.']]
         );
@@ -743,7 +737,7 @@ class ValidationTest extends TestCase
 
       union BadUnion
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Union type BadUnion must define one or more member types.',
@@ -776,7 +770,7 @@ class ValidationTest extends TestCase
         | TypeB
         | TypeA
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Union type BadUnion can only include type TypeA once.',
@@ -809,7 +803,7 @@ class ValidationTest extends TestCase
         | String
         | TypeB
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Union type BadUnion can only include Object types, ' .
@@ -833,7 +827,7 @@ class ValidationTest extends TestCase
             $badSchema = $this->schemaWithFieldType(
                 new UnionType(['name' => 'BadUnion', 'types' => [$memberType]])
             );
-            $this->assertContainsValidationMessage(
+            $this->assertMatchesValidationMessage(
                 $badSchema->validate(),
                 [[
                     'message' => 'Union type BadUnion can only include Object types, ' .
@@ -875,7 +869,7 @@ class ValidationTest extends TestCase
 
       input SomeInputObject
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Input Object type SomeInputObject must define one or more fields.',
@@ -907,7 +901,7 @@ class ValidationTest extends TestCase
         goodInputObject: SomeInputObject
       }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [
                 [
@@ -934,7 +928,7 @@ class ValidationTest extends TestCase
       
       enum SomeEnum
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Enum type SomeEnum must define one or more values.',
@@ -959,7 +953,7 @@ class ValidationTest extends TestCase
         SOME_VALUE
       }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Enum type SomeEnum can include value SOME_VALUE only once.',
@@ -1008,7 +1002,7 @@ class ValidationTest extends TestCase
     {
         $schema = $this->schemaWithEnum($name);
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [['message' => $expectedMessage],
             ]
@@ -1068,7 +1062,7 @@ class ValidationTest extends TestCase
     {
         $schema = $this->schemaWithObjectFieldOfType(null);
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [['message' => 'The type of BadObject.badField must be Output Type but got: null.'],
             ]
@@ -1083,7 +1077,7 @@ class ValidationTest extends TestCase
         foreach ($this->notOutputTypes as $type) {
             $schema = $this->schemaWithObjectFieldOfType($type);
 
-            $this->assertContainsValidationMessage(
+            $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [[
                     'message' => 'The type of BadObject.badField must be Output Type but got: ' . Utils::printSafe($type) . '.',
@@ -1091,6 +1085,21 @@ class ValidationTest extends TestCase
                 ]
             );
         }
+    }
+
+    /**
+     * @see it('rejects a non-type value as an Object field type')
+     */
+    public function testRejectsANonTypeValueAsAnObjectFieldType()
+    {
+        $schema = $this->schemaWithObjectFieldOfType($this->Number);
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                ['message' => 'The type of BadObject.badField must be Output Type but got: 1.'],
+                ['message' => 'Expected GraphQL named type but got: 1.'],
+            ]
+        );
     }
 
     /**
@@ -1107,7 +1116,7 @@ class ValidationTest extends TestCase
         field: String
       }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'The type of Query.field must be Output Type but got: [SomeInputObject].',
@@ -1133,7 +1142,7 @@ class ValidationTest extends TestCase
         ]);
         $expected = ['message' => 'Type BadObject must only implement Interface types, it cannot implement null.'];
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [$expected]
         );
@@ -1157,7 +1166,7 @@ class ValidationTest extends TestCase
         field: String
       }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Type BadObject must only implement Interface types, it cannot implement SomeInputObject.',
@@ -1185,7 +1194,7 @@ class ValidationTest extends TestCase
         field: String
       }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Type AnotherObject can only implement AnotherInterface once.',
@@ -1217,7 +1226,7 @@ class ValidationTest extends TestCase
       
       extend type AnotherObject implements AnotherInterface
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Type AnotherObject can only implement AnotherInterface once.',
@@ -1264,7 +1273,7 @@ class ValidationTest extends TestCase
                     'f' => ['type' => $BadInterfaceType],
                 ],
             ]),
-            'types' => [ $BadImplementingType, $this->SomeObjectType ],
+            'types' => [ $BadImplementingType ],
         ]);
     }
 
@@ -1274,9 +1283,11 @@ class ValidationTest extends TestCase
     public function testRejectsAnEmptyInterfaceFieldType() : void
     {
         $schema = $this->schemaWithInterfaceFieldOfType(null);
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [['message' => 'The type of BadInterface.badField must be Output Type but got: null.'],
+            [
+                ['message' => 'The type of BadInterface.badField must be Output Type but got: null.'],
+                ['message' => 'The type of BadImplementing.badField must be Output Type but got: null.'],
             ]
         );
     }
@@ -1289,14 +1300,30 @@ class ValidationTest extends TestCase
         foreach ($this->notOutputTypes as $type) {
             $schema = $this->schemaWithInterfaceFieldOfType($type);
 
-            $this->assertContainsValidationMessage(
+            $this->assertMatchesValidationMessage(
                 $schema->validate(),
-                [[
-                    'message' => 'The type of BadInterface.badField must be Output Type but got: ' . Utils::printSafe($type) . '.',
-                ],
+                [
+                    ['message' => 'The type of BadInterface.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
+                    ['message' => 'The type of BadImplementing.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
                 ]
             );
         }
+    }
+
+    /**
+     * @see it('rejects a non-type value as an Interface field type')
+     */
+    public function testRejectsANonTypeValueAsAnInterfaceFieldType()
+    {
+        $schema = $this->schemaWithInterfaceFieldOfType('string');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                ['message' => 'The type of BadInterface.badField must be Output Type but got: string.'],
+                ['message' => 'Expected GraphQL named type but got: string.'],
+                ['message' => 'The type of BadImplementing.badField must be Output Type but got: string.'],
+            ]
+        );
     }
 
     // DESCRIBE: Type System: Input Object fields must have input types
@@ -1318,13 +1345,22 @@ class ValidationTest extends TestCase
       input SomeInputObject {
         foo: String
       }
+
+      type SomeObject implements SomeInterface {
+        field: SomeInputObject
+      }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [[
-                'message'   => 'The type of SomeInterface.field must be Output Type but got: SomeInputObject.',
-                'locations' => [['line' => 7, 'column' => 16]],
-            ],
+            [
+                [
+                    'message'   => 'The type of SomeInterface.field must be Output Type but got: SomeInputObject.',
+                    'locations' => [['line' => 7, 'column' => 16]],
+                ],
+                [
+                    'message' => 'The type of SomeObject.field must be Output Type but got: SomeInputObject.',
+                    'locations' => [[ 'line' => 15, 'column' => 16 ]],
+                ],
             ]
         );
     }
@@ -1343,7 +1379,7 @@ class ValidationTest extends TestCase
         foo: String
       }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message' => 'Interface SomeInterface must be implemented by at least one Object type.',
@@ -1385,6 +1421,7 @@ class ValidationTest extends TestCase
                     'f' => ['type' => $BadObjectType],
                 ],
             ]),
+            'types' => [$this->SomeObjectType],
         ]);
     }
 
@@ -1394,7 +1431,7 @@ class ValidationTest extends TestCase
     public function testRejectsAnEmptyFieldArgType() : void
     {
         $schema = $this->schemaWithArgOfType(null);
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [['message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: null.'],
             ]
@@ -1410,14 +1447,28 @@ class ValidationTest extends TestCase
     {
         foreach ($this->notInputTypes as $type) {
             $schema = $this->schemaWithArgOfType($type);
-            $this->assertContainsValidationMessage(
+            $this->assertMatchesValidationMessage(
                 $schema->validate(),
-                [[
-                    'message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: ' . Utils::printSafe($type) . '.',
-                ],
+                [
+                    ['message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: ' . Utils::printSafe($type) . '.'],
                 ]
             );
         }
+    }
+
+    /**
+     * @see it('rejects a non-type value as a field arg type')
+     */
+    public function testRejectsANonTypeValueAsAFieldArgType()
+    {
+        $schema = $this->schemaWithArgOfType('string');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                ['message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: string.'],
+                ['message' => 'Expected GraphQL named type but got: string.'],
+            ]
+        );
     }
 
     /**
@@ -1434,7 +1485,7 @@ class ValidationTest extends TestCase
         foo: String
       }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'The type of Query.test(arg:) must be Input Type but got: SomeObject.',
@@ -1476,6 +1527,7 @@ class ValidationTest extends TestCase
                     ],
                 ],
             ]),
+            'types' => [ $this->SomeObjectType ],
         ]);
     }
 
@@ -1485,7 +1537,7 @@ class ValidationTest extends TestCase
     public function testRejectsAnEmptyInputFieldType() : void
     {
         $schema = $this->schemaWithInputFieldOfType(null);
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [['message' => 'The type of BadInputObject.badField must be Input Type but got: null.'],
             ]
@@ -1499,7 +1551,7 @@ class ValidationTest extends TestCase
     {
         foreach ($this->notInputTypes as $type) {
             $schema = $this->schemaWithInputFieldOfType($type);
-            $this->assertContainsValidationMessage(
+            $this->assertMatchesValidationMessage(
                 $schema->validate(),
                 [[
                     'message' => 'The type of BadInputObject.badField must be Input Type but got: ' . Utils::printSafe($type) . '.',
@@ -1507,6 +1559,21 @@ class ValidationTest extends TestCase
                 ]
             );
         }
+    }
+
+    /**
+     * @see it('rejects a non-type value as an input field type')
+     */
+    public function testRejectsAAonTypeValueAsAnInputFieldType()
+    {
+        $schema = $this->schemaWithInputFieldOfType('string');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                ['message' => 'The type of BadInputObject.badField must be Input Type but got: string.'],
+                ['message' => 'Expected GraphQL named type but got: string.'],
+            ]
+        );
     }
 
     /**
@@ -1527,7 +1594,7 @@ class ValidationTest extends TestCase
         bar: String
       }
         ');
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'The type of SomeInputObject.foo must be Input Type but got: SomeObject.',
@@ -1632,7 +1699,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Interface field AnotherInterface.field expected but ' .
@@ -1662,7 +1729,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Interface field AnotherInterface.field expects type String but ' .
@@ -1695,7 +1762,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Interface field AnotherInterface.field expects type A but ' .
@@ -1775,7 +1842,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Interface field argument AnotherInterface.field(input:) expected ' .
@@ -1805,7 +1872,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Interface field argument AnotherInterface.field(input:) expects ' .
@@ -1835,7 +1902,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [
                 [
@@ -1871,7 +1938,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Object field argument AnotherObject.field(anotherInput:) is of ' .
@@ -1924,7 +1991,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Interface field AnotherInterface.field expects type [String] ' .
@@ -1954,7 +2021,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Interface field AnotherInterface.field expects type String but ' .
@@ -2006,7 +2073,7 @@ class ValidationTest extends TestCase
       }
         ');
 
-        $this->assertContainsValidationMessage(
+        $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Interface field AnotherInterface.field expects type String! ' .

@@ -157,7 +157,7 @@ class Utils
     /**
      * @param mixed|Traversable $traversable
      *
-     * @return int[][]
+     * @return mixed[]
      *
      * @throws Exception
      */
