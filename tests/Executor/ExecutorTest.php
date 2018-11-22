@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\Error;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -398,6 +399,7 @@ class ExecutorTest extends TestCase
       asyncError
       asyncRawError
       asyncReturnError
+      asyncReturnErrorWithExtensions
         }';
 
         $data = [
@@ -460,6 +462,20 @@ class ExecutorTest extends TestCase
                     throw new UserError('Error getting asyncReturnError');
                 });
             },
+            'asyncReturnErrorWithExtensions' => static function () {
+                return new Deferred(static function () {
+                    $error = new Error(
+                        'Error getting asyncReturnErrorWithExtensions',
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        ['foo' => 'bar']
+                    );
+                    throw $error;
+                });
+            },
         ];
 
         $docAst = Parser::parse($doc);
@@ -474,11 +490,13 @@ class ExecutorTest extends TestCase
                     'syncReturnErrorList' => ['type' => Type::listOf(Type::string())],
                     'async'               => ['type' => Type::string()],
                     'asyncReject'         => ['type' => Type::string()],
+                    'asyncRejectWithExtensions' => [ 'type' => Type::string() ],
                     'asyncRawReject'      => ['type' => Type::string()],
                     'asyncEmptyReject'    => ['type' => Type::string()],
                     'asyncError'          => ['type' => Type::string()],
                     'asyncRawError'       => ['type' => Type::string()],
                     'asyncReturnError'    => ['type' => Type::string()],
+                    'asyncReturnErrorWithExtensions' => [ 'type' => Type::string() ],
                 ],
             ]),
         ]);
@@ -497,6 +515,7 @@ class ExecutorTest extends TestCase
                 'asyncError'          => null,
                 'asyncRawError'       => null,
                 'asyncReturnError'    => null,
+                'asyncReturnErrorWithExtensions' => null,
             ],
             'errors' => [
                 [
@@ -553,6 +572,12 @@ class ExecutorTest extends TestCase
                     'message'   => 'Error getting asyncReturnError',
                     'locations' => [['line' => 13, 'column' => 7]],
                     'path'      => ['asyncReturnError'],
+                ],
+                [
+                    'message' => 'Error getting asyncReturnErrorWithExtensions',
+                    'locations' => [[ 'line' => 14, 'column' => 7 ]],
+                    'path' => ['asyncReturnErrorWithExtensions'],
+                    'extensions' => [ 'foo' => 'bar' ],
                 ],
             ],
         ];
