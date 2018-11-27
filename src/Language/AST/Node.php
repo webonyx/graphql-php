@@ -40,7 +40,7 @@ abstract class Node
     public $loc;
 
     /**
-     * @param (string|NameNode|NodeList|SelectionSetNode|Location|null)[] $vars
+     * @param (NameNode|NodeList|SelectionSetNode|Location|string|int|bool|float|null)[] $vars
      */
     public function __construct(array $vars)
     {
