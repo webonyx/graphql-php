@@ -15,8 +15,11 @@ use ReflectionClass;
 use Throwable;
 use function array_keys;
 use function array_merge;
+use function implode;
 use function in_array;
 use function preg_replace;
+use function trigger_error;
+use const E_USER_DEPRECATED;
 
 /**
  * Registry of standard GraphQL types
@@ -31,7 +34,7 @@ abstract class Type implements JsonSerializable
     public const ID      = 'ID';
 
     /** @var Type[] */
-    private static $internalTypes;
+    private static $standardTypes;
 
     /** @var Type[] */
     private static $builtInTypes;
@@ -58,7 +61,7 @@ abstract class Type implements JsonSerializable
      */
     public static function id()
     {
-        return self::getInternalType(self::ID);
+        return self::getStandardType(self::ID);
     }
 
     /**
@@ -66,10 +69,10 @@ abstract class Type implements JsonSerializable
      *
      * @return (IDType|StringType|FloatType|IntType|BooleanType)[]|IDType|StringType|FloatType|IntType|BooleanType
      */
-    private static function getInternalType($name = null)
+    private static function getStandardType($name = null)
     {
-        if (self::$internalTypes === null) {
-            self::$internalTypes = [
+        if (self::$standardTypes === null) {
+            self::$standardTypes = [
                 self::ID      => new IDType(),
                 self::STRING  => new StringType(),
                 self::FLOAT   => new FloatType(),
@@ -78,7 +81,7 @@ abstract class Type implements JsonSerializable
             ];
         }
 
-        return $name ? self::$internalTypes[$name] : self::$internalTypes;
+        return $name ? self::$standardTypes[$name] : self::$standardTypes;
     }
 
     /**
@@ -88,7 +91,7 @@ abstract class Type implements JsonSerializable
      */
     public static function string()
     {
-        return self::getInternalType(self::STRING);
+        return self::getStandardType(self::STRING);
     }
 
     /**
@@ -98,7 +101,7 @@ abstract class Type implements JsonSerializable
      */
     public static function boolean()
     {
-        return self::getInternalType(self::BOOLEAN);
+        return self::getStandardType(self::BOOLEAN);
     }
 
     /**
@@ -108,7 +111,7 @@ abstract class Type implements JsonSerializable
      */
     public static function int()
     {
-        return self::getInternalType(self::INT);
+        return self::getStandardType(self::INT);
     }
 
     /**
@@ -118,7 +121,7 @@ abstract class Type implements JsonSerializable
      */
     public static function float()
     {
-        return self::getInternalType(self::FLOAT);
+        return self::getStandardType(self::FLOAT);
     }
 
     /**
@@ -166,7 +169,7 @@ abstract class Type implements JsonSerializable
         if (self::$builtInTypes === null) {
             self::$builtInTypes = array_merge(
                 Introspection::getTypes(),
-                self::getInternalTypes()
+                self::getStandardTypes()
             );
         }
 
@@ -178,9 +181,44 @@ abstract class Type implements JsonSerializable
      *
      * @return Type[]
      */
+    public static function getStandardTypes()
+    {
+        return self::getStandardType();
+    }
+
+    /**
+     * @deprecated Use method getStandardTypes() instead
+     *
+     * @return Type[]
+     */
     public static function getInternalTypes()
     {
-        return self::getInternalType();
+        trigger_error(__METHOD__ . ' is deprecated. Use Type::getStandardTypes() instead', E_USER_DEPRECATED);
+        return self::getStandardTypes();
+    }
+
+    /**
+     * @param Type[] $types
+     */
+    public static function overrideStandardTypes(array $types)
+    {
+        $standardTypes = self::getStandardTypes();
+        foreach ($types as $type) {
+            Utils::invariant(
+                $type instanceof Type,
+                'Expecting instance of %s, got %s',
+                self::class,
+                Utils::printSafe($type)
+            );
+            Utils::invariant(
+                isset($type->name, $standardTypes[$type->name]),
+                'Expecting one of the following names for a standard type: %s, got %s',
+                implode(', ', array_keys($standardTypes)),
+                Utils::printSafe($type->name ?? null)
+            );
+            $standardTypes[$type->name] = $type;
+        }
+        self::$standardTypes = $standardTypes;
     }
 
     /**

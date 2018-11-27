@@ -1,9 +1,13 @@
 # Changelog
 ## dev-master
-- Spec compliance: error extensions are displayed under `extensions` key 
+This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
+
+New features and notable changes:
+- Spec compliance: error category, debug information and extensions are displayed under `extensions` key 
 - `AbstractValidationRule` renamed to `ValidationRule` (NS `GraphQL\Validator\Rules`)
 - `AbstractQuerySecurity` renamed to `QuerySecurityRule` (NS `GraphQL\Validator\Rules`)
 - `FindBreakingChanges` renamed to `BreakingChangesFinder` (NS `GraphQL\Utils`)
+- Added ability to override standard types via `GraphQL::overrideStandardTypes(array $types)`
 
 #### v0.12.5
 - Execution performance optimization for lists

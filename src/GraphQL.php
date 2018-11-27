@@ -276,7 +276,20 @@ class GraphQL
      */
     public static function getStandardTypes() : array
     {
-        return array_values(Type::getInternalTypes());
+        return array_values(Type::getStandardTypes());
+    }
+
+    /**
+     * Replaces standard types with types from this list (matching by name)
+     * Standard types not listed here remain untouched.
+     *
+     * @param Type[] $types
+     *
+     * @api
+     */
+    public static function overrideStandardTypes(array $types)
+    {
+        Type::overrideStandardTypes($types);
     }
 
     /**
@@ -291,6 +304,11 @@ class GraphQL
         return array_values(DocumentValidator::defaultRules());
     }
 
+    /**
+     * Set default resolver implementation
+     *
+     * @api
+     */
     public static function setDefaultFieldResolver(callable $fn) : void
     {
         Executor::setDefaultFieldResolver($fn);

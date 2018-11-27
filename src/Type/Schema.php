@@ -143,7 +143,7 @@ class Schema
                 $this->resolvedTypes[$type->name] = $type;
             }
         }
-        $this->resolvedTypes += Type::getInternalTypes() + Introspection::getTypes();
+        $this->resolvedTypes += Type::getStandardTypes() + Introspection::getTypes();
 
         if ($this->config->typeLoader) {
             return;
@@ -472,7 +472,7 @@ class Schema
             throw new InvariantViolation(implode("\n\n", $this->validationErrors));
         }
 
-        $internalTypes = Type::getInternalTypes() + Introspection::getTypes();
+        $internalTypes = Type::getStandardTypes() + Introspection::getTypes();
         foreach ($this->getTypeMap() as $name => $type) {
             if (isset($internalTypes[$name])) {
                 continue;
