@@ -23,7 +23,7 @@ class ResolveInfo
      * The name of the field being resolved
      *
      * @api
-     * @var string|null
+     * @var string
      */
     public $fieldName;
 
@@ -31,9 +31,9 @@ class ResolveInfo
      * AST of all nodes referencing this field in the query.
      *
      * @api
-     * @var FieldNode[]|null
+     * @var FieldNode[]
      */
-    public $fieldNodes;
+    public $fieldNodes = [];
 
     /**
      * Expected return type of the field being resolved
@@ -47,7 +47,7 @@ class ResolveInfo
      * Parent type of the field being resolved
      *
      * @api
-     * @var ObjectType|null
+     * @var ObjectType
      */
     public $parentType;
 
@@ -55,7 +55,7 @@ class ResolveInfo
      * Path to this field from the very root value
      *
      * @api
-     * @var string[]
+     * @var string[][]
      */
     public $path;
 
@@ -71,9 +71,9 @@ class ResolveInfo
      * AST of all fragments defined in query
      *
      * @api
-     * @var FragmentDefinitionNode[]|null
+     * @var FragmentDefinitionNode[]
      */
-    public $fragments;
+    public $fragments = [];
 
     /**
      * Root value passed to query execution
@@ -95,21 +95,29 @@ class ResolveInfo
      * Array of variables passed to query execution
      *
      * @api
-     * @var mixed[]|null
+     * @var mixed[]
      */
-    public $variableValues;
+    public $variableValues = [];
 
+    /**
+     * @param FieldNode[]                                                               $fieldNodes
+     * @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull $returnType
+     * @param string[][]                                                                $path
+     * @param FragmentDefinitionNode[]                                                  $fragments
+     * @param mixed|null                                                                $rootValue
+     * @param mixed[]                                                                   $variableValues
+     */
     public function __construct(
         string $fieldName,
         $fieldNodes,
         $returnType,
         ObjectType $parentType,
-        $path,
+        array $path,
         Schema $schema,
-        $fragments,
+        array $fragments,
         $rootValue,
         ?OperationDefinitionNode $operation,
-        $variableValues
+        array $variableValues
     ) {
         $this->fieldName      = $fieldName;
         $this->fieldNodes     = $fieldNodes;
