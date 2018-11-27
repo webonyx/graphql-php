@@ -39,17 +39,13 @@ See [related documentation](executing-queries.md).
  *    Empty array would allow to skip query validation (may be convenient for persisted
  *    queries which are validated before persisting and assumed valid during execution)
  *
- * @api
- * @param \GraphQL\Type\Schema $schema
  * @param string|DocumentNode $source
- * @param mixed $rootValue
- * @param mixed $context
- * @param array|null $variableValues
- * @param string|null $operationName
- * @param callable $fieldResolver
- * @param array $validationRules
+ * @param mixed               $rootValue
+ * @param mixed               $context
+ * @param mixed[]|null        $variableValues
+ * @param ValidationRule[]    $validationRules
  *
- * @return ExecutionResult
+ * @api
  */
 static function executeQuery(
     GraphQL\Type\Schema $schema,
@@ -57,7 +53,7 @@ static function executeQuery(
     $rootValue = null,
     $context = null,
     $variableValues = null,
-    $operationName = null,
+    string $operationName = null,
     callable $fieldResolver = null,
     array $validationRules = null
 )
@@ -68,18 +64,13 @@ static function executeQuery(
  * Same as executeQuery(), but requires PromiseAdapter and always returns a Promise.
  * Useful for Async PHP platforms.
  *
- * @api
- * @param PromiseAdapter $promiseAdapter
- * @param \GraphQL\Type\Schema $schema
- * @param string|DocumentNode $source
- * @param mixed $rootValue
- * @param mixed $context
- * @param array|null $variableValues
- * @param string|null $operationName
- * @param callable $fieldResolver
- * @param array $validationRules
+ * @param string|DocumentNode   $source
+ * @param mixed                 $rootValue
+ * @param mixed                 $context
+ * @param mixed[]|null          $variableValues
+ * @param ValidationRule[]|null $validationRules
  *
- * @return Promise
+ * @api
  */
 static function promiseToExecute(
     GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter,
@@ -88,7 +79,7 @@ static function promiseToExecute(
     $rootValue = null,
     $context = null,
     $variableValues = null,
-    $operationName = null,
+    string $operationName = null,
     callable $fieldResolver = null,
     array $validationRules = null
 )
@@ -98,8 +89,9 @@ static function promiseToExecute(
 /**
  * Returns directives defined in GraphQL spec
  *
- * @api
  * @return Directive[]
+ *
+ * @api
  */
 static function getStandardDirectives()
 ```
@@ -108,20 +100,43 @@ static function getStandardDirectives()
 /**
  * Returns types defined in GraphQL spec
  *
- * @api
  * @return Type[]
+ *
+ * @api
  */
 static function getStandardTypes()
 ```
 
 ```php
 /**
- * Returns standard validation rules implementing GraphQL spec
+ * Replaces standard types with types from this list (matching by name)
+ * Standard types not listed here remain untouched.
+ *
+ * @param Type[] $types
  *
  * @api
+ */
+static function overrideStandardTypes(array $types)
+```
+
+```php
+/**
+ * Returns standard validation rules implementing GraphQL spec
+ *
  * @return ValidationRule[]
+ *
+ * @api
  */
 static function getStandardValidationRules()
+```
+
+```php
+/**
+ * Set default resolver implementation
+ *
+ * @api
+ */
+static function setDefaultFieldResolver(callable $fn)
 ```
 # GraphQL\Type\Definition\Type
 Registry of standard GraphQL types
@@ -130,132 +145,157 @@ and a base class for all other types.
 **Class Methods:** 
 ```php
 /**
- * @api
  * @return IDType
+ *
+ * @api
  */
 static function id()
 ```
 
 ```php
 /**
- * @api
  * @return StringType
+ *
+ * @api
  */
 static function string()
 ```
 
 ```php
 /**
- * @api
  * @return BooleanType
+ *
+ * @api
  */
 static function boolean()
 ```
 
 ```php
 /**
- * @api
  * @return IntType
+ *
+ * @api
  */
 static function int()
 ```
 
 ```php
 /**
- * @api
  * @return FloatType
+ *
+ * @api
  */
 static function float()
 ```
 
 ```php
 /**
- * @api
  * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
+ *
  * @return ListOfType
+ *
+ * @api
  */
 static function listOf($wrappedType)
 ```
 
 ```php
 /**
- * @api
  * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $wrappedType
+ *
  * @return NonNull
+ *
+ * @api
  */
 static function nonNull($wrappedType)
 ```
 
 ```php
 /**
- * @api
  * @param Type $type
+ *
  * @return bool
+ *
+ * @api
  */
 static function isInputType($type)
 ```
 
 ```php
 /**
- * @api
  * @param Type $type
+ *
+ * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
+ *
+ * @api
+ */
+static function getNamedType($type)
+```
+
+```php
+/**
+ * @param Type $type
+ *
  * @return bool
+ *
+ * @api
  */
 static function isOutputType($type)
 ```
 
 ```php
 /**
- * @api
- * @param $type
+ * @param Type $type
+ *
  * @return bool
+ *
+ * @api
  */
 static function isLeafType($type)
 ```
 
 ```php
 /**
- * @api
  * @param Type $type
+ *
  * @return bool
+ *
+ * @api
  */
 static function isCompositeType($type)
 ```
 
 ```php
 /**
- * @api
  * @param Type $type
+ *
  * @return bool
+ *
+ * @api
  */
 static function isAbstractType($type)
 ```
 
 ```php
 /**
- * @api
  * @param Type $type
+ *
  * @return bool
+ *
+ * @api
  */
 static function isType($type)
 ```
 
 ```php
 /**
- * @api
  * @param Type $type
+ *
  * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
+ *
+ * @api
  */
 static function getNullableType($type)
-```
-
-```php
-/**
- * @api
- * @param Type $type
- * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
- */
-static function getNamedType($type)
 ```
 # GraphQL\Type\Definition\ResolveInfo
 Structure containing information useful for field resolution process.
@@ -267,7 +307,7 @@ Passed as 3rd argument to every field resolver. See [docs on field resolving (da
  * The name of the field being resolved
  *
  * @api
- * @var string
+ * @var string|null
  */
 public $fieldName;
 
@@ -275,7 +315,7 @@ public $fieldName;
  * AST of all nodes referencing this field in the query.
  *
  * @api
- * @var FieldNode[]
+ * @var FieldNode[]|null
  */
 public $fieldNodes;
 
@@ -291,7 +331,7 @@ public $returnType;
  * Parent type of the field being resolved
  *
  * @api
- * @var ObjectType
+ * @var ObjectType|null
  */
 public $parentType;
 
@@ -299,7 +339,7 @@ public $parentType;
  * Path to this field from the very root value
  *
  * @api
- * @var array
+ * @var string[]
  */
 public $path;
 
@@ -307,7 +347,7 @@ public $path;
  * Instance of a schema used for execution
  *
  * @api
- * @var Schema
+ * @var Schema|null
  */
 public $schema;
 
@@ -315,7 +355,7 @@ public $schema;
  * AST of all fragments defined in query
  *
  * @api
- * @var FragmentDefinitionNode[]
+ * @var FragmentDefinitionNode[]|null
  */
 public $fragments;
 
@@ -323,7 +363,7 @@ public $fragments;
  * Root value passed to query execution
  *
  * @api
- * @var mixed
+ * @var mixed|null
  */
 public $rootValue;
 
@@ -331,7 +371,7 @@ public $rootValue;
  * AST of operation definition node (query, mutation)
  *
  * @api
- * @var OperationDefinitionNode
+ * @var OperationDefinitionNode|null
  */
 public $operation;
 
@@ -339,7 +379,7 @@ public $operation;
  * Array of variables passed to query execution
  *
  * @api
- * @var array
+ * @var mixed[]|null
  */
 public $variableValues;
 ```
@@ -377,9 +417,11 @@ public $variableValues;
  * Warning: this method it is a naive implementation which does not take into account
  * conditional typed fragments. So use it with care for fields of interface and union types.
  *
- * @api
  * @param int $depth How many levels to include in output
- * @return array
+ *
+ * @return bool[]
+ *
+ * @api
  */
 function getFieldSelection($depth = 0)
 ```
@@ -427,113 +469,131 @@ Usage example:
  * Converts an array of options to instance of SchemaConfig
  * (or just returns empty config when array is not passed).
  *
- * @api
- * @param array $options
+ * @param mixed[] $options
+ *
  * @return SchemaConfig
+ *
+ * @api
  */
 static function create(array $options = [])
 ```
 
 ```php
 /**
- * @api
- * @param ObjectType $query
- * @return SchemaConfig
- */
-function setQuery($query)
-```
-
-```php
-/**
- * @api
- * @param ObjectType $mutation
- * @return SchemaConfig
- */
-function setMutation($mutation)
-```
-
-```php
-/**
- * @api
- * @param ObjectType $subscription
- * @return SchemaConfig
- */
-function setSubscription($subscription)
-```
-
-```php
-/**
- * @api
- * @param Type[]|callable $types
- * @return SchemaConfig
- */
-function setTypes($types)
-```
-
-```php
-/**
- * @api
- * @param Directive[] $directives
- * @return SchemaConfig
- */
-function setDirectives(array $directives)
-```
-
-```php
-/**
- * @api
- * @param callable $typeLoader
- * @return SchemaConfig
- */
-function setTypeLoader(callable $typeLoader)
-```
-
-```php
-/**
- * @api
  * @return ObjectType
+ *
+ * @api
  */
 function getQuery()
 ```
 
 ```php
 /**
+ * @param ObjectType $query
+ *
+ * @return SchemaConfig
+ *
  * @api
+ */
+function setQuery($query)
+```
+
+```php
+/**
  * @return ObjectType
+ *
+ * @api
  */
 function getMutation()
 ```
 
 ```php
 /**
+ * @param ObjectType $mutation
+ *
+ * @return SchemaConfig
+ *
  * @api
+ */
+function setMutation($mutation)
+```
+
+```php
+/**
  * @return ObjectType
+ *
+ * @api
  */
 function getSubscription()
 ```
 
 ```php
 /**
+ * @param ObjectType $subscription
+ *
+ * @return SchemaConfig
+ *
  * @api
+ */
+function setSubscription($subscription)
+```
+
+```php
+/**
  * @return Type[]
+ *
+ * @api
  */
 function getTypes()
 ```
 
 ```php
 /**
+ * @param Type[]|callable $types
+ *
+ * @return SchemaConfig
+ *
  * @api
+ */
+function setTypes($types)
+```
+
+```php
+/**
  * @return Directive[]
+ *
+ * @api
  */
 function getDirectives()
 ```
 
 ```php
 /**
+ * @param Directive[] $directives
+ *
+ * @return SchemaConfig
+ *
  * @api
+ */
+function setDirectives(array $directives)
+```
+
+```php
+/**
  * @return callable
+ *
+ * @api
  */
 function getTypeLoader()
+```
+
+```php
+/**
+ * @return SchemaConfig
+ *
+ * @api
+ */
+function setTypeLoader(callable $typeLoader)
 ```
 # GraphQL\Type\Schema
 Schema Definition (see [related docs](type-system/schema.md))
@@ -558,50 +618,11 @@ Or using Schema Config instance:
 **Class Methods:** 
 ```php
 /**
- * Schema constructor.
+ * @param mixed[]|SchemaConfig $config
  *
  * @api
- * @param array|SchemaConfig $config
  */
 function __construct($config)
-```
-
-```php
-/**
- * Returns schema query type
- *
- * @api
- * @return ObjectType
- */
-function getQueryType()
-```
-
-```php
-/**
- * Returns schema mutation type
- *
- * @api
- * @return ObjectType|null
- */
-function getMutationType()
-```
-
-```php
-/**
- * Returns schema subscription
- *
- * @api
- * @return ObjectType|null
- */
-function getSubscriptionType()
-```
-
-```php
-/**
- * @api
- * @return SchemaConfig
- */
-function getConfig()
 ```
 
 ```php
@@ -611,19 +632,75 @@ function getConfig()
  *
  * This operation requires full schema scan. Do not use in production environment.
  *
- * @api
  * @return Type[]
+ *
+ * @api
  */
 function getTypeMap()
 ```
 
 ```php
 /**
- * Returns type by it's name
+ * Returns a list of directives supported by this schema
+ *
+ * @return Directive[]
  *
  * @api
+ */
+function getDirectives()
+```
+
+```php
+/**
+ * Returns schema query type
+ *
+ * @return ObjectType
+ *
+ * @api
+ */
+function getQueryType()
+```
+
+```php
+/**
+ * Returns schema mutation type
+ *
+ * @return ObjectType|null
+ *
+ * @api
+ */
+function getMutationType()
+```
+
+```php
+/**
+ * Returns schema subscription
+ *
+ * @return ObjectType|null
+ *
+ * @api
+ */
+function getSubscriptionType()
+```
+
+```php
+/**
+ * @return SchemaConfig
+ *
+ * @api
+ */
+function getConfig()
+```
+
+```php
+/**
+ * Returns type by it's name
+ *
  * @param string $name
- * @return Type
+ *
+ * @return Type|null
+ *
+ * @api
  */
 function getType($name)
 ```
@@ -635,9 +712,9 @@ function getType($name)
  *
  * This operation requires full schema scan. Do not use in production environment.
  *
- * @api
- * @param AbstractType $abstractType
  * @return ObjectType[]
+ *
+ * @api
  */
 function getPossibleTypes(GraphQL\Type\Definition\AbstractType $abstractType)
 ```
@@ -647,10 +724,9 @@ function getPossibleTypes(GraphQL\Type\Definition\AbstractType $abstractType)
  * Returns true if object type is concrete type of given abstract type
  * (implementation for interfaces and members of union type for unions)
  *
- * @api
- * @param AbstractType $abstractType
- * @param ObjectType $possibleType
  * @return bool
+ *
+ * @api
  */
 function isPossibleType(
     GraphQL\Type\Definition\AbstractType $abstractType,
@@ -660,21 +736,13 @@ function isPossibleType(
 
 ```php
 /**
- * Returns a list of directives supported by this schema
- *
- * @api
- * @return Directive[]
- */
-function getDirectives()
-```
-
-```php
-/**
  * Returns instance of directive by name
  *
- * @api
- * @param $name
+ * @param string $name
+ *
  * @return Directive
+ *
+ * @api
  */
 function getDirective($name)
 ```
@@ -685,10 +753,11 @@ function getDirective($name)
  *
  * This operation requires full schema scan. Do not use in production environment.
  *
+ * @throws InvariantViolation
+ *
  * @api
- * @return InvariantViolation[]|Error[]
  */
-function validate()
+function assertValid()
 ```
 
 ```php
@@ -697,10 +766,11 @@ function validate()
  *
  * This operation requires full schema scan. Do not use in production environment.
  *
+ * @return InvariantViolation[]|Error[]
+ *
  * @api
- * @throws InvariantViolation
  */
-function assertValid()
+function validate()
 ```
 # GraphQL\Language\Parser
 Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
@@ -714,29 +784,48 @@ Parses string containing GraphQL query or [type definition](type-system/type-lan
  * Available options:
  *
  * noLocation: boolean,
- * (By default, the parser creates AST nodes that know the location
- * in the source that they correspond to. This configuration flag
- * disables that behavior for performance or testing.)
+ *   (By default, the parser creates AST nodes that know the location
+ *   in the source that they correspond to. This configuration flag
+ *   disables that behavior for performance or testing.)
+ *
+ * allowLegacySDLEmptyFields: boolean
+ *   If enabled, the parser will parse empty fields sets in the Schema
+ *   Definition Language. Otherwise, the parser will follow the current
+ *   specification.
+ *
+ *   This option is provided to ease adoption of the final SDL specification
+ *   and will be removed in a future major release.
+ *
+ * allowLegacySDLImplementsInterfaces: boolean
+ *   If enabled, the parser will parse implemented interfaces with no `&`
+ *   character between each interface. Otherwise, the parser will follow the
+ *   current specification.
+ *
+ *   This option is provided to ease adoption of the final SDL specification
+ *   and will be removed in a future major release.
  *
  * experimentalFragmentVariables: boolean,
- * (If enabled, the parser will understand and parse variable definitions
- * contained in a fragment definition. They'll be represented in the
- * `variableDefinitions` field of the FragmentDefinitionNode.
+ *   (If enabled, the parser will understand and parse variable definitions
+ *   contained in a fragment definition. They'll be represented in the
+ *   `variableDefinitions` field of the FragmentDefinitionNode.
  *
- * The syntax is identical to normal, query-defined variables. For example:
+ *   The syntax is identical to normal, query-defined variables. For example:
  *
- *   fragment A($var: Boolean = false) on T  {
- *     ...
- *   }
+ *     fragment A($var: Boolean = false) on T  {
+ *       ...
+ *     }
  *
- * Note: this feature is experimental and may change or be removed in the
- * future.)
+ *   Note: this feature is experimental and may change or be removed in the
+ *   future.)
+ *
+ * @param Source|string $source
+ * @param bool[]        $options
+ *
+ * @return DocumentNode
+ *
+ * @throws SyntaxError
  *
  * @api
- * @param Source|string $source
- * @param array $options
- * @return DocumentNode
- * @throws SyntaxError
  */
 static function parse($source, array $options = [])
 ```
@@ -752,10 +841,12 @@ static function parse($source, array $options = [])
  *
  * Consider providing the results to the utility function: `GraphQL\Utils\AST::valueFromAST()`.
  *
- * @api
  * @param Source|string $source
- * @param array $options
+ * @param bool[]        $options
+ *
  * @return BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode
+ *
+ * @api
  */
 static function parseValue($source, array $options = [])
 ```
@@ -771,10 +862,12 @@ static function parseValue($source, array $options = [])
  *
  * Consider providing the results to the utility function: `GraphQL\Utils\AST::typeFromAST()`.
  *
- * @api
  * @param Source|string $source
- * @param array $options
+ * @param bool[]        $options
+ *
  * @return ListTypeNode|NameNode|NonNullTypeNode
+ *
+ * @api
  */
 static function parseType($source, array $options = [])
 ```
@@ -795,9 +888,11 @@ $printed = GraphQL\Language\Printer::doPrint($ast);
 /**
  * Prints AST to string. Capable of printing GraphQL queries and Type definition language.
  *
- * @api
  * @param Node $ast
+ *
  * @return string
+ *
+ * @api
  */
 static function doPrint($ast)
 ```
@@ -893,12 +988,15 @@ visitor API:
 /**
  * Visit the AST (see class description for details)
  *
- * @api
- * @param Node $root
- * @param array $visitor
- * @param array $keyMap
+ * @param Node|ArrayObject|stdClass $root
+ * @param callable[]                $visitor
+ * @param mixed[]|null              $keyMap
+ *
  * @return Node|mixed
- * @throws \Exception
+ *
+ * @throws Exception
+ *
+ * @api
  */
 static function visit($root, $visitor, $keyMap = null)
 ```
@@ -907,8 +1005,9 @@ static function visit($root, $visitor, $keyMap = null)
 /**
  * Returns marker for visitor break
  *
- * @api
  * @return VisitorOperation
+ *
+ * @api
  */
 static function stop()
 ```
@@ -917,8 +1016,9 @@ static function stop()
 /**
  * Returns marker for skipping current node
  *
- * @api
  * @return VisitorOperation
+ *
+ * @api
  */
 static function skipNode()
 ```
@@ -927,8 +1027,9 @@ static function skipNode()
 /**
  * Returns marker for removing a node
  *
- * @api
  * @return VisitorOperation
+ *
+ * @api
  */
 static function removeNode()
 ```
@@ -979,6 +1080,7 @@ const UNION_TYPE_EXTENSION = "UnionTypeExtension";
 const ENUM_TYPE_EXTENSION = "EnumTypeExtension";
 const INPUT_OBJECT_TYPE_EXTENSION = "InputObjectTypeExtension";
 const DIRECTIVE_DEFINITION = "DirectiveDefinition";
+const SCHEMA_EXTENSION = "SchemaExtension";
 ```
 
 # GraphQL\Executor\Executor
@@ -992,20 +1094,18 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * Always returns ExecutionResult and never throws. All errors which occur during operation
  * execution are collected in `$result->errors`.
  *
- * @api
- * @param Schema $schema
- * @param DocumentNode $ast
- * @param $rootValue
- * @param $contextValue
- * @param array|\ArrayAccess $variableValues
- * @param null $operationName
- * @param callable $fieldResolver
+ * @param mixed|null               $rootValue
+ * @param mixed[]|null             $contextValue
+ * @param mixed[]|ArrayAccess|null $variableValues
+ * @param string|null              $operationName
  *
  * @return ExecutionResult|Promise
+ *
+ * @api
  */
 static function execute(
     GraphQL\Type\Schema $schema,
-    GraphQL\Language\AST\DocumentNode $ast,
+    GraphQL\Language\AST\DocumentNode $documentNode,
     $rootValue = null,
     $contextValue = null,
     $variableValues = null,
@@ -1021,21 +1121,19 @@ static function execute(
  *
  * Useful for async PHP platforms.
  *
- * @api
- * @param PromiseAdapter $promiseAdapter
- * @param Schema $schema
- * @param DocumentNode $ast
- * @param null $rootValue
- * @param null $contextValue
- * @param null $variableValues
- * @param null $operationName
- * @param callable|null $fieldResolver
+ * @param mixed[]|null $rootValue
+ * @param mixed[]|null $contextValue
+ * @param mixed[]|null $variableValues
+ * @param string|null  $operationName
+ *
  * @return Promise
+ *
+ * @api
  */
 static function promiseToExecute(
     GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter,
     GraphQL\Type\Schema $schema,
-    GraphQL\Language\AST\DocumentNode $ast,
+    GraphQL\Language\AST\DocumentNode $documentNode,
     $rootValue = null,
     $contextValue = null,
     $variableValues = null,
@@ -1057,7 +1155,7 @@ serializable array using `toArray()`
  * Data collected from resolvers during query execution
  *
  * @api
- * @var array
+ * @var mixed[]
  */
 public $data;
 
@@ -1068,7 +1166,7 @@ public $data;
  * contain original exception.
  *
  * @api
- * @var \GraphQL\Error\Error[]
+ * @var Error[]
  */
 public $errors;
 
@@ -1077,7 +1175,7 @@ public $errors;
  * Conforms to
  *
  * @api
- * @var array
+ * @var mixed[]
  */
 public $extensions;
 ```
@@ -1097,9 +1195,9 @@ public $extensions;
  *    // ... other keys
  * );
  *
+ * @return self
+ *
  * @api
- * @param callable $errorFormatter
- * @return $this
  */
 function setErrorFormatter(callable $errorFormatter)
 ```
@@ -1115,9 +1213,9 @@ function setErrorFormatter(callable $errorFormatter)
  *     return array_map($formatter, $errors);
  * }
  *
+ * @return self
+ *
  * @api
- * @param callable $handler
- * @return $this
  */
 function setErrorsHandler(callable $handler)
 ```
@@ -1133,9 +1231,11 @@ function setErrorsHandler(callable $handler)
  * $debug argument must be either bool (only adds "debugMessage" to result) or sum of flags from
  * GraphQL\Error\Debug
  *
- * @api
  * @param bool|int $debug
- * @return array
+ *
+ * @return mixed[]
+ *
+ * @api
  */
 function toArray($debug = false)
 ```
@@ -1147,9 +1247,11 @@ Provides a means for integration of async PHP platforms ([related docs](data-fet
 /**
  * Return true if the value is a promise or a deferred of the underlying platform
  *
- * @api
  * @param mixed $value
+ *
  * @return bool
+ *
+ * @api
  */
 function isThenable($value)
 ```
@@ -1158,9 +1260,11 @@ function isThenable($value)
 /**
  * Converts thenable of the underlying platform into GraphQL\Executor\Promise\Promise instance
  *
- * @api
  * @param object $thenable
+ *
  * @return Promise
+ *
+ * @api
  */
 function convertThenable($thenable)
 ```
@@ -1170,12 +1274,9 @@ function convertThenable($thenable)
  * Accepts our Promise wrapper, extracts adopted promise out of it and executes actual `then` logic described
  * in Promises/A+ specs. Then returns new wrapped instance of GraphQL\Executor\Promise\Promise.
  *
- * @api
- * @param Promise $promise
- * @param callable|null $onFulfilled
- * @param callable|null $onRejected
- *
  * @return Promise
+ *
+ * @api
  */
 function then(
     GraphQL\Executor\Promise\Promise $promise,
@@ -1191,9 +1292,9 @@ function then(
  * Expected resolver signature:
  *     function(callable $resolve, callable $reject)
  *
- * @api
- * @param callable $resolver
  * @return Promise
+ *
+ * @api
  */
 function create(callable $resolver)
 ```
@@ -1202,9 +1303,11 @@ function create(callable $resolver)
 /**
  * Creates a fulfilled Promise for a value if the value is not a promise.
  *
- * @api
  * @param mixed $value
+ *
  * @return Promise
+ *
+ * @api
  */
 function createFulfilled($value = null)
 ```
@@ -1214,9 +1317,11 @@ function createFulfilled($value = null)
  * Creates a rejected promise for a reason if the reason is not a promise. If
  * the provided reason is a promise, then it is returned as-is.
  *
- * @api
- * @param \Throwable $reason
+ * @param Throwable $reason
+ *
  * @return Promise
+ *
+ * @api
  */
 function createRejected($reason)
 ```
@@ -1226,9 +1331,11 @@ function createRejected($reason)
  * Given an array of promises (or values), returns a promise that is fulfilled when all the
  * items in the array are fulfilled.
  *
- * @api
- * @param array $promisesOrValues Promises or values.
+ * @param Promise[]|mixed[] $promisesOrValues Promises or values.
+ *
  * @return Promise
+ *
+ * @api
  */
 function all(array $promisesOrValues)
 ```
@@ -1255,12 +1362,11 @@ will be created from the provided schema.
 /**
  * Primary method for query validation. See class description for details.
  *
- * @api
- * @param Schema $schema
- * @param DocumentNode $ast
  * @param ValidationRule[]|null $rules
- * @param TypeInfo|null $typeInfo
+ *
  * @return Error[]
+ *
+ * @api
  */
 static function validate(
     GraphQL\Type\Schema $schema,
@@ -1274,8 +1380,9 @@ static function validate(
 /**
  * Returns all global validation rules.
  *
- * @api
  * @return ValidationRule[]
+ *
+ * @api
  */
 static function allRules()
 ```
@@ -1287,9 +1394,11 @@ static function allRules()
  *
  * $rule = DocumentValidator::getRule(GraphQL\Validator\Rules\QueryComplexity::class);
  *
- * @api
  * @param string $name
+ *
  * @return ValidationRule
+ *
+ * @api
  */
 static function getRule($name)
 ```
@@ -1299,7 +1408,6 @@ static function getRule($name)
  * Add rule to list of global validation rules
  *
  * @api
- * @param ValidationRule $rule
  */
 static function addRule(GraphQL\Validator\Rules\ValidationRule $rule)
 ```
@@ -1336,8 +1444,9 @@ const CATEGORY_INTERNAL = "internal";
  * point out to field mentioned in multiple fragments. Errors during execution include a
  * single location, the field which produced the error.
  *
- * @api
  * @return SourceLocation[]
+ *
+ * @api
  */
 function getLocations()
 ```
@@ -1347,8 +1456,9 @@ function getLocations()
  * Returns an array describing the path from the root value to the field which produced this error.
  * Only included for execution errors.
  *
+ * @return mixed[]|null
+ *
  * @api
- * @return array|null
  */
 function getPath()
 ```
@@ -1375,7 +1485,6 @@ const ALL = 63;
  * When not set, trigger_error() is used to notify about warnings.
  *
  * @api
- * @param callable|null $warningHandler
  */
 static function setWarningHandler(callable $warningHandler = null)
 ```
@@ -1389,8 +1498,9 @@ static function setWarningHandler(callable $warningHandler = null)
  *
  * When passing true - suppresses all warnings.
  *
- * @api
  * @param bool|int $suppress
+ *
+ * @api
  */
 static function suppress($suppress = true)
 ```
@@ -1404,8 +1514,9 @@ static function suppress($suppress = true)
  *
  * When passing true - re-enables all warnings.
  *
- * @api
  * @param bool|int $enable
+ *
+ * @api
  */
 static function enable($enable = true)
 ```
@@ -1422,8 +1533,9 @@ All other errors will be formatted with generic "Internal server error".
 /**
  * Returns true when exception message is safe to be displayed to a client.
  *
- * @api
  * @return bool
+ *
+ * @api
  */
 function isClientSafe()
 ```
@@ -1434,8 +1546,9 @@ function isClientSafe()
  *
  * Value "graphql" is reserved for errors produced by query parsing or validation, do not use it.
  *
- * @api
  * @return string
+ *
+ * @api
  */
 function getCategory()
 ```
@@ -1447,6 +1560,7 @@ Collection of flags for [error debugging](error-handling.md#debugging-tools).
 const INCLUDE_DEBUG_MESSAGE = 1;
 const INCLUDE_TRACE = 2;
 const RETHROW_INTERNAL_EXCEPTIONS = 4;
+const RETHROW_UNSAFE_EXCEPTIONS = 8;
 ```
 
 # GraphQL\Error\FormattedError
@@ -1460,8 +1574,9 @@ and provides tools for error debugging.
  * Set default error message for internal errors formatted using createFormattedError().
  * This value can be overridden by passing 3rd argument to `createFormattedError()`.
  *
- * @api
  * @param string $msg
+ *
+ * @api
  */
 static function setInternalErrorMessage($msg)
 ```
@@ -1476,12 +1591,15 @@ static function setInternalErrorMessage($msg)
  *
  * For a list of available debug flags see GraphQL\Error\Debug constants.
  *
+ * @param Throwable $e
+ * @param bool|int  $debug
+ * @param string    $internalErrorMessage
+ *
+ * @return mixed[]
+ *
+ * @throws Throwable
+ *
  * @api
- * @param \Throwable $e
- * @param bool|int $debug
- * @param string $internalErrorMessage
- * @return array
- * @throws \Throwable
  */
 static function createFromException($e, $debug = false, $internalErrorMessage = null)
 ```
@@ -1490,9 +1608,11 @@ static function createFromException($e, $debug = false, $internalErrorMessage = 
 /**
  * Returns error trace as serializable array
  *
+ * @param Throwable $error
+ *
+ * @return mixed[]
+ *
  * @api
- * @param \Throwable $error
- * @return array
  */
 static function toSafeTrace($error)
 ```
@@ -1524,10 +1644,11 @@ See [dedicated section in docs](executing-queries.md#using-server) for details.
  * Useful when an exception is thrown somewhere outside of server execution context
  * (e.g. during schema instantiation).
  *
+ * @param Throwable $error
+ * @param bool      $debug
+ * @param bool      $exitWhenDone
+ *
  * @api
- * @param \Throwable $error
- * @param bool $debug
- * @param bool $exitWhenDone
  */
 static function send500Error($error, $debug = false, $exitWhenDone = false)
 ```
@@ -1536,8 +1657,9 @@ static function send500Error($error, $debug = false, $exitWhenDone = false)
 /**
  * Creates new instance of a standard GraphQL HTTP server
  *
+ * @param ServerConfig|mixed[] $config
+ *
  * @api
- * @param ServerConfig|array $config
  */
 function __construct($config)
 ```
@@ -1553,9 +1675,10 @@ function __construct($config)
  * See `executeRequest()` if you prefer to emit response yourself
  * (e.g. using Response object of some framework)
  *
- * @api
  * @param OperationParams|OperationParams[] $parsedBody
- * @param bool $exitWhenDone
+ * @param bool                              $exitWhenDone
+ *
+ * @api
  */
 function handleRequest($parsedBody = null, $exitWhenDone = false)
 ```
@@ -1571,10 +1694,13 @@ function handleRequest($parsedBody = null, $exitWhenDone = false)
  *
  * PSR-7 compatible method executePsrRequest() does exactly this.
  *
- * @api
  * @param OperationParams|OperationParams[] $parsedBody
+ *
  * @return ExecutionResult|ExecutionResult[]|Promise
+ *
  * @throws InvariantViolation
+ *
+ * @api
  */
 function executeRequest($parsedBody = null)
 ```
@@ -1586,11 +1712,9 @@ function executeRequest($parsedBody = null)
  * See `executePsrRequest()` if you prefer to create response yourself
  * (e.g. using specific JsonResponse instance of some framework).
  *
- * @api
- * @param ServerRequestInterface $request
- * @param ResponseInterface $response
- * @param StreamInterface $writableBodyStream
  * @return ResponseInterface|Promise
+ *
+ * @api
  */
 function processPsrRequest(
     Psr\Http\Message\ServerRequestInterface $request,
@@ -1604,9 +1728,9 @@ function processPsrRequest(
  * Executes GraphQL operation and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter)
  *
- * @api
- * @param ServerRequestInterface $request
  * @return ExecutionResult|ExecutionResult[]|Promise
+ *
+ * @api
  */
 function executePsrRequest(Psr\Http\Message\ServerRequestInterface $request)
 ```
@@ -1616,8 +1740,9 @@ function executePsrRequest(Psr\Http\Message\ServerRequestInterface $request)
  * Returns an instance of Server helper, which contains most of the actual logic for
  * parsing / validating / executing request (which could be re-used by other server implementations)
  *
- * @api
  * @return Helper
+ *
+ * @api
  */
 function getHelper()
 ```
@@ -1640,36 +1765,42 @@ Usage example:
  * Converts an array of options to instance of ServerConfig
  * (or just returns empty config when array is not passed).
  *
- * @api
- * @param array $config
+ * @param mixed[] $config
+ *
  * @return ServerConfig
+ *
+ * @api
  */
 static function create(array $config = [])
 ```
 
 ```php
 /**
+ * @return self
+ *
  * @api
- * @param Schema $schema
- * @return $this
  */
 function setSchema(GraphQL\Type\Schema $schema)
 ```
 
 ```php
 /**
+ * @param mixed|callable $context
+ *
+ * @return self
+ *
  * @api
- * @param mixed|\Closure $context
- * @return $this
  */
 function setContext($context)
 ```
 
 ```php
 /**
+ * @param mixed|callable $rootValue
+ *
+ * @return self
+ *
  * @api
- * @param mixed|\Closure $rootValue
- * @return $this
  */
 function setRootValue($rootValue)
 ```
@@ -1678,9 +1809,9 @@ function setRootValue($rootValue)
 /**
  * Expects function(Throwable $e) : array
  *
+ * @return self
+ *
  * @api
- * @param callable $errorFormatter
- * @return $this
  */
 function setErrorFormatter(callable $errorFormatter)
 ```
@@ -1689,9 +1820,9 @@ function setErrorFormatter(callable $errorFormatter)
 /**
  * Expects function(array $errors, callable $formatter) : array
  *
+ * @return self
+ *
  * @api
- * @param callable $handler
- * @return $this
  */
 function setErrorsHandler(callable $handler)
 ```
@@ -1700,18 +1831,20 @@ function setErrorsHandler(callable $handler)
 /**
  * Set validation rules for this server.
  *
+ * @param ValidationRule[]|callable $validationRules
+ *
+ * @return self
+ *
  * @api
- * @param array|callable
- * @return $this
  */
 function setValidationRules($validationRules)
 ```
 
 ```php
 /**
+ * @return self
+ *
  * @api
- * @param callable $fieldResolver
- * @return $this
  */
 function setFieldResolver(callable $fieldResolver)
 ```
@@ -1722,9 +1855,9 @@ function setFieldResolver(callable $fieldResolver)
  *
  * This function must return query string or valid DocumentNode.
  *
+ * @return self
+ *
  * @api
- * @param callable $persistentQueryLoader
- * @return $this
  */
 function setPersistentQueryLoader(callable $persistentQueryLoader)
 ```
@@ -1733,9 +1866,11 @@ function setPersistentQueryLoader(callable $persistentQueryLoader)
 /**
  * Set response debug flags. See GraphQL\Error\Debug class for a list of all available flags
  *
- * @api
  * @param bool|int $set
- * @return $this
+ *
+ * @return self
+ *
+ * @api
  */
 function setDebug($set = true)
 ```
@@ -1744,18 +1879,20 @@ function setDebug($set = true)
 /**
  * Allow batching queries (disabled by default)
  *
- * @api
  * @param bool $enableBatching
- * @return $this
+ *
+ * @return self
+ *
+ * @api
  */
 function setQueryBatching($enableBatching)
 ```
 
 ```php
 /**
+ * @return self
+ *
  * @api
- * @param PromiseAdapter $promiseAdapter
- * @return $this
  */
 function setPromiseAdapter(GraphQL\Executor\Promise\PromiseAdapter $promiseAdapter)
 ```
@@ -1779,10 +1916,11 @@ Contains functionality that could be re-used by various server implementations
  *
  * For PSR-7 request parsing use `parsePsrRequest()` instead.
  *
- * @api
- * @param callable|null $readRawBodyFn
  * @return OperationParams|OperationParams[]
+ *
  * @throws RequestError
+ *
+ * @api
  */
 function parseHttpRequest(callable $readRawBodyFn = null)
 ```
@@ -1794,12 +1932,15 @@ function parseHttpRequest(callable $readRawBodyFn = null)
  *
  * Returned value is a suitable input for `executeOperation` or `executeBatch` (if array)
  *
- * @api
- * @param string $method
- * @param array $bodyParams
- * @param array $queryParams
+ * @param string  $method
+ * @param mixed[] $bodyParams
+ * @param mixed[] $queryParams
+ *
  * @return OperationParams|OperationParams[]
+ *
  * @throws RequestError
+ *
+ * @api
  */
 function parseRequestParams($method, array $bodyParams, array $queryParams)
 ```
@@ -1809,9 +1950,9 @@ function parseRequestParams($method, array $bodyParams, array $queryParams)
  * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
  * if params are invalid (or empty array when params are valid)
  *
- * @api
- * @param OperationParams $params
  * @return Error[]
+ *
+ * @api
  */
 function validateOperationParams(GraphQL\Server\OperationParams $params)
 ```
@@ -1821,11 +1962,9 @@ function validateOperationParams(GraphQL\Server\OperationParams $params)
  * Executes GraphQL operation with given server configuration and returns execution result
  * (or promise when promise adapter is different from SyncPromiseAdapter)
  *
- * @api
- * @param ServerConfig $config
- * @param OperationParams $op
- *
  * @return ExecutionResult|Promise
+ *
+ * @api
  */
 function executeOperation(GraphQL\Server\ServerConfig $config, GraphQL\Server\OperationParams $op)
 ```
@@ -1835,10 +1974,11 @@ function executeOperation(GraphQL\Server\ServerConfig $config, GraphQL\Server\Op
  * Executes batched GraphQL operations with shared promise queue
  * (thus, effectively batching deferreds|promises of all queries at once)
  *
- * @api
- * @param ServerConfig $config
  * @param OperationParams[] $operations
- * @return ExecutionResult[]|Promise
+ *
+ * @return ExecutionResult|ExecutionResult[]|Promise
+ *
+ * @api
  */
 function executeBatch(GraphQL\Server\ServerConfig $config, array $operations)
 ```
@@ -1847,9 +1987,10 @@ function executeBatch(GraphQL\Server\ServerConfig $config, array $operations)
 /**
  * Send response using standard PHP `header()` and `echo`.
  *
- * @api
  * @param Promise|ExecutionResult|ExecutionResult[] $result
- * @param bool $exitWhenDone
+ * @param bool                                      $exitWhenDone
+ *
+ * @api
  */
 function sendResponse($result, $exitWhenDone = false)
 ```
@@ -1858,10 +1999,11 @@ function sendResponse($result, $exitWhenDone = false)
 /**
  * Converts PSR-7 request to OperationParams[]
  *
- * @api
- * @param ServerRequestInterface $request
- * @return array|Helper
+ * @return OperationParams[]|OperationParams
+ *
  * @throws RequestError
+ *
+ * @api
  */
 function parsePsrRequest(Psr\Http\Message\ServerRequestInterface $request)
 ```
@@ -1870,11 +2012,11 @@ function parsePsrRequest(Psr\Http\Message\ServerRequestInterface $request)
 /**
  * Converts query execution result to PSR-7 response
  *
- * @api
  * @param Promise|ExecutionResult|ExecutionResult[] $result
- * @param ResponseInterface $response
- * @param StreamInterface $writableBodyStream
+ *
  * @return Promise|ResponseInterface
+ *
+ * @api
  */
 function toPsrResponse(
     $result,
@@ -1914,7 +2056,7 @@ public $operation;
 
 /**
  * @api
- * @var array
+ * @var mixed[]|null
  */
 public $variables;
 ```
@@ -1924,19 +2066,23 @@ public $variables;
 /**
  * Creates an instance from given array
  *
- * @api
- * @param array $params
- * @param bool $readonly
+ * @param mixed[] $params
+ * @param bool    $readonly
+ *
  * @return OperationParams
+ *
+ * @api
  */
 static function create(array $params, $readonly = false)
 ```
 
 ```php
 /**
- * @api
  * @param string $key
+ *
  * @return mixed
+ *
+ * @api
  */
 function getOriginalInput($key)
 ```
@@ -1946,8 +2092,9 @@ function getOriginalInput($key)
  * Indicates that operation is executed in read-only context
  * (e.g. via HTTP GET request)
  *
- * @api
  * @return bool
+ *
+ * @api
  */
 function isReadOnly()
 ```
@@ -1956,6 +2103,21 @@ Build instance of `GraphQL\Type\Schema` out of type language definition (string 
 See [section in docs](type-system/type-language.md) for details.
 
 **Class Methods:** 
+```php
+/**
+ * A helper function to build a GraphQLSchema directly from a source
+ * document.
+ *
+ * @param DocumentNode|Source|string $source
+ * @param bool[]                     $options
+ *
+ * @return Schema
+ *
+ * @api
+ */
+static function build($source, callable $typeConfigDecorator = null, array $options = [])
+```
+
 ```php
 /**
  * This takes the ast of a schema document produced by the parse function in
@@ -1967,32 +2129,24 @@ See [section in docs](type-system/type-language.md) for details.
  * Given that AST it constructs a GraphQL\Type\Schema. The resulting schema
  * has no resolve methods, so execution will use default resolvers.
  *
- * Accepts options as a second argument:
+ * Accepts options as a third argument:
  *
  *    - commentDescriptions:
  *        Provide true to use preceding comments as the description.
  *
+ * @param bool[] $options
  *
- * @api
- * @param DocumentNode $ast
- * @param array $options
  * @return Schema
+ *
  * @throws Error
- */
-static function buildAST(GraphQL\Language\AST\DocumentNode $ast, array $options = [])
-```
-
-```php
-/**
- * A helper function to build a GraphQLSchema directly from a source
- * document.
  *
  * @api
- * @param DocumentNode|Source|string $source
- * @param array $options
- * @return Schema
  */
-static function build($source, array $options = [])
+static function buildAST(
+    GraphQL\Language\AST\DocumentNode $ast,
+    callable $typeConfigDecorator = null,
+    array $options = []
+)
 ```
 # GraphQL\Utils\AST
 Various utilities dealing with AST
@@ -2020,9 +2174,9 @@ Various utilities dealing with AST
  *
  * This is a reverse operation for AST::toArray($node)
  *
+ * @param mixed[] $node
+ *
  * @api
- * @param array $node
- * @return Node
  */
 static function fromArray(array $node)
 ```
@@ -2031,9 +2185,9 @@ static function fromArray(array $node)
 /**
  * Convert AST node to serializable array
  *
+ * @return mixed[]
+ *
  * @api
- * @param Node $node
- * @return array
  */
 static function toArray(GraphQL\Language\AST\Node $node)
 ```
@@ -2057,10 +2211,11 @@ static function toArray(GraphQL\Language\AST\Node $node)
  * | Mixed         | Enum Value           |
  * | null          | NullValue            |
  *
- * @api
- * @param $value
- * @param InputType $type
+ * @param Type|mixed|null $value
+ *
  * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
+ *
+ * @api
  */
 static function astFromValue($value, GraphQL\Type\Definition\InputType $type)
 ```
@@ -2085,21 +2240,23 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type)
  * | Enum Value           | Mixed         |
  * | Null Value           | null          |
  *
+ * @param ValueNode|null $valueNode
+ * @param mixed[]|null   $variables
+ *
+ * @return mixed[]|stdClass|null
+ *
+ * @throws Exception
+ *
  * @api
- * @param $valueNode
- * @param InputType $type
- * @param null $variables
- * @return array|null|\stdClass
- * @throws \Exception
  */
-static function valueFromAST($valueNode, GraphQL\Type\Definition\InputType $type, $variables = null)
+static function valueFromAST($valueNode, GraphQL\Type\Definition\InputType $type, array $variables = null)
 ```
 
 ```php
 /**
  * Produces a PHP value given a GraphQL Value AST.
  *
- * Unlike `valueFromAST()`, no type is provided. The resulting JavaScript value
+ * Unlike `valueFromAST()`, no type is provided. The resulting PHP value
  * will reflect the provided GraphQL value AST.
  *
  * | GraphQL Value        | PHP Value     |
@@ -2112,11 +2269,14 @@ static function valueFromAST($valueNode, GraphQL\Type\Definition\InputType $type
  * | Enum                 | Mixed         |
  * | Null                 | null          |
  *
- * @api
- * @param Node $valueNode
- * @param array|null $variables
+ * @param Node         $valueNode
+ * @param mixed[]|null $variables
+ *
  * @return mixed
- * @throws \Exception
+ *
+ * @throws Exception
+ *
+ * @api
  */
 static function valueFromASTUntyped($valueNode, array $variables = null)
 ```
@@ -2125,11 +2285,13 @@ static function valueFromASTUntyped($valueNode, array $variables = null)
 /**
  * Returns type definition for given AST Type node
  *
- * @api
- * @param Schema $schema
  * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
- * @return Type
- * @throws \Exception
+ *
+ * @return Type|null
+ *
+ * @throws Exception
+ *
+ * @api
  */
 static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
 ```
@@ -2138,10 +2300,11 @@ static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
 /**
  * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
  *
- * @api
- * @param DocumentNode $document
  * @param string $operationName
+ *
  * @return bool
+ *
+ * @api
  */
 static function getOperation(GraphQL\Language\AST\DocumentNode $document, $operationName = null)
 ```
@@ -2155,18 +2318,19 @@ Given an instance of Schema, prints it in GraphQL type language.
  *
  *    - commentDescriptions:
  *        Provide true to use preceding comments as the description.
+ *
+ * @param bool[] $options
+ *
  * @api
- * @param Schema $schema
- * @return string
  */
 static function doPrint(GraphQL\Type\Schema $schema, array $options = [])
 ```
 
 ```php
 /**
+ * @param bool[] $options
+ *
  * @api
- * @param Schema $schema
- * @return string
  */
-static function printIntrosepctionSchema(GraphQL\Type\Schema $schema, array $options = [])
+static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = [])
 ```

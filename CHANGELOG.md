@@ -1,8 +1,10 @@
 # Changelog
-## dev-master
+## v0.13.0
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
 
 New features and notable changes:
+- PHP version required: 7.1+
+- Spec compliance: error `category` and extensions are displayed under `extensions` key when using default formatting (#389)
 - New experimental executor with improved performance (#314).<br>
 It is a one-line switch: `GraphQL::useExperimentalExecutor()`.<br>
 <br> 
@@ -10,11 +12,15 @@ It is a one-line switch: `GraphQL::useExperimentalExecutor()`.<br>
 (as it may become the default one in future)
 <br>
 <br> 
-- Spec compliance: error `category` and extensions are displayed under `extensions` key when using default formatting (#389) 
-- `AbstractValidationRule` renamed to `ValidationRule` (NS `GraphQL\Validator\Rules`)
-- `AbstractQuerySecurity` renamed to `QuerySecurityRule` (NS `GraphQL\Validator\Rules`)
-- `FindBreakingChanges` renamed to `BreakingChangesFinder` (NS `GraphQL\Utils`)
+- Ported `extendSchema` from the reference implementation under `GraphQL\Utils\SchemaExtender` (#362)
 - Added ability to override standard types via `GraphQL::overrideStandardTypes(array $types)` (#401)
+- Added flag `Debug::RETHROW_UNSAFE_EXCEPTIONS` which would only rethrow app-specific exceptions (#337)
+- Several classes were renamed (see [UPGRADE.md](UPGRADE.md))
+- Schema Validation improvements 
+
+#### v0.12.6
+- Bugfix: Call to a member function getLocation() on null (#336)
+- Fixed several errors discovered by static analysis (#329)
 
 #### v0.12.5
 - Execution performance optimization for lists

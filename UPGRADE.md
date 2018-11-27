@@ -1,4 +1,4 @@
-## Upgrade v0.12.x > dev-master
+## Upgrade v0.12.x > v0.13.x
 
 ### Breaking (major): minimum supported version of PHP
 New minimum required version of PHP is **7.1+**
@@ -71,6 +71,12 @@ To allow for an adaptive migration, use `allowLegacySDLImplementsInterfaces` opt
 ```php
 Parser::parse($source, [ 'allowLegacySDLImplementsInterfaces' => true])
 ```
+
+### Breaking: several classes renamed
+
+- `AbstractValidationRule` renamed to `ValidationRule` (NS `GraphQL\Validator\Rules`)
+- `AbstractQuerySecurity` renamed to `QuerySecurityRule` (NS `GraphQL\Validator\Rules`)
+- `FindBreakingChanges` renamed to `BreakingChangesFinder` (NS `GraphQL\Utils`)
 
 
 ## Upgrade v0.11.x > v0.12.x
