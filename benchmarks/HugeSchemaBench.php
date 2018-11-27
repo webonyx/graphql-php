@@ -1,10 +1,11 @@
 <?php
 namespace GraphQL\Benchmarks;
 
-use GraphQL\GraphQL;
 use GraphQL\Benchmarks\Utils\QueryGenerator;
 use GraphQL\Benchmarks\Utils\SchemaGenerator;
+use GraphQL\GraphQL;
 use GraphQL\Type\Schema;
+use GraphQL\Type\SchemaConfig;
 
 /**
  * @BeforeMethods({"setUp"})
@@ -15,16 +16,12 @@ use GraphQL\Type\Schema;
  */
 class HugeSchemaBench
 {
-    /**
-     * @var SchemaGenerator
-     */
+    /** @var SchemaGenerator */
     private $schemaBuilder;
 
     private $schema;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $smallQuery;
 
     public function setUp()
@@ -33,12 +30,12 @@ class HugeSchemaBench
             'totalTypes' => 600,
             'fieldsPerType' => 8,
             'listFieldsPerType' => 2,
-            'nestingLevel' => 10
+            'nestingLevel' => 10,
         ]);
 
         $this->schema = $this->schemaBuilder->buildSchema();
 
-        $queryBuilder = new QueryGenerator($this->schema, 0.05);
+        $queryBuilder     = new QueryGenerator($this->schema, 0.05);
         $this->smallQuery = $queryBuilder->buildQuery();
     }
 
@@ -46,8 +43,7 @@ class HugeSchemaBench
     {
         $this->schemaBuilder
             ->buildSchema()
-            ->getTypeMap()
-        ;
+            ->getTypeMap();
     }
 
     public function benchSchemaLazy()
@@ -69,9 +65,9 @@ class HugeSchemaBench
     private function createLazySchema()
     {
         return new Schema(
-            \GraphQL\Type\SchemaConfig::create()
+            SchemaConfig::create()
                 ->setQuery($this->schemaBuilder->buildQueryType())
-                ->setTypeLoader(function($name) {
+                ->setTypeLoader(function ($name) {
                     return $this->schemaBuilder->loadType($name);
                 })
         );

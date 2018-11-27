@@ -13,6 +13,9 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+use function count;
+use function max;
+use function round;
 
 class QueryGenerator
 {
@@ -30,12 +33,14 @@ class QueryGenerator
 
         $totalFields = 0;
         foreach ($schema->getTypeMap() as $type) {
-            if ($type instanceof ObjectType) {
-                $totalFields += count($type->getFields());
+            if (! ($type instanceof ObjectType)) {
+                continue;
             }
+
+            $totalFields += count($type->getFields());
         }
 
-        $this->maxLeafFields = max(1, round($totalFields * $percentOfLeafFields));
+        $this->maxLeafFields     = max(1, round($totalFields * $percentOfLeafFields));
         $this->currentLeafFields = 0;
     }
 
@@ -44,13 +49,12 @@ class QueryGenerator
         $qtype = $this->schema->getQueryType();
 
         $ast = new DocumentNode([
-            'definitions' => [
-                new OperationDefinitionNode([
-                    'name' => new NameNode(['value' => 'TestQuery']),
-                    'operation' => 'query',
-                    'selectionSet' => $this->buildSelectionSet($qtype->getFields())
-                ])
-            ]
+            'definitions' => [new OperationDefinitionNode([
+                'name' => new NameNode(['value' => 'TestQuery']),
+                'operation' => 'query',
+                'selectionSet' => $this->buildSelectionSet($qtype->getFields()),
+            ]),
+            ],
         ]);
 
         return Printer::doPrint($ast);
@@ -58,12 +62,13 @@ class QueryGenerator
 
     /**
      * @param FieldDefinition[] $fields
+     *
      * @return SelectionSetNode
      */
     public function buildSelectionSet($fields)
     {
         $selections[] = new FieldNode([
-            'name' => new NameNode(['value' => '__typename'])
+            'name' => new NameNode(['value' => '__typename']),
         ]);
         $this->currentLeafFields++;
 
@@ -87,12 +92,12 @@ class QueryGenerator
 
             $selections[] = new FieldNode([
                 'name' => new NameNode(['value' => $field->name]),
-                'selectionSet' => $selectionSet
+                'selectionSet' => $selectionSet,
             ]);
         }
 
         $selectionSet = new SelectionSetNode([
-            'selections' => $selections
+            'selections' => $selections,
         ]);
 
         return $selectionSet;
