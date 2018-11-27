@@ -222,7 +222,7 @@ class VariablesTest extends TestCase
                         '{"a":"foo","b":"bar","c":null}; ' .
                         'Expected non-nullable type String! not to be null at value.c.',
                     'locations' => [['line' => 2, 'column' => 21]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -239,7 +239,7 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value "foo bar"; ' .
                         'Expected type TestInputObject to be an object.',
                     'locations' => [['line' => 2, 'column' => 21]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -256,7 +256,7 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value {"a":"foo","b":"bar"}; ' .
                         'Field value.c of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 21]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -278,14 +278,14 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value {"na":{"a":"foo"}}; ' .
                         'Field value.na.c of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 19]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
                 [
                     'message'   =>
                         'Variable "$input" got invalid value {"na":{"a":"foo"}}; ' .
                         'Field value.nb of required type String! was not provided.',
                     'locations' => [['line' => 2, 'column' => 19]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -302,7 +302,7 @@ class VariablesTest extends TestCase
                         '{"a":"foo","b":"bar","c":"baz","extra":"dog"}; ' .
                         'Field "extra" is not defined by type TestInputObject.',
                     'locations' => [['line' => 2, 'column' => 21]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -434,7 +434,7 @@ class VariablesTest extends TestCase
                 [
                     'message'   => 'Variable "$value" of required type "String!" was not provided.',
                     'locations' => [['line' => 2, 'column' => 31]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -459,7 +459,7 @@ class VariablesTest extends TestCase
                         'Variable "$value" got invalid value null; ' .
                         'Expected non-nullable type String! not to be null.',
                     'locations' => [['line' => 2, 'column' => 31]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -511,7 +511,7 @@ class VariablesTest extends TestCase
                 'message'   => 'Argument "input" of required type "String!" was not provided.',
                 'locations' => [['line' => 3, 'column' => 9]],
                 'path'      => ['fieldWithNonNullableStringInput'],
-                'category'  => 'graphql',
+                'extensions' => ['category' => 'graphql'],
             ],
             ],
         ];
@@ -538,10 +538,10 @@ class VariablesTest extends TestCase
                 'message'   =>
                     'Variable "$value" got invalid value [1,2,3]; Expected type ' .
                     'String; String cannot represent an array value: [1,2,3]',
-                'category'  => 'graphql',
                 'locations' => [
                     ['line' => 2, 'column' => 31],
                 ],
+                'extensions' => ['category' => 'graphql'],
             ],
             ],
         ];
@@ -581,7 +581,7 @@ class VariablesTest extends TestCase
                     'variable "$foo" which was not provided a runtime value.',
                 'locations' => [['line' => 3, 'column' => 48]],
                 'path'      => ['fieldWithNonNullableStringInput'],
-                'category'  => 'graphql',
+                'extensions' => ['category' => 'graphql'],
             ],
             ],
         ];
@@ -652,7 +652,7 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value null; ' .
                         'Expected non-nullable type [String]! not to be null.',
                     'locations' => [['line' => 2, 'column' => 17]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -737,7 +737,7 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value ["A",null,"B"]; ' .
                         'Expected non-nullable type String! not to be null at value[1].',
                     'locations' => [['line' => 2, 'column' => 17]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -762,7 +762,7 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value null; ' .
                         'Expected non-nullable type [String!]! not to be null.',
                     'locations' => [['line' => 2, 'column' => 17]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -804,7 +804,7 @@ class VariablesTest extends TestCase
                         'Variable "$input" got invalid value ["A",null,"B"]; ' .
                         'Expected non-nullable type String! not to be null at value[1].',
                     'locations' => [['line' => 2, 'column' => 17]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -830,7 +830,7 @@ class VariablesTest extends TestCase
                         'Variable "$input" expected value of type "TestType!" which cannot ' .
                         'be used as an input type.',
                     'locations' => [['line' => 2, 'column' => 25]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -857,7 +857,7 @@ class VariablesTest extends TestCase
                         'Variable "$input" expected value of type "UnknownType!" which ' .
                         'cannot be used as an input type.',
                     'locations' => [['line' => 2, 'column' => 25]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -910,7 +910,7 @@ class VariablesTest extends TestCase
                     'Argument "input" has invalid value WRONG_TYPE.',
                 'locations' => [['line' => 2, 'column' => 50]],
                 'path'      => ['fieldWithDefaultArgumentValue'],
-                'category'  => 'graphql',
+                'extensions' => ['category' => 'graphql'],
             ],
             ],
         ];

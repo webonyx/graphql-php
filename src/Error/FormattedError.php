@@ -187,12 +187,16 @@ class FormattedError
         if ($e instanceof ClientAware) {
             $formattedError = [
                 'message'  => $e->isClientSafe() ? $e->getMessage() : $internalErrorMessage,
-                'category' => $e->getCategory(),
+                'extensions' => [
+                    'category' => $e->getCategory(),
+                ],
             ];
         } else {
             $formattedError = [
                 'message'  => $internalErrorMessage,
-                'category' => Error::CATEGORY_INTERNAL,
+                'extensions' => [
+                    'category' => Error::CATEGORY_INTERNAL,
+                ],
             ];
         }
 
@@ -210,7 +214,7 @@ class FormattedError
                 $formattedError['path'] = $e->path;
             }
             if (! empty($e->getExtensions())) {
-                $formattedError['extensions'] = $e->getExtensions();
+                $formattedError['extensions'] = $e->getExtensions() + $formattedError['extensions'];
             }
         }
 

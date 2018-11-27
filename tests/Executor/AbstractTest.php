@@ -420,7 +420,7 @@ class AbstractTest extends TestCase
                         'function or each possible type should provide an "isTypeOf" function.',
                     'locations'    => [['line' => 1, 'column' => 3]],
                     'path'         => ['foo'],
-                    'category'     => 'internal',
+                    'extensions'   => ['category' => 'internal'],
                 ],
             ],
         ];

@@ -260,7 +260,7 @@ class QueryExecutionTest extends ServerTestCase
             'errors' => [
                 [
                     'message'  => 'Persisted queries are not supported by this server',
-                    'category' => 'request',
+                    'extensions' => ['category' => 'request'],
                 ],
             ],
         ];
@@ -291,7 +291,7 @@ class QueryExecutionTest extends ServerTestCase
                 'errors' => [
                     [
                         'message'  => 'Batched queries are not supported by this server',
-                        'category' => 'request',
+                        'extensions' => ['category' => 'request'],
                     ],
                 ],
             ],
@@ -299,7 +299,7 @@ class QueryExecutionTest extends ServerTestCase
                 'errors' => [
                     [
                         'message'  => 'Batched queries are not supported by this server',
-                        'category' => 'request',
+                        'extensions' => ['category' => 'request'],
                     ],
                 ],
             ],
@@ -342,7 +342,7 @@ class QueryExecutionTest extends ServerTestCase
             'errors' => [
                 [
                     'message'  => 'GET supports only query operation',
-                    'category' => 'request',
+                    'extensions' => ['category' => 'request'],
                 ],
             ],
         ];
@@ -406,7 +406,7 @@ class QueryExecutionTest extends ServerTestCase
                 [
                     'message'   => 'Cannot query field "invalid" on type "Query".',
                     'locations' => [['line' => 1, 'column' => 2]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];
@@ -443,7 +443,7 @@ class QueryExecutionTest extends ServerTestCase
                 [
                     'message'   => 'Cannot query field "invalid2" on type "Query".',
                     'locations' => [['line' => 1, 'column' => 2]],
-                    'category'  => 'graphql',
+                    'extensions' => ['category' => 'graphql'],
                 ],
             ],
         ];

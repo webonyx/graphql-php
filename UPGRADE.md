@@ -1,39 +1,10 @@
 ## Upgrade v0.12.x > dev-master
 
-### Try it: Experimental Executor with improved performance
-It is disabled by default. To enable it, do the following
-```php
-<?php
-use GraphQL\Executor\Executor;
-use GraphQL\Experimental\Executor\CoroutineExecutor;
-
-Executor::setImplementationFactory([CoroutineExecutor::class, 'create']);
-```
-
-**Please post your feedback about new executor at https://github.com/webonyx/graphql-php/issues/397
-Especially if you had issues (because it may become the default in one of the next releases)**
-
-### Breaking: minimum supported version of PHP
+### Breaking (major): minimum supported version of PHP
 New minimum required version of PHP is **7.1+**
 
-### Breaking: multiple interfaces separated with & in SDL
-Before the change:
-```graphql
-type Foo implements Bar, Baz { field: Type }
-```
-
-After the change:
-```graphql
-type Foo implements Bar & Baz { field: Type }
-```
-
-To allow for an adaptive migration, use `allowLegacySDLImplementsInterfaces` option of parser:
-```php
-Parser::parse($source, [ 'allowLegacySDLImplementsInterfaces' => true])
-```
-
-### Breaking: errors formatting changed according to spec 
-Extensions assigned to errors are shown under `extensions` key
+### Breaking (major): default errors formatting changed according to spec 
+**Category** and extensions assigned to errors are shown under `extensions` key
 ```php
 $e = new Error(
     'msg',
@@ -50,6 +21,7 @@ Formatting before the change:
 'errors' => [
     [
         'message' => 'msg',
+        'category' => 'graphql',
         'foo' => 'bar'
     ]
 ]
@@ -59,9 +31,45 @@ After the change:
 'errors' => [
     [
         'message' => 'msg',
-        'extensions' => ['foo' => 'bar'],
+        'extensions' => [
+            'category' => 'graphql',
+            'foo' => 'bar',
+        ],
     ]
 ]
+```
+
+Note: if error extensions contain `category` key - it has a priority over default category.
+
+You can always switch to [custom error formatting](https://webonyx.github.io/graphql-php/error-handling/#custom-error-handling-and-formatting) to revert to the old format.
+
+### Try it: Experimental Executor with improved performance
+It is disabled by default. To enable it, do the following
+```php
+<?php
+use GraphQL\Executor\Executor;
+use GraphQL\Experimental\Executor\CoroutineExecutor;
+
+Executor::setImplementationFactory([CoroutineExecutor::class, 'create']);
+```
+
+**Please post your feedback about new executor at https://github.com/webonyx/graphql-php/issues/397
+Especially if you had issues (because it may become the default in one of the next releases)**
+
+### Breaking: multiple interfaces separated with & in SDL
+Before the change:
+```graphql
+type Foo implements Bar, Baz { field: Type }
+```
+
+After the change:
+```graphql
+type Foo implements Bar & Baz { field: Type }
+```
+
+To allow for an adaptive migration, use `allowLegacySDLImplementsInterfaces` option of parser:
+```php
+Parser::parse($source, [ 'allowLegacySDLImplementsInterfaces' => true])
 ```
 
 

@@ -10,7 +10,7 @@ It is a one-line switch: `GraphQL::useExperimentalExecutor()`.<br>
 (as it may become the default one in future)
 <br>
 <br> 
-- Spec compliance: error category, debug information and extensions are displayed under `extensions` key 
+- Spec compliance: error `category` and extensions are displayed under `extensions` key when using default formatting (#389) 
 - `AbstractValidationRule` renamed to `ValidationRule` (NS `GraphQL\Validator\Rules`)
 - `AbstractQuerySecurity` renamed to `QuerySecurityRule` (NS `GraphQL\Validator\Rules`)
 - `FindBreakingChanges` renamed to `BreakingChangesFinder` (NS `GraphQL\Utils`)
