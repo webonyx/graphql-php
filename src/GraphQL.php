@@ -10,6 +10,8 @@ use GraphQL\Executor\Executor;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
+use GraphQL\Executor\ReferenceExecutor;
+use GraphQL\Experimental\Executor\CoroutineExecutor;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
@@ -317,6 +319,22 @@ class GraphQL
     public static function setPromiseAdapter(?PromiseAdapter $promiseAdapter = null) : void
     {
         Executor::setPromiseAdapter($promiseAdapter);
+    }
+
+    /**
+     * Experimental: Switch to the new executor
+     */
+    public static function useExperimentalExecutor()
+    {
+        Executor::setImplementationFactory([CoroutineExecutor::class, 'create']);
+    }
+
+    /**
+     * Experimental: Switch back to the default executor
+     */
+    public static function useReferenceExecutor()
+    {
+        Executor::setImplementationFactory([ReferenceExecutor::class, 'create']);
     }
 
     /**

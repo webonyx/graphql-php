@@ -3,11 +3,18 @@
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
 
 New features and notable changes:
+- New experimental executor with improved performance (#314).<br>
+It is a one-line switch: `GraphQL::useExperimentalExecutor()`.<br>
+<br> 
+**Please try it and post your feedback at https://github.com/webonyx/graphql-php/issues/397**
+(as it may become the default one in future)
+<br>
+<br> 
 - Spec compliance: error category, debug information and extensions are displayed under `extensions` key 
 - `AbstractValidationRule` renamed to `ValidationRule` (NS `GraphQL\Validator\Rules`)
 - `AbstractQuerySecurity` renamed to `QuerySecurityRule` (NS `GraphQL\Validator\Rules`)
 - `FindBreakingChanges` renamed to `BreakingChangesFinder` (NS `GraphQL\Utils`)
-- Added ability to override standard types via `GraphQL::overrideStandardTypes(array $types)`
+- Added ability to override standard types via `GraphQL::overrideStandardTypes(array $types)` (#401)
 
 #### v0.12.5
 - Execution performance optimization for lists
