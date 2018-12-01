@@ -333,6 +333,32 @@ class RequestParsingTest extends TestCase
         }
     }
 
+    public function testParsesApolloPersistedQueryJSONRequest() : void
+    {
+        $queryId = 'my-query-id';
+        $extensions = [
+            'persistedQuery' => [
+                'sha256Hash' => $queryId,
+            ],
+        ];
+        $variables  = ['test' => 1, 'test2' => 2];
+        $operation  = 'op';
+
+        $body   = [
+            'extensions'    => $extensions,
+            'variables'     => $variables,
+            'operationName' => $operation,
+        ];
+        $parsed = [
+            'raw' => $this->parseRawRequest('application/json', json_encode($body)),
+            'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
+        ];
+        foreach ($parsed as $method => $parsedBody) {
+            self::assertValidOperationParams($parsedBody, null, $queryId, $variables, $operation, $method);
+            self::assertFalse($parsedBody->isReadOnly(), $method);
+        }
+    }
+
     public function testParsesBatchJSONRequest() : void
     {
         $body   = [

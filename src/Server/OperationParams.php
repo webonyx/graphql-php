@@ -95,6 +95,11 @@ class OperationParams
         $instance->variables = $params['variables'];
         $instance->readOnly  = (bool) $readonly;
 
+        // Apollo server/client compatibility: look for the queryid in extensions
+        if (isset($params['extensions']['persistedQuery']['sha256Hash']) && empty($instance->query) && empty($instance->queryid)) {
+          $instance->queryId = $params['extensions']['persistedQuery']['sha256Hash'];
+        }
+
         return $instance;
     }
 
