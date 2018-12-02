@@ -335,12 +335,8 @@ class RequestParsingTest extends TestCase
 
     public function testParsesApolloPersistedQueryJSONRequest() : void
     {
-        $queryId = 'my-query-id';
-        $extensions = [
-            'persistedQuery' => [
-                'sha256Hash' => $queryId,
-            ],
-        ];
+        $queryId    = 'my-query-id';
+        $extensions = ['persistedQuery' => ['sha256Hash' => $queryId]];
         $variables  = ['test' => 1, 'test2' => 2];
         $operation  = 'op';
 
