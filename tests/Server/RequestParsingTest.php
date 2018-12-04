@@ -25,7 +25,7 @@ class RequestParsingTest extends TestCase
         ];
 
         foreach ($parsed as $source => $parsedBody) {
-            self::assertValidOperationParams($parsedBody, $query, null, null, null, $source);
+            self::assertValidOperationParams($parsedBody, $query, null, null, null, null, $source);
             self::assertFalse($parsedBody->isReadOnly(), $source);
         }
     }
@@ -91,6 +91,7 @@ class RequestParsingTest extends TestCase
         $queryId = null,
         $variables = null,
         $operation = null,
+        $extensions = null,
         $message = ''
     ) {
         self::assertInstanceOf(OperationParams::class, $params, $message);
@@ -99,6 +100,7 @@ class RequestParsingTest extends TestCase
         self::assertSame($queryId, $params->queryId, $message);
         self::assertSame($variables, $params->variables, $message);
         self::assertSame($operation, $params->operation, $message);
+        self::assertSame($extensions, $params->extensions, $message);
     }
 
     public function testParsesUrlencodedRequest() : void
@@ -118,7 +120,7 @@ class RequestParsingTest extends TestCase
         ];
 
         foreach ($parsed as $method => $parsedBody) {
-            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
             self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
@@ -175,7 +177,7 @@ class RequestParsingTest extends TestCase
         ];
 
         foreach ($parsed as $method => $parsedBody) {
-            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
             self::assertTrue($parsedBody->isReadonly(), $method);
         }
     }
@@ -230,7 +232,7 @@ class RequestParsingTest extends TestCase
         ];
 
         foreach ($parsed as $method => $parsedBody) {
-            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
             self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
@@ -286,7 +288,7 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
             self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
@@ -307,7 +309,7 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
             self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
@@ -328,7 +330,29 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
+            self::assertFalse($parsedBody->isReadOnly(), $method);
+        }
+    }
+
+    public function testParsesApolloPersistedQueryJSONRequest() : void
+    {
+        $queryId    = 'my-query-id';
+        $extensions = ['persistedQuery' => ['sha256Hash' => $queryId]];
+        $variables  = ['test' => 1, 'test2' => 2];
+        $operation  = 'op';
+
+        $body   = [
+            'extensions'    => $extensions,
+            'variables'     => $variables,
+            'operationName' => $operation,
+        ];
+        $parsed = [
+            'raw' => $this->parseRawRequest('application/json', json_encode($body)),
+            'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
+        ];
+        foreach ($parsed as $method => $parsedBody) {
+            self::assertValidOperationParams($parsedBody, null, $queryId, $variables, $operation, $extensions, $method);
             self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
@@ -360,6 +384,7 @@ class RequestParsingTest extends TestCase
                 null,
                 $body[0]['variables'],
                 $body[0]['operationName'],
+                null,
                 $method
             );
             self::assertValidOperationParams(
@@ -368,6 +393,7 @@ class RequestParsingTest extends TestCase
                 $body[1]['queryId'],
                 $body[1]['variables'],
                 $body[1]['operationName'],
+                null,
                 $method
             );
         }
