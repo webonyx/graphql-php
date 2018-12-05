@@ -7,7 +7,7 @@ namespace GraphQL\Type\Definition;
 /**
  * Class ListOfType
  */
-class ListOfType extends Type implements WrappingType, OutputType, InputType
+class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
     /** @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType */
     public $ofType;
