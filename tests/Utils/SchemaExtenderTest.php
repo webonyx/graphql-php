@@ -24,6 +24,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
@@ -1961,5 +1962,49 @@ extend type Query {
         $query  = '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);
         self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
+    }
+
+
+    /**
+     * @see https://github.com/webonyx/graphql-php/issues/180
+     */
+    public function testShouldBeAbleToIntroduceNewTypesThroughExtension()
+    {
+        $sdl = '
+          type Query {
+            defaultValue: String
+          }
+          type Foo {
+            value: Int
+          }
+        ';
+
+        $documentNode = Parser::parse($sdl);
+        $schema = BuildSchema::build($documentNode);
+
+        $extensionSdl = '
+          type Bar {
+            foo: Foo
+          }
+        ';
+
+        $extendedDocumentNode = Parser::parse($extensionSdl);
+        $extendedSchema = SchemaExtender::extend($schema, $extendedDocumentNode);
+
+        $expected = '
+            type Bar {
+              foo: Foo
+            }
+            
+            type Foo {
+              value: Int
+            }
+            
+            type Query {
+              defaultValue: String
+            }
+        ';
+
+        static::assertEquals($this->dedent($expected), SchemaPrinter::doPrint($extendedSchema));
     }
 }
