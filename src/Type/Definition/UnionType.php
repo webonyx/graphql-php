@@ -17,7 +17,7 @@ use function sprintf;
 /**
  * Class UnionType
  */
-class UnionType extends Type implements AbstractType, OutputType, CompositeType, NamedType
+class UnionType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
     /** @var UnionTypeDefinitionNode */
     public $astNode;

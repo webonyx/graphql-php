@@ -22,7 +22,7 @@ use function sprintf;
 /**
  * Class EnumType
  */
-class EnumType extends Type implements InputType, OutputType, LeafType, NamedType
+class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
     /** @var EnumTypeDefinitionNode|null */
     public $astNode;

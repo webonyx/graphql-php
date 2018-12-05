@@ -137,7 +137,7 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $wrappedType
+     * @param NullableType $wrappedType
      *
      * @return NonNull
      *
@@ -338,7 +338,7 @@ abstract class Type implements JsonSerializable
     /**
      * @param Type $type
      *
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
+     * @return NullableType
      *
      * @api
      */

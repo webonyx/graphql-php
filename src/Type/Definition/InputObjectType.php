@@ -18,7 +18,7 @@ use function sprintf;
 /**
  * Class InputObjectType
  */
-class InputObjectType extends Type implements InputType, NamedType
+class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
     /** @var InputObjectTypeDefinitionNode|null */
     public $astNode;
