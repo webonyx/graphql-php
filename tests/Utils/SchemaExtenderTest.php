@@ -1980,7 +1980,7 @@ extend type Query {
         ';
 
         $documentNode = Parser::parse($sdl);
-        $schema = BuildSchema::build($documentNode);
+        $schema       = BuildSchema::build($documentNode);
 
         $extensionSdl = '
           type Bar {
@@ -1989,7 +1989,7 @@ extend type Query {
         ';
 
         $extendedDocumentNode = Parser::parse($extensionSdl);
-        $extendedSchema = SchemaExtender::extend($schema, $extendedDocumentNode);
+        $extendedSchema       = SchemaExtender::extend($schema, $extendedDocumentNode);
 
         $expected = '
             type Bar {
