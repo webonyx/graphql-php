@@ -513,7 +513,14 @@ class SchemaExtender
                 $schemaExtensions[] = $def;
             } elseif ($def instanceof TypeDefinitionNode) {
                 $typeName = isset($def->name) ? $def->name->value : null;
-                if ($schema->getType($typeName)) {
+
+                try {
+                    $type = $schema->getType($typeName);
+                } catch (Error $error) {
+                    $type = null;
+                }
+
+                if ($type) {
                     throw new Error('Type "' . $typeName . '" already exists in the schema. It cannot also be defined in this type definition.', [$def]);
                 }
                 $typeDefinitionMap[$typeName] = $def;
