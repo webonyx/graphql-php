@@ -15,7 +15,7 @@ use function sprintf;
 /**
  * Class InterfaceType
  */
-class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NamedType
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
     /** @var InterfaceTypeDefinitionNode|null */
     public $astNode;

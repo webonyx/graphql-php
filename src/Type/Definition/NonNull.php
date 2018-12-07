@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Utils\Utils;
 
 /**
@@ -13,13 +11,11 @@ use GraphQL\Utils\Utils;
  */
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
-    /** @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType */
+    /** @var NullableType */
     private $ofType;
 
     /**
-     * @param callable|Type $type
-     *
-     * @throws Exception
+     * @param NullableType $type
      */
     public function __construct($type)
     {
@@ -29,7 +25,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     /**
      * @param mixed $type
      *
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
+     * @return NullableType
      */
     public static function assertNullableType($type)
     {
@@ -67,9 +63,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     /**
      * @param bool $recurse
      *
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
-     *
-     * @throws InvariantViolation
+     * @return Type
      */
     public function getWrappedType($recurse = false)
     {

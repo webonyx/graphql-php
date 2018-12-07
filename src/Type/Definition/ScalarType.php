@@ -27,7 +27,7 @@ use function is_string;
  *     }
  * }
  */
-abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NamedType
+abstract class ScalarType extends Type implements OutputType, InputType, LeafType, NullableType, NamedType
 {
     /** @var ScalarTypeDefinitionNode|null */
     public $astNode;
