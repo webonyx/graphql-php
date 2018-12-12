@@ -293,14 +293,16 @@ class RequestParsingTest extends TestCase
         }
     }
 
-    public function testParsesVariablesAsJSON() : void
+    public function testParsesParamsAsJSON() : void
     {
-        $query     = '{my query}';
-        $variables = ['test' => 1, 'test2' => 2];
-        $operation = 'op';
+        $query      = '{my query}';
+        $variables  = ['test1' => 1, 'test2' => 2];
+        $extensions = ['test3' => 3, 'test4' => 4];
+        $operation  = 'op';
 
         $body   = [
             'query'         => $query,
+            'extensions'    => json_encode($extensions),
             'variables'     => json_encode($variables),
             'operationName' => $operation,
         ];
@@ -309,7 +311,7 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
+            self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, $extensions, $method);
             self::assertFalse($parsedBody->isReadOnly(), $method);
         }
     }
