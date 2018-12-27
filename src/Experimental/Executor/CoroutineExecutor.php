@@ -34,11 +34,8 @@ use GraphQL\Utils\Utils;
 use SplQueue;
 use stdClass;
 use Throwable;
-use function array_keys;
-use function count;
 use function is_array;
 use function is_string;
-use function range;
 use function sprintf;
 
 class CoroutineExecutor implements Runtime, ExecutorImplementation
@@ -154,14 +151,9 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         }
 
         if (is_array($value)) {
-            $array   = [];
-            $isAssoc = array_keys($value) !== range(0, count($value) - 1);
+            $array = [];
             foreach ($value as $key => $item) {
-                if ($isAssoc) {
-                    $array[$key] = self::resultToArray($item);
-                } else {
-                    $array[] = self::resultToArray($item);
-                }
+                $array[$key] = self::resultToArray($item);
             }
             return $array;
         }
