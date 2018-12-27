@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Language\AST;
 
 use GraphQL\Utils\Utils;
+use function count;
 use function get_object_vars;
 use function is_array;
 use function is_scalar;
@@ -36,7 +37,7 @@ use function json_encode;
  */
 abstract class Node
 {
-    /** @var Location */
+    /** @var Location|null */
     public $loc;
 
     /** @var string */
@@ -47,7 +48,7 @@ abstract class Node
      */
     public function __construct(array $vars)
     {
-        if (empty($vars)) {
+        if (count($vars) === 0) {
             return;
         }
 
