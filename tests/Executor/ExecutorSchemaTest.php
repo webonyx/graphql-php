@@ -23,9 +23,9 @@ class ExecutorSchemaTest extends TestCase
     {
         $BlogSerializableValueType = new CustomScalarType([
             'name'         => 'JsonSerializableValueScalar',
-            'serialize'    => static function ($value) { return $value; },
-            'parseValue'   => static function ($value) { return $value; },
-            'parseLiteral' => static function ($value) { return $value; },
+            'serialize'    => static function ($value) {
+                return $value;
+            },
         ]);
 
         $BlogArticle = null;
@@ -201,9 +201,7 @@ class ExecutorSchemaTest extends TestCase
                             'keywords'    => ['foo', 'bar', '1', 'true', null],
                         ],
                     ],
-                    'meta' => [
-                        'title' => 'My Article 1 | My Blog'
-                    ]
+                    'meta' => [ 'title' => 'My Article 1 | My Blog' ],
                 ],
             ],
         ];
@@ -223,9 +221,7 @@ class ExecutorSchemaTest extends TestCase
                 'body'        => 'This is a post',
                 'hidden'      => 'This data is not exposed in the schema',
                 'keywords'    => ['foo', 'bar', 1, true, null],
-                'meta'        => [
-                    'title'   => 'My Article 1 | My Blog',
-                ],
+                'meta'        => ['title' => 'My Article 1 | My Blog'],
             ];
         };
 
