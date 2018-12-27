@@ -249,7 +249,7 @@ class Value
             ($subMessage ? '; ' . $subMessage : '.'),
             $blameNode,
             null,
-            null,
+            [],
             null,
             $originalError
         );

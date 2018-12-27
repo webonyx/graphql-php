@@ -15,7 +15,7 @@ $e = new Error(
     'msg',
     null,
     null,
-    null,
+    [],
     null,
     null,
     ['foo' => 'bar']

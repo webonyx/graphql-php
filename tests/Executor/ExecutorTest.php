@@ -458,7 +458,7 @@ class ExecutorTest extends TestCase
                         'Error getting asyncReturnErrorWithExtensions',
                         null,
                         null,
-                        null,
+                        [],
                         null,
                         null,
                         ['foo' => 'bar']

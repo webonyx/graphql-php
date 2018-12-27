@@ -20,7 +20,7 @@ class ErrorTest extends TestCase
     public function testUsesTheStackOfAnOriginalError() : void
     {
         $prev = new Exception('Original');
-        $err  = new Error('msg', null, null, null, null, $prev);
+        $err  = new Error('msg', null, null, [], null, $prev);
 
         self::assertSame($err->getPrevious(), $prev);
     }
@@ -134,7 +134,7 @@ class ErrorTest extends TestCase
             'msg',
             null,
             null,
-            null,
+            [],
             ['path', 3, 'to', 'field']
         );
 
@@ -151,7 +151,7 @@ class ErrorTest extends TestCase
             'msg',
             null,
             null,
-            null,
+            [],
             null,
             null,
             ['foo' => 'bar']

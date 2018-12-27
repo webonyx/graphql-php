@@ -214,7 +214,7 @@ class ASTDefinitionBuilder
                             sprintf('when building %s type: %s', $typeName, $e->getMessage()),
                             null,
                             null,
-                            null,
+                            [],
                             null,
                             $e
                         );
