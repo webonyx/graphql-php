@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Server\ServerConfig;
@@ -27,7 +28,7 @@ class ServerConfigTest extends TestCase
         self::assertNull($config->getValidationRules());
         self::assertNull($config->getFieldResolver());
         self::assertNull($config->getPersistentQueryLoader());
-        self::assertFalse($config->getDebug());
+        self::assertSame(0, $config->getDebugFlag());
         self::assertFalse($config->getQueryBatching());
     }
 
@@ -166,11 +167,11 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $config->setDebug(true);
-        self::assertTrue($config->getDebug());
+        $config->setDebugFlag(DebugFlag::INCLUDE_DEBUG_MESSAGE);
+        self::assertEquals(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
 
-        $config->setDebug(false);
-        self::assertFalse($config->getDebug());
+        $config->setDebugFlag(0);
+        self::assertEquals(0, $config->getDebugFlag());
     }
 
     public function testAcceptsArray() : void
@@ -191,7 +192,7 @@ class ServerConfigTest extends TestCase
             },
             'persistentQueryLoader' => static function () {
             },
-            'debug'                 => true,
+            'debugFlag'             => DebugFlag::INCLUDE_DEBUG_MESSAGE,
             'queryBatching'         => true,
         ];
 
@@ -205,7 +206,7 @@ class ServerConfigTest extends TestCase
         self::assertSame($arr['validationRules'], $config->getValidationRules());
         self::assertSame($arr['fieldResolver'], $config->getFieldResolver());
         self::assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
-        self::assertTrue($config->getDebug());
+        self::assertSame(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
         self::assertTrue($config->getQueryBatching());
     }
 

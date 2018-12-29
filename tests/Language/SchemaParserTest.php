@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;

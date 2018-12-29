@@ -319,11 +319,11 @@ class Helper
             if ($config->getErrorsHandler()) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
-            if ($config->getErrorFormatter() || $config->getDebug()) {
+            if ($config->getErrorFormatter() || $config->getDebugFlag() !== 0) {
                 $result->setErrorFormatter(
                     FormattedError::prepareFormatter(
                         $config->getErrorFormatter(),
-                        $config->getDebug()
+                        $config->getDebugFlag()
                     )
                 );
             }

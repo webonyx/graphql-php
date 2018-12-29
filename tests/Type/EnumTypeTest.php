@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use ArrayObject;
+use GraphQL\Error\DebugFlag;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\EnumType;
@@ -493,7 +494,7 @@ class EnumTypeTest extends TestCase
         good: complexEnum(provideGoodValue: true)
         bad: complexEnum(provideBadValue: true)
         }'
-        )->toArray(true);
+        )->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
 
         $expected = [
             'data'   => [
@@ -539,7 +540,7 @@ class EnumTypeTest extends TestCase
                 ],
                 ],
             ],
-            GraphQL::executeQuery($this->schema, $q)->toArray(true)
+            GraphQL::executeQuery($this->schema, $q)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 }

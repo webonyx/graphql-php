@@ -87,10 +87,7 @@ abstract class Node
         return $cloned;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString() : string
     {
         $tmp = $this->toArray(true);
 
@@ -98,11 +95,9 @@ abstract class Node
     }
 
     /**
-     * @param bool $recursive
-     *
      * @return mixed[]
      */
-    public function toArray($recursive = false)
+    public function toArray(bool $recursive = false) : array
     {
         if ($recursive) {
             return $this->recursiveToArray($this);

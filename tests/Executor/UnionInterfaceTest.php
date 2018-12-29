@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
@@ -303,7 +304,7 @@ class UnionInterfaceTest extends TestCase
             ],
         ];
 
-        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray(true));
+        self::assertEquals($expected, Executor::execute($this->schema, $ast, $this->john)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     /**

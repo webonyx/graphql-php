@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Type\Schema;
@@ -69,8 +70,8 @@ class ServerConfig
     /** @var callable|null */
     private $errorsHandler;
 
-    /** @var bool */
-    private $debug = false;
+    /** @var int */
+    private $debugFlag = 0;
 
     /** @var bool */
     private $queryBatching = false;
@@ -209,15 +210,11 @@ class ServerConfig
     /**
      * Set response debug flags. See GraphQL\Error\Debug class for a list of all available flags
      *
-     * @param bool|int $set
-     *
-     * @return self
-     *
      * @api
      */
-    public function setDebug($set = true)
+    public function setDebugFlag(int $debugFlag = DebugFlag::INCLUDE_DEBUG_MESSAGE) : self
     {
-        $this->debug = $set;
+        $this->debugFlag = $debugFlag;
 
         return $this;
     }
@@ -318,12 +315,9 @@ class ServerConfig
         return $this->persistentQueryLoader;
     }
 
-    /**
-     * @return bool
-     */
-    public function getDebug()
+    public function getDebugFlag() : int
     {
-        return $this->debug;
+        return $this->debugFlag;
     }
 
     /**

@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Executor;
 
 use Exception;
 use GraphQL\Deferred;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
@@ -554,7 +555,7 @@ class NonNullTest extends TestCase
         ];
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 
@@ -582,7 +583,7 @@ class NonNullTest extends TestCase
 
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 
@@ -610,7 +611,7 @@ class NonNullTest extends TestCase
 
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 
@@ -638,7 +639,7 @@ class NonNullTest extends TestCase
 
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 
@@ -781,7 +782,7 @@ class NonNullTest extends TestCase
 
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 
@@ -1028,7 +1029,7 @@ class NonNullTest extends TestCase
         ];
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, Parser::parse($doc), $this->nullingData)->toArray(true)
+            Executor::execute($this->schema, Parser::parse($doc), $this->nullingData)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 
@@ -1051,7 +1052,7 @@ class NonNullTest extends TestCase
 
         self::assertArraySubset(
             $expected,
-            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(true)
+            Executor::execute($this->schema, $ast, $this->nullingData, null, [], 'Q')->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)
         );
     }
 }

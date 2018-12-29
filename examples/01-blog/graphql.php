@@ -9,17 +9,17 @@ use \GraphQL\Examples\Blog\Data\DataSource;
 use \GraphQL\Type\Schema;
 use \GraphQL\GraphQL;
 use \GraphQL\Error\FormattedError;
-use \GraphQL\Error\Debug;
+use \GraphQL\Error\DebugFlag;
 
 // Disable default PHP error reporting - we have better one for debug mode (see bellow)
 ini_set('display_errors', 0);
 
-$debug = false;
+$debug = 0;
 if (!empty($_GET['debug'])) {
     set_error_handler(function($severity, $message, $file, $line) use (&$phpErrors) {
         throw new ErrorException($message, 0, $severity, $file, $line);
     });
-    $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
+    $debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
 }
 
 try {

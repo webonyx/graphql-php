@@ -106,7 +106,7 @@ class CollectorTest extends TestCase
         $result = [];
         if (! empty($runtime->errors)) {
             $result['errors'] = array_map(
-                FormattedError::prepareFormatter(null, false),
+                FormattedError::prepareFormatter(null, 0),
                 $runtime->errors
             );
         }

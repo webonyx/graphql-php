@@ -128,13 +128,11 @@ class ExecutionResult implements JsonSerializable
      * $debug argument must be either bool (only adds "debugMessage" to result) or sum of flags from
      * GraphQL\Error\Debug
      *
-     * @param bool|int $debug
-     *
      * @return mixed[]
      *
      * @api
      */
-    public function toArray($debug = false)
+    public function toArray(int $debug = 0) : array
     {
         $result = [];
 

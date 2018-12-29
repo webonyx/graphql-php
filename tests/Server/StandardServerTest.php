@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Server\Helper;
 use GraphQL\Server\ServerConfig;
@@ -35,7 +36,7 @@ class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     private function parseRawRequest($contentType, $content, $method = 'POST')
@@ -75,7 +76,7 @@ class StandardServerTest extends ServerTestCase
     private function assertPsrRequestEquals($expected, $request)
     {
         $result = $this->executePsrRequest($request);
-        self::assertArraySubset($expected, $result->toArray(true));
+        self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
 
         return $result;
     }

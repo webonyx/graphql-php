@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Utils;
 
 use Closure;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
@@ -40,7 +41,7 @@ class BuildSchemaTest extends TestCase
         '));
 
         $result = GraphQL::executeQuery($schema, '{ str }', ['str' => 123]);
-        self::assertEquals(['str' => 123], $result->toArray(true)['data']);
+        self::assertEquals(['str' => 123], $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)['data']);
     }
 
     /**
@@ -65,7 +66,7 @@ class BuildSchemaTest extends TestCase
             '{ add(x: 34, y: 55) }',
             $root
         );
-        self::assertEquals(['data' => ['add' => 89]], $result->toArray(true));
+        self::assertEquals(['data' => ['add' => 89]], $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     /**
@@ -506,7 +507,7 @@ type WorldTwo {
         ];
 
         $result = GraphQL::executeQuery($schema, $query, $rootValue);
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     /**
@@ -570,7 +571,7 @@ type WorldTwo {
         ];
 
         $result = GraphQL::executeQuery($schema, $query, $rootValue);
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     /**

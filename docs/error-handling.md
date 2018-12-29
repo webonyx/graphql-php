@@ -90,7 +90,7 @@ GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 
 # Debugging tools
 
-During development or debugging use `$result->toArray(true)` to add **debugMessage** key to 
+During development or debugging use `$result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)` to add **debugMessage** key to 
 each formatted error entry. If you also want to add exception trace - pass flags instead:
 
 ```

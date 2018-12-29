@@ -6,6 +6,7 @@ namespace GraphQL\Utils;
 
 use ArrayAccess;
 use Exception;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
@@ -124,7 +125,7 @@ class AST
      *
      * @api
      */
-    public static function toArray(Node $node)
+    public static function toArray(Node $node) : array
     {
         return $node->toArray(true);
     }
