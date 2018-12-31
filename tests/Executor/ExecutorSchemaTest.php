@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
+use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -20,6 +21,13 @@ class ExecutorSchemaTest extends TestCase
      */
     public function testExecutesUsingASchema() : void
     {
+        $BlogSerializableValueType = new CustomScalarType([
+            'name'         => 'JsonSerializableValueScalar',
+            'serialize'    => static function ($value) {
+                return $value;
+            },
+        ]);
+
         $BlogArticle = null;
         $BlogImage   = new ObjectType([
             'name'   => 'Image',
@@ -57,6 +65,7 @@ class ExecutorSchemaTest extends TestCase
                 'title'       => ['type' => Type::string()],
                 'body'        => ['type' => Type::string()],
                 'keywords'    => ['type' => Type::listOf(Type::string())],
+                'meta'        => ['type' => $BlogSerializableValueType],
             ],
         ]);
 
@@ -113,6 +122,7 @@ class ExecutorSchemaTest extends TestCase
               keywords
             }
           }
+          meta
         }
       }
 
@@ -191,6 +201,7 @@ class ExecutorSchemaTest extends TestCase
                             'keywords'    => ['foo', 'bar', '1', 'true', null],
                         ],
                     ],
+                    'meta' => [ 'title' => 'My Article 1 | My Blog' ],
                 ],
             ],
         ];
@@ -210,6 +221,7 @@ class ExecutorSchemaTest extends TestCase
                 'body'        => 'This is a post',
                 'hidden'      => 'This data is not exposed in the schema',
                 'keywords'    => ['foo', 'bar', 1, true, null],
+                'meta'        => ['title' => 'My Article 1 | My Blog'],
             ];
         };
 
