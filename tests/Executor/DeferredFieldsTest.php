@@ -196,6 +196,13 @@ class DeferredFieldsTest extends TestCase
                         );
                     },
                 ],
+                'topStoriesSparse'       => [
+                    'type'    => Type::listOf($this->storyType),
+                    'resolve' => function ($val, $args, $context, ResolveInfo $info) {
+                        $this->paths[] = $info->path;
+                        return array_slice($this->storyDataSource, 3, 1, true);
+                    },
+                ],
                 'featuredCategory' => [
                     'type'    => $this->categoryType,
                     'resolve' => function ($val, $args, $context, ResolveInfo $info) {
@@ -228,6 +235,9 @@ class DeferredFieldsTest extends TestCase
                         name
                     }
                 }
+                topStoriesSparse {
+                    title
+                }
                 featuredCategory {
                     stories {
                         title
@@ -252,6 +262,9 @@ class DeferredFieldsTest extends TestCase
                     ['title' => 'Story #7', 'author' => ['name' => 'Joe']],
                     ['title' => 'Story #9', 'author' => ['name' => 'Jane']],
                 ],
+                'topStoriesSparse' => [
+                    ['title' => 'Story #4'],
+                ],
                 'featuredCategory' => [
                     'stories' => [
                         ['title' => 'Story #2', 'author' => ['name' => 'Jane']],
@@ -264,6 +277,7 @@ class DeferredFieldsTest extends TestCase
         ];
 
         $result = Executor::execute($schema, $query);
+
         self::assertEquals($expected, $result->toArray());
 
         $expectedPaths = [
@@ -278,6 +292,8 @@ class DeferredFieldsTest extends TestCase
             ['topStories', 3, 'author'],
             ['topStories', 4, 'title'],
             ['topStories', 4, 'author'],
+            ['topStoriesSparse'],
+            ['topStoriesSparse', 3, 'title'],
             ['featuredCategory'],
             ['featuredCategory', 'stories'],
             ['featuredCategory', 'stories', 0, 'title'],
@@ -339,7 +355,6 @@ class DeferredFieldsTest extends TestCase
         $author1 = ['name' => 'John', 'bestFriend' => ['name' => 'Dirk']];
         $author2 = ['name' => 'Jane', 'bestFriend' => ['name' => 'Joe']];
         $author3 = ['name' => 'Joe', 'bestFriend' => ['name' => 'Jane']];
-        $author4 = ['name' => 'Dirk', 'bestFriend' => ['name' => 'John']];
 
         $expected = [
             'data' => [
@@ -387,6 +402,7 @@ class DeferredFieldsTest extends TestCase
             ['categories', 1, 'topStory', 'author', 'bestFriend', 'name'],
             ['categories', 2, 'topStory', 'author', 'bestFriend', 'name'],
         ];
+
         self::assertCount(count($expectedPaths), $this->paths);
         foreach ($expectedPaths as $expectedPath) {
             self::assertTrue(in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
