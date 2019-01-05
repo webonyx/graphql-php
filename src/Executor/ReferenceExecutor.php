@@ -917,11 +917,11 @@ class ReferenceExecutor implements ExecutorImplementation
             'User Error: expected iterable, but did not find one for field ' . $info->parentType . '.' . $info->fieldName . '.'
         );
         $containsPromise = false;
-        $i               = 0;
+
         $completedItems  = [];
-        foreach ($result as $item) {
+        foreach ($result as $idx => $item) {
             $fieldPath     = $path;
-            $fieldPath[]   = $i++;
+            $fieldPath[]   = $idx;
             $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $item);
             if (! $containsPromise && $this->getPromise($completedItem)) {
                 $containsPromise = true;
