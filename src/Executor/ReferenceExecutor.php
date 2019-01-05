@@ -45,7 +45,6 @@ use function array_reduce;
 use function array_values;
 use function get_class;
 use function is_array;
-use function is_object;
 use function is_string;
 use function sprintf;
 
@@ -918,7 +917,7 @@ class ReferenceExecutor implements ExecutorImplementation
         );
         $containsPromise = false;
 
-        $completedItems  = [];
+        $completedItems = [];
         foreach ($result as $index => $item) {
             $fieldPath     = $path;
             $fieldPath[]   = $index;
