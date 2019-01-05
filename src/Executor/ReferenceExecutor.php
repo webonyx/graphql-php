@@ -919,9 +919,9 @@ class ReferenceExecutor implements ExecutorImplementation
         $containsPromise = false;
 
         $completedItems  = [];
-        foreach ($result as $idx => $item) {
+        foreach ($result as $index => $item) {
             $fieldPath     = $path;
-            $fieldPath[]   = $idx;
+            $fieldPath[]   = $index;
             $completedItem = $this->completeValueCatchingError($itemType, $fieldNodes, $info, $fieldPath, $item);
             if (! $containsPromise && $this->getPromise($completedItem)) {
                 $containsPromise = true;
