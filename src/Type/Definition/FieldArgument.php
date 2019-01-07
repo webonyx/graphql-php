@@ -8,6 +8,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Utils\Utils;
 use function is_array;
+use function is_callable;
 use function is_string;
 use function sprintf;
 
@@ -66,12 +67,20 @@ class FieldArgument
     }
 
     /**
-     * @param mixed[] $config
+     * @param mixed[]|callable $config
      *
      * @return FieldArgument[]
      */
-    public static function createMap(array $config)
+    public static function createMap($config)
     {
+        if (is_callable($config)) {
+            $config = $config();
+        }
+
+        if (! is_array($config)) {
+            throw new \InvalidArgumentException('$config must be an array or a callable which returns such an array.');
+        }
+
         $map = [];
         foreach ($config as $name => $argConfig) {
             if (! is_array($argConfig)) {

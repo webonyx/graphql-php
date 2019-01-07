@@ -109,9 +109,9 @@ class FieldDefinition
 
                     $field['name'] = $name;
                 }
-                if (isset($field['args']) && ! is_array($field['args'])) {
+                if (isset($field['args']) && ! is_array($field['args']) && ! is_callable($field['args'])) {
                     throw new InvariantViolation(
-                        sprintf('%s.%s args must be an array.', $type->name, $name)
+                        sprintf('%s.%s args must be an array or a callable which returns such an array.', $type->name, $name)
                     );
                 }
                 $fieldDef = self::create($field);
