@@ -70,6 +70,7 @@ class FieldArgument
      * @param mixed[]|callable $config
      *
      * @return FieldArgument[]
+     * @throws \InvalidArgumentException
      */
     public static function createMap($config)
     {
