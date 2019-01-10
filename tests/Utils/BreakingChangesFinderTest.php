@@ -126,6 +126,47 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
+     * We need to compare type of class A (old type) and type of class B (new type)
+     * Class B extends A but are evaluated as same types (if all properties match).
+     * The reason is that when constructing schema from remote schema,
+     * we have no certain way to get information about our classes.
+     * Thus object types from remote schema are constructed as Object Type
+     * while their local counterparts are usually a subclass of Object Type.
+     *
+     * @see https://github.com/webonyx/graphql-php/pull/431
+     */
+    public function testShouldNotMarkTypesWithInheritedClassesAsChanged() : void
+    {
+        $objectTypeConstructedFromRemoteSchema = new ObjectType([
+            'name'   => 'ObjectType',
+            'fields' => [
+                'field1' => ['type' => Type::string()],
+            ],
+        ]);
+
+        $localObjectType = new class([
+            'name'   => 'ObjectType',
+            'fields' => [
+                'field1' => ['type' => Type::string()],
+            ],
+        ]) extends ObjectType{
+        };
+
+        $schemaA = new Schema([
+            'query' => $this->queryType,
+            'types' => [$objectTypeConstructedFromRemoteSchema],
+        ]);
+
+        $schemaB = new Schema([
+            'query' => $this->queryType,
+            'types' => [$localObjectType],
+        ]);
+
+        self::assertEmpty(BreakingChangesFinder::findTypesThatChangedKind($schemaA, $schemaB));
+        self::assertEmpty(BreakingChangesFinder::findTypesThatChangedKind($schemaB, $schemaA));
+    }
+
+    /**
      * @see it('should detect if a field on a type was deleted or changed type')
      */
     public function testShouldDetectIfAFieldOnATypeWasDeletedOrChangedType() : void

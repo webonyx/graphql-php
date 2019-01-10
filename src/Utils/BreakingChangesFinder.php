@@ -112,27 +112,31 @@ class BreakingChangesFinder
      * @return string[][]
      */
     public static function findTypesThatChangedKind(
-        Schema $oldSchema,
-        Schema $newSchema
-    ) {
-        $oldTypeMap = $oldSchema->getTypeMap();
-        $newTypeMap = $newSchema->getTypeMap();
+        Schema $schemaA,
+        Schema $schemaB
+    ) : iterable {
+        $schemaATypeMap = $schemaA->getTypeMap();
+        $schemaBTypeMap = $schemaB->getTypeMap();
 
         $breakingChanges = [];
-        foreach ($oldTypeMap as $typeName => $oldType) {
-            if (! isset($newTypeMap[$typeName])) {
+        foreach ($schemaATypeMap as $typeName => $schemaAType) {
+            if (! isset($schemaBTypeMap[$typeName])) {
                 continue;
             }
-            $newType = $newTypeMap[$typeName];
-            if ($oldType instanceof $newType) {
+            $schemaBType = $schemaBTypeMap[$typeName];
+            if ($schemaAType instanceof $schemaBType) {
                 continue;
             }
 
-            $oldTypeKindName   = self::typeKindName($oldType);
-            $newTypeKindName   = self::typeKindName($newType);
-            $breakingChanges[] = [
+            if ($schemaBType instanceof $schemaAType) {
+                continue;
+            }
+
+            $schemaATypeKindName = self::typeKindName($schemaAType);
+            $schemaBTypeKindName = self::typeKindName($schemaBType);
+            $breakingChanges[]   = [
                 'type'        => self::BREAKING_CHANGE_TYPE_CHANGED_KIND,
-                'description' => "${typeName} changed from ${oldTypeKindName} to ${newTypeKindName}.",
+                'description' => "${typeName} changed from ${schemaATypeKindName} to ${schemaBTypeKindName}.",
             ];
         }
 
