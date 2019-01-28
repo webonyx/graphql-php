@@ -107,7 +107,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      * @param object  $objectValue
      * @param mixed[] $context
      *
-     * @return callable|null
+     * @return Type|null
      */
     public function resolveType($objectValue, $context, ResolveInfo $info)
     {
