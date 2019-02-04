@@ -7,7 +7,7 @@
 # About GraphQL
 
 GraphQL is a modern way to build HTTP APIs consumed by the web and mobile clients.
-It is intended to be a replacement for REST and SOAP APIs (even for **existing applications**).
+It is intended to be an alternative to REST and SOAP APIs (even for **existing applications**).
 
 GraphQL itself is a [specification](https://github.com/facebook/graphql) designed by Facebook
 engineers. Various implementations of this specification were written 
