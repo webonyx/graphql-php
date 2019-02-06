@@ -116,7 +116,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * execute, which we will pass throughout the other execution methods.
      *
      * @param mixed[]             $rootValue
-     * @param mixed[]             $contextValue
+     * @param mixed               $contextValue
      * @param mixed[]|Traversable $rawVariableValues
      * @param string|null         $operationName
      *
