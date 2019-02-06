@@ -74,7 +74,7 @@ class Executor
      * execution are collected in `$result->errors`.
      *
      * @param mixed|null               $rootValue
-     * @param mixed[]|null             $contextValue
+     * @param mixed|null               $contextValue
      * @param mixed[]|ArrayAccess|null $variableValues
      * @param string|null              $operationName
      *
@@ -120,7 +120,7 @@ class Executor
      * Useful for async PHP platforms.
      *
      * @param mixed[]|null $rootValue
-     * @param mixed[]|null $contextValue
+     * @param mixed|null   $contextValue
      * @param mixed[]|null $variableValues
      * @param string|null  $operationName
      *
@@ -163,7 +163,7 @@ class Executor
      *
      * @param mixed        $source
      * @param mixed[]      $args
-     * @param mixed[]|null $context
+     * @param mixed|null   $context
      *
      * @return mixed|null
      */
