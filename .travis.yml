@@ -5,6 +5,7 @@ php:
   - 7.1
   - 7.2
   - 7.3
+  - 7.4snapshot
   - nightly
 
 env:
@@ -29,6 +30,7 @@ script: ./vendor/bin/phpunit --group default,ReactPromise
 
 jobs:
   allow_failures:
+    - php: 7.4snapshot
     - php: nightly
 
   include:
