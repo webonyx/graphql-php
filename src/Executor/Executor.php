@@ -161,9 +161,9 @@ class Executor
      * and returns it as the result, or if it's a function, returns the result
      * of calling that function while passing along args and context.
      *
-     * @param mixed        $source
-     * @param mixed[]      $args
-     * @param mixed|null   $context
+     * @param mixed      $source
+     * @param mixed[]    $args
+     * @param mixed|null $context
      *
      * @return mixed|null
      */
