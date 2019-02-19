@@ -10,6 +10,7 @@
 
 # GraphQL PHP Tools
 
+* [GraphQLite](https://graphqlite.thecodingmachine.io) – Define your complete schema with annotations
 * [GraphQL Doctrine](https://github.com/Ecodev/graphql-doctrine) – Define types with Doctrine ORM annotations
 * [DataLoaderPHP](https://github.com/overblog/dataloader-php) – as a ready implementation for [deferred resolvers](data-fetching.md#solving-n1-problem)
 * [GraphQL Uploads](https://github.com/Ecodev/graphql-upload) – A PSR-15 middleware to support file uploads in GraphQL.
