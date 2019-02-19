@@ -14,7 +14,7 @@ composer require webonyx/graphql-php
 ```
 
 ## Documentation
-Full documentation is available on the [Documentation site](http://webonyx.github.io/graphql-php/) as well 
+Full documentation is available on the [Documentation site](https://webonyx.github.io/graphql-php/) as well 
 as in the [docs](docs/) folder of the distribution.
 
 If you don't know what GraphQL is, visit this [official website](http://graphql.org) 
