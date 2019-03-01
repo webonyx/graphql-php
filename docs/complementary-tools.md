@@ -7,6 +7,7 @@
   - [laravel-graphql-relay](https://github.com/nuwave/laravel-graphql-relay) – Relay Helpers for Laravel
   - [Lighthouse](https://github.com/nuwave/lighthouse) – GraphQL Server for Laravel
 * [OverblogGraphQLBundle](https://github.com/overblog/GraphQLBundle) – Bundle for Symfony
+* [WP-GraphQL](https://github.com/wp-graphql/wp-graphql) - GraphQL API for WordPress
 
 # GraphQL PHP Tools
 
