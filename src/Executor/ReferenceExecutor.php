@@ -115,8 +115,8 @@ class ReferenceExecutor implements ExecutorImplementation
      * Constructs an ExecutionContext object from the arguments passed to
      * execute, which we will pass throughout the other execution methods.
      *
-     * @param mixed[]             $rootValue
-     * @param mixed[]             $contextValue
+     * @param mixed               $rootValue
+     * @param mixed               $contextValue
      * @param mixed[]|Traversable $rawVariableValues
      * @param string|null         $operationName
      *
@@ -153,7 +153,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     break;
             }
         }
-        if (! $operation) {
+        if ($operation === null) {
             if ($operationName) {
                 $errors[] = new Error(sprintf('Unknown operation named "%s".', $operationName));
             } else {
@@ -165,7 +165,7 @@ class ReferenceExecutor implements ExecutorImplementation
             );
         }
         $variableValues = null;
-        if ($operation) {
+        if ($operation !== null) {
             [$coercionErrors, $coercedVariableValues] = Values::getVariableValues(
                 $schema,
                 $operation->variableDefinitions ?: [],

@@ -15,7 +15,7 @@ use function sprintf;
 /**
  * Class InterfaceType
  */
-class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NamedType
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
 {
     /** @var InterfaceTypeDefinitionNode|null */
     public $astNode;
@@ -107,7 +107,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      * @param object  $objectValue
      * @param mixed[] $context
      *
-     * @return callable|null
+     * @return Type|null
      */
     public function resolveType($objectValue, $context, ResolveInfo $info)
     {

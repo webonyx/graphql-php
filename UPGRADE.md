@@ -78,6 +78,9 @@ Parser::parse($source, [ 'allowLegacySDLImplementsInterfaces' => true])
 - `AbstractQuerySecurity` renamed to `QuerySecurityRule` (NS `GraphQL\Validator\Rules`)
 - `FindBreakingChanges` renamed to `BreakingChangesFinder` (NS `GraphQL\Utils`)
 
+### Breaking: new constructors
+
+`GraphQL\Type\Definition\ResolveInfo` now takes 10 arguments instead of one array.
 
 ## Upgrade v0.11.x > v0.12.x
 

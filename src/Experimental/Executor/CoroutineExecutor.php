@@ -152,8 +152,8 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
         if (is_array($value)) {
             $array = [];
-            foreach ($value as $item) {
-                $array[] = self::resultToArray($item);
+            foreach ($value as $key => $item) {
+                $array[$key] = self::resultToArray($item);
             }
             return $array;
         }

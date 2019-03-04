@@ -46,6 +46,12 @@ class OperationParams
      */
     public $variables;
 
+    /**
+     * @api
+     * @var mixed[]|null
+     */
+    public $extensions;
+
     /** @var mixed[] */
     private $originalInput;
 
@@ -76,24 +82,38 @@ class OperationParams
             'id' => null, // alias to queryid
             'operationname' => null,
             'variables' => null,
+            'extensions' => null,
         ];
 
         if ($params['variables'] === '') {
             $params['variables'] = null;
         }
 
-        if (is_string($params['variables'])) {
-            $tmp = json_decode($params['variables'], true);
-            if (! json_last_error()) {
-                $params['variables'] = $tmp;
+        // Some parameters could be provided as serialized JSON.
+        foreach (['extensions', 'variables'] as $param) {
+            if (! is_string($params[$param])) {
+                continue;
             }
+
+            $tmp = json_decode($params[$param], true);
+            if (json_last_error()) {
+                continue;
+            }
+
+            $params[$param] = $tmp;
         }
 
-        $instance->query     = $params['query'];
-        $instance->queryId   = $params['queryid'] ?: $params['documentid'] ?: $params['id'];
-        $instance->operation = $params['operationname'];
-        $instance->variables = $params['variables'];
-        $instance->readOnly  = (bool) $readonly;
+        $instance->query      = $params['query'];
+        $instance->queryId    = $params['queryid'] ?: $params['documentid'] ?: $params['id'];
+        $instance->operation  = $params['operationname'];
+        $instance->variables  = $params['variables'];
+        $instance->extensions = $params['extensions'];
+        $instance->readOnly   = (bool) $readonly;
+
+        // Apollo server/client compatibility: look for the queryid in extensions
+        if (isset($instance->extensions['persistedQuery']['sha256Hash']) && empty($instance->query) && empty($instance->queryId)) {
+            $instance->queryId = $instance->extensions['persistedQuery']['sha256Hash'];
+        }
 
         return $instance;
     }
