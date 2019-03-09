@@ -284,22 +284,6 @@ class ExecutorTest extends TestCase
 
         Executor::execute($schema, $ast, $rootValue, null, ['var' => '123']);
 
-        self::assertEquals(
-            [
-                'fieldName',
-                'fieldNodes',
-                'returnType',
-                'parentType',
-                'path',
-                'schema',
-                'fragments',
-                'rootValue',
-                'operation',
-                'variableValues',
-            ],
-            array_keys((array) $info)
-        );
-
         self::assertEquals('test', $info->fieldName);
         self::assertEquals(1, count($info->fieldNodes));
         self::assertSame($ast->definitions[0]->selectionSet->selections[0], $info->fieldNodes[0]);
