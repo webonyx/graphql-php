@@ -1,4 +1,9 @@
 # Changelog
+#### v0.13.1
+- Better validation of field/directive arguments
+- Support for apollo client/server persisted queries
+- Minor tweaks and fixes
+
 ## v0.13.0
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
 
