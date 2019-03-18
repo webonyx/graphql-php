@@ -58,11 +58,11 @@ class BooleanType extends ScalarType
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
-        if ($valueNode instanceof BooleanValueNode) {
-            return (bool) $valueNode->value;
+        if (! $valueNode instanceof BooleanValueNode) {
+            // Intentionally without message, as all information already in wrapped Exception
+            throw new Exception();
         }
 
-        // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        return $valueNode->value;
     }
 }

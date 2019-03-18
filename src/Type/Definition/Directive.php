@@ -40,7 +40,7 @@ class Directive
     public $locations;
 
     /** @var FieldArgument[] */
-    public $args;
+    public $args = [];
 
     /** @var DirectiveDefinitionNode|null */
     public $astNode;
