@@ -264,8 +264,8 @@ class Utils
         $grouped = [];
         foreach ($traversable as $key => $value) {
             $newKeys = (array) $keyFn($value, $key);
-            foreach ($newKeys as $key) {
-                $grouped[$key][] = $value;
+            foreach ($newKeys as $newKey) {
+                $grouped[$newKey][] = $value;
             }
         }
 
