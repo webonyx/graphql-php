@@ -24,11 +24,29 @@ by the Facebook engineering team.
 There are several ready examples in the [examples](examples/) folder of the distribution with specific 
 README file per example.
 
-## Contribute
-Please refer to [CONTRIBUTING.md](CONTRIBUTING.md) for information on how to contribute.
+## Contributors
 
-## Old README.md
-Here is a [link to the old README.md](https://github.com/webonyx/graphql-php/blob/v0.9.14/README.md). 
+This project exists thanks to [all the people](https://github.com/webonyx/graphql-php/graphs/contributors) who contribute. [[Contribute](CONTRIBUTING.md)].
 
-Keep in mind that it relates to the version 0.9.x. It may contain outdated information for 
-newer versions (even though we try to preserve backwards compatibility).
+## Backers
+
+<a href="https://opencollective.com/webonyx-graphql-php#backers" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/backers.svg?width=890"></a>
+
+## Sponsors
+
+Support this project by becoming a sponsor. Your logo will show up here with a link to your website. [[Become a sponsor](https://opencollective.com/webonyx-graphql-php#sponsor)]
+
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/0/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/0/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/1/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/1/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/2/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/2/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/3/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/3/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/4/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/4/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/5/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/5/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/6/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/6/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/7/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/7/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/8/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/8/avatar.svg"></a>
+<a href="https://opencollective.com/webonyx-graphql-php/sponsor/9/website" target="_blank"><img src="https://opencollective.com/webonyx-graphql-php/sponsor/9/avatar.svg"></a>
+
+## License
+
+See [LICENCE](LICENSE).
