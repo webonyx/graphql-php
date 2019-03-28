@@ -147,6 +147,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             if ($emptyObjectAsStdClass && empty($array)) {
                 return new stdClass();
             }
+
             return $array;
         }
 
@@ -155,6 +156,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             foreach ($value as $key => $item) {
                 $array[$key] = self::resultToArray($item);
             }
+
             return $array;
         }
 
@@ -365,6 +367,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         // short-circuit evaluation for __typename
         if ($ctx->shared->fieldName === Introspection::TYPE_NAME_FIELD_NAME) {
             $ctx->result->{$ctx->shared->resultName} = $ctx->type->name;
+
             return;
         }
 

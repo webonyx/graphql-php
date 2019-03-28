@@ -21,7 +21,6 @@ use PHPUnit\Framework\TestCase;
 class SchemaPrinterTest extends TestCase
 {
     // Describe: Type System Printer
-
     /**
      * @see it('Prints String Field')
      */

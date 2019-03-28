@@ -86,18 +86,12 @@ class TypeComparators
 
         // If superType type is an abstract type, maybeSubType type may be a currently
         // possible object type.
-        if (Type::isAbstractType($superType) &&
+        return Type::isAbstractType($superType) &&
             $maybeSubType instanceof ObjectType &&
             $schema->isPossibleType(
                 $superType,
                 $maybeSubType
-            )
-        ) {
-            return true;
-        }
-
-        // Otherwise, the child type is not a valid subtype of the parent type.
-        return false;
+            );
     }
 
     /**
@@ -131,13 +125,11 @@ class TypeComparators
                 return false;
             }
 
-            /** @var $typeB ObjectType */
             // Determine if the latter type is a possible concrete type of the former.
             return $schema->isPossibleType($typeA, $typeB);
         }
 
         if ($typeB instanceof AbstractType) {
-            /** @var $typeA ObjectType */
             // Determine if the former type is a possible concrete type of the latter.
             return $schema->isPossibleType($typeB, $typeA);
         }

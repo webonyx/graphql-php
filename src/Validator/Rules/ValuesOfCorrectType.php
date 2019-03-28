@@ -49,6 +49,7 @@ class ValuesOfCorrectType extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         $fieldName = '';
+
         return [
             NodeKind::FIELD        => [
                 'enter' => static function (FieldNode $node) use (&$fieldName) {
@@ -281,6 +282,7 @@ class ValuesOfCorrectType extends ValidationRule
                 return self::badArgumentValueMessage($typeName, $valueName, $fieldName, $arg->name, $message);
             }
         }
+
         return self::badValueMessage($typeName, $valueName, $message);
     }
 }

@@ -11,9 +11,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
 use function is_bool;
 
-/**
- * Class BooleanType
- */
 class BooleanType extends ScalarType
 {
     /** @var string */

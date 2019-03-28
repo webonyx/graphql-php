@@ -14,9 +14,6 @@ use function is_object;
 use function is_scalar;
 use function method_exists;
 
-/**
- * Class StringType
- */
 class StringType extends ScalarType
 {
     /** @var string */

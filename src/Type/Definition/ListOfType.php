@@ -4,9 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-/**
- * Class ListOfType
- */
 class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
     /** @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType */

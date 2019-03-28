@@ -81,7 +81,7 @@ class FieldDefinition
 
         $this->config = $config;
 
-        $this->complexityFn = $config['complexity'] ?? static::DEFAULT_COMPLEXITY_FN;
+        $this->complexityFn = $config['complexity'] ?? self::DEFAULT_COMPLEXITY_FN;
     }
 
     public static function defineFieldMap(Type $type, $fields)

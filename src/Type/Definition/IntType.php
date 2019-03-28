@@ -14,9 +14,6 @@ use function intval;
 use function is_bool;
 use function is_numeric;
 
-/**
- * Class IntType
- */
 class IntType extends ScalarType
 {
     // As per the GraphQL Spec, Integers are only treated as valid when a valid

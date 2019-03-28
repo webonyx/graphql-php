@@ -12,8 +12,6 @@ use GraphQL\Validator\ValidationContext;
 use function sprintf;
 
 /**
- * Class NoUndefinedVariables
- *
  * A GraphQL operation is only valid if all variables encountered, both directly
  * and via fragment spreads, are defined by that operation.
  */

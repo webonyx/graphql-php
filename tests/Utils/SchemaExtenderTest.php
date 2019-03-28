@@ -198,6 +198,7 @@ class SchemaExtenderTest extends TestCase
 
         preg_match('/^[ \t]*/', $trimmedStr, $indentMatch);
         $indent = $indentMatch[0];
+
         return preg_replace('/^' . $indent . '/m', '', $trimmedStr);
     }
 
@@ -210,6 +211,7 @@ class SchemaExtenderTest extends TestCase
         $ast            = Parser::parse($sdl);
         $extendedSchema = SchemaExtender::extend($this->testSchema, $ast, $options);
         self::assertEquals(SchemaPrinter::doPrint($this->testSchema), $originalPrint);
+
         return $extendedSchema;
     }
 
@@ -1250,7 +1252,6 @@ class SchemaExtenderTest extends TestCase
         self::assertEquals('new directive', $newDirective->description);
     }
 
-
     /**
      * @see it('may extend directives with new complex directive')
      */
@@ -1735,7 +1736,6 @@ class SchemaExtenderTest extends TestCase
         self::assertEquals($queryType->name, 'Foo');
     }
 
-
     /**
      * @see it('adds new root types via schema extension')
      */
@@ -1875,7 +1875,6 @@ class SchemaExtenderTest extends TestCase
         }
     }
 
-
     /**
      * @see it('does not allow defining a root operation type twice')
      */
@@ -1963,7 +1962,6 @@ extend type Query {
         $result = GraphQL::executeQuery($extendedSchema, $query);
         self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
     }
-
 
     /**
      * @see https://github.com/webonyx/graphql-php/issues/180

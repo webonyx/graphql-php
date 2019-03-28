@@ -6,9 +6,6 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 
-/**
- * Class EnumValueDefinition
- */
 class EnumValueDefinition
 {
     /** @var string */
