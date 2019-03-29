@@ -19,9 +19,6 @@ use function is_int;
 use function is_string;
 use function sprintf;
 
-/**
- * Class EnumType
- */
 class EnumType extends Type implements InputType, OutputType, LeafType, NullableType, NamedType
 {
     /** @var EnumTypeDefinitionNode|null */
@@ -33,7 +30,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /** @var MixedStore<mixed, EnumValueDefinition> */
     private $valueLookup;
 
-    /** @var \ArrayObject<string, EnumValueDefinition> */
+    /** @var ArrayObject<string, EnumValueDefinition> */
     private $nameLookup;
 
     /** @var EnumTypeExtensionNode[] */
@@ -71,7 +68,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
-     * @return \ArrayObject<string, EnumValueDefinition>
+     * @return ArrayObject<string, EnumValueDefinition>
      */
     private function getNameLookup()
     {

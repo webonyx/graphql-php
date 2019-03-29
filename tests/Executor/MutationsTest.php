@@ -59,6 +59,7 @@ class MutationsTest extends TestCase
             ],
             'name'   => 'NumberHolder',
         ]);
+
         return new Schema([
             'query'    => new ObjectType([
                 'fields' => [

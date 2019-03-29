@@ -12,9 +12,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
 use function is_numeric;
 
-/**
- * Class FloatType
- */
 class FloatType extends ScalarType
 {
     /** @var string */

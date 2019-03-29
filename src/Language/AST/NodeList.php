@@ -105,6 +105,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
         if ($list instanceof self) {
             $list = $list->nodes;
         }
+
         return new NodeList(array_merge($this->nodes, $list));
     }
 

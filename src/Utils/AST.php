@@ -353,6 +353,7 @@ class AST
                 // No valid return value.
                 return $undefined;
             }
+
             // Note: we're not doing any checking that this variable is correct. We're
             // assuming that this query has been validated and the variable usage here
             // is of the correct type.

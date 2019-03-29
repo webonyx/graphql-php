@@ -226,6 +226,7 @@ class ResolveInfo
                 );
             }
         }
+
         return $fields;
     }
 }

@@ -12,7 +12,6 @@ class StarWarsValidationTest extends TestCase
 {
     // Star Wars Validation Tests
     // Basic Queries
-
     /**
      * @see it('Validates a complex but valid query')
      */

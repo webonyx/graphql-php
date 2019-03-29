@@ -52,6 +52,6 @@ class DisableIntrospection extends QuerySecurityRule
 
     protected function isEnabled()
     {
-        return $this->isEnabled !== static::DISABLED;
+        return $this->isEnabled !== self::DISABLED;
     }
 }

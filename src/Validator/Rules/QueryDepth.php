@@ -113,6 +113,6 @@ class QueryDepth extends QuerySecurityRule
 
     protected function isEnabled()
     {
-        return $this->getMaxQueryDepth() !== static::DISABLED;
+        return $this->getMaxQueryDepth() !== self::DISABLED;
     }
 }

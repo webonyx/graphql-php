@@ -183,6 +183,7 @@ class QueryPlan
                 );
             }
         }
+
         return $fields;
     }
 

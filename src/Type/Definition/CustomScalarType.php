@@ -12,9 +12,6 @@ use function call_user_func;
 use function is_callable;
 use function sprintf;
 
-/**
- * Class CustomScalarType
- */
 class CustomScalarType extends ScalarType
 {
     /**

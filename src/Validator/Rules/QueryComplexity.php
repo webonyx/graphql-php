@@ -206,10 +206,12 @@ class QueryComplexity extends QuerySecurityRule
                 $directive = Directive::includeDirective();
                 /** @var bool $directiveArgsIf */
                 $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues)['if'];
+
                 return ! $directiveArgsIf;
             }
             $directive       = Directive::skipDirective();
             $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues);
+
             return $directiveArgsIf['if'];
         }
     }
@@ -282,6 +284,6 @@ class QueryComplexity extends QuerySecurityRule
 
     protected function isEnabled()
     {
-        return $this->getMaxQueryComplexity() !== static::DISABLED;
+        return $this->getMaxQueryComplexity() !== self::DISABLED;
     }
 }
