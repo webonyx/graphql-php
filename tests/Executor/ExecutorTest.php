@@ -1101,13 +1101,14 @@ class ExecutorTest extends TestCase
                             'f' => ['type' => Type::int(), 'defaultValue' => 'some-string'],
                             'g' => ['type' => Type::boolean()],
                             'h' => [
-                                'type'             => new InputObjectType([
+                                'type' => new InputObjectType([
                                     'name'   => 'ComplexType',
                                     'fields' => [
                                         'a' => ['type' => Type::int()],
                                         'b' => ['type' => Type::string()],
                                     ],
-                                ]), 'defaultValue' => ['a' => 1, 'b' => 'test'],
+                                ]),
+                                'defaultValue' => ['a' => 1, 'b' => 'test'],
                             ],
                             'i' => [
                                 'type' => new EnumType([
@@ -1115,10 +1116,10 @@ class ExecutorTest extends TestCase
                                     'values' => [
                                         'VALUE1' => 1,
                                         'VALUE2' => 2,
-                                    ]
+                                    ],
                                 ]),
-                                'defaultValue' => 1
-                            ]
+                                'defaultValue' => 1,
+                            ],
                         ],
                     ],
                 ],
