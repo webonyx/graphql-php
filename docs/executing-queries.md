@@ -136,13 +136,13 @@ So for example following batch will require single DB request (if user field is 
 ```json
 [
   {
-    "query": "{user(id: 1)} { id }"
+    "query": "{user(id: 1) { id }}"
   },
   {
-    "query": "{user(id: 2)} { id }"
+    "query": "{user(id: 2) { id }}"
   },
   {
-    "query": "{user(id: 3)} { id }"
+    "query": "{user(id: 3) { id }}"
   }
 ]
 ```
