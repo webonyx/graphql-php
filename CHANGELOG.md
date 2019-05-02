@@ -2,6 +2,8 @@
 
 #### Unreleased
 
+- PHP version required: 7.2+
+
 #### 14.4.1
 
 Fix:
