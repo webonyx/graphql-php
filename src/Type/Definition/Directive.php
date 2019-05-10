@@ -12,9 +12,6 @@ use function array_keys;
 use function in_array;
 use function is_array;
 
-/**
- * Class Directive
- */
 class Directive
 {
     public const DEFAULT_DEPRECATION_REASON = 'No longer supported';
@@ -40,7 +37,7 @@ class Directive
     public $locations;
 
     /** @var FieldArgument[] */
-    public $args;
+    public $args = [];
 
     /** @var DirectiveDefinitionNode|null */
     public $astNode;
@@ -80,6 +77,7 @@ class Directive
     public static function includeDirective()
     {
         $internal = self::getInternalDirectives();
+
         return $internal['include'];
     }
 
@@ -140,24 +138,30 @@ class Directive
                 ]),
             ];
         }
+
         return self::$internalDirectives;
     }
+
     /**
      * @return Directive
      */
     public static function skipDirective()
     {
         $internal = self::getInternalDirectives();
+
         return $internal['skip'];
     }
+
     /**
      * @return Directive
      */
     public static function deprecatedDirective()
     {
         $internal = self::getInternalDirectives();
+
         return $internal['deprecated'];
     }
+
     /**
      * @return bool
      */

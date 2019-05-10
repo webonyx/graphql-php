@@ -225,15 +225,11 @@ class ServerConfig
     /**
      * Allow batching queries (disabled by default)
      *
-     * @param bool $enableBatching
-     *
-     * @return self
-     *
      * @api
      */
-    public function setQueryBatching($enableBatching)
+    public function setQueryBatching(bool $enableBatching) : self
     {
-        $this->queryBatching = (bool) $enableBatching;
+        $this->queryBatching = $enableBatching;
 
         return $this;
     }

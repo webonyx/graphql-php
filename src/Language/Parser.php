@@ -439,7 +439,6 @@ class Parser
                 case 'mutation':
                 case 'subscription':
                     return $this->parseOperationDefinition();
-
                 case 'fragment':
                     return $this->parseFragmentDefinition();
             }
@@ -827,7 +826,9 @@ class Parser
                         'value' => $token->value === 'true',
                         'loc'   => $this->loc($token),
                     ]);
-                } elseif ($token->value === 'null') {
+                }
+
+                if ($token->value === 'null') {
                     $this->lexer->advance();
 
                     return new NullValueNode([

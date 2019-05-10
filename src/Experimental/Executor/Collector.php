@@ -86,11 +86,13 @@ class Collector
             } else {
                 $this->runtime->addError(new Error('Must provide an operation.'));
             }
+
             return;
         }
 
         if ($hasMultipleAssumedOperations) {
             $this->runtime->addError(new Error('Must provide operation name if query contains multiple operations.'));
+
             return;
         }
 
@@ -211,7 +213,9 @@ class Collector
 
                 if (isset($this->visitedFragments[$fragmentName])) {
                     continue;
-                } elseif (! isset($this->fragments[$fragmentName])) {
+                }
+
+                if (! isset($this->fragments[$fragmentName])) {
                     $this->runtime->addError(new Error(
                         sprintf('Fragment "%s" does not exist.', $fragmentName),
                         $selection

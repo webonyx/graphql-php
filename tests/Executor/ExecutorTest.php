@@ -11,6 +11,7 @@ use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
 use GraphQL\Tests\Executor\TestClasses\Special;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -283,22 +284,6 @@ class ExecutorTest extends TestCase
         $rootValue = ['root' => 'val'];
 
         Executor::execute($schema, $ast, $rootValue, null, ['var' => '123']);
-
-        self::assertEquals(
-            [
-                'fieldName',
-                'fieldNodes',
-                'returnType',
-                'parentType',
-                'path',
-                'schema',
-                'fragments',
-                'rootValue',
-                'operation',
-                'variableValues',
-            ],
-            array_keys((array) $info)
-        );
 
         self::assertEquals('test', $info->fieldName);
         self::assertEquals(1, count($info->fieldNodes));
@@ -1116,13 +1101,24 @@ class ExecutorTest extends TestCase
                             'f' => ['type' => Type::int(), 'defaultValue' => 'some-string'],
                             'g' => ['type' => Type::boolean()],
                             'h' => [
-                                'type'             => new InputObjectType([
+                                'type' => new InputObjectType([
                                     'name'   => 'ComplexType',
                                     'fields' => [
                                         'a' => ['type' => Type::int()],
                                         'b' => ['type' => Type::string()],
                                     ],
-                                ]), 'defaultValue' => ['a' => 1, 'b' => 'test'],
+                                ]),
+                                'defaultValue' => ['a' => 1, 'b' => 'test'],
+                            ],
+                            'i' => [
+                                'type' => new EnumType([
+                                    'name' => 'EnumType',
+                                    'values' => [
+                                        'VALUE1' => 1,
+                                        'VALUE2' => 2,
+                                    ],
+                                ]),
+                                'defaultValue' => 1,
                             ],
                         ],
                     ],
@@ -1133,7 +1129,7 @@ class ExecutorTest extends TestCase
         $query    = Parser::parse('{ field }');
         $result   = Executor::execute($schema, $query);
         $expected = [
-            'data' => ['field' => '{"a":1,"b":null,"c":0,"d":false,"e":"0","f":"some-string","h":{"a":1,"b":"test"}}'],
+            'data' => ['field' => '{"a":1,"b":null,"c":0,"d":false,"e":"0","f":"some-string","h":{"a":1,"b":"test"},"i":1}'],
         ];
 
         self::assertEquals($expected, $result->toArray());

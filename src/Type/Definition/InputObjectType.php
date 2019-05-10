@@ -15,9 +15,6 @@ use function is_callable;
 use function is_string;
 use function sprintf;
 
-/**
- * Class InputObjectType
- */
 class InputObjectType extends Type implements InputType, NullableType, NamedType
 {
     /** @var InputObjectTypeDefinitionNode|null */

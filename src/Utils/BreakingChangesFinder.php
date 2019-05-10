@@ -112,27 +112,31 @@ class BreakingChangesFinder
      * @return string[][]
      */
     public static function findTypesThatChangedKind(
-        Schema $oldSchema,
-        Schema $newSchema
-    ) {
-        $oldTypeMap = $oldSchema->getTypeMap();
-        $newTypeMap = $newSchema->getTypeMap();
+        Schema $schemaA,
+        Schema $schemaB
+    ) : iterable {
+        $schemaATypeMap = $schemaA->getTypeMap();
+        $schemaBTypeMap = $schemaB->getTypeMap();
 
         $breakingChanges = [];
-        foreach ($oldTypeMap as $typeName => $oldType) {
-            if (! isset($newTypeMap[$typeName])) {
+        foreach ($schemaATypeMap as $typeName => $schemaAType) {
+            if (! isset($schemaBTypeMap[$typeName])) {
                 continue;
             }
-            $newType = $newTypeMap[$typeName];
-            if ($oldType instanceof $newType) {
+            $schemaBType = $schemaBTypeMap[$typeName];
+            if ($schemaAType instanceof $schemaBType) {
                 continue;
             }
 
-            $oldTypeKindName   = self::typeKindName($oldType);
-            $newTypeKindName   = self::typeKindName($newType);
-            $breakingChanges[] = [
+            if ($schemaBType instanceof $schemaAType) {
+                continue;
+            }
+
+            $schemaATypeKindName = self::typeKindName($schemaAType);
+            $schemaBTypeKindName = self::typeKindName($schemaBType);
+            $breakingChanges[]   = [
                 'type'        => self::BREAKING_CHANGE_TYPE_CHANGED_KIND,
-                'description' => "${typeName} changed from ${oldTypeKindName} to ${newTypeKindName}.",
+                'description' => "${typeName} changed from ${schemaATypeKindName} to ${schemaBTypeKindName}.",
             ];
         }
 
@@ -527,12 +531,12 @@ class BreakingChangesFinder
                         ];
                     }
                     // Check if a non-null arg was added to the field
-                    foreach ($newTypeFields[$fieldName]->args as $newArgDef) {
+                    foreach ($newTypeFields[$fieldName]->args as $newTypeFieldArgDef) {
                         $oldArgs   = $oldTypeFields[$fieldName]->args;
                         $oldArgDef = Utils::find(
                             $oldArgs,
-                            static function ($arg) use ($newArgDef) {
-                                return $arg->name === $newArgDef->name;
+                            static function ($arg) use ($newTypeFieldArgDef) {
+                                return $arg->name === $newTypeFieldArgDef->name;
                             }
                         );
 
@@ -541,8 +545,8 @@ class BreakingChangesFinder
                         }
 
                         $newTypeName = $newType->name;
-                        $newArgName  = $newArgDef->name;
-                        if ($newArgDef->getType() instanceof NonNull) {
+                        $newArgName  = $newTypeFieldArgDef->name;
+                        if ($newTypeFieldArgDef->getType() instanceof NonNull) {
                             $breakingChanges[] = [
                                 'type'        => self::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
                                 'description' => "A non-null arg ${newArgName} on ${newTypeName}.${fieldName} was added",
@@ -664,7 +668,7 @@ class BreakingChangesFinder
     {
         $removedArgs = [];
         $newArgMap   = self::getArgumentMapForDirective($newDirective);
-        foreach ((array) $oldDirective->args as $arg) {
+        foreach ($oldDirective->args as $arg) {
             if (isset($newArgMap[$arg->name])) {
                 continue;
             }
@@ -723,7 +727,7 @@ class BreakingChangesFinder
     {
         $addedArgs = [];
         $oldArgMap = self::getArgumentMapForDirective($oldDirective);
-        foreach ((array) $newDirective->args as $arg) {
+        foreach ($newDirective->args as $arg) {
             if (isset($oldArgMap[$arg->name])) {
                 continue;
             }

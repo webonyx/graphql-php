@@ -11,9 +11,6 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
 use function is_bool;
 
-/**
- * Class BooleanType
- */
 class BooleanType extends ScalarType
 {
     /** @var string */
@@ -58,11 +55,11 @@ class BooleanType extends ScalarType
      */
     public function parseLiteral($valueNode, ?array $variables = null)
     {
-        if ($valueNode instanceof BooleanValueNode) {
-            return (bool) $valueNode->value;
+        if (! $valueNode instanceof BooleanValueNode) {
+            // Intentionally without message, as all information already in wrapped Exception
+            throw new Exception();
         }
 
-        // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        return $valueNode->value;
     }
 }

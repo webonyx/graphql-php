@@ -122,13 +122,13 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-            $this->category     = $previous->getCategory() ?: static::CATEGORY_INTERNAL;
+            $this->category     = $previous->getCategory() ?: self::CATEGORY_INTERNAL;
         } elseif ($previous) {
             $this->isClientSafe = false;
-            $this->category     = static::CATEGORY_INTERNAL;
+            $this->category     = self::CATEGORY_INTERNAL;
         } else {
             $this->isClientSafe = true;
-            $this->category     = static::CATEGORY_GRAPHQL;
+            $this->category     = self::CATEGORY_GRAPHQL;
         }
     }
 
@@ -148,10 +148,10 @@ class Error extends Exception implements JsonSerializable, ClientAware
         if ($error instanceof self) {
             if ($error->path && $error->nodes) {
                 return $error;
-            } else {
-                $nodes = $nodes ?: $error->nodes;
-                $path  = $path ?: $error->path;
             }
+
+            $nodes = $nodes ?: $error->nodes;
+            $path  = $path ?: $error->path;
         }
 
         $source     = $positions = $originalError = null;

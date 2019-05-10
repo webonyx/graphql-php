@@ -151,6 +151,7 @@ class StandardServer
         StreamInterface $writableBodyStream
     ) {
         $result = $this->executePsrRequest($request);
+
         return $this->helper->toPsrResponse($result, $response, $writableBodyStream);
     }
 
@@ -165,6 +166,7 @@ class StandardServer
     public function executePsrRequest(ServerRequestInterface $request)
     {
         $parsedBody = $this->helper->parsePsrRequest($request);
+
         return $this->executeRequest($parsedBody);
     }
 

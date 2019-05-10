@@ -94,7 +94,7 @@ Option | Type | Notes
 name | `string` | **Required.** Name of the argument. When not set - inferred from **args** array key
 type | `Type` | **Required.** Instance of one of [Input Types](input-types.md) (**scalar**, **enum**, **InputObjectType** + any combination of those with **nonNull** and **listOf** modifiers)
 description | `string` | Plain-text description of this argument for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
-defaultValue | `scalar` | Default value for this argument
+defaultValue | `scalar` | Default value for this argument. Use the internal value if specifying a default for an **enum** type
 
 # Shorthand field definitions
 Fields can be also defined in **shorthand** notation (with only **name** and **type** options):

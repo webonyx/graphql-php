@@ -153,7 +153,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     break;
             }
         }
-        if (! $operation) {
+        if ($operation === null) {
             if ($operationName) {
                 $errors[] = new Error(sprintf('Unknown operation named "%s".', $operationName));
             } else {
@@ -165,7 +165,7 @@ class ReferenceExecutor implements ExecutorImplementation
             );
         }
         $variableValues = null;
-        if ($operation) {
+        if ($operation !== null) {
             [$coercionErrors, $coercedVariableValues] = Values::getVariableValues(
                 $schema,
                 $operation->variableDefinitions ?: [],
@@ -182,6 +182,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
         Utils::invariant($operation, 'Has operation if no errors.');
         Utils::invariant($variableValues !== null, 'Has variables if no errors.');
+
         return new ExecutionContext(
             $schema,
             $fragments,
@@ -206,6 +207,7 @@ class ReferenceExecutor implements ExecutorImplementation
         // resolved Promise.
         $data   = $this->executeOperation($this->exeContext->operation, $this->exeContext->rootValue);
         $result = $this->buildResponse($data);
+
         // Note: we deviate here from the reference implementation a bit by always returning promise
         // But for the "sync" case it is always fulfilled
         return $this->isPromise($result)
@@ -228,6 +230,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($data !== null) {
             $data = (array) $data;
         }
+
         return new ExecutionResult($data, $this->exeContext->errors);
     }
 
@@ -257,13 +260,16 @@ class ReferenceExecutor implements ExecutorImplementation
                     null,
                     function ($error) {
                         $this->exeContext->addError($error);
+
                         return $this->exeContext->promises->createFulfilled(null);
                     }
                 );
             }
+
             return $result;
         } catch (Error $error) {
             $this->exeContext->addError($error);
+
             return null;
         }
     }
@@ -286,6 +292,7 @@ class ReferenceExecutor implements ExecutorImplementation
                         [$operation]
                     );
                 }
+
                 return $queryType;
             case 'mutation':
                 $mutationType = $schema->getMutationType();
@@ -295,6 +302,7 @@ class ReferenceExecutor implements ExecutorImplementation
                         [$operation]
                     );
                 }
+
                 return $mutationType;
             case 'subscription':
                 $subscriptionType = $schema->getSubscriptionType();
@@ -304,6 +312,7 @@ class ReferenceExecutor implements ExecutorImplementation
                         [$operation]
                     );
                 }
+
                 return $subscriptionType;
             default:
                 throw new Error(
@@ -378,6 +387,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     break;
             }
         }
+
         return $fields;
     }
 
@@ -407,10 +417,8 @@ class ReferenceExecutor implements ExecutorImplementation
             $node,
             $variableValues
         );
-        if (isset($include['if']) && $include['if'] === false) {
-            return false;
-        }
-        return true;
+
+        return ! isset($include['if']) || $include['if'] !== false;
     }
 
     /**
@@ -445,6 +453,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($conditionalType instanceof AbstractType) {
             return $this->exeContext->schema->isPossibleType($conditionalType, $type);
         }
+
         return false;
     }
 
@@ -474,10 +483,12 @@ class ReferenceExecutor implements ExecutorImplementation
                 if ($promise) {
                     return $promise->then(static function ($resolvedResult) use ($responseName, $results) {
                         $results[$responseName] = $resolvedResult;
+
                         return $results;
                     });
                 }
                 $results[$responseName] = $result;
+
                 return $results;
             },
             []
@@ -487,6 +498,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 return self::fixResultsIfEmptyArray($resolvedResults);
             });
         }
+
         return self::fixResultsIfEmptyArray($result);
     }
 
@@ -554,6 +566,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $path,
             $result
         );
+
         return $result;
     }
 
@@ -578,12 +591,17 @@ class ReferenceExecutor implements ExecutorImplementation
         $typeNameMetaFieldDef = $typeNameMetaFieldDef ?: Introspection::typeNameMetaFieldDef();
         if ($fieldName === $schemaMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $schemaMetaFieldDef;
-        } elseif ($fieldName === $typeMetaFieldDef->name && $schema->getQueryType() === $parentType) {
+        }
+
+        if ($fieldName === $typeMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $typeMetaFieldDef;
-        } elseif ($fieldName === $typeNameMetaFieldDef->name) {
+        }
+
+        if ($fieldName === $typeNameMetaFieldDef->name) {
             return $typeNameMetaFieldDef;
         }
         $tmp = $parentType->getFields();
+
         return $tmp[$fieldName] ?? null;
     }
 
@@ -610,6 +628,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 $fieldNode,
                 $this->exeContext->variableValues
             );
+
             return $resolveFn($source, $args, $context, $info);
         } catch (Exception $error) {
             return $error;
@@ -663,15 +682,18 @@ class ReferenceExecutor implements ExecutorImplementation
                     null,
                     function ($error) use ($exeContext) {
                         $exeContext->addError($error);
+
                         return $this->exeContext->promises->createFulfilled(null);
                     }
                 );
             }
+
             return $completed;
         } catch (Error $err) {
             // If `completeValueWithLocatedError` returned abruptly (threw an error), log the error
             // and return null.
             $exeContext->addError($err);
+
             return null;
         }
     }
@@ -716,6 +738,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     }
                 );
             }
+
             return $completed;
         } catch (Exception $error) {
             throw Error::createLocatedError($error, $fieldNodes, $path);
@@ -786,6 +809,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     'Cannot return null for non-nullable field ' . $info->parentType . '.' . $info->fieldName . '.'
                 );
             }
+
             return $completed;
         }
         // If result is null-like, return null.
@@ -863,8 +887,10 @@ class ReferenceExecutor implements ExecutorImplementation
                     Utils::printSafe($promise)
                 ));
             }
+
             return $promise;
         }
+
         return null;
     }
 
@@ -891,6 +917,7 @@ class ReferenceExecutor implements ExecutorImplementation
                         return $callback($resolved, $value);
                     });
                 }
+
                 return $callback($previous, $value);
             },
             $initialValue
@@ -928,6 +955,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
             $completedItems[] = $completedItem;
         }
+
         return $containsPromise ? $this->exeContext->promises->all($completedItems) : $completedItems;
     }
 
@@ -1001,6 +1029,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 );
             });
         }
+
         return $this->completeObjectValue(
             $this->ensureValidRuntimeType(
                 $runtimeType,
@@ -1076,9 +1105,11 @@ class ReferenceExecutor implements ExecutorImplementation
                             return $possibleTypes[$index];
                         }
                     }
+
                     return null;
                 });
         }
+
         return null;
     }
 
@@ -1111,6 +1142,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     if (! $isTypeOfResult) {
                         throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
                     }
+
                     return $this->collectAndExecuteSubfields(
                         $returnType,
                         $fieldNodes,
@@ -1123,6 +1155,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 throw $this->invalidReturnTypeError($returnType, $result, $fieldNodes);
             }
         }
+
         return $this->collectAndExecuteSubfields(
             $returnType,
             $fieldNodes,
@@ -1164,6 +1197,7 @@ class ReferenceExecutor implements ExecutorImplementation
         &$result
     ) {
         $subFieldNodes = $this->collectSubFields($returnType, $fieldNodes);
+
         return $this->executeFields($returnType, $result, $path, $subFieldNodes);
     }
 
@@ -1189,6 +1223,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
             $this->subFieldCache[$returnType][$fieldNodes] = $subFieldNodes;
         }
+
         return $this->subFieldCache[$returnType][$fieldNodes];
     }
 
@@ -1222,6 +1257,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if (! $containsPromise) {
             return self::fixResultsIfEmptyArray($finalResults);
         }
+
         // Otherwise, results is a map from field name to the result
         // of resolving that field, which is possibly a promise. Return
         // a promise that will return this same map, but with any
@@ -1241,6 +1277,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($results === []) {
             return new stdClass();
         }
+
         return $results;
     }
 
@@ -1260,11 +1297,13 @@ class ReferenceExecutor implements ExecutorImplementation
         $keys              = array_keys($assoc);
         $valuesAndPromises = array_values($assoc);
         $promise           = $this->exeContext->promises->all($valuesAndPromises);
+
         return $promise->then(static function ($values) use ($keys) {
             $resolvedResults = [];
             foreach ($values as $i => $value) {
                 $resolvedResults[$keys[$i]] = $value;
             }
+
             return self::fixResultsIfEmptyArray($resolvedResults);
         });
     }
@@ -1318,6 +1357,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 )
             );
         }
+
         return $runtimeType;
     }
 }

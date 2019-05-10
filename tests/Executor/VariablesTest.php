@@ -355,7 +355,6 @@ class VariablesTest extends TestCase
         self::assertEquals($expected, $result->toArray());
     }
 
-
     // Describe: Handles non-nullable scalars
 
     /**

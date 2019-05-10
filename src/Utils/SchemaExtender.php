@@ -66,6 +66,7 @@ class SchemaExtender
 
             return $type->extensionASTNodes;
         }
+
         return static::$typeExtensionsMap[$name] ?? null;
     }
 
@@ -284,6 +285,7 @@ class SchemaExtender
                 }
             }
         }
+
         return $interfaces;
     }
 

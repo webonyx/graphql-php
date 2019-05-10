@@ -114,7 +114,7 @@ Option | Type | Notes
 name | `string` | **Required.** Name of the input field. When not set - inferred from **fields** array key
 type | `Type` | **Required.** Instance of one of [Input Types](input-types.md) (**Scalar**, **Enum**, **InputObjectType** + any combination of those with **nonNull** and **listOf** modifiers)
 description | `string` | Plain-text description of this input field for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
-defaultValue | `scalar` | Default value of this input field
+defaultValue | `scalar` | Default value of this input field. Use the internal value if specifying a default for an **enum** type
 
 # Using Input Object Type
 In the example above we defined our InputObjectType. Now let's use it in one of field arguments:
