@@ -1,4 +1,8 @@
 # Changelog
+#### v0.13.2
+- Added QueryPlan support (#436)
+- Fixed an issue with NodeList iteration over missing keys (#475)
+
 #### v0.13.1
 - Better validation of field/directive arguments
 - Support for apollo client/server persisted queries
