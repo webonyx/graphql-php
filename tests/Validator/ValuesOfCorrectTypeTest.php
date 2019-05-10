@@ -1135,7 +1135,6 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
         );
     }
 
-
     // DESCRIBE: Valid input object value
 
     /**

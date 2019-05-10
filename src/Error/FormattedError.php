@@ -231,7 +231,7 @@ class FormattedError
      *
      * @param mixed[]   $formattedError
      * @param Throwable $e
-     * @param bool      $debug
+     * @param bool|int  $debug
      *
      * @return mixed[]
      *
@@ -297,7 +297,7 @@ class FormattedError
      * Prepares final error formatter taking in account $debug flags.
      * If initial formatter is not set, FormattedError::createFromException is used
      *
-     * @param  bool $debug
+     * @param  bool|int $debug
      *
      * @return callable|callable
      */

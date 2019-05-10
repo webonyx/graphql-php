@@ -13,8 +13,6 @@ use function is_object;
 use function method_exists;
 
 /**
- * Class SyncPromise
- *
  * Simplistic (yet full-featured) implementation of Promises A+ spec for regular PHP `sync` mode
  * (using queue to defer promises execution)
  */

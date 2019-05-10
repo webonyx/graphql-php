@@ -28,6 +28,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use SplStack;
 use function array_map;
 use function array_merge;
 use function array_pop;
@@ -35,24 +36,21 @@ use function count;
 use function is_array;
 use function sprintf;
 
-/**
- * Class TypeInfo
- */
 class TypeInfo
 {
     /** @var Schema */
     private $schema;
 
-    /** @var \SplStack<OutputType> */
+    /** @var SplStack<OutputType> */
     private $typeStack;
 
-    /** @var \SplStack<CompositeType> */
+    /** @var SplStack<CompositeType> */
     private $parentTypeStack;
 
-    /** @var \SplStack<InputType> */
+    /** @var SplStack<InputType> */
     private $inputTypeStack;
 
-    /** @var \SplStack<FieldDefinition> */
+    /** @var SplStack<FieldDefinition> */
     private $fieldDefStack;
 
     /** @var Directive */
@@ -155,6 +153,7 @@ class TypeInfo
             if (! $alreadyInMap) {
                 $typeMap[$i] = $type;
             }
+
             return $typeMap;
         }
 
@@ -178,7 +177,7 @@ class TypeInfo
             $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
         }
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
-            foreach ((array) $type->getFields() as $fieldName => $field) {
+            foreach ($type->getFields() as $fieldName => $field) {
                 if (! empty($field->args)) {
                     $fieldArgTypes = array_map(
                         static function (FieldArgument $arg) {
@@ -193,12 +192,12 @@ class TypeInfo
             }
         }
         if ($type instanceof InputObjectType) {
-            foreach ((array) $type->getFields() as $fieldName => $field) {
+            foreach ($type->getFields() as $fieldName => $field) {
                 $nestedTypes[] = $field->getType();
             }
         }
-        foreach ($nestedTypes as $type) {
-            $typeMap = self::extractTypes($type, $typeMap);
+        foreach ($nestedTypes as $nestedType) {
+            $typeMap = self::extractTypes($nestedType, $typeMap);
         }
 
         return $typeMap;

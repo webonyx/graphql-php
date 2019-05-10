@@ -154,7 +154,7 @@ class ExecutionResult implements JsonSerializable
         }
 
         if (! empty($this->extensions)) {
-            $result['extensions'] = (array) $this->extensions;
+            $result['extensions'] = $this->extensions;
         }
 
         return $result;

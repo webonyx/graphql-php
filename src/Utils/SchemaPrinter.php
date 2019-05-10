@@ -153,11 +153,8 @@ class SchemaPrinter
         }
 
         $subscriptionType = $schema->getSubscriptionType();
-        if ($subscriptionType && $subscriptionType->name !== 'Subscription') {
-            return false;
-        }
 
-        return true;
+        return ! $subscriptionType || $subscriptionType->name === 'Subscription';
     }
 
     private static function printDirective($directive, $options) : string

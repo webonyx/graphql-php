@@ -24,7 +24,6 @@ use function count;
 class BuildSchemaTest extends TestCase
 {
     // Describe: Schema Builder
-
     /**
      * @see it('can use built schema for limited execution')
      */

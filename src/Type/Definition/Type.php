@@ -194,6 +194,7 @@ abstract class Type implements JsonSerializable
     public static function getInternalTypes()
     {
         trigger_error(__METHOD__ . ' is deprecated. Use Type::getStandardTypes() instead', E_USER_DEPRECATED);
+
         return self::getStandardTypes();
     }
 

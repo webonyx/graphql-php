@@ -61,8 +61,6 @@ final class Warning
         } elseif ($suppress === false) {
             self::$enableWarnings = self::ALL;
         } else {
-            $suppress = (int) $suppress;
-
             self::$enableWarnings &= ~$suppress;
         }
     }
@@ -86,8 +84,6 @@ final class Warning
         } elseif ($enable === false) {
             self::$enableWarnings = 0;
         } else {
-            $enable = (int) $enable;
-
             self::$enableWarnings |= $enable;
         }
     }

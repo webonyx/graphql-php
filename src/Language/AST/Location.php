@@ -59,6 +59,7 @@ class Location
         $tmp        = new static();
         $tmp->start = $start;
         $tmp->end   = $end;
+
         return $tmp;
     }
 

@@ -22,8 +22,6 @@ use function is_string;
  *
  * Note: unfortunately when storing array as key - access and modification is O(N)
  * (yet this should be really rare case and should be avoided when possible)
- *
- * Class MixedStore
  */
 class MixedStore implements ArrayAccess
 {

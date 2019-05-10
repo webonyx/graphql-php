@@ -115,6 +115,7 @@ class Printer
                         $varDefs      = $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')');
                         $directives   = $this->join($node->directives, ' ');
                         $selectionSet = $node->selectionSet;
+
                         // Anonymous queries with no directives or variable definitions can use
                         // the query short form.
                         return ! $name && ! $directives && ! $varDefs && $op === 'query'

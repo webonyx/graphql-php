@@ -160,7 +160,9 @@ class SyncPromiseAdapter implements PromiseAdapter
 
         if ($syncPromise->state === SyncPromise::FULFILLED) {
             return $syncPromise->result;
-        } elseif ($syncPromise->state === SyncPromise::REJECTED) {
+        }
+
+        if ($syncPromise->state === SyncPromise::REJECTED) {
             throw $syncPromise->result;
         }
 

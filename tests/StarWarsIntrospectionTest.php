@@ -11,7 +11,6 @@ class StarWarsIntrospectionTest extends TestCase
 {
     // Star Wars Introspection Tests
     // Basic Introspection
-
     /**
      * @see it('Allows querying the schema for types')
      */

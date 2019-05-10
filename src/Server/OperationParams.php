@@ -62,13 +62,10 @@ class OperationParams
      * Creates an instance from given array
      *
      * @param mixed[] $params
-     * @param bool    $readonly
-     *
-     * @return OperationParams
      *
      * @api
      */
-    public static function create(array $params, $readonly = false)
+    public static function create(array $params, bool $readonly = false) : OperationParams
     {
         $instance = new static();
 
@@ -108,7 +105,7 @@ class OperationParams
         $instance->operation  = $params['operationname'];
         $instance->variables  = $params['variables'];
         $instance->extensions = $params['extensions'];
-        $instance->readOnly   = (bool) $readonly;
+        $instance->readOnly   = $readonly;
 
         // Apollo server/client compatibility: look for the queryid in extensions
         if (isset($instance->extensions['persistedQuery']['sha256Hash']) && empty($instance->query) && empty($instance->queryId)) {
