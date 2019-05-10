@@ -114,9 +114,8 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public function getIterator()
     {
-        $count = count($this->nodes);
-        for ($i = 0; $i < $count; $i++) {
-            yield $this->offsetGet($i);
+        foreach ($this->nodes as $key => $_) {
+            yield $this->offsetGet($key);
         }
     }
 
