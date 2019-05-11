@@ -1,4 +1,7 @@
 # Changelog
+#### v0.13.3
+- Reverted minor possible breaking change (#476)
+
 #### v0.13.2
 - Added QueryPlan support (#436)
 - Fixed an issue with NodeList iteration over missing keys (#475)
