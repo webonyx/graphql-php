@@ -103,7 +103,7 @@ class QueryDepth extends QuerySecurityRule
     {
         $this->checkIfGreaterOrEqualToZero('maxQueryDepth', $maxQueryDepth);
 
-        $this->maxQueryDepth = $maxQueryDepth;
+        $this->maxQueryDepth = (int) $maxQueryDepth;
     }
 
     public static function maxQueryDepthErrorMessage($max, $count)
