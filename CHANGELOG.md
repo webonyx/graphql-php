@@ -1,4 +1,7 @@
 # Changelog
+#### v0.13.4
+- Force int when setting max query depth (#477)
+
 #### v0.13.3
 - Reverted minor possible breaking change (#476)
 
