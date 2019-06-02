@@ -293,13 +293,17 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                         $strand->stack[$strand->depth++] = $strand->current;
                         $strand->current                 = $value;
                         goto START;
-                    } elseif ($this->promiseAdapter->isThenable($value)) {
+                    } elseif ($this->isPromise($value)) {
                         // !!! increment pending before calling ->then() as it may invoke the callback right away
                         ++$this->pending;
 
+                        if (! $value instanceof Promise) {
+                            $value = $this->promiseAdapter->convertThenable($value);
+                        }
+
                         $this->promiseAdapter
-                            ->convertThenable($value)
                             ->then(
+                                $value,
                                 function ($value) use ($strand) {
                                     $strand->success = true;
                                     $strand->value   = $value;
@@ -478,7 +482,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     private function completeValueFast(CoroutineContext $ctx, Type $type, $value, array $path, &$returnValue) : bool
     {
         // special handling of Throwable inherited from JS reference implementation, but makes no sense in this PHP
-        if ($this->promiseAdapter->isThenable($value) || $value instanceof Throwable) {
+        if ($this->isPromise($value) || $value instanceof Throwable) {
             return false;
         }
 
@@ -574,7 +578,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
         // !!! $value might be promise, yield to resolve
         try {
-            if ($this->promiseAdapter->isThenable($value)) {
+            if ($this->isPromise($value)) {
                 $value = yield $value;
             }
         } catch (Throwable $reason) {
@@ -930,5 +934,15 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         }
 
         return $selectedType;
+    }
+
+    /**
+     * @param mixed $value
+     *
+     * @return bool
+     */
+    private function isPromise($value)
+    {
+        return $value instanceof Promise || $this->promiseAdapter->isThenable($value);
     }
 }

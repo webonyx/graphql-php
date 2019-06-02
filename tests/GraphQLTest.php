@@ -42,6 +42,6 @@ class GraphQLTest extends TestCase
 
         $promise = GraphQL::promiseToExecute($promiseAdapter, $schema, '{ sayHi(name: "John") }');
         $result  = $promiseAdapter->wait($promise);
-        $this->assertSame(['data' => ['sayHi' => 'Hi John!']], $result->toArray());
+        self::assertSame(['data' => ['sayHi' => 'Hi John!']], $result->toArray());
     }
 }
