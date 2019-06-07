@@ -1345,6 +1345,21 @@ class ReferenceExecutor implements ExecutorImplementation
                 sprintf('Runtime Object type "%s" is not a possible type for "%s".', $runtimeType, $returnType)
             );
         }
+        if (!$this->exeContext->schema->getType($runtimeType->name)) {
+          throw new InvariantViolation(
+            sprintf(
+              'Schema does not contain the type named "%s". ' .
+              'Most often it happens when the object type is never referenced in fields directly ' .
+              'but is still a part of a schema because it implements an interface which resolves ' .
+              'to this object type in its resolveType callable. ' .
+              'List the type "%s" in option types if it cannot be detected by graphql-php during ' .
+              'static schema analysis. ' .
+              '(see https://webonyx.github.io/graphql-php/type-system/schema/#configuration-options).',
+              $runtimeType,
+              $runtimeType
+            )
+          );
+        }
         if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
             throw new InvariantViolation(
                 sprintf(
