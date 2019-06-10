@@ -1,4 +1,8 @@
 # Changelog
+
+## Unreleased
+- Add schema validation: Input Objects must not contain non-nullable circular references (#492)
+
 ## v0.13.0
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
 
