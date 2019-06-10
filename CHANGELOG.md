@@ -1,23 +1,4 @@
 # Changelog
-
-## Unreleased
-- Add schema validation: Input Objects must not contain non-nullable circular references (https://github.com/webonyx/graphql-php/pull/492)
-
-#### v0.13.4
-- Force int when setting max query depth (https://github.com/webonyx/graphql-php/pull/477)
-
-#### v0.13.3
-- Reverted minor possible breaking change (https://github.com/webonyx/graphql-php/pull/476)
-
-#### v0.13.2
-- Added QueryPlan support (https://github.com/webonyx/graphql-php/pull/436)
-- Fixed an issue with NodeList iteration over missing keys (https://github.com/webonyx/graphql-php/pull/475)
-
-#### v0.13.1
-- Better validation of field/directive arguments
-- Support for Apollo-style client/server persisted queries
-- Minor tweaks and fixes
-
 ## v0.13.0
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
 
