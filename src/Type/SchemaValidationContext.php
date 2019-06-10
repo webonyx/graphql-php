@@ -29,6 +29,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Validation\InputObjectCircularRefs;
 use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\Utils;
 use function array_filter;
@@ -48,9 +49,13 @@ class SchemaValidationContext
     /** @var Schema */
     private $schema;
 
+    /** @var InputObjectCircularRefs */
+    private $inputObjectCircularRefs;
+
     public function __construct(Schema $schema)
     {
-        $this->schema = $schema;
+        $this->schema                  = $schema;
+        $this->inputObjectCircularRefs = new InputObjectCircularRefs($this);
     }
 
     /**
@@ -99,7 +104,7 @@ class SchemaValidationContext
      * @param string                                       $message
      * @param Node[]|Node|TypeNode|TypeDefinitionNode|null $nodes
      */
-    private function reportError($message, $nodes = null)
+    public function reportError($message, $nodes = null)
     {
         $nodes = array_filter($nodes && is_array($nodes) ? $nodes : [$nodes]);
         $this->addError(new Error($message, $nodes));
@@ -275,6 +280,9 @@ class SchemaValidationContext
             } elseif ($type instanceof InputObjectType) {
                 // Ensure Input Object fields are valid.
                 $this->validateInputFields($type);
+
+                // Ensure Input Objects do not contain non-nullable circular references
+                $this->inputObjectCircularRefs->validate($type);
             }
         }
     }
