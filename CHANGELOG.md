@@ -3,6 +3,24 @@
 ## Unreleased
 - Add schema validation: Input Objects must not contain non-nullable circular references (#492)
 
+#### v0.13.5
+- Fix coroutine executor when using with promise (#486) 
+
+#### v0.13.4
+- Force int when setting max query depth (#477)
+
+#### v0.13.3
+- Reverted minor possible breaking change (#476)
+
+#### v0.13.2
+- Added QueryPlan support (#436)
+- Fixed an issue with NodeList iteration over missing keys (#475)
+
+#### v0.13.1
+- Better validation of field/directive arguments
+- Support for apollo client/server persisted queries
+- Minor tweaks and fixes
+
 ## v0.13.0
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
 
