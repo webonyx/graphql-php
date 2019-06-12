@@ -138,8 +138,8 @@ class ReferenceExecutor implements ExecutorImplementation
         $operation                    = null;
         $hasMultipleAssumedOperations = false;
         foreach ($documentNode->definitions as $definition) {
-            switch ($definition->kind) {
-                case NodeKind::OPERATION_DEFINITION:
+            switch (true) {
+                case $definition instanceof OperationDefinitionNode:
                     if (! $operationName && $operation) {
                         $hasMultipleAssumedOperations = true;
                     }
@@ -148,7 +148,7 @@ class ReferenceExecutor implements ExecutorImplementation
                         $operation = $definition;
                     }
                     break;
-                case NodeKind::FRAGMENT_DEFINITION:
+                case $definition instanceof FragmentDefinitionNode:
                     $fragments[$definition->name->value] = $definition;
                     break;
             }
@@ -343,8 +343,8 @@ class ReferenceExecutor implements ExecutorImplementation
     ) {
         $exeContext = $this->exeContext;
         foreach ($selectionSet->selections as $selection) {
-            switch ($selection->kind) {
-                case NodeKind::FIELD:
+            switch (true) {
+                case $selection instanceof FieldNode:
                     if (! $this->shouldIncludeNode($selection)) {
                         break;
                     }
@@ -354,7 +354,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     }
                     $fields[$name][] = $selection;
                     break;
-                case NodeKind::INLINE_FRAGMENT:
+                case $selection instanceof InlineFragmentNode:
                     if (! $this->shouldIncludeNode($selection) ||
                         ! $this->doesFragmentConditionMatch($selection, $runtimeType)
                     ) {
@@ -367,7 +367,7 @@ class ReferenceExecutor implements ExecutorImplementation
                         $visitedFragmentNames
                     );
                     break;
-                case NodeKind::FRAGMENT_SPREAD:
+                case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
                     if (! empty($visitedFragmentNames[$fragName]) || ! $this->shouldIncludeNode($selection)) {
                         break;

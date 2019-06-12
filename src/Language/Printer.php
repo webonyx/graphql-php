@@ -28,6 +28,7 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\NamedTypeNode;
+use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NonNullTypeNode;
@@ -47,6 +48,7 @@ use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
+use GraphQL\Language\AST\VariableNode;
 use GraphQL\Utils\Utils;
 use function count;
 use function implode;
@@ -97,11 +99,11 @@ class Printer
             $ast,
             [
                 'leave' => [
-                    NodeKind::NAME => static function (Node $node) {
+                    NodeKind::NAME => static function (NameNode $node) {
                         return '' . $node->value;
                     },
 
-                    NodeKind::VARIABLE => static function ($node) {
+                    NodeKind::VARIABLE => static function (VariableNode $node) {
                         return '$' . $node->name;
                     },
 

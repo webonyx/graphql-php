@@ -6,12 +6,21 @@ namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\DirectiveNode;
+use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FragmentDefinitionNode;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\ListTypeNode;
+use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NonNullTypeNode;
+use GraphQL\Language\AST\ObjectFieldNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\SelectionSetNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -254,13 +263,13 @@ class TypeInfo
         // any assumptions of a valid schema to ensure runtime types are properly
         // checked before continuing since TypeInfo is used as part of validation
         // which occurs before guarantees of schema and document validity.
-        switch ($node->kind) {
-            case NodeKind::SELECTION_SET:
+        switch (true) {
+            case $node instanceof SelectionSetNode:
                 $namedType               = Type::getNamedType($this->getType());
                 $this->parentTypeStack[] = Type::isCompositeType($namedType) ? $namedType : null;
                 break;
 
-            case NodeKind::FIELD:
+            case $node instanceof FieldNode:
                 $parentType = $this->getParentType();
                 $fieldDef   = null;
                 if ($parentType) {
@@ -274,11 +283,11 @@ class TypeInfo
                 $this->typeStack[]     = Type::isOutputType($fieldType) ? $fieldType : null;
                 break;
 
-            case NodeKind::DIRECTIVE:
+            case $node instanceof DirectiveNode:
                 $this->directive = $schema->getDirective($node->name->value);
                 break;
 
-            case NodeKind::OPERATION_DEFINITION:
+            case $node instanceof OperationDefinitionNode:
                 $type = null;
                 if ($node->operation === 'query') {
                     $type = $schema->getQueryType();
@@ -290,8 +299,8 @@ class TypeInfo
                 $this->typeStack[] = Type::isOutputType($type) ? $type : null;
                 break;
 
-            case NodeKind::INLINE_FRAGMENT:
-            case NodeKind::FRAGMENT_DEFINITION:
+            case $node instanceof InlineFragmentNode:
+            case $node instanceof FragmentDefinitionNode:
                 $typeConditionNode = $node->typeCondition;
                 $outputType        = $typeConditionNode ? self::typeFromAST(
                     $schema,
@@ -300,12 +309,12 @@ class TypeInfo
                 $this->typeStack[] = Type::isOutputType($outputType) ? $outputType : null;
                 break;
 
-            case NodeKind::VARIABLE_DEFINITION:
+            case $node instanceof VariableDefinitionNode:
                 $inputType              = self::typeFromAST($schema, $node->type);
                 $this->inputTypeStack[] = Type::isInputType($inputType) ? $inputType : null; // push
                 break;
 
-            case NodeKind::ARGUMENT:
+            case $node instanceof ArgumentNode:
                 $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
                 $argDef           = $argType = null;
                 if ($fieldOrDirective) {
@@ -323,7 +332,7 @@ class TypeInfo
                 $this->inputTypeStack[] = Type::isInputType($argType) ? $argType : null;
                 break;
 
-            case NodeKind::LST:
+            case $node instanceof ListValueNode:
                 $listType               = Type::getNullableType($this->getInputType());
                 $itemType               = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
@@ -331,7 +340,7 @@ class TypeInfo
                 $this->inputTypeStack[] = Type::isInputType($itemType) ? $itemType : null;
                 break;
 
-            case NodeKind::OBJECT_FIELD:
+            case $node instanceof ObjectFieldNode:
                 $objectType     = Type::getNamedType($this->getInputType());
                 $fieldType      = null;
                 $inputFieldType = null;
@@ -343,7 +352,7 @@ class TypeInfo
                 $this->inputTypeStack[] = Type::isInputType($inputFieldType) ? $inputFieldType : null;
                 break;
 
-            case NodeKind::ENUM:
+            case $node instanceof EnumValueNode:
                 $enumType  = Type::getNamedType($this->getInputType());
                 $enumValue = null;
                 if ($enumType instanceof EnumType) {
@@ -457,37 +466,37 @@ class TypeInfo
 
     public function leave(Node $node)
     {
-        switch ($node->kind) {
-            case NodeKind::SELECTION_SET:
+        switch (true) {
+            case $node instanceof SelectionSetNode:
                 array_pop($this->parentTypeStack);
                 break;
 
-            case NodeKind::FIELD:
+            case $node instanceof FieldNode:
                 array_pop($this->fieldDefStack);
                 array_pop($this->typeStack);
                 break;
 
-            case NodeKind::DIRECTIVE:
+            case $node instanceof DirectiveNode:
                 $this->directive = null;
                 break;
 
-            case NodeKind::OPERATION_DEFINITION:
-            case NodeKind::INLINE_FRAGMENT:
-            case NodeKind::FRAGMENT_DEFINITION:
+            case $node instanceof OperationDefinitionNode:
+            case $node instanceof InlineFragmentNode:
+            case $node instanceof FragmentDefinitionNode:
                 array_pop($this->typeStack);
                 break;
-            case NodeKind::VARIABLE_DEFINITION:
+            case $node instanceof VariableDefinitionNode:
                 array_pop($this->inputTypeStack);
                 break;
-            case NodeKind::ARGUMENT:
+            case $node instanceof ArgumentNode:
                 $this->argument = null;
                 array_pop($this->inputTypeStack);
                 break;
-            case NodeKind::LST:
-            case NodeKind::OBJECT_FIELD:
+            case $node instanceof ListValueNode:
+            case $node instanceof ObjectFieldNode:
                 array_pop($this->inputTypeStack);
                 break;
-            case NodeKind::ENUM:
+            case $node instanceof EnumValueNode:
                 $this->enumValue = null;
                 break;
         }

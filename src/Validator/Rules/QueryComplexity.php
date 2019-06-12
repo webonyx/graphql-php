@@ -110,9 +110,8 @@ class QueryComplexity extends QuerySecurityRule
 
     private function nodeComplexity(Node $node, $complexity = 0)
     {
-        switch ($node->kind) {
-            case NodeKind::FIELD:
-                /** @var FieldNode $node */
+        switch (true) {
+            case $node instanceof FieldNode:
                 // default values
                 $args         = [];
                 $complexityFn = FieldDefinition::DEFAULT_COMPLEXITY_FN;
@@ -143,16 +142,14 @@ class QueryComplexity extends QuerySecurityRule
                 $complexity += call_user_func_array($complexityFn, [$childrenComplexity, $args]);
                 break;
 
-            case NodeKind::INLINE_FRAGMENT:
-                /** @var InlineFragmentNode $node */
+            case $node instanceof InlineFragmentNode:
                 // node has children?
                 if (isset($node->selectionSet)) {
                     $complexity = $this->fieldComplexity($node, $complexity);
                 }
                 break;
 
-            case NodeKind::FRAGMENT_SPREAD:
-                /** @var FragmentSpreadNode $node */
+            case $node instanceof FragmentSpreadNode:
                 $fragment = $this->getFragment($node);
 
                 if ($fragment !== null) {
