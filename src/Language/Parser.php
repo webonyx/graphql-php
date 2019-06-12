@@ -1655,9 +1655,7 @@ class Parser
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
         $types      = $this->parseUnionMemberTypes();
-        if (count($directives) === 0 &&
-            ! $types
-        ) {
+        if (count($directives) === 0 && count($types) === 0) {
             throw $this->unexpected();
         }
 

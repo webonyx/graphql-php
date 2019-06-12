@@ -168,7 +168,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
 
     private function getInterfaceMap()
     {
-        if (! $this->interfaceMap) {
+        if ($this->interfaceMap === null) {
             $this->interfaceMap = [];
             foreach ($this->getInterfaces() as $interface) {
                 $this->interfaceMap[$interface->name] = $interface;
