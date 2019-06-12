@@ -1,4 +1,7 @@
 # Changelog
+#### v0.13.5
+- Fix coroutine executor when using with promise (#486) 
+
 #### v0.13.4
 - Force int when setting max query depth (#477)
 
