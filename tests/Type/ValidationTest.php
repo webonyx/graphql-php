@@ -880,6 +880,144 @@ class ValidationTest extends TestCase
     }
 
     /**
+     * @see it('accepts an Input Object with breakable circular reference')
+     */
+    public function testAcceptsAnInputObjectWithBreakableCircularReference() : void
+    {
+        $schema = BuildSchema::build('
+      input AnotherInputObject {
+        parent: SomeInputObject
+      }
+      
+      type Query {
+        field(arg: SomeInputObject): String
+      }
+      
+      input SomeInputObject {
+        self: SomeInputObject
+        arrayOfSelf: [SomeInputObject]
+        nonNullArrayOfSelf: [SomeInputObject]!
+        nonNullArrayOfNonNullSelf: [SomeInputObject!]!
+        intermediateSelf: AnotherInputObject
+      }
+        ');
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('rejects an Input Object with non-breakable circular reference')
+     */
+    public function testRejectsAnInputObjectWithNonBreakableCircularReference() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        field(arg: SomeInputObject): String
+      }
+      
+      input SomeInputObject {
+        nonNullSelf: SomeInputObject!
+      }
+        ');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message'   => 'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "nonNullSelf".',
+                    'locations' => [['line' => 7, 'column' => 9]],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects Input Objects with non-breakable circular reference spread across them')
+     */
+    public function testRejectsInputObjectsWithNonBreakableCircularReferenceSpreadAcrossThem() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        field(arg: SomeInputObject): String
+      }
+      
+      input SomeInputObject {
+        startLoop: AnotherInputObject!
+      }
+      
+      input AnotherInputObject {
+        nextInLoop: YetAnotherInputObject!
+      }
+      
+      input YetAnotherInputObject {
+        closeLoop: SomeInputObject!
+      }
+        ');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message'   => 'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "startLoop.nextInLoop.closeLoop".',
+                    'locations' => [
+                        ['line' => 7, 'column' => 9],
+                        ['line' => 11, 'column' => 9],
+                        ['line' => 15, 'column' => 9],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects Input Objects with multiple non-breakable circular reference')
+     */
+    public function testRejectsInputObjectsWithMultipleNonBreakableCircularReferences() : void
+    {
+        $schema = BuildSchema::build('
+      type Query {
+        field(arg: SomeInputObject): String
+      }
+      
+      input SomeInputObject {
+        startLoop: AnotherInputObject!
+      }
+      
+      input AnotherInputObject {
+        closeLoop: SomeInputObject!
+        startSecondLoop: YetAnotherInputObject!
+      }
+      
+      input YetAnotherInputObject {
+        closeSecondLoop: AnotherInputObject!
+        nonNullSelf: YetAnotherInputObject!
+      }
+        ');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message'   => 'Cannot reference Input Object "SomeInputObject" within itself through a series of non-null fields: "startLoop.closeLoop".',
+                    'locations' => [
+                        ['line' => 7, 'column' => 9],
+                        ['line' => 11, 'column' => 9],
+                    ],
+                ],
+                [
+                    'message'   => 'Cannot reference Input Object "AnotherInputObject" within itself through a series of non-null fields: "startSecondLoop.closeSecondLoop".',
+                    'locations' => [
+                        ['line' => 12, 'column' => 9],
+                        ['line' => 16, 'column' => 9],
+                    ],
+                ],
+                [
+                    'message'   => 'Cannot reference Input Object "YetAnotherInputObject" within itself through a series of non-null fields: "nonNullSelf".',
+                    'locations' => [
+                        ['line' => 17, 'column' => 9],
+                    ],
+                ],
+            ]
+        );
+    }
+
+    /**
      * @see it('rejects an Input Object type with incorrectly typed fields')
      */
     public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields() : void
