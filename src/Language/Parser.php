@@ -32,6 +32,7 @@ use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\NullValueNode;
@@ -58,6 +59,12 @@ use function sprintf;
 
 /**
  * Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
+ *
+ * // TODO write out the rest of those magic function helpers
+ *
+ * @method static NameNode name(Source|string $source, bool[] $options = [])
+ * @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
+ * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
  */
 class Parser
 {
@@ -113,8 +120,7 @@ class Parser
      */
     public static function parse($source, array $options = [])
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser    = new self($sourceObj, $options);
+        $parser = new self($source, $options);
 
         return $parser->parseDocument();
     }
@@ -138,8 +144,7 @@ class Parser
      */
     public static function parseValue($source, array $options = [])
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser    = new Parser($sourceObj, $options);
+        $parser = new Parser($source, $options);
         $parser->expect(Token::SOF);
         $value = $parser->parseValueLiteral(false);
         $parser->expect(Token::EOF);
@@ -166,10 +171,27 @@ class Parser
      */
     public static function parseType($source, array $options = [])
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser    = new Parser($sourceObj, $options);
+        $parser = new Parser($source, $options);
         $parser->expect(Token::SOF);
         $type = $parser->parseTypeReference();
+        $parser->expect(Token::EOF);
+
+        return $type;
+    }
+
+    /**
+     * Parse partial source by delegating calls to the internal parseX methods.
+     *
+     * @param Source|string $name
+     * @param bool[]        $arguments
+     *
+     * @throws SyntaxError
+     */
+    public static function __callStatic(string $name, array $arguments) : Node
+    {
+        $parser = new Parser(...$arguments);
+        $parser->expect(Token::SOF);
+        $type = $parser->{'parse' . $name}();
         $parser->expect(Token::EOF);
 
         return $type;
@@ -179,11 +201,13 @@ class Parser
     private $lexer;
 
     /**
-     * @param bool[] $options
+     * @param Source|string $source
+     * @param bool[]        $options
      */
-    public function __construct(Source $source, array $options = [])
+    public function __construct($source, array $options = [])
     {
-        $this->lexer = new Lexer($source, $options);
+        $sourceObj   = $source instanceof Source ? $source : new Source($source);
+        $this->lexer = new Lexer($sourceObj, $options);
     }
 
     /**
