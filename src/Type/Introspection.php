@@ -693,7 +693,7 @@ EOD;
         return self::$map['__DirectiveLocation'];
     }
 
-    public static function schemaMetaFieldDef()
+    public static function schemaMetaFieldDef() : FieldDefinition
     {
         if (! isset(self::$map[self::SCHEMA_FIELD_NAME])) {
             self::$map[self::SCHEMA_FIELD_NAME] = FieldDefinition::create([
@@ -715,7 +715,7 @@ EOD;
         return self::$map[self::SCHEMA_FIELD_NAME];
     }
 
-    public static function typeMetaFieldDef()
+    public static function typeMetaFieldDef() : FieldDefinition
     {
         if (! isset(self::$map[self::TYPE_FIELD_NAME])) {
             self::$map[self::TYPE_FIELD_NAME] = FieldDefinition::create([
@@ -734,7 +734,7 @@ EOD;
         return self::$map[self::TYPE_FIELD_NAME];
     }
 
-    public static function typeNameMetaFieldDef()
+    public static function typeNameMetaFieldDef() : FieldDefinition
     {
         if (! isset(self::$map[self::TYPE_NAME_FIELD_NAME])) {
             self::$map[self::TYPE_NAME_FIELD_NAME] = FieldDefinition::create([
