@@ -38,16 +38,16 @@ class SyncPromise
      */
     private $waiting = [];
 
-    public static function runQueue()
+    public static function runQueue() : void
     {
         $q = self::$queue;
-        while ($q && ! $q->isEmpty()) {
+        while ($q !== null && ! $q->isEmpty()) {
             $task = $q->dequeue();
             $task();
         }
     }
 
-    public function resolve($value)
+    public function resolve($value) : self
     {
         switch ($this->state) {
             case self::PENDING:
@@ -83,7 +83,7 @@ class SyncPromise
         return $this;
     }
 
-    public function reject($reason)
+    public function reject($reason) : self
     {
         if (! $reason instanceof Exception && ! $reason instanceof Throwable) {
             throw new Exception('SyncPromise::reject() has to be called with an instance of \Throwable');
@@ -107,7 +107,7 @@ class SyncPromise
         return $this;
     }
 
-    private function enqueueWaitingPromises()
+    private function enqueueWaitingPromises() : void
     {
         Utils::invariant(
             $this->state !== self::PENDING,
@@ -116,7 +116,7 @@ class SyncPromise
 
         foreach ($this->waiting as $descriptor) {
             self::getQueue()->enqueue(function () use ($descriptor) {
-                /** @var $promise self */
+                /** @var self $promise */
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
                 if ($this->state === self::FULFILLED) {
@@ -145,17 +145,17 @@ class SyncPromise
         $this->waiting = [];
     }
 
-    public static function getQueue()
+    public static function getQueue() : SplQueue
     {
         return self::$queue ?: self::$queue = new SplQueue();
     }
 
     public function then(?callable $onFulfilled = null, ?callable $onRejected = null)
     {
-        if ($this->state === self::REJECTED && ! $onRejected) {
+        if ($this->state === self::REJECTED && $onRejected === null) {
             return $this;
         }
-        if ($this->state === self::FULFILLED && ! $onFulfilled) {
+        if ($this->state === self::FULFILLED && $onFulfilled === null) {
             return $this;
         }
         $tmp             = new self();

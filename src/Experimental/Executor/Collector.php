@@ -199,7 +199,7 @@ class Collector
             if ($selection instanceof FieldNode) {
                 /** @var FieldNode $selection */
 
-                $resultName = $selection->alias ? $selection->alias->value : $selection->name->value;
+                $resultName = $selection->alias === null ? $selection->name->value : $selection->alias->value;
 
                 if (! isset($this->fields[$resultName])) {
                     $this->fields[$resultName] = [];

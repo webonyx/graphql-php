@@ -9,6 +9,7 @@ use function is_string;
 use function json_decode;
 use function json_last_error;
 use const CASE_LOWER;
+use const JSON_ERROR_NONE;
 
 /**
  * Structure representing parsed HTTP parameters for GraphQL operation
@@ -93,7 +94,7 @@ class OperationParams
             }
 
             $tmp = json_decode($params[$param], true);
-            if (json_last_error()) {
+            if (json_last_error() !== JSON_ERROR_NONE) {
                 continue;
             }
 

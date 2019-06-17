@@ -96,7 +96,7 @@ final class Warning
 
     public static function warnOnce(string $errorMessage, int $warningId, ?int $messageLevel = null) : void
     {
-        if (self::$warningHandler) {
+        if (self::$warningHandler !== null) {
             $fn = self::$warningHandler;
             $fn($errorMessage, $warningId);
         } elseif ((self::$enableWarnings & $warningId) > 0 && ! isset(self::$warned[$warningId])) {
@@ -107,7 +107,7 @@ final class Warning
 
     public static function warn(string $errorMessage, int $warningId, ?int $messageLevel = null) : void
     {
-        if (self::$warningHandler) {
+        if (self::$warningHandler !== null) {
             $fn = self::$warningHandler;
             $fn($errorMessage, $warningId);
         } elseif ((self::$enableWarnings & $warningId) > 0) {

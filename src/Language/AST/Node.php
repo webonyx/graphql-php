@@ -106,7 +106,7 @@ abstract class Node
 
         $tmp = (array) $this;
 
-        if ($this->loc) {
+        if ($this->loc !== null) {
             $tmp['loc'] = [
                 'start' => $this->loc->start,
                 'end'   => $this->loc->end,
@@ -125,7 +125,7 @@ abstract class Node
             'kind' => $node->kind,
         ];
 
-        if ($node->loc) {
+        if ($node->loc !== null) {
             $result['loc'] = [
                 'start' => $node->loc->start,
                 'end'   => $node->loc->end,
