@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\GraphQL;
+use GraphQL\Tests\Executor\TestClasses\Dog;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\QueryPlan;
 use GraphQL\Type\Definition\ResolveInfo;
@@ -292,6 +294,117 @@ final class QueryPlanTest extends TestCase
         self::assertFalse($queryPlan->hasField('test'));
 
         self::assertTrue($queryPlan->hasType('Image'));
+        self::assertFalse($queryPlan->hasType('Test'));
+    }
+
+    public function testQueryPlanOnInterface() : void
+    {
+        $petType = new InterfaceType([
+            'name'   => 'Pet',
+            'fields' => static function () {
+                return [
+                    'name' => ['type' => Type::string()],
+                ];
+            },
+        ]);
+
+        $dogType = new ObjectType([
+            'name'       => 'Dog',
+            'interfaces' => [$petType],
+            'isTypeOf'   => static function ($obj) {
+                return $obj instanceof Dog;
+            },
+            'fields' => static function () {
+                return [
+                    'name'  => ['type' => Type::string()],
+                    'woofs' => ['type' => Type::boolean()],
+                ];
+            },
+        ]);
+
+        $query = 'query Test {
+          pets {
+            name
+            ... on Dog {
+              woofs
+            }
+          }
+        }';
+
+        $expectedQueryPlan = [
+            'woofs'  => [
+                'type' => Type::boolean(),
+                'fields' => [],
+                'args' => [],
+            ],
+            'name'   => [
+                'type' => Type::string(),
+                'args' => [],
+                'fields' => [],
+            ],
+        ];
+
+        $expectedReferencedTypes = [
+            'Dog',
+            'Pet',
+        ];
+
+        $expectedReferencedFields = [
+            'woofs',
+            'name',
+        ];
+
+        /** @var QueryPlan $queryPlan */
+        $queryPlan = null;
+        $hasCalled = false;
+
+        $petsQuery = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'pets' => [
+                    'type'    => Type::listOf($petType),
+                    'resolve' => static function (
+                        $value,
+                        $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$hasCalled,
+                        &$queryPlan
+) {
+                        $hasCalled = true;
+                        $queryPlan = $info->lookAhead();
+
+                        return [];
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $petsQuery,
+            'types'      => [$dogType],
+            'typeLoader' => static function ($name) use ($dogType, $petType) {
+                switch ($name) {
+                    case 'Dog':
+                        return $dogType;
+                    case 'Pet':
+                        return $petType;
+                }
+            },
+        ]);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertTrue($hasCalled);
+        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertEquals(['woofs'], $queryPlan->subFields('Dog'));
+
+        self::assertTrue($queryPlan->hasField('name'));
+        self::assertFalse($queryPlan->hasField('test'));
+
+        self::assertTrue($queryPlan->hasType('Dog'));
         self::assertFalse($queryPlan->hasType('Test'));
     }
 
