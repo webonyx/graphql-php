@@ -24,7 +24,7 @@ class Directive
     public const REASON_ARGUMENT_NAME = 'reason';
 
     /** @var Directive[] */
-    public static $internalDirectives;
+    public static $internalDirectives = [];
 
     // Schema Definitions
 
