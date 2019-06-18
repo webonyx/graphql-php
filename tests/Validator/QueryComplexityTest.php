@@ -146,6 +146,22 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
+    public function testQueryWithCustomDirective() : void
+    {
+        $query = 'query MyQuery { human { ... on Human { firstName @foo(bar: false) } } }';
+
+        $this->assertDocumentValidators($query, 2, 3);
+    }
+
+    public function testQueryWithCustomAndSkipDirective() : void
+    {
+        $query = 'query MyQuery($withoutDogs: Boolean!) { human { dogs(name: "Root") @skip(if:$withoutDogs) { name @foo(bar: true) } } }';
+
+        $this->getRule()->setRawVariableValues(['withoutDogs' => true]);
+
+        $this->assertDocumentValidators($query, 1, 2);
+    }
+
     public function testComplexityIntrospectionQuery() : void
     {
         $this->assertIntrospectionQuery(181);
