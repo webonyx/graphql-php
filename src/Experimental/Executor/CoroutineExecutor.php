@@ -498,7 +498,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
         if ($type !== $this->schema->getType($type->name)) {
             $hint = '';
-            if ($this->schema->getConfig()->typeLoader) {
+            if ($this->schema->getConfig()->typeLoader !== null) {
                 $hint = sprintf(
                     'Make sure that type loader returns the same instance as defined in %s.%s',
                     $ctx->type,
@@ -646,7 +646,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         } else {
             if ($type !== $this->schema->getType($type->name)) {
                 $hint = '';
-                if ($this->schema->getConfig()->typeLoader) {
+                if ($this->schema->getConfig()->typeLoader !== null) {
                     $hint = sprintf(
                         'Make sure that type loader returns the same instance as defined in %s.%s',
                         $ctx->type,
@@ -904,7 +904,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             return $this->schema->getType($value['__typename']);
         }
 
-        if ($abstractType instanceof InterfaceType && $this->schema->getConfig()->typeLoader) {
+        if ($abstractType instanceof InterfaceType && $this->schema->getConfig()->typeLoader !== null) {
             Warning::warnOnce(
                 sprintf(
                     'GraphQL Interface Type `%s` returned `null` from its `resolveType` function ' .

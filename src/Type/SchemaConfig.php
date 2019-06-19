@@ -42,7 +42,7 @@ class SchemaConfig
     /** @var Directive[] */
     public $directives;
 
-    /** @var callable */
+    /** @var callable|null */
     public $typeLoader;
 
     /** @var SchemaDefinitionNode */
