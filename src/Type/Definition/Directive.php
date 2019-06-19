@@ -8,9 +8,6 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
-use function array_keys;
-use function count;
-use function in_array;
 use function is_array;
 
 class Directive
@@ -87,7 +84,7 @@ class Directive
      */
     public static function getInternalDirectives() : array
     {
-        if (count(self::$internalDirectives) === 0) {
+        if (self::$internalDirectives === null) {
             self::$internalDirectives = [
                 'include'    => new self([
                     'name'        => self::INCLUDE_NAME,
