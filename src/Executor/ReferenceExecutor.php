@@ -259,9 +259,11 @@ class ReferenceExecutor implements ExecutorImplementation
                 return $result->then(
                     null,
                     function ($error) {
-                        $this->exeContext->addError($error);
+                        if ($error instanceof Error) {
+                            $this->exeContext->addError($error);
 
-                        return $this->exeContext->promises->createFulfilled(null);
+                            return $this->exeContext->promises->createFulfilled(null);
+                        }
                     }
                 );
             }

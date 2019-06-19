@@ -252,7 +252,7 @@ class SchemaValidationContext
             if (! $type instanceof NamedType) {
                 $this->reportError(
                     'Expected GraphQL named type but got: ' . Utils::printSafe($type) . '.',
-                    is_object($type) ? $type->astNode : null
+                    $type instanceof Type ? $type->astNode : null
                 );
                 continue;
             }
