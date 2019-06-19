@@ -10,6 +10,7 @@ use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\ObjectValueNode;
@@ -179,18 +180,18 @@ class AstFromValueTest extends TestCase
     public function testConvertsArrayValuesToListASTs() : void
     {
         $value1 = new ListValueNode([
-            'values' => [
+            'values' => new NodeList([
                 new StringValueNode(['value' => 'FOO']),
                 new StringValueNode(['value' => 'BAR']),
-            ],
+            ]),
         ]);
         self::assertEquals($value1, AST::astFromValue(['FOO', 'BAR'], Type::listOf(Type::string())));
 
         $value2 = new ListValueNode([
-            'values' => [
+            'values' => new NodeList([
                 new EnumValueNode(['value' => 'HELLO']),
                 new EnumValueNode(['value' => 'GOODBYE']),
-            ],
+            ]),
         ]);
         self::assertEquals($value2, AST::astFromValue(['HELLO', 'GOODBYE'], Type::listOf($this->myEnum())));
     }
@@ -220,10 +221,10 @@ class AstFromValueTest extends TestCase
         ]);
 
         $expected = new ObjectValueNode([
-            'fields' => [
+            'fields' => new NodeList([
                 $this->objectField('foo', new IntValueNode(['value' => '3'])),
                 $this->objectField('bar', new EnumValueNode(['value' => 'HELLO'])),
-            ],
+            ]),
         ]);
 
         $data = ['foo' => 3, 'bar' => 'HELLO'];
@@ -259,9 +260,9 @@ class AstFromValueTest extends TestCase
 
         self::assertEquals(
             new ObjectValueNode([
-                'fields' => [
+                'fields' => new NodeList([
                     $this->objectField('foo', new NullValueNode([])),
-                ],
+                ]),
             ]),
             AST::astFromValue(['foo' => null], $inputObj)
         );
