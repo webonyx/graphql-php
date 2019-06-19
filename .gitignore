@@ -4,3 +4,4 @@ composer.phar
 phpcs.xml
 phpstan.neon
 vendor/
+/.idea
