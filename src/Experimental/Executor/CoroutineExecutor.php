@@ -620,8 +620,9 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             foreach ($value as $itemValue) {
                 ++$index;
 
-                $itemPath   = $path;
-                $itemPath[] = $index; // !!! use arrays COW semantics
+                $itemPath               = $path;
+                $itemPath[]             = $index; // !!! use arrays COW semantics
+                $ctx->resolveInfo->path = $itemPath;
 
                 try {
                     if (! $this->completeValueFast($ctx, $itemType, $itemValue, $itemPath, $itemReturnValue)) {
