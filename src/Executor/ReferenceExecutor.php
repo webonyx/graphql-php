@@ -1324,9 +1324,9 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         &$result
     ) {
-        $runtimeType = is_string($runtimeTypeOrName) ?
-            $this->exeContext->schema->getType($runtimeTypeOrName) :
-            $runtimeTypeOrName;
+        $runtimeType = is_string($runtimeTypeOrName)
+            ? $this->exeContext->schema->getType($runtimeTypeOrName)
+            : $runtimeTypeOrName;
         if (! $runtimeType instanceof ObjectType) {
             throw new InvariantViolation(
                 sprintf(
