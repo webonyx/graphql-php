@@ -252,9 +252,9 @@ class ReferenceExecutor implements ExecutorImplementation
         //
         // Similar to completeValueCatchingError.
         try {
-            $result = $operation->operation === 'mutation' ?
-                $this->executeFieldsSerially($type, $rootValue, $path, $fields) :
-                $this->executeFields($type, $rootValue, $path, $fields);
+            $result = $operation->operation === 'mutation'
+                ? $this->executeFieldsSerially($type, $rootValue, $path, $fields)
+                : $this->executeFields($type, $rootValue, $path, $fields);
             if ($this->isPromise($result)) {
                 return $result->then(
                     null,

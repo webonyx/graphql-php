@@ -66,13 +66,15 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
             }
 
             $requiredArgsMap[$def->name->value] = Utils::keyMap(
-                $arguments ? array_filter($arguments, static function (Node $argument) : bool {
-                    return $argument instanceof NonNullTypeNode &&
-                        (
-                            ! isset($argument->defaultValue) ||
-                            $argument->defaultValue === null
-                        );
-                }) : [],
+                $arguments
+                    ? array_filter($arguments, static function (Node $argument) : bool {
+                        return $argument instanceof NonNullTypeNode &&
+                            (
+                                ! isset($argument->defaultValue) ||
+                                $argument->defaultValue === null
+                            );
+                    })
+                    : [],
                 static function (NamedTypeNode $argument) : string {
                     return $argument->name->value;
                 }
