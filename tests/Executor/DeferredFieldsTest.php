@@ -109,10 +109,10 @@ class DeferredFieldsTest extends TestCase
             'fields' => [
                 'title'  => [
                     'type'    => Type::string(),
-                    'resolve' => function ($entry, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($story, $args, $context, ResolveInfo $info) {
                         $this->paths[] = $info->path;
 
-                        return $entry['title'];
+                        return $story['title'];
                     },
                 ],
                 'author' => [

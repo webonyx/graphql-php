@@ -75,7 +75,7 @@ class ExecutorSchemaTest extends TestCase
                 'article' => [
                     'type'    => $BlogArticle,
                     'args'    => ['id' => ['type' => Type::id()]],
-                    'resolve' => function ($_, $args) {
+                    'resolve' => function ($root, $args) {
                         return $this->article($args['id']);
                     },
                 ],
