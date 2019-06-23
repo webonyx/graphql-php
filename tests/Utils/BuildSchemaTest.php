@@ -14,7 +14,11 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
@@ -747,7 +751,9 @@ type Query {
         self::assertTrue($otherValue->isDeprecated());
         self::assertEquals('Terrible reasons', $otherValue->deprecationReason);
 
-        $rootFields = $schema->getType('Query')->getFields();
+        /** @var ObjectType $queryType */
+        $queryType = $schema->getType('Query');
+        $rootFields = $queryType->getFields();
         self::assertEquals($rootFields['field1']->isDeprecated(), true);
         self::assertEquals($rootFields['field1']->deprecationReason, 'No longer supported');
 
@@ -792,13 +798,20 @@ type Query {
       directive @test(arg: TestScalar) on FIELD
     ');
         $schema    = BuildSchema::buildAST($schemaAST);
+
         /** @var ObjectType $query */
         $query         = $schema->getType('Query');
+        /** @var InputObjectType $testInput */
         $testInput     = $schema->getType('TestInput');
+        /** @var EnumType $testEnum */
         $testEnum      = $schema->getType('TestEnum');
+        /** @var UnionType $testUnion */
         $testUnion     = $schema->getType('TestUnion');
+        /** @var InterfaceType $testInterface */
         $testInterface = $schema->getType('TestInterface');
+        /** @var ObjectType $testType */
         $testType      = $schema->getType('TestType');
+        /** @var ScalarType $testScalar */
         $testScalar    = $schema->getType('TestScalar');
         $testDirective = $schema->getDirective('test');
 

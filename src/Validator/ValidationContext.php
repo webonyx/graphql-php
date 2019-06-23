@@ -185,9 +185,10 @@ class ValidationContext
     }
 
     /**
+     * @param HasSelectionSet|OperationDefinitionNode|FragmentDefinitionNode $node
      * @return FragmentSpreadNode[]
      */
-    public function getFragmentSpreads(HasSelectionSet $node)
+    public function getFragmentSpreads(HasSelectionSet $node): array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
         if ($spreads === null) {
