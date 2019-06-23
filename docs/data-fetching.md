@@ -103,22 +103,22 @@ for a field you simply override this default resolver.
 **graphql-php** provides following default field resolver:
 ```php
 <?php
-function defaultFieldResolver($source, $args, $context, \GraphQL\Type\Definition\ResolveInfo $info)
+function defaultFieldResolver($rootValue, $args, $context, \GraphQL\Type\Definition\ResolveInfo $info)
 {
     $fieldName = $info->fieldName;
-    $property = null;
+    $property  = null;
 
-    if (is_array($source) || $source instanceof \ArrayAccess) {
-        if (isset($source[$fieldName])) {
-            $property = $source[$fieldName];
+    if (is_array($rootValue) || $rootValue instanceof ArrayAccess) {
+        if (isset($rootValue[$fieldName])) {
+            $property = $rootValue[$fieldName];
         }
-    } else if (is_object($source)) {
-        if (isset($source->{$fieldName})) {
-            $property = $source->{$fieldName};
+    } elseif (is_object($rootValue)) {
+        if (isset($rootValue->{$fieldName})) {
+            $property = $rootValue->{$fieldName};
         }
     }
 
-    return $property instanceof Closure ? $property($source, $args, $context, $info) : $property;
+    return $property instanceof Closure ? $property($rootValue, $args, $context, $info) : $property;
 }
 ```
 

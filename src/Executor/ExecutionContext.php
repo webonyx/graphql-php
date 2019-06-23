@@ -50,7 +50,7 @@ class ExecutionContext
     public function __construct(
         $schema,
         $fragments,
-        $root,
+        $rootValue,
         $contextValue,
         $operation,
         $variables,
@@ -60,7 +60,7 @@ class ExecutionContext
     ) {
         $this->schema         = $schema;
         $this->fragments      = $fragments;
-        $this->rootValue      = $root;
+        $this->rootValue      = $rootValue;
         $this->contextValue   = $contextValue;
         $this->operation      = $operation;
         $this->variableValues = $variables;

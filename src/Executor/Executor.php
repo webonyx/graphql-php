@@ -157,31 +157,31 @@ class Executor
 
     /**
      * If a resolve function is not given, then a default resolve behavior is used
-     * which takes the property of the source object of the same name as the field
+     * which takes the property of the root value of the same name as the field
      * and returns it as the result, or if it's a function, returns the result
      * of calling that function while passing along args and context.
      *
-     * @param mixed      $source
+     * @param mixed      $rootValue
      * @param mixed[]    $args
      * @param mixed|null $context
      *
      * @return mixed|null
      */
-    public static function defaultFieldResolver($source, $args, $context, ResolveInfo $info)
+    public static function defaultFieldResolver($rootValue, $args, $context, ResolveInfo $info)
     {
         $fieldName = $info->fieldName;
         $property  = null;
 
-        if (is_array($source) || $source instanceof ArrayAccess) {
-            if (isset($source[$fieldName])) {
-                $property = $source[$fieldName];
+        if (is_array($rootValue) || $rootValue instanceof ArrayAccess) {
+            if (isset($rootValue[$fieldName])) {
+                $property = $rootValue[$fieldName];
             }
-        } elseif (is_object($source)) {
-            if (isset($source->{$fieldName})) {
-                $property = $source->{$fieldName};
+        } elseif (is_object($rootValue)) {
+            if (isset($rootValue->{$fieldName})) {
+                $property = $rootValue->{$fieldName};
             }
         }
 
-        return $property instanceof Closure ? $property($source, $args, $context, $info) : $property;
+        return $property instanceof Closure ? $property($rootValue, $args, $context, $info) : $property;
     }
 }
