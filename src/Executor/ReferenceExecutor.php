@@ -495,6 +495,7 @@ class ReferenceExecutor implements ExecutorImplementation
             },
             []
         );
+
         if ($this->isPromise($result)) {
             return $result->then(static function ($resolvedResults) {
                 return self::fixResultsIfEmptyArray($resolvedResults);
@@ -906,7 +907,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed[]            $values
      * @param Promise|mixed|null $initialValue
      *
-     * @return mixed[]
+     * @return Promise|mixed|null
      */
     private function promiseReduce(array $values, callable $callback, $initialValue)
     {
@@ -1313,7 +1314,6 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * @param string|ObjectType|null $runtimeTypeOrName
-     * @param FieldNode[]            $fieldNodes
      * @param mixed                  $result
      *
      * @return ObjectType
