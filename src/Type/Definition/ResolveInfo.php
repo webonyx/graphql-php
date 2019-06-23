@@ -20,7 +20,7 @@ use function array_merge_recursive;
 class ResolveInfo
 {
     /**
-     * The name of the field being resolved
+     * The name of the field being resolved.
      *
      * @api
      * @var string
@@ -36,7 +36,7 @@ class ResolveInfo
     public $fieldNodes = [];
 
     /**
-     * Expected return type of the field being resolved
+     * Expected return type of the field being resolved.
      *
      * @api
      * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
@@ -44,7 +44,7 @@ class ResolveInfo
     public $returnType;
 
     /**
-     * Parent type of the field being resolved
+     * Parent type of the field being resolved.
      *
      * @api
      * @var ObjectType
@@ -52,7 +52,7 @@ class ResolveInfo
     public $parentType;
 
     /**
-     * Path to this field from the very root value
+     * Path to this field from the very root value.
      *
      * @api
      * @var string[][]
@@ -60,7 +60,7 @@ class ResolveInfo
     public $path;
 
     /**
-     * Instance of a schema used for execution
+     * Instance of a schema used for execution.
      *
      * @api
      * @var Schema
@@ -68,7 +68,7 @@ class ResolveInfo
     public $schema;
 
     /**
-     * AST of all fragments defined in query
+     * AST of all fragments defined in query.
      *
      * @api
      * @var FragmentDefinitionNode[]
@@ -76,15 +76,15 @@ class ResolveInfo
     public $fragments = [];
 
     /**
-     * Root value passed to query execution
+     * Root value passed to query execution.
      *
      * @api
-     * @var mixed|null
+     * @var mixed
      */
     public $rootValue;
 
     /**
-     * AST of operation definition node (query, mutation)
+     * AST of operation definition node (query, mutation).
      *
      * @api
      * @var OperationDefinitionNode|null
@@ -92,7 +92,7 @@ class ResolveInfo
     public $operation;
 
     /**
-     * Array of variables passed to query execution
+     * Array of variables passed to query execution.
      *
      * @api
      * @var mixed[]
@@ -136,7 +136,7 @@ class ResolveInfo
 
     /**
      * Helper method that returns names of all fields selected in query for
-     * $this->fieldName up to $depth levels
+     * $this->fieldName up to $depth levels.
      *
      * Example:
      * query MyQuery{

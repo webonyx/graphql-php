@@ -14,7 +14,7 @@ use GraphQL\Type\Schema;
  * Data that must be available at all points during query execution.
  *
  * Namely, schema of the type system that is currently executing,
- * and the fragments defined in the query document
+ * and the fragments defined in the query document.
  *
  * @internal
  */

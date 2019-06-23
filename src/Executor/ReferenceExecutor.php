@@ -199,7 +199,7 @@ class ReferenceExecutor implements ExecutorImplementation
     public function doExecute() : Promise
     {
         // Return a Promise that will eventually resolve to the data described by
-        // The "Response" section of the GraphQL specification.
+        // the "Response" section of the GraphQL specification.
         //
         // If errors are encountered while executing a GraphQL field, only that
         // field and its descendants will be omitted, and sibling fields will still
