@@ -1235,20 +1235,20 @@ class ReferenceExecutor implements ExecutorImplementation
      * Implements the "Evaluating selection sets" section of the spec
      * for "read" mode.
      *
-     * @param mixed|null  $source
+     * @param mixed       $rootValue
      * @param mixed[]     $path
      * @param ArrayObject $fields
      *
      * @return Promise|stdClass|mixed[]
      */
-    private function executeFields(ObjectType $parentType, $source, $path, $fields)
+    private function executeFields(ObjectType $parentType, $rootValue, $path, $fields)
     {
         $containsPromise = false;
         $finalResults    = [];
         foreach ($fields as $responseName => $fieldNodes) {
             $fieldPath   = $path;
             $fieldPath[] = $responseName;
-            $result      = $this->resolveField($parentType, $source, $fieldNodes, $fieldPath);
+            $result      = $this->resolveField($parentType, $rootValue, $fieldNodes, $fieldPath);
             if ($result === self::$UNDEFINED) {
                 continue;
             }
