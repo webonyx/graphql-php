@@ -220,10 +220,7 @@ class ResolveInfo
                     );
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
-                $fields = array_merge_recursive(
-                    $this->foldSelectionSet($selectionNode->selectionSet, $descend),
-                    $fields
-                );
+                $fields['__inlineFragments'][$selectionNode->typeCondition->name->value] = $this->foldSelectionSet($selectionNode->selectionSet, $descend);
             }
         }
 
