@@ -932,7 +932,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param FieldNode[]         $fieldNodes
      * @param mixed[]             $path
-     * @param mixed[]|Traversable &$results
+     * @param mixed[]|Traversable $results
      *
      * @return mixed[]|Promise
      *
