@@ -35,12 +35,12 @@ class CommentType extends ObjectType
                     Types::htmlField('body')
                 ];
             },
-            'resolveField' => function($value, $args, $context, ResolveInfo $info) {
+            'resolveField' => function($rootValue, $args, $context, ResolveInfo $info) {
                 $method = 'resolve' . ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
-                    return $this->{$method}($value, $args, $context, $info);
+                    return $this->{$method}($rootValue, $args, $context, $info);
                 } else {
-                    return $value->{$info->fieldName};
+                    return $rootValue->{$info->fieldName};
                 }
             }
         ];

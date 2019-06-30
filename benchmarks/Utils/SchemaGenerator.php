@@ -152,7 +152,7 @@ class SchemaGenerator
         ];
     }
 
-    public function resolveField($value, $args, $context, $resolveInfo)
+    public function resolveField($rootValue, $args, $context, $resolveInfo)
     {
         return $resolveInfo->fieldName . '-value';
     }
