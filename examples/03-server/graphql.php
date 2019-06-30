@@ -19,8 +19,8 @@ try {
                 'args' => [
                     'message' => ['type' => Type::string()],
                 ],
-                'resolve' => function ($root, $args) {
-                    return $root['prefix'] . $args['message'];
+                'resolve' => function ($rootValue, $args) {
+                    return $rootValue['prefix'] . $args['message'];
                 }
             ],
         ],
@@ -35,7 +35,7 @@ try {
                     'x' => ['type' => Type::int()],
                     'y' => ['type' => Type::int()],
                 ],
-                'resolve' => function ($root, $args) {
+                'resolve' => function ($rootValue, $args) {
                     return $args['x'] + $args['y'];
                 },
             ],

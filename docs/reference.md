@@ -998,7 +998,7 @@ visitor API:
  *
  * @api
  */
-static function visit($root, $visitor, $keyMap = null)
+static function visit($rootValue, $visitor, $keyMap = null)
 ```
 
 ```php

@@ -25,13 +25,13 @@ abstract class ServerTestCase extends TestCase
                 'fields' => [
                     'f1'                      => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($root, $args, $context, $info) {
+                        'resolve' => static function ($rootValue, $args, $context, $info) {
                             return $info->fieldName;
                         },
                     ],
                     'fieldWithPhpError'       => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($root, $args, $context, $info) {
+                        'resolve' => static function ($rootValue, $args, $context, $info) {
                             trigger_error('deprecated', E_USER_DEPRECATED);
                             trigger_error('notice', E_USER_NOTICE);
                             trigger_error('warning', E_USER_WARNING);
@@ -55,8 +55,8 @@ abstract class ServerTestCase extends TestCase
                     ],
                     'testContextAndRootValue' => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($root, $args, $context, $info) {
-                            $context->testedRootValue = $root;
+                        'resolve' => static function ($rootValue, $args, $context, $info) {
+                            $context->testedRootValue = $rootValue;
 
                             return $info->fieldName;
                         },
@@ -68,7 +68,7 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static function ($root, $args) {
+                        'resolve' => static function ($rootValue, $args) {
                             return $args['arg'];
                         },
                     ],
@@ -79,7 +79,7 @@ abstract class ServerTestCase extends TestCase
                                 'type' => Type::nonNull(Type::int()),
                             ],
                         ],
-                        'resolve' => static function ($root, $args, $context) {
+                        'resolve' => static function ($rootValue, $args, $context) {
                             $context['buffer']($args['num']);
 
                             return new Deferred(static function () use ($args, $context) {

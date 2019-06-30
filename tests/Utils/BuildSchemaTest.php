@@ -51,7 +51,7 @@ class BuildSchemaTest extends TestCase
         ');
 
         $root = [
-            'add' => static function ($root, $args) {
+            'add' => static function ($rootValue, $args) {
                 return $args['x'] + $args['y'];
             },
         ];
@@ -437,7 +437,7 @@ type WorldTwo {
      */
     public function testSpecifyingUnionTypeUsingTypename() : void
     {
-        $schema   = BuildSchema::buildAST(Parser::parse('
+        $schema    = BuildSchema::buildAST(Parser::parse('
             type Query {
               fruits: [Fruit]
             }
@@ -452,7 +452,7 @@ type WorldTwo {
               length: Int
             }
         '));
-        $query    = '
+        $query     = '
             {
               fruits {
                 ... on Apple {
@@ -464,7 +464,7 @@ type WorldTwo {
               }
             }
         ';
-        $root     = [
+        $rootValue = [
             'fruits' => [
                 [
                     'color'      => 'green',
@@ -476,7 +476,7 @@ type WorldTwo {
                 ],
             ],
         ];
-        $expected = [
+        $expected  = [
             'data' => [
                 'fruits' => [
                     ['color' => 'green'],
@@ -485,7 +485,7 @@ type WorldTwo {
             ],
         ];
 
-        $result = GraphQL::executeQuery($schema, $query, $root);
+        $result = GraphQL::executeQuery($schema, $query, $rootValue);
         self::assertEquals($expected, $result->toArray(true));
     }
 
@@ -494,7 +494,7 @@ type WorldTwo {
      */
     public function testSpecifyingInterfaceUsingTypename() : void
     {
-        $schema   = BuildSchema::buildAST(Parser::parse('
+        $schema    = BuildSchema::buildAST(Parser::parse('
             type Query {
               characters: [Character]
             }
@@ -513,7 +513,7 @@ type WorldTwo {
               primaryFunction: String
             }
         '));
-        $query    = '
+        $query     = '
             {
               characters {
                 name
@@ -526,7 +526,7 @@ type WorldTwo {
               }
             }
         ';
-        $root     = [
+        $rootValue = [
             'characters' => [
                 [
                     'name'         => 'Han Solo',
@@ -540,7 +540,7 @@ type WorldTwo {
                 ],
             ],
         ];
-        $expected = [
+        $expected  = [
             'data' => [
                 'characters' => [
                     ['name' => 'Han Solo', 'totalCredits' => 10],
@@ -549,7 +549,7 @@ type WorldTwo {
             ],
         ];
 
-        $result = GraphQL::executeQuery($schema, $query, $root);
+        $result = GraphQL::executeQuery($schema, $query, $rootValue);
         self::assertEquals($expected, $result->toArray(true));
     }
 

@@ -385,13 +385,13 @@ class Helper
      */
     private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, $operationType)
     {
-        $root = $config->getRootValue();
+        $rootValue = $config->getRootValue();
 
-        if (is_callable($root)) {
-            $root = $root($params, $doc, $operationType);
+        if (is_callable($rootValue)) {
+            $rootValue = $rootValue($params, $doc, $operationType);
         }
 
-        return $root;
+        return $rootValue;
     }
 
     /**
