@@ -161,29 +161,29 @@ class Executor
      * and returns it as the result, or if it's a function, returns the result
      * of calling that function while passing along args and context.
      *
-     * @param mixed      $rootValue
+     * @param mixed      $objectValue
      * @param mixed[]    $args
      * @param mixed|null $context
      *
      * @return mixed|null
      */
-    public static function defaultFieldResolver($rootValue, $args, $context, ResolveInfo $info)
+    public static function defaultFieldResolver($objectValue, $args, $context, ResolveInfo $info)
     {
         $fieldName = $info->fieldName;
         $property  = null;
 
-        if (is_array($rootValue) || $rootValue instanceof ArrayAccess) {
-            if (isset($rootValue[$fieldName])) {
-                $property = $rootValue[$fieldName];
+        if (is_array($objectValue) || $objectValue instanceof ArrayAccess) {
+            if (isset($objectValue[$fieldName])) {
+                $property = $objectValue[$fieldName];
             }
-        } elseif (is_object($rootValue)) {
-            if (isset($rootValue->{$fieldName})) {
-                $property = $rootValue->{$fieldName};
+        } elseif (is_object($objectValue)) {
+            if (isset($objectValue->{$fieldName})) {
+                $property = $objectValue->{$fieldName};
             }
         }
 
         return $property instanceof Closure
-            ? $property($rootValue, $args, $context, $info)
+            ? $property($objectValue, $args, $context, $info)
             : $property;
     }
 }
