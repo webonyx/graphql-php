@@ -21,7 +21,7 @@ use function is_string;
  * Similar to PHP array, but allows any type of data to act as key (including arrays, objects, scalars)
  *
  * Note: unfortunately when storing array as key - access and modification is O(N)
- * (yet this should be really rare case and should be avoided when possible)
+ * (yet this should rarely be the case and should be avoided when possible)
  */
 class MixedStore implements ArrayAccess
 {
