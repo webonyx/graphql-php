@@ -14,7 +14,7 @@ use GraphQL\Type\Schema;
  * Data that must be available at all points during query execution.
  *
  * Namely, schema of the type system that is currently executing,
- * and the fragments defined in the query document
+ * and the fragments defined in the query document.
  *
  * @internal
  */
@@ -45,7 +45,7 @@ class ExecutionContext
     public $errors;
 
     /** @var PromiseAdapter */
-    public $promises;
+    public $promiseAdapter;
 
     public function __construct(
         $schema,
@@ -53,7 +53,7 @@ class ExecutionContext
         $root,
         $contextValue,
         $operation,
-        $variables,
+        $variableValues,
         $errors,
         $fieldResolver,
         $promiseAdapter
@@ -63,10 +63,10 @@ class ExecutionContext
         $this->rootValue      = $root;
         $this->contextValue   = $contextValue;
         $this->operation      = $operation;
-        $this->variableValues = $variables;
+        $this->variableValues = $variableValues;
         $this->errors         = $errors ?: [];
         $this->fieldResolver  = $fieldResolver;
-        $this->promises       = $promiseAdapter;
+        $this->promiseAdapter = $promiseAdapter;
     }
 
     public function addError(Error $error)
