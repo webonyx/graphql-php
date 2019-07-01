@@ -131,9 +131,7 @@ class ResolveInfoTest extends TestCase
                     'pic'           => [
                         'url'    => true,
                         'width'  => true,
-                        '__inlineFragments' => [
-                            'Image' => ['height' => true],
-                        ],
+                        'height' => true,
                     ],
                     'recentArticle' => [
                         'id'    => true,
@@ -306,9 +304,7 @@ class ResolveInfoTest extends TestCase
                     'pic'           => [
                         'url'    => true,
                         'width'  => true,
-                        '__inlineFragments' => [
-                            'Image' => ['height' => true],
-                        ],
+                        'height' => true,
                     ],
                     'recentArticle' => [
                         'id'    => true,
