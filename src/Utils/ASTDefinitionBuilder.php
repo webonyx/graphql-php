@@ -394,8 +394,8 @@ class ASTDefinitionBuilder
                     function ($typeNode) {
                         return $this->buildType($typeNode);
                     }
-                ) :
-                [],
+                )
+                : [],
             'astNode'     => $def,
         ]);
     }

@@ -273,6 +273,7 @@ class Values
                     return $error->getMessage();
                 },
                 $errors
-            ) : [];
+            )
+            : [];
     }
 }

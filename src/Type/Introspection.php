@@ -488,7 +488,9 @@ EOD;
                         'type'         => [
                             'type'    => Type::nonNull(self::_type()),
                             'resolve' => static function ($value) {
-                                return method_exists($value, 'getType') ? $value->getType() : $value->type;
+                                return method_exists($value, 'getType')
+                                    ? $value->getType()
+                                    : $value->type;
                             },
                         ],
                         'defaultValue' => [
