@@ -473,24 +473,24 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     private function doTypesConflict(OutputType $type1, OutputType $type2)
     {
         if ($type1 instanceof ListOfType) {
-            return $type2 instanceof ListOfType ?
-                $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType()) :
-                true;
+            return $type2 instanceof ListOfType
+                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
+                : true;
         }
         if ($type2 instanceof ListOfType) {
-            return $type1 instanceof ListOfType ?
-                $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType()) :
-                true;
+            return $type1 instanceof ListOfType
+                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
+                : true;
         }
         if ($type1 instanceof NonNull) {
-            return $type2 instanceof NonNull ?
-                $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType()) :
-                true;
+            return $type2 instanceof NonNull
+                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
+                : true;
         }
         if ($type2 instanceof NonNull) {
-            return $type1 instanceof NonNull ?
-                $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType()) :
-                true;
+            return $type1 instanceof NonNull
+                ? $this->doTypesConflict($type1->getWrappedType(), $type2->getWrappedType())
+                : true;
         }
         if (Type::isLeafType($type1) || Type::isLeafType($type2)) {
             return $type1 !== $type2;

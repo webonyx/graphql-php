@@ -768,8 +768,9 @@ class SchemaValidationContext
             );
         }
 
-        return $union->astNode ?
-            $union->astNode->types : null;
+        return $union->astNode
+            ? $union->astNode->types
+            : null;
     }
 
     private function validateEnumValues(EnumType $enumType)
@@ -824,8 +825,9 @@ class SchemaValidationContext
             );
         }
 
-        return $enum->astNode ?
-            $enum->astNode->values : null;
+        return $enum->astNode
+            ? $enum->astNode->values
+            : null;
     }
 
     private function validateInputFields(InputObjectType $inputObj)

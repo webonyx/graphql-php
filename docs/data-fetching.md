@@ -118,7 +118,9 @@ function defaultFieldResolver($rootValue, $args, $context, \GraphQL\Type\Definit
         }
     }
 
-    return $property instanceof Closure ? $property($rootValue, $args, $context, $info) : $property;
+    return $property instanceof Closure
+        ? $property($rootValue, $args, $context, $info)
+        : $property;
 }
 ```
 

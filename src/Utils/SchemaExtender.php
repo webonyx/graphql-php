@@ -609,7 +609,9 @@ class SchemaExtender
         }
 
         $schemaExtensionASTNodes = count($schemaExtensions) > 0
-            ? ($schema->extensionASTNodes ? array_merge($schema->extensionASTNodes, $schemaExtensions) : $schemaExtensions)
+            ? ($schema->extensionASTNodes
+                ? array_merge($schema->extensionASTNodes, $schemaExtensions)
+                : $schemaExtensions)
             : $schema->extensionASTNodes;
 
         $types = array_merge(

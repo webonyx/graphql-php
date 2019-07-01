@@ -31,6 +31,8 @@ class ListOfType extends Type implements WrappingType, OutputType, NullableType,
     {
         $type = $this->ofType;
 
-        return $recurse && $type instanceof WrappingType ? $type->getWrappedType($recurse) : $type;
+        return $recurse && $type instanceof WrappingType
+            ? $type->getWrappedType($recurse)
+            : $type;
     }
 }

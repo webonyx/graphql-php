@@ -182,6 +182,8 @@ class Executor
             }
         }
 
-        return $property instanceof Closure ? $property($rootValue, $args, $context, $info) : $property;
+        return $property instanceof Closure
+            ? $property($rootValue, $args, $context, $info)
+            : $property;
     }
 }
