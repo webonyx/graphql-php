@@ -35,7 +35,7 @@ try {
                     'x' => ['type' => Type::int()],
                     'y' => ['type' => Type::int()],
                 ],
-                'resolve' => function ($rootValue, $args) {
+                'resolve' => function ($calc, $args) {
                     return $args['x'] + $args['y'];
                 },
             ],

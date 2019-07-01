@@ -158,7 +158,7 @@ $heroType = new ObjectType([
             'args' => [
                 'episode' => Type::nonNull($enumType)
             ],
-            'resolve' => function($rootValue, $args) {
+            'resolve' => function($hero, $args) {
                 return $args['episode'] === 5 ? true : false; 
             }
         ]

@@ -44,12 +44,12 @@ class UserType extends ObjectType
             'interfaces' => [
                 Types::node()
             ],
-            'resolveField' => function($rootValue, $args, $context, ResolveInfo $info) {
+            'resolveField' => function($user, $args, $context, ResolveInfo $info) {
                 $method = 'resolve' . ucfirst($info->fieldName);
                 if (method_exists($this, $method)) {
-                    return $this->{$method}($rootValue, $args, $context, $info);
+                    return $this->{$method}($user, $args, $context, $info);
                 } else {
-                    return $rootValue->{$info->fieldName};
+                    return $user->{$info->fieldName};
                 }
             }
         ];

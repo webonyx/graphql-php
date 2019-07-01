@@ -273,7 +273,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'test' => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($rootValue, $args, $ctx, $_info) use (&$info) {
+                        'resolve' => static function ($test, $args, $ctx, $_info) use (&$info) {
                             $info = $_info;
                         },
                     ],

@@ -16,7 +16,7 @@ class Adder
     {
         $this->num = $num;
 
-        $this->test = function ($rootValue, $args, $context) {
+        $this->test = function ($objectValue, $args, $context) {
             return $this->num + $args['addend1'] + $context['addend2'];
         };
     }
