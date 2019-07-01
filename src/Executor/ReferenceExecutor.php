@@ -526,7 +526,11 @@ class ReferenceExecutor implements ExecutorImplementation
             return self::$UNDEFINED;
         }
         $returnType = $fieldDef->getType();
-        // The resolve function's optional third argument is a collection of
+        // The resolve function's optional 3rd argument is a context value that
+        // is provided to every resolve function within an execution. It is commonly
+        // used to represent an authenticated user, or request-specific caches.
+        $context = $exeContext->contextValue;
+        // The resolve function's optional 4th argument is a collection of
         // information about the current execution state.
         $info = new ResolveInfo(
             $fieldName,
@@ -547,10 +551,6 @@ class ReferenceExecutor implements ExecutorImplementation
         } else {
             $resolveFn = $this->exeContext->fieldResolver;
         }
-        // The resolve function's optional third argument is a context value that
-        // is provided to every resolve function within an execution. It is commonly
-        // used to represent an authenticated user, or request-specific caches.
-        $context = $exeContext->contextValue;
         // Get the resolve function, regardless of if its result is normal
         // or abrupt (error).
         $result = $this->resolveOrError(
