@@ -199,7 +199,7 @@ class ReferenceExecutor implements ExecutorImplementation
     public function doExecute() : Promise
     {
         // Return a Promise that will eventually resolve to the data described by
-        // The "Response" section of the GraphQL specification.
+        // the "Response" section of the GraphQL specification.
         //
         // If errors are encountered while executing a GraphQL field, only that
         // field and its descendants will be omitted, and sibling fields will still
@@ -212,7 +212,7 @@ class ReferenceExecutor implements ExecutorImplementation
         // But for the "sync" case it is always fulfilled
         return $this->isPromise($result)
             ? $result
-            : $this->exeContext->promises->createFulfilled($result);
+            : $this->exeContext->promiseAdapter->createFulfilled($result);
     }
 
     /**
@@ -252,9 +252,9 @@ class ReferenceExecutor implements ExecutorImplementation
         //
         // Similar to completeValueCatchingError.
         try {
-            $result = $operation->operation === 'mutation' ?
-                $this->executeFieldsSerially($type, $rootValue, $path, $fields) :
-                $this->executeFields($type, $rootValue, $path, $fields);
+            $result = $operation->operation === 'mutation'
+                ? $this->executeFieldsSerially($type, $rootValue, $path, $fields)
+                : $this->executeFields($type, $rootValue, $path, $fields);
             if ($this->isPromise($result)) {
                 return $result->then(
                     null,
@@ -262,7 +262,7 @@ class ReferenceExecutor implements ExecutorImplementation
                         if ($error instanceof Error) {
                             $this->exeContext->addError($error);
 
-                            return $this->exeContext->promises->createFulfilled(null);
+                            return $this->exeContext->promiseAdapter->createFulfilled(null);
                         }
                     }
                 );
@@ -526,7 +526,11 @@ class ReferenceExecutor implements ExecutorImplementation
             return self::$UNDEFINED;
         }
         $returnType = $fieldDef->getType();
-        // The resolve function's optional third argument is a collection of
+        // The resolve function's optional 3rd argument is a context value that
+        // is provided to every resolve function within an execution. It is commonly
+        // used to represent an authenticated user, or request-specific caches.
+        $context = $exeContext->contextValue;
+        // The resolve function's optional 4th argument is a collection of
         // information about the current execution state.
         $info = new ResolveInfo(
             $fieldName,
@@ -547,10 +551,6 @@ class ReferenceExecutor implements ExecutorImplementation
         } else {
             $resolveFn = $this->exeContext->fieldResolver;
         }
-        // The resolve function's optional third argument is a context value that
-        // is provided to every resolve function within an execution. It is commonly
-        // used to represent an authenticated user, or request-specific caches.
-        $context = $exeContext->contextValue;
         // Get the resolve function, regardless of if its result is normal
         // or abrupt (error).
         $result = $this->resolveOrError(
@@ -574,6 +574,7 @@ class ReferenceExecutor implements ExecutorImplementation
 
     /**
      * This method looks up the field on the given type definition.
+     *
      * It has special casing for the two introspection fields, __schema
      * and __typename. __typename is special because it can always be
      * queried as a field, even in situations where no other fields
@@ -608,8 +609,8 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * Isolates the "ReturnOrAbrupt" behavior to not de-opt the `resolveField`
-     * function. Returns the result of resolveFn or the abrupt-return Error object.
+     * Isolates the "ReturnOrAbrupt" behavior to not de-opt the `resolveField` function.
+     * Returns the result of resolveFn or the abrupt-return Error object.
      *
      * @param FieldDefinition $fieldDef
      * @param FieldNode       $fieldNode
@@ -623,7 +624,7 @@ class ReferenceExecutor implements ExecutorImplementation
     private function resolveOrError($fieldDef, $fieldNode, $resolveFn, $source, $context, $info)
     {
         try {
-            // Build hash of arguments from the field.arguments AST, using the
+            // Build a map of arguments from the field.arguments AST, using the
             // variables scope to fulfill any variable references.
             $args = Values::getArgumentValues(
                 $fieldDef,
@@ -685,7 +686,7 @@ class ReferenceExecutor implements ExecutorImplementation
                     function ($error) use ($exeContext) {
                         $exeContext->addError($error);
 
-                        return $this->exeContext->promises->createFulfilled(null);
+                        return $this->exeContext->promiseAdapter->createFulfilled(null);
                     }
                 );
             }
@@ -732,7 +733,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 return $promise->then(
                     null,
                     function ($error) use ($fieldNodes, $path) {
-                        return $this->exeContext->promises->createRejected(Error::createLocatedError(
+                        return $this->exeContext->promiseAdapter->createRejected(Error::createLocatedError(
                             $error,
                             $fieldNodes,
                             $path
@@ -864,7 +865,7 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     private function isPromise($value)
     {
-        return $value instanceof Promise || $this->exeContext->promises->isThenable($value);
+        return $value instanceof Promise || $this->exeContext->promiseAdapter->isThenable($value);
     }
 
     /**
@@ -880,12 +881,12 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($value === null || $value instanceof Promise) {
             return $value;
         }
-        if ($this->exeContext->promises->isThenable($value)) {
-            $promise = $this->exeContext->promises->convertThenable($value);
+        if ($this->exeContext->promiseAdapter->isThenable($value)) {
+            $promise = $this->exeContext->promiseAdapter->convertThenable($value);
             if (! $promise instanceof Promise) {
                 throw new InvariantViolation(sprintf(
                     '%s::convertThenable is expected to return instance of GraphQL\Executor\Promise\Promise, got: %s',
-                    get_class($this->exeContext->promises),
+                    get_class($this->exeContext->promiseAdapter),
                     Utils::printSafe($promise)
                 ));
             }
@@ -927,28 +928,27 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * Complete a list value by completing each item in the list with the
-     * inner type
+     * Complete a list value by completing each item in the list with the inner type.
      *
-     * @param FieldNode[] $fieldNodes
-     * @param mixed[]     $path
-     * @param mixed       $result
+     * @param FieldNode[]         $fieldNodes
+     * @param mixed[]             $path
+     * @param mixed[]|Traversable $results
      *
      * @return mixed[]|Promise
      *
      * @throws Exception
      */
-    private function completeListValue(ListOfType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
+    private function completeListValue(ListOfType $returnType, $fieldNodes, ResolveInfo $info, $path, &$results)
     {
         $itemType = $returnType->getWrappedType();
         Utils::invariant(
-            is_array($result) || $result instanceof Traversable,
+            is_array($results) || $results instanceof Traversable,
             'User Error: expected iterable, but did not find one for field ' . $info->parentType . '.' . $info->fieldName . '.'
         );
         $containsPromise = false;
         $i               = 0;
         $completedItems  = [];
-        foreach ($result as $item) {
+        foreach ($results as $item) {
             $fieldPath     = $path;
             $fieldPath[]   = $i++;
             $info->path    = $fieldPath;
@@ -959,7 +959,9 @@ class ReferenceExecutor implements ExecutorImplementation
             $completedItems[] = $completedItem;
         }
 
-        return $containsPromise ? $this->exeContext->promises->all($completedItems) : $completedItems;
+        return $containsPromise
+            ? $this->exeContext->promiseAdapter->all($completedItems)
+            : $completedItems;
     }
 
     /**
@@ -1101,7 +1103,7 @@ class ReferenceExecutor implements ExecutorImplementation
             }
         }
         if (! empty($promisedIsTypeOfResults)) {
-            return $this->exeContext->promises->all($promisedIsTypeOfResults)
+            return $this->exeContext->promiseAdapter->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes) {
                     foreach ($isTypeOfResults as $index => $result) {
                         if ($result) {
@@ -1187,7 +1189,7 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * @param FieldNode[] $fieldNodes
      * @param mixed[]     $path
-     * @param mixed[]     $result
+     * @param mixed       $result
      *
      * @return mixed[]|Promise|stdClass
      *
@@ -1299,7 +1301,7 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $keys              = array_keys($assoc);
         $valuesAndPromises = array_values($assoc);
-        $promise           = $this->exeContext->promises->all($valuesAndPromises);
+        $promise           = $this->exeContext->promiseAdapter->all($valuesAndPromises);
 
         return $promise->then(static function ($values) use ($keys) {
             $resolvedResults = [];
@@ -1324,9 +1326,9 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         &$result
     ) {
-        $runtimeType = is_string($runtimeTypeOrName) ?
-            $this->exeContext->schema->getType($runtimeTypeOrName) :
-            $runtimeTypeOrName;
+        $runtimeType = is_string($runtimeTypeOrName)
+            ? $this->exeContext->schema->getType($runtimeTypeOrName)
+            : $runtimeTypeOrName;
         if (! $runtimeType instanceof ObjectType) {
             throw new InvariantViolation(
                 sprintf(

@@ -73,10 +73,14 @@ class Helper
             }
 
             if (stripos($contentType, 'application/graphql') !== false) {
-                $rawBody    = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
+                $rawBody    = $readRawBodyFn
+                    ? $readRawBodyFn()
+                    : $this->readRawBody();
                 $bodyParams = ['query' => $rawBody ?: ''];
             } elseif (stripos($contentType, 'application/json') !== false) {
-                $rawBody    = $readRawBodyFn ? $readRawBodyFn() : $this->readRawBody();
+                $rawBody    = $readRawBodyFn ?
+                    $readRawBodyFn()
+                    : $this->readRawBody();
                 $bodyParams = json_decode($rawBody ?: '', true);
 
                 if (json_last_error()) {
@@ -272,7 +276,9 @@ class Helper
                 );
             }
 
-            $doc = $op->queryId ? $this->loadPersistedQuery($config, $op) : $op->query;
+            $doc = $op->queryId
+                ? $this->loadPersistedQuery($config, $op)
+                : $op->query;
 
             if (! $doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);

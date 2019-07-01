@@ -401,7 +401,7 @@ class DeferredFieldsTest extends TestCase
                 return [
                     'sync'         => [
                         'type'    => Type::string(),
-                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
+                        'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                             $this->paths[] = $info->path;
 
                             return 'sync';
@@ -409,7 +409,7 @@ class DeferredFieldsTest extends TestCase
                     ],
                     'deferred'     => [
                         'type'    => Type::string(),
-                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
+                        'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                             $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($info) {
@@ -421,7 +421,7 @@ class DeferredFieldsTest extends TestCase
                     ],
                     'nest'         => [
                         'type'    => $complexType,
-                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
+                        'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                             $this->paths[] = $info->path;
 
                             return [];
@@ -429,7 +429,7 @@ class DeferredFieldsTest extends TestCase
                     ],
                     'deferredNest' => [
                         'type'    => $complexType,
-                        'resolve' => function ($v, $a, $c, ResolveInfo $info) {
+                        'resolve' => function ($val, $args, $context, ResolveInfo $info) {
                             $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($info) {

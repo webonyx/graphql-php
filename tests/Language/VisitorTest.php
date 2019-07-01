@@ -70,7 +70,12 @@ class VisitorTest extends ValidatorTestCase
         /** @var Node $node */
         [$node, $key, $parent, $path, $ancestors] = $args;
 
-        $parentArray = $parent && ! is_array($parent) ? ($parent instanceof NodeList ? iterator_to_array($parent) : $parent->toArray()) : $parent;
+        $parentArray = $parent && ! is_array($parent)
+            ? ($parent instanceof NodeList
+                ? iterator_to_array($parent)
+                : $parent->toArray()
+            )
+            : $parent;
 
         self::assertInstanceOf(Node::class, $node);
         self::assertContains($node->kind, array_keys(NodeKind::$classMap));
@@ -114,7 +119,9 @@ class VisitorTest extends ValidatorTestCase
     {
         $result = $ast;
         foreach ($path as $key) {
-            $resultArray = $result instanceof NodeList ? iterator_to_array($result) : $result->toArray();
+            $resultArray = $result instanceof NodeList
+                ? iterator_to_array($result)
+                : $result->toArray();
             self::assertArrayHasKey($key, $resultArray);
             $result = $resultArray[$key];
         }
