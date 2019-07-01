@@ -197,10 +197,14 @@ final class QueryPlanTest extends TestCase
                                         'args' => [],
                                         'fields' => [],
                                     ],
-                                    'height' => [
-                                        'type' => Type::int(),
-                                        'args' => [],
-                                        'fields' => [],
+                                    '__inlineFragments' => [
+                                        'Image' => [
+                                            'height' => [
+                                                'type' => Type::int(),
+                                                'args' => [],
+                                                'fields' => [],
+                                            ],
+                                        ],
                                     ],
                                 ],
                             ],
@@ -332,15 +336,19 @@ final class QueryPlanTest extends TestCase
         }';
 
         $expectedQueryPlan = [
-            'woofs'  => [
-                'type' => Type::boolean(),
-                'fields' => [],
-                'args' => [],
-            ],
-            'name'   => [
+            'name' => [
                 'type' => Type::string(),
                 'args' => [],
                 'fields' => [],
+            ],
+            '__inlineFragments' => [
+                'Dog' => [
+                    'woofs' => [
+                        'type' => Type::boolean(),
+                        'fields' => [],
+                        'args' => [],
+                    ],
+                ],
             ],
         ];
 
@@ -599,10 +607,14 @@ final class QueryPlanTest extends TestCase
                                         'args' => [],
                                         'fields' => [],
                                     ],
-                                    'height' => [
-                                        'type' => Type::int(),
-                                        'args' => [],
-                                        'fields' => [],
+                                    '__inlineFragments' => [
+                                        'Image' => [
+                                            'height' => [
+                                                'type' => Type::int(),
+                                                'args' => [],
+                                                'fields' => [],
+                                            ],
+                                        ],
                                     ],
                                 ],
                             ],

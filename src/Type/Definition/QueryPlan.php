@@ -23,6 +23,8 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_numeric;
+use function strlen;
+use function substr;
 
 class QueryPlan
 {
@@ -125,7 +127,9 @@ class QueryPlan
 
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_keys($subfields)
+                array_filter(array_keys($subfields), static function ($fieldName) {
+                    return substr($fieldName, 0, 2) !== '__';
+                })
             ));
 
             $queryPlan = array_merge_recursive(
@@ -177,7 +181,9 @@ class QueryPlan
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
                 $type      = $this->schema->getType($selectionNode->typeCondition->name->value);
-                $subfields = $this->analyzeSubFields($type, $selectionNode->selectionSet);
+                $subfields = [
+                    '__inlineFragments' => [$type->name => $this->analyzeSubFields($type, $selectionNode->selectionSet)],
+                ];
 
                 $fields = $this->arrayMergeDeep(
                     $subfields,
@@ -199,11 +205,13 @@ class QueryPlan
         }
 
         $subfields = [];
-        if ($type instanceof ObjectType) {
+        if ($type instanceof ObjectType || $type instanceof UnionType) {
             $subfields                = $this->analyzeSelectionSet($selectionSet, $type);
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_keys($subfields)
+                array_filter(array_keys($subfields), static function ($fieldName) {
+                    return substr($fieldName, 0, 2) !== '__';
+                })
             ));
         }
 
