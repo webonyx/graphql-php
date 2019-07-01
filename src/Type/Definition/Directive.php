@@ -8,19 +8,17 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
-use function array_keys;
-use function in_array;
 use function is_array;
 
 class Directive
 {
     public const DEFAULT_DEPRECATION_REASON = 'No longer supported';
 
-    const INCLUDE_NAME         = 'include';
-    const IF_ARGUMENT_NAME     = 'if';
-    const SKIP_NAME            = 'skip';
-    const DEPRECATED_NAME      = 'deprecated';
-    const REASON_ARGUMENT_NAME = 'reason';
+    public const INCLUDE_NAME         = 'include';
+    public const IF_ARGUMENT_NAME     = 'if';
+    public const SKIP_NAME            = 'skip';
+    public const DEPRECATED_NAME      = 'deprecated';
+    public const REASON_ARGUMENT_NAME = 'reason';
 
     /** @var Directive[] */
     public static $internalDirectives;
@@ -84,9 +82,9 @@ class Directive
     /**
      * @return Directive[]
      */
-    public static function getInternalDirectives()
+    public static function getInternalDirectives() : array
     {
-        if (! self::$internalDirectives) {
+        if (self::$internalDirectives === null) {
             self::$internalDirectives = [
                 'include'    => new self([
                     'name'        => self::INCLUDE_NAME,

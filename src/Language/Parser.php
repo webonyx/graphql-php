@@ -590,15 +590,15 @@ class Parser
      */
     private function parseVariableDefinitions()
     {
-        return $this->peek(Token::PAREN_L) ?
-            $this->many(
+        return $this->peek(Token::PAREN_L)
+            ? $this->many(
                 Token::PAREN_L,
                 function () {
                     return $this->parseVariableDefinition();
                 },
                 Token::PAREN_R
-            ) :
-            new NodeList([]);
+            )
+            : new NodeList([]);
     }
 
     /**
@@ -670,9 +670,9 @@ class Parser
      */
     private function parseSelection()
     {
-        return $this->peek(Token::SPREAD) ?
-            $this->parseFragment() :
-            $this->parseField();
+        return $this->peek(Token::SPREAD)
+            ? $this->parseFragment()
+            : $this->parseField();
     }
 
     /**
@@ -712,17 +712,17 @@ class Parser
      */
     private function parseArguments($isConst)
     {
-        $parseFn = $isConst ?
-            function () {
+        $parseFn = $isConst
+            ? function () {
                 return $this->parseConstArgument();
-            } :
-            function () {
+            }
+            : function () {
                 return $this->parseArgument();
             };
 
-        return $this->peek(Token::PAREN_L) ?
-            $this->many(Token::PAREN_L, $parseFn, Token::PAREN_R) :
-            new NodeList([]);
+        return $this->peek(Token::PAREN_L)
+            ? $this->many(Token::PAREN_L, $parseFn, Token::PAREN_R)
+            : new NodeList([]);
     }
 
     /**
@@ -1286,8 +1286,8 @@ class Parser
             do {
                 $types[] = $this->parseNamedType();
             } while ($this->skip(Token::AMP) ||
-            // Legacy support for the SDL?
-            (! empty($this->lexer->options['allowLegacySDLImplementsInterfaces']) && $this->peek(Token::NAME))
+                // Legacy support for the SDL?
+                (! empty($this->lexer->options['allowLegacySDLImplementsInterfaces']) && $this->peek(Token::NAME))
             );
         }
 
@@ -1623,7 +1623,8 @@ class Parser
                 Token::BRACE_L,
                 [$this, 'parseOperationTypeDefinition'],
                 Token::BRACE_R
-            ) : [];
+            )
+            : [];
         if (count($directives) === 0 && count($operationTypes) === 0) {
             $this->unexpected();
         }
@@ -1733,9 +1734,7 @@ class Parser
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
         $types      = $this->parseUnionMemberTypes();
-        if (count($directives) === 0 &&
-            ! $types
-        ) {
+        if (count($directives) === 0 && count($types) === 0) {
             throw $this->unexpected();
         }
 

@@ -314,11 +314,11 @@ class Lexer
         $start         = $this->position;
         [$char, $code] = $this->readChar();
 
-        while ($code && (
+        while ($code !== null && (
                 $code === 95 || // _
-                $code >= 48 && $code <= 57 || // 0-9
-                $code >= 65 && $code <= 90 || // A-Z
-                $code >= 97 && $code <= 122 // a-z
+                ($code >= 48 && $code <= 57) || // 0-9
+                ($code >= 65 && $code <= 90) || // A-Z
+                ($code >= 97 && $code <= 122) // a-z
             )) {
             $value        .= $char;
             [$char, $code] = $this->moveStringCursor(1, 1)->readChar();
@@ -695,7 +695,7 @@ class Lexer
         do {
             [$char, $code, $bytes] = $this->moveStringCursor(1, $bytes)->readChar();
             $value                .= $char;
-        } while ($code &&
+        } while ($code !== null &&
         // SourceCharacter but not LineTerminator
         ($code > 0x001F || $code === 0x0009)
         );

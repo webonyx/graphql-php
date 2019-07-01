@@ -13,9 +13,9 @@ class ScalarSerializationTest extends TestCase
 {
     // Type System: Scalar coercion
     /**
-     * @see it('serializes output int')
+     * @see it('serializes output as Int')
      */
-    public function testSerializesOutputInt() : void
+    public function testSerializesOutputAsInt() : void
     {
         $intType = Type::int();
 
@@ -114,9 +114,9 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @see it('serializes output float')
+     * @see it('serializes output as Float')
      */
-    public function testSerializesOutputFloat() : void
+    public function testSerializesOutputAsFloat() : void
     {
         $floatType = Type::float();
 
@@ -149,9 +149,9 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @see it('serializes output strings')
+     * @see it('serializes output as String')
      */
-    public function testSerializesOutputStrings() : void
+    public function testSerializesOutputAsString() : void
     {
         $stringType = Type::string();
 
@@ -181,23 +181,27 @@ class ScalarSerializationTest extends TestCase
     }
 
     /**
-     * @see it('serializes output boolean')
+     * @see it('serializes output as Boolean')
      */
-    public function testSerializesOutputBoolean() : void
+    public function testSerializesOutputAsBoolean() : void
     {
         $boolType = Type::boolean();
 
-        self::assertTrue($boolType->serialize('string'));
-        self::assertFalse($boolType->serialize(''));
-        self::assertTrue($boolType->serialize('1'));
-        self::assertTrue($boolType->serialize(1));
-        self::assertFalse($boolType->serialize(0));
         self::assertTrue($boolType->serialize(true));
+        self::assertTrue($boolType->serialize(1));
+        self::assertTrue($boolType->serialize('1'));
+        self::assertTrue($boolType->serialize('string'));
+
         self::assertFalse($boolType->serialize(false));
-        // TODO: how should it behave on '0'?
+        self::assertFalse($boolType->serialize(0));
+        self::assertFalse($boolType->serialize('0'));
+        self::assertFalse($boolType->serialize(''));
     }
 
-    public function testSerializesOutputID() : void
+    /**
+     * @see it('serializes output as ID')
+     */
+    public function testSerializesOutputAsID() : void
     {
         $idType = Type::id();
 

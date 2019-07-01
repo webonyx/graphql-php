@@ -183,7 +183,7 @@ class AST
                     $valuesNodes[] = $itemNode;
                 }
 
-                return new ListValueNode(['values' => $valuesNodes]);
+                return new ListValueNode(['values' => new NodeList($valuesNodes)]);
             }
 
             return self::astFromValue($value, $itemType);
@@ -235,7 +235,7 @@ class AST
                 ]);
             }
 
-            return new ObjectValueNode(['fields' => $fieldNodes]);
+            return new ObjectValueNode(['fields' => new NodeList($fieldNodes)]);
         }
 
         if ($type instanceof ScalarType || $type instanceof EnumType) {

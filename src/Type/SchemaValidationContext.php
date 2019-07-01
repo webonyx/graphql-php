@@ -252,7 +252,7 @@ class SchemaValidationContext
             if (! $type instanceof NamedType) {
                 $this->reportError(
                     'Expected GraphQL named type but got: ' . Utils::printSafe($type) . '.',
-                    is_object($type) ? $type->astNode : null
+                    $type instanceof Type ? $type->astNode : null
                 );
                 continue;
             }
@@ -768,8 +768,9 @@ class SchemaValidationContext
             );
         }
 
-        return $union->astNode ?
-            $union->astNode->types : null;
+        return $union->astNode
+            ? $union->astNode->types
+            : null;
     }
 
     private function validateEnumValues(EnumType $enumType)
@@ -824,8 +825,9 @@ class SchemaValidationContext
             );
         }
 
-        return $enum->astNode ?
-            $enum->astNode->values : null;
+        return $enum->astNode
+            ? $enum->astNode->values
+            : null;
     }
 
     private function validateInputFields(InputObjectType $inputObj)

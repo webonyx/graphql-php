@@ -40,7 +40,9 @@ function renderClassMethod(ReflectionMethod $method) {
         $def = $type . '$' . $p->getName();
 
         if ($p->isDefaultValueAvailable()) {
-            $val = $p->isDefaultValueConstant() ? $p->getDefaultValueConstantName() : $p->getDefaultValue();
+            $val = $p->isDefaultValueConstant()
+                ? $p->getDefaultValueConstantName()
+                : $p->getDefaultValue();
             $def .= " = " . Utils::printSafeJson($val);
         }
 

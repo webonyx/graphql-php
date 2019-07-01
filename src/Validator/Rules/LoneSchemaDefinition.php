@@ -19,12 +19,14 @@ class LoneSchemaDefinition extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         $oldSchema      = $context->getSchema();
-        $alreadyDefined = $oldSchema !== null ? (
-            $oldSchema->getAstNode() ||
-            $oldSchema->getQueryType() ||
-            $oldSchema->getMutationType() ||
-            $oldSchema->getSubscriptionType()
-        ) : false;
+        $alreadyDefined = $oldSchema !== null
+            ? (
+                $oldSchema->getAstNode() ||
+                $oldSchema->getQueryType() ||
+                $oldSchema->getMutationType() ||
+                $oldSchema->getSubscriptionType()
+            )
+            : false;
 
         $schemaDefinitionsCount = 0;
 

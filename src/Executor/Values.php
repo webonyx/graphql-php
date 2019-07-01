@@ -92,7 +92,7 @@ class Values
                             ),
                             [$varDefNode]
                         );
-                    } elseif ($varDefNode->defaultValue) {
+                    } elseif ($varDefNode->defaultValue !== null) {
                         $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
                     }
                 }
@@ -196,7 +196,7 @@ class Values
             $argType           = $argumentDefinition->getType();
             $argumentValueNode = $argumentValueMap[$name] ?? null;
 
-            if (! $argumentValueNode) {
+            if ($argumentValueNode === null) {
                 if ($argumentDefinition->defaultValueExists()) {
                     $coercedValues[$name] = $argumentDefinition->defaultValue;
                 } elseif ($argType instanceof NonNull) {
@@ -209,7 +209,7 @@ class Values
             } elseif ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
 
-                if ($variableValues && array_key_exists($variableName, $variableValues)) {
+                if ($variableValues !== null && array_key_exists($variableName, $variableValues)) {
                     // Note: this does not check that this variable value is correct.
                     // This assumes that this query has been validated and the variable
                     // usage here is of the correct type.
@@ -273,6 +273,7 @@ class Values
                     return $error->getMessage();
                 },
                 $errors
-            ) : [];
+            )
+            : [];
     }
 }

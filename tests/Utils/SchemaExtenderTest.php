@@ -219,7 +219,9 @@ class SchemaExtenderTest extends TestCase
     {
         $ast              = Parser::parse(SchemaPrinter::doPrint($extendedSchema));
         $ast->definitions = array_values(array_filter(
-            $ast->definitions instanceof NodeList ? iterator_to_array($ast->definitions->getIterator()) : $ast->definitions,
+            $ast->definitions instanceof NodeList
+                ? iterator_to_array($ast->definitions->getIterator())
+                : $ast->definitions,
             function (Node $node) : bool {
                 return ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true);
             }
