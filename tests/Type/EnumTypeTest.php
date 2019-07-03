@@ -74,7 +74,7 @@ class EnumTypeTest extends TestCase
                         'fromInt'    => ['type' => Type::int()],
                         'fromString' => ['type' => Type::string()],
                     ],
-                    'resolve' => static function ($value, $args) {
+                    'resolve' => static function ($rootValue, $args) {
                         if (isset($args['fromInt'])) {
                             return $args['fromInt'];
                         }
@@ -92,7 +92,7 @@ class EnumTypeTest extends TestCase
                         'fromName'  => ['type' => Type::string()],
                         'fromValue' => ['type' => Type::string()],
                     ],
-                    'resolve' => static function ($value, $args) {
+                    'resolve' => static function ($rootValue, $args) {
                         if (isset($args['fromName'])) {
                             return $args['fromName'];
                         }
@@ -107,7 +107,7 @@ class EnumTypeTest extends TestCase
                         'fromEnum' => ['type' => $ColorType],
                         'fromInt'  => ['type' => Type::int()],
                     ],
-                    'resolve' => static function ($value, $args) {
+                    'resolve' => static function ($rootValue, $args) {
                         if (isset($args['fromInt'])) {
                             return $args['fromInt'];
                         }
@@ -132,7 +132,7 @@ class EnumTypeTest extends TestCase
                             'type' => Type::boolean(),
                         ],
                     ],
-                    'resolve' => static function ($value, $args) use ($Complex2) {
+                    'resolve' => static function ($rootValue, $args) use ($Complex2) {
                         if (! empty($args['provideGoodValue'])) {
                             // Note: this is one of the references of the internal values which
                             // ComplexEnum allows.
@@ -156,7 +156,7 @@ class EnumTypeTest extends TestCase
                 'favoriteEnum' => [
                     'type'    => $ColorType,
                     'args'    => ['color' => ['type' => $ColorType]],
-                    'resolve' => static function ($value, $args) {
+                    'resolve' => static function ($rootValue, $args) {
                         return $args['color'] ?? null;
                     },
                 ],
@@ -169,7 +169,7 @@ class EnumTypeTest extends TestCase
                 'subscribeToEnum' => [
                     'type'    => $ColorType,
                     'args'    => ['color' => ['type' => $ColorType]],
-                    'resolve' => static function ($value, $args) {
+                    'resolve' => static function ($rootValue, $args) {
                         return $args['color'] ?? null;
                     },
                 ],

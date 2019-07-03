@@ -237,7 +237,7 @@ class ReferenceExecutor implements ExecutorImplementation
     /**
      * Implements the "Evaluating operations" section of the spec.
      *
-     * @param  mixed[] $rootValue
+     * @param  mixed $rootValue
      *
      * @return Promise|stdClass|mixed[]
      */
@@ -463,21 +463,21 @@ class ReferenceExecutor implements ExecutorImplementation
      * Implements the "Evaluating selection sets" section of the spec
      * for "write" mode.
      *
-     * @param mixed[]     $sourceValue
+     * @param mixed       $rootValue
      * @param mixed[]     $path
      * @param ArrayObject $fields
      *
      * @return Promise|stdClass|mixed[]
      */
-    private function executeFieldsSerially(ObjectType $parentType, $sourceValue, $path, $fields)
+    private function executeFieldsSerially(ObjectType $parentType, $rootValue, $path, $fields)
     {
         $result = $this->promiseReduce(
             array_keys($fields->getArrayCopy()),
-            function ($results, $responseName) use ($path, $parentType, $sourceValue, $fields) {
+            function ($results, $responseName) use ($path, $parentType, $rootValue, $fields) {
                 $fieldNodes  = $fields[$responseName];
                 $fieldPath   = $path;
                 $fieldPath[] = $responseName;
-                $result      = $this->resolveField($parentType, $sourceValue, $fieldNodes, $fieldPath);
+                $result      = $this->resolveField($parentType, $rootValue, $fieldNodes, $fieldPath);
                 if ($result === self::$UNDEFINED) {
                     return $results;
                 }
@@ -505,18 +505,19 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * Resolves the field on the given source object. In particular, this
-     * figures out the value that the field returns by calling its resolve function,
-     * then calls completeValue to complete promises, serialize scalars, or execute
-     * the sub-selection-set for objects.
+     * Resolves the field on the given root value.
      *
-     * @param object|null $source
+     * In particular, this figures out the value that the field returns
+     * by calling its resolve function, then calls completeValue to complete promises,
+     * serialize scalars, or execute the sub-selection-set for objects.
+     *
+     * @param mixed       $rootValue
      * @param FieldNode[] $fieldNodes
      * @param mixed[]     $path
      *
      * @return mixed[]|Exception|mixed|null
      */
-    private function resolveField(ObjectType $parentType, $source, $fieldNodes, $path)
+    private function resolveField(ObjectType $parentType, $rootValue, $fieldNodes, $path)
     {
         $exeContext = $this->exeContext;
         $fieldNode  = $fieldNodes[0];
@@ -557,7 +558,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $fieldDef,
             $fieldNode,
             $resolveFn,
-            $source,
+            $rootValue,
             $context,
             $info
         );
@@ -615,13 +616,13 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param FieldDefinition $fieldDef
      * @param FieldNode       $fieldNode
      * @param callable        $resolveFn
-     * @param mixed           $source
+     * @param mixed           $rootValue
      * @param mixed           $context
      * @param ResolveInfo     $info
      *
      * @return Throwable|Promise|mixed
      */
-    private function resolveOrError($fieldDef, $fieldNode, $resolveFn, $source, $context, $info)
+    private function resolveOrError($fieldDef, $fieldNode, $resolveFn, $rootValue, $context, $info)
     {
         try {
             // Build a map of arguments from the field.arguments AST, using the
@@ -632,7 +633,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 $this->exeContext->variableValues
             );
 
-            return $resolveFn($source, $args, $context, $info);
+            return $resolveFn($rootValue, $args, $context, $info);
         } catch (Exception $error) {
             return $error;
         } catch (Throwable $error) {
@@ -1236,20 +1237,20 @@ class ReferenceExecutor implements ExecutorImplementation
      * Implements the "Evaluating selection sets" section of the spec
      * for "read" mode.
      *
-     * @param mixed|null  $source
+     * @param mixed       $rootValue
      * @param mixed[]     $path
      * @param ArrayObject $fields
      *
      * @return Promise|stdClass|mixed[]
      */
-    private function executeFields(ObjectType $parentType, $source, $path, $fields)
+    private function executeFields(ObjectType $parentType, $rootValue, $path, $fields)
     {
         $containsPromise = false;
         $finalResults    = [];
         foreach ($fields as $responseName => $fieldNodes) {
             $fieldPath   = $path;
             $fieldPath[] = $responseName;
-            $result      = $this->resolveField($parentType, $source, $fieldNodes, $fieldPath);
+            $result      = $this->resolveField($parentType, $rootValue, $fieldNodes, $fieldPath);
             if ($result === self::$UNDEFINED) {
                 continue;
             }
