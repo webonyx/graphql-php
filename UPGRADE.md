@@ -1,3 +1,8 @@
+## Master
+
+### Breaking (major): dropped deprecations
+ - dropped deprecated `GraphQL\Schema`. Use `GraphQL\Type\Schema`.
+
 ## Upgrade v0.12.x > v0.13.x
 
 ### Breaking (major): minimum supported version of PHP
