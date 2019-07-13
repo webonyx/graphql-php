@@ -20,8 +20,8 @@ class Directive
     public const DEPRECATED_NAME      = 'deprecated';
     public const REASON_ARGUMENT_NAME = 'reason';
 
-    /** @var Directive[] */
-    public static $internalDirectives = [];
+    /** @var Directive[]|null */
+    public static $internalDirectives;
 
     // Schema Definitions
 
