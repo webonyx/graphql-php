@@ -752,7 +752,7 @@ type Query {
         self::assertEquals('Terrible reasons', $otherValue->deprecationReason);
 
         /** @var ObjectType $queryType */
-        $queryType = $schema->getType('Query');
+        $queryType  = $schema->getType('Query');
         $rootFields = $queryType->getFields();
         self::assertEquals($rootFields['field1']->isDeprecated(), true);
         self::assertEquals($rootFields['field1']->deprecationReason, 'No longer supported');
@@ -800,17 +800,17 @@ type Query {
         $schema    = BuildSchema::buildAST($schemaAST);
 
         /** @var ObjectType $query */
-        $query         = $schema->getType('Query');
+        $query = $schema->getType('Query');
         /** @var InputObjectType $testInput */
-        $testInput     = $schema->getType('TestInput');
+        $testInput = $schema->getType('TestInput');
         /** @var EnumType $testEnum */
-        $testEnum      = $schema->getType('TestEnum');
+        $testEnum = $schema->getType('TestEnum');
         /** @var UnionType $testUnion */
-        $testUnion     = $schema->getType('TestUnion');
+        $testUnion = $schema->getType('TestUnion');
         /** @var InterfaceType $testInterface */
         $testInterface = $schema->getType('TestInterface');
         /** @var ObjectType $testType */
-        $testType      = $schema->getType('TestType');
+        $testType = $schema->getType('TestType');
         /** @var ScalarType $testScalar */
         $testScalar    = $schema->getType('TestScalar');
         $testDirective = $schema->getDirective('test');

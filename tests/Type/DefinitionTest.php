@@ -709,7 +709,7 @@ class DefinitionTest extends TestCase
         /** @var InterfaceType $SomeInterface */
         $SomeInterface = $schema->getType('SomeInterface');
 
-        $valueField  = $SomeInterface->getField('value');
+        $valueField = $SomeInterface->getField('value');
         self::assertEquals(Type::string(), $valueField->getType());
 
         $nestedField = $SomeInterface->getField('nested');
@@ -722,7 +722,7 @@ class DefinitionTest extends TestCase
         self::assertEquals(Type::int(), $withArg->args[0]->getType());
 
         /** @var ObjectType $Query */
-        $Query = $schema->getType('Query');
+        $Query     = $schema->getType('Query');
         $testField = $Query->getField('test');
         self::assertEquals($interface, $testField->getType());
         self::assertEquals('test', $testField->name);

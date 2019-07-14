@@ -333,7 +333,7 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = static function (int $start, int $end): array {
+        $loc = static function (int $start, int $end) : array {
             return [
                 'start' => $start,
                 'end'   => $end,
