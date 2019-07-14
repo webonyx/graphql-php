@@ -23,7 +23,6 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_numeric;
-use function strlen;
 use function substr;
 
 class QueryPlan
@@ -43,16 +42,21 @@ class QueryPlan
     /** @var FragmentDefinitionNode[] */
     private $fragments;
 
+    /** @var bool */
+    private $withMetaFields;
+
     /**
      * @param FieldNode[]              $fieldNodes
      * @param mixed[]                  $variableValues
      * @param FragmentDefinitionNode[] $fragments
+     * @param string[]                 $options
      */
-    public function __construct(ObjectType $parentType, Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments)
+    public function __construct(ObjectType $parentType, Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments, array $options)
     {
         $this->schema         = $schema;
         $this->variableValues = $variableValues;
         $this->fragments      = $fragments;
+        $this->withMetaFields = in_array('with-meta-fields', $options, true);
         $this->analyzeQueryPlan($parentType, $fieldNodes);
     }
 
@@ -125,11 +129,15 @@ class QueryPlan
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type);
 
+            $subfieldsNames = array_keys($subfields);
+            if ($this->withMetaFields) {
+                $subfieldsNames = array_filter($subfieldsNames, static function ($fieldName) {
+                    return substr($fieldName, 0, 2) !== '__';
+                });
+            }
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_filter(array_keys($subfields), static function ($fieldName) {
-                    return substr($fieldName, 0, 2) !== '__';
-                })
+                $subfieldsNames
             ));
 
             $queryPlan = array_merge_recursive(
@@ -180,10 +188,14 @@ class QueryPlan
                     );
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
-                $type      = $this->schema->getType($selectionNode->typeCondition->name->value);
-                $subfields = [
-                    '__inlineFragments' => [$type->name => $this->analyzeSubFields($type, $selectionNode->selectionSet)],
-                ];
+                $type = $this->schema->getType($selectionNode->typeCondition->name->value);
+                if ($this->withMetaFields) {
+                    $subfields = [
+                        '__inlineFragments' => [$type->name => $this->analyzeSubFields($type, $selectionNode->selectionSet)],
+                    ];
+                } else {
+                    $subfields = $this->analyzeSubFields($type, $selectionNode->selectionSet);
+                }
 
                 $fields = $this->arrayMergeDeep(
                     $subfields,
@@ -206,12 +218,16 @@ class QueryPlan
 
         $subfields = [];
         if ($type instanceof ObjectType || $type instanceof UnionType) {
-            $subfields                = $this->analyzeSelectionSet($selectionSet, $type);
+            $subfields      = $this->analyzeSelectionSet($selectionSet, $type);
+            $subfieldsNames = array_keys($subfields);
+            if ($this->withMetaFields) {
+                $subfieldsNames = array_filter($subfieldsNames, static function ($fieldName) {
+                    return substr($fieldName, 0, 2) !== '__';
+                });
+            }
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_filter(array_keys($subfields), static function ($fieldName) {
-                    return substr($fieldName, 0, 2) !== '__';
-                })
+                $subfieldsNames
             ));
         }
 

@@ -100,9 +100,6 @@ class ResolveInfo
      */
     public $variableValues = [];
 
-    /** @var QueryPlan */
-    private $queryPlan;
-
     /**
      * @param FieldNode[]                                                               $fieldNodes
      * @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull $returnType
@@ -187,19 +184,16 @@ class ResolveInfo
         return $fields;
     }
 
-    public function lookAhead() : QueryPlan
+    public function lookAhead(string ...$options) : QueryPlan
     {
-        if ($this->queryPlan === null) {
-            $this->queryPlan = new QueryPlan(
-                $this->parentType,
-                $this->schema,
-                $this->fieldNodes,
-                $this->variableValues,
-                $this->fragments
-            );
-        }
-
-        return $this->queryPlan;
+        return new QueryPlan(
+            $this->parentType,
+            $this->schema,
+            $this->fieldNodes,
+            $this->variableValues,
+            $this->fragments,
+            $options
+        );
     }
 
     /**
