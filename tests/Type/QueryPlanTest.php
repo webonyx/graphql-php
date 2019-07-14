@@ -393,7 +393,7 @@ final class QueryPlanTest extends TestCase
                 }
             },
         ]);
-        $result = GraphQL::executeQuery($schema, $query)->toArray();
+        GraphQL::executeQuery($schema, $query)->toArray();
 
         self::assertTrue($hasCalled);
         self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());

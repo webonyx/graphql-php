@@ -57,8 +57,8 @@ class QueryType extends ObjectType
                 ],
                 'hello' => Type::string()
             ],
-            'resolveField' => function($val, $args, $context, ResolveInfo $info) {
-                return $this->{$info->fieldName}($val, $args, $context, $info);
+            'resolveField' => function($rootValue, $args, $context, ResolveInfo $info) {
+                return $this->{$info->fieldName}($rootValue, $args, $context, $info);
             }
         ];
         parent::__construct($config);

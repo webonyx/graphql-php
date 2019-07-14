@@ -80,7 +80,7 @@ Option | Type | Notes
 name | `string` | **Required.** Name of the field. When not set - inferred from **fields** array key (read about [shorthand field definition](#shorthand-field-definitions) below)
 type | `Type` | **Required.** An instance of internal or custom type. Note: type must be represented by a single instance within one schema (see also [Type Registry](index.md#type-registry))
 args | `array` | An array of possible type arguments. Each entry is expected to be an array with keys: **name**, **type**, **description**, **defaultValue**. See [Field Arguments](#field-arguments) section below.
-resolve | `callable` | **function($value, $args, $context, [ResolveInfo](../reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Given the **$value** of this type, it is expected to return actual value of the current field. See section on [Data Fetching](../data-fetching.md) for details
+resolve | `callable` | **function($objectValue, $args, $context, [ResolveInfo](../reference.md#graphqltypedefinitionresolveinfo) $info)**<br> Given the **$objectValue** of this type, it is expected to return actual value of the current field. See section on [Data Fetching](../data-fetching.md) for details
 complexity | `callable` | **function($childrenComplexity, $args)**<br> Used to restrict query complexity. The feature is disabled by default, read about [Security](../security.md#query-complexity-analysis) to use it.
 description | `string` | Plain-text description of this field for clients (e.g. used by [GraphiQL](https://github.com/graphql/graphiql) for auto-generated documentation)
 deprecationReason | `string` | Text describing why this field is deprecated. When not empty - field will not be returned by introspection queries (unless forced)

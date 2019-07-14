@@ -202,7 +202,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     }
 
     /**
-     * @param mixed[]      $value
+     * @param mixed        $value
      * @param mixed[]|null $context
      *
      * @return bool|null
