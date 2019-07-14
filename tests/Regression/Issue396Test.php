@@ -30,7 +30,7 @@ class Issue396Test extends TestCase
         $unionResult = new UnionType([
             'name' => 'UnionResult',
             'types' => [$a, $b, $c],
-            'resolveType' => static function ($result, $root, ResolveInfo $info) use ($a, $b, $c, &$log) : Type {
+            'resolveType' => static function ($result, $value, ResolveInfo $info) use ($a, $b, $c, &$log) : Type {
                 $log[] = [$result, $info->path];
                 if (stristr($result['name'], 'A')) {
                     return $a;
@@ -97,7 +97,7 @@ class Issue396Test extends TestCase
             'fields' => [
                 'name' => Type::string(),
             ],
-            'resolveType' => static function ($result, $root, ResolveInfo $info) use (&$a, &$b, &$c, &$log) : Type {
+            'resolveType' => static function ($result, $value, ResolveInfo $info) use (&$a, &$b, &$c, &$log) : Type {
                 $log[] = [$result, $info->path];
                 if (stristr($result['name'], 'A')) {
                     return $a;

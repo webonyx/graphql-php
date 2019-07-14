@@ -159,9 +159,10 @@ class BuildSchema
         // If specified directives were not explicitly declared, add them.
         $skip = array_reduce(
             $directives,
-            static function ($hasSkip, $directive) {
+            static function (bool $hasSkip, Directive $directive) : bool {
                 return $hasSkip || $directive->name === 'skip';
-            }
+            },
+            false
         );
         if (! $skip) {
             $directives[] = Directive::skipDirective();
@@ -169,9 +170,10 @@ class BuildSchema
 
         $include = array_reduce(
             $directives,
-            static function ($hasInclude, $directive) {
+            static function (bool $hasInclude, Directive $directive) : bool {
                 return $hasInclude || $directive->name === 'include';
-            }
+            },
+            false
         );
         if (! $include) {
             $directives[] = Directive::includeDirective();
@@ -179,9 +181,10 @@ class BuildSchema
 
         $deprecated = array_reduce(
             $directives,
-            static function ($hasDeprecated, $directive) {
+            static function (bool $hasDeprecated, Directive $directive) : bool {
                 return $hasDeprecated || $directive->name === 'deprecated';
-            }
+            },
+            false
         );
         if (! $deprecated) {
             $directives[] = Directive::deprecatedDirective();

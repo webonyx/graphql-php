@@ -1,12 +1,12 @@
 <?php
 
 interface Resolver {
-    public function resolve($root, $args, $context);
+    public function resolve($rootValue, $args, $context);
 }
 
 class Addition implements Resolver
 {
-    public function resolve($root, $args, $context)
+    public function resolve($rootValue, $args, $context)
     {
         return $args['x'] + $args['y'];
     }
@@ -14,22 +14,22 @@ class Addition implements Resolver
 
 class Echoer implements Resolver
 {
-    public function resolve($root, $args, $context)
+    public function resolve($rootValue, $args, $context)
     {
-        return $root['prefix'].$args['message'];
+        return $rootValue['prefix'].$args['message'];
     }
 }
 
 return [
-    'sum' => function($root, $args, $context) {
+    'sum' => function($rootValue, $args, $context) {
         $sum = new Addition();
 
-        return $sum->resolve($root, $args, $context);
+        return $sum->resolve($rootValue, $args, $context);
     },
-    'echo' => function($root, $args, $context) {
+    'echo' => function($rootValue, $args, $context) {
         $echo = new Echoer();
 
-        return $echo->resolve($root, $args, $context);
+        return $echo->resolve($rootValue, $args, $context);
     },
     'prefix' => 'You said: ',
 ];
