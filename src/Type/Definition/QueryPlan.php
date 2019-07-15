@@ -144,9 +144,9 @@ class QueryPlan
     }
 
     /**
-     * @return mixed[]
+     * @param InterfaceType|ObjectType $parentType
      *
-     * $parentType InterfaceType|ObjectType.
+     * @return mixed[]
      *
      * @throws Error
      */
