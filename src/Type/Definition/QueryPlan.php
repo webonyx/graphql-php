@@ -127,7 +127,8 @@ class QueryPlan
                 $type = $type->getWrappedType();
             }
 
-            $data = $this->analyzeSelectionSet($fieldNode->selectionSet, $type);
+            $selectionSet = $fieldNode->selectionSet;
+            $data         = $this->withMetaFields ? $this->analyzeSelectionSetWithMetaFields($selectionSet, $type) : $this->analyzeSelectionSet($selectionSet, $type);
 
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
@@ -150,7 +151,7 @@ class QueryPlan
      *
      * @throws Error
      */
-    private function analyzeSelectionSet(SelectionSetNode $selectionSet, Type $parentType) : array
+    private function analyzeSelectionSetWithMetaFields(SelectionSetNode $selectionSet, Type $parentType) : array
     {
         $fields          = [];
         $fragments       = [];
@@ -165,46 +166,70 @@ class QueryPlan
                 $fieldData         = & $fields[$fieldName];
                 $fieldData['type'] = $selectionType;
                 $fieldData['args'] = Values::getArgumentValues($type, $selectionNode, $this->variableValues);
-                if ($this->withMetaFields) {
-                    $fieldData += $selectionNode->selectionSet ? $this->analyzeSubFields($selectionType, $selectionNode->selectionSet) : ['fields' => []];
-                } else {
-                    $fieldData['fields'] = $selectionNode->selectionSet ? $this->analyzeSubFields($selectionType, $selectionNode->selectionSet) : [];
-                }
+                $fieldData        += $selectionNode->selectionSet ? $this->analyzeSubFields($selectionType, $selectionNode->selectionSet) : ['fields' => []];
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;
                 $fragment   = $this->fragments[$spreadName] ?? null;
                 if ($fragment) {
                     $type = $this->schema->getType($fragment->typeCondition->name->value);
 
-                    if ($this->withMetaFields) {
-                        $fragmentData         = &$fragments[$spreadName];
-                        $fragmentData['type'] = $type;
-                        $fragmentData        += $this->analyzeSubFields($type, $fragment->selectionSet);
-                    } else {
-                        $fields = $this->arrayMergeDeep(
-                            $this->analyzeSubFields($type, $fragment->selectionSet),
-                            $fields
-                        );
-                    }
+                    $fragmentData         = &$fragments[$spreadName];
+                    $fragmentData['type'] = $type;
+                    $fragmentData        += $this->analyzeSubFields($type, $fragment->selectionSet);
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
                 $type = $this->schema->getType($selectionNode->typeCondition->name->value);
 
-                if ($this->withMetaFields) {
-                    $inlineFragments[$type->name] = $this->analyzeSubFields($type, $selectionNode->selectionSet);
-                } else {
+                $inlineFragments[$type->name] = $this->analyzeSubFields($type, $selectionNode->selectionSet);
+            }
+        }
+        unset($fieldData, $fragmentData);
+
+        return ['fields' => $fields] + array_filter(['fragments' => $fragments, 'inlineFragments' => $inlineFragments]);
+    }
+
+    /**
+     * @param InterfaceType|ObjectType $parentType
+     *
+     * @return mixed[]
+     *
+     * @throws Error
+     */
+    private function analyzeSelectionSet(SelectionSetNode $selectionSet, Type $parentType) : array
+    {
+        $fields = [];
+
+        foreach ($selectionSet->selections as $selectionNode) {
+            if ($selectionNode instanceof FieldNode && ($parentType instanceof InterfaceType || $parentType instanceof ObjectType)) {
+                $fieldName     = $selectionNode->name->value;
+                $type          = $parentType->getField($fieldName);
+                $selectionType = $type->getType();
+
+                $fieldData           = & $fields[$fieldName];
+                $fieldData['type']   = $selectionType;
+                $fieldData['args']   = Values::getArgumentValues($type, $selectionNode, $this->variableValues);
+                $fieldData['fields'] = $selectionNode->selectionSet ? $this->analyzeSubFields($selectionType, $selectionNode->selectionSet) : [];
+            } elseif ($selectionNode instanceof FragmentSpreadNode) {
+                $spreadName = $selectionNode->name->value;
+                $fragment   = $this->fragments[$spreadName] ?? null;
+                if ($fragment) {
+                    $type = $this->schema->getType($fragment->typeCondition->name->value);
+
                     $fields = $this->arrayMergeDeep(
-                        $this->analyzeSubFields($type, $selectionNode->selectionSet),
+                        $this->analyzeSubFields($type, $fragment->selectionSet),
                         $fields
                     );
                 }
+            } elseif ($selectionNode instanceof InlineFragmentNode) {
+                $type = $this->schema->getType($selectionNode->typeCondition->name->value);
+
+                $fields = $this->arrayMergeDeep(
+                    $this->analyzeSubFields($type, $selectionNode->selectionSet),
+                    $fields
+                );
             }
         }
         unset($fieldData);
-
-        if ($this->withMetaFields) {
-            return ['fields' => $fields] + array_filter(['fragments' => $fragments, 'inlineFragments' => $inlineFragments]);
-        }
 
         return $fields;
     }
@@ -218,7 +243,7 @@ class QueryPlan
             $type = $type->getWrappedType();
         }
 
-        $data = $this->analyzeSelectionSet($selectionSet, $type);
+        $data = $this->withMetaFields ? $this->analyzeSelectionSetWithMetaFields($selectionSet, $type) : $this->analyzeSelectionSet($selectionSet, $type);
 
         $this->types[$type->name] = array_unique(array_merge(
             array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
