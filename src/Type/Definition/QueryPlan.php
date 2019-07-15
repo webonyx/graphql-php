@@ -23,7 +23,6 @@ use function count;
 use function in_array;
 use function is_array;
 use function is_numeric;
-use function substr;
 
 class QueryPlan
 {
@@ -79,7 +78,7 @@ class QueryPlan
     public function hasType(string $type) : bool
     {
         return count(array_filter($this->getReferencedTypes(), static function (string $referencedType) use ($type) {
-                return $type === $referencedType;
+            return $type === $referencedType;
         })) > 0;
     }
 
@@ -116,6 +115,7 @@ class QueryPlan
     private function analyzeQueryPlan(ObjectType $parentType, iterable $fieldNodes) : void
     {
         $queryPlan = [];
+
         /** @var FieldNode $fieldNode */
         foreach ($fieldNodes as $fieldNode) {
             if (! $fieldNode->selectionSet) {
@@ -127,22 +127,16 @@ class QueryPlan
                 $type = $type->getWrappedType();
             }
 
-            $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type);
+            $data = $this->analyzeSelectionSet($fieldNode->selectionSet, $type);
 
-            $subfieldsNames = array_keys($subfields);
-            if ($this->withMetaFields) {
-                $subfieldsNames = array_filter($subfieldsNames, static function ($fieldName) {
-                    return substr($fieldName, 0, 2) !== '__';
-                });
-            }
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                $subfieldsNames
+                array_keys($this->withMetaFields ? $data['fields'] : $data)
             ));
 
             $queryPlan = array_merge_recursive(
                 $queryPlan,
-                $subfields
+                $data
             );
         }
 
@@ -158,50 +152,58 @@ class QueryPlan
      */
     private function analyzeSelectionSet(SelectionSetNode $selectionSet, Type $parentType) : array
     {
-        $fields = [];
+        $fields          = [];
+        $fragments       = [];
+        $inlineFragments = [];
+
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
                 $fieldName     = $selectionNode->name->value;
                 $type          = $parentType->getField($fieldName);
                 $selectionType = $type->getType();
 
-                $subfields = [];
-                if ($selectionNode->selectionSet) {
-                    $subfields = $this->analyzeSubFields($selectionType, $selectionNode->selectionSet);
+                $fieldData         = & $fields[$fieldName];
+                $fieldData['type'] = $selectionType;
+                $fieldData['args'] = Values::getArgumentValues($type, $selectionNode, $this->variableValues);
+                if ($this->withMetaFields) {
+                    $fieldData += $selectionNode->selectionSet ? $this->analyzeSubFields($selectionType, $selectionNode->selectionSet) : ['fields' => []];
+                } else {
+                    $fieldData['fields'] = $selectionNode->selectionSet ? $this->analyzeSubFields($selectionType, $selectionNode->selectionSet) : [];
                 }
-
-                $fields[$fieldName] = [
-                    'type' => $selectionType,
-                    'fields' => $subfields ?? [],
-                    'args' => Values::getArgumentValues($type, $selectionNode, $this->variableValues),
-                ];
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;
-                if (isset($this->fragments[$spreadName])) {
-                    $fragment  = $this->fragments[$spreadName];
-                    $type      = $this->schema->getType($fragment->typeCondition->name->value);
-                    $subfields = $this->analyzeSubFields($type, $fragment->selectionSet);
+                $fragment   = $this->fragments[$spreadName] ?? null;
+                if ($fragment) {
+                    $type = $this->schema->getType($fragment->typeCondition->name->value);
 
-                    $fields = $this->arrayMergeDeep(
-                        $subfields,
-                        $fields
-                    );
+                    if ($this->withMetaFields) {
+                        $fragmentData         = &$fragments[$spreadName];
+                        $fragmentData['type'] = $type;
+                        $fragmentData        += $this->analyzeSubFields($type, $fragment->selectionSet);
+                    } else {
+                        $fields = $this->arrayMergeDeep(
+                            $this->analyzeSubFields($type, $fragment->selectionSet),
+                            $fields
+                        );
+                    }
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
                 $type = $this->schema->getType($selectionNode->typeCondition->name->value);
-                if ($this->withMetaFields) {
-                    $subfields = [
-                        '__inlineFragments' => [$type->name => $this->analyzeSubFields($type, $selectionNode->selectionSet)],
-                    ];
-                } else {
-                    $subfields = $this->analyzeSubFields($type, $selectionNode->selectionSet);
-                }
 
-                $fields = $this->arrayMergeDeep(
-                    $subfields,
-                    $fields
-                );
+                if ($this->withMetaFields) {
+                    $inlineFragments[$type->name] = $this->analyzeSubFields($type, $selectionNode->selectionSet);
+                } else {
+                    $fields = $this->arrayMergeDeep(
+                        $this->analyzeSubFields($type, $selectionNode->selectionSet),
+                        $fields
+                    );
+                }
             }
+        }
+        unset($fieldData);
+
+        if ($this->withMetaFields) {
+            return ['fields' => $fields] + array_filter(['fragments' => $fragments, 'inlineFragments' => $inlineFragments]);
         }
 
         return $fields;
@@ -216,22 +218,14 @@ class QueryPlan
             $type = $type->getWrappedType();
         }
 
-        $subfields = [];
-        if ($type instanceof ObjectType || $type instanceof UnionType) {
-            $subfields      = $this->analyzeSelectionSet($selectionSet, $type);
-            $subfieldsNames = array_keys($subfields);
-            if ($this->withMetaFields) {
-                $subfieldsNames = array_filter($subfieldsNames, static function ($fieldName) {
-                    return substr($fieldName, 0, 2) !== '__';
-                });
-            }
-            $this->types[$type->name] = array_unique(array_merge(
-                array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                $subfieldsNames
-            ));
-        }
+        $data = $this->analyzeSelectionSet($selectionSet, $type);
 
-        return $subfields;
+        $this->types[$type->name] = array_unique(array_merge(
+            array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
+            array_keys($this->withMetaFields ? $data['fields'] : $data)
+        ));
+
+        return $data;
     }
 
     /**
