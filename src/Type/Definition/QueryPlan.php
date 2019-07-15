@@ -157,7 +157,7 @@ class QueryPlan
         $inlineFragments = [];
 
         foreach ($selectionSet->selections as $selectionNode) {
-            if ($selectionNode instanceof FieldNode) {
+            if ($selectionNode instanceof FieldNode && ($parentType instanceof InterfaceType || $parentType instanceof ObjectType)) {
                 $fieldName     = $selectionNode->name->value;
                 $type          = $parentType->getField($fieldName);
                 $selectionType = $type->getType();
