@@ -118,7 +118,7 @@ class ValuesOfCorrectType extends ValidationRule
             NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context) {
                 $parentType = Type::getNamedType($context->getParentInputType());
                 /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $fieldType */
-                $fieldType  = $context->getInputType();
+                $fieldType = $context->getInputType();
                 if ($fieldType || ! ($parentType instanceof InputObjectType)) {
                     return;
                 }
