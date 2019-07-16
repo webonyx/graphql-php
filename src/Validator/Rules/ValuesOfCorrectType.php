@@ -117,6 +117,7 @@ class ValuesOfCorrectType extends ValidationRule
             },
             NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context) {
                 $parentType = Type::getNamedType($context->getParentInputType());
+                /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $fieldType */
                 $fieldType  = $context->getInputType();
                 if ($fieldType || ! ($parentType instanceof InputObjectType)) {
                     return;
@@ -183,6 +184,7 @@ class ValuesOfCorrectType extends ValidationRule
     private function isValidScalar(ValidationContext $context, ValueNode $node, $fieldName)
     {
         // Report any error at the full type expected by the location.
+        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $locationType */
         $locationType = $context->getInputType();
 
         if (! $locationType) {
