@@ -81,9 +81,11 @@ class FieldArgument
     }
 
     /**
+     * Returns an InputType
+     *
      * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
      */
-    public function getType() : InputType
+    public function getType()
     {
         return $this->type;
     }

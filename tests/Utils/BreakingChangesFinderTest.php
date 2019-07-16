@@ -1177,7 +1177,10 @@ class BreakingChangesFinderTest extends TestCase
             'name'      => 'DirectiveThatRemovesArg',
             'locations' => [DirectiveLocation::FIELD_DEFINITION],
             'args'      => FieldArgument::createMap([
-                'arg1' => ['name' => 'arg1'],
+                'arg1' => [
+                    'name' => 'arg1',
+                    'type' => Type::boolean(),
+                ],
             ]),
         ]);
         $directiveThatRemovesArgNew  = new Directive([

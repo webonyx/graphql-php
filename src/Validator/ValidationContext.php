@@ -276,7 +276,7 @@ class ValidationContext
     /**
      * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
      */
-    public function getInputType() : InputType
+    public function getInputType() : ?InputType
     {
         return $this->typeInfo->getInputType();
     }
@@ -284,7 +284,7 @@ class ValidationContext
     /**
      * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
      */
-    public function getParentInputType() : InputType
+    public function getParentInputType() : ?InputType
     {
         return $this->typeInfo->getParentInputType();
     }
