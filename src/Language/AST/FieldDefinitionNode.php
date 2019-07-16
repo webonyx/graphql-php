@@ -15,7 +15,7 @@ class FieldDefinitionNode extends Node
     /** @var InputValueDefinitionNode[]|NodeList */
     public $arguments;
 
-    /** @var TypeNode */
+    /** @var NamedTypeNode|ListTypeNode|NonNullTypeNode */
     public $type;
 
     /** @var DirectiveNode[]|NodeList */

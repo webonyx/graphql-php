@@ -12,6 +12,6 @@ class ObjectFieldNode extends Node
     /** @var NameNode */
     public $name;
 
-    /** @var ValueNode */
+    /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode */
     public $value;
 }

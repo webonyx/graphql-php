@@ -15,7 +15,12 @@ parameters:
         # This commonly happens in the parts of the code that deal with the GraphQL
         # type system where we can currently use interfaces and lose type safety.
         # Until we find a better way, we can list related error's here.
-        - "~Call to an undefined method GraphQL\\\\Type\\\\Definition\\\\Type::getField()~"
+        - "~Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\NamedType::\\$name~"
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\DefinitionNode::\\$name~"
+        # Those come from graphql-php\tests\Language\VisitorTest.php
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
 
 includes:
 	- vendor/phpstan/phpstan-phpunit/extension.neon

@@ -30,6 +30,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
@@ -1053,8 +1054,9 @@ class ReferenceExecutor implements ExecutorImplementation
      * Otherwise, test each possible type for the abstract type by calling
      * isTypeOf for the object being coerced, returning the first type that matches.
      *
-     * @param mixed|null $value
-     * @param mixed|null $context
+     * @param mixed|null              $value
+     * @param mixed|null              $context
+     * @param InterfaceType|UnionType $abstractType
      *
      * @return ObjectType|Promise|null
      */
@@ -1309,8 +1311,9 @@ class ReferenceExecutor implements ExecutorImplementation
     }
 
     /**
-     * @param string|ObjectType|null $runtimeTypeOrName
-     * @param mixed                  $result
+     * @param string|ObjectType|null  $runtimeTypeOrName
+     * @param InterfaceType|UnionType $returnType
+     * @param mixed                   $result
      *
      * @return ObjectType
      */

@@ -9,6 +9,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
+use GraphQL\Language\AST\TypeSystemDefinitionNode;
 use GraphQL\Language\Visitor;
 use GraphQL\Validator\ValidationContext;
 use function sprintf;
@@ -32,6 +33,7 @@ class ExecutableDefinitions extends ValidationRule
                         continue;
                     }
 
+                    /** @var TypeSystemDefinitionNode $definition */
                     $context->reportError(new Error(
                         self::nonExecutableDefinitionMessage($definition->name->value),
                         [$definition->name]

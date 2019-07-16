@@ -149,11 +149,10 @@ class Collector
 
         foreach ($selectionSet->selections as $selection) {
             /** @var FieldNode|FragmentSpreadNode|InlineFragmentNode $selection */
-
             if (! empty($selection->directives)) {
                 foreach ($selection->directives as $directiveNode) {
                     if ($directiveNode->name->value === Directive::SKIP_NAME) {
-                        /** @var ValueNode|null $condition */
+                        /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $condition */
                         $condition = null;
                         foreach ($directiveNode->arguments as $argumentNode) {
                             if ($argumentNode->name->value === Directive::IF_ARGUMENT_NAME) {
@@ -173,7 +172,7 @@ class Collector
                             }
                         }
                     } elseif ($directiveNode->name->value === Directive::INCLUDE_NAME) {
-                        /** @var ValueNode|null $condition */
+                        /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $condition */
                         $condition = null;
                         foreach ($directiveNode->arguments as $argumentNode) {
                             if ($argumentNode->name->value === Directive::IF_ARGUMENT_NAME) {

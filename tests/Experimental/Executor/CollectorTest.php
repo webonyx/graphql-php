@@ -9,7 +9,6 @@ use GraphQL\Experimental\Executor\Collector;
 use GraphQL\Experimental\Executor\Runtime;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\Parser;

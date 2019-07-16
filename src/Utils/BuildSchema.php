@@ -10,10 +10,10 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
@@ -32,7 +32,7 @@ class BuildSchema
     /** @var DocumentNode */
     private $ast;
 
-    /** @var Node[] */
+    /** @var TypeDefinitionNode[] */
     private $nodeMap;
 
     /** @var callable|null */
@@ -211,6 +211,7 @@ class BuildSchema
             'astNode'      => $schemaDef,
             'types'        => function () use ($DefinitionBuilder) {
                 $types = [];
+                /** @var ScalarTypeDefinitionNode|ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|UnionTypeDefinitionNode|EnumTypeDefinitionNode|InputObjectTypeDefinitionNode $def */
                 foreach ($this->nodeMap as $name => $def) {
                     $types[] = $DefinitionBuilder->buildType($def->name->value);
                 }

@@ -4,20 +4,19 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-/*
-export type GraphQLInputType =
-  | GraphQLScalarType
-  | GraphQLEnumType
-  | GraphQLInputObjectType
-  | GraphQLList<GraphQLInputType>
-  | GraphQLNonNull<
-      | GraphQLScalarType
-      | GraphQLEnumType
-      | GraphQLInputObjectType
-      | GraphQLList<GraphQLInputType>,
+/**
+export type InputType =
+  | ScalarType
+  | EnumType
+  | InputObjectType
+  | ListOfType<InputType>
+  | NonNull<
+      | ScalarType
+      | EnumType
+      | InputObjectType
+      | ListOfType<InputType>,
     >;
  */
-
 interface InputType
 {
 }
