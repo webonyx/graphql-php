@@ -42,7 +42,7 @@ class QueryPlan
     private $fragments;
 
     /** @var bool */
-    private $withMetaFields;
+    private $withTypeConditions;
 
     /**
      * @param FieldNode[]              $fieldNodes
@@ -52,10 +52,10 @@ class QueryPlan
      */
     public function __construct(ObjectType $parentType, Schema $schema, iterable $fieldNodes, array $variableValues, array $fragments, array $options)
     {
-        $this->schema         = $schema;
-        $this->variableValues = $variableValues;
-        $this->fragments      = $fragments;
-        $this->withMetaFields = in_array('with-meta-fields', $options, true);
+        $this->schema             = $schema;
+        $this->variableValues     = $variableValues;
+        $this->fragments          = $fragments;
+        $this->withTypeConditions = in_array('with-type-conditions', $options, true);
         $this->analyzeQueryPlan($parentType, $fieldNodes);
     }
 
@@ -128,11 +128,11 @@ class QueryPlan
             }
 
             $selectionSet = $fieldNode->selectionSet;
-            $data         = $this->withMetaFields ? $this->analyzeSelectionSetWithMetaFields($selectionSet, $type) : $this->analyzeSelectionSet($selectionSet, $type);
+            $data         = $this->withTypeConditions ? $this->analyzeSelectionSetWithTypeConditions($selectionSet, $type) : $this->analyzeSelectionSet($selectionSet, $type);
 
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_keys($this->withMetaFields ? $data['fields'] : $data)
+                array_keys($this->withTypeConditions ? $data['fields'] : $data)
             ));
 
             $queryPlan = array_merge_recursive(
@@ -151,11 +151,10 @@ class QueryPlan
      *
      * @throws Error
      */
-    private function analyzeSelectionSetWithMetaFields(SelectionSetNode $selectionSet, Type $parentType) : array
+    private function analyzeSelectionSetWithTypeConditions(SelectionSetNode $selectionSet, Type $parentType) : array
     {
-        $fields          = [];
-        $fragments       = [];
-        $inlineFragments = [];
+        $fields         = [];
+        $typeConditions = [];
 
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode && ($parentType instanceof InterfaceType || $parentType instanceof ObjectType)) {
@@ -173,19 +172,23 @@ class QueryPlan
                 if ($fragment) {
                     $type = $this->schema->getType($fragment->typeCondition->name->value);
 
-                    $fragmentData         = &$fragments[$spreadName];
-                    $fragmentData['type'] = $type;
-                    $fragmentData        += $this->analyzeSubFields($type, $fragment->selectionSet);
+                    $typeConditions[$type->name] = $this->arrayMergeDeep(
+                        $this->analyzeSubFields($type, $fragment->selectionSet),
+                        $typeConditions[$type->name] ?? []
+                    );
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
                 $type = $this->schema->getType($selectionNode->typeCondition->name->value);
 
-                $inlineFragments[$type->name] = $this->analyzeSubFields($type, $selectionNode->selectionSet);
+                $typeConditions[$type->name] = $this->arrayMergeDeep(
+                    $this->analyzeSubFields($type, $selectionNode->selectionSet),
+                    $typeConditions[$type->name] ?? []
+                );
             }
         }
-        unset($fieldData, $fragmentData);
+        unset($fieldData);
 
-        return ['fields' => $fields] + array_filter(['fragments' => $fragments, 'inlineFragments' => $inlineFragments]);
+        return ['fields' => $fields] + array_filter(['typeConditions' => $typeConditions]);
     }
 
     /**
@@ -243,11 +246,15 @@ class QueryPlan
             $type = $type->getWrappedType();
         }
 
-        $data = $this->withMetaFields ? $this->analyzeSelectionSetWithMetaFields($selectionSet, $type) : $this->analyzeSelectionSet($selectionSet, $type);
+        if (! $this->withTypeConditions && ! $type instanceof ObjectType) {
+            return [];
+        }
+
+        $data = $this->withTypeConditions ? $this->analyzeSelectionSetWithTypeConditions($selectionSet, $type) : $this->analyzeSelectionSet($selectionSet, $type);
 
         $this->types[$type->name] = array_unique(array_merge(
             array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-            array_keys($this->withMetaFields ? $data['fields'] : $data)
+            array_keys($this->withTypeConditions ? $data['fields'] : $data)
         ));
 
         return $data;
