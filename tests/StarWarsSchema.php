@@ -273,7 +273,7 @@ class StarWarsSchema
                             'type'        => $episodeEnum,
                         ],
                     ],
-                    'resolve' => static function ($root, $args) {
+                    'resolve' => static function ($rootValue, $args) {
                         return StarWarsData::getHero($args['episode'] ?? null);
                     },
                 ],
@@ -286,7 +286,7 @@ class StarWarsSchema
                             'type'        => Type::nonNull(Type::string()),
                         ],
                     ],
-                    'resolve' => static function ($root, $args) {
+                    'resolve' => static function ($rootValue, $args) {
                         $humans = StarWarsData::humans();
 
                         return $humans[$args['id']] ?? null;
@@ -301,7 +301,7 @@ class StarWarsSchema
                             'type'        => Type::nonNull(Type::string()),
                         ],
                     ],
-                    'resolve' => static function ($root, $args) {
+                    'resolve' => static function ($rootValue, $args) {
                         $droids = StarWarsData::droids();
 
                         return $droids[$args['id']] ?? null;

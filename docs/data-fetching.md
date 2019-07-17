@@ -103,25 +103,25 @@ for a field you simply override this default resolver.
 **graphql-php** provides following default field resolver:
 ```php
 <?php
-function defaultFieldResolver($source, $args, $context, \GraphQL\Type\Definition\ResolveInfo $info)
-{
-    $fieldName = $info->fieldName;
-    $property = null;
+function defaultFieldResolver($objectValue, $args, $context, \GraphQL\Type\Definition\ResolveInfo $info)
+    {
+        $fieldName = $info->fieldName;
+        $property  = null;
 
-    if (is_array($source) || $source instanceof \ArrayAccess) {
-        if (isset($source[$fieldName])) {
-            $property = $source[$fieldName];
+        if (is_array($objectValue) || $objectValue instanceof \ArrayAccess) {
+            if (isset($objectValue[$fieldName])) {
+                $property = $objectValue[$fieldName];
+            }
+        } elseif (is_object($objectValue)) {
+            if (isset($objectValue->{$fieldName})) {
+                $property = $objectValue->{$fieldName};
+            }
         }
-    } else if (is_object($source)) {
-        if (isset($source->{$fieldName})) {
-            $property = $source->{$fieldName};
-        }
+
+        return $property instanceof Closure
+            ? $property($objectValue, $args, $context, $info)
+            : $property;
     }
-
-    return $property instanceof Closure
-        ? $property($source, $args, $context, $info)
-        : $property;
-}
 ```
 
 As you see it returns value by key (for arrays) or property (for objects). 
@@ -162,7 +162,6 @@ $userType = new ObjectType([
 
 Keep in mind that **field resolver** has precedence over **default field resolver per type** which in turn
  has precedence over **default field resolver**.
-
 
 # Solving N+1 Problem
 Since: 0.9.0
