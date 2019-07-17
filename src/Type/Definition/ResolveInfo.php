@@ -37,6 +37,14 @@ class ResolveInfo
     public $fieldNodes = [];
 
     /**
+     * The definition of the field being resolved.
+     *
+     * @api
+     * @var FieldDefinition
+     */
+    public $fieldDefinition;
+
+    /**
      * Expected return type of the field being resolved.
      *
      * @api
@@ -105,7 +113,6 @@ class ResolveInfo
 
     /**
      * @param FieldNode[]                                                               $fieldNodes
-     * @param ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull $returnType
      * @param string[][]                                                                $path
      * @param FragmentDefinitionNode[]                                                  $fragments
      * @param mixed|null                                                                $rootValue
@@ -114,7 +121,7 @@ class ResolveInfo
     public function __construct(
         string $fieldName,
         iterable $fieldNodes,
-        $returnType,
+        FieldDefinition $fieldDefinition,
         ObjectType $parentType,
         array $path,
         Schema $schema,
@@ -125,7 +132,8 @@ class ResolveInfo
     ) {
         $this->fieldName      = $fieldName;
         $this->fieldNodes     = $fieldNodes;
-        $this->returnType     = $returnType;
+        $this->fieldDefinition = $fieldDefinition;
+        $this->returnType     = $fieldDefinition->getType();
         $this->parentType     = $parentType;
         $this->path           = $path;
         $this->schema         = $schema;

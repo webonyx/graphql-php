@@ -532,7 +532,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $info = new ResolveInfo(
             $fieldName,
             $fieldNodes,
-            $returnType,
+            $fieldDef,
             $parentType,
             $path,
             $exeContext->schema,
