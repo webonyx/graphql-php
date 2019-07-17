@@ -251,4 +251,12 @@ class ValueFromAstTest extends TestCase
             ['int' => 42, 'requiredBool' => true]
         );
     }
+
+    public function testValuesReturnedAreOrderedAsInTheAST()
+    {
+        $testInputObj = $this->inputObj();
+
+        // assertSame is used here because we have to check that the array keys have the same order
+        self::assertSame(['requiredBool' => true, 'bool' => true, 'int' => 21], AST::valueFromAST(Parser::parseValue('{ requiredBool: true, bool: $foo, int: 21 }'), $testInputObj, ['foo' => true]));
+    }
 }

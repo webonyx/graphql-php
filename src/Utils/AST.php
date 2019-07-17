@@ -42,8 +42,11 @@ use stdClass;
 use Throwable;
 use Traversable;
 use function array_combine;
+use function array_flip;
 use function array_key_exists;
+use function array_keys;
 use function array_map;
+use function array_replace;
 use function count;
 use function floatval;
 use function intval;
@@ -410,6 +413,10 @@ class AST
                     return $field->name->value;
                 }
             );
+
+            // re-order $fields with $fieldNodes order to keep order of the user's input
+            $fields = array_replace(array_flip(array_keys($fieldNodes)), $fields);
+
             foreach ($fields as $field) {
                 /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
                 $fieldName = $field->name;
