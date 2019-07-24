@@ -96,18 +96,18 @@ use function sprintf;
  * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static NamedTypeNode[] implementsInterfaces(Source|string $source, bool[] $options = [])
- * @method static FieldDefinitionNode[] fieldDefinitions(Source|string $source, bool[] $options = [])
+ * @method static FieldDefinitionNode[] fieldsDefinition(Source|string $source, bool[] $options = [])
  * @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
- * @method static InputValueDefinitionNode[] argumentDefinitions(Source|string $source, bool[] $options = [])
+ * @method static InputValueDefinitionNode[] argumentsDefinition(Source|string $source, bool[] $options = [])
  * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
  * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static NamedTypeNode[] unionMemberTypes(Source|string $source, bool[] $options = [])
  * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static EnumValueDefinitionNode[] enumValueDefinitions(Source|string $source, bool[] $options = [])
+ * @method static EnumValueDefinitionNode[] enumValuesDefinition(Source|string $source, bool[] $options = [])
  * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
  * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static InputValueDefinitionNode[] inputFieldDefinitions(Source|string $source, bool[] $options = [])
+ * @method static InputValueDefinitionNode[] inputFieldsDefinition(Source|string $source, bool[] $options = [])
  * @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
  * @method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
  * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
@@ -1257,7 +1257,7 @@ class Parser
         $name       = $this->parseName();
         $interfaces = $this->parseImplementsInterfaces();
         $directives = $this->parseDirectives(true);
-        $fields     = $this->parseFieldDefinitions();
+        $fields     = $this->parseFieldsDefinition();
 
         return new ObjectTypeDefinitionNode([
             'name'        => $name,
@@ -1299,7 +1299,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseFieldDefinitions()
+    private function parseFieldsDefinition()
     {
         // Legacy support for the SDL?
         if (! empty($this->lexer->options['allowLegacySDLEmptyFields']) &&
@@ -1333,7 +1333,7 @@ class Parser
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
         $name        = $this->parseName();
-        $args        = $this->parseArgumentDefinitions();
+        $args        = $this->parseArgumentsDefinition();
         $this->expect(Token::COLON);
         $type       = $this->parseTypeReference();
         $directives = $this->parseDirectives(true);
@@ -1353,7 +1353,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseArgumentDefinitions()
+    private function parseArgumentsDefinition()
     {
         if (! $this->peek(Token::PAREN_L)) {
             return new NodeList([]);
@@ -1408,7 +1408,7 @@ class Parser
         $this->expectKeyword('interface');
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $fields     = $this->parseFieldDefinitions();
+        $fields     = $this->parseFieldsDefinition();
 
         return new InterfaceTypeDefinitionNode([
             'name'        => $name,
@@ -1478,7 +1478,7 @@ class Parser
         $this->expectKeyword('enum');
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $values     = $this->parseEnumValueDefinitions();
+        $values     = $this->parseEnumValuesDefinition();
 
         return new EnumTypeDefinitionNode([
             'name'        => $name,
@@ -1494,7 +1494,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseEnumValueDefinitions()
+    private function parseEnumValuesDefinition()
     {
         return $this->peek(Token::BRACE_L)
             ? $this->many(
@@ -1539,7 +1539,7 @@ class Parser
         $this->expectKeyword('input');
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $fields     = $this->parseInputFieldDefinitions();
+        $fields     = $this->parseInputFieldsDefinition();
 
         return new InputObjectTypeDefinitionNode([
             'name'        => $name,
@@ -1555,7 +1555,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseInputFieldDefinitions()
+    private function parseInputFieldsDefinition()
     {
         return $this->peek(Token::BRACE_L)
             ? $this->many(
@@ -1672,7 +1672,7 @@ class Parser
         $name       = $this->parseName();
         $interfaces = $this->parseImplementsInterfaces();
         $directives = $this->parseDirectives(true);
-        $fields     = $this->parseFieldDefinitions();
+        $fields     = $this->parseFieldsDefinition();
 
         if (count($interfaces) === 0 &&
             count($directives) === 0 &&
@@ -1702,7 +1702,7 @@ class Parser
         $this->expectKeyword('interface');
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $fields     = $this->parseFieldDefinitions();
+        $fields     = $this->parseFieldsDefinition();
         if (count($directives) === 0 &&
             count($fields) === 0
         ) {
@@ -1758,7 +1758,7 @@ class Parser
         $this->expectKeyword('enum');
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $values     = $this->parseEnumValueDefinitions();
+        $values     = $this->parseEnumValuesDefinition();
         if (count($directives) === 0 &&
             count($values) === 0
         ) {
@@ -1785,7 +1785,7 @@ class Parser
         $this->expectKeyword('input');
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
-        $fields     = $this->parseInputFieldDefinitions();
+        $fields     = $this->parseInputFieldsDefinition();
         if (count($directives) === 0 &&
             count($fields) === 0
         ) {
@@ -1815,7 +1815,7 @@ class Parser
         $this->expectKeyword('directive');
         $this->expect(Token::AT);
         $name = $this->parseName();
-        $args = $this->parseArgumentDefinitions();
+        $args = $this->parseArgumentsDefinition();
         $this->expectKeyword('on');
         $locations = $this->parseDirectiveLocations();
 
