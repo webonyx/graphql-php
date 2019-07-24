@@ -21,22 +21,6 @@ use function array_merge_recursive;
 class ResolveInfo
 {
     /**
-     * The name of the field being resolved.
-     *
-     * @api
-     * @var string
-     */
-    public $fieldName;
-
-    /**
-     * AST of all nodes referencing this field in the query.
-     *
-     * @api
-     * @var FieldNode[]
-     */
-    public $fieldNodes = [];
-
-    /**
      * The definition of the field being resolved.
      *
      * @api
@@ -45,12 +29,28 @@ class ResolveInfo
     public $fieldDefinition;
 
     /**
+     * The name of the field being resolved.
+     *
+     * @api
+     * @var string
+     */
+    public $fieldName;
+
+    /**
      * Expected return type of the field being resolved.
      *
      * @api
      * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
      */
     public $returnType;
+
+    /**
+     * AST of all nodes referencing this field in the query.
+     *
+     * @api
+     * @var FieldNode[]
+     */
+    public $fieldNodes = [];
 
     /**
      * Parent type of the field being resolved.
@@ -112,16 +112,15 @@ class ResolveInfo
     private $queryPlan;
 
     /**
-     * @param FieldNode[]                                                               $fieldNodes
-     * @param string[][]                                                                $path
-     * @param FragmentDefinitionNode[]                                                  $fragments
-     * @param mixed|null                                                                $rootValue
-     * @param mixed[]                                                                   $variableValues
+     * @param FieldNode[]              $fieldNodes
+     * @param string[][]               $path
+     * @param FragmentDefinitionNode[] $fragments
+     * @param mixed|null               $rootValue
+     * @param mixed[]                  $variableValues
      */
     public function __construct(
-        string $fieldName,
-        iterable $fieldNodes,
         FieldDefinition $fieldDefinition,
+        iterable $fieldNodes,
         ObjectType $parentType,
         array $path,
         Schema $schema,
@@ -130,17 +129,17 @@ class ResolveInfo
         ?OperationDefinitionNode $operation,
         array $variableValues
     ) {
-        $this->fieldName      = $fieldName;
-        $this->fieldNodes     = $fieldNodes;
         $this->fieldDefinition = $fieldDefinition;
-        $this->returnType     = $fieldDefinition->getType();
-        $this->parentType     = $parentType;
-        $this->path           = $path;
-        $this->schema         = $schema;
-        $this->fragments      = $fragments;
-        $this->rootValue      = $rootValue;
-        $this->operation      = $operation;
-        $this->variableValues = $variableValues;
+        $this->fieldName       = $fieldDefinition->name;
+        $this->returnType      = $fieldDefinition->getType();
+        $this->fieldNodes      = $fieldNodes;
+        $this->parentType      = $parentType;
+        $this->path            = $path;
+        $this->schema          = $schema;
+        $this->fragments       = $fragments;
+        $this->rootValue       = $rootValue;
+        $this->operation       = $operation;
+        $this->variableValues  = $variableValues;
     }
 
     /**
