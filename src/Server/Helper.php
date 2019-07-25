@@ -484,7 +484,6 @@ class Helper
                     }
                 }
             );
-            $httpStatus = 200;
         } else {
             if (! $result instanceof ExecutionResult) {
                 throw new InvariantViolation(sprintf(
@@ -493,14 +492,9 @@ class Helper
                     Utils::printSafe($result)
                 ));
             }
-            if ($result->data === null && ! empty($result->errors)) {
-                $httpStatus = 400;
-            } else {
-                $httpStatus = 200;
-            }
         }
 
-        return $httpStatus;
+        return 200;
     }
 
     /**
