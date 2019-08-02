@@ -32,6 +32,7 @@ use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Location;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NameNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\NullValueNode;
@@ -58,6 +59,66 @@ use function sprintf;
 
 /**
  * Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
+ *
+ * @method static NameNode name(Source|string $source, bool[] $options = [])
+ * @method static DocumentNode document(Source|string $source, bool[] $options = [])
+ * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
+ * @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
+ * @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
+ * @method static string operationType(Source|string $source, bool[] $options = [])
+ * @method static NodeList|VariableDefinitionNode[] variableDefinitions(Source|string $source, bool[] $options = [])
+ * @method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
+ * @method static VariableNode variable(Source|string $source, bool[] $options = [])
+ * @method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
+ * @method static mixed selection(Source|string $source, bool[] $options = [])
+ * @method static FieldNode field(Source|string $source, bool[] $options = [])
+ * @method static NodeList|ArgumentNode[] arguments(Source|string $source, bool[] $options = [])
+ * @method static ArgumentNode argument(Source|string $source, bool[] $options = [])
+ * @method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
+ * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
+ * @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
+ * @method static NameNode fragmentName(Source|string $source, bool[] $options = [])
+ * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
+ * @method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
+ * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode|VariableNode constValue(Source|string $source, bool[] $options = [])
+ * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
+ * @method static ListValueNode array(Source|string $source, bool[] $options = [])
+ * @method static ObjectValueNode object(Source|string $source, bool[] $options = [])
+ * @method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
+ * @method static NodeList|DirectiveNode[] directives(Source|string $source, bool[] $options = [])
+ * @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
+ * @method static ListTypeNode|NameNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
+ * @method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
+ * @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
+ * @method static StringValueNode|null description(Source|string $source, bool[] $options = [])
+ * @method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
+ * @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
+ * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
+ * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
+ * @method static NamedTypeNode[] implementsInterfaces(Source|string $source, bool[] $options = [])
+ * @method static FieldDefinitionNode[] fieldsDefinition(Source|string $source, bool[] $options = [])
+ * @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
+ * @method static InputValueDefinitionNode[] argumentsDefinition(Source|string $source, bool[] $options = [])
+ * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
+ * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
+ * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
+ * @method static NamedTypeNode[] unionMemberTypes(Source|string $source, bool[] $options = [])
+ * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
+ * @method static EnumValueDefinitionNode[] enumValuesDefinition(Source|string $source, bool[] $options = [])
+ * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
+ * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
+ * @method static InputValueDefinitionNode[] inputFieldsDefinition(Source|string $source, bool[] $options = [])
+ * @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
+ * @method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
+ * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
+ * @method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
+ * @method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
+ * @method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
+ * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
+ * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
+ * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
+ * @method static DirectiveLocation[] directiveLocations(Source|string $source, bool[] $options = [])
+ * @method static DirectiveLocation directiveLocation(Source|string $source, bool[] $options = [])
  */
 class Parser
 {
@@ -113,8 +174,7 @@ class Parser
      */
     public static function parse($source, array $options = [])
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser    = new self($sourceObj, $options);
+        $parser = new self($source, $options);
 
         return $parser->parseDocument();
     }
@@ -138,8 +198,7 @@ class Parser
      */
     public static function parseValue($source, array $options = [])
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser    = new Parser($sourceObj, $options);
+        $parser = new Parser($source, $options);
         $parser->expect(Token::SOF);
         $value = $parser->parseValueLiteral(false);
         $parser->expect(Token::EOF);
@@ -166,10 +225,27 @@ class Parser
      */
     public static function parseType($source, array $options = [])
     {
-        $sourceObj = $source instanceof Source ? $source : new Source($source);
-        $parser    = new Parser($sourceObj, $options);
+        $parser = new Parser($source, $options);
         $parser->expect(Token::SOF);
         $type = $parser->parseTypeReference();
+        $parser->expect(Token::EOF);
+
+        return $type;
+    }
+
+    /**
+     * Parse partial source by delegating calls to the internal parseX methods.
+     *
+     * @param Source|string $name
+     * @param bool[]        $arguments
+     *
+     * @throws SyntaxError
+     */
+    public static function __callStatic(string $name, array $arguments) : Node
+    {
+        $parser = new Parser(...$arguments);
+        $parser->expect(Token::SOF);
+        $type = $parser->{'parse' . $name}();
         $parser->expect(Token::EOF);
 
         return $type;
@@ -179,11 +255,13 @@ class Parser
     private $lexer;
 
     /**
-     * @param bool[] $options
+     * @param Source|string $source
+     * @param bool[]        $options
      */
-    public function __construct(Source $source, array $options = [])
+    public function __construct($source, array $options = [])
     {
-        $this->lexer = new Lexer($source, $options);
+        $sourceObj   = $source instanceof Source ? $source : new Source($source);
+        $this->lexer = new Lexer($sourceObj, $options);
     }
 
     /**
@@ -1255,7 +1333,7 @@ class Parser
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
         $name        = $this->parseName();
-        $args        = $this->parseArgumentDefs();
+        $args        = $this->parseArgumentsDefinition();
         $this->expect(Token::COLON);
         $type       = $this->parseTypeReference();
         $directives = $this->parseDirectives(true);
@@ -1275,7 +1353,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseArgumentDefs()
+    private function parseArgumentsDefinition()
     {
         if (! $this->peek(Token::PAREN_L)) {
             return new NodeList([]);
@@ -1284,7 +1362,7 @@ class Parser
         return $this->many(
             Token::PAREN_L,
             function () {
-                return $this->parseInputValueDef();
+                return $this->parseInputValueDefinition();
             },
             Token::PAREN_R
         );
@@ -1295,7 +1373,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    private function parseInputValueDef()
+    private function parseInputValueDefinition()
     {
         $start       = $this->lexer->token;
         $description = $this->parseDescription();
@@ -1483,7 +1561,7 @@ class Parser
             ? $this->many(
                 Token::BRACE_L,
                 function () {
-                    return $this->parseInputValueDef();
+                    return $this->parseInputValueDefinition();
                 },
                 Token::BRACE_R
             )
@@ -1737,7 +1815,7 @@ class Parser
         $this->expectKeyword('directive');
         $this->expect(Token::AT);
         $name = $this->parseName();
-        $args = $this->parseArgumentDefs();
+        $args = $this->parseArgumentsDefinition();
         $this->expectKeyword('on');
         $locations = $this->parseDirectiveLocations();
 
