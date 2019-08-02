@@ -18,11 +18,11 @@ use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ValueNode;
+use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
-use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
@@ -117,7 +117,8 @@ class ValuesOfCorrectType extends ValidationRule
             },
             NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context) {
                 $parentType = Type::getNamedType($context->getParentInputType());
-                $fieldType  = $context->getInputType();
+                /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $fieldType */
+                $fieldType = $context->getInputType();
                 if ($fieldType || ! ($parentType instanceof InputObjectType)) {
                     return;
                 }
@@ -177,9 +178,13 @@ class ValuesOfCorrectType extends ValidationRule
             ($message ? "; ${message}" : '.');
     }
 
+    /**
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
+     */
     private function isValidScalar(ValidationContext $context, ValueNode $node, $fieldName)
     {
         // Report any error at the full type expected by the location.
+        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $locationType */
         $locationType = $context->getInputType();
 
         if (! $locationType) {
@@ -240,6 +245,9 @@ class ValuesOfCorrectType extends ValidationRule
         }
     }
 
+    /**
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $node
+     */
     private function enumTypeSuggestion($type, ValueNode $node)
     {
         if ($type instanceof EnumType) {

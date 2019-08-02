@@ -1,5 +1,5 @@
 parameters:
-    level: 1
+    level: 2
 
     paths:
         - %currentWorkingDirectory%/src
@@ -11,6 +11,17 @@ parameters:
         - "~Variable property access on .+~"
         - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
         - "~Variable method call on static\\(GraphQL\\\\Server\\\\ServerConfig\\)~" # TODO get rid of
+        - "~Only booleans are allowed in .*~" # TODO https://github.com/phpstan/phpstan-strict-rules/issues/2
+        # A whole class of errors in PHPStan is a result of PHP's lack of union types.
+        # This commonly happens in the parts of the code that deal with the GraphQL
+        # type system where we can currently use interfaces and lose type safety.
+        # Until we find a better way, we can list related error's here.
+        - "~Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\NamedType::\\$name~"
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\DefinitionNode::\\$name~"
+        # Those come from graphql-php\tests\Language\VisitorTest.php
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
 
 includes:
 	- vendor/phpstan/phpstan-phpunit/extension.neon

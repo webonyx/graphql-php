@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-/*
-export type GraphQLAbstractType =
-GraphQLInterfaceType |
-GraphQLUnionType;
-*/
-
+/**
+export type AbstractType =
+InterfaceType |
+UnionType;
+ */
 interface AbstractType
 {
     /**

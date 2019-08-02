@@ -6,10 +6,12 @@ namespace GraphQL\Utils;
 
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 
 class TypeComparators
@@ -44,8 +46,8 @@ class TypeComparators
      * Provided a type and a super type, return true if the first type is either
      * equal or a subset of the second super type (covariant).
      *
-     * @param AbstractType $maybeSubType
-     * @param AbstractType $superType
+     * @param InterfaceType|UnionType $maybeSubType
+     * @param InterfaceType|UnionType $superType
      *
      * @return bool
      */

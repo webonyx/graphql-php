@@ -4,16 +4,15 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-/*
-export type GraphQLNamedType =
-  | GraphQLScalarType
-  | GraphQLObjectType
-  | GraphQLInterfaceType
-  | GraphQLUnionType
-  | GraphQLEnumType
-  | GraphQLInputObjectType;
+/**
+export type NamedType =
+  | ScalarType
+  | ObjectType
+  | InterfaceType
+  | UnionType
+  | EnumType
+  | InputObjectType;
  */
-
 interface NamedType
 {
 }

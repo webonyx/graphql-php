@@ -81,7 +81,9 @@ class FieldArgument
     }
 
     /**
-     * @return InputType
+     * Returns an InputType
+     *
+     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
      */
     public function getType()
     {

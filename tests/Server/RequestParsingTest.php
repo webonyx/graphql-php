@@ -178,7 +178,7 @@ class RequestParsingTest extends TestCase
 
         foreach ($parsed as $method => $parsedBody) {
             self::assertValidOperationParams($parsedBody, $query, null, $variables, $operation, null, $method);
-            self::assertTrue($parsedBody->isReadonly(), $method);
+            self::assertTrue($parsedBody->isReadOnly(), $method);
         }
     }
 

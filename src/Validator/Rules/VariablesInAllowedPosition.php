@@ -17,7 +17,11 @@ use function sprintf;
 
 class VariablesInAllowedPosition extends ValidationRule
 {
-    /** @var */
+    /**
+     * A map from variable names to their definition nodes.
+     *
+     * @var VariableDefinitionNode[]
+     */
     public $varDefMap;
 
     public function getVisitor(ValidationContext $context)

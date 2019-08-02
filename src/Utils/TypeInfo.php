@@ -30,8 +30,10 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
@@ -455,9 +457,9 @@ class TypeInfo
     }
 
     /**
-     * @return InputType
+     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null
      */
-    public function getInputType()
+    public function getInputType() : ?InputType
     {
         if (! empty($this->inputTypeStack)) {
             return $this->inputTypeStack[count($this->inputTypeStack) - 1];

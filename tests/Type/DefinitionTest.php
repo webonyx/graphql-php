@@ -603,10 +603,14 @@ class DefinitionTest extends TestCase
         self::assertEquals([$node], $user->getInterfaces());
 
         self::assertNotNull($user->getField('blogs'));
-        self::assertSame($blog, $user->getField('blogs')->getType()->getWrappedType(true));
+        /** @var NonNull $blogFieldReturnType */
+        $blogFieldReturnType = $user->getField('blogs')->getType();
+        self::assertSame($blog, $blogFieldReturnType->getWrappedType(true));
 
         self::assertNotNull($blog->getField('owner'));
-        self::assertSame($user, $blog->getField('owner')->getType()->getWrappedType(true));
+        /** @var NonNull $ownerFieldReturnType */
+        $ownerFieldReturnType = $blog->getField('owner')->getType();
+        self::assertSame($user, $ownerFieldReturnType->getWrappedType(true));
     }
 
     public function testInputObjectTypeAllowsRecursiveDefinitions() : void
@@ -702,19 +706,24 @@ class DefinitionTest extends TestCase
 
         $schema = new Schema(['query' => $query]);
 
-        $valueField  = $schema->getType('SomeInterface')->getField('value');
-        $nestedField = $schema->getType('SomeInterface')->getField('nested');
+        /** @var InterfaceType $SomeInterface */
+        $SomeInterface = $schema->getType('SomeInterface');
 
+        $valueField = $SomeInterface->getField('value');
         self::assertEquals(Type::string(), $valueField->getType());
+
+        $nestedField = $SomeInterface->getField('nested');
         self::assertEquals($interface, $nestedField->getType());
 
-        $withArg = $schema->getType('SomeInterface')->getField('withArg');
+        $withArg = $SomeInterface->getField('withArg');
         self::assertEquals(Type::string(), $withArg->getType());
 
         self::assertEquals('arg1', $withArg->args[0]->name);
         self::assertEquals(Type::int(), $withArg->args[0]->getType());
 
-        $testField = $schema->getType('Query')->getField('test');
+        /** @var ObjectType $Query */
+        $Query     = $schema->getType('Query');
+        $testField = $Query->getField('test');
         self::assertEquals($interface, $testField->getType());
         self::assertEquals('test', $testField->name);
     }
@@ -763,7 +772,7 @@ class DefinitionTest extends TestCase
                 ];
             },
         ]);
-        $objType->assertValid(true);
+        $objType->assertValid();
         self::assertSame(Type::string(), $objType->getField('f')->getType());
     }
 

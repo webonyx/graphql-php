@@ -18,6 +18,8 @@ use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
+use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\LeafType;
@@ -25,6 +27,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
@@ -250,6 +253,8 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
     /**
      * @internal
+     *
+     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
      */
     public function evaluate(ValueNode $valueNode, InputType $type)
     {
@@ -898,6 +903,11 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         return $ctx->shared->mergedSelectionSet = new SelectionSetNode(['selections' => $selections]);
     }
 
+    /**
+     * @param InterfaceType|UnionType $abstractType
+     *
+     * @return Generator|ObjectType|Type|null
+     */
     private function resolveTypeSlow(CoroutineContext $ctx, $value, AbstractType $abstractType)
     {
         if ($value !== null &&

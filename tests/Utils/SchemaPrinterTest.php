@@ -713,6 +713,7 @@ type Query {
             $output
         );
 
+        /** @var ObjectType $recreatedRoot */
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         self::assertEquals($description, $recreatedField->description);
@@ -741,6 +742,7 @@ type Query {
             $output
         );
 
+        /** @var ObjectType $recreatedRoot */
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         self::assertEquals($description, $recreatedField->description);
@@ -768,6 +770,7 @@ type Query {
             $output
         );
 
+        /** @var ObjectType $recreatedRoot */
         $recreatedRoot  = BuildSchema::build($output)->getTypeMap()['Query'];
         $recreatedField = $recreatedRoot->getFields()['singleField'];
         self::assertEquals($description, $recreatedField->description);

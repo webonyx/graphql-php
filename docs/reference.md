@@ -2240,7 +2240,7 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type)
  * | Enum Value           | Mixed         |
  * | Null Value           | null          |
  *
- * @param ValueNode|null $valueNode
+ * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
  * @param mixed[]|null   $variables
  *
  * @return mixed[]|stdClass|null
