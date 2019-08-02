@@ -28,6 +28,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
@@ -563,7 +564,7 @@ class SchemaExtender
             $typeDefinitionMap,
             $options,
             static function (string $typeName) use ($schema) {
-                /** @var NamedType $existingType */
+                /** @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $existingType */
                 $existingType = $schema->getType($typeName);
                 if ($existingType !== null) {
                     return static::extendNamedType($existingType);

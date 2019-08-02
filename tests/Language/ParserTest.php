@@ -12,6 +12,7 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Parser;
@@ -185,7 +186,7 @@ fragment MissingOn Type
      */
     public function testParsesMultiByteCharacters() : void
     {
-        // Note: \u0A0A could be naively interpretted as two line-feed chars.
+        // Note: \u0A0A could be naively interpreted as two line-feed chars.
 
         $char  = Utils::chr(0x0A0A);
         $query = <<<HEREDOC
@@ -333,7 +334,7 @@ GRAPHQL
 ');
         $result = Parser::parse($source);
 
-        $loc = static function ($start, $end) {
+        $loc = static function (int $start, int $end) : array {
             return [
                 'start' => $start,
                 'end'   => $end,
@@ -377,7 +378,7 @@ GRAPHQL
                                             'loc'   => $loc(13, 14),
                                             'value' => '4',
                                         ],
-                                        'loc'   => $loc(9, 14, $source),
+                                        'loc'   => $loc(9, 14),
                                     ],
                                 ],
                                 'directives'   => [],
@@ -714,6 +715,19 @@ GRAPHQL
                 ],
             ],
             self::nodeToArray(Parser::parseType('[MyType!]'))
+        );
+    }
+
+    public function testPartiallyParsesSource() : void
+    {
+        self::assertInstanceOf(
+            NameNode::class,
+            Parser::name('Foo')
+        );
+
+        self::assertInstanceOf(
+            ObjectTypeDefinitionNode::class,
+            Parser::objectTypeDefinition('type Foo { name: String }')
         );
     }
 }

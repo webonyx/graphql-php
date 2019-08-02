@@ -10,8 +10,10 @@ use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
+use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
@@ -122,7 +124,7 @@ class SchemaValidationContext
      * @param Type   $type
      * @param string $operation
      *
-     * @return TypeNode|TypeDefinitionNode
+     * @return NamedTypeNode|ListTypeNode|NonNullTypeNode|TypeDefinitionNode
      */
     private function getOperationTypeNode($type, $operation)
     {
@@ -235,9 +237,9 @@ class SchemaValidationContext
     /**
      * @param string $argName
      *
-     * @return TypeNode|null
+     * @return NamedTypeNode|ListTypeNode|NonNullTypeNode|null
      */
-    private function getDirectiveArgTypeNode(Directive $directive, $argName)
+    private function getDirectiveArgTypeNode(Directive $directive, $argName) : ?TypeNode
     {
         $argNode = $this->getAllDirectiveArgNodes($directive, $argName)[0];
 
@@ -414,9 +416,9 @@ class SchemaValidationContext
      * @param ObjectType|InterfaceType $type
      * @param string                   $fieldName
      *
-     * @return TypeNode|null
+     * @return NamedTypeNode|ListTypeNode|NonNullTypeNode|null
      */
-    private function getFieldTypeNode($type, $fieldName)
+    private function getFieldTypeNode($type, $fieldName) : ?TypeNode
     {
         $fieldNode = $this->getFieldNode($type, $fieldName);
 
@@ -465,9 +467,9 @@ class SchemaValidationContext
      * @param string                   $fieldName
      * @param string                   $argName
      *
-     * @return TypeNode|null
+     * @return NamedTypeNode|ListTypeNode|NonNullTypeNode|null
      */
-    private function getFieldArgTypeNode($type, $fieldName, $argName)
+    private function getFieldArgTypeNode($type, $fieldName, $argName) : ?TypeNode
     {
         $fieldArgNode = $this->getFieldArgNode($type, $fieldName, $argName);
 

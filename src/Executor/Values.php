@@ -6,22 +6,34 @@ namespace GraphQL\Executor;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
+use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
+use GraphQL\Language\AST\EnumValueNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\FieldNode;
+use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
+use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\NullValueNode;
+use GraphQL\Language\AST\ObjectValueNode;
+use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
@@ -246,12 +258,13 @@ class Values
     /**
      * @deprecated as of 8.0 (Moved to \GraphQL\Utils\AST::valueFromAST)
      *
-     * @param ValueNode    $valueNode
-     * @param mixed[]|null $variables
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
+     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull                                                                              $type
+     * @param mixed[]|null                                                                                                                        $variables
      *
      * @return mixed[]|stdClass|null
      */
-    public static function valueFromAST($valueNode, InputType $type, ?array $variables = null)
+    public static function valueFromAST(ValueNode $valueNode, InputType $type, ?array $variables = null)
     {
         return AST::valueFromAST($valueNode, $type, $variables);
     }
@@ -262,6 +275,8 @@ class Values
      * @param mixed[] $value
      *
      * @return string[]
+     *
+     * @paarm ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
      */
     public static function isValidPHPValue($value, InputType $type)
     {

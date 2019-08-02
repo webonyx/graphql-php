@@ -6,16 +6,23 @@ namespace GraphQL\Validator;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\HasSelectionSet;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
@@ -185,9 +192,11 @@ class ValidationContext
     }
 
     /**
+     * @param OperationDefinitionNode|FragmentDefinitionNode $node
+     *
      * @return FragmentSpreadNode[]
      */
-    public function getFragmentSpreads(HasSelectionSet $node)
+    public function getFragmentSpreads(HasSelectionSet $node) : array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
         if ($spreads === null) {
@@ -201,8 +210,11 @@ class ValidationContext
                     $selection = $set->selections[$i];
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
-                    } elseif ($selection->selectionSet) {
-                        $setsToVisit[] = $selection->selectionSet;
+                    } else {
+                        /** @var FieldNode|InlineFragmentNode $selection*/
+                        if ($selection->selectionSet) {
+                            $setsToVisit[] = $selection->selectionSet;
+                        }
                     }
                 }
             }
@@ -262,17 +274,17 @@ class ValidationContext
     }
 
     /**
-     * @return InputType
+     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
      */
-    public function getInputType()
+    public function getInputType() : ?InputType
     {
         return $this->typeInfo->getInputType();
     }
 
     /**
-     * @return InputType
+     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
      */
-    public function getParentInputType()
+    public function getParentInputType() : ?InputType
     {
         return $this->typeInfo->getParentInputType();
     }

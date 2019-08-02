@@ -35,7 +35,8 @@ class Value
     /**
      * Given a type and any value, return a runtime value coerced to match the type.
      *
-     * @param mixed[] $path
+     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
+     * @param mixed[]                                                $path
      */
     public static function coerceValue($value, InputType $type, $blameNode = null, ?array $path = null)
     {

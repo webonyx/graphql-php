@@ -453,6 +453,11 @@ class ASTDefinitionBuilder
         }
     }
 
+    /**
+     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $typeNode
+     *
+     * @return NamedTypeNode|ListTypeNode|NonNullTypeNode
+     */
     private function getNamedTypeNode(TypeNode $typeNode) : TypeNode
     {
         $namedType = $typeNode;
@@ -463,6 +468,9 @@ class ASTDefinitionBuilder
         return $namedType;
     }
 
+    /**
+     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
+     */
     private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode) : Type
     {
         if ($inputTypeNode instanceof ListTypeNode) {

@@ -12,10 +12,10 @@ class InputValueDefinitionNode extends Node
     /** @var NameNode */
     public $name;
 
-    /** @var TypeNode */
+    /** @var NamedTypeNode|ListTypeNode|NonNullTypeNode */
     public $type;
 
-    /** @var ValueNode */
+    /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode */
     public $defaultValue;
 
     /** @var DirectiveNode[] */

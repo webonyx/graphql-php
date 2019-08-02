@@ -304,13 +304,19 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        $oldFieldTypeString = $oldFieldType instanceof NamedType
-                            ? $oldFieldType->name
-                            : $oldFieldType;
-                        $newFieldTypeString = $newFieldType instanceof NamedType
-                            ? $newFieldType->name
-                            : $newFieldType;
-                        $breakingChanges[]  = [
+                        if ($oldFieldType instanceof NamedType) {
+                            /** @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $oldFieldType */
+                            $oldFieldTypeString = $oldFieldType->name;
+                        } else {
+                            $oldFieldTypeString = $oldFieldType;
+                        }
+                        if ($newFieldType instanceof NamedType) {
+                            /** @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $newFieldType */
+                            $newFieldTypeString = $newFieldType->name;
+                        } else {
+                            $newFieldTypeString = $newFieldType;
+                        }
+                        $breakingChanges[] = [
                             'type'        => self::BREAKING_CHANGE_FIELD_CHANGED_KIND,
                             'description' => "${typeName}.${fieldName} changed type from ${oldFieldTypeString} to ${newFieldTypeString}.",
                         ];
@@ -352,8 +358,12 @@ class BreakingChangesFinder
         Type $newType
     ) {
         if ($oldType instanceof NamedType) {
+            if (! $newType instanceof NamedType) {
+                return false;
+            }
+
             // if they're both named types, see if their names are equivalent
-            return $newType instanceof NamedType && $oldType->name === $newType->name;
+            return $oldType->name === $newType->name;
         }
 
         if ($oldType instanceof ListOfType) {
@@ -501,10 +511,11 @@ class BreakingChangesFinder
                         }
                     );
                     if ($newArgDef !== null) {
-                        $isSafe     = self::isChangeSafeForInputObjectFieldOrFieldArg(
+                        $isSafe = self::isChangeSafeForInputObjectFieldOrFieldArg(
                             $oldArgDef->getType(),
                             $newArgDef->getType()
                         );
+                        /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $oldArgType */
                         $oldArgType = $oldArgDef->getType();
                         $oldArgName = $oldArgDef->name;
                         if (! $isSafe) {

@@ -313,8 +313,8 @@ class AST
      * | Enum Value           | Mixed         |
      * | Null Value           | null          |
      *
-     * @param ValueNode|null $valueNode
-     * @param mixed[]|null   $variables
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
+     * @param mixed[]|null                                                                                                                             $variables
      *
      * @return mixed[]|stdClass|null
      *
@@ -322,7 +322,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST($valueNode, Type $type, ?array $variables = null)
+    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null)
     {
         $undefined = Utils::undefined();
 
@@ -411,7 +411,7 @@ class AST
                 }
             );
             foreach ($fields as $field) {
-                /** @var ValueNode $fieldNode */
+                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
                 $fieldName = $field->name;
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
@@ -473,12 +473,12 @@ class AST
      * Returns true if the provided valueNode is a variable which is not defined
      * in the set of variables.
      *
-     * @param ValueNode $valueNode
-     * @param mixed[]   $variables
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
+     * @param mixed[]                                                                                                                             $variables
      *
      * @return bool
      */
-    private static function isMissingVariable($valueNode, $variables)
+    private static function isMissingVariable(ValueNode $valueNode, $variables)
     {
         return $valueNode instanceof VariableNode &&
             (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));
