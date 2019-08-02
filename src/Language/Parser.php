@@ -236,7 +236,7 @@ class Parser
     /**
      * Parse partial source by delegating calls to the internal parseX methods.
      *
-     * @param bool[]        $arguments
+     * @param bool[] $arguments
      *
      * @throws SyntaxError
      */
