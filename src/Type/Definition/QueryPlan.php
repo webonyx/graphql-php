@@ -173,16 +173,16 @@ class QueryPlan
                     $type = $this->schema->getType($fragment->typeCondition->name->value);
 
                     $typeConditions[$type->name] = $this->arrayMergeDeep(
-                        $this->analyzeSubFields($type, $fragment->selectionSet),
-                        $typeConditions[$type->name] ?? []
+                        $typeConditions[$type->name] ?? [],
+                        $this->analyzeSubFields($type, $fragment->selectionSet)
                     );
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
                 $type = $this->schema->getType($selectionNode->typeCondition->name->value);
 
                 $typeConditions[$type->name] = $this->arrayMergeDeep(
-                    $this->analyzeSubFields($type, $selectionNode->selectionSet),
-                    $typeConditions[$type->name] ?? []
+                    $typeConditions[$type->name] ?? [],
+                    $this->analyzeSubFields($type, $selectionNode->selectionSet)
                 );
             }
         }
