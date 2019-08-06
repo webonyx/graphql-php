@@ -194,7 +194,7 @@ class ResolveInfoTest extends TestCase
             'fields' => [
                 'ping' => [
                     'type'    => Type::string(),
-                    'resolve' => function ($value, $args, $context, ResolveInfo $info) : string {
+                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) : string {
                         self::assertEquals([], $info->getFieldSelection());
 
                         return 'pong';
@@ -273,7 +273,7 @@ class ResolveInfoTest extends TestCase
             }
             image {
                 width
-                height
+                heightp
                 ...MyImage
             }
             ...Replies01
