@@ -185,7 +185,7 @@ class ResolveInfoTest extends TestCase
     {
         $query = '
             query Ping {
-                string
+                ping
             }
         ';
 
