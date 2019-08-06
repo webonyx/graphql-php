@@ -192,7 +192,7 @@ class ResolveInfoTest extends TestCase
         $stringQuery = new ObjectType([
             'name'   => 'Query',
             'fields' => [
-                'string' => [
+                'ping' => [
                     'type'    => Type::string(),
                     'resolve' => function ($value, $args, $context, ResolveInfo $info) : string {
                         self::assertEquals([], $info->getFieldSelection());
