@@ -273,7 +273,7 @@ class ResolveInfoTest extends TestCase
             }
             image {
                 width
-                heightp
+                height
                 ...MyImage
             }
             ...Replies01
