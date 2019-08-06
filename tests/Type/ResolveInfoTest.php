@@ -203,7 +203,7 @@ class ResolveInfoTest extends TestCase
             ],
         ]);
 
-        $schema = new Schema(['query' => $stringQuery]);
+        $schema = new Schema(['query' => $pingPongQuery]);
         $result = GraphQL::executeQuery($schema, $query)->toArray();
         $this->assertEquals(['data' => ['string' => 'a string']], $result);
     }
