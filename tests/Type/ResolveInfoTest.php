@@ -189,7 +189,7 @@ class ResolveInfoTest extends TestCase
             }
         ';
 
-        $stringQuery = new ObjectType([
+        $pingPongQuery = new ObjectType([
             'name'   => 'Query',
             'fields' => [
                 'ping' => [
