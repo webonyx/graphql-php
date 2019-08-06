@@ -178,6 +178,10 @@ class ResolveInfo
 
         /** @var FieldNode $fieldNode */
         foreach ($this->fieldNodes as $fieldNode) {
+            if ($fieldNode->selectionSet === null) {
+                continue;
+            }
+
             $fields = array_merge_recursive(
                 $fields,
                 $this->foldSelectionSet($fieldNode->selectionSet, $depth)
