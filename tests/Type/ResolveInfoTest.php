@@ -205,7 +205,8 @@ class ResolveInfoTest extends TestCase
 
         $schema = new Schema(['query' => $pingPongQuery]);
         $result = GraphQL::executeQuery($schema, $query)->toArray();
-        $this->assertEquals(['data' => ['string' => 'a string']], $result);
+        
+        self::assertEquals(['data' => ['ping' => 'pong']], $result);
     }
 
     public function testMergedFragmentsFieldSelection() : void
