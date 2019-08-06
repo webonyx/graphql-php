@@ -184,7 +184,7 @@ class ResolveInfoTest extends TestCase
     public function testFieldSelectionOnScalarTypes() : void
     {
         $query = '
-            query string {
+            query Ping {
                 string
             }
         ';
