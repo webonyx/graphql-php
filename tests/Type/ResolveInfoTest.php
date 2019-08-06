@@ -194,7 +194,7 @@ class ResolveInfoTest extends TestCase
             'fields' => [
                 'string' => [
                     'type'    => Type::string(),
-                    'resolve' => function ($value, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($value, $args, $context, ResolveInfo $info) : string {
                         self::assertEquals([], $info->getFieldSelection());
 
                         return 'pong';
