@@ -2,6 +2,7 @@
 
 ## Unreleased
 - Add schema validation: Input Objects must not contain non-nullable circular references (#492)
+- Added retrieving query complexity once query has been completed (#316) 
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 
