@@ -3,6 +3,7 @@
 ## Unreleased
 - Add schema validation: Input Objects must not contain non-nullable circular references (#492)
 - Added retrieving query complexity once query has been completed (#316) 
+- Allow input types to be passed in from variables using \stdClass instead of associative arrays
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 
