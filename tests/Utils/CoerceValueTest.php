@@ -292,6 +292,13 @@ class CoerceValueTest extends TestCase
         $this->expectError($result, 'Expected type TestInputObject to be an object.');
     }
 
+    public function testReturnsNoErrorForStdClassInput() : void
+    {
+        $result = Value::coerceValue((object) ['foo' => 123], $this->testInputObject);
+        $this->expectNoErrors($result);
+        self::assertEquals(['foo' => 123], $result['value']);
+    }
+
     /**
      * @see it('returns no error for an invalid field')
      */
