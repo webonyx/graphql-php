@@ -309,6 +309,24 @@ class VariablesTest extends TestCase
         self::assertEquals($expected, $result->toArray());
     }
 
+    public function testUsingStdClassVariables() : void
+    {
+        $doc = '
+            query q($input:TestNestedInputObject) {
+                fieldWithNestedInputObject(input: $input)
+            }
+        ';
+
+        // executes with complex input:
+        $params = ['input' => (object) ['na' => (object) ['a' => 'foo', 'b' => ['bar'], 'c' => 'baz'], 'nb' => 'test']];
+        $result = $this->executeQuery($doc, $params);
+
+        self::assertEquals(
+            ['data' => ['fieldWithNestedInputObject' => '{"na":{"a":"foo","b":["bar"],"c":"baz"},"nb":"test"}']],
+            $result->toArray()
+        );
+    }
+
     /**
      * @see it('allows nullable inputs to be omitted')
      */
