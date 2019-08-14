@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
+use function array_key_exists;
 use function json_encode;
 
 /**
@@ -45,7 +46,8 @@ class VariablesTest extends TestCase
 
         self::assertEquals($expected, $result->toArray());
 
-        $result   = $this->executeQuery('
+        $result   = $this->executeQuery(
+            '
             query ($input: TestInputObject) {
               fieldWithObjectInput(input: $input)
             }
@@ -148,6 +150,10 @@ class VariablesTest extends TestCase
                     'type'         => Type::string(),
                     'defaultValue' => 'Hello World',
                 ]),
+                'fieldWithNonNullableStringInputAndDefaultArgumentValue' => $this->fieldWithInputArg([
+                    'type' => Type::nonNull(Type::string()),
+                    'defaultValue' => 'Hello World',
+                ]),
                 'fieldWithNestedInputObject'      => $this->fieldWithInputArg([
                     'type'         => $TestNestedInputObject,
                     'defaultValue' => 'Hello World',
@@ -170,6 +176,9 @@ class VariablesTest extends TestCase
             'resolve' => static function ($_, $args) {
                 if (isset($args['input'])) {
                     return json_encode($args['input']);
+                }
+                if (array_key_exists('input', $args) && $args['input'] === null) {
+                    return 'null';
                 }
 
                 return null;
@@ -194,6 +203,33 @@ class VariablesTest extends TestCase
             $result->toArray()
         );
 
+        // uses undefined when variable not provided
+        $result   = $this->executeQuery(
+            '
+          query q($input: String) {
+            fieldWithNullableStringInput(input: $input)
+          }',
+            [] // Intentionally missing variable values.
+        );
+        $expected = [
+            'data' => ['fieldWithNullableStringInput' => null],
+        ];
+        self::assertEquals($expected, $result->toArray());
+
+        // uses null when variable provided explicit null value
+        $result = $this->executeQuery(
+            '
+          query q($input: String) {
+            fieldWithNullableStringInput(input: $input)
+          }',
+            [ 'input' => null ]
+        );
+
+        $expected = [
+            'data' => ['fieldWithNullableStringInput' => 'null'],
+        ];
+        self::assertEquals($expected, $result->toArray());
+
         // uses default value when not provided:
         $result = $this->executeQuery('
           query ($input: TestInputObject = {a: "foo", b: ["bar"], c: "baz"}) {
@@ -203,6 +239,47 @@ class VariablesTest extends TestCase
 
         $expected = [
             'data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}'],
+        ];
+        self::assertEquals($expected, $result->toArray());
+
+        // does not use default value when provided
+        $result = $this->executeQuery(
+            'query q($input: String = "Default value") {
+            fieldWithNullableStringInput(input: $input)
+          }',
+            [ 'input' => 'Variable value' ]
+        );
+
+        $expected = [
+            'data' => ['fieldWithNullableStringInput' => '"Variable value"'],
+        ];
+        self::assertEquals($expected, $result->toArray());
+
+        // uses explicit null value instead of default value
+        $result = $this->executeQuery(
+            '
+          query q($input: String = "Default value") {
+            fieldWithNullableStringInput(input: $input)
+          }',
+            [ 'input' => null ]
+        );
+
+        $expected = [
+            'data' => ['fieldWithNullableStringInput' => 'null'],
+        ];
+        self::assertEquals($expected, $result->toArray());
+
+        // uses null default value when not provided
+        $result = $this->executeQuery(
+            '
+          query q($input: String = null) {
+            fieldWithNullableStringInput(input: $input)
+          }',
+            [] // Intentionally missing variable values.
+        );
+
+        $expected = [
+            'data' => ['fieldWithNullableStringInput' => 'null'],
         ];
         self::assertEquals($expected, $result->toArray());
 
@@ -483,10 +560,8 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$value" got invalid value null; ' .
-                        'Expected non-nullable type String! not to be null.',
-                    'locations' => [['line' => 2, 'column' => 31]],
+                    'message'    => 'Variable "$value" of non-null type "String!" must not be null.',
+                    'locations'  => [['line' => 2, 'column' => 31]],
                     'extensions' => ['category' => 'graphql'],
                 ],
             ],
@@ -627,7 +702,7 @@ class VariablesTest extends TestCase
         }
         ';
         $result   = $this->executeQuery($doc, ['input' => null]);
-        $expected = ['data' => ['list' => null]];
+        $expected = ['data' => ['list' => 'null']];
 
         self::assertEquals($expected, $result->toArray());
     }
@@ -676,10 +751,8 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value null; ' .
-                        'Expected non-nullable type [String]! not to be null.',
-                    'locations' => [['line' => 2, 'column' => 17]],
+                    'message'    => 'Variable "$input" of non-null type "[String]!" must not be null.',
+                    'locations'  => [['line' => 2, 'column' => 17]],
                     'extensions' => ['category' => 'graphql'],
                 ],
             ],
@@ -728,7 +801,7 @@ class VariablesTest extends TestCase
         }
         ';
         $result   = $this->executeQuery($doc, ['input' => null]);
-        $expected = ['data' => ['listNN' => null]];
+        $expected = ['data' => ['listNN' => 'null']];
         self::assertEquals($expected, $result->toArray());
     }
 
@@ -786,10 +859,8 @@ class VariablesTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'message'   =>
-                        'Variable "$input" got invalid value null; ' .
-                        'Expected non-nullable type [String!]! not to be null.',
-                    'locations' => [['line' => 2, 'column' => 17]],
+                    'message'    => 'Variable "$input" of non-null type "[String!]!" must not be null.',
+                    'locations'  => [['line' => 2, 'column' => 17]],
                     'extensions' => ['category' => 'graphql'],
                 ],
             ],
@@ -943,6 +1014,23 @@ class VariablesTest extends TestCase
             ],
         ];
 
+        self::assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * @see it('when no runtime value is provided to a non-null argument')
+     */
+    public function testWhenNoRuntimeValueIsProvidedToANonNullArgument()
+    {
+        $result = $this->executeQuery('
+        query optionalVariable($optional: String) {
+          fieldWithNonNullableStringInputAndDefaultArgumentValue(input: $optional)
+        }
+      ');
+
+        $expected = [
+            'data' => ['fieldWithNonNullableStringInputAndDefaultArgumentValue' => '"Hello World"'],
+        ];
         self::assertEquals($expected, $result->toArray());
     }
 }

@@ -142,7 +142,11 @@ class ValidationContext
                             &$newUsages,
                             $typeInfo
                         ) {
-                            $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
+                            $newUsages[] = [
+                                'node' => $variable,
+                                'type' => $typeInfo->getInputType(),
+                                'defaultValue' => $typeInfo->getDefaultValue(),
+                            ];
                         },
                     ]
                 )

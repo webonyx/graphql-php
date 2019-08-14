@@ -28,7 +28,7 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 use GraphQL\Validator\Rules\NoUnusedVariables;
 use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 use GraphQL\Validator\Rules\PossibleFragmentSpreads;
-use GraphQL\Validator\Rules\ProvidedNonNullArguments;
+use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\QueryDepth;
@@ -43,7 +43,6 @@ use GraphQL\Validator\Rules\UniqueVariableNames;
 use GraphQL\Validator\Rules\ValidationRule;
 use GraphQL\Validator\Rules\ValuesOfCorrectType;
 use GraphQL\Validator\Rules\VariablesAreInputTypes;
-use GraphQL\Validator\Rules\VariablesDefaultValueAllowed;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Throwable;
 use function array_filter;
@@ -160,8 +159,7 @@ class DocumentValidator
                 KnownArgumentNames::class           => new KnownArgumentNames(),
                 UniqueArgumentNames::class          => new UniqueArgumentNames(),
                 ValuesOfCorrectType::class          => new ValuesOfCorrectType(),
-                ProvidedNonNullArguments::class     => new ProvidedNonNullArguments(),
-                VariablesDefaultValueAllowed::class => new VariablesDefaultValueAllowed(),
+                ProvidedRequiredArguments::class    => new ProvidedRequiredArguments(),
                 VariablesInAllowedPosition::class   => new VariablesInAllowedPosition(),
                 OverlappingFieldsCanBeMerged::class => new OverlappingFieldsCanBeMerged(),
                 UniqueInputFieldNames::class        => new UniqueInputFieldNames(),

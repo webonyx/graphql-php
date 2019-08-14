@@ -193,6 +193,7 @@ abstract class ValidatorTestCase extends TestCase
             'name'   => 'ComplexInput',
             'fields' => [
                 'requiredField'   => ['type' => Type::nonNull(Type::boolean())],
+                'nonNullField'    => ['type' => Type::nonNull(Type::boolean()), 'defaultValue' => false],
                 'intField'        => ['type' => Type::int()],
                 'stringField'     => ['type' => Type::string()],
                 'booleanField'    => ['type' => Type::boolean()],
@@ -255,6 +256,12 @@ abstract class ValidatorTestCase extends TestCase
                     'args' => [
                         'req1' => ['type' => Type::nonNull(Type::int())],
                         'req2' => ['type' => Type::nonNull(Type::int())],
+                    ],
+                ],
+                'nonNullFieldWithDefault' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg' => [ 'type' => Type::nonNull(Type::int()), 'defaultValue' => 0 ],
                     ],
                 ],
                 'multipleOpts'              => [

@@ -1,6 +1,8 @@
 # Changelog
 
 ## Unreleased
+- **BREAKING:** Removal of `VariablesDefaultValueAllowed` validation rule. All variables may now specify a default value.
+- **BREAKING:** renamed `ProvidedNonNullArguments` to `ProvidedRequiredArguments` (no longer require values to be provided to non-null arguments which provide a default value).
 - Add schema validation: Input Objects must not contain non-nullable circular references (#492)
 - Added retrieving query complexity once query has been completed (#316) 
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)

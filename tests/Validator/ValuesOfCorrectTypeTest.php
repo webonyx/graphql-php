@@ -1060,9 +1060,9 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
-     * @see it('Incorrect value and missing argument (ProvidedNonNullArguments)')
+     * @see it('Incorrect value and missing argument (ProvidedRequiredArguments)')
      */
-    public function testIncorrectValueAndMissingArgumentProvidedNonNullArguments() : void
+    public function testIncorrectValueAndMissingArgumentProvidedRequiredArguments() : void
     {
         $this->expectFailsRule(
             new ValuesOfCorrectType(),
@@ -1275,6 +1275,27 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
     }
 
     /**
+     * @see it('Partial object, null to non-null field')
+     */
+    public function testPartialObjectNullToNonNullField()
+    {
+        $this->expectFailsRule(
+            new ValuesOfCorrectType(),
+            '
+        {
+          complicatedArgs {
+            complexArgField(complexArg: {
+              requiredField: true,
+              nonNullField: null,
+            })
+          }
+        }
+      ',
+            [$this->badValueWithMessage('Field "complexArgField" argument "complexArg" requires type Boolean!, found null.', 6, 29)]
+        );
+    }
+
+    /**
      * @see it('Partial object, unknown field arg')
      *
      * The sorting of equal elements has changed so that the test fails on php < 7
@@ -1301,7 +1322,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                     'unknownField',
                     6,
                     15,
-                    'Did you mean intField or booleanField?'
+                    'Did you mean nonNullField, intField, or booleanField?'
                 ),
             ]
         );
@@ -1417,6 +1438,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
           $a: Int = 1,
           $b: String = "ok",
           $c: ComplexInput = { requiredField: true, intField: 3 }
+          $d: Int! = 123
         ) {
           dog { name }
         }

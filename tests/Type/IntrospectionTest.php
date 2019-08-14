@@ -13,7 +13,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-use GraphQL\Validator\Rules\ProvidedNonNullArguments;
+use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 use PHPUnit\Framework\TestCase;
 use function json_encode;
 
@@ -1418,7 +1418,7 @@ class IntrospectionTest extends TestCase
         $expected = [
             'errors' => [
                 FormattedError::create(
-                    ProvidedNonNullArguments::missingFieldArgMessage('__type', 'name', 'String!'),
+                    ProvidedRequiredArguments::missingFieldArgMessage('__type', 'name', 'String!'),
                     [new SourceLocation(3, 9)]
                 ),
             ],

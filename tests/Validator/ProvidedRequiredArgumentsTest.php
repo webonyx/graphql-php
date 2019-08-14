@@ -6,9 +6,9 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
-use GraphQL\Validator\Rules\ProvidedNonNullArguments;
+use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 
-class ProvidedNonNullArgumentsTest extends ValidatorTestCase
+class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 {
     // Validate: Provided required arguments
     /**
@@ -18,7 +18,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     {
         // ignores unknown arguments
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
       {
         dog {
@@ -37,7 +37,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testArgOnOptionalArg() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           dog {
@@ -54,7 +54,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testNoArgOnOptionalArg() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           dog {
@@ -66,12 +66,29 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     }
 
     /**
+     * @see it('No arg on non-null field with default')
+     */
+    public function testNoArgOnNonNullFieldWithDefault()
+    {
+        $this->expectPassesRule(
+            new ProvidedRequiredArguments(),
+            '
+            {
+              complicatedArgs {
+                nonNullFieldWithDefault
+              }
+            }
+            '
+        );
+    }
+
+    /**
      * @see it('Multiple args')
      */
     public function testMultipleArgs() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -88,7 +105,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testMultipleArgsReverseOrder() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -105,7 +122,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testNoArgsOnMultipleOptional() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -122,7 +139,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testOneArgOnMultipleOptional() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -139,7 +156,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testSecondArgOnMultipleOptional() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -156,7 +173,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testMultipleReqsOnMixedList() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -173,7 +190,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testMultipleReqsAndOneOptOnMixedList() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -190,7 +207,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testAllReqsAndOptsOnMixedList() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -209,7 +226,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testMissingOneNonNullableArgument() : void
     {
         $this->expectFailsRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -224,7 +241,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     private function missingFieldArg($fieldName, $argName, $typeName, $line, $column)
     {
         return FormattedError::create(
-            ProvidedNonNullArguments::missingFieldArgMessage($fieldName, $argName, $typeName),
+            ProvidedRequiredArguments::missingFieldArgMessage($fieldName, $argName, $typeName),
             [new SourceLocation($line, $column)]
         );
     }
@@ -235,7 +252,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testMissingMultipleNonNullableArguments() : void
     {
         $this->expectFailsRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -258,7 +275,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testIncorrectValueAndMissingArgument() : void
     {
         $this->expectFailsRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           complicatedArgs {
@@ -278,7 +295,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testIgnoresUnknownDirectives() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           dog @unknown
@@ -293,7 +310,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testWithDirectivesOfValidTypes() : void
     {
         $this->expectPassesRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           dog @include(if: true) {
@@ -313,7 +330,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     public function testWithDirectiveWithMissingTypes() : void
     {
         $this->expectFailsRule(
-            new ProvidedNonNullArguments(),
+            new ProvidedRequiredArguments(),
             '
         {
           dog @include {
@@ -331,7 +348,7 @@ class ProvidedNonNullArgumentsTest extends ValidatorTestCase
     private function missingDirectiveArg($directiveName, $argName, $typeName, $line, $column)
     {
         return FormattedError::create(
-            ProvidedNonNullArguments::missingDirectiveArgMessage($directiveName, $argName, $typeName),
+            ProvidedRequiredArguments::missingDirectiveArgMessage($directiveName, $argName, $typeName),
             [new SourceLocation($line, $column)]
         );
     }
