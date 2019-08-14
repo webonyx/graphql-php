@@ -45,6 +45,17 @@ class VariablesTest extends TestCase
 
         self::assertEquals($expected, $result->toArray());
 
+        $result   = $this->executeQuery('
+            query ($input: TestInputObject) {
+              fieldWithObjectInput(input: $input)
+            }
+            ',
+            ['input' => ['a' => 'foo', 'b' => 'bar', 'c' => 'baz']]
+        );
+        $expected = ['data' => ['fieldWithObjectInput' => '{"a":"foo","b":["bar"],"c":"baz"}']];
+
+        self::assertEquals($expected, $result->toArray());
+
         // properly parses null value to null
         $result   = $this->executeQuery('
         {
