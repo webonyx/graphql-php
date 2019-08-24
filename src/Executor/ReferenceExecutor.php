@@ -652,97 +652,49 @@ class ReferenceExecutor implements ExecutorImplementation
         $path,
         $result
     ) {
-        $exeContext = $this->exeContext;
-        // If the field type is non-nullable, then it is resolved without any
-        // protection from errors.
-        if ($returnType instanceof NonNull) {
-            return $this->completeValueWithLocatedError(
-                $returnType,
-                $fieldNodes,
-                $info,
-                $path,
-                $result
-            );
-        }
         // Otherwise, error protection is applied, logging the error and resolving
         // a null value for this field if one is encountered.
         try {
-            $completed = $this->completeValueWithLocatedError(
-                $returnType,
-                $fieldNodes,
-                $info,
-                $path,
-                $result
-            );
-            $promise   = $this->getPromise($completed);
+            $promise = $this->getPromise($result);
             if ($promise !== null) {
-                return $promise->then(
-                    null,
-                    function ($error) use ($exeContext) {
-                        $exeContext->addError($error);
+                $completed = $promise->then(function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
+                    return $this->completeValue($returnType, $fieldNodes, $info, $path, $resolved);
+                });
+            } else {
+                $completed = $this->completeValue($returnType, $fieldNodes, $info, $path, $result);
+            }
 
-                        return $this->exeContext->promiseAdapter->createFulfilled(null);
-                    }
-                );
+            $promise = $this->getPromise($completed);
+            if ($promise !== null) {
+                return $promise->then(null, function ($error) use ($fieldNodes, $path, $returnType) {
+                    return $this->handleFieldError($error, $fieldNodes, $path, $returnType);
+                });
             }
 
             return $completed;
-        } catch (Error $err) {
-            // If `completeValueWithLocatedError` returned abruptly (threw an error), log the error
-            // and return null.
-            $exeContext->addError($err);
-
-            return null;
+        } catch (Throwable $err) {
+            return $this->handleFieldError($err, $fieldNodes, $path, $returnType);
         }
     }
 
-    /**
-     * This is a small wrapper around completeValue which annotates errors with
-     * location information.
-     *
-     * @param FieldNode[] $fieldNodes
-     * @param string[]    $path
-     * @param mixed       $result
-     *
-     * @return mixed[]|mixed|Promise|null
-     *
-     * @throws Error
-     */
-    public function completeValueWithLocatedError(
-        Type $returnType,
-        $fieldNodes,
-        ResolveInfo $info,
-        $path,
-        $result
-    ) {
-        try {
-            $completed = $this->completeValue(
-                $returnType,
-                $fieldNodes,
-                $info,
-                $path,
-                $result
-            );
-            $promise   = $this->getPromise($completed);
-            if ($promise !== null) {
-                return $promise->then(
-                    null,
-                    function ($error) use ($fieldNodes, $path) {
-                        return $this->exeContext->promiseAdapter->createRejected(Error::createLocatedError(
-                            $error,
-                            $fieldNodes,
-                            $path
-                        ));
-                    }
-                );
-            }
+    private function handleFieldError($rawError, $fieldNodes, $path, $returnType)
+    {
+        $error = Error::createLocatedError(
+            $rawError,
+            $fieldNodes,
+            $path
+        );
 
-            return $completed;
-        } catch (Exception $error) {
-            throw Error::createLocatedError($error, $fieldNodes, $path);
-        } catch (Throwable $error) {
-            throw Error::createLocatedError($error, $fieldNodes, $path);
+        // If the field type is non-nullable, then it is resolved without any
+        // protection from errors, however it still properly locates the error.
+        if ($returnType instanceof NonNull) {
+            throw $error;
         }
+        // Otherwise, error protection is applied, logging the error and resolving
+        // a null value for this field if one is encountered.
+        $this->exeContext->addError($error);
+
+        return null;
     }
 
     /**
@@ -782,16 +734,11 @@ class ReferenceExecutor implements ExecutorImplementation
         $path,
         &$result
     ) {
-        $promise = $this->getPromise($result);
-        // If result is a Promise, apply-lift over completeValue.
-        if ($promise !== null) {
-            return $promise->then(function (&$resolved) use ($returnType, $fieldNodes, $info, $path) {
-                return $this->completeValue($returnType, $fieldNodes, $info, $path, $resolved);
-            });
-        }
-        if ($result instanceof Exception || $result instanceof Throwable) {
+        // If result is an Error, throw a located error.
+        if ($result instanceof Throwable) {
             throw $result;
         }
+
         // If field type is NonNull, complete for inner type, and throw field error
         // if result is null.
         if ($returnType instanceof NonNull) {
@@ -1242,7 +1189,7 @@ class ReferenceExecutor implements ExecutorImplementation
     private function executeFields(ObjectType $parentType, $rootValue, $path, $fields)
     {
         $containsPromise = false;
-        $finalResults    = [];
+        $results         = [];
         foreach ($fields as $responseName => $fieldNodes) {
             $fieldPath   = $path;
             $fieldPath[] = $responseName;
@@ -1250,21 +1197,20 @@ class ReferenceExecutor implements ExecutorImplementation
             if ($result === self::$UNDEFINED) {
                 continue;
             }
-            if (! $containsPromise && $this->getPromise($result) !== null) {
+            if (! $containsPromise && $this->isPromise($result)) {
                 $containsPromise = true;
             }
-            $finalResults[$responseName] = $result;
+            $results[$responseName] = $result;
         }
         // If there are no promises, we can just return the object
         if (! $containsPromise) {
-            return self::fixResultsIfEmptyArray($finalResults);
+            return self::fixResultsIfEmptyArray($results);
         }
 
-        // Otherwise, results is a map from field name to the result
-        // of resolving that field, which is possibly a promise. Return
-        // a promise that will return this same map, but with any
-        // promises replaced with the values they resolved to.
-        return $this->promiseForAssocArray($finalResults);
+        // Otherwise, results is a map from field name to the result of resolving that
+        // field, which is possibly a promise. Return a promise that will return this
+        // same map, but with any promises replaced with the values they resolved to.
+        return $this->promiseForAssocArray($results);
     }
 
     /**
