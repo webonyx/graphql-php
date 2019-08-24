@@ -242,6 +242,25 @@ class Schema
     }
 
     /**
+     * @param string $operation
+     *
+     * @return ObjectType|null
+     */
+    public function getOperationType($operation)
+    {
+        switch ($operation) {
+            case 'query':
+                return $this->getQueryType();
+            case 'mutation':
+                return $this->getMutationType();
+            case 'subscription':
+                return $this->getSubscriptionType();
+            default:
+                return null;
+        }
+    }
+
+    /**
      * Returns schema query type
      *
      * @return ObjectType
