@@ -16,6 +16,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Validator\Rules\ProvidedNonNullArguments;
 use PHPUnit\Framework\TestCase;
 use function json_encode;
+use function sprintf;
 
 class IntrospectionTest extends TestCase
 {
@@ -1586,6 +1587,6 @@ class IntrospectionTest extends TestCase
         };
 
         GraphQL::executeQuery($schema, $source, null, null, null, null, $fieldResolver);
-        $this->assertEmpty($calledForFields);
+        self::assertEmpty($calledForFields);
     }
 }
