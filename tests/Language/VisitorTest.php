@@ -24,16 +24,21 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\TypeInfo;
 use function array_keys;
+use function array_pop;
 use function array_slice;
 use function count;
 use function file_get_contents;
 use function func_get_args;
 use function gettype;
 use function is_array;
+use function is_numeric;
 use function iterator_to_array;
 
 class VisitorTest extends ValidatorTestCase
 {
+    /**
+     * @see it('validates path argument')
+     */
     public function testValidatesPathArgument() : void
     {
         $visited = [];
@@ -68,6 +73,38 @@ class VisitorTest extends ValidatorTestCase
         ];
 
         self::assertEquals($expected, $visited);
+    }
+
+    /**
+     * @see it('validates ancestors argument')
+     */
+    public function testValidatesAncestorsArgument()
+    {
+        $ast          = Parser::parse('{ a }', ['noLocation' => true]);
+        $visitedNodes = [];
+
+        Visitor::visit($ast, [
+            'enter' => static function ($node, $key, $parent, $path, $ancestors) use (&$visitedNodes) {
+                $inArray = is_numeric($key);
+                if ($inArray) {
+                    $visitedNodes[] = $parent;
+                }
+                $visitedNodes[] = $node;
+
+                $expectedAncestors = array_slice($visitedNodes, 0, -2);
+                self::assertEquals($expectedAncestors, $ancestors);
+            },
+            'leave' => static function ($node, $key, $parent, $path, $ancestors) use (&$visitedNodes) {
+                $expectedAncestors = array_slice($visitedNodes, 0, -2);
+                self::assertEquals($expectedAncestors, $ancestors);
+
+                $inArray = is_numeric($key);
+                if ($inArray) {
+                    array_pop($visitedNodes);
+                }
+                array_pop($visitedNodes);
+            },
+        ]);
     }
 
     private function checkVisitorFnArgs($ast, $args, $isEdited = false)
