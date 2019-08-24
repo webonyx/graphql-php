@@ -552,12 +552,11 @@ class ReferenceExecutor implements ExecutorImplementation
         }
         // Get the resolve function, regardless of if its result is normal
         // or abrupt (error).
-        $result = $this->resolveOrError(
+        $result = $this->resolveFieldValueOrError(
             $fieldDef,
             $fieldNode,
             $resolveFn,
             $rootValue,
-            $context,
             $info
         );
         $result = $this->completeValueCatchingError(
@@ -611,23 +610,23 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param FieldNode       $fieldNode
      * @param callable        $resolveFn
      * @param mixed           $rootValue
-     * @param mixed           $context
      * @param ResolveInfo     $info
      *
      * @return Throwable|Promise|mixed
      */
-    private function resolveOrError($fieldDef, $fieldNode, $resolveFn, $rootValue, $context, $info)
+    private function resolveFieldValueOrError($fieldDef, $fieldNode, $resolveFn, $rootValue, $info)
     {
         try {
             // Build a map of arguments from the field.arguments AST, using the
             // variables scope to fulfill any variable references.
-            $args = Values::getArgumentValues(
+            $args         = Values::getArgumentValues(
                 $fieldDef,
                 $fieldNode,
                 $this->exeContext->variableValues
             );
+            $contextValue = $this->exeContext->contextValue;
 
-            return $resolveFn($rootValue, $args, $context, $info);
+            return $resolveFn($rootValue, $args, $contextValue, $info);
         } catch (Exception $error) {
             return $error;
         } catch (Throwable $error) {
@@ -1002,12 +1001,12 @@ class ReferenceExecutor implements ExecutorImplementation
      * isTypeOf for the object being coerced, returning the first type that matches.
      *
      * @param mixed|null              $value
-     * @param mixed|null              $context
+     * @param mixed|null              $contextValue
      * @param InterfaceType|UnionType $abstractType
      *
      * @return ObjectType|Promise|null
      */
-    private function defaultTypeResolver($value, $context, ResolveInfo $info, AbstractType $abstractType)
+    private function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {
         // First, look for `__typename`.
         if ($value !== null &&
@@ -1035,7 +1034,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $possibleTypes           = $info->schema->getPossibleTypes($abstractType);
         $promisedIsTypeOfResults = [];
         foreach ($possibleTypes as $index => $type) {
-            $isTypeOfResult = $type->isTypeOf($value, $context, $info);
+            $isTypeOfResult = $type->isTypeOf($value, $contextValue, $info);
             if ($isTypeOfResult === null) {
                 continue;
             }
@@ -1150,6 +1149,13 @@ class ReferenceExecutor implements ExecutorImplementation
         return $this->executeFields($returnType, $result, $path, $subFieldNodes);
     }
 
+    /**
+     * A memoized collection of relevant subfields with regard to the return
+     * type. Memoizing ensures the subfields are not repeatedly calculated, which
+     * saves overhead when resolving lists of values.
+     *
+     * @param object $fieldNodes
+     */
     private function collectSubFields(ObjectType $returnType, $fieldNodes) : ArrayObject
     {
         if (! isset($this->subFieldCache[$returnType])) {

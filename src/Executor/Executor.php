@@ -163,11 +163,11 @@ class Executor
      *
      * @param mixed      $objectValue
      * @param mixed[]    $args
-     * @param mixed|null $context
+     * @param mixed|null $contextValue
      *
      * @return mixed|null
      */
-    public static function defaultFieldResolver($objectValue, $args, $context, ResolveInfo $info)
+    public static function defaultFieldResolver($objectValue, $args, $contextValue, ResolveInfo $info)
     {
         $fieldName = $info->fieldName;
         $property  = null;
@@ -183,7 +183,7 @@ class Executor
         }
 
         return $property instanceof Closure
-            ? $property($objectValue, $args, $context, $info)
+            ? $property($objectValue, $args, $contextValue, $info)
             : $property;
     }
 }
