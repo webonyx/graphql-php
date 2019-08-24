@@ -1561,4 +1561,31 @@ class IntrospectionTest extends TestCase
 
         self::assertEquals($expected, GraphQL::executeQuery($schema, $request)->toArray());
     }
+
+    /**
+     * @see it('executes an introspection query without calling global fieldResolver')
+     */
+    public function testExecutesAnIntrospectionQueryWithoutCallingGlobalFieldResolver()
+    {
+        $QueryRoot = new ObjectType([
+            'name' => 'QueryRoot',
+            'fields' => [
+                'onlyField' => [ 'type' => Type::string() ],
+            ],
+        ]);
+
+        $schema = new Schema([ 'query' => $QueryRoot ]);
+        $source = Introspection::getIntrospectionQuery();
+
+        $calledForFields = [];
+        /* istanbul ignore next */
+        $fieldResolver = static function ($value, $_1, $_2, $info) use (&$calledForFields) {
+            $calledForFields[sprintf('%s::%s', $info->parentType->name, $info->fieldName)] = true;
+
+            return $value;
+        };
+
+        GraphQL::executeQuery($schema, $source, null, null, null, null, $fieldResolver);
+        $this->assertEmpty($calledForFields);
+    }
 }
