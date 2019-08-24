@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
@@ -18,6 +19,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
+use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 use function array_map;
@@ -514,6 +516,62 @@ class ValidationTest extends TestCase
             ],
             ]
         );
+    }
+
+    /**
+     * @see it('rejects a schema extended with invalid root types')
+     */
+    public function testRejectsASchemaExtendedWithInvalidRootTypes()
+    {
+        $schema = BuildSchema::build('
+            input SomeInputObject {
+                test: String
+            }
+        ');
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend schema {
+                  query: SomeInputObject
+                }
+            ')
+        );
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend schema {
+                  mutation: SomeInputObject
+                }
+            ')
+        );
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend schema {
+                  subscription: SomeInputObject
+                }
+            ')
+        );
+
+        $expected = [
+            [
+                'message' => 'Query root type must be Object type, it cannot be SomeInputObject.',
+                'locations' => [[ 'line' => 2, 'column' => 13 ]],
+            ],
+            [
+                'message' => 'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
+                'locations' => [[ 'line' => 2, 'column' => 13 ]],
+            ],
+            [
+                'message' => 'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
+                'locations' => [[ 'line' => 2, 'column' => 13 ]],
+            ],
+        ];
+
+        $this->assertMatchesValidationMessage($schema->validate(), $expected);
     }
 
     /**

@@ -300,7 +300,7 @@ class SchemaValidationContext
         if (! $fieldMap) {
             $this->reportError(
                 sprintf('Type %s must define one or more fields.', $type->name),
-                $this->getAllObjectOrInterfaceNodes($type)
+                $this->getAllNodes($type)
             );
         }
 
@@ -376,7 +376,7 @@ class SchemaValidationContext
      *
      * @return ObjectTypeDefinitionNode[]|ObjectTypeExtensionNode[]|InterfaceTypeDefinitionNode[]|InterfaceTypeExtensionNode[]
      */
-    private function getAllObjectOrInterfaceNodes($type)
+    private function getAllNodes($type)
     {
         return $type->astNode
             ? ($type->extensionASTNodes
@@ -394,7 +394,7 @@ class SchemaValidationContext
     private function getAllFieldNodes($type, $fieldName)
     {
         $fieldNodes = [];
-        $astNodes   = $this->getAllObjectOrInterfaceNodes($type);
+        $astNodes   = $this->getAllNodes($type);
         foreach ($astNodes as $astNode) {
             if (! $astNode || ! $astNode->fields) {
                 continue;
@@ -554,7 +554,7 @@ class SchemaValidationContext
     private function getAllImplementsInterfaceNodes(ObjectType $type, $iface)
     {
         $implementsNodes = [];
-        $astNodes        = $this->getAllObjectOrInterfaceNodes($type);
+        $astNodes        = $this->getAllNodes($type);
 
         foreach ($astNodes as $astNode) {
             if (! $astNode || ! $astNode->interfaces) {
