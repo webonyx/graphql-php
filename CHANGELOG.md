@@ -1,4 +1,7 @@
 # Changelog
+### v0.13.8
+- Don't call global field resolver on introspection fields (#481)
+
 ### v0.13.7
 - Added retrieving query complexity once query has been completed (#316)
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535) 
