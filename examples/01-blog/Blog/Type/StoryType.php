@@ -124,4 +124,16 @@ class StoryType extends ObjectType
         $args += ['after' => null];
         return DataSource::findComments($story->id, $args['limit'], $args['after']);
     }
+    
+    public function resolveMentions(Story $story, $args, AppContext $context){
+        return DataSource::findStoryMentions($story->id);
+    }
+
+    public function resolveLikedBy(Story $story, $args, AppContext $context){
+        return DataSource::findLikes($story->id,10);
+    }
+
+    public function resolveLikes(Story $story, $args, AppContext $context){
+        return DataSource::findLikes($story->id,10);
+    }
 }
