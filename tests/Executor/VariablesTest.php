@@ -8,11 +8,14 @@ use GraphQL\Error\Error;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\ComplexScalar;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
+use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use function acos;
 use function array_key_exists;
 use function json_encode;
 
@@ -115,9 +118,6 @@ class VariablesTest extends TestCase
         return Executor::execute($this->schema(), $document, null, null, $variableValues);
     }
 
-    /**
-     * Describe: Handles nullable scalars
-     */
     public function schema() : Schema
     {
         $ComplexScalarType = ComplexScalar::create();
@@ -140,9 +140,22 @@ class VariablesTest extends TestCase
             ],
         ]);
 
+        $TestEnum = new EnumType([
+            'name' => 'TestEnum',
+            'values' => [
+                'NULL' => [ 'value' => null ],
+                'NAN' => [ 'value' => acos(8) ],
+                'FALSE' => [ 'value' => false ],
+                'CUSTOM' => [ 'value' => 'custom value' ],
+                'DEFAULT_VALUE' => [],
+            ],
+        ]);
+
         $TestType = new ObjectType([
             'name'   => 'TestType',
             'fields' => [
+                'fieldWithEnumInput'              => $this->fieldWithInputArg(['type' => $TestEnum]),
+                'fieldWithNonNullableEnumInput'   => $this->fieldWithInputArg(['type' => Type::nonNull($TestEnum)]),
                 'fieldWithObjectInput'            => $this->fieldWithInputArg(['type' => $TestInputObject]),
                 'fieldWithNullableStringInput'    => $this->fieldWithInputArg(['type' => Type::string()]),
                 'fieldWithNonNullableStringInput' => $this->fieldWithInputArg(['type' => Type::nonNull(Type::string())]),
@@ -175,7 +188,7 @@ class VariablesTest extends TestCase
             'args'    => ['input' => $inputArg],
             'resolve' => static function ($_, $args) {
                 if (isset($args['input'])) {
-                    return json_encode($args['input']);
+                    return Utils::printSafeJson($args['input']);
                 }
                 if (array_key_exists('input', $args) && $args['input'] === null) {
                     return 'null';
@@ -414,6 +427,58 @@ class VariablesTest extends TestCase
             $result->toArray()
         );
     }
+
+    /**
+     * Describe: Handles custom enum values
+     */
+
+    /**
+     * @see it('allows custom enum values as inputs')
+     */
+    public function testAllowsCustomEnumValuesAsInputs()
+    {
+        $result = $this->executeQuery('
+        {
+          null: fieldWithEnumInput(input: NULL)
+          NaN: fieldWithEnumInput(input: NAN)
+          false: fieldWithEnumInput(input: FALSE)
+          customValue: fieldWithEnumInput(input: CUSTOM)
+          defaultValue: fieldWithEnumInput(input: DEFAULT_VALUE)
+        }
+        ');
+
+        $expected = [
+            'data' => [
+                'null' => 'null',
+                'NaN' => 'NAN',
+                'false' => 'false',
+                'customValue' => '"custom value"',
+                'defaultValue' => '"DEFAULT_VALUE"',
+            ],
+        ];
+        self::assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * @see it('allows non-nullable inputs to have null as enum custom value')
+     */
+    public function testAllowsNonNullableInputsToHaveNullAsEnumCustomValue()
+    {
+        $result = $this->executeQuery('
+        {
+          fieldWithNonNullableEnumInput(input: NULL)
+        }
+        ');
+
+        self::assertEquals(
+            ['data' => ['fieldWithNonNullableEnumInput' => 'null']],
+            $result->toArray()
+        );
+    }
+
+    /**
+     * Describe: Handles nullable scalars
+     */
 
     /**
      * @see it('allows nullable inputs to be omitted')
