@@ -1489,6 +1489,145 @@ class ValidationTest extends TestCase
         );
     }
 
+    // DESCRIBE: Type System: Interface extensions should be valid
+
+    /**
+     * @see it('rejects an Object implementing the extended interface due to missing field')
+     */
+    public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingField()
+    {
+        $schema         = BuildSchema::build('
+          type Query {
+            test: AnotherObject
+          }
+    
+          interface AnotherInterface {
+            field: String
+          }
+    
+          type AnotherObject implements AnotherInterface {
+            field: String
+          }');
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend interface AnotherInterface {
+                  newField: String
+                }
+        
+                extend type AnotherObject {
+                  differentNewField: String
+                }
+            ')
+        );
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [[
+                'message'   => 'Interface field AnotherInterface.newField expected but AnotherObject does not provide it.',
+                'locations' => [
+                    ['line' => 3, 'column' => 19],
+                    ['line' => 7, 'column' => 7],
+                    ['line' => 6, 'column' => 17],
+                ],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Object implementing the extended interface due to missing field args')
+     */
+    public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingFieldArgs()
+    {
+        $schema         = BuildSchema::build('
+          type Query {
+            test: AnotherObject
+          }
+    
+          interface AnotherInterface {
+            field: String
+          }
+    
+          type AnotherObject implements AnotherInterface {
+            field: String
+          }');
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend interface AnotherInterface {
+                  newField(test: Boolean): String
+                }
+        
+                extend type AnotherObject {
+                  newField: String
+                }
+            ')
+        );
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [[
+                'message'   => 'Interface field argument AnotherInterface.newField(test:) expected but AnotherObject.newField does not provide it.',
+                'locations' => [
+                    ['line' => 3, 'column' => 28],
+                    ['line' => 7, 'column' => 19],
+                ],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects Objects implementing the extended interface due to mismatching interface type')
+     */
+    public function testRejectsObjectsImplementingTheExtendedInterfaceDueToMismatchingInterfaceType()
+    {
+        $schema         = BuildSchema::build('
+          type Query {
+            test: AnotherObject
+          }
+    
+          interface AnotherInterface {
+            field: String
+          }
+    
+          type AnotherObject implements AnotherInterface {
+            field: String
+          }');
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend interface AnotherInterface {
+                  newInterfaceField: NewInterface
+                }
+        
+                interface NewInterface {
+                  newField: String
+                }
+        
+                interface MismatchingInterface {
+                  newField: String
+                }
+        
+                extend type AnotherObject {
+                  newInterfaceField: MismatchingInterface
+                }
+        
+                # Required to prevent unused interface errors
+                type DummyObject implements NewInterface & MismatchingInterface {
+                  newField: String
+                }
+            ')
+        );
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [[
+                'message'   => 'Interface field AnotherInterface.newInterfaceField expects type NewInterface but AnotherObject.newInterfaceField is type MismatchingInterface.',
+                'locations' => [['line' => 3, 'column' => 38], ['line' => 15, 'column' => 38]],
+            ],
+            ]
+        );
+    }
+
     // DESCRIBE: Type System: Field arguments must have input types
 
     /**
