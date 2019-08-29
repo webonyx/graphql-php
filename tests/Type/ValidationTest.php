@@ -1562,7 +1562,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @see it('rejects an interface not implemented by at least one object')
+     * @see it('accepts an interface not implemented by at least one object')
      */
     public function testRejectsAnInterfaceNotImplementedByAtLeastOneObject()
     {
@@ -1577,11 +1577,7 @@ class ValidationTest extends TestCase
         ');
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [[
-                'message' => 'Interface SomeInterface must be implemented by at least one Object type.',
-                'locations' => [[ 'line' => 6, 'column' => 7 ]],
-            ],
-            ]
+            []
         );
     }
 
