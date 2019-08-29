@@ -10,6 +10,7 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
+use function is_array;
 use function is_int;
 use function is_object;
 use function is_scalar;
@@ -47,8 +48,13 @@ When expected as an input type, any string (such as `"4"`) or integer
         if ($value === null) {
             return 'null';
         }
+        if (is_array($value)) {
+            throw new Error(
+                'ID cannot represent an array value: ' . Utils::printSafe($value)
+            );
+        }
         if (! is_scalar($value) && (! is_object($value) || ! method_exists($value, '__toString'))) {
-            throw new Error('ID type cannot represent non scalar value: ' . Utils::printSafe($value));
+            throw new Error('ID cannot represent non scalar value: ' . Utils::printSafe($value));
         }
 
         return (string) $value;
@@ -65,6 +71,11 @@ When expected as an input type, any string (such as `"4"`) or integer
     {
         if (is_string($value) || is_int($value)) {
             return (string) $value;
+        }
+        if (is_array($value)) {
+            throw new Error(
+                'ID cannot represent an array value: ' . Utils::printSafe($value)
+            );
         }
 
         throw new Error('Cannot represent value as ID: ' . Utils::printSafe($value));

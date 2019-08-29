@@ -34,6 +34,11 @@ represent free-form human-readable text.';
      */
     public function serialize($value)
     {
+        return $this->coerceString($value);
+    }
+
+    private function coerceString($value)
+    {
         if ($value === true) {
             return 'true';
         }
@@ -43,22 +48,17 @@ represent free-form human-readable text.';
         if ($value === null) {
             return 'null';
         }
+        if (is_array($value)) {
+            throw new Error(
+                'String cannot represent an array value: ' . Utils::printSafe($value)
+            );
+        }
         if (is_object($value) && method_exists($value, '__toString')) {
             return (string) $value;
         }
         if (! is_scalar($value)) {
-            throw new Error('String cannot represent non scalar value: ' . Utils::printSafe($value));
-        }
-
-        return $this->coerceString($value);
-    }
-
-    private function coerceString($value)
-    {
-        if (is_array($value)) {
             throw new Error(
-                'String cannot represent an array value: ' .
-                Utils::printSafe($value)
+                'String cannot represent non scalar value: ' . Utils::printSafe($value)
             );
         }
 

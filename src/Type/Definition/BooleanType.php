@@ -9,6 +9,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
+use function is_array;
 use function is_bool;
 
 class BooleanType extends ScalarType
@@ -26,9 +27,17 @@ class BooleanType extends ScalarType
      * PHP does natively to make this intuitive for developers.
      *
      * @param mixed $value
+     *
+     * @throws Error
      */
     public function serialize($value) : bool
     {
+        if (is_array($value)) {
+            throw new Error(
+                'Boolean cannot represent an array value: ' . Utils::printSafe($value)
+            );
+        }
+
         return (bool) $value;
     }
 

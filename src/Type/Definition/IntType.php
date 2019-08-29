@@ -11,8 +11,10 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
 use function floatval;
 use function intval;
+use function is_array;
 use function is_bool;
 use function is_numeric;
+use function sprintf;
 
 class IntType extends ScalarType
 {
@@ -51,6 +53,12 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     private function coerceInt($value)
     {
+        if (is_array($value)) {
+            throw new Error(
+                sprintf('Int cannot represent an array value: %s', Utils::printSafe($value))
+            );
+        }
+
         if ($value === '') {
             throw new Error(
                 'Int cannot represent non 32-bit signed integer value: (empty string)'

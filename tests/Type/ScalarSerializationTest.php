@@ -5,9 +5,12 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\Error;
+use GraphQL\Type\Definition\IDType;
+use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function sprintf;
 
 class ScalarSerializationTest extends TestCase
 {
@@ -113,6 +116,14 @@ class ScalarSerializationTest extends TestCase
         $intType->serialize('');
     }
 
+    public function testSerializesOutputIntCannotRepresentArray() : void
+    {
+        $intType = Type::int();
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Int cannot represent an array value: [5]');
+        $intType->serialize([5]);
+    }
+
     /**
      * @see it('serializes output as Float')
      */
@@ -148,13 +159,31 @@ class ScalarSerializationTest extends TestCase
         $floatType->serialize('');
     }
 
+    public function testSerializesOutputFloatCannotRepresentArray() : void
+    {
+        $floatType = Type::float();
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Float cannot represent an array value: [5]');
+        $floatType->serialize([5]);
+    }
+
+    public function stringLikeTypes()
+    {
+        return [
+            [ Type::string() ],
+            [ Type::id() ],
+        ];
+    }
+
     /**
      * @see it('serializes output as String')
+     *
+     * @param StringType|IDType $stringType
+     *
+     * @dataProvider stringLikeTypes
      */
-    public function testSerializesOutputAsString() : void
+    public function testSerializesOutputAsString($stringType) : void
     {
-        $stringType = Type::string();
-
         self::assertSame('string', $stringType->serialize('string'));
         self::assertSame('1', $stringType->serialize(1));
         self::assertSame('-1.1', $stringType->serialize(-1.1));
@@ -164,20 +193,44 @@ class ScalarSerializationTest extends TestCase
         self::assertSame('2', $stringType->serialize(new ObjectIdStub(2)));
     }
 
-    public function testSerializesOutputStringsCannotRepresentArray() : void
+    /**
+     * @param StringType|IDType $stringType
+     *
+     * @throws Error
+     *
+     * @dataProvider stringLikeTypes
+     */
+    public function testSerializesOutputStringsCannotRepresentArray($stringType) : void
     {
-        $stringType = Type::string();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('String cannot represent non scalar value: []');
-        $stringType->serialize([]);
+        $this->expectExceptionMessage(sprintf('%s cannot represent an array value: [1]', $stringType->name));
+        $stringType->serialize([1]);
     }
 
-    public function testSerializesOutputStringsCannotRepresentObject() : void
+    /**
+     * @param StringType|IDType $stringType
+     *
+     * @dataProvider stringLikeTypes
+     */
+    public function testSerializesOutputStringsCannotRepresentObject($stringType) : void
     {
-        $stringType = Type::string();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('String cannot represent non scalar value: instance of stdClass');
+        $this->expectExceptionMessage(sprintf('%s cannot represent non scalar value: instance of stdClass', $stringType->name));
         $stringType->serialize(new stdClass());
+    }
+
+    /**
+     * @param StringType|IDType $stringType
+     *
+     * @throws Error
+     *
+     * @dataProvider stringLikeTypes
+     */
+    public function testSerializesOutputStringCannotRepresentArray($stringType) : void
+    {
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage(sprintf('%s cannot represent an array value: [5]', $stringType->name));
+        $stringType->serialize([5]);
     }
 
     /**
@@ -198,28 +251,11 @@ class ScalarSerializationTest extends TestCase
         self::assertFalse($boolType->serialize(''));
     }
 
-    /**
-     * @see it('serializes output as ID')
-     */
-    public function testSerializesOutputAsID() : void
+    public function testSerializesOutputBooleanCannotRepresentArray() : void
     {
-        $idType = Type::id();
-
-        self::assertSame('string', $idType->serialize('string'));
-        self::assertSame('', $idType->serialize(''));
-        self::assertSame('1', $idType->serialize('1'));
-        self::assertSame('1', $idType->serialize(1));
-        self::assertSame('0', $idType->serialize(0));
-        self::assertSame('true', $idType->serialize(true));
-        self::assertSame('false', $idType->serialize(false));
-        self::assertSame('2', $idType->serialize(new ObjectIdStub(2)));
-    }
-
-    public function testSerializesOutputIDCannotRepresentObject() : void
-    {
-        $idType = Type::id();
+        $boolType = Type::boolean();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('ID type cannot represent non scalar value: instance of stdClass');
-        $idType->serialize(new stdClass());
+        $this->expectExceptionMessage('Boolean cannot represent an array value: [5]');
+        $boolType->serialize([5]);
     }
 }

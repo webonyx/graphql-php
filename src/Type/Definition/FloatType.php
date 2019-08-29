@@ -10,7 +10,9 @@ use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
+use function is_array;
 use function is_numeric;
+use function sprintf;
 
 class FloatType extends ScalarType
 {
@@ -37,6 +39,12 @@ values as specified by
 
     private function coerceFloat($value)
     {
+        if (is_array($value)) {
+            throw new Error(
+                sprintf('Float cannot represent an array value: %s', Utils::printSafe($value))
+            );
+        }
+
         if ($value === '') {
             throw new Error(
                 'Float cannot represent non numeric value: (empty string)'

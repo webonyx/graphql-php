@@ -652,16 +652,6 @@ class VariablesTest extends TestCase
     }
 
     /**
-     * @see it('serializing an array via GraphQLString throws TypeError')
-     */
-    public function testSerializingAnArrayViaGraphQLStringThrowsTypeError() : void
-    {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('String cannot represent non scalar value: [1,2,3]');
-        Type::string()->serialize([1, 2, 3]);
-    }
-
-    /**
      * @see it('reports error for non-provided variables for non-nullable inputs')
      */
     public function testReportsErrorForNonProvidedVariablesForNonNullableInputs() : void
