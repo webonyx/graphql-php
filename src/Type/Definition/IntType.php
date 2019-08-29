@@ -61,12 +61,19 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
 
         if ($value === '') {
             throw new Error(
-                'Int cannot represent non 32-bit signed integer value: (empty string)'
+                'Int cannot represent non-integer value: (empty string)'
+            );
+        }
+
+        if (! is_numeric($value) && ! is_bool($value)) {
+            throw new Error(
+                'Int cannot represent non-integer value: ' .
+                Utils::printSafe($value)
             );
         }
 
         $num = floatval($value);
-        if ((! is_numeric($value) && ! is_bool($value)) || $num > self::MAX_INT || $num < self::MIN_INT) {
+        if ($num > self::MAX_INT || $num < self::MIN_INT) {
             throw new Error(
                 'Int cannot represent non 32-bit signed integer value: ' .
                 Utils::printSafe($value)

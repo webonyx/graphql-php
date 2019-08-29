@@ -11,6 +11,9 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
 use function is_array;
+use function is_bool;
+use function is_finite;
+use function is_nan;
 use function is_numeric;
 use function sprintf;
 
@@ -51,14 +54,16 @@ values as specified by
             );
         }
 
-        if (! is_numeric($value) && $value !== true && $value !== false) {
+        $float = is_numeric($value) || is_bool($value) ? (float) $value : null;
+
+        if ($float === null || ! is_finite($float) || is_nan($float)) {
             throw new Error(
                 'Float cannot represent non numeric value: ' .
                 Utils::printSafe($value)
             );
         }
 
-        return (float) $value;
+        return $float;
     }
 
     /**

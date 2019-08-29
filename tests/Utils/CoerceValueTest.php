@@ -12,6 +12,9 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
 use PHPUnit\Framework\TestCase;
+use function acos;
+use function log;
+use function pow;
 use function sprintf;
 
 class CoerceValueTest extends TestCase
@@ -133,14 +136,26 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @see it('returns a single error for empty value')
+     * @see it('returns a single error for empty string as value')
      */
     public function testIntReturnsASingleErrorForEmptyValue() : void
     {
         $result = Value::coerceValue('', Type::int());
         $this->expectError(
             $result,
-            'Expected type Int; Int cannot represent non 32-bit signed integer value: (empty string)'
+            'Expected type Int; Int cannot represent non-integer value: (empty string)'
+        );
+    }
+
+    /**
+     * @see it('returns a single error for 2^32 input as int')
+     */
+    public function testReturnsASingleErrorFor2x32InputAsInt()
+    {
+        $result = Value::coerceValue(pow(2, 32), Type::int());
+        $this->expectError(
+            $result,
+            'Expected type Int; Int cannot represent non 32-bit signed integer value: 4294967296'
         );
     }
 
@@ -156,6 +171,29 @@ class CoerceValueTest extends TestCase
         );
     }
 
+    /**
+     * @see it('returns a single error for Infinity input as int')
+     */
+    public function testReturnsASingleErrorForInfinityInputAsInt()
+    {
+        $inf    = log(0);
+        $result = Value::coerceValue($inf, Type::int());
+        $this->expectError(
+            $result,
+            'Expected type Int; Int cannot represent non 32-bit signed integer value: -INF'
+        );
+    }
+
+    public function testReturnsASingleErrorForNaNInputAsInt()
+    {
+        $nan    = acos(8);
+        $result = Value::coerceValue($nan, Type::int());
+        $this->expectError(
+            $result,
+            'Expected type Int; Int cannot represent non-integer value: NAN'
+        );
+    }
+
     // Describe: for GraphQLFloat
 
     /**
@@ -166,7 +204,7 @@ class CoerceValueTest extends TestCase
         $result = Value::coerceValue('a', Type::int());
         $this->expectError(
             $result,
-            'Expected type Int; Int cannot represent non 32-bit signed integer value: a'
+            'Expected type Int; Int cannot represent non-integer value: a'
         );
     }
 
@@ -178,7 +216,7 @@ class CoerceValueTest extends TestCase
         $result = Value::coerceValue('meow', Type::int());
         $this->expectError(
             $result,
-            'Expected type Int; Int cannot represent non 32-bit signed integer value: meow'
+            'Expected type Int; Int cannot represent non-integer value: meow'
         );
     }
 
@@ -219,7 +257,7 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @see it('returns a single error for empty value')
+     * @see it('returns a single error for empty string input')
      */
     public function testFloatReturnsASingleErrorForEmptyValue() : void
     {
@@ -227,6 +265,29 @@ class CoerceValueTest extends TestCase
         $this->expectError(
             $result,
             'Expected type Float; Float cannot represent non numeric value: (empty string)'
+        );
+    }
+
+    /**
+     * @see it('returns a single error for Infinity input')
+     */
+    public function testFloatReturnsASingleErrorForInfinityInput() : void
+    {
+        $inf    = log(0);
+        $result = Value::coerceValue($inf, Type::float());
+        $this->expectError(
+            $result,
+            'Expected type Float; Float cannot represent non numeric value: -INF'
+        );
+    }
+
+    public function testFloatReturnsASingleErrorForNaNInput() : void
+    {
+        $nan    = acos(8);
+        $result = Value::coerceValue($nan, Type::float());
+        $this->expectError(
+            $result,
+            'Expected type Float; Float cannot represent non numeric value: NAN'
         );
     }
 
@@ -323,7 +384,7 @@ class CoerceValueTest extends TestCase
         $result = Value::coerceValue(['foo' => 'abc'], $this->testInputObject);
         $this->expectError(
             $result,
-            'Expected type Int at value.foo; Int cannot represent non 32-bit signed integer value: abc'
+            'Expected type Int at value.foo; Int cannot represent non-integer value: abc'
         );
     }
 
@@ -335,8 +396,8 @@ class CoerceValueTest extends TestCase
         $result = Value::coerceValue(['foo' => 'abc', 'bar' => 'def'], $this->testInputObject);
         self::assertEquals(
             [
-                'Expected type Int at value.foo; Int cannot represent non 32-bit signed integer value: abc',
-                'Expected type Int at value.bar; Int cannot represent non 32-bit signed integer value: def',
+                'Expected type Int at value.foo; Int cannot represent non-integer value: abc',
+                'Expected type Int at value.bar; Int cannot represent non-integer value: def',
             ],
             $result['errors']
         );

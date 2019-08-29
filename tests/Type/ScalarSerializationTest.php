@@ -10,6 +10,8 @@ use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function acos;
+use function log;
 use function sprintf;
 
 class ScalarSerializationTest extends TestCase
@@ -62,8 +64,8 @@ class ScalarSerializationTest extends TestCase
     {
         $intType = Type::int();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: Int cannot represent non-integer value: "-1.1"');
-        $intType->serialize('Int cannot represent non-integer value: "-1.1"');
+        $this->expectExceptionMessage('Int cannot represent non-integer value: -1.1');
+        $intType->serialize('-1.1');
     }
 
     public function testSerializesOutputIntCannotRepresentBiggerThan32Bits() : void
@@ -100,11 +102,29 @@ class ScalarSerializationTest extends TestCase
         $intType->serialize(-1e100);
     }
 
+    public function testSerializesOutputIntCannotRepresentInfinity() : void
+    {
+        $intType  = Type::int();
+        $infinity = log(0);
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: -INF');
+        $intType->serialize($infinity);
+    }
+
+    public function testSerializesOutputIntCannotRepresentNaN() : void
+    {
+        $intType = Type::int();
+        $nan     = acos(8);
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Int cannot represent non-integer value: NAN');
+        $intType->serialize($nan);
+    }
+
     public function testSerializesOutputIntCannotRepresentString() : void
     {
         $intType = Type::int();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: one');
+        $this->expectExceptionMessage('Int cannot represent non-integer value: one');
         $intType->serialize('one');
     }
 
@@ -112,7 +132,7 @@ class ScalarSerializationTest extends TestCase
     {
         $intType = Type::int();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: (empty string)');
+        $this->expectExceptionMessage('Int cannot represent non-integer value: (empty string)');
         $intType->serialize('');
     }
 
@@ -157,6 +177,24 @@ class ScalarSerializationTest extends TestCase
         $this->expectException(Error::class);
         $this->expectExceptionMessage('Float cannot represent non numeric value: (empty string)');
         $floatType->serialize('');
+    }
+
+    public function testSerializesOutputFloatCannotRepresentInfinity() : void
+    {
+        $floatType = Type::float();
+        $infinity  = log(0);
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Float cannot represent non numeric value: -INF');
+        $floatType->serialize($infinity);
+    }
+
+    public function testSerializesOutputFloatCannotRepresentNaN() : void
+    {
+        $floatType = Type::float();
+        $nan       = acos(8);
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Float cannot represent non numeric value: NAN');
+        $floatType->serialize($nan);
     }
 
     public function testSerializesOutputFloatCannotRepresentArray() : void
