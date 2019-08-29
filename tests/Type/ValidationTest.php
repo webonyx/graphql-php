@@ -789,17 +789,27 @@ class ValidationTest extends TestCase
     public function testRejectsAUnionTypeWithEmptyTypes() : void
     {
         $schema = BuildSchema::build('
-      type Query {
-        test: BadUnion
-      }
-
-      union BadUnion
+            type Query {
+                test: BadUnion
+            }
+            
+            union BadUnion
         ');
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                directive @test on UNION
+        
+                extend union BadUnion @test
+            ')
+        );
+
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Union type BadUnion must define one or more member types.',
-                'locations' => [['line' => 6, 'column' => 7]],
+                'locations' => [['line' => 6, 'column' => 13], ['line' => 4, 'column' => 11]],
             ],
             ]
         );
@@ -836,6 +846,25 @@ class ValidationTest extends TestCase
             ],
             ]
         );
+
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('extend union BadUnion = TypeB')
+        );
+
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [
+                [
+                    'message'   => 'Union type BadUnion can only include type TypeA once.',
+                    'locations' => [['line' => 15, 'column' => 11], ['line' => 17, 'column' => 11]],
+                ],
+                [
+                    'message' => 'Union type BadUnion can only include type TypeB once.',
+                    'locations' => [[ 'line' => 16, 'column' => 11 ], [ 'line' => 3, 'column' => 5 ]],
+                ],
+            ]
+        );
     }
 
     /**
@@ -861,13 +890,20 @@ class ValidationTest extends TestCase
         | String
         | TypeB
         ');
+
+        $schema = SchemaExtender::extend($schema, Parser::parse('extend union BadUnion = Int'));
+
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [[
-                'message'   => 'Union type BadUnion can only include Object types, ' .
-                    'it cannot include String.',
-                'locations' => [['line' => 16, 'column' => 11]],
-            ],
+            [
+                [
+                    'message'   => 'Union type BadUnion can only include Object types, it cannot include String.',
+                    'locations' => [['line' => 16, 'column' => 11]],
+                ],
+                [
+                    'message' => 'Union type BadUnion can only include Object types, it cannot include Int.',
+                    'locations' => [[ 'line' => 1, 'column' => 25 ]],
+                ],
             ]
         );
 
@@ -927,11 +963,22 @@ class ValidationTest extends TestCase
 
       input SomeInputObject
         ');
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+        directive @test on ENUM
+
+        extend input SomeInputObject @test
+            '),
+            ['assumeValid' => true]
+        );
+
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Input Object type SomeInputObject must define one or more fields.',
-                'locations' => [['line' => 6, 'column' => 7]],
+                'locations' => [['line' => 6, 'column' => 7], ['line' => 3, 'column' => 23]],
             ],
             ]
         );
@@ -1124,11 +1171,21 @@ class ValidationTest extends TestCase
       
       enum SomeEnum
         ');
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+        directive @test on ENUM
+
+        extend enum SomeEnum @test
+            ')
+        );
+
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Enum type SomeEnum must define one or more values.',
-                'locations' => [['line' => 6, 'column' => 7]],
+                'locations' => [['line' => 6, 'column' => 7], ['line' => 3, 'column' => 23]],
             ],
             ]
         );
