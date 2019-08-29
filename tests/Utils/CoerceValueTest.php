@@ -44,37 +44,44 @@ class CoerceValueTest extends TestCase
         ]);
     }
 
-    public function stringLikeTypes()
-    {
-        return [
-            [Type::string()],
-            [Type::id()],
-        ];
-    }
-
     /**
      * Describe: coerceValue
+     */
+
+    /**
+     * Describe: for GraphQLString
      *
      * @see it('returns error for array input as string')
-     *
-     * @param StringType|IDType $type
-     *
-     * @dataProvider stringLikeTypes
      */
-    public function testCoercingAnArrayToGraphQLStringProducesAnError($type) : void
+    public function testCoercingAnArrayToGraphQLStringProducesAnError() : void
     {
-        $result = Value::coerceValue([1, 2, 3], $type);
+        $result = Value::coerceValue([1, 2, 3], Type::string());
         $this->expectError(
             $result,
-            sprintf(
-                'Expected type %s; %s cannot represent an array value: [1,2,3]',
-                $type->name,
-                $type->name
-            )
+            'Expected type String; String cannot represent a non string value: [1,2,3]'
         );
 
         self::assertEquals(
-            sprintf('%s cannot represent an array value: [1,2,3]', $type->name),
+            'String cannot represent a non string value: [1,2,3]',
+            $result['errors'][0]->getPrevious()->getMessage()
+        );
+    }
+
+    /**
+     * Describe: for GraphQLID
+     *
+     * @see it('returns error for array input as string')
+     */
+    public function testCoercingAnArrayToGraphQLIDProducesAnError() : void
+    {
+        $result = Value::coerceValue([1, 2, 3], Type::id());
+        $this->expectError(
+            $result,
+            'Expected type ID; ID cannot represent value: [1,2,3]'
+        );
+
+        self::assertEquals(
+            'ID cannot represent value: [1,2,3]',
             $result['errors'][0]->getPrevious()->getMessage()
         );
     }
@@ -92,42 +99,51 @@ class CoerceValueTest extends TestCase
     }
 
     /**
-     * @see it('returns no error for int input')
+     * @see it('returns value for integer')
      */
     public function testIntReturnsNoErrorForIntInput() : void
     {
-        $result = Value::coerceValue('1', Type::int());
+        $result = Value::coerceValue(1, Type::int());
         $this->expectValue($result, 1);
+    }
+
+    /**
+     * @see it('returns error for numeric looking string')
+     */
+    public function testReturnsErrorForNumericLookingString()
+    {
+        $result = Value::coerceValue('1', Type::int());
+        $this->expectError($result, 'Expected type Int; Int cannot represent non-integer value: 1');
     }
 
     private function expectValue($result, $expected)
     {
         self::assertInternalType('array', $result);
-        self::assertNull($result['errors']);
+        self::assertEquals(null, $result['errors']);
         self::assertNotEquals(Utils::undefined(), $result['value']);
         self::assertEquals($expected, $result['value']);
     }
 
     /**
-     * @see it('returns no error for negative int input')
+     * @see it('returns value for negative int input')
      */
     public function testIntReturnsNoErrorForNegativeIntInput() : void
     {
-        $result = Value::coerceValue('-1', Type::int());
+        $result = Value::coerceValue(-1, Type::int());
         $this->expectValue($result, -1);
     }
 
     /**
-     * @see it('returns no error for exponent input')
+     * @see it('returns value for exponent input')
      */
     public function testIntReturnsNoErrorForExponentInput() : void
     {
-        $result = Value::coerceValue('1e3', Type::int());
+        $result = Value::coerceValue(1e3, Type::int());
         $this->expectValue($result, 1000);
     }
 
     /**
-     * @see it('returns no error for null')
+     * @see it('returns null for null value')
      */
     public function testIntReturnsASingleErrorNull() : void
     {
@@ -164,7 +180,7 @@ class CoerceValueTest extends TestCase
      */
     public function testIntReturnsErrorForFloatInputAsInt() : void
     {
-        $result = Value::coerceValue('1.5', Type::int());
+        $result = Value::coerceValue(1.5, Type::int());
         $this->expectError(
             $result,
             'Expected type Int; Int cannot represent non-integer value: 1.5'
@@ -194,10 +210,8 @@ class CoerceValueTest extends TestCase
         );
     }
 
-    // Describe: for GraphQLFloat
-
     /**
-     * @see it('returns a single error for char input')
+     * @see it('returns a single error for string input')
      */
     public function testIntReturnsASingleErrorForCharInput() : void
     {
@@ -220,35 +234,49 @@ class CoerceValueTest extends TestCase
         );
     }
 
+    // Describe: for GraphQLFloat
+
     /**
-     * @see it('returns no error for int input')
+     * @see it('returns value for integer')
      */
     public function testFloatReturnsNoErrorForIntInput() : void
     {
-        $result = Value::coerceValue('1', Type::float());
+        $result = Value::coerceValue(1, Type::float());
         $this->expectValue($result, 1);
     }
 
     /**
-     * @see it('returns no error for exponent input')
+     * @see it('returns value for decimal')
+     */
+    public function testReturnsValueForDecimal()
+    {
+        $result = Value::coerceValue(1.1, Type::float());
+        $this->expectValue($result, 1.1);
+    }
+
+    /**
+     * @see it('returns value for exponent input')
      */
     public function testFloatReturnsNoErrorForExponentInput() : void
     {
-        $result = Value::coerceValue('1e3', Type::float());
+        $result = Value::coerceValue(1e3, Type::float());
         $this->expectValue($result, 1000);
     }
 
     /**
-     * @see it('returns no error for float input')
+     * @see it('returns error for numeric looking string')
      */
-    public function testFloatReturnsNoErrorForFloatInput() : void
+    public function testFloatReturnsErrorForNumericLookingString()
     {
-        $result = Value::coerceValue('1.5', Type::float());
-        $this->expectValue($result, 1.5);
+        $result = Value::coerceValue('1', Type::float());
+        $this->expectError(
+            $result,
+            'Expected type Float; Float cannot represent non numeric value: 1'
+        );
     }
 
     /**
-     * @see it('returns no error for null')
+     * @see it('returns null for null value')
      */
     public function testFloatReturnsASingleErrorNull() : void
     {

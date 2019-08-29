@@ -10,9 +10,12 @@ use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
+use function floatval;
 use function is_array;
 use function is_bool;
 use function is_finite;
+use function is_float;
+use function is_int;
 use function is_nan;
 use function is_numeric;
 use function sprintf;
@@ -37,26 +40,9 @@ values as specified by
      */
     public function serialize($value)
     {
-        return $this->coerceFloat($value);
-    }
+        $float = is_numeric($value) || is_bool($value) ? floatval($value) : null;
 
-    private function coerceFloat($value)
-    {
-        if (is_array($value)) {
-            throw new Error(
-                sprintf('Float cannot represent an array value: %s', Utils::printSafe($value))
-            );
-        }
-
-        if ($value === '') {
-            throw new Error(
-                'Float cannot represent non numeric value: (empty string)'
-            );
-        }
-
-        $float = is_numeric($value) || is_bool($value) ? (float) $value : null;
-
-        if ($float === null || ! is_finite($float) || is_nan($float)) {
+        if ($float === null || ! is_finite($float)) {
             throw new Error(
                 'Float cannot represent non numeric value: ' .
                 Utils::printSafe($value)
@@ -75,7 +61,16 @@ values as specified by
      */
     public function parseValue($value)
     {
-        return $this->coerceFloat($value);
+        $float = is_float($value) || is_int($value) ? floatval($value) : null;
+
+        if ($float === null || ! is_finite($float)) {
+            throw new Error(
+                'Float cannot represent non numeric value: ' .
+                Utils::printSafe($value)
+            );
+        }
+
+        return $float;
     }
 
     /**

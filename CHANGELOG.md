@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **BREAKING/BUGFIX:** Strict coercion of scalar types (#278)
 - **BREAKING:** Removed deprecated directive introspection fields (onOperation, onFragment, onField)
 - **BREAKING:** Removal of `VariablesDefaultValueAllowed` validation rule. All variables may now specify a default value.
 - **BREAKING:** renamed `ProvidedNonNullArguments` to `ProvidedRequiredArguments` (no longer require values to be provided to non-null arguments which provide a default value).
