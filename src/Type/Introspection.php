@@ -631,34 +631,6 @@ EOD;
                             return $directive->args ?: [];
                         },
                     ],
-
-                    // NOTE: the following three fields are deprecated and are no longer part
-                    // of the GraphQL specification.
-                    'onOperation' => [
-                        'deprecationReason' => 'Use `locations`.',
-                        'type'              => Type::nonNull(Type::boolean()),
-                        'resolve'           => static function ($d) {
-                            return in_array(DirectiveLocation::QUERY, $d->locations, true) ||
-                                in_array(DirectiveLocation::MUTATION, $d->locations, true) ||
-                                in_array(DirectiveLocation::SUBSCRIPTION, $d->locations, true);
-                        },
-                    ],
-                    'onFragment'  => [
-                        'deprecationReason' => 'Use `locations`.',
-                        'type'              => Type::nonNull(Type::boolean()),
-                        'resolve'           => static function ($d) {
-                            return in_array(DirectiveLocation::FRAGMENT_SPREAD, $d->locations, true) ||
-                                in_array(DirectiveLocation::INLINE_FRAGMENT, $d->locations, true) ||
-                                in_array(DirectiveLocation::FRAGMENT_DEFINITION, $d->locations, true);
-                        },
-                    ],
-                    'onField'     => [
-                        'deprecationReason' => 'Use `locations`.',
-                        'type'              => Type::nonNull(Type::boolean()),
-                        'resolve'           => static function ($d) {
-                            return in_array(DirectiveLocation::FIELD, $d->locations, true);
-                        },
-                    ],
                 ],
             ]);
         }

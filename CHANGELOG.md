@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **BREAKING:** Removed deprecated directive introspection fields (onOperation, onFragment, onField)
 - **BREAKING:** Removal of `VariablesDefaultValueAllowed` validation rule. All variables may now specify a default value.
 - **BREAKING:** renamed `ProvidedNonNullArguments` to `ProvidedRequiredArguments` (no longer require values to be provided to non-null arguments which provide a default value).
 - Add schema validation: Input Objects must not contain non-nullable circular references (#492)

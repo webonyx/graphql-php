@@ -845,61 +845,6 @@ class IntrospectionTest extends TestCase
                                                         'isDeprecated'      => false,
                                                         'deprecationReason' => null,
                                                     ],
-                                                4 =>
-                                                    [
-                                                        'name'              => 'onOperation',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'Boolean',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => true,
-                                                        'deprecationReason' => 'Use `locations`.',
-                                                    ],
-                                                5 =>
-                                                    [
-                                                        'name'              => 'onFragment',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'Boolean',
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => true,
-                                                        'deprecationReason' => 'Use `locations`.',
-                                                    ],
-                                                6 =>
-                                                    [
-                                                        'name'              => 'onField',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind' => 'SCALAR',
-                                                                        'name' => 'Boolean',
-
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => true,
-                                                        'deprecationReason' => 'Use `locations`.',
-                                                    ],
                                             ],
                                         'inputFields'   => null,
                                         'interfaces'    =>

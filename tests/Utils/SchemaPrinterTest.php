@@ -830,9 +830,6 @@ type __Directive {
   description: String
   locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
-  onOperation: Boolean! @deprecated(reason: "Use `locations`.")
-  onFragment: Boolean! @deprecated(reason: "Use `locations`.")
-  onField: Boolean! @deprecated(reason: "Use `locations`.")
 }
 
 """
@@ -1070,9 +1067,6 @@ type __Directive {
   description: String
   locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
-  onOperation: Boolean! @deprecated(reason: "Use `locations`.")
-  onFragment: Boolean! @deprecated(reason: "Use `locations`.")
-  onField: Boolean! @deprecated(reason: "Use `locations`.")
 }
 
 # A Directive can be adjacent to many parts of the GraphQL language, a
