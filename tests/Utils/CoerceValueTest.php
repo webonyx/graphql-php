@@ -70,7 +70,7 @@ class CoerceValueTest extends TestCase
     /**
      * Describe: for GraphQLID
      *
-     * @see it('returns error for array input as string')
+     * @see it('returns error for array input as ID')
      */
     public function testCoercingAnArrayToGraphQLIDProducesAnError() : void
     {
