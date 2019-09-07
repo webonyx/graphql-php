@@ -157,36 +157,19 @@ class BuildSchema
         );
 
         // If specified directives were not explicitly declared, add them.
-        $skip = array_reduce(
+        $directivesByName = Utils::groupBy(
             $directives,
-            static function (bool $hasSkip, Directive $directive) : bool {
-                return $hasSkip || $directive->name === 'skip';
-            },
-            false
+            static function (Directive $directive) : string {
+                return $directive->name;
+            }
         );
-        if (! $skip) {
+        if (! isset($directivesByName['skip'])) {
             $directives[] = Directive::skipDirective();
         }
-
-        $include = array_reduce(
-            $directives,
-            static function (bool $hasInclude, Directive $directive) : bool {
-                return $hasInclude || $directive->name === 'include';
-            },
-            false
-        );
-        if (! $include) {
+        if (! isset($directivesByName['include'])) {
             $directives[] = Directive::includeDirective();
         }
-
-        $deprecated = array_reduce(
-            $directives,
-            static function (bool $hasDeprecated, Directive $directive) : bool {
-                return $hasDeprecated || $directive->name === 'deprecated';
-            },
-            false
-        );
-        if (! $deprecated) {
+        if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
         }
 

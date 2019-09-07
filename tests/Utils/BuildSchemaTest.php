@@ -437,6 +437,22 @@ type WorldTwo {
     }
 
     /**
+     * @see it('Can build recursive Union')
+     */
+    public function testCanBuildRecursiveUnion()
+    {
+        $schema = BuildSchema::build('
+          union Hello = Hello
+    
+          type Query {
+            hello: Hello
+          }
+        ');
+        $errors = $schema->validate();
+        self::assertNotEmpty($errors);
+    }
+
+    /**
      * @see it('Specifying Union type using __typename')
      */
     public function testSpecifyingUnionTypeUsingTypename() : void
