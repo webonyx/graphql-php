@@ -1137,6 +1137,23 @@ type Wat {
     }
 
     /**
+     * @see it('Does not consider directive names')
+     */
+    public function testDoesNotConsiderDirectiveNames()
+    {
+        $body = '
+          schema {
+            query: Foo
+          }
+    
+          directive @Foo on QUERY
+        ';
+        $doc  = Parser::parse($body);
+        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
+        BuildSchema::build($doc);
+    }
+
+    /**
      * @see it('Does not consider operation names')
      */
     public function testDoesNotConsiderOperationNames() : void
