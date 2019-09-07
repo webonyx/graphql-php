@@ -452,15 +452,15 @@ class Parser
     private function parseDocument()
     {
         $start = $this->lexer->token;
-        $this->expect(Token::SOF);
-
-        $definitions = [];
-        do {
-            $definitions[] = $this->parseDefinition();
-        } while (! $this->skip(Token::EOF));
 
         return new DocumentNode([
-            'definitions' => new NodeList($definitions),
+            'definitions' => $this->many(
+                Token::SOF,
+                function () {
+                    return $this->parseDefinition();
+                },
+                Token::EOF
+            ),
             'loc'         => $this->loc($start),
         ]);
     }
