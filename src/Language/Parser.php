@@ -618,6 +618,7 @@ class Parser
             'type'         => $type,
             'defaultValue' =>
                 ($this->skip(Token::EQUALS) ? $this->parseValueLiteral(true) : null),
+            'directives'   => $this->parseDirectives(true),
             'loc'          => $this->loc($start),
         ]);
     }

@@ -382,6 +382,10 @@ abstract class ValidatorTestCase extends TestCase
                     'name'      => 'onInlineFragment',
                     'locations' => ['INLINE_FRAGMENT'],
                 ]),
+                new Directive([
+                    'name'      => 'onVariableDefinition',
+                    'locations' => ['VARIABLE_DEFINITION'],
+                ]),
             ],
         ]);
     }

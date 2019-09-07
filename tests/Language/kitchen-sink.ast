@@ -56,7 +56,8 @@
                             },
                             "value": "ComplexType"
                         }
-                    }
+                    },
+                    "directives": []
                 },
                 {
                     "kind": "VariableDefinition",
@@ -101,7 +102,8 @@
                             "end": 343
                         },
                         "value": "MOBILE"
-                    }
+                    },
+                    "directives": []
                 }
             ],
             "directives": [],
@@ -772,7 +774,8 @@
                             },
                             "value": "StoryLikeSubscribeInput"
                         }
-                    }
+                    },
+                    "directives": []
                 }
             ],
             "directives": [],

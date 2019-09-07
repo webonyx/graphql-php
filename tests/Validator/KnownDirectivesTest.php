@@ -141,8 +141,8 @@ class KnownDirectivesTest extends ValidatorTestCase
         $this->expectPassesRule(
             new KnownDirectives(),
             '
-      query Foo @onQuery {
-        name @include(if: true)
+      query Foo($var: Boolean @onVariableDefinition) @onQuery {
+        name @include(if: $var)
         ...Frag @include(if: true)
         skippedField @skip(if: true)
         ...SkippedFrag @skip(if: true)
@@ -271,8 +271,8 @@ class KnownDirectivesTest extends ValidatorTestCase
         $this->expectFailsRule(
             new KnownDirectives(),
             '
-      query Foo @include(if: true) {
-        name @onQuery
+      query Foo($var: Boolean @onField) @include(if: true) {
+        name @onQuery @include(if: $var)
         ...Frag @onQuery
       }
 
@@ -281,7 +281,8 @@ class KnownDirectivesTest extends ValidatorTestCase
       }
         ',
             [
-                $this->misplacedDirective('include', 'QUERY', 2, 17),
+                $this->misplacedDirective('onField', 'VARIABLE_DEFINITION', 2, 31),
+                $this->misplacedDirective('include', 'QUERY', 2, 41),
                 $this->misplacedDirective('onQuery', 'FIELD', 3, 14),
                 $this->misplacedDirective('onQuery', 'FRAGMENT_SPREAD', 4, 17),
                 $this->misplacedDirective('onQuery', 'MUTATION', 7, 20),

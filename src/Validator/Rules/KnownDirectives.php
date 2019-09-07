@@ -32,6 +32,7 @@ use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Validator\ASTValidationContext;
@@ -151,6 +152,8 @@ class KnownDirectives extends ValidationRule
                 return DirectiveLocation::INLINE_FRAGMENT;
             case $appliedTo instanceof FragmentDefinitionNode:
                 return DirectiveLocation::FRAGMENT_DEFINITION;
+            case $appliedTo instanceof VariableDefinitionNode:
+                return DirectiveLocation::VARIABLE_DEFINITION;
             case $appliedTo instanceof SchemaDefinitionNode:
             case $appliedTo instanceof SchemaTypeExtensionNode:
                 return DirectiveLocation::SCHEMA;

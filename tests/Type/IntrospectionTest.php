@@ -902,6 +902,67 @@ class IntrospectionTest extends TestCase
                                                         'isDeprecated'      => false,
                                                         'deprecationReason' => null,
                                                     ],
+                                                7 =>
+                                                    [
+                                                        'name'              => 'VARIABLE_DEFINITION',
+                                                        'isDeprecated'      => false,
+                                                        'deprecationReason' => null,
+                                                    ],
+                                                [
+                                                    'name'              => 'SCHEMA',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'SCALAR',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'OBJECT',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'FIELD_DEFINITION',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'ARGUMENT_DEFINITION',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'INTERFACE',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'UNION',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'ENUM',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'ENUM_VALUE',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'INPUT_OBJECT',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
+                                                [
+                                                    'name'              => 'INPUT_FIELD_DEFINITION',
+                                                    'isDeprecated'      => false,
+                                                    'deprecationReason' => null,
+                                                ],
                                             ],
                                         'possibleTypes' => null,
                                     ],
@@ -960,6 +1021,29 @@ class IntrospectionTest extends TestCase
                                                                             'kind' => 'SCALAR',
                                                                             'name' => 'Boolean',
                                                                         ],
+                                                                ],
+                                                        ],
+                                                ],
+                                        ],
+                                    2 =>
+                                        [
+                                            'name'      => 'deprecated',
+                                            'locations' =>
+                                                [
+                                                    0 => 'FIELD_DEFINITION',
+                                                    1 => 'ENUM_VALUE',
+                                                ],
+                                            'args'      =>
+                                                [
+                                                    0 =>
+                                                        [
+                                                            'defaultValue' => '"No longer supported"',
+                                                            'name'         => 'reason',
+                                                            'type'         =>
+                                                                [
+                                                                    'kind'   => 'SCALAR',
+                                                                    'name'   => 'String',
+                                                                    'ofType' => null,
                                                                 ],
                                                         ],
                                                 ],

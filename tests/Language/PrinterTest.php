@@ -82,6 +82,15 @@ class PrinterTest extends TestCase
 ';
         self::assertEquals($expected, Printer::doPrint($queryAstWithArtifacts));
 
+        $queryAstWithVariableDirective = Parser::parse(
+            'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) { id }'
+        );
+        $expected                      = 'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) {
+  id
+}
+';
+        self::assertEquals($expected, Printer::doPrint($queryAstWithVariableDirective));
+
         $mutationAstWithArtifacts = Parser::parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
         );
