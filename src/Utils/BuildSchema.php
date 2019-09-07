@@ -19,6 +19,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Schema;
+use GraphQL\Validator\DocumentValidator;
 use function array_map;
 use function array_reduce;
 use function sprintf;
@@ -101,6 +102,11 @@ class BuildSchema
 
     public function buildSchema()
     {
+        $options = $this->options;
+        if (empty($options['assumeValid']) && empty($options['assumeValidSDL'])) {
+            DocumentValidator::assertValidSDL($this->ast);
+        }
+
         $schemaDef     = null;
         $typeDefs      = [];
         $this->nodeMap = [];
@@ -108,9 +114,6 @@ class BuildSchema
         foreach ($this->ast->definitions as $definition) {
             switch (true) {
                 case $definition instanceof SchemaDefinitionNode:
-                    if ($schemaDef !== null) {
-                        throw new Error('Must provide only one schema definition.');
-                    }
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof ScalarTypeDefinitionNode:

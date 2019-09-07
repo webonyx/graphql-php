@@ -33,6 +33,9 @@ use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\DirectiveLocation;
+use GraphQL\Type\Definition\Directive;
+use GraphQL\Validator\ASTValidationContext;
+use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
 use function count;
@@ -43,9 +46,21 @@ class KnownDirectives extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getSDLVisitor(SDLValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getASTVisitor(ASTValidationContext $context)
+    {
         $locationsMap      = [];
         $schema            = $context->getSchema();
-        $definedDirectives = $schema->getDirectives();
+        $definedDirectives = $schema
+            ? $schema->getDirectives()
+            : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
             $locationsMap[$directive->name] = $directive->locations;

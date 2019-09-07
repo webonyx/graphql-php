@@ -307,18 +307,55 @@ class DocumentValidator
         return $context->getErrors();
     }
 
+    /**
+     * @param ValidationRule[]|null $rules
+     *
+     * @return Error[]
+     *
+     * @throws Exception
+     */
+    public static function validateSDL(
+        DocumentNode $documentAST,
+        ?Schema $schemaToExtend = null,
+        ?array $rules = null
+    ) {
+        $usedRules = $rules ?? self::sdlRules();
+        $context   = new SDLValidationContext($documentAST, $schemaToExtend);
+        $visitors  = [];
+        foreach ($usedRules as $rule) {
+            $visitors[] = $rule->getSDLVisitor($context);
+        }
+        Visitor::visit($documentAST, Visitor::visitInParallel($visitors));
+
+        return $context->getErrors();
+    }
+
+    public static function assertValidSDL(DocumentNode $documentAST)
+    {
+        $errors = self::validateSDL($documentAST);
+        if (count($errors) !== 0) {
+            throw new Error(self::combineErrorMessages($errors));
+        }
+    }
+
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
     {
-        $errors = self::visitUsingRules($schema, new TypeInfo($schema), $documentAST, self::sdlRules());
+        $errors = self::validateSDL($documentAST, $schema);
         if (count($errors) !== 0) {
-            throw new Error(
-                implode(
-                    "\n\n",
-                    array_map(static function (Error $error) : string {
-                        return $error->message;
-                    }, $errors)
-                )
-            );
+            throw new Error(self::combineErrorMessages($errors));
         }
+    }
+
+    /**
+     * @param Error[] $errors
+     */
+    private static function combineErrorMessages(array $errors) : string
+    {
+        $str = '';
+        foreach ($errors as $error) {
+            $str .= ($error->getMessage() . "\n\n");
+        }
+
+        return $str;
     }
 }

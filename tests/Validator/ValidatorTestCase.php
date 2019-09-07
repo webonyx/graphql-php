@@ -382,50 +382,6 @@ abstract class ValidatorTestCase extends TestCase
                     'name'      => 'onInlineFragment',
                     'locations' => ['INLINE_FRAGMENT'],
                 ]),
-                new Directive([
-                    'name'      => 'onSchema',
-                    'locations' => ['SCHEMA'],
-                ]),
-                new Directive([
-                    'name'      => 'onScalar',
-                    'locations' => ['SCALAR'],
-                ]),
-                new Directive([
-                    'name'      => 'onObject',
-                    'locations' => ['OBJECT'],
-                ]),
-                new Directive([
-                    'name'      => 'onFieldDefinition',
-                    'locations' => ['FIELD_DEFINITION'],
-                ]),
-                new Directive([
-                    'name'      => 'onArgumentDefinition',
-                    'locations' => ['ARGUMENT_DEFINITION'],
-                ]),
-                new Directive([
-                    'name'      => 'onInterface',
-                    'locations' => ['INTERFACE'],
-                ]),
-                new Directive([
-                    'name'      => 'onUnion',
-                    'locations' => ['UNION'],
-                ]),
-                new Directive([
-                    'name'      => 'onEnum',
-                    'locations' => ['ENUM'],
-                ]),
-                new Directive([
-                    'name'      => 'onEnumValue',
-                    'locations' => ['ENUM_VALUE'],
-                ]),
-                new Directive([
-                    'name'      => 'onInputObject',
-                    'locations' => ['INPUT_OBJECT'],
-                ]),
-                new Directive([
-                    'name'      => 'onInputFieldDefinition',
-                    'locations' => ['INPUT_FIELD_DEFINITION'],
-                ]),
             ],
         ]);
     }
@@ -463,5 +419,14 @@ abstract class ValidatorTestCase extends TestCase
     protected function expectFailsCompleteValidation($queryString, $errors) : void
     {
         $this->expectInvalid(self::getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
+    }
+
+    protected function expectSDLErrorsFromRule($rule, $sdlString, ?Schema $schema = null, $errors = [])
+    {
+        $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
+        self::assertEquals(
+            $errors,
+            array_map(['GraphQL\Error\Error', 'formatError'], $actualErrors)
+        );
     }
 }

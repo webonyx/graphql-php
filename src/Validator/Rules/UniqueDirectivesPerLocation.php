@@ -7,12 +7,24 @@ namespace GraphQL\Validator\Rules;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\Node;
+use GraphQL\Validator\ASTValidationContext;
+use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 use function sprintf;
 
 class UniqueDirectivesPerLocation extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getSDLVisitor(SDLValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getASTVisitor(ASTValidationContext $context)
     {
         return [
             'enter' => static function (Node $node) use ($context) {

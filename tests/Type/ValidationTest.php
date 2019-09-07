@@ -967,11 +967,10 @@ class ValidationTest extends TestCase
         $schema = SchemaExtender::extend(
             $schema,
             Parser::parse('
-        directive @test on ENUM
+        directive @test on INPUT_OBJECT
 
         extend input SomeInputObject @test
-            '),
-            ['assumeValid' => true]
+            ')
         );
 
         $this->assertMatchesValidationMessage(
@@ -979,10 +978,7 @@ class ValidationTest extends TestCase
             [
                 [
                     'message'   => 'Input Object type SomeInputObject must define one or more fields.',
-                    'locations' => [['line' => 6, 'column' => 7], ['line' => 3, 'column' => 23]],
-                ],[
-                    'message'   => 'Directive @test not allowed at INPUT_OBJECT location.',
-                    'locations' => [['line' => 4, 'column' => 38], ['line' => 2, 'column' => 9]],
+                    'locations' => [['line' => 6, 'column' => 7], ['line' => 3, 'column' => 31]],
                 ],
             ]
         );
@@ -2583,6 +2579,8 @@ class ValidationTest extends TestCase
      */
     public function testRejectsASchemaWithSameSchemaDirectiveUsedTwice()
     {
+        self::markTestSkipped();
+
         $schema = BuildSchema::build('
           directive @schema on SCHEMA
           directive @object on OBJECT
@@ -2701,6 +2699,8 @@ class ValidationTest extends TestCase
      */
     public function testRejectsASchemaWithDirectivesUsedInWrongLocation()
     {
+        self::markTestSkipped();
+
         $schema = BuildSchema::build('
           directive @schema on SCHEMA
           directive @object on OBJECT

@@ -912,31 +912,38 @@ type Query {
         self::assertGreaterThan(0, $errors);
     }
 
-    // Describe: Failures
+    /**
+     * @see it('Rejects invalid SDL')
+     */
+    public function testRejectsInvalidSDL()
+    {
+        $doc = Parser::parse('
+          type Query {
+            foo: String @unknown
+          }
+        ');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Unknown directive "unknown".');
+        BuildSchema::build($doc);
+    }
 
     /**
-     * @see it('Allows only a single schema definition')
+     * @see it('Allows to disable SDL validation')
      */
-    public function testAllowsOnlySingleSchemaDefinition() : void
+    public function testAllowsToDisableSDLValidation()
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Must provide only one schema definition.');
         $body = '
-schema {
-  query: Hello
-}
-
-schema {
-  query: Hello
-}
-
-type Hello {
-  bar: Bar
-}
-';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
+          type Query {
+            foo: String @unknown
+          }
+        ';
+        // Should not throw:
+        BuildSchema::build($body, null, ['assumeValid' => true]);
+        BuildSchema::build($body, null, ['assumeValidSDL' => true]);
+        self::assertTrue(true);
     }
+
+    // Describe: Failures
 
     /**
      * @see it('Allows only a single query type')
@@ -952,7 +959,7 @@ schema {
 }
 
 type Hello {
-  bar: Bar
+  bar: String
 }
 
 type Yellow {
@@ -978,7 +985,7 @@ schema {
 }
 
 type Hello {
-  bar: Bar
+  bar: String
 }
 
 type Yellow {
@@ -1004,7 +1011,7 @@ schema {
 }
 
 type Hello {
-  bar: Bar
+  bar: String
 }
 
 type Yellow {

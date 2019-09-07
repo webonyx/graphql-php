@@ -1292,12 +1292,10 @@ class SchemaExtenderTest extends TestCase
             extend schema @unknown
         ';
 
-        try {
-            $this->extendTestSchema($sdl);
-            self::fail();
-        } catch (Error $error) {
-            self::assertEquals('Unknown directive "unknown".', $error->getMessage());
-        }
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Unknown directive "unknown".');
+
+        $this->extendTestSchema($sdl);
     }
 
     /**

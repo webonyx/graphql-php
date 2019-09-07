@@ -8,6 +8,11 @@ use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 
 class UniqueDirectivesPerLocationTest extends ValidatorTestCase
 {
+    private function expectSDLErrors($sdlString, $schema = null, $errors = [])
+    {
+        $this->expectSDLErrorsFromRule(new UniqueDirectivesPerLocation(), $sdlString, $schema, $errors);
+    }
+
     /**
      * @see it('no directives')
      */
@@ -164,6 +169,49 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
             [
                 $this->duplicateDirective('directive', 2, 29, 2, 40),
                 $this->duplicateDirective('directive', 3, 15, 3, 26),
+            ]
+        );
+    }
+
+    /**
+     * @see it('duplicate directives on SDL definitions')
+     */
+    public function testDuplicateDirectivesOnSDLDefinitions()
+    {
+        $this->expectSDLErrors(
+            '
+      schema @directive @directive { query: Dummy }
+      extend schema @directive @directive
+
+      scalar TestScalar @directive @directive
+      extend scalar TestScalar @directive @directive
+
+      type TestObject @directive @directive
+      extend type TestObject @directive @directive
+
+      interface TestInterface @directive @directive
+      extend interface TestInterface @directive @directive
+
+      union TestUnion @directive @directive
+      extend union TestUnion @directive @directive
+
+      input TestInput @directive @directive
+      extend input TestInput @directive @directive
+    ',
+            null,
+            [
+                $this->duplicateDirective('directive', 2, 14, 2, 25),
+                $this->duplicateDirective('directive', 3, 21, 3, 32),
+                $this->duplicateDirective('directive', 5, 25, 5, 36),
+                $this->duplicateDirective('directive', 6, 32, 6, 43),
+                $this->duplicateDirective('directive', 8, 23, 8, 34),
+                $this->duplicateDirective('directive', 9, 30, 9, 41),
+                $this->duplicateDirective('directive', 11, 31, 11, 42),
+                $this->duplicateDirective('directive', 12, 38, 12, 49),
+                $this->duplicateDirective('directive', 14, 23, 14, 34),
+                $this->duplicateDirective('directive', 15, 30, 15, 41),
+                $this->duplicateDirective('directive', 17, 23, 17, 34),
+                $this->duplicateDirective('directive', 18, 30, 18, 41),
             ]
         );
     }
