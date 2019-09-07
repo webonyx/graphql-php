@@ -141,7 +141,7 @@ class KnownDirectivesTest extends ValidatorTestCase
         $this->expectPassesRule(
             new KnownDirectives(),
             '
-      query Foo($var: Boolean @onVariableDefinition) @onQuery {
+      query Foo($var: Boolean) @onQuery {
         name @include(if: $var)
         ...Frag @include(if: true)
         skippedField @skip(if: true)
@@ -152,6 +152,21 @@ class KnownDirectivesTest extends ValidatorTestCase
         someField
       }
         '
+        );
+    }
+
+    /**
+     * @see it('with well placed variable definition directive')
+     */
+    public function testWithWellPlacedVariableDefinitionDirective()
+    {
+        $this->expectPassesRule(
+            new KnownDirectives(),
+            '
+              query Foo($var: Boolean @onVariableDefinition) {
+                name
+              }
+            '
         );
     }
 
@@ -271,7 +286,7 @@ class KnownDirectivesTest extends ValidatorTestCase
         $this->expectFailsRule(
             new KnownDirectives(),
             '
-      query Foo($var: Boolean @onField) @include(if: true) {
+      query Foo($var: Boolean) @include(if: true) {
         name @onQuery @include(if: $var)
         ...Frag @onQuery
       }
@@ -281,12 +296,27 @@ class KnownDirectivesTest extends ValidatorTestCase
       }
         ',
             [
-                $this->misplacedDirective('onField', 'VARIABLE_DEFINITION', 2, 31),
-                $this->misplacedDirective('include', 'QUERY', 2, 41),
+                $this->misplacedDirective('include', 'QUERY', 2, 32),
                 $this->misplacedDirective('onQuery', 'FIELD', 3, 14),
                 $this->misplacedDirective('onQuery', 'FRAGMENT_SPREAD', 4, 17),
                 $this->misplacedDirective('onQuery', 'MUTATION', 7, 20),
             ]
+        );
+    }
+
+    /**
+     * @see it('with misplaced variable definition directive')
+     */
+    public function testWithMisplacedVariableDefinitionDirective()
+    {
+        $this->expectFailsRule(
+            new KnownDirectives(),
+            '
+              query Foo($var: Boolean @onField) {
+                name
+              }
+            ',
+            [$this->misplacedDirective('onField', 'VARIABLE_DEFINITION', 2, 39)]
         );
     }
 

@@ -21,16 +21,16 @@ use function array_map;
 
 abstract class ValidatorTestCase extends TestCase
 {
-    protected function expectPassesRule($rule, $queryString) : void
+    protected function expectPassesRule($rule, $queryString, $options = []) : void
     {
-        $this->expectValid(self::getTestSchema(), [$rule], $queryString);
+        $this->expectValid(self::getTestSchema(), [$rule], $queryString, $options);
     }
 
-    protected function expectValid($schema, $rules, $queryString) : void
+    protected function expectValid($schema, $rules, $queryString, $options = []) : void
     {
         self::assertEquals(
             [],
-            DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
+            DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules),
             'Should validate'
         );
     }
@@ -390,14 +390,14 @@ abstract class ValidatorTestCase extends TestCase
         ]);
     }
 
-    protected function expectFailsRule($rule, $queryString, $errors)
+    protected function expectFailsRule($rule, $queryString, $errors, $options = [])
     {
-        return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors);
+        return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors, $options);
     }
 
-    protected function expectInvalid($schema, $rules, $queryString, $expectedErrors)
+    protected function expectInvalid($schema, $rules, $queryString, $expectedErrors, $options = [])
     {
-        $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
+        $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 
         self::assertNotEmpty($errors, 'GraphQL should not validate');
         self::assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));

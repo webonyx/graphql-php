@@ -82,15 +82,6 @@ class PrinterTest extends TestCase
 ';
         self::assertEquals($expected, Printer::doPrint($queryAstWithArtifacts));
 
-        $queryAstWithVariableDirective = Parser::parse(
-            'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) { id }'
-        );
-        $expected                      = 'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) {
-  id
-}
-';
-        self::assertEquals($expected, Printer::doPrint($queryAstWithVariableDirective));
-
         $mutationAstWithArtifacts = Parser::parse(
             'mutation ($foo: TestType) @testDirective { id, name }'
         );
@@ -100,6 +91,37 @@ class PrinterTest extends TestCase
 }
 ';
         self::assertEquals($expected, Printer::doPrint($mutationAstWithArtifacts));
+    }
+
+    /**
+     * @see it('prints query with variable directives')
+     */
+    public function testPrintsQueryWithVariableDirectives()
+    {
+        $queryAstWithVariableDirective = Parser::parse(
+            'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) { id }'
+        );
+        $expected                      = 'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) {
+  id
+}
+';
+        self::assertEquals($expected, Printer::doPrint($queryAstWithVariableDirective));
+    }
+
+    /**
+     * @see it('prints fragment with variable directives')
+     */
+    public function testPrintsFragmentWithVariableDirectives()
+    {
+        $queryAstWithVariableDirective = Parser::parse(
+            'fragment Foo($foo: TestType @test) on TestType @testDirective { id }',
+            ['experimentalFragmentVariables' => true]
+        );
+        $expected                      = 'fragment Foo($foo: TestType @test) on TestType @testDirective {
+  id
+}
+';
+        self::assertEquals($expected, Printer::doPrint($queryAstWithVariableDirective));
     }
 
     /**
