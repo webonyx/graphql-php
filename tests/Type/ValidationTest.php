@@ -976,10 +976,14 @@ class ValidationTest extends TestCase
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [[
-                'message'   => 'Input Object type SomeInputObject must define one or more fields.',
-                'locations' => [['line' => 6, 'column' => 7], ['line' => 3, 'column' => 23]],
-            ],
+            [
+                [
+                    'message'   => 'Input Object type SomeInputObject must define one or more fields.',
+                    'locations' => [['line' => 6, 'column' => 7], ['line' => 3, 'column' => 23]],
+                ],[
+                    'message'   => 'Directive @test not allowed at INPUT_OBJECT location.',
+                    'locations' => [['line' => 4, 'column' => 38], ['line' => 2, 'column' => 9]],
+                ],
             ]
         );
     }
@@ -2499,5 +2503,290 @@ class ValidationTest extends TestCase
             'Make sure you always return the same instance for the same type name.'
         );
         $schema->assertValid();
+    }
+
+    // DESCRIBE: Type System: Schema directives must validate
+
+    /**
+     * @see it('accepts a Schema with valid directives')
+     */
+    public function testAcceptsASchemaWithValidDirectives()
+    {
+        $schema = BuildSchema::build('
+          schema @testA @testB {
+            query: Query
+          }
+    
+          type Query @testA @testB {
+            test: AnInterface @testC
+          }
+    
+          directive @testA on SCHEMA | OBJECT | INTERFACE | UNION | SCALAR | INPUT_OBJECT | ENUM
+          directive @testB on SCHEMA | OBJECT | INTERFACE | UNION | SCALAR | INPUT_OBJECT | ENUM
+          directive @testC on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+          directive @testD on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+    
+          interface AnInterface @testA {
+            field: String! @testC
+          }
+    
+          type TypeA implements AnInterface @testA {
+            field(arg: SomeInput @testC): String! @testC @testD
+          }
+    
+          type TypeB @testB @testA {
+            scalar_field: SomeScalar @testC
+            enum_field: SomeEnum @testC @testD
+          }
+    
+          union SomeUnion @testA = TypeA | TypeB
+    
+          scalar SomeScalar @testA @testB
+    
+          enum SomeEnum @testA @testB {
+            SOME_VALUE @testC
+          }
+    
+          input SomeInput @testA @testB {
+            some_input_field: String @testC
+          }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('rejects a Schema with directive defined multiple times')
+     */
+    public function testRejectsASchemaWithDirectiveDefinedMultipleTimes()
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            test: String
+          }
+    
+          directive @testA on SCHEMA
+          directive @testA on SCHEMA
+        ');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message' => 'Directive @testA defined multiple times.',
+                'locations' => [[ 'line' => 6, 'column' => 11 ], [ 'line' => 7, 'column' => 11 ]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects a Schema with same directive used twice per location')
+     */
+    public function testRejectsASchemaWithSameSchemaDirectiveUsedTwice()
+    {
+        $schema = BuildSchema::build('
+          directive @schema on SCHEMA
+          directive @object on OBJECT
+          directive @interface on INTERFACE
+          directive @union on UNION
+          directive @scalar on SCALAR
+          directive @input_object on INPUT_OBJECT
+          directive @enum on ENUM
+          directive @field_definition on FIELD_DEFINITION
+          directive @enum_value on ENUM_VALUE
+          directive @input_field_definition on INPUT_FIELD_DEFINITION
+          directive @argument_definition on ARGUMENT_DEFINITION
+
+          schema @schema @schema {
+            query: Query
+          }
+
+          type Query implements SomeInterface @object @object {
+            test(arg: SomeInput @argument_definition @argument_definition): String
+          }
+    
+          interface SomeInterface @interface @interface {
+            test: String @field_definition @field_definition
+          }
+    
+          union SomeUnion @union @union = Query
+    
+          scalar SomeScalar @scalar @scalar
+    
+          enum SomeEnum @enum @enum {
+            SOME_VALUE @enum_value @enum_value
+          }
+    
+          input SomeInput @input_object @input_object {
+            some_input_field: String @input_field_definition @input_field_definition
+          }
+        ');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message' => 'Directive @schema used twice at the same location.',
+                    'locations' => [[ 'line' => 14, 'column' => 18 ], [ 'line' => 14, 'column' => 26 ]],
+                ],[
+                    'message' => 'Directive @argument_definition used twice at the same location.',
+                    'locations' => [[ 'line' => 19, 'column' => 33 ], [ 'line' => 19, 'column' => 54 ]],
+                ],[
+                    'message' => 'Directive @object used twice at the same location.',
+                    'locations' => [[ 'line' => 18, 'column' => 47 ], [ 'line' => 18, 'column' => 55 ]],
+                ],[
+                    'message' => 'Directive @field_definition used twice at the same location.',
+                    'locations' => [[ 'line' => 23, 'column' => 26 ], [ 'line' => 23, 'column' => 44 ]],
+                ],[
+                    'message' => 'Directive @interface used twice at the same location.',
+                    'locations' => [[ 'line' => 22, 'column' => 35 ], [ 'line' => 22, 'column' => 46 ]],
+                ],[
+                    'message' => 'Directive @input_field_definition not allowed at FIELD_DEFINITION location.',
+                    'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 11, 'column' => 11 ]],
+                ],[
+                    'message' => 'Directive @input_field_definition not allowed at FIELD_DEFINITION location.',
+                    'locations' => [[ 'line' => 35, 'column' => 62 ], [ 'line' => 11, 'column' => 11 ]],
+                ],[
+                    'message' => 'Directive @input_field_definition used twice at the same location.',
+                    'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 35, 'column' => 62 ]],
+                ],[
+                    'message' => 'Directive @input_object used twice at the same location.',
+                    'locations' => [[ 'line' => 34, 'column' => 27 ], [ 'line' => 34, 'column' => 41 ]],
+                ],[
+                    'message' => 'Directive @union used twice at the same location.',
+                    'locations' => [[ 'line' => 26, 'column' => 27 ], [ 'line' => 26, 'column' => 34 ]],
+                ],[
+                    'message' => 'Directive @scalar used twice at the same location.',
+                    'locations' => [[ 'line' => 28, 'column' => 29 ], [ 'line' => 28, 'column' => 37 ]],
+                ],[
+                    'message' => 'Directive @enum_value used twice at the same location.',
+                    'locations' => [[ 'line' => 31, 'column' => 24 ], [ 'line' => 31, 'column' => 36 ]],
+                ],[
+                    'message' => 'Directive @enum used twice at the same location.',
+                    'locations' => [[ 'line' => 30, 'column' => 25 ], [ 'line' => 30, 'column' => 31 ]],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects a Schema with directive used again in extension')
+     */
+    public function testRejectsASchemaWithSameDefinitionDirectiveUsedTwice()
+    {
+        $schema = BuildSchema::build('
+          directive @testA on OBJECT
+    
+          type Query @testA {
+            test: String
+          }
+        ');
+
+        $extensions = Parser::parse('
+          extend type Query @testA
+        ');
+
+        $extendedSchema = SchemaExtender::extend($schema, $extensions);
+
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [[
+                'message' => 'Directive @testA used twice at the same location.',
+                'locations' => [[ 'line' => 4, 'column' => 22 ], [ 'line' => 2, 'column' => 29 ]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects a Schema with directives used in wrong location')
+     */
+    public function testRejectsASchemaWithDirectivesUsedInWrongLocation()
+    {
+        $schema = BuildSchema::build('
+          directive @schema on SCHEMA
+          directive @object on OBJECT
+          directive @interface on INTERFACE
+          directive @union on UNION
+          directive @scalar on SCALAR
+          directive @input_object on INPUT_OBJECT
+          directive @enum on ENUM
+          directive @field_definition on FIELD_DEFINITION
+          directive @enum_value on ENUM_VALUE
+          directive @input_field_definition on INPUT_FIELD_DEFINITION
+          directive @argument_definition on ARGUMENT_DEFINITION
+    
+          schema @object {
+            query: Query
+          }
+    
+          type Query implements SomeInterface @schema {
+            test(arg: SomeInput @field_definition): String
+          }
+    
+          interface SomeInterface @interface {
+            test: String @argument_definition
+          }
+    
+          union SomeUnion @interface = Query
+    
+          scalar SomeScalar @enum_value
+    
+          enum SomeEnum @input_object {
+            SOME_VALUE @enum
+          }
+    
+          input SomeInput @object {
+            some_input_field: String @union
+          }
+        ');
+
+        $extensions = Parser::parse('
+          extend type Query @testA
+        ');
+
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            $extensions,
+            ['assumeValid' => true] // TODO: remove this line
+        );
+
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [
+                [
+                    'message' => 'Directive @object not allowed at SCHEMA location.',
+                    'locations' => [[ 'line' => 14, 'column' => 18 ], [ 'line' => 3, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @field_definition not allowed at ARGUMENT_DEFINITION location.',
+                    'locations' => [[ 'line' => 19, 'column' => 33 ], [ 'line' => 9, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @schema not allowed at OBJECT location.',
+                    'locations' => [[ 'line' => 18, 'column' => 47 ], [ 'line' => 2, 'column' => 11 ]],
+                ], [
+                    'message' => 'No directive @testA defined.',
+                    'locations' => [[ 'line' => 2, 'column' => 29 ]],
+                ], [
+                    'message' => 'Directive @argument_definition not allowed at FIELD_DEFINITION location.',
+                    'locations' => [[ 'line' => 23, 'column' => 26 ], [ 'line' => 12, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @union not allowed at FIELD_DEFINITION location.',
+                    'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 5, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @object not allowed at INPUT_OBJECT location.',
+                    'locations' => [[ 'line' => 34, 'column' => 27 ], [ 'line' => 3, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @interface not allowed at UNION location.',
+                    'locations' => [[ 'line' => 26, 'column' => 27 ], [ 'line' => 4, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @enum_value not allowed at SCALAR location.',
+                    'locations' => [[ 'line' => 28, 'column' => 29 ], [ 'line' => 10, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @enum not allowed at ENUM_VALUE location.',
+                    'locations' => [[ 'line' => 31, 'column' => 24 ], [ 'line' => 8, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @input_object not allowed at ENUM location.',
+                    'locations' => [[ 'line' => 30, 'column' => 25 ], [ 'line' => 7, 'column' => 11 ]],
+                ],
+            ]
+        );
     }
 }
