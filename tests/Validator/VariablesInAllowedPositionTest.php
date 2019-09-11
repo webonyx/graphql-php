@@ -110,25 +110,6 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
     }
 
     /**
-     * @see it('Int => Int! with default')
-     */
-    public function testIntXIntNonNullWithDefault() : void
-    {
-        // Int => Int! with default
-        $this->expectPassesRule(
-            new VariablesInAllowedPosition(),
-            '
-      query Query($intArg: Int = 1)
-      {
-        complicatedArgs {
-          nonNullIntArgField(nonNullIntArg: $intArg)
-        }
-      }
-        '
-        );
-    }
-
-    /**
      * @see it('[String] => [String]')
      */
     public function testListOfStringXListOfString() : void
@@ -245,22 +226,6 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
             new VariablesInAllowedPosition(),
             '
       query Query($boolVar: Boolean!)
-      {
-        dog @include(if: $boolVar)
-      }
-        '
-        );
-    }
-
-    /**
-     * @see it('Boolean => Boolean! in directive with default')
-     */
-    public function testBooleanXBooleanNonNullInDirectiveWithDefault() : void
-    {
-        $this->expectPassesRule(
-            new VariablesInAllowedPosition(),
-            '
-      query Query($boolVar: Boolean = false)
       {
         dog @include(if: $boolVar)
       }
@@ -461,6 +426,76 @@ class VariablesInAllowedPositionTest extends ValidatorTestCase
                     [new SourceLocation(2, 19), new SourceLocation(5, 59)]
                 ),
             ]
+        );
+    }
+
+    // Allows optional (nullable) variables with default values
+
+    /**
+     * @see it('Int => Int! fails when variable provides null default value')
+     */
+    public function testIntXIntNonNullFailsWhenVariableProvidesNullDefaultValue()
+    {
+        $this->expectFailsRule(
+            new VariablesInAllowedPosition(),
+            '
+        query Query($intVar: Int = null) {
+          complicatedArgs {
+            nonNullIntArgField(nonNullIntArg: $intVar)
+          }
+        }
+            ',
+            [FormattedError::create(
+                VariablesInAllowedPosition::badVarPosMessage('intVar', 'Int', 'Int!'),
+                [new SourceLocation(2, 21), new SourceLocation(4, 47)]
+            ),
+            ]
+        );
+    }
+
+    /**
+     * @see it('Int => Int! when variable provides non-null default value')
+     */
+    public function testIntXIntNonNullWhenVariableProvidesNonNullDefaultValue()
+    {
+        $this->expectPassesRule(
+            new VariablesInAllowedPosition(),
+            '
+            query Query($intVar: Int = 1) {
+              complicatedArgs {
+                nonNullIntArgField(nonNullIntArg: $intVar)
+              }
+            }'
+        );
+    }
+
+    /**
+     * @see it('Int => Int! when optional argument provides default value')
+     */
+    public function testIntXIntNonNullWhenOptionalArgumentProvidesDefaultValue()
+    {
+        $this->expectPassesRule(
+            new VariablesInAllowedPosition(),
+            '
+            query Query($intVar: Int) {
+              complicatedArgs {
+                nonNullFieldWithDefault(nonNullIntArg: $intVar)
+              }
+            }'
+        );
+    }
+
+    /**
+     * @see it('Boolean => Boolean! in directive with default value with option')
+     */
+    public function testBooleanXBooleanNonNullInDirectiveWithDefaultValueWithOption()
+    {
+        $this->expectPassesRule(
+            new VariablesInAllowedPosition(),
+            '
+            query Query($boolVar: Boolean = false) {
+              dog @include(if: $boolVar)
+            }'
         );
     }
 }

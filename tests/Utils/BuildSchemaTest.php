@@ -14,7 +14,11 @@ use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\InputObjectType;
+use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
@@ -433,6 +437,22 @@ type WorldTwo {
     }
 
     /**
+     * @see it('Can build recursive Union')
+     */
+    public function testCanBuildRecursiveUnion()
+    {
+        $schema = BuildSchema::build('
+          union Hello = Hello
+    
+          type Query {
+            hello: Hello
+          }
+        ');
+        $errors = $schema->validate();
+        self::assertNotEmpty($errors);
+    }
+
+    /**
      * @see it('Specifying Union type using __typename')
      */
     public function testSpecifyingUnionTypeUsingTypename() : void
@@ -747,7 +767,9 @@ type Query {
         self::assertTrue($otherValue->isDeprecated());
         self::assertEquals('Terrible reasons', $otherValue->deprecationReason);
 
-        $rootFields = $schema->getType('Query')->getFields();
+        /** @var ObjectType $queryType */
+        $queryType  = $schema->getType('Query');
+        $rootFields = $queryType->getFields();
         self::assertEquals($rootFields['field1']->isDeprecated(), true);
         self::assertEquals($rootFields['field1']->deprecationReason, 'No longer supported');
 
@@ -792,13 +814,20 @@ type Query {
       directive @test(arg: TestScalar) on FIELD
     ');
         $schema    = BuildSchema::buildAST($schemaAST);
+
         /** @var ObjectType $query */
-        $query         = $schema->getType('Query');
-        $testInput     = $schema->getType('TestInput');
-        $testEnum      = $schema->getType('TestEnum');
-        $testUnion     = $schema->getType('TestUnion');
+        $query = $schema->getType('Query');
+        /** @var InputObjectType $testInput */
+        $testInput = $schema->getType('TestInput');
+        /** @var EnumType $testEnum */
+        $testEnum = $schema->getType('TestEnum');
+        /** @var UnionType $testUnion */
+        $testUnion = $schema->getType('TestUnion');
+        /** @var InterfaceType $testInterface */
         $testInterface = $schema->getType('TestInterface');
-        $testType      = $schema->getType('TestType');
+        /** @var ObjectType $testType */
+        $testType = $schema->getType('TestType');
+        /** @var ScalarType $testScalar */
         $testScalar    = $schema->getType('TestScalar');
         $testDirective = $schema->getDirective('test');
 
@@ -883,31 +912,38 @@ type Query {
         self::assertGreaterThan(0, $errors);
     }
 
-    // Describe: Failures
+    /**
+     * @see it('Rejects invalid SDL')
+     */
+    public function testRejectsInvalidSDL()
+    {
+        $doc = Parser::parse('
+          type Query {
+            foo: String @unknown
+          }
+        ');
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage('Unknown directive "unknown".');
+        BuildSchema::build($doc);
+    }
 
     /**
-     * @see it('Allows only a single schema definition')
+     * @see it('Allows to disable SDL validation')
      */
-    public function testAllowsOnlySingleSchemaDefinition() : void
+    public function testAllowsToDisableSDLValidation()
     {
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Must provide only one schema definition.');
         $body = '
-schema {
-  query: Hello
-}
-
-schema {
-  query: Hello
-}
-
-type Hello {
-  bar: Bar
-}
-';
-        $doc  = Parser::parse($body);
-        BuildSchema::buildAST($doc);
+          type Query {
+            foo: String @unknown
+          }
+        ';
+        // Should not throw:
+        BuildSchema::build($body, null, ['assumeValid' => true]);
+        BuildSchema::build($body, null, ['assumeValidSDL' => true]);
+        self::assertTrue(true);
     }
+
+    // Describe: Failures
 
     /**
      * @see it('Allows only a single query type')
@@ -923,7 +959,7 @@ schema {
 }
 
 type Hello {
-  bar: Bar
+  bar: String
 }
 
 type Yellow {
@@ -949,7 +985,7 @@ schema {
 }
 
 type Hello {
-  bar: Bar
+  bar: String
 }
 
 type Yellow {
@@ -975,7 +1011,7 @@ schema {
 }
 
 type Hello {
-  bar: Bar
+  bar: String
 }
 
 type Yellow {
@@ -1105,6 +1141,23 @@ type Wat {
 ';
         $doc  = Parser::parse($body);
         BuildSchema::buildAST($doc);
+    }
+
+    /**
+     * @see it('Does not consider directive names')
+     */
+    public function testDoesNotConsiderDirectiveNames()
+    {
+        $body = '
+          schema {
+            query: Foo
+          }
+    
+          directive @Foo on QUERY
+        ';
+        $doc  = Parser::parse($body);
+        $this->expectExceptionMessage('Specified query type "Foo" not found in document.');
+        BuildSchema::build($doc);
     }
 
     /**

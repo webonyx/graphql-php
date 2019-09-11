@@ -47,9 +47,7 @@ class NoFragmentCycles extends ValidationRule
                 return Visitor::skipNode();
             },
             NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context) {
-                if (! isset($this->visitedFrags[$node->name->value])) {
-                    $this->detectCycleRecursive($node, $context);
-                }
+                $this->detectCycleRecursive($node, $context);
 
                 return Visitor::skipNode();
             },
@@ -58,6 +56,10 @@ class NoFragmentCycles extends ValidationRule
 
     private function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
     {
+        if (! empty($this->visitedFrags[$fragment->name->value])) {
+            return;
+        }
+
         $fragmentName                      = $fragment->name->value;
         $this->visitedFrags[$fragmentName] = true;
 
@@ -74,38 +76,24 @@ class NoFragmentCycles extends ValidationRule
             $spreadName = $spreadNode->name->value;
             $cycleIndex = $this->spreadPathIndexByName[$spreadName] ?? null;
 
+            $this->spreadPath[] = $spreadNode;
             if ($cycleIndex === null) {
-                $this->spreadPath[] = $spreadNode;
-                if (empty($this->visitedFrags[$spreadName])) {
-                    $spreadFragment = $context->getFragment($spreadName);
-                    if ($spreadFragment) {
-                        $this->detectCycleRecursive($spreadFragment, $context);
-                    }
+                $spreadFragment = $context->getFragment($spreadName);
+                if ($spreadFragment) {
+                    $this->detectCycleRecursive($spreadFragment, $context);
                 }
-                array_pop($this->spreadPath);
             } else {
-                $cyclePath = array_slice($this->spreadPath, $cycleIndex);
-                $nodes     = $cyclePath;
-
-                if (is_array($spreadNode)) {
-                    $nodes = array_merge($nodes, $spreadNode);
-                } else {
-                    $nodes[] = $spreadNode;
-                }
+                $cyclePath     = array_slice($this->spreadPath, $cycleIndex);
+                $fragmentNames = Utils::map(array_slice($cyclePath, 0, -1), static function ($s) {
+                    return $s->name->value;
+                });
 
                 $context->reportError(new Error(
-                    self::cycleErrorMessage(
-                        $spreadName,
-                        Utils::map(
-                            $cyclePath,
-                            static function ($s) {
-                                return $s->name->value;
-                            }
-                        )
-                    ),
-                    $nodes
+                    self::cycleErrorMessage($spreadName, $fragmentNames),
+                    $cyclePath
                 ));
             }
+            array_pop($this->spreadPath);
         }
 
         $this->spreadPathIndexByName[$fragmentName] = null;

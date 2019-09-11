@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
+use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
@@ -18,6 +19,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildSchema;
+use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 use function array_map;
@@ -517,6 +519,62 @@ class ValidationTest extends TestCase
     }
 
     /**
+     * @see it('rejects a schema extended with invalid root types')
+     */
+    public function testRejectsASchemaExtendedWithInvalidRootTypes()
+    {
+        $schema = BuildSchema::build('
+            input SomeInputObject {
+                test: String
+            }
+        ');
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend schema {
+                  query: SomeInputObject
+                }
+            ')
+        );
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend schema {
+                  mutation: SomeInputObject
+                }
+            ')
+        );
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend schema {
+                  subscription: SomeInputObject
+                }
+            ')
+        );
+
+        $expected = [
+            [
+                'message' => 'Query root type must be Object type, it cannot be SomeInputObject.',
+                'locations' => [[ 'line' => 2, 'column' => 13 ]],
+            ],
+            [
+                'message' => 'Mutation root type must be Object type if provided, it cannot be SomeInputObject.',
+                'locations' => [[ 'line' => 2, 'column' => 13 ]],
+            ],
+            [
+                'message' => 'Subscription root type must be Object type if provided, it cannot be SomeInputObject.',
+                'locations' => [[ 'line' => 2, 'column' => 13 ]],
+            ],
+        ];
+
+        $this->assertMatchesValidationMessage($schema->validate(), $expected);
+    }
+
+    /**
      * @see it('rejects a Schema whose directives are incorrectly typed')
      */
     public function testRejectsASchemaWhoseDirectivesAreIncorrectlyTyped() : void
@@ -731,17 +789,27 @@ class ValidationTest extends TestCase
     public function testRejectsAUnionTypeWithEmptyTypes() : void
     {
         $schema = BuildSchema::build('
-      type Query {
-        test: BadUnion
-      }
-
-      union BadUnion
+            type Query {
+                test: BadUnion
+            }
+            
+            union BadUnion
         ');
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                directive @test on UNION
+        
+                extend union BadUnion @test
+            ')
+        );
+
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Union type BadUnion must define one or more member types.',
-                'locations' => [['line' => 6, 'column' => 7]],
+                'locations' => [['line' => 6, 'column' => 13], ['line' => 4, 'column' => 11]],
             ],
             ]
         );
@@ -778,6 +846,25 @@ class ValidationTest extends TestCase
             ],
             ]
         );
+
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('extend union BadUnion = TypeB')
+        );
+
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [
+                [
+                    'message'   => 'Union type BadUnion can only include type TypeA once.',
+                    'locations' => [['line' => 15, 'column' => 11], ['line' => 17, 'column' => 11]],
+                ],
+                [
+                    'message' => 'Union type BadUnion can only include type TypeB once.',
+                    'locations' => [[ 'line' => 16, 'column' => 11 ], [ 'line' => 3, 'column' => 5 ]],
+                ],
+            ]
+        );
     }
 
     /**
@@ -803,13 +890,20 @@ class ValidationTest extends TestCase
         | String
         | TypeB
         ');
+
+        $schema = SchemaExtender::extend($schema, Parser::parse('extend union BadUnion = Int'));
+
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [[
-                'message'   => 'Union type BadUnion can only include Object types, ' .
-                    'it cannot include String.',
-                'locations' => [['line' => 16, 'column' => 11]],
-            ],
+            [
+                [
+                    'message'   => 'Union type BadUnion can only include Object types, it cannot include String.',
+                    'locations' => [['line' => 16, 'column' => 11]],
+                ],
+                [
+                    'message' => 'Union type BadUnion can only include Object types, it cannot include Int.',
+                    'locations' => [[ 'line' => 1, 'column' => 25 ]],
+                ],
             ]
         );
 
@@ -869,12 +963,23 @@ class ValidationTest extends TestCase
 
       input SomeInputObject
         ');
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+        directive @test on INPUT_OBJECT
+
+        extend input SomeInputObject @test
+            ')
+        );
+
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [[
-                'message'   => 'Input Object type SomeInputObject must define one or more fields.',
-                'locations' => [['line' => 6, 'column' => 7]],
-            ],
+            [
+                [
+                    'message'   => 'Input Object type SomeInputObject must define one or more fields.',
+                    'locations' => [['line' => 6, 'column' => 7], ['line' => 3, 'column' => 31]],
+                ],
             ]
         );
     }
@@ -1066,11 +1171,21 @@ class ValidationTest extends TestCase
       
       enum SomeEnum
         ');
+
+        $schema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+        directive @test on ENUM
+
+        extend enum SomeEnum @test
+            ')
+        );
+
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
                 'message'   => 'Enum type SomeEnum must define one or more values.',
-                'locations' => [['line' => 6, 'column' => 7]],
+                'locations' => [['line' => 6, 'column' => 7], ['line' => 3, 'column' => 23]],
             ],
             ]
         );
@@ -1374,6 +1489,145 @@ class ValidationTest extends TestCase
         );
     }
 
+    // DESCRIBE: Type System: Interface extensions should be valid
+
+    /**
+     * @see it('rejects an Object implementing the extended interface due to missing field')
+     */
+    public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingField()
+    {
+        $schema         = BuildSchema::build('
+          type Query {
+            test: AnotherObject
+          }
+    
+          interface AnotherInterface {
+            field: String
+          }
+    
+          type AnotherObject implements AnotherInterface {
+            field: String
+          }');
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend interface AnotherInterface {
+                  newField: String
+                }
+        
+                extend type AnotherObject {
+                  differentNewField: String
+                }
+            ')
+        );
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [[
+                'message'   => 'Interface field AnotherInterface.newField expected but AnotherObject does not provide it.',
+                'locations' => [
+                    ['line' => 3, 'column' => 19],
+                    ['line' => 7, 'column' => 7],
+                    ['line' => 6, 'column' => 17],
+                ],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects an Object implementing the extended interface due to missing field args')
+     */
+    public function testRejectsAnObjectImplementingTheExtendedInterfaceDueToMissingFieldArgs()
+    {
+        $schema         = BuildSchema::build('
+          type Query {
+            test: AnotherObject
+          }
+    
+          interface AnotherInterface {
+            field: String
+          }
+    
+          type AnotherObject implements AnotherInterface {
+            field: String
+          }');
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend interface AnotherInterface {
+                  newField(test: Boolean): String
+                }
+        
+                extend type AnotherObject {
+                  newField: String
+                }
+            ')
+        );
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [[
+                'message'   => 'Interface field argument AnotherInterface.newField(test:) expected but AnotherObject.newField does not provide it.',
+                'locations' => [
+                    ['line' => 3, 'column' => 28],
+                    ['line' => 7, 'column' => 19],
+                ],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects Objects implementing the extended interface due to mismatching interface type')
+     */
+    public function testRejectsObjectsImplementingTheExtendedInterfaceDueToMismatchingInterfaceType()
+    {
+        $schema         = BuildSchema::build('
+          type Query {
+            test: AnotherObject
+          }
+    
+          interface AnotherInterface {
+            field: String
+          }
+    
+          type AnotherObject implements AnotherInterface {
+            field: String
+          }');
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            Parser::parse('
+                extend interface AnotherInterface {
+                  newInterfaceField: NewInterface
+                }
+        
+                interface NewInterface {
+                  newField: String
+                }
+        
+                interface MismatchingInterface {
+                  newField: String
+                }
+        
+                extend type AnotherObject {
+                  newInterfaceField: MismatchingInterface
+                }
+        
+                # Required to prevent unused interface errors
+                type DummyObject implements NewInterface & MismatchingInterface {
+                  newField: String
+                }
+            ')
+        );
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [[
+                'message'   => 'Interface field AnotherInterface.newInterfaceField expects type NewInterface but AnotherObject.newInterfaceField is type MismatchingInterface.',
+                'locations' => [['line' => 3, 'column' => 38], ['line' => 15, 'column' => 38]],
+            ],
+            ]
+        );
+    }
+
     // DESCRIBE: Type System: Field arguments must have input types
 
     /**
@@ -1504,7 +1758,7 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @see it('rejects an interface not implemented by at least one object')
+     * @see it('accepts an interface not implemented by at least one object')
      */
     public function testRejectsAnInterfaceNotImplementedByAtLeastOneObject()
     {
@@ -1519,11 +1773,7 @@ class ValidationTest extends TestCase
         ');
         $this->assertMatchesValidationMessage(
             $schema->validate(),
-            [[
-                'message' => 'Interface SomeInterface must be implemented by at least one Object type.',
-                'locations' => [[ 'line' => 6, 'column' => 7 ]],
-            ],
-            ]
+            []
         );
     }
 
@@ -2249,5 +2499,294 @@ class ValidationTest extends TestCase
             'Make sure you always return the same instance for the same type name.'
         );
         $schema->assertValid();
+    }
+
+    // DESCRIBE: Type System: Schema directives must validate
+
+    /**
+     * @see it('accepts a Schema with valid directives')
+     */
+    public function testAcceptsASchemaWithValidDirectives()
+    {
+        $schema = BuildSchema::build('
+          schema @testA @testB {
+            query: Query
+          }
+    
+          type Query @testA @testB {
+            test: AnInterface @testC
+          }
+    
+          directive @testA on SCHEMA | OBJECT | INTERFACE | UNION | SCALAR | INPUT_OBJECT | ENUM
+          directive @testB on SCHEMA | OBJECT | INTERFACE | UNION | SCALAR | INPUT_OBJECT | ENUM
+          directive @testC on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+          directive @testD on FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM_VALUE | INPUT_FIELD_DEFINITION
+    
+          interface AnInterface @testA {
+            field: String! @testC
+          }
+    
+          type TypeA implements AnInterface @testA {
+            field(arg: SomeInput @testC): String! @testC @testD
+          }
+    
+          type TypeB @testB @testA {
+            scalar_field: SomeScalar @testC
+            enum_field: SomeEnum @testC @testD
+          }
+    
+          union SomeUnion @testA = TypeA | TypeB
+    
+          scalar SomeScalar @testA @testB
+    
+          enum SomeEnum @testA @testB {
+            SOME_VALUE @testC
+          }
+    
+          input SomeInput @testA @testB {
+            some_input_field: String @testC
+          }
+        ');
+
+        self::assertEquals([], $schema->validate());
+    }
+
+    /**
+     * @see it('rejects a Schema with directive defined multiple times')
+     */
+    public function testRejectsASchemaWithDirectiveDefinedMultipleTimes()
+    {
+        $schema = BuildSchema::build('
+          type Query {
+            test: String
+          }
+    
+          directive @testA on SCHEMA
+          directive @testA on SCHEMA
+        ');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message' => 'Directive @testA defined multiple times.',
+                'locations' => [[ 'line' => 6, 'column' => 11 ], [ 'line' => 7, 'column' => 11 ]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects a Schema with same directive used twice per location')
+     */
+    public function testRejectsASchemaWithSameSchemaDirectiveUsedTwice()
+    {
+        self::markTestSkipped();
+
+        $schema = BuildSchema::build('
+          directive @schema on SCHEMA
+          directive @object on OBJECT
+          directive @interface on INTERFACE
+          directive @union on UNION
+          directive @scalar on SCALAR
+          directive @input_object on INPUT_OBJECT
+          directive @enum on ENUM
+          directive @field_definition on FIELD_DEFINITION
+          directive @enum_value on ENUM_VALUE
+          directive @input_field_definition on INPUT_FIELD_DEFINITION
+          directive @argument_definition on ARGUMENT_DEFINITION
+
+          schema @schema @schema {
+            query: Query
+          }
+
+          type Query implements SomeInterface @object @object {
+            test(arg: SomeInput @argument_definition @argument_definition): String
+          }
+    
+          interface SomeInterface @interface @interface {
+            test: String @field_definition @field_definition
+          }
+    
+          union SomeUnion @union @union = Query
+    
+          scalar SomeScalar @scalar @scalar
+    
+          enum SomeEnum @enum @enum {
+            SOME_VALUE @enum_value @enum_value
+          }
+    
+          input SomeInput @input_object @input_object {
+            some_input_field: String @input_field_definition @input_field_definition
+          }
+        ');
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message' => 'Directive @schema used twice at the same location.',
+                    'locations' => [[ 'line' => 14, 'column' => 18 ], [ 'line' => 14, 'column' => 26 ]],
+                ],[
+                    'message' => 'Directive @argument_definition used twice at the same location.',
+                    'locations' => [[ 'line' => 19, 'column' => 33 ], [ 'line' => 19, 'column' => 54 ]],
+                ],[
+                    'message' => 'Directive @object used twice at the same location.',
+                    'locations' => [[ 'line' => 18, 'column' => 47 ], [ 'line' => 18, 'column' => 55 ]],
+                ],[
+                    'message' => 'Directive @field_definition used twice at the same location.',
+                    'locations' => [[ 'line' => 23, 'column' => 26 ], [ 'line' => 23, 'column' => 44 ]],
+                ],[
+                    'message' => 'Directive @interface used twice at the same location.',
+                    'locations' => [[ 'line' => 22, 'column' => 35 ], [ 'line' => 22, 'column' => 46 ]],
+                ],[
+                    'message' => 'Directive @input_field_definition not allowed at FIELD_DEFINITION location.',
+                    'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 11, 'column' => 11 ]],
+                ],[
+                    'message' => 'Directive @input_field_definition not allowed at FIELD_DEFINITION location.',
+                    'locations' => [[ 'line' => 35, 'column' => 62 ], [ 'line' => 11, 'column' => 11 ]],
+                ],[
+                    'message' => 'Directive @input_field_definition used twice at the same location.',
+                    'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 35, 'column' => 62 ]],
+                ],[
+                    'message' => 'Directive @input_object used twice at the same location.',
+                    'locations' => [[ 'line' => 34, 'column' => 27 ], [ 'line' => 34, 'column' => 41 ]],
+                ],[
+                    'message' => 'Directive @union used twice at the same location.',
+                    'locations' => [[ 'line' => 26, 'column' => 27 ], [ 'line' => 26, 'column' => 34 ]],
+                ],[
+                    'message' => 'Directive @scalar used twice at the same location.',
+                    'locations' => [[ 'line' => 28, 'column' => 29 ], [ 'line' => 28, 'column' => 37 ]],
+                ],[
+                    'message' => 'Directive @enum_value used twice at the same location.',
+                    'locations' => [[ 'line' => 31, 'column' => 24 ], [ 'line' => 31, 'column' => 36 ]],
+                ],[
+                    'message' => 'Directive @enum used twice at the same location.',
+                    'locations' => [[ 'line' => 30, 'column' => 25 ], [ 'line' => 30, 'column' => 31 ]],
+                ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects a Schema with directive used again in extension')
+     */
+    public function testRejectsASchemaWithSameDefinitionDirectiveUsedTwice()
+    {
+        $schema = BuildSchema::build('
+          directive @testA on OBJECT
+    
+          type Query @testA {
+            test: String
+          }
+        ');
+
+        $extensions = Parser::parse('
+          extend type Query @testA
+        ');
+
+        $extendedSchema = SchemaExtender::extend($schema, $extensions);
+
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [[
+                'message' => 'Directive @testA used twice at the same location.',
+                'locations' => [[ 'line' => 4, 'column' => 22 ], [ 'line' => 2, 'column' => 29 ]],
+            ],
+            ]
+        );
+    }
+
+    /**
+     * @see it('rejects a Schema with directives used in wrong location')
+     */
+    public function testRejectsASchemaWithDirectivesUsedInWrongLocation()
+    {
+        self::markTestSkipped();
+
+        $schema = BuildSchema::build('
+          directive @schema on SCHEMA
+          directive @object on OBJECT
+          directive @interface on INTERFACE
+          directive @union on UNION
+          directive @scalar on SCALAR
+          directive @input_object on INPUT_OBJECT
+          directive @enum on ENUM
+          directive @field_definition on FIELD_DEFINITION
+          directive @enum_value on ENUM_VALUE
+          directive @input_field_definition on INPUT_FIELD_DEFINITION
+          directive @argument_definition on ARGUMENT_DEFINITION
+    
+          schema @object {
+            query: Query
+          }
+    
+          type Query implements SomeInterface @schema {
+            test(arg: SomeInput @field_definition): String
+          }
+    
+          interface SomeInterface @interface {
+            test: String @argument_definition
+          }
+    
+          union SomeUnion @interface = Query
+    
+          scalar SomeScalar @enum_value
+    
+          enum SomeEnum @input_object {
+            SOME_VALUE @enum
+          }
+    
+          input SomeInput @object {
+            some_input_field: String @union
+          }
+        ');
+
+        $extensions = Parser::parse('
+          extend type Query @testA
+        ');
+
+        $extendedSchema = SchemaExtender::extend(
+            $schema,
+            $extensions,
+            ['assumeValid' => true] // TODO: remove this line
+        );
+
+        $this->assertMatchesValidationMessage(
+            $extendedSchema->validate(),
+            [
+                [
+                    'message' => 'Directive @object not allowed at SCHEMA location.',
+                    'locations' => [[ 'line' => 14, 'column' => 18 ], [ 'line' => 3, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @field_definition not allowed at ARGUMENT_DEFINITION location.',
+                    'locations' => [[ 'line' => 19, 'column' => 33 ], [ 'line' => 9, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @schema not allowed at OBJECT location.',
+                    'locations' => [[ 'line' => 18, 'column' => 47 ], [ 'line' => 2, 'column' => 11 ]],
+                ], [
+                    'message' => 'No directive @testA defined.',
+                    'locations' => [[ 'line' => 2, 'column' => 29 ]],
+                ], [
+                    'message' => 'Directive @argument_definition not allowed at FIELD_DEFINITION location.',
+                    'locations' => [[ 'line' => 23, 'column' => 26 ], [ 'line' => 12, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @union not allowed at FIELD_DEFINITION location.',
+                    'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 5, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @object not allowed at INPUT_OBJECT location.',
+                    'locations' => [[ 'line' => 34, 'column' => 27 ], [ 'line' => 3, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @interface not allowed at UNION location.',
+                    'locations' => [[ 'line' => 26, 'column' => 27 ], [ 'line' => 4, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @enum_value not allowed at SCALAR location.',
+                    'locations' => [[ 'line' => 28, 'column' => 29 ], [ 'line' => 10, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @enum not allowed at ENUM_VALUE location.',
+                    'locations' => [[ 'line' => 31, 'column' => 24 ], [ 'line' => 8, 'column' => 11 ]],
+                ], [
+                    'message' => 'Directive @input_object not allowed at ENUM location.',
+                    'locations' => [[ 'line' => 30, 'column' => 25 ], [ 'line' => 7, 'column' => 11 ]],
+                ],
+            ]
+        );
     }
 }

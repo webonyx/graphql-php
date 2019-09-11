@@ -9,6 +9,8 @@ use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
+use GraphQL\Validator\ASTValidationContext;
+use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 use function sprintf;
 
@@ -17,7 +19,17 @@ class UniqueArgumentNames extends ValidationRule
     /** @var NameNode[] */
     public $knownArgNames;
 
+    public function getSDLVisitor(SDLValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
     public function getVisitor(ValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getASTVisitor(ASTValidationContext $context)
     {
         $this->knownArgNames = [];
 

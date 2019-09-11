@@ -25,6 +25,21 @@ class QueryComplexityTest extends QuerySecurityTestCase
         $this->assertDocumentValidators($query, 2, 3);
     }
 
+    public function testGetQueryComplexity() : void
+    {
+        $query = 'query MyQuery { human { firstName } }';
+
+        $rule = $this->getRule(5);
+
+        DocumentValidator::validate(
+            QuerySecuritySchema::buildSchema(),
+            Parser::parse($query),
+            [$rule]
+        );
+
+        self::assertEquals(2, $rule->getQueryComplexity(), $query);
+    }
+
     private function assertDocumentValidators($query, $queryComplexity, $startComplexity)
     {
         for ($maxComplexity = $startComplexity; $maxComplexity >= 0; --$maxComplexity) {

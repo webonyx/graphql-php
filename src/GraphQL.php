@@ -47,9 +47,11 @@ class GraphQL
      * rootValue:
      *    The value provided as the first argument to resolver functions on the top
      *    level type (e.g. the query object type).
-     * context:
-     *    The value provided as the third argument to all resolvers.
-     *    Use this to pass current session, user data, etc
+     * contextValue:
+     *    The context value is provided as an argument to resolver functions after
+     *    field arguments. It is used to pass shared information useful at any point
+     *    during executing this query, for example the currently logged in user and
+     *    connections to databases or other services.
      * variableValues:
      *    A mapping of variable name to runtime value to use for all variables
      *    defined in the requestString.
@@ -68,7 +70,7 @@ class GraphQL
      *
      * @param string|DocumentNode $source
      * @param mixed               $rootValue
-     * @param mixed               $context
+     * @param mixed               $contextValue
      * @param mixed[]|null        $variableValues
      * @param ValidationRule[]    $validationRules
      *
@@ -78,7 +80,7 @@ class GraphQL
         SchemaType $schema,
         $source,
         $rootValue = null,
-        $context = null,
+        $contextValue = null,
         $variableValues = null,
         ?string $operationName = null,
         ?callable $fieldResolver = null,
@@ -91,7 +93,7 @@ class GraphQL
             $schema,
             $source,
             $rootValue,
-            $context,
+            $contextValue,
             $variableValues,
             $operationName,
             $fieldResolver,

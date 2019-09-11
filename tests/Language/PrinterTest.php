@@ -94,6 +94,37 @@ class PrinterTest extends TestCase
     }
 
     /**
+     * @see it('prints query with variable directives')
+     */
+    public function testPrintsQueryWithVariableDirectives()
+    {
+        $queryAstWithVariableDirective = Parser::parse(
+            'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) { id }'
+        );
+        $expected                      = 'query ($foo: TestType = {a: 123} @testDirective(if: true) @test) {
+  id
+}
+';
+        self::assertEquals($expected, Printer::doPrint($queryAstWithVariableDirective));
+    }
+
+    /**
+     * @see it('prints fragment with variable directives')
+     */
+    public function testPrintsFragmentWithVariableDirectives()
+    {
+        $queryAstWithVariableDirective = Parser::parse(
+            'fragment Foo($foo: TestType @test) on TestType @testDirective { id }',
+            ['experimentalFragmentVariables' => true]
+        );
+        $expected                      = 'fragment Foo($foo: TestType @test) on TestType @testDirective {
+  id
+}
+';
+        self::assertEquals($expected, Printer::doPrint($queryAstWithVariableDirective));
+    }
+
+    /**
      * @see it('correctly prints single-line with leading space')
      */
     public function testCorrectlyPrintsSingleLineBlockStringsWithLeadingSpace() : void

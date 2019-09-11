@@ -6,16 +6,23 @@ namespace GraphQL\Validator;
 
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\HasSelectionSet;
+use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
+use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
@@ -29,19 +36,10 @@ use function count;
  * allowing access to commonly useful contextual information from within a
  * validation rule.
  */
-class ValidationContext
+class ValidationContext extends ASTValidationContext
 {
-    /** @var Schema */
-    private $schema;
-
-    /** @var DocumentNode */
-    private $ast;
-
     /** @var TypeInfo */
     private $typeInfo;
-
-    /** @var Error[] */
-    private $errors;
 
     /** @var FragmentDefinitionNode[] */
     private $fragments;
@@ -60,35 +58,12 @@ class ValidationContext
 
     public function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
-        $this->schema                         = $schema;
-        $this->ast                            = $ast;
+        parent::__construct($ast, $schema);
         $this->typeInfo                       = $typeInfo;
-        $this->errors                         = [];
         $this->fragmentSpreads                = new SplObjectStorage();
         $this->recursivelyReferencedFragments = new SplObjectStorage();
         $this->variableUsages                 = new SplObjectStorage();
         $this->recursiveVariableUsages        = new SplObjectStorage();
-    }
-
-    public function reportError(Error $error)
-    {
-        $this->errors[] = $error;
-    }
-
-    /**
-     * @return Error[]
-     */
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * @return Schema
-     */
-    public function getSchema()
-    {
-        return $this->schema;
     }
 
     /**
@@ -135,7 +110,11 @@ class ValidationContext
                             &$newUsages,
                             $typeInfo
                         ) {
-                            $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
+                            $newUsages[] = [
+                                'node' => $variable,
+                                'type' => $typeInfo->getInputType(),
+                                'defaultValue' => $typeInfo->getDefaultValue(),
+                            ];
                         },
                     ]
                 )
@@ -185,9 +164,11 @@ class ValidationContext
     }
 
     /**
+     * @param OperationDefinitionNode|FragmentDefinitionNode $node
+     *
      * @return FragmentSpreadNode[]
      */
-    public function getFragmentSpreads(HasSelectionSet $node)
+    public function getFragmentSpreads(HasSelectionSet $node) : array
     {
         $spreads = $this->fragmentSpreads[$node] ?? null;
         if ($spreads === null) {
@@ -201,8 +182,11 @@ class ValidationContext
                     $selection = $set->selections[$i];
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
-                    } elseif ($selection->selectionSet) {
-                        $setsToVisit[] = $selection->selectionSet;
+                    } else {
+                        /** @var FieldNode|InlineFragmentNode $selection*/
+                        if ($selection->selectionSet) {
+                            $setsToVisit[] = $selection->selectionSet;
+                        }
                     }
                 }
             }
@@ -236,14 +220,6 @@ class ValidationContext
     }
 
     /**
-     * @return DocumentNode
-     */
-    public function getDocument()
-    {
-        return $this->ast;
-    }
-
-    /**
      * Returns OutputType
      *
      * @return Type
@@ -262,17 +238,17 @@ class ValidationContext
     }
 
     /**
-     * @return InputType
+     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
      */
-    public function getInputType()
+    public function getInputType() : ?InputType
     {
         return $this->typeInfo->getInputType();
     }
 
     /**
-     * @return InputType
+     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
      */
-    public function getParentInputType()
+    public function getParentInputType() : ?InputType
     {
         return $this->typeInfo->getParentInputType();
     }

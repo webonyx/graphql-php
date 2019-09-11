@@ -12,9 +12,12 @@ class VariableDefinitionNode extends Node implements DefinitionNode
     /** @var VariableNode */
     public $variable;
 
-    /** @var TypeNode */
+    /** @var NamedTypeNode|ListTypeNode|NonNullTypeNode */
     public $type;
 
-    /** @var ValueNode|null */
+    /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null */
     public $defaultValue;
+
+    /** @var DirectiveNode[] */
+    public $directives;
 }

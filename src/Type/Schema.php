@@ -242,6 +242,25 @@ class Schema
     }
 
     /**
+     * @param string $operation
+     *
+     * @return ObjectType|null
+     */
+    public function getOperationType($operation)
+    {
+        switch ($operation) {
+            case 'query':
+                return $this->getQueryType();
+            case 'mutation':
+                return $this->getMutationType();
+            case 'subscription':
+                return $this->getSubscriptionType();
+            default:
+                return null;
+        }
+    }
+
+    /**
      * Returns schema query type
      *
      * @return ObjectType
@@ -371,11 +390,13 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
+     * @param InterfaceType|UnionType $abstractType
+     *
      * @return ObjectType[]
      *
      * @api
      */
-    public function getPossibleTypes(AbstractType $abstractType)
+    public function getPossibleTypes(AbstractType $abstractType) : array
     {
         $possibleTypeMap = $this->getPossibleTypeMap();
 
@@ -413,11 +434,11 @@ class Schema
      * Returns true if object type is concrete type of given abstract type
      * (implementation for interfaces and members of union type for unions)
      *
-     * @return bool
+     * @param InterfaceType|UnionType $abstractType
      *
      * @api
      */
-    public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType)
+    public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType) : bool
     {
         if ($abstractType instanceof InterfaceType) {
             return $possibleType->implementsInterface($abstractType);

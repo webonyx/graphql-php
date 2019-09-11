@@ -12,6 +12,7 @@ use GraphQL\Utils\Utils;
 use function is_array;
 use function is_object;
 use function is_scalar;
+use function is_string;
 use function method_exists;
 
 class StringType extends ScalarType
@@ -34,31 +35,13 @@ represent free-form human-readable text.';
      */
     public function serialize($value)
     {
-        if ($value === true) {
-            return 'true';
-        }
-        if ($value === false) {
-            return 'false';
-        }
-        if ($value === null) {
-            return 'null';
-        }
-        if (is_object($value) && method_exists($value, '__toString')) {
-            return (string) $value;
-        }
-        if (! is_scalar($value)) {
-            throw new Error('String cannot represent non scalar value: ' . Utils::printSafe($value));
-        }
+        $canCast = is_scalar($value)
+            || (is_object($value) && method_exists($value, '__toString'))
+            || $value === null;
 
-        return $this->coerceString($value);
-    }
-
-    private function coerceString($value)
-    {
-        if (is_array($value)) {
+        if (! $canCast) {
             throw new Error(
-                'String cannot represent an array value: ' .
-                Utils::printSafe($value)
+                'String cannot represent value: ' . Utils::printSafe($value)
             );
         }
 
@@ -74,7 +57,13 @@ represent free-form human-readable text.';
      */
     public function parseValue($value)
     {
-        return $this->coerceString($value);
+        if (! is_string($value)) {
+            throw new Error(
+                'String cannot represent a non string value: ' . Utils::printSafe($value)
+            );
+        }
+
+        return $value;
     }
 
     /**

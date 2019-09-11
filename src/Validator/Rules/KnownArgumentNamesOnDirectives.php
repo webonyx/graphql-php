@@ -12,7 +12,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\SDLValidationContext;
 use function array_map;
 use function in_array;
 use function iterator_to_array;
@@ -30,7 +30,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         return 'Unknown argument "' . $argName . '" on directive "@' . $directionName . '".';
     }
 
-    public function getVisitor(ValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context)
     {
         $directiveArgs     = [];
         $schema            = $context->getSchema();

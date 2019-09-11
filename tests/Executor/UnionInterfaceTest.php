@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 
 class UnionInterfaceTest extends TestCase
 {
-    /** @var  */
+    /** @var Schema */
     public $schema;
 
     /** @var Cat */

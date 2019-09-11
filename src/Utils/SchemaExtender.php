@@ -28,6 +28,7 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
@@ -122,7 +123,7 @@ class SchemaExtender
         }
     }
 
-    protected static function extendCustomScalarType(CustomScalarType $type) : CustomScalarType
+    protected static function extendScalarType(ScalarType $type) : CustomScalarType
     {
         return new CustomScalarType([
             'name' => $type->name,
@@ -427,8 +428,8 @@ class SchemaExtender
 
         $name = $type->name;
         if (! isset(static::$extendTypeCache[$name])) {
-            if ($type instanceof CustomScalarType) {
-                static::$extendTypeCache[$name] = static::extendCustomScalarType($type);
+            if ($type instanceof ScalarType) {
+                static::$extendTypeCache[$name] = static::extendScalarType($type);
             } elseif ($type instanceof ObjectType) {
                 static::$extendTypeCache[$name] = static::extendObjectType($type);
             } elseif ($type instanceof InterfaceType) {
@@ -563,7 +564,7 @@ class SchemaExtender
             $typeDefinitionMap,
             $options,
             static function (string $typeName) use ($schema) {
-                /** @var NamedType $existingType */
+                /** @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $existingType */
                 $existingType = $schema->getType($typeName);
                 if ($existingType !== null) {
                     return static::extendNamedType($existingType);
@@ -615,9 +616,12 @@ class SchemaExtender
             : $schema->extensionASTNodes;
 
         $types = array_merge(
+            // Iterate through all types, getting the type definition for each, ensuring
+            // that any type not directly referenced by a field will get created.
             array_map(static function ($type) {
-                return static::extendType($type);
+                return static::extendNamedType($type);
             }, array_values($schema->getTypeMap())),
+            // Do the same with new types.
             array_map(static function ($type) {
                 return static::$astBuilder->buildType($type);
             }, array_values($typeDefinitionMap))

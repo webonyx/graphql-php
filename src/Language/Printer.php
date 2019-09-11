@@ -126,7 +126,11 @@ class Printer
                     },
 
                     NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) {
-                        return $node->variable . ': ' . $node->type . $this->wrap(' = ', $node->defaultValue);
+                        return $node->variable
+                            . ': '
+                            . $node->type
+                            . $this->wrap(' = ', $node->defaultValue)
+                            . $this->wrap(' ', $this->join($node->directives, ' '));
                     },
 
                     NodeKind::SELECTION_SET => function (SelectionSetNode $node) {

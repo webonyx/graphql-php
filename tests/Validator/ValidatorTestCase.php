@@ -21,16 +21,16 @@ use function array_map;
 
 abstract class ValidatorTestCase extends TestCase
 {
-    protected function expectPassesRule($rule, $queryString) : void
+    protected function expectPassesRule($rule, $queryString, $options = []) : void
     {
-        $this->expectValid(self::getTestSchema(), [$rule], $queryString);
+        $this->expectValid(self::getTestSchema(), [$rule], $queryString, $options);
     }
 
-    protected function expectValid($schema, $rules, $queryString) : void
+    protected function expectValid($schema, $rules, $queryString, $options = []) : void
     {
         self::assertEquals(
             [],
-            DocumentValidator::validate($schema, Parser::parse($queryString), $rules),
+            DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules),
             'Should validate'
         );
     }
@@ -193,6 +193,7 @@ abstract class ValidatorTestCase extends TestCase
             'name'   => 'ComplexInput',
             'fields' => [
                 'requiredField'   => ['type' => Type::nonNull(Type::boolean())],
+                'nonNullField'    => ['type' => Type::nonNull(Type::boolean()), 'defaultValue' => false],
                 'intField'        => ['type' => Type::int()],
                 'stringField'     => ['type' => Type::string()],
                 'booleanField'    => ['type' => Type::boolean()],
@@ -255,6 +256,12 @@ abstract class ValidatorTestCase extends TestCase
                     'args' => [
                         'req1' => ['type' => Type::nonNull(Type::int())],
                         'req2' => ['type' => Type::nonNull(Type::int())],
+                    ],
+                ],
+                'nonNullFieldWithDefault' => [
+                    'type' => Type::string(),
+                    'args' => [
+                        'arg' => [ 'type' => Type::nonNull(Type::int()), 'defaultValue' => 0 ],
                     ],
                 ],
                 'multipleOpts'              => [
@@ -376,61 +383,21 @@ abstract class ValidatorTestCase extends TestCase
                     'locations' => ['INLINE_FRAGMENT'],
                 ]),
                 new Directive([
-                    'name'      => 'onSchema',
-                    'locations' => ['SCHEMA'],
-                ]),
-                new Directive([
-                    'name'      => 'onScalar',
-                    'locations' => ['SCALAR'],
-                ]),
-                new Directive([
-                    'name'      => 'onObject',
-                    'locations' => ['OBJECT'],
-                ]),
-                new Directive([
-                    'name'      => 'onFieldDefinition',
-                    'locations' => ['FIELD_DEFINITION'],
-                ]),
-                new Directive([
-                    'name'      => 'onArgumentDefinition',
-                    'locations' => ['ARGUMENT_DEFINITION'],
-                ]),
-                new Directive([
-                    'name'      => 'onInterface',
-                    'locations' => ['INTERFACE'],
-                ]),
-                new Directive([
-                    'name'      => 'onUnion',
-                    'locations' => ['UNION'],
-                ]),
-                new Directive([
-                    'name'      => 'onEnum',
-                    'locations' => ['ENUM'],
-                ]),
-                new Directive([
-                    'name'      => 'onEnumValue',
-                    'locations' => ['ENUM_VALUE'],
-                ]),
-                new Directive([
-                    'name'      => 'onInputObject',
-                    'locations' => ['INPUT_OBJECT'],
-                ]),
-                new Directive([
-                    'name'      => 'onInputFieldDefinition',
-                    'locations' => ['INPUT_FIELD_DEFINITION'],
+                    'name'      => 'onVariableDefinition',
+                    'locations' => ['VARIABLE_DEFINITION'],
                 ]),
             ],
         ]);
     }
 
-    protected function expectFailsRule($rule, $queryString, $errors)
+    protected function expectFailsRule($rule, $queryString, $errors, $options = [])
     {
-        return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors);
+        return $this->expectInvalid(self::getTestSchema(), [$rule], $queryString, $errors, $options);
     }
 
-    protected function expectInvalid($schema, $rules, $queryString, $expectedErrors)
+    protected function expectInvalid($schema, $rules, $queryString, $expectedErrors, $options = [])
     {
-        $errors = DocumentValidator::validate($schema, Parser::parse($queryString), $rules);
+        $errors = DocumentValidator::validate($schema, Parser::parse($queryString, $options), $rules);
 
         self::assertNotEmpty($errors, 'GraphQL should not validate');
         self::assertEquals($expectedErrors, array_map(['GraphQL\Error\Error', 'formatError'], $errors));
@@ -456,5 +423,14 @@ abstract class ValidatorTestCase extends TestCase
     protected function expectFailsCompleteValidation($queryString, $errors) : void
     {
         $this->expectInvalid(self::getTestSchema(), DocumentValidator::allRules(), $queryString, $errors);
+    }
+
+    protected function expectSDLErrorsFromRule($rule, $sdlString, ?Schema $schema = null, $errors = [])
+    {
+        $actualErrors = DocumentValidator::validateSDL(Parser::parse($sdlString), $schema, [$rule]);
+        self::assertEquals(
+            $errors,
+            array_map(['GraphQL\Error\Error', 'formatError'], $actualErrors)
+        );
     }
 }

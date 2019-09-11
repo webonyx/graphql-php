@@ -181,6 +181,34 @@ class ResolveInfoTest extends TestCase
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
 
+    public function testFieldSelectionOnScalarTypes() : void
+    {
+        $query = '
+            query Ping {
+                ping
+            }
+        ';
+
+        $pingPongQuery = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'ping' => [
+                    'type'    => Type::string(),
+                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) : string {
+                        self::assertEquals([], $info->getFieldSelection());
+
+                        return 'pong';
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $pingPongQuery]);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertEquals(['data' => ['ping' => 'pong']], $result);
+    }
+
     public function testMergedFragmentsFieldSelection() : void
     {
         $image = new ObjectType([

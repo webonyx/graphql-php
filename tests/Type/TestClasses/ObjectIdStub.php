@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace GraphQL\Tests\Type;
+namespace GraphQL\Tests\Type\TestClasses;
 
 class ObjectIdStub
 {

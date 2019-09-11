@@ -10,15 +10,16 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
-use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ScalarTypeDefinitionNode;
 use GraphQL\Language\AST\SchemaDefinitionNode;
+use GraphQL\Language\AST\TypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Schema;
+use GraphQL\Validator\DocumentValidator;
 use function array_map;
 use function array_reduce;
 use function sprintf;
@@ -32,7 +33,7 @@ class BuildSchema
     /** @var DocumentNode */
     private $ast;
 
-    /** @var Node[] */
+    /** @var TypeDefinitionNode[] */
     private $nodeMap;
 
     /** @var callable|null */
@@ -101,6 +102,11 @@ class BuildSchema
 
     public function buildSchema()
     {
+        $options = $this->options;
+        if (empty($options['assumeValid']) && empty($options['assumeValidSDL'])) {
+            DocumentValidator::assertValidSDL($this->ast);
+        }
+
         $schemaDef     = null;
         $typeDefs      = [];
         $this->nodeMap = [];
@@ -108,9 +114,6 @@ class BuildSchema
         foreach ($this->ast->definitions as $definition) {
             switch (true) {
                 case $definition instanceof SchemaDefinitionNode:
-                    if ($schemaDef !== null) {
-                        throw new Error('Must provide only one schema definition.');
-                    }
                     $schemaDef = $definition;
                     break;
                 case $definition instanceof ScalarTypeDefinitionNode:
@@ -157,36 +160,19 @@ class BuildSchema
         );
 
         // If specified directives were not explicitly declared, add them.
-        $skip = array_reduce(
+        $directivesByName = Utils::groupBy(
             $directives,
-            static function (bool $hasSkip, Directive $directive) : bool {
-                return $hasSkip || $directive->name === 'skip';
-            },
-            false
+            static function (Directive $directive) : string {
+                return $directive->name;
+            }
         );
-        if (! $skip) {
+        if (! isset($directivesByName['skip'])) {
             $directives[] = Directive::skipDirective();
         }
-
-        $include = array_reduce(
-            $directives,
-            static function (bool $hasInclude, Directive $directive) : bool {
-                return $hasInclude || $directive->name === 'include';
-            },
-            false
-        );
-        if (! $include) {
+        if (! isset($directivesByName['include'])) {
             $directives[] = Directive::includeDirective();
         }
-
-        $deprecated = array_reduce(
-            $directives,
-            static function (bool $hasDeprecated, Directive $directive) : bool {
-                return $hasDeprecated || $directive->name === 'deprecated';
-            },
-            false
-        );
-        if (! $deprecated) {
+        if (! isset($directivesByName['deprecated'])) {
             $directives[] = Directive::deprecatedDirective();
         }
 
@@ -211,6 +197,7 @@ class BuildSchema
             'astNode'      => $schemaDef,
             'types'        => function () use ($DefinitionBuilder) {
                 $types = [];
+                /** @var ScalarTypeDefinitionNode|ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode|UnionTypeDefinitionNode|EnumTypeDefinitionNode|InputObjectTypeDefinitionNode $def */
                 foreach ($this->nodeMap as $name => $def) {
                     $types[] = $DefinitionBuilder->buildType($def->name->value);
                 }

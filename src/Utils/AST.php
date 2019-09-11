@@ -313,8 +313,8 @@ class AST
      * | Enum Value           | Mixed         |
      * | Null Value           | null          |
      *
-     * @param ValueNode|null $valueNode
-     * @param mixed[]|null   $variables
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
+     * @param mixed[]|null                                                                                                                             $variables
      *
      * @return mixed[]|stdClass|null
      *
@@ -322,7 +322,7 @@ class AST
      *
      * @api
      */
-    public static function valueFromAST($valueNode, Type $type, ?array $variables = null)
+    public static function valueFromAST(?ValueNode $valueNode, Type $type, ?array $variables = null)
     {
         $undefined = Utils::undefined();
 
@@ -354,9 +354,14 @@ class AST
                 return $undefined;
             }
 
-            // Note: we're not doing any checking that this variable is correct. We're
-            // assuming that this query has been validated and the variable usage here
-            // is of the correct type.
+            $variableValue = $variables[$variableName] ?? null;
+            if ($variableValue === null && $type instanceof NonNull) {
+                return $undefined; // Invalid: intentionally return no value.
+            }
+
+            // Note: This does no further checking that this variable is correct.
+            // This assumes that this query has been validated and the variable
+            // usage here is of the correct type.
             return $variables[$variableName];
         }
 
@@ -411,7 +416,7 @@ class AST
                 }
             );
             foreach ($fields as $field) {
-                /** @var ValueNode $fieldNode */
+                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
                 $fieldName = $field->name;
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
@@ -473,12 +478,12 @@ class AST
      * Returns true if the provided valueNode is a variable which is not defined
      * in the set of variables.
      *
-     * @param ValueNode $valueNode
-     * @param mixed[]   $variables
+     * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
+     * @param mixed[]                                                                                                                             $variables
      *
      * @return bool
      */
-    private static function isMissingVariable($valueNode, $variables)
+    private static function isMissingVariable(ValueNode $valueNode, $variables)
     {
         return $valueNode instanceof VariableNode &&
             (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));

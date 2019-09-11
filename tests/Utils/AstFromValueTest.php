@@ -101,7 +101,7 @@ class AstFromValueTest extends TestCase
         self::assertEquals(new StringValueNode(['value' => 'VALUE']), AST::astFromValue('VALUE', Type::string()));
         self::assertEquals(new StringValueNode(['value' => "VA\nLUE"]), AST::astFromValue("VA\nLUE", Type::string()));
         self::assertEquals(new StringValueNode(['value' => '123']), AST::astFromValue(123, Type::string()));
-        self::assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::string()));
+        self::assertEquals(new StringValueNode(['value' => '']), AST::astFromValue(false, Type::string()));
         self::assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::string()));
         self::assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::string())));
     }
@@ -118,7 +118,6 @@ class AstFromValueTest extends TestCase
         self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123, Type::id()));
         self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue('123', Type::id()));
         self::assertEquals(new StringValueNode(['value' => '01']), AST::astFromValue('01', Type::id()));
-        self::assertEquals(new StringValueNode(['value' => 'false']), AST::astFromValue(false, Type::id()));
         self::assertEquals(new NullValueNode([]), AST::astFromValue(null, Type::id()));
         self::assertEquals(null, AST::astFromValue(null, Type::nonNull(Type::id())));
     }
