@@ -379,32 +379,4 @@ class ResolveInfoTest extends TestCase
         self::assertEquals(['data' => ['article' => null]], $result);
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
-
-    public function testFieldDefinition() : void
-    {
-        $query = '
-            query Ping {
-                ping
-            }
-        ';
-
-        $pingPongQuery = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'ping' => [
-                    'type'    => Type::string(),
-                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) : string {
-                        self::assertInstanceOf(FieldDefinition::class, $info->fieldDefinition);
-
-                        return 'pong';
-                    },
-                ],
-            ],
-        ]);
-
-        $schema = new Schema(['query' => $pingPongQuery]);
-        $result = GraphQL::executeQuery($schema, $query)->toArray();
-
-        self::assertEquals(['data' => ['ping' => 'pong']], $result);
-    }
 }
