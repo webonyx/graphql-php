@@ -12,6 +12,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
 use GraphQL\Tests\Executor\TestClasses\Special;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -295,6 +296,7 @@ class ExecutorTest extends TestCase
         self::assertSame($rootValue, $info->rootValue);
         self::assertEquals($ast->definitions[0], $info->operation);
         self::assertEquals(['var' => '123'], $info->variableValues);
+        self::assertInstanceOf(FieldDefinition::class, $info->fieldDefinition);
     }
 
     /**

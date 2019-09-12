@@ -532,9 +532,8 @@ class ReferenceExecutor implements ExecutorImplementation
         // The resolve function's optional 4th argument is a collection of
         // information about the current execution state.
         $info = new ResolveInfo(
-            $fieldName,
+            $fieldDef,
             $fieldNodes,
-            $returnType,
             $parentType,
             $path,
             $exeContext->schema,
