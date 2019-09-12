@@ -206,7 +206,7 @@ class QueryComplexity extends QuerySecurityRule
 
                 return ! $directiveArgsIf;
             }
-            if (Directive::SKIP_NAME === $directiveNode->name->value) {
+            if ($directiveNode->name->value === Directive::SKIP_NAME) {
                 $directive = Directive::skipDirective();
                 /** @var bool $directiveArgsIf */
                 $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues)['if'];
