@@ -120,7 +120,7 @@ class QuerySecuritySchema
         return self::$dogType;
     }
 
-    public static function buildFooDirective()
+    public static function buildFooDirective() : Directive
     {
         if (self::$fooDirective !== null) {
             return self::$fooDirective;
