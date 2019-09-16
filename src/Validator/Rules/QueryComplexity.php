@@ -209,11 +209,16 @@ class QueryComplexity extends QuerySecurityRule
 
                 return ! $directiveArgsIf;
             }
-            $directive       = Directive::skipDirective();
-            $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues);
+            if ($directiveNode->name->value === Directive::SKIP_NAME) {
+                $directive = Directive::skipDirective();
+                /** @var bool $directiveArgsIf */
+                $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues)['if'];
 
-            return $directiveArgsIf['if'];
+                return $directiveArgsIf;
+            }
         }
+
+        return false;
     }
 
     public function getRawVariableValues()
