@@ -104,9 +104,10 @@ class BuildClientSchema
                 return $typeIntrospection->name;
             },
             static function (\stdClass $typeIntrospection) {
-                return
+                return $this->buildType($typeIntrospection);
             }
-        )
+        );
+
         $schemaDef     = null;
         $typeDefs      = [];
         $this->nodeMap = [];
