@@ -264,7 +264,7 @@ EOD;
                             'resolve' => static function (Type $type) {
                                 switch (true) {
                                     case $type instanceof ListOfType:
-                                        return TypeKind::LIST_KIND;
+                                        return TypeKind::LIST;
                                     case $type instanceof NonNull:
                                         return TypeKind::NON_NULL;
                                     case $type instanceof ScalarType:
@@ -276,7 +276,7 @@ EOD;
                                     case $type instanceof InputObjectType:
                                         return TypeKind::INPUT_OBJECT;
                                     case $type instanceof InterfaceType:
-                                        return TypeKind::INTERFACE_KIND;
+                                        return TypeKind::INTERFACE;
                                     case $type instanceof UnionType:
                                         return TypeKind::UNION;
                                     default:
@@ -409,7 +409,7 @@ EOD;
                         'description' => 'Indicates this type is an object. `fields` and `interfaces` are valid fields.',
                     ],
                     'INTERFACE'    => [
-                        'value'       => TypeKind::INTERFACE_KIND,
+                        'value'       => TypeKind::INTERFACE,
                         'description' => 'Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.',
                     ],
                     'UNION'        => [
@@ -425,7 +425,7 @@ EOD;
                         'description' => 'Indicates this type is an input object. `inputFields` is a valid field.',
                     ],
                     'LIST'         => [
-                        'value'       => TypeKind::LIST_KIND,
+                        'value'       => TypeKind::LIST,
                         'description' => 'Indicates this type is a list. `ofType` is a valid field.',
                     ],
                     'NON_NULL'     => [
