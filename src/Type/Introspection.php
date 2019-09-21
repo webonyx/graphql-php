@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type;
 
 use Exception;
+use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
@@ -183,6 +184,32 @@ EOD;
             '__TypeKind'          => self::_typeKind(),
             '__DirectiveLocation' => self::_directiveLocation(),
         ];
+    }
+
+    /**
+     *
+     * Build an IntrospectionQuery from a GraphQLSchema
+     *
+     * IntrospectionQuery is useful for utilities that care about type and field
+     * relationships, but do not need to traverse through those relationships.
+     *
+     * This is the inverse of BuildClientSchema. The primary use case is outside
+     * of the server context, for instance when doing schema comparisons.
+     *
+     * Options:
+     *   - descriptions
+     *     Whether to include descriptions in the introspection result.
+     *     Default: true
+     *
+     * @param bool[]|bool $options
+     */
+    public static function fromSchema(Schema $schema, array $options = [])
+    {
+        $result = GraphQL::executeQuery(
+            $schema,
+            self::getIntrospectionQuery($options)
+        );
+        return $result->data;
     }
 
     public static function _schema()
