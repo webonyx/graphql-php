@@ -209,6 +209,7 @@ EOD;
             $schema,
             self::getIntrospectionQuery($options)
         );
+
         return $result->data;
     }
 
