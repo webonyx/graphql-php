@@ -202,8 +202,9 @@ EOD;
      *     Default: true
      *
      * @param bool[]|bool $options
+     * @return mixed[]|null
      */
-    public static function fromSchema(Schema $schema, array $options = [])
+    public static function fromSchema(Schema $schema, array $options = []): ?array
     {
         $result = GraphQL::executeQuery(
             $schema,
