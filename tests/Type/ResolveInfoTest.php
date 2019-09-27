@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\GraphQL;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
@@ -179,6 +180,34 @@ class ResolveInfoTest extends TestCase
         self::assertEquals(['data' => ['article' => null]], $result);
         self::assertEquals($expectedDefaultSelection, $actualDefaultSelection);
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);
+    }
+
+    public function testFieldSelectionOnScalarTypes() : void
+    {
+        $query = '
+            query Ping {
+                ping
+            }
+        ';
+
+        $pingPongQuery = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'ping' => [
+                    'type'    => Type::string(),
+                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) : string {
+                        self::assertEquals([], $info->getFieldSelection());
+
+                        return 'pong';
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $pingPongQuery]);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertEquals(['data' => ['ping' => 'pong']], $result);
     }
 
     public function testMergedFragmentsFieldSelection() : void

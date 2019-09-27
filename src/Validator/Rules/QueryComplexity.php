@@ -41,6 +41,9 @@ class QueryComplexity extends QuerySecurityRule
     /** @var ValidationContext */
     private $context;
 
+    /** @var int */
+    private $complexity;
+
     public function __construct($maxQueryComplexity)
     {
         $this->setMaxQueryComplexity($maxQueryComplexity);
@@ -52,7 +55,7 @@ class QueryComplexity extends QuerySecurityRule
 
         $this->variableDefs     = new ArrayObject();
         $this->fieldNodeAndDefs = new ArrayObject();
-        $complexity             = 0;
+        $this->complexity       = 0;
 
         return $this->invokeIfNeeded(
             $context,
@@ -79,16 +82,16 @@ class QueryComplexity extends QuerySecurityRule
                             return;
                         }
 
-                        $complexity = $this->fieldComplexity($operationDefinition, $complexity);
+                        $this->complexity = $this->fieldComplexity($operationDefinition, $complexity);
 
-                        if ($complexity <= $this->getMaxQueryComplexity()) {
+                        if ($this->getQueryComplexity() <= $this->getMaxQueryComplexity()) {
                             return;
                         }
 
                         $context->reportError(
                             new Error(self::maxQueryComplexityErrorMessage(
                                 $this->getMaxQueryComplexity(),
-                                $complexity
+                                $this->getQueryComplexity()
                             ))
                         );
                     },
@@ -206,11 +209,16 @@ class QueryComplexity extends QuerySecurityRule
 
                 return ! $directiveArgsIf;
             }
-            $directive       = Directive::skipDirective();
-            $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues);
+            if ($directiveNode->name->value === Directive::SKIP_NAME) {
+                $directive = Directive::skipDirective();
+                /** @var bool $directiveArgsIf */
+                $directiveArgsIf = Values::getArgumentValues($directive, $directiveNode, $variableValues)['if'];
 
-            return $directiveArgsIf['if'];
+                return $directiveArgsIf;
+            }
         }
+
+        return false;
     }
 
     public function getRawVariableValues()
@@ -257,6 +265,11 @@ class QueryComplexity extends QuerySecurityRule
         }
 
         return $args;
+    }
+
+    public function getQueryComplexity()
+    {
+        return $this->complexity;
     }
 
     public function getMaxQueryComplexity()

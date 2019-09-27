@@ -140,6 +140,15 @@ fragment MissingOn Type
         );
     }
 
+    /**
+     * @see it('parses variable definition directives')
+     */
+    public function testParsesVariableDefinitionDirectives()
+    {
+        $this->expectNotToPerformAssertions();
+        Parser::parse('query Foo($x: Boolean = false @bar) { field }');
+    }
+
     private function expectSyntaxError($text, $message, $location)
     {
         $this->expectException(SyntaxError::class);

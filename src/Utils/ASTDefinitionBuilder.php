@@ -30,7 +30,6 @@ use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
@@ -143,7 +142,7 @@ class ASTDefinitionBuilder
                 // Note: While this could make assertions to get the correctly typed
                 // value, that would throw immediately while type system validation
                 // with validateSchema() will produce more actionable results.
-                $type = $this->internalBuildWrappedType($value->type);
+                $type = $this->buildWrappedType($value->type);
 
                 $config = [
                     'name'        => $value->name->value,
@@ -165,11 +164,16 @@ class ASTDefinitionBuilder
      *
      * @throws Error
      */
-    private function internalBuildWrappedType(TypeNode $typeNode)
+    private function buildWrappedType(TypeNode $typeNode)
     {
-        $typeDef = $this->buildType($this->getNamedTypeNode($typeNode));
+        if ($typeNode instanceof ListTypeNode) {
+            return Type::listOf($this->buildWrappedType($typeNode->type));
+        }
+        if ($typeNode instanceof NonNullTypeNode) {
+            return Type::nonNull($this->buildWrappedType($typeNode->type));
+        }
 
-        return $this->buildWrappedType($typeDef, $typeNode);
+        return $this->buildType($typeNode);
     }
 
     /**
@@ -302,7 +306,7 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // value, that would throw immediately while type system validation
             // with validateSchema() will produce more actionable results.
-            'type'              => $this->internalBuildWrappedType($field->type),
+            'type'              => $this->buildWrappedType($field->type),
             'description'       => $this->getDescription($field),
             'args'              => $field->arguments ? $this->makeInputValues($field->arguments) : null,
             'deprecationReason' => $this->getDeprecationReason($field),
@@ -389,12 +393,14 @@ class ASTDefinitionBuilder
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
             'types'       => $def->types
-                ? Utils::map(
-                    $def->types,
-                    function ($typeNode) {
-                        return $this->buildType($typeNode);
-                    }
-                )
+                ? function () use ($def) {
+                    return Utils::map(
+                        $def->types,
+                        function ($typeNode) {
+                            return $this->buildType($typeNode);
+                        }
+                    );
+                }
                 : [],
             'astNode'     => $def,
         ]);
@@ -454,43 +460,11 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $typeNode
-     *
-     * @return NamedTypeNode|ListTypeNode|NonNullTypeNode
-     */
-    private function getNamedTypeNode(TypeNode $typeNode) : TypeNode
-    {
-        $namedType = $typeNode;
-        while ($namedType instanceof ListTypeNode || $namedType instanceof NonNullTypeNode) {
-            $namedType = $namedType->type;
-        }
-
-        return $namedType;
-    }
-
-    /**
-     * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
-     */
-    private function buildWrappedType(Type $innerType, TypeNode $inputTypeNode) : Type
-    {
-        if ($inputTypeNode instanceof ListTypeNode) {
-            return Type::listOf($this->buildWrappedType($innerType, $inputTypeNode->type));
-        }
-        if ($inputTypeNode instanceof NonNullTypeNode) {
-            $wrappedType = $this->buildWrappedType($innerType, $inputTypeNode->type);
-
-            return Type::nonNull(NonNull::assertNullableType($wrappedType));
-        }
-
-        return $innerType;
-    }
-
-    /**
      * @return mixed[]
      */
     public function buildInputField(InputValueDefinitionNode $value) : array
     {
-        $type = $this->internalBuildWrappedType($value->type);
+        $type = $this->buildWrappedType($value->type);
 
         $config = [
             'name' => $value->name->value,

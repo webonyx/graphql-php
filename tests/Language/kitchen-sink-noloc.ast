@@ -24,7 +24,8 @@
                             "kind": "Name",
                             "value": "ComplexType"
                         }
-                    }
+                    },
+                    "directives": []
                 },
                 {
                     "kind": "VariableDefinition",
@@ -45,7 +46,8 @@
                     "defaultValue": {
                         "kind": "EnumValue",
                         "value": "MOBILE"
-                    }
+                    },
+                    "directives": []
                 }
             ],
             "directives": [],
@@ -392,7 +394,8 @@
                             "kind": "Name",
                             "value": "StoryLikeSubscribeInput"
                         }
-                    }
+                    },
+                    "directives": []
                 }
             ],
             "directives": [],

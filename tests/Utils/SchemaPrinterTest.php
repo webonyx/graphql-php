@@ -830,9 +830,6 @@ type __Directive {
   description: String
   locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
-  onOperation: Boolean! @deprecated(reason: "Use `locations`.")
-  onFragment: Boolean! @deprecated(reason: "Use `locations`.")
-  onField: Boolean! @deprecated(reason: "Use `locations`.")
 }
 
 """
@@ -860,6 +857,9 @@ enum __DirectiveLocation {
 
   """Location adjacent to an inline fragment."""
   INLINE_FRAGMENT
+
+  """Location adjacent to a variable definition."""
+  VARIABLE_DEFINITION
 
   """Location adjacent to a schema definition."""
   SCHEMA
@@ -1070,9 +1070,6 @@ type __Directive {
   description: String
   locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
-  onOperation: Boolean! @deprecated(reason: "Use `locations`.")
-  onFragment: Boolean! @deprecated(reason: "Use `locations`.")
-  onField: Boolean! @deprecated(reason: "Use `locations`.")
 }
 
 # A Directive can be adjacent to many parts of the GraphQL language, a
@@ -1098,6 +1095,9 @@ enum __DirectiveLocation {
 
   # Location adjacent to an inline fragment.
   INLINE_FRAGMENT
+
+  # Location adjacent to a variable definition.
+  VARIABLE_DEFINITION
 
   # Location adjacent to a schema definition.
   SCHEMA

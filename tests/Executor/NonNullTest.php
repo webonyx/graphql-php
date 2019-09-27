@@ -9,6 +9,7 @@ use GraphQL\Deferred;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
+use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\ObjectType;
@@ -17,6 +18,7 @@ use GraphQL\Type\Schema;
 use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestCase;
 use function count;
+use function is_string;
 use function json_encode;
 
 class NonNullTest extends TestCase
@@ -41,6 +43,9 @@ class NonNullTest extends TestCase
 
     /** @var Schema */
     public $schema;
+
+    /** @var Schema */
+    public $schemaWithNonNullArg;
 
     public function setUp()
     {
@@ -136,6 +141,27 @@ class NonNullTest extends TestCase
         ]);
 
         $this->schema = new Schema(['query' => $dataType]);
+
+        $this->schemaWithNonNullArg = new Schema([
+            'query' => new ObjectType([
+                'name' => 'Query',
+                'fields' => [
+                    'withNonNullArg' => [
+                        'type' => Type::string(),
+                        'args' => [
+                            'cannotBeNull' => [
+                                'type' => Type::nonNull(Type::string()),
+                            ],
+                        ],
+                        'resolve' => static function ($value, $args) {
+                            if (is_string($args['cannotBeNull'])) {
+                                return 'Passed: ' . $args['cannotBeNull'];
+                            }
+                        },
+                    ],
+                ],
+            ]),
+        ]);
     }
 
     // Execute: handles non-nullable types
@@ -683,6 +709,9 @@ class NonNullTest extends TestCase
         self::assertEquals($expected, $actual);
     }
 
+    /**
+     * @see it('nulls the first nullable object after a field in a long chain of non-null fields')
+     */
     public function testNullsTheFirstNullableObjectAfterAFieldReturnsNullInALongChainOfFieldsThatAreNonNull() : void
     {
         $doc = '
@@ -758,7 +787,7 @@ class NonNullTest extends TestCase
     }
 
     /**
-     * @see it('nulls the top level if sync non-nullable field throws')
+     * @see it('nulls the top level if non-nullable field')
      */
     public function testNullsTheTopLevelIfSyncNonNullableFieldThrows() : void
     {
@@ -773,6 +802,194 @@ class NonNullTest extends TestCase
         ];
         $actual   = Executor::execute($this->schema, Parser::parse($doc), $this->throwingData)->toArray();
         self::assertArraySubset($expected, $actual);
+    }
+
+    /**
+     * @see describe('Handles non-null argument')
+     * @see it('succeeds when passed non-null literal value')
+     */
+    public function succeedsWhenPassedNonNullLiteralValue() : void
+    {
+        $result = Executor::execute(
+            $this->schemaWithNonNullArg,
+            Parser::parse('
+          query {
+            withNonNullArg (cannotBeNull: "literal value")
+          }
+        ')
+        );
+
+        $expected = ['data' => ['withNonNullArg' => 'Passed: literal value']];
+        self::assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * @see it('succeeds when passed non-null variable value')
+     */
+    public function succeedsWhenPassedNonNullVariableValue()
+    {
+        $result = Executor::execute(
+            $this->schemaWithNonNullArg,
+            Parser::parse('
+          query ($testVar: String!) {
+            withNonNullArg (cannotBeNull: $testVar)
+          }
+        '),
+            null,
+            null,
+            ['testVar' => 'variable value']
+        );
+
+        $expected = ['data' => ['withNonNullArg' => 'Passed: variable value']];
+        self::assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * @see it('succeeds when missing variable has default value')
+     */
+    public function testSucceedsWhenMissingVariableHasDefaultValue()
+    {
+        $result = Executor::execute(
+            $this->schemaWithNonNullArg,
+            Parser::parse('
+          query ($testVar: String = "default value") {
+            withNonNullArg (cannotBeNull: $testVar)
+          }
+        '),
+            null,
+            null,
+            [] // Intentionally missing variable
+        );
+
+        $expected = ['data' => ['withNonNullArg' => 'Passed: default value']];
+        self::assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * @see it('field error when missing non-null arg')
+     */
+    public function testFieldErrorWhenMissingNonNullArg()
+    {
+      // Note: validation should identify this issue first (missing args rule)
+      // however execution should still protect against this.
+        $result = Executor::execute(
+            $this->schemaWithNonNullArg,
+            Parser::parse('
+          query {
+            withNonNullArg
+          }
+        ')
+        );
+
+        $expected = [
+            'data' => ['withNonNullArg' => null],
+            'errors' => [
+                [
+                    'message' => 'Argument "cannotBeNull" of required type "String!" was not provided.',
+                    'locations' => [['line' => 3, 'column' => 13]],
+                    'path' => ['withNonNullArg'],
+                    'extensions' => ['category' => 'graphql'],
+                ],
+            ],
+        ];
+        self::assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * @see it('field error when non-null arg provided null')
+     */
+    public function testFieldErrorWhenNonNullArgProvidedNull()
+    {
+      // Note: validation should identify this issue first (values of correct
+      // type rule) however execution should still protect against this.
+        $result = Executor::execute(
+            $this->schemaWithNonNullArg,
+            Parser::parse('
+          query {
+            withNonNullArg(cannotBeNull: null)
+          }
+        ')
+        );
+
+        $expected = [
+            'data' => ['withNonNullArg' => null],
+            'errors' => [
+                [
+                    'message' => 'Argument "cannotBeNull" of non-null type "String!" must not be null.',
+                    'locations' => [['line' => 3, 'column' => 13]],
+                    'path' => ['withNonNullArg'],
+                    'extensions' => ['category' => 'graphql'],
+                ],
+            ],
+        ];
+        self::assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * @see it('field error when non-null arg not provided variable value')
+     */
+    public function testFieldErrorWhenNonNullArgNotProvidedVariableValue() : void
+    {
+      // Note: validation should identify this issue first (variables in allowed
+      // position rule) however execution should still protect against this.
+        $result = Executor::execute(
+            $this->schemaWithNonNullArg,
+            Parser::parse('
+          query ($testVar: String) {
+            withNonNullArg(cannotBeNull: $testVar)
+          }
+        '),
+            null,
+            null,
+            [] // Intentionally missing variable
+        );
+
+        $expected = [
+            'data' => ['withNonNullArg' => null],
+            'errors' => [
+                [
+                    'message' => 'Argument "cannotBeNull" of required type "String!" was ' .
+                      'provided the variable "$testVar" which was not provided a ' .
+                      'runtime value.',
+                    'locations' => [['line' => 3, 'column' => 42]],
+                    'path' => ['withNonNullArg'],
+                    'extensions' => ['category' => 'graphql'],
+                ],
+            ],
+        ];
+        self::assertEquals($expected, $result->toArray());
+    }
+
+    /**
+     * @see it('field error when non-null arg provided variable with explicit null value')
+     */
+    public function testFieldErrorWhenNonNullArgProvidedVariableWithExplicitNullValue()
+    {
+        $result = Executor::execute(
+            $this->schemaWithNonNullArg,
+            Parser::parse('
+          query ($testVar: String = "default value") {
+            withNonNullArg (cannotBeNull: $testVar)
+          }
+        '),
+            null,
+            null,
+            ['testVar' => null]
+        );
+
+        $expected = [
+            'data' => ['withNonNullArg' => null],
+            'errors' => [
+                [
+                    'message' => 'Argument "cannotBeNull" of non-null type "String!" must not be null.',
+                    'locations' => [['line' => 3, 'column' => 13]],
+                    'path' => ['withNonNullArg'],
+                    'extensions' => ['category' => 'graphql'],
+                ],
+            ],
+        ];
+
+        self::assertEquals($expected, $result->toArray());
     }
 
     public function testNullsTheTopLevelIfAsyncNonNullableFieldErrors() : void

@@ -304,6 +304,22 @@ class Utils
     }
 
     /**
+     * @param mixed[] $traversable
+     *
+     * @return bool
+     */
+    public static function some($traversable, callable $predicate)
+    {
+        foreach ($traversable as $key => $value) {
+            if ($predicate($value, $key)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @param bool   $test
      * @param string $message
      */

@@ -64,6 +64,9 @@ class TypeInfo
     /** @var SplStack<FieldDefinition> */
     private $fieldDefStack;
 
+    /** @var SplStack<mixed> */
+    private $defaultValueStack;
+
     /** @var Directive */
     private $directive;
 
@@ -78,11 +81,13 @@ class TypeInfo
      */
     public function __construct(Schema $schema, $initialType = null)
     {
-        $this->schema          = $schema;
-        $this->typeStack       = [];
-        $this->parentTypeStack = [];
-        $this->inputTypeStack  = [];
-        $this->fieldDefStack   = [];
+        $this->schema            = $schema;
+        $this->typeStack         = [];
+        $this->parentTypeStack   = [];
+        $this->inputTypeStack    = [];
+        $this->fieldDefStack     = [];
+        $this->defaultValueStack = [];
+
         if (! $initialType) {
             return;
         }
@@ -322,6 +327,7 @@ class TypeInfo
                 $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
                 $argDef           = $argType = null;
                 if ($fieldOrDirective) {
+                    /** @var FieldArgument $argDef */
                     $argDef = Utils::find(
                         $fieldOrDirective->args,
                         static function ($arg) use ($node) {
@@ -332,28 +338,33 @@ class TypeInfo
                         $argType = $argDef->getType();
                     }
                 }
-                $this->argument         = $argDef;
-                $this->inputTypeStack[] = Type::isInputType($argType) ? $argType : null;
+                $this->argument            = $argDef;
+                $this->defaultValueStack[] = $argDef && $argDef->defaultValueExists() ? $argDef->defaultValue : Utils::undefined();
+                $this->inputTypeStack[]    = Type::isInputType($argType) ? $argType : null;
                 break;
 
             case $node instanceof ListValueNode:
-                $listType               = Type::getNullableType($this->getInputType());
-                $itemType               = $listType instanceof ListOfType
+                $listType = Type::getNullableType($this->getInputType());
+                $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;
-                $this->inputTypeStack[] = Type::isInputType($itemType) ? $itemType : null;
+                // List positions never have a default value.
+                $this->defaultValueStack[] = Utils::undefined();
+                $this->inputTypeStack[]    = Type::isInputType($itemType) ? $itemType : null;
                 break;
 
             case $node instanceof ObjectFieldNode:
                 $objectType     = Type::getNamedType($this->getInputType());
                 $fieldType      = null;
+                $inputField     = null;
                 $inputFieldType = null;
                 if ($objectType instanceof InputObjectType) {
                     $tmp            = $objectType->getFields();
                     $inputField     = $tmp[$node->name->value] ?? null;
                     $inputFieldType = $inputField ? $inputField->getType() : null;
                 }
-                $this->inputTypeStack[] = Type::isInputType($inputFieldType) ? $inputFieldType : null;
+                $this->defaultValueStack[] = $inputField && $inputField->defaultValueExists() ? $inputField->defaultValue : Utils::undefined();
+                $this->inputTypeStack[]    = Type::isInputType($inputFieldType) ? $inputFieldType : null;
                 break;
 
             case $node instanceof EnumValueNode:
@@ -457,6 +468,18 @@ class TypeInfo
     }
 
     /**
+     * @return mixed|null
+     */
+    public function getDefaultValue()
+    {
+        if (! empty($this->defaultValueStack)) {
+            return $this->defaultValueStack[count($this->defaultValueStack) - 1];
+        }
+
+        return null;
+    }
+
+    /**
      * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null
      */
     public function getInputType() : ?InputType
@@ -494,10 +517,12 @@ class TypeInfo
                 break;
             case $node instanceof ArgumentNode:
                 $this->argument = null;
+                array_pop($this->defaultValueStack);
                 array_pop($this->inputTypeStack);
                 break;
             case $node instanceof ListValueNode:
             case $node instanceof ObjectFieldNode:
+                array_pop($this->defaultValueStack);
                 array_pop($this->inputTypeStack);
                 break;
             case $node instanceof EnumValueNode:

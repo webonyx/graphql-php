@@ -13,7 +13,7 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Validator\ValidationContext;
 use function sprintf;
 
-class ProvidedNonNullArguments extends ValidationRule
+class ProvidedRequiredArguments extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
@@ -29,11 +29,11 @@ class ProvidedNonNullArguments extends ValidationRule
 
                     $argNodeMap = [];
                     foreach ($argNodes as $argNode) {
-                        $argNodeMap[$argNode->name->value] = $argNodes;
+                        $argNodeMap[$argNode->name->value] = $argNode;
                     }
                     foreach ($fieldDef->args as $argDef) {
                         $argNode = $argNodeMap[$argDef->name] ?? null;
-                        if ($argNode || ! ($argDef->getType() instanceof NonNull)) {
+                        if ($argNode || (! ($argDef->getType() instanceof NonNull)) || $argDef->defaultValueExists()) {
                             continue;
                         }
 
@@ -58,7 +58,7 @@ class ProvidedNonNullArguments extends ValidationRule
 
                     foreach ($directiveDef->args as $argDef) {
                         $argNode = $argNodeMap[$argDef->name] ?? null;
-                        if ($argNode || ! ($argDef->getType() instanceof NonNull)) {
+                        if ($argNode || (! ($argDef->getType() instanceof NonNull)) || $argDef->defaultValueExists()) {
                             continue;
                         }
 

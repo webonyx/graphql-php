@@ -198,7 +198,7 @@ class ExecutorSchemaTest extends TestCase
                             'isPublished' => true,
                             'title'       => 'My Article 1',
                             'body'        => 'This is a post',
-                            'keywords'    => ['foo', 'bar', '1', 'true', null],
+                            'keywords'    => ['foo', 'bar', '1', '1', null],
                         ],
                     ],
                     'meta' => [ 'title' => 'My Article 1 | My Blog' ],

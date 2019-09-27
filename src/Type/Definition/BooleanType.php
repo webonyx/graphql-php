@@ -9,6 +9,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
+use function is_array;
 use function is_bool;
 
 class BooleanType extends ScalarType
@@ -20,7 +21,7 @@ class BooleanType extends ScalarType
     public $description = 'The `Boolean` scalar type represents `true` or `false`.';
 
     /**
-     * Coerce the given value to a boolean.
+     * Serialize the given value to a boolean.
      *
      * The GraphQL spec leaves this up to the implementations, so we just do what
      * PHP does natively to make this intuitive for developers.
@@ -45,7 +46,7 @@ class BooleanType extends ScalarType
             return $value;
         }
 
-        throw new Error('Cannot represent value as boolean: ' . Utils::printSafe($value));
+        throw new Error('Boolean cannot represent a non boolean value: ' . Utils::printSafe($value));
     }
 
     /**

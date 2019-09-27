@@ -13,10 +13,11 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
+use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Utils\Utils;
-use GraphQL\Validator\ValidationContext;
+use GraphQL\Validator\SDLValidationContext;
 use function array_filter;
 use function is_array;
 use function iterator_to_array;
@@ -34,11 +35,13 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         return 'Directive "' . $directiveName . '" argument "' . $argName . '" is required but ont provided.';
     }
 
-    public function getVisitor(ValidationContext $context)
+    public function getSDLVisitor(SDLValidationContext $context)
     {
         $requiredArgsMap   = [];
         $schema            = $context->getSchema();
-        $definedDirectives = $schema->getDirectives();
+        $definedDirectives = $schema
+            ? $schema->getDirectives()
+            : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(

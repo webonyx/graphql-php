@@ -5,9 +5,13 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\Error;
+use GraphQL\Tests\Type\TestClasses\CanCastToString;
+use GraphQL\Tests\Type\TestClasses\ObjectIdStub;
 use GraphQL\Type\Definition\Type;
 use PHPUnit\Framework\TestCase;
 use stdClass;
+use function acos;
+use function log;
 
 class ScalarSerializationTest extends TestCase
 {
@@ -29,88 +33,38 @@ class ScalarSerializationTest extends TestCase
         self::assertSame(1, $intType->serialize(true));
     }
 
-    public function testSerializesOutputIntCannotRepresentFloat1() : void
+    public function badIntValues()
+    {
+        return [
+            [0.1, 'Int cannot represent non-integer value: 0.1'],
+            [1.1, 'Int cannot represent non-integer value: 1.1'],
+            [-1.1, 'Int cannot represent non-integer value: -1.1'],
+            ['-1.1', 'Int cannot represent non-integer value: -1.1'],
+            [9876504321, 'Int cannot represent non 32-bit signed integer value: 9876504321'],
+            [-9876504321, 'Int cannot represent non 32-bit signed integer value: -9876504321'],
+            [1e100, 'Int cannot represent non 32-bit signed integer value: 1.0E+100'],
+            [-1e100, 'Int cannot represent non 32-bit signed integer value: -1.0E+100'],
+            [log(0), 'Int cannot represent non 32-bit signed integer value: -INF'],
+            [acos(8), 'Int cannot represent non-integer value: NAN'],
+            ['one', 'Int cannot represent non-integer value: one'],
+            ['', 'Int cannot represent non-integer value: (empty string)'],
+            [[5], 'Int cannot represent non-integer value: [5]'],
+        ];
+    }
+
+    /**
+     * @throws Error
+     *
+     * @dataProvider badIntValues
+     */
+    public function testSerializesOutputAsIntErrors($value, $expectedError) : void
     {
         // The GraphQL specification does not allow serializing non-integer values
         // as Int to avoid accidental data loss.
         $intType = Type::int();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non-integer value: 0.1');
-        $intType->serialize(0.1);
-    }
-
-    public function testSerializesOutputIntCannotRepresentFloat2() : void
-    {
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non-integer value: 1.1');
-        $intType->serialize(1.1);
-    }
-
-    public function testSerializesOutputIntCannotRepresentNegativeFloat() : void
-    {
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non-integer value: -1.1');
-        $intType->serialize(-1.1);
-    }
-
-    public function testSerializesOutputIntCannotRepresentNumericString() : void
-    {
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: Int cannot represent non-integer value: "-1.1"');
-        $intType->serialize('Int cannot represent non-integer value: "-1.1"');
-    }
-
-    public function testSerializesOutputIntCannotRepresentBiggerThan32Bits() : void
-    {
-        // Maybe a safe PHP int, but bigger than 2^32, so not
-        // representable as a GraphQL Int
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: 9876504321');
-        $intType->serialize(9876504321);
-    }
-
-    public function testSerializesOutputIntCannotRepresentLowerThan32Bits() : void
-    {
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: -9876504321');
-        $intType->serialize(-9876504321);
-    }
-
-    public function testSerializesOutputIntCannotRepresentBiggerThanSigned32Bits() : void
-    {
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: 1.0E+100');
-        $intType->serialize(1e100);
-    }
-
-    public function testSerializesOutputIntCannotRepresentLowerThanSigned32Bits() : void
-    {
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: -1.0E+100');
-        $intType->serialize(-1e100);
-    }
-
-    public function testSerializesOutputIntCannotRepresentString() : void
-    {
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: one');
-        $intType->serialize('one');
-    }
-
-    public function testSerializesOutputIntCannotRepresentEmptyString() : void
-    {
-        $intType = Type::int();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Int cannot represent non 32-bit signed integer value: (empty string)');
-        $intType->serialize('');
+        $this->expectExceptionMessage($expectedError);
+        $intType->serialize($value);
     }
 
     /**
@@ -132,20 +86,28 @@ class ScalarSerializationTest extends TestCase
         self::assertSame(1.0, $floatType->serialize(true));
     }
 
-    public function testSerializesOutputFloatCannotRepresentString() : void
+    public function badFloatValues()
     {
-        $floatType = Type::float();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('Float cannot represent non numeric value: one');
-        $floatType->serialize('one');
+        return [
+            ['one', 'Float cannot represent non numeric value: one'],
+            ['', 'Float cannot represent non numeric value: (empty string)'],
+            [log(0), 'Float cannot represent non numeric value: -INF'],
+            [acos(8), 'Float cannot represent non numeric value: NAN'],
+            [[5], 'Float cannot represent non numeric value: [5]'],
+        ];
     }
 
-    public function testSerializesOutputFloatCannotRepresentEmptyString() : void
+    /**
+     * @throws Error
+     *
+     * @dataProvider badFloatValues
+     */
+    public function testSerializesOutputFloatErrors($value, $expectedError) : void
     {
         $floatType = Type::float();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('Float cannot represent non numeric value: (empty string)');
-        $floatType->serialize('');
+        $this->expectExceptionMessage($expectedError);
+        $floatType->serialize($value);
     }
 
     /**
@@ -154,30 +116,34 @@ class ScalarSerializationTest extends TestCase
     public function testSerializesOutputAsString() : void
     {
         $stringType = Type::string();
-
         self::assertSame('string', $stringType->serialize('string'));
         self::assertSame('1', $stringType->serialize(1));
         self::assertSame('-1.1', $stringType->serialize(-1.1));
-        self::assertSame('true', $stringType->serialize(true));
-        self::assertSame('false', $stringType->serialize(false));
-        self::assertSame('null', $stringType->serialize(null));
-        self::assertSame('2', $stringType->serialize(new ObjectIdStub(2)));
+        self::assertSame('1', $stringType->serialize(true));
+        self::assertSame('', $stringType->serialize(false));
+        self::assertSame('', $stringType->serialize(null));
+        self::assertSame('foo', $stringType->serialize(new CanCastToString('foo')));
     }
 
-    public function testSerializesOutputStringsCannotRepresentArray() : void
+    public function badStringValues()
+    {
+        return [
+            [[1], 'String cannot represent value: [1]'],
+            [new stdClass(), 'String cannot represent value: instance of stdClass'],
+        ];
+    }
+
+    /**
+     * @throws Error
+     *
+     * @dataProvider badStringValues
+     */
+    public function testSerializesOutputStringErrors($value, $expectedError) : void
     {
         $stringType = Type::string();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('String cannot represent non scalar value: []');
-        $stringType->serialize([]);
-    }
-
-    public function testSerializesOutputStringsCannotRepresentObject() : void
-    {
-        $stringType = Type::string();
-        $this->expectException(Error::class);
-        $this->expectExceptionMessage('String cannot represent non scalar value: instance of stdClass');
-        $stringType->serialize(new stdClass());
+        $this->expectExceptionMessage($expectedError);
+        $stringType->serialize($value);
     }
 
     /**
@@ -206,20 +172,34 @@ class ScalarSerializationTest extends TestCase
         $idType = Type::id();
 
         self::assertSame('string', $idType->serialize('string'));
+        self::assertSame('false', $idType->serialize('false'));
         self::assertSame('', $idType->serialize(''));
         self::assertSame('1', $idType->serialize('1'));
+        self::assertSame('0', $idType->serialize('0'));
         self::assertSame('1', $idType->serialize(1));
         self::assertSame('0', $idType->serialize(0));
-        self::assertSame('true', $idType->serialize(true));
-        self::assertSame('false', $idType->serialize(false));
         self::assertSame('2', $idType->serialize(new ObjectIdStub(2)));
     }
 
-    public function testSerializesOutputIDCannotRepresentObject() : void
+    public function badIDValues()
+    {
+        return [
+            [new stdClass(), 'ID cannot represent value: instance of stdClass'],
+            [true, 'ID cannot represent value: true'],
+            [false, 'ID cannot represent value: false'],
+            [-1.1, 'ID cannot represent value: -1.1'],
+            [['abc'], 'ID cannot represent value: ["abc"]'],
+        ];
+    }
+
+    /**
+     * @dataProvider badIDValues
+     */
+    public function testSerializesOutputAsIDError($value, $expectedError)
     {
         $idType = Type::id();
         $this->expectException(Error::class);
-        $this->expectExceptionMessage('ID type cannot represent non scalar value: instance of stdClass');
-        $idType->serialize(new stdClass());
+        $this->expectExceptionMessage($expectedError);
+        $idType->serialize($value);
     }
 }

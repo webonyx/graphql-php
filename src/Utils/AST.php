@@ -354,9 +354,14 @@ class AST
                 return $undefined;
             }
 
-            // Note: we're not doing any checking that this variable is correct. We're
-            // assuming that this query has been validated and the variable usage here
-            // is of the correct type.
+            $variableValue = $variables[$variableName] ?? null;
+            if ($variableValue === null && $type instanceof NonNull) {
+                return $undefined; // Invalid: intentionally return no value.
+            }
+
+            // Note: This does no further checking that this variable is correct.
+            // This assumes that this query has been validated and the variable
+            // usage here is of the correct type.
             return $variables[$variableName];
         }
 

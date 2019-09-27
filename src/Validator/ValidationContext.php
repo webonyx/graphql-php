@@ -36,19 +36,10 @@ use function count;
  * allowing access to commonly useful contextual information from within a
  * validation rule.
  */
-class ValidationContext
+class ValidationContext extends ASTValidationContext
 {
-    /** @var Schema */
-    private $schema;
-
-    /** @var DocumentNode */
-    private $ast;
-
     /** @var TypeInfo */
     private $typeInfo;
-
-    /** @var Error[] */
-    private $errors;
 
     /** @var FragmentDefinitionNode[] */
     private $fragments;
@@ -67,35 +58,12 @@ class ValidationContext
 
     public function __construct(Schema $schema, DocumentNode $ast, TypeInfo $typeInfo)
     {
-        $this->schema                         = $schema;
-        $this->ast                            = $ast;
+        parent::__construct($ast, $schema);
         $this->typeInfo                       = $typeInfo;
-        $this->errors                         = [];
         $this->fragmentSpreads                = new SplObjectStorage();
         $this->recursivelyReferencedFragments = new SplObjectStorage();
         $this->variableUsages                 = new SplObjectStorage();
         $this->recursiveVariableUsages        = new SplObjectStorage();
-    }
-
-    public function reportError(Error $error)
-    {
-        $this->errors[] = $error;
-    }
-
-    /**
-     * @return Error[]
-     */
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-    /**
-     * @return Schema
-     */
-    public function getSchema()
-    {
-        return $this->schema;
     }
 
     /**
@@ -142,7 +110,11 @@ class ValidationContext
                             &$newUsages,
                             $typeInfo
                         ) {
-                            $newUsages[] = ['node' => $variable, 'type' => $typeInfo->getInputType()];
+                            $newUsages[] = [
+                                'node' => $variable,
+                                'type' => $typeInfo->getInputType(),
+                                'defaultValue' => $typeInfo->getDefaultValue(),
+                            ];
                         },
                     ]
                 )
@@ -245,14 +217,6 @@ class ValidationContext
         }
 
         return $fragments[$name] ?? null;
-    }
-
-    /**
-     * @return DocumentNode
-     */
-    public function getDocument()
-    {
-        return $this->ast;
     }
 
     /**

@@ -401,9 +401,8 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                 $returnType = $fieldDefinition->getType();
 
                 $ctx->resolveInfo = new ResolveInfo(
-                    $ctx->shared->fieldName,
+                    $fieldDefinition,
                     $ctx->shared->fieldNodes,
-                    $returnType,
                     $ctx->type,
                     $ctx->path,
                     $this->schema,

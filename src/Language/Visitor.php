@@ -116,7 +116,7 @@ class Visitor
         NodeKind::NAME                 => [],
         NodeKind::DOCUMENT             => ['definitions'],
         NodeKind::OPERATION_DEFINITION => ['name', 'variableDefinitions', 'directives', 'selectionSet'],
-        NodeKind::VARIABLE_DEFINITION  => ['variable', 'type', 'defaultValue'],
+        NodeKind::VARIABLE_DEFINITION  => ['variable', 'type', 'defaultValue', 'directives'],
         NodeKind::VARIABLE             => ['name'],
         NodeKind::SELECTION_SET        => ['selections'],
         NodeKind::FIELD                => ['alias', 'name', 'arguments', 'directives', 'selectionSet'],
