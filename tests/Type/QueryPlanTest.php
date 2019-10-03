@@ -11,6 +11,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\QueryPlan;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
+use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
@@ -697,5 +698,270 @@ final class QueryPlanTest extends TestCase
 
         self::assertTrue($queryPlan->hasType('Image'));
         self::assertFalse($queryPlan->hasType('Test'));
+    }
+
+    public function testQueryPlanOnInterfaceGroupingImplementorFields() : void
+    {
+        $car = null;
+
+        $item = new InterfaceType([
+            'name'        => 'Item',
+            'fields'      => [
+                'id'    => Type::int(),
+                'owner' => Type::string(),
+            ],
+            'resolveType' => static function () use (&$car) {
+                return $car;
+            },
+        ]);
+
+        $car = new ObjectType([
+            'name'       => 'Car',
+            'fields'    => [
+                'id'    => Type::int(),
+                'owner' => Type::string(),
+                'mark'  => Type::string(),
+                'model' => Type::string(),
+            ],
+            'interfaces' => [$item],
+        ]);
+
+        $building = new ObjectType([
+            'name'       => 'Building',
+            'fields'     => [
+                'id'      => Type::int(),
+                'owner'   => Type::string(),
+                'city'    => Type::string(),
+                'address' => Type::string(),
+            ],
+            'interfaces' => [$item],
+        ]);
+
+        $query = '{
+            item {
+                id
+                owner
+                ... on Car {
+                    mark
+                    model
+                }
+                ... on Building {
+                    city
+                }
+                ...BuildingFragment
+            }
+        }
+        fragment BuildingFragment on Building {
+            address
+        }';
+
+        $expectedResult = [
+            'data' => ['item' => null],
+        ];
+
+        $expectedQueryPlan = [
+            'fields'       => [
+                'id'    => [
+                    'type'   => Type::int(),
+                    'fields' => [],
+                    'args'   => [],
+                ],
+                'owner' => [
+                    'type'   => Type::string(),
+                    'fields' => [],
+                    'args'   => [],
+                ],
+            ],
+            'implementors' => [
+                'Car'      => [
+                    'type'   => $car,
+                    'fields' => [
+                        'mark'  => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                        'model' => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                    ],
+                ],
+                'Building' => [
+                    'type'   => $building,
+                    'fields' => [
+                        'city'    => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                        'address' => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $expectedReferencedTypes = ['Car', 'Building', 'Item'];
+
+        $expectedReferencedFields = ['mark', 'model', 'city', 'address', 'id', 'owner'];
+
+        $expectedItemSubFields     = ['id', 'owner'];
+        $expectedBuildingSubFields = ['city', 'address'];
+
+        $hasCalled = false;
+        /** @var QueryPlan $queryPlan */
+        $queryPlan = null;
+
+        $root = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'item' => [
+                    'type'    => $item,
+                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$queryPlan) {
+                        $hasCalled = true;
+                        $queryPlan = $info->lookAhead(['group-implementor-fields']);
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema([
+            'query' => $root,
+            'types' => [$car, $building],
+        ]);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertTrue($hasCalled);
+        self::assertEquals($expectedResult, $result);
+        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertEquals($expectedItemSubFields, $queryPlan->subFields('Item'));
+        self::assertEquals($expectedBuildingSubFields, $queryPlan->subFields('Building'));
+    }
+
+    public function testQueryPlanOnUnionGroupingImplementorFields() : void
+    {
+        $car = new ObjectType([
+            'name'   => 'Car',
+            'fields' => [
+                'mark'  => Type::string(),
+                'model' => Type::string(),
+            ],
+        ]);
+
+        $building = new ObjectType([
+            'name'   => 'Building',
+            'fields' => [
+                'city'    => Type::string(),
+                'address' => Type::string(),
+            ],
+        ]);
+
+        $item = new UnionType([
+            'name'        => 'Item',
+            'types'       => [$car, $building],
+            'resolveType' => static function () use ($car) {
+                return $car;
+            },
+        ]);
+
+        $query = '{
+            item {
+                ... on Car {
+                    mark
+                    model
+                }
+                ... on Building {
+                    city
+                }
+                ...BuildingFragment
+            }
+        }
+        fragment BuildingFragment on Building {
+            address
+        }';
+
+        $expectedResult = [
+            'data' => ['item' => null],
+        ];
+
+        $expectedQueryPlan = [
+            'fields'       => [],
+            'implementors' => [
+                'Car'      => [
+                    'type'   => $car,
+                    'fields' => [
+                        'mark'  => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                        'model' => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                    ],
+                ],
+                'Building' => [
+                    'type'   => $building,
+                    'fields' => [
+                        'city'    => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                        'address' => [
+                            'type'   => Type::string(),
+                            'fields' => [],
+                            'args'   => [],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $expectedReferencedTypes = ['Car', 'Building', 'Item'];
+
+        $expectedReferencedFields = ['mark', 'model', 'city', 'address'];
+
+        $expectedBuildingSubFields = ['city', 'address'];
+
+        $hasCalled = false;
+        /** @var QueryPlan $queryPlan */
+        $queryPlan = null;
+
+        $root = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'item' => [
+                    'type'    => $item,
+                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$queryPlan) {
+                        $hasCalled = true;
+                        $queryPlan = $info->lookAhead(['group-implementor-fields']);
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $root]);
+        $result = GraphQL::executeQuery($schema, $query)->toArray();
+
+        self::assertTrue($hasCalled);
+        self::assertEquals($expectedResult, $result);
+        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
+        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
+        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
+        self::assertEquals($expectedBuildingSubFields, $queryPlan->subFields('Building'));
     }
 }
