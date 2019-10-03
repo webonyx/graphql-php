@@ -626,8 +626,6 @@ class ReferenceExecutor implements ExecutorImplementation
             $contextValue = $this->exeContext->contextValue;
 
             return $resolveFn($rootValue, $args, $contextValue, $info);
-        } catch (Exception $error) {
-            return $error;
         } catch (Throwable $error) {
             return $error;
         }
@@ -917,12 +915,6 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         try {
             return $returnType->serialize($result);
-        } catch (Exception $error) {
-            throw new InvariantViolation(
-                'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
-                0,
-                $error
-            );
         } catch (Throwable $error) {
             throw new InvariantViolation(
                 'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
