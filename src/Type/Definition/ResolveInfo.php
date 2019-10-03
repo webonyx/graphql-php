@@ -108,6 +108,9 @@ class ResolveInfo
      */
     public $variableValues = [];
 
+    /** @var QueryPlan */
+    private $queryPlan;
+
     /**
      * @param FieldNode[]              $fieldNodes
      * @param string[][]               $path
@@ -195,16 +198,23 @@ class ResolveInfo
         return $fields;
     }
 
-    public function lookAhead(string ...$options) : QueryPlan
+    /**
+     * @param mixed[] $options
+     */
+    public function lookAhead(array $options = []) : QueryPlan
     {
-        return new QueryPlan(
-            $this->parentType,
-            $this->schema,
-            $this->fieldNodes,
-            $this->variableValues,
-            $this->fragments,
-            $options
-        );
+        if ($this->queryPlan === null) {
+            $this->queryPlan = new QueryPlan(
+                $this->parentType,
+                $this->schema,
+                $this->fieldNodes,
+                $this->variableValues,
+                $this->fragments,
+                $options
+            );
+        }
+
+        return $this->queryPlan;
     }
 
     /**
