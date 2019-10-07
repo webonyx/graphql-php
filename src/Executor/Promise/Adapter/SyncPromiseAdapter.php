@@ -69,8 +69,6 @@ class SyncPromiseAdapter implements PromiseAdapter
                     'reject',
                 ]
             );
-        } catch (Exception $e) {
-            $promise->reject($e);
         } catch (Throwable $e) {
             $promise->reject($e);
         }

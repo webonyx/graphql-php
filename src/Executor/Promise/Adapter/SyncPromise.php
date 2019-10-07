@@ -85,7 +85,7 @@ class SyncPromise
 
     public function reject($reason) : self
     {
-        if (! $reason instanceof Exception && ! $reason instanceof Throwable) {
+        if (! $reason instanceof Throwable) {
             throw new Exception('SyncPromise::reject() has to be called with an instance of \Throwable');
         }
 
@@ -122,8 +122,6 @@ class SyncPromise
                 if ($this->state === self::FULFILLED) {
                     try {
                         $promise->resolve($onFulfilled === null ? $this->result : $onFulfilled($this->result));
-                    } catch (Exception $e) {
-                        $promise->reject($e);
                     } catch (Throwable $e) {
                         $promise->reject($e);
                     }
@@ -134,8 +132,6 @@ class SyncPromise
                         } else {
                             $promise->resolve($onRejected($this->result));
                         }
-                    } catch (Exception $e) {
-                        $promise->reject($e);
                     } catch (Throwable $e) {
                         $promise->reject($e);
                     }

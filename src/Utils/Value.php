@@ -66,16 +66,6 @@ class Value
             // the original error.
             try {
                 return self::ofValue($type->parseValue($value));
-            } catch (Exception $error) {
-                return self::ofErrors([
-                    self::coercionError(
-                        sprintf('Expected type %s', $type->name),
-                        $blameNode,
-                        $path,
-                        $error->getMessage(),
-                        $error
-                    ),
-                ]);
             } catch (Throwable $error) {
                 return self::ofErrors([
                     self::coercionError(

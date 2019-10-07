@@ -243,11 +243,6 @@ class AST
             // to an externally represented value before converting into an AST.
             try {
                 $serialized = $type->serialize($value);
-            } catch (Exception $error) {
-                if ($error instanceof Error && $type instanceof EnumType) {
-                    return null;
-                }
-                throw $error;
             } catch (Throwable $error) {
                 if ($error instanceof Error && $type instanceof EnumType) {
                     return null;
@@ -464,8 +459,6 @@ class AST
             // no value is returned.
             try {
                 return $type->parseLiteral($valueNode, $variables);
-            } catch (Exception $error) {
-                return $undefined;
             } catch (Throwable $error) {
                 return $undefined;
             }

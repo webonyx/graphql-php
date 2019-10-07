@@ -267,10 +267,10 @@ class DocumentValidator
             ? count(array_filter(
                 $value,
                 static function ($item) {
-                    return $item instanceof Exception || $item instanceof Throwable;
+                    return $item instanceof Throwable;
                 }
             )) === count($value)
-            : ($value instanceof Exception || $value instanceof Throwable);
+            : ($value instanceof Throwable);
     }
 
     public static function append(&$arr, $items)

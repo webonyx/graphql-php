@@ -214,20 +214,6 @@ class ValuesOfCorrectType extends ValidationRule
         // may throw to indicate failure.
         try {
             $type->parseLiteral($node);
-        } catch (Exception $error) {
-            // Ensure a reference to the original error is maintained.
-            $context->reportError(
-                new Error(
-                    self::getBadValueMessage(
-                        (string) $locationType,
-                        Printer::doPrint($node),
-                        $error->getMessage(),
-                        $context,
-                        $fieldName
-                    ),
-                    $node
-                )
-            );
         } catch (Throwable $error) {
             // Ensure a reference to the original error is maintained.
             $context->reportError(

@@ -177,7 +177,7 @@ class FormattedError
     public static function createFromException($e, $debug = false, $internalErrorMessage = null)
     {
         Utils::invariant(
-            $e instanceof Exception || $e instanceof Throwable,
+            $e instanceof Throwable,
             'Expected exception, got %s',
             Utils::getVariableType($e)
         );
@@ -244,7 +244,7 @@ class FormattedError
         }
 
         Utils::invariant(
-            $e instanceof Exception || $e instanceof Throwable,
+            $e instanceof Throwable,
             'Expected exception, got %s',
             Utils::getVariableType($e)
         );

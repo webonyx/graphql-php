@@ -164,7 +164,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source        = $error->source;
             $positions     = $error->positions;
             $extensions    = $error->extensions;
-        } elseif ($error instanceof Exception || $error instanceof Throwable) {
+        } elseif ($error instanceof Throwable) {
             $message       = $error->getMessage();
             $originalError = $error;
         } else {

@@ -379,8 +379,6 @@ abstract class Type implements JsonSerializable
     {
         try {
             return $this->toString();
-        } catch (Exception $e) {
-            echo $e;
         } catch (Throwable $e) {
             echo $e;
         }
