@@ -96,22 +96,26 @@ final class Warning
 
     public static function warnOnce(string $errorMessage, int $warningId, ?int $messageLevel = null) : void
     {
+        $messageLevel = $messageLevel ?: E_USER_WARNING;
+
         if (self::$warningHandler !== null) {
             $fn = self::$warningHandler;
-            $fn($errorMessage, $warningId);
+            $fn($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0 && ! isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
-            trigger_error($errorMessage, $messageLevel ?: E_USER_WARNING);
+            trigger_error($errorMessage, $messageLevel);
         }
     }
 
     public static function warn(string $errorMessage, int $warningId, ?int $messageLevel = null) : void
     {
+        $messageLevel = $messageLevel ?: E_USER_WARNING;
+
         if (self::$warningHandler !== null) {
             $fn = self::$warningHandler;
-            $fn($errorMessage, $warningId);
+            $fn($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0) {
-            trigger_error($errorMessage, $messageLevel ?: E_USER_WARNING);
+            trigger_error($errorMessage, $messageLevel);
         }
     }
 }
