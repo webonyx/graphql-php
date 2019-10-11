@@ -442,7 +442,7 @@ class Utils
      */
     public static function chr($ord, $encoding = 'UTF-8')
     {
-        if ($ord <= 255) {
+        if ($ord <= 127) {
             return chr($ord);
         }
         if ($encoding === 'UCS-4BE') {
