@@ -198,7 +198,10 @@ class ResolveInfo
         return $fields;
     }
 
-    public function lookAhead() : QueryPlan
+    /**
+     * @param mixed[] $options
+     */
+    public function lookAhead(array $options = []) : QueryPlan
     {
         if ($this->queryPlan === null) {
             $this->queryPlan = new QueryPlan(
@@ -206,7 +209,8 @@ class ResolveInfo
                 $this->schema,
                 $this->fieldNodes,
                 $this->variableValues,
-                $this->fragments
+                $this->fragments,
+                $options
             );
         }
 
