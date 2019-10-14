@@ -295,6 +295,16 @@ class LexerTest extends TestCase
             ],
             (array) $this->lexOne('"\u1234\u5678\u90AB\uCDEF"')
         );
+
+        self::assertArraySubset(
+            [
+                'kind' => Token::STRING,
+                'start' => 0,
+                'end' => 41,
+                'value' => '𝕌𝕋𝔽-16',
+            ],
+            (array) $this->lexOne('"\ud835\udd4C\ud835\udd4B\ud835\udd3d-16"')
+        );
     }
 
     /**
@@ -430,6 +440,13 @@ class LexerTest extends TestCase
             ['"bad \\uXXXX esc"', "Invalid character escape sequence: \\uXXXX", $this->loc(1, 7)],
             ['"bad \\uFXXX esc"', "Invalid character escape sequence: \\uFXXX", $this->loc(1, 7)],
             ['"bad \\uXXXF esc"', "Invalid character escape sequence: \\uXXXF", $this->loc(1, 7)],
+            ['"bad \\uD835"', 'Invalid UTF-16 trailing surrogate: ', $this->loc(1, 13)],
+            ['"bad \\uD835\\u1"', "Invalid UTF-16 trailing surrogate: \\u1", $this->loc(1, 13)],
+            ['"bad \\uD835\\u1 esc"', "Invalid UTF-16 trailing surrogate: \\u1 es", $this->loc(1, 13)],
+            ['"bad \\uD835\\u0XX1 esc"', "Invalid UTF-16 trailing surrogate: \\u0XX1", $this->loc(1, 13)],
+            ['"bad \\uD835\\uXXXX esc"', "Invalid UTF-16 trailing surrogate: \\uXXXX", $this->loc(1, 13)],
+            ['"bad \\uD835\\uFXXX esc"', "Invalid UTF-16 trailing surrogate: \\uFXXX", $this->loc(1, 13)],
+            ['"bad \\uD835\\uXXXF esc"', "Invalid UTF-16 trailing surrogate: \\uXXXF", $this->loc(1, 13)],
         ];
     }
 

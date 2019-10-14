@@ -9,8 +9,11 @@ use GraphQL\Utils\BlockString;
 use GraphQL\Utils\Utils;
 use function chr;
 use function hexdec;
+use function mb_convert_encoding;
 use function ord;
+use function pack;
 use function preg_match;
+use function substr;
 
 /**
  * A Lexer is a stateful stream generator in that every time
@@ -522,8 +525,27 @@ class Lexer
                                 'Invalid character escape sequence: \\u' . $hex
                             );
                         }
+
                         $code = hexdec($hex);
+
+                        // UTF-16 surrogate pair detection and handling.
+                        $high_order_byte = $code >> 8;
+                        if (0xD8 <= $high_order_byte && $high_order_byte <= 0xDF) {
+                            [$utf_16_continuation] = $this->readChars(6, true);
+                            if (! preg_match('/\u[0-9a-fA-F]{4}/', $utf_16_continuation)) {
+                                throw new SyntaxError(
+                                    $this->source,
+                                    $this->position - 5,
+                                    'Invalid UTF-16 trailing surrogate: ' . $utf_16_continuation
+                                );
+                            }
+                            $surrogate_pair_hex = $hex . substr($utf_16_continuation, 2, 4);
+                            $value             .= mb_convert_encoding(pack('H*', $surrogate_pair_hex), 'UTF-8', 'UTF-16');
+                            break;
+                        }
+
                         $this->assertValidStringCharacterCode($code, $position - 2);
+
                         $value .= Utils::chr($code);
                         break;
                     default:
