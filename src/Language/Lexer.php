@@ -532,7 +532,7 @@ class Lexer
                         $high_order_byte = $code >> 8;
                         if (0xD8 <= $high_order_byte && $high_order_byte <= 0xDF) {
                             [$utf_16_continuation] = $this->readChars(6, true);
-                            if (! preg_match('/\u[0-9a-fA-F]{4}/', $utf_16_continuation)) {
+                            if (! preg_match('/^\\\u[0-9a-fA-F]{4}$/', $utf_16_continuation)) {
                                 throw new SyntaxError(
                                     $this->source,
                                     $this->position - 5,
