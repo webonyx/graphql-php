@@ -443,7 +443,7 @@ class LexerTest extends TestCase
             ['"bad \\uD835"', 'Invalid UTF-16 trailing surrogate: ', $this->loc(1, 13)],
             ['"bad \\uD835\\u1"', "Invalid UTF-16 trailing surrogate: \\u1", $this->loc(1, 13)],
             ['"bad \\uD835\\u1 esc"', "Invalid UTF-16 trailing surrogate: \\u1 es", $this->loc(1, 13)],
-            ['"bad \\uD835uuFFFF esc"', "Invalid UTF-16 trailing surrogate: uuFFFF", $this->loc(1, 13)],
+            ['"bad \\uD835uuFFFF esc"', 'Invalid UTF-16 trailing surrogate: uuFFFF', $this->loc(1, 13)],
             ['"bad \\uD835\\u0XX1 esc"', "Invalid UTF-16 trailing surrogate: \\u0XX1", $this->loc(1, 13)],
             ['"bad \\uD835\\uXXXX esc"', "Invalid UTF-16 trailing surrogate: \\uXXXX", $this->loc(1, 13)],
             ['"bad \\uD835\\uFXXX esc"', "Invalid UTF-16 trailing surrogate: \\uFXXX", $this->loc(1, 13)],
