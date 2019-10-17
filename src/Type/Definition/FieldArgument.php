@@ -82,7 +82,7 @@ class FieldArgument
      */
     public function getType() : Type
     {
-        return $this->type;
+        return Type::resolveLazyType($this->type);
     }
 
     public function defaultValueExists() : bool

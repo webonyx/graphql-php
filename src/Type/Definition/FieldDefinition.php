@@ -179,7 +179,7 @@ class FieldDefinition
      */
     public function getType() : Type
     {
-        return $this->type;
+        return Type::resolveLazyType($this->type);
     }
 
     /**

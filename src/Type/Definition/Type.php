@@ -285,10 +285,27 @@ abstract class Type implements JsonSerializable
      */
     public static function assertType($type)
     {
-        Utils::invariant(
-            self::isType($type),
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'
-        );
+        $isType = self::isType($type);
+        if(!$isType) {
+            Utils::invariant(
+                $isType,
+                'Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'
+            );
+        }
+
+        return $type;
+    }
+
+    /**
+     * @param callable|Type
+     *
+     * @return mixed
+     */
+    public static function resolveLazyType($type)
+    {
+        if (is_callable($type)) {
+            return $type();
+        }
 
         return $type;
     }

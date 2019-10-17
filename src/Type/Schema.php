@@ -314,7 +314,8 @@ class Schema
     public function getType(string $name) : ?Type
     {
         if (! isset($this->resolvedTypes[$name])) {
-            $type = $this->loadType($name);
+            $type = Type::resolveLazyType($this->loadType($name));
+
             if (! $type) {
                 return null;
             }
@@ -337,7 +338,7 @@ class Schema
             return $this->defaultTypeLoader($typeName);
         }
 
-        $type = $typeLoader($typeName);
+        $type = Type::resolveLazyType($typeLoader($typeName));
 
         if (! $type instanceof Type) {
             throw new InvariantViolation(
@@ -392,6 +393,8 @@ class Schema
         if ($this->possibleTypeMap === null) {
             $this->possibleTypeMap = [];
             foreach ($this->getTypeMap() as $type) {
+                $type = Type::resolveLazyType($type);
+
                 if ($type instanceof ObjectType) {
                     foreach ($type->getInterfaces() as $interface) {
                         if (! ($interface instanceof InterfaceType)) {
@@ -402,6 +405,7 @@ class Schema
                     }
                 } elseif ($type instanceof UnionType) {
                     foreach ($type->getTypes() as $innerType) {
+                        $innerType = Type::resolveLazyType($innerType);
                         $this->possibleTypeMap[$type->name][$innerType->name] = $innerType;
                     }
                 }

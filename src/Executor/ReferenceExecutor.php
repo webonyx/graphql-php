@@ -625,7 +625,7 @@ class ReferenceExecutor implements ExecutorImplementation
             );
             $contextValue = $this->exeContext->contextValue;
 
-            return $resolveFn($rootValue, $args, $contextValue, $info);
+            return $resolveFn(Type::resolveLazyType($rootValue), $args, $contextValue, $info);
         } catch (Throwable $error) {
             return $error;
         }
@@ -1268,7 +1268,7 @@ class ReferenceExecutor implements ExecutorImplementation
     ) {
         $runtimeType = is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
-            : $runtimeTypeOrName;
+            : Type::resolveLazyType($runtimeTypeOrName);
         if (! $runtimeType instanceof ObjectType) {
             throw new InvariantViolation(
                 sprintf(
