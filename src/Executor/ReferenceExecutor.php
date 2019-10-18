@@ -625,7 +625,7 @@ class ReferenceExecutor implements ExecutorImplementation
             );
             $contextValue = $this->exeContext->contextValue;
 
-            return $resolveFn(Type::resolveLazyType($rootValue), $args, $contextValue, $info);
+            return $resolveFn($rootValue, $args, $contextValue, $info);
         } catch (Throwable $error) {
             return $error;
         }

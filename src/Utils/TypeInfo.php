@@ -159,6 +159,9 @@ class TypeInfo
         if ($type instanceof WrappingType) {
             return self::extractTypes($type->getWrappedType(true), $typeMap);
         }
+
+        $type = Type::resolveLazyType($type);
+
         if (! $type instanceof Type) {
             // Preserve these invalid types in map (at numeric index) to make them
             // detectable during $schema->validate()
