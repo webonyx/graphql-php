@@ -171,6 +171,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         if ($this->interfaceMap === null) {
             $this->interfaceMap = [];
             foreach ($this->getInterfaces() as $interface) {
+                $interface                            = Type::resolveLazyType($interface);
                 $this->interfaceMap[$interface->name] = $interface;
             }
         }

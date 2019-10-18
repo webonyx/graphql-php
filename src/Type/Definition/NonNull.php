@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Type\Schema;
+
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
     /** @var NullableType&Type */
     private $ofType;
 
-    public function __construct(NullableType $type)
+    /**
+     * NonNull constructor.
+     * @param  callable|(NullableType&Type) $type
+     */
+    public function __construct($type)
     {
         /** @var Type&NullableType $nullableType*/
         $nullableType = $type;
@@ -21,9 +27,14 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
         return $this->getWrappedType()->toString() . '!';
     }
 
+    public function getOfType()
+    {
+        return Schema::resolveType($this->ofType);
+    }
+
     public function getWrappedType(bool $recurse = false) : Type
     {
-        $type = $this->ofType;
+        $type = $this->getOfType();
         return $recurse && $type instanceof WrappingType
             ? $type->getWrappedType($recurse)
             : $type;

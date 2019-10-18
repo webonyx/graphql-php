@@ -15,6 +15,7 @@ use function array_keys;
 use function array_merge;
 use function implode;
 use function in_array;
+use function is_callable;
 use function preg_replace;
 use function trigger_error;
 use const E_USER_DEPRECATED;
@@ -286,7 +287,7 @@ abstract class Type implements JsonSerializable
     public static function assertType($type)
     {
         $isType = self::isType($type);
-        if(!$isType) {
+        if (! $isType) {
             Utils::invariant(
                 $isType,
                 'Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'
@@ -297,7 +298,7 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param callable|Type
+     * @param callable|Type $type
      *
      * @return mixed
      */

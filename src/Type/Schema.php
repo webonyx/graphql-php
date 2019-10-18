@@ -172,6 +172,7 @@ class Schema
         }
 
         foreach ($types as $index => $type) {
+            $type = Type::resolveLazyType($type);
             if (! $type instanceof Type) {
                 throw new InvariantViolation(sprintf(
                     'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
@@ -360,7 +361,7 @@ class Schema
 
     private function defaultTypeLoader(string $typeName) : ?Type
     {
-        // Default type loader simply fallbacks to collecting all types
+        // Default type loader simply falls back to collecting all types
         $typeMap = $this->getTypeMap();
 
         return $typeMap[$typeName] ?? null;
@@ -405,7 +406,6 @@ class Schema
                     }
                 } elseif ($type instanceof UnionType) {
                     foreach ($type->getTypes() as $innerType) {
-                        $innerType = Type::resolveLazyType($innerType);
                         $this->possibleTypeMap[$type->name][$innerType->name] = $innerType;
                     }
                 }
