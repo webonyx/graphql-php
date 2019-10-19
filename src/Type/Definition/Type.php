@@ -300,7 +300,7 @@ abstract class Type implements JsonSerializable
     /**
      * @param callable|Type $type
      *
-     * @return mixed
+     * @return Type
      */
     public static function resolveLazyType($type)
     {
