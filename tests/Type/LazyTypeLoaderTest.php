@@ -358,8 +358,6 @@ class LazyTypeLoaderTest extends TestCase
             'typeLoader' => $this->typeLoader,
         ]);
 
-        $bs = $withoutLoader->getType('BlogStory');
-
         self::assertSame($withoutLoader->getQueryType(), $withLoader->getQueryType());
         self::assertSame($withoutLoader->getMutationType(), $withLoader->getMutationType());
         self::assertSame($withoutLoader->getType('BlogStory'), $withLoader->getType('BlogStory'));
