@@ -96,7 +96,6 @@ class FieldDefinition
         }
         $map = [];
         foreach ($fields as $name => $field) {
-            $field = Type::resolveLazyType($field);
             if (is_array($field)) {
                 if (! isset($field['name'])) {
                     if (! is_string($name)) {
@@ -130,7 +129,7 @@ class FieldDefinition
                     );
                 }
 
-                $fieldDef = self::create(['name' => $name, 'type' => $field]);
+                $fieldDef = self::create(['name' => $name, 'type' => Type::resolveLazyType($field)]);
             }
             $map[$fieldDef->name] = $fieldDef;
         }

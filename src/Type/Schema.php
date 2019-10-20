@@ -315,12 +315,12 @@ class Schema
     public function getType(string $name) : ?Type
     {
         if (! isset($this->resolvedTypes[$name])) {
-            $type = Type::resolveLazyType($this->loadType($name));
+            $type = $this->loadType($name);
 
             if (! $type) {
                 return null;
             }
-            $this->resolvedTypes[$name] = $type;
+            $this->resolvedTypes[$name] = Type::resolveLazyType($type);
         }
 
         return $this->resolvedTypes[$name];
@@ -339,17 +339,20 @@ class Schema
             return $this->defaultTypeLoader($typeName);
         }
 
-        $type = Type::resolveLazyType($typeLoader($typeName));
+        $type = $typeLoader($typeName);
 
-        if (! $type instanceof Type) {
+        if (! $type instanceof Type && ! is_callable($type)) {
             throw new InvariantViolation(
                 sprintf(
-                    'Type loader is expected to return valid type "%s", but it returned %s',
+                    'Type loader is expected to return a callable or valid type "%s", but it returned %s',
                     $typeName,
                     Utils::printSafe($type)
                 )
             );
         }
+
+        $type = Type::resolveLazyType($type);
+
         if ($type->name !== $typeName) {
             throw new InvariantViolation(
                 sprintf('Type loader is expected to return type "%s", but it returned "%s"', $typeName, $type->name)

@@ -264,7 +264,7 @@ class TypeLoaderTest extends TestCase
         ]);
 
         $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Type loader is expected to return valid type "NonExistingType", but it returned null');
+        $this->expectExceptionMessage('Type loader is expected to return a callable or valid type "NonExistingType", but it returned null');
 
         $schema->getType('NonExistingType');
     }
@@ -279,7 +279,7 @@ class TypeLoaderTest extends TestCase
         ]);
 
         $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Type loader is expected to return valid type "Node", but it returned instance of stdClass');
+        $this->expectExceptionMessage('Type loader is expected to return a callable or valid type "Node", but it returned instance of stdClass');
 
         $schema->getType('Node');
     }

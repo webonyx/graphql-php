@@ -940,9 +940,13 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $exeContext  = $this->exeContext;
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
+
         if ($runtimeType === null) {
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
         }
+
+        $runtimeType = is_callable($runtimeType) ? $runtimeType() : $runtimeType;
+
         $promise = $this->getPromise($runtimeType);
         if ($promise !== null) {
             return $promise->then(function ($resolvedRuntimeType) use (
@@ -1266,9 +1270,13 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         &$result
     ) {
+        if (is_callable($runtimeTypeOrName)) {
+            xdebug_break();
+        }
+
         $runtimeType = is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
-            : Type::resolveLazyType($runtimeTypeOrName);
+            : $runtimeTypeOrName;
         if (! $runtimeType instanceof ObjectType) {
             throw new InvariantViolation(
                 sprintf(
