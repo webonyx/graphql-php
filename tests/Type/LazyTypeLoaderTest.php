@@ -24,19 +24,19 @@ class LazyTypeLoaderTest extends TestCase
     /** @var ObjectType */
     private $mutation;
 
-    /** @var InterfaceType */
+    /** @var callable */
     private $node;
 
-    /** @var InterfaceType */
+    /** @var callable */
     private $content;
 
-    /** @var ObjectType */
+    /** @var callable */
     private $blogStory;
 
-    /** @var ObjectType */
+    /** @var callable */
     private $postStoryMutation;
 
-    /** @var InputObjectType */
+    /** @var callable */
     private $postStoryMutationInput;
 
     /** @var callable */

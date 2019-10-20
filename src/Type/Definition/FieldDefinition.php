@@ -58,7 +58,7 @@ class FieldDefinition
      */
     public $config;
 
-    /** @var OutputType&Type */
+    /** @var callable|OutputType&Type */
     public $type;
 
     /** @var callable|string */

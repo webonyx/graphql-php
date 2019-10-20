@@ -300,16 +300,12 @@ abstract class Type implements JsonSerializable
     /**
      * @param callable|Type $type
      */
-    public static function resolveLazyType($type) : Type
+    public static function resolveLazyType($type)
     {
         if (is_callable($type)) {
             return $type();
         }
 
-        if(!$type instanceof Type) {
-            xdebug_break();
-        }
-        static::assertType($type);
         return $type;
     }
 
