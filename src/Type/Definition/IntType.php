@@ -12,12 +12,10 @@ use GraphQL\Utils\Utils;
 use function floatval;
 use function floor;
 use function intval;
-use function is_array;
 use function is_bool;
 use function is_float;
 use function is_int;
 use function is_numeric;
-use function sprintf;
 
 class IntType extends ScalarType
 {

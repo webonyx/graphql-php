@@ -9,7 +9,6 @@ use GraphQL\Deferred;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
-use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Type\Definition\ObjectType;

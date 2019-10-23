@@ -21,7 +21,6 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Schema;
 use GraphQL\Validator\DocumentValidator;
 use function array_map;
-use function array_reduce;
 use function sprintf;
 
 /**

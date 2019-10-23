@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Utils;
 
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
-use GraphQL\Type\Definition\StringType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Utils\Value;
@@ -15,7 +13,6 @@ use PHPUnit\Framework\TestCase;
 use function acos;
 use function log;
 use function pow;
-use function sprintf;
 
 class CoerceValueTest extends TestCase
 {

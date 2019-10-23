@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\GraphQL;
-use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;

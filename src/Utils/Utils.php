@@ -23,7 +23,6 @@ use function array_shift;
 use function array_slice;
 use function array_values;
 use function asort;
-use function chr;
 use function count;
 use function dechex;
 use function func_get_args;

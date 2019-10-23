@@ -11,12 +11,10 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
-use function array_merge;
 use function array_pop;
 use function array_slice;
 use function count;
 use function implode;
-use function is_array;
 use function sprintf;
 
 class NoFragmentCycles extends ValidationRule

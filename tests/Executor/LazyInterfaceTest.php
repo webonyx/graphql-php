@@ -2,12 +2,6 @@
 
 declare(strict_types=1);
 
-/**
- * @author: Ivo Meißner
- * Date: 03.05.16
- * Time: 13:14
- */
-
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Executor\Executor;

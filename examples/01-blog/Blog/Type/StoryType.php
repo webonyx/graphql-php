@@ -9,10 +9,6 @@ use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ResolveInfo;
 
-/**
- * Class StoryType
- * @package GraphQL\Examples\Social\Type
- */
 class StoryType extends ObjectType
 {
     const EDIT = 'EDIT';

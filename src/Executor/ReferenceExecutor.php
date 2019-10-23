@@ -17,7 +17,6 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\AbstractType;
@@ -46,7 +45,6 @@ use function array_reduce;
 use function array_values;
 use function get_class;
 use function is_array;
-use function is_object;
 use function is_string;
 use function sprintf;
 

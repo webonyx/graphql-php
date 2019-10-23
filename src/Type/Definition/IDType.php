@@ -10,10 +10,8 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-use function is_array;
 use function is_int;
 use function is_object;
-use function is_scalar;
 use function is_string;
 use function method_exists;
 

@@ -13,4 +13,8 @@ use LogicException;
  */
 class InvariantViolation extends LogicException
 {
+    public static function shouldNotHappen() : self
+    {
+        return new self('This should not have happened');
+    }
 }

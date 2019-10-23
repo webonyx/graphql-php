@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\Warning;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueNode;

@@ -115,7 +115,6 @@ abstract class QuerySecurityRule extends ValidationRule
         foreach ($selectionSet->selections as $selection) {
             switch (true) {
                 case $selection instanceof FieldNode:
-                    /** @var FieldNode $selection */
                     $fieldName = $selection->name->value;
                     $fieldDef  = null;
                     if ($parentType && method_exists($parentType, 'getFields')) {
@@ -142,7 +141,6 @@ abstract class QuerySecurityRule extends ValidationRule
                     $_astAndDefs[$responseName][] = [$selection, $fieldDef];
                     break;
                 case $selection instanceof InlineFragmentNode:
-                    /** @var InlineFragmentNode $selection */
                     $_astAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         TypeInfo::typeFromAST($context->getSchema(), $selection->typeCondition),
@@ -152,7 +150,6 @@ abstract class QuerySecurityRule extends ValidationRule
                     );
                     break;
                 case $selection instanceof FragmentSpreadNode:
-                    /** @var FragmentSpreadNode $selection */
                     $fragName = $selection->name->value;
 
                     if (empty($_visitedFragmentNames[$fragName])) {
