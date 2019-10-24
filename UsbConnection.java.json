@@ -1,0 +1,16 @@
+)]}'
+{
+  "regions": [
+    {
+      "start": 1,
+      "count": 95,
+      "path": "src/com/google/android/apps/adk2/UsbConnection.java",
+      "commit": "e4604930eb7f31d67afbf3eebb654485b5cfe6f1",
+      "author": {
+        "name": "Rob Tsuk",
+        "email": "robtsuk@google.com",
+        "time": "2012-06-26 13:55:12 -0700"
+      }
+    }
+  ]
+}
