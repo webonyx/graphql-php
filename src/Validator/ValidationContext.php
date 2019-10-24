@@ -16,12 +16,14 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Type\Definition\CompositeType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -220,18 +222,13 @@ class ValidationContext extends ASTValidationContext
         return $fragments[$name] ?? null;
     }
 
-    /**
-     * Returns OutputType
-     *
-     * @return Type
-     */
-    public function getType()
+    public function getType() : ?OutputType
     {
         return $this->typeInfo->getType();
     }
 
     /**
-     * @return Type
+     * @return (CompositeType&Type)|null
      */
     public function getParentType()
     {

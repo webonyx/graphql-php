@@ -1379,7 +1379,10 @@ class BreakingChangesFinderTest extends TestCase
                     'name'      => 'DirectiveWithArg',
                     'locations' => [DirectiveLocation::FIELD_DEFINITION],
                     'args'      => FieldArgument::createMap([
-                        'arg1' => ['name' => 'arg1'],
+                        'arg1' => [
+                            'name' => 'arg1',
+                            'type' => Type::string()
+                        ],
                     ]),
                 ]),
             ],

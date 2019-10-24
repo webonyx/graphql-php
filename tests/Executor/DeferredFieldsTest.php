@@ -28,7 +28,7 @@ class DeferredFieldsTest extends TestCase
     /** @var ObjectType */
     private $categoryType;
 
-    /** @var string[] */
+    /** @var string[][] */
     private $paths;
 
     /** @var mixed[][] */
@@ -89,7 +89,7 @@ class DeferredFieldsTest extends TestCase
                             $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($user) {
-                                $this->paths[] = 'deferred-for-best-friend-of-' . $user['id'];
+                                $this->paths[] = ['deferred-for-best-friend-of-' . $user['id']];
 
                                 return Utils::find(
                                     $this->userDataSource,
@@ -121,7 +121,7 @@ class DeferredFieldsTest extends TestCase
                         $this->paths[] = $info->path;
 
                         return new Deferred(function () use ($story) {
-                            $this->paths[] = 'deferred-for-story-' . $story['id'] . '-author';
+                            $this->paths[] = ['deferred-for-story-' . $story['id'] . '-author'];
 
                             return Utils::find(
                                 $this->userDataSource,
@@ -166,7 +166,7 @@ class DeferredFieldsTest extends TestCase
                         $this->paths[] = $info->path;
 
                         return new Deferred(function () use ($category) {
-                            $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStory';
+                            $this->paths[] = ['deferred-for-category-' . $category['id'] . '-topStory'];
 
                             return Utils::find(
                                 $this->storyDataSource,
@@ -288,15 +288,15 @@ class DeferredFieldsTest extends TestCase
             ['featuredCategory', 'stories', 2, 'author'],
             ['featuredCategory', 'stories', 3, 'title'],
             ['featuredCategory', 'stories', 3, 'author'],
-            'deferred-for-story-1-author',
-            'deferred-for-story-3-author',
-            'deferred-for-story-5-author',
-            'deferred-for-story-7-author',
-            'deferred-for-story-9-author',
-            'deferred-for-story-2-author',
-            'deferred-for-story-4-author',
-            'deferred-for-story-6-author',
-            'deferred-for-story-8-author',
+            ['deferred-for-story-1-author'],
+            ['deferred-for-story-3-author'],
+            ['deferred-for-story-5-author'],
+            ['deferred-for-story-7-author'],
+            ['deferred-for-story-9-author'],
+            ['deferred-for-story-2-author'],
+            ['deferred-for-story-4-author'],
+            ['deferred-for-story-6-author'],
+            ['deferred-for-story-8-author'],
             ['topStories', 0, 'author', 'name'],
             ['topStories', 1, 'author', 'name'],
             ['topStories', 2, 'author', 'name'],
@@ -362,27 +362,27 @@ class DeferredFieldsTest extends TestCase
             ['categories', 1, 'topStory'],
             ['categories', 2, 'name'],
             ['categories', 2, 'topStory'],
-            'deferred-for-category-1-topStory',
-            'deferred-for-category-2-topStory',
-            'deferred-for-category-3-topStory',
+            ['deferred-for-category-1-topStory'],
+            ['deferred-for-category-2-topStory'],
+            ['deferred-for-category-3-topStory'],
             ['categories', 0, 'topStory', 'title'],
             ['categories', 0, 'topStory', 'author'],
             ['categories', 1, 'topStory', 'title'],
             ['categories', 1, 'topStory', 'author'],
             ['categories', 2, 'topStory', 'title'],
             ['categories', 2, 'topStory', 'author'],
-            'deferred-for-story-8-author',
-            'deferred-for-story-3-author',
-            'deferred-for-story-9-author',
+            ['deferred-for-story-8-author'],
+            ['deferred-for-story-3-author'],
+            ['deferred-for-story-9-author'],
             ['categories', 0, 'topStory', 'author', 'name'],
             ['categories', 0, 'topStory', 'author', 'bestFriend'],
             ['categories', 1, 'topStory', 'author', 'name'],
             ['categories', 1, 'topStory', 'author', 'bestFriend'],
             ['categories', 2, 'topStory', 'author', 'name'],
             ['categories', 2, 'topStory', 'author', 'bestFriend'],
-            'deferred-for-best-friend-of-1',
-            'deferred-for-best-friend-of-3',
-            'deferred-for-best-friend-of-2',
+            ['deferred-for-best-friend-of-1'],
+            ['deferred-for-best-friend-of-3'],
+            ['deferred-for-best-friend-of-2'],
             ['categories', 0, 'topStory', 'author', 'bestFriend', 'name'],
             ['categories', 1, 'topStory', 'author', 'bestFriend', 'name'],
             ['categories', 2, 'topStory', 'author', 'bestFriend', 'name'],
@@ -413,7 +413,7 @@ class DeferredFieldsTest extends TestCase
                             $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($info) {
-                                $this->paths[] = ['!dfd for: ', $info->path];
+                                $this->paths[] = array_merge(['!dfd for: '], $info->path);
 
                                 return 'deferred';
                             });
@@ -433,7 +433,7 @@ class DeferredFieldsTest extends TestCase
                             $this->paths[] = $info->path;
 
                             return new Deferred(function () use ($info) {
-                                $this->paths[] = ['!dfd nest for: ', $info->path];
+                                $this->paths[] = array_merge(['!dfd nest for: '], $info->path);
 
                                 return [];
                             });
@@ -515,10 +515,10 @@ class DeferredFieldsTest extends TestCase
             ['nest', 'deferredNest'],
             ['deferredNest'],
 
-            ['!dfd for: ', ['nest', 'deferred']],
-            ['!dfd for: ', ['nest', 'nest', 'deferred']],
-            ['!dfd nest for: ', ['nest', 'deferredNest']],
-            ['!dfd nest for: ', ['deferredNest']],
+            ['!dfd for: ', 'nest', 'deferred'],
+            ['!dfd for: ', 'nest', 'nest', 'deferred'],
+            ['!dfd nest for: ', 'nest', 'deferredNest'],
+            ['!dfd nest for: ', 'deferredNest'],
 
             ['nest', 'deferredNest', 'sync'],
             ['nest', 'deferredNest', 'deferred'],
@@ -529,14 +529,14 @@ class DeferredFieldsTest extends TestCase
             ['deferredNest', 'nest', 'deferred'],
             ['deferredNest', 'deferredNest'],
 
-            ['!dfd for: ', ['nest', 'deferredNest', 'deferred']],
-            ['!dfd for: ', ['deferredNest', 'deferred']],
-            ['!dfd for: ', ['deferredNest', 'nest', 'deferred']],
-            ['!dfd nest for: ', ['deferredNest', 'deferredNest']],
+            ['!dfd for: ', 'nest', 'deferredNest', 'deferred'],
+            ['!dfd for: ', 'deferredNest', 'deferred'],
+            ['!dfd for: ', 'deferredNest', 'nest', 'deferred'],
+            ['!dfd nest for: ', 'deferredNest', 'deferredNest'],
 
             ['deferredNest', 'deferredNest', 'sync'],
             ['deferredNest', 'deferredNest', 'deferred'],
-            ['!dfd for: ', ['deferredNest', 'deferredNest', 'deferred']],
+            ['!dfd for: ', 'deferredNest', 'deferredNest', 'deferred'],
         ];
 
         self::assertCount(count($expectedPaths), $this->paths);

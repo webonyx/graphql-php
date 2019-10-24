@@ -62,7 +62,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /** @var ObjectTypeExtensionNode[] */
     public $extensionASTNodes;
 
-    /** @var callable */
+    /** @var ?callable */
     public $resolveFieldFn;
 
     /** @var FieldDefinition[] */
@@ -75,7 +75,12 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     private $interfaceMap;
 
     /**
-     * @param mixed[] $config
+     * @param array{
+     *      description?:string,
+     *      name?:string,
+     *      fields:callable|array<string,mixed>,
+     *      interfaces?:callable|Type[]
+     *  } $config
      */
     public function __construct(array $config)
     {

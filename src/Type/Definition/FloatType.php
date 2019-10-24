@@ -31,11 +31,9 @@ values as specified by
     /**
      * @param mixed $value
      *
-     * @return float|null
-     *
      * @throws Error
      */
-    public function serialize($value)
+    public function serialize($value) : float
     {
         $float = is_numeric($value) || is_bool($value) ? floatval($value) : null;
 
@@ -52,11 +50,9 @@ values as specified by
     /**
      * @param mixed $value
      *
-     * @return float|null
-     *
      * @throws Error
      */
-    public function parseValue($value)
+    public function parseValue($value) : float
     {
         $float = is_float($value) || is_int($value) ? floatval($value) : null;
 
@@ -74,11 +70,9 @@ values as specified by
      * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
-     * @return float|null
-     *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null) : float
     {
         if ($valueNode instanceof FloatValueNode || $valueNode instanceof IntValueNode) {
             return (float) $valueNode->value;

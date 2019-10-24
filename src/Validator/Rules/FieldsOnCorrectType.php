@@ -84,22 +84,24 @@ class FieldsOnCorrectType extends ValidationRule
             $interfaceUsageCount  = [];
 
             foreach ($schema->getPossibleTypes($type) as $possibleType) {
-                $fields = $possibleType->getFields();
-                if (! isset($fields[$fieldName])) {
-                    continue;
-                }
-                // This object type defines this field.
-                $suggestedObjectTypes[] = $possibleType->name;
-                foreach ($possibleType->getInterfaces() as $possibleInterface) {
-                    $fields = $possibleInterface->getFields();
-                    if (! isset($fields[$fieldName])) {
+                if ($possibleType instanceof ObjectType) {
+                    $fields = $possibleType->getFields();
+                    if (!isset($fields[$fieldName])) {
                         continue;
                     }
-                    // This interface type defines this field.
-                    $interfaceUsageCount[$possibleInterface->name] =
-                        ! isset($interfaceUsageCount[$possibleInterface->name])
-                            ? 0
-                            : $interfaceUsageCount[$possibleInterface->name] + 1;
+                    // This object type defines this field.
+                    $suggestedObjectTypes[] = $possibleType->name;
+                    foreach ($possibleType->getInterfaces() as $possibleInterface) {
+                        $fields = $possibleInterface->getFields();
+                        if (!isset($fields[$fieldName])) {
+                            continue;
+                        }
+                        // This interface type defines this field.
+                        $interfaceUsageCount[$possibleInterface->name] =
+                            !isset($interfaceUsageCount[$possibleInterface->name])
+                                ? 0
+                                : $interfaceUsageCount[$possibleInterface->name] + 1;
+                    }
                 }
             }
 

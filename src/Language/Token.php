@@ -81,18 +81,10 @@ class Token
      */
     public $prev;
 
-    /** @var Token */
+    /** @var ?Token */
     public $next;
 
-    /**
-     * @param string     $kind
-     * @param int        $start
-     * @param int        $end
-     * @param int        $line
-     * @param int        $column
-     * @param mixed|null $value
-     */
-    public function __construct($kind, $start, $end, $line, $column, ?Token $previous = null, $value = null)
+    public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, $value = null)
     {
         $this->kind   = $kind;
         $this->start  = $start;

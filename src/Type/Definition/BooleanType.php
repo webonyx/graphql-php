@@ -52,11 +52,11 @@ class BooleanType extends ScalarType
      * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
-     * @return bool|null
+     * @return bool
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null) : bool
     {
         if (! $valueNode instanceof BooleanValueNode) {
             // Intentionally without message, as all information already in wrapped Exception

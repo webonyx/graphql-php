@@ -24,7 +24,7 @@ class InputObjectCircularRefs
      * Tracks already visited types to maintain O(N) and to ensure that cycles
      * are not redundantly reported.
      *
-     * @var InputObjectType[]
+     * @var array<string,boolean>
      */
     private $visitedTypes = [];
 

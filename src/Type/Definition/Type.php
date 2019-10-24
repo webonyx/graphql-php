@@ -10,6 +10,7 @@ use GraphQL\Language\AST\TypeExtensionNode;
 use GraphQL\Type\Introspection;
 use GraphQL\Utils\Utils;
 use JsonSerializable;
+use phpDocumentor\Reflection\Types\Nullable;
 use ReflectionClass;
 use Throwable;
 use function array_keys;
@@ -32,7 +33,7 @@ abstract class Type implements JsonSerializable
     public const FLOAT   = 'Float';
     public const ID      = 'ID';
 
-    /** @var Type[] */
+    /** @var array<string,ScalarType|CustomScalarType>> */
     private static $standardTypes;
 
     /** @var Type[] */
@@ -47,102 +48,80 @@ abstract class Type implements JsonSerializable
     /** @var TypeDefinitionNode|null */
     public $astNode;
 
-    /** @var mixed[] */
     public $config;
 
     /** @var TypeExtensionNode[] */
     public $extensionASTNodes;
 
     /**
-     * @return IDType
-     *
      * @api
      */
-    public static function id()
+    public static function id(): ScalarType
     {
-        return self::getStandardType(self::ID);
-    }
-
-    /**
-     * @param string $name
-     *
-     * @return (IDType|StringType|FloatType|IntType|BooleanType)[]|IDType|StringType|FloatType|IntType|BooleanType
-     */
-    private static function getStandardType($name = null)
-    {
-        if (self::$standardTypes === null) {
-            self::$standardTypes = [
-                self::ID      => new IDType(),
-                self::STRING  => new StringType(),
-                self::FLOAT   => new FloatType(),
-                self::INT     => new IntType(),
-                self::BOOLEAN => new BooleanType(),
-            ];
+        if(is_null(static::$standardTypes[static::ID] ?? null)) {
+            static::$standardTypes[static::ID] = new IDType();
         }
-
-        return $name ? self::$standardTypes[$name] : self::$standardTypes;
+        return static::$standardTypes[static::ID];
     }
 
     /**
-     * @return StringType
-     *
      * @api
      */
-    public static function string()
+    public static function string(): ScalarType
     {
-        return self::getStandardType(self::STRING);
+        if(is_null(static::$standardTypes[static::STRING] ?? null)) {
+            static::$standardTypes[static::STRING] = new StringType();
+        }
+        return static::$standardTypes[static::STRING];
     }
 
     /**
-     * @return BooleanType
-     *
      * @api
      */
-    public static function boolean()
+    public static function boolean() : ScalarType
     {
-        return self::getStandardType(self::BOOLEAN);
+        if(is_null(static::$standardTypes[static::BOOLEAN] ?? null)) {
+            static::$standardTypes[static::BOOLEAN] = new BooleanType();
+        }
+        return static::$standardTypes[static::BOOLEAN];
     }
 
     /**
-     * @return IntType
-     *
      * @api
      */
-    public static function int()
+    public static function int() : ScalarType
     {
-        return self::getStandardType(self::INT);
+        if(is_null(static::$standardTypes[static::INT] ?? null)) {
+            static::$standardTypes[static::INT] = new IntType();
+        }
+        return static::$standardTypes[static::INT];
     }
 
     /**
-     * @return FloatType
-     *
      * @api
      */
-    public static function float()
+    public static function float() : ScalarType
     {
-        return self::getStandardType(self::FLOAT);
+        if(is_null(static::$standardTypes[static::FLOAT] ?? null)) {
+            static::$standardTypes[static::FLOAT] = new FloatType();
+        }
+        return static::$standardTypes[static::FLOAT];
     }
 
     /**
-     * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
-     *
-     * @return ListOfType
+     * @param Type $wrappedType
      *
      * @api
      */
-    public static function listOf($wrappedType)
+    public static function listOf(Type $wrappedType) : ListOfType
     {
         return new ListOfType($wrappedType);
     }
 
     /**
-     * @param NullableType $wrappedType
-     *
-     * @return NonNull
-     *
      * @api
      */
-    public static function nonNull($wrappedType)
+    public static function nonNull(NullableType $wrappedType) : NonNull
     {
         return new NonNull($wrappedType);
     }
@@ -152,7 +131,7 @@ abstract class Type implements JsonSerializable
      *
      * @return bool
      */
-    public static function isBuiltInType(Type $type)
+    public static function isBuiltInType(Type $type) : bool
     {
         return in_array($type->name, array_keys(self::getAllBuiltInTypes()), true);
     }
@@ -178,11 +157,17 @@ abstract class Type implements JsonSerializable
     /**
      * Returns all builtin scalar types
      *
-     * @return Type[]
+     * @return ScalarType[]
      */
     public static function getStandardTypes()
     {
-        return self::getStandardType();
+        return [
+            self::ID => static::id(),
+            self::STRING => static::string(),
+            self::FLOAT => static::float(),
+            self::INT => static::int(),
+            self::BOOLEAN => static::boolean(),
+        ];
     }
 
     /**
@@ -198,7 +183,7 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type[] $types
+     * @param array<string,ScalarType> $types
      */
     public static function overrideStandardTypes(array $types)
     {
@@ -216,35 +201,25 @@ abstract class Type implements JsonSerializable
                 implode(', ', array_keys($standardTypes)),
                 Utils::printSafe($type->name ?? null)
             );
-            $standardTypes[$type->name] = $type;
+            static::$standardTypes[$type->name] = $type;
         }
-        self::$standardTypes = $standardTypes;
     }
 
     /**
      * @param Type $type
      *
-     * @return bool
-     *
      * @api
      */
-    public static function isInputType($type)
+    public static function isInputType($type) : bool
     {
-        return $type instanceof InputType &&
-            (
-                ! $type instanceof WrappingType ||
-                self::getNamedType($type) instanceof InputType
-            );
+        return self::getNamedType($type) instanceof InputType;
     }
 
     /**
      * @param Type $type
-     *
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
-     *
      * @api
      */
-    public static function getNamedType($type)
+    public static function getNamedType($type): ?Type
     {
         if ($type === null) {
             return null;
@@ -259,17 +234,11 @@ abstract class Type implements JsonSerializable
     /**
      * @param Type $type
      *
-     * @return bool
-     *
      * @api
      */
-    public static function isOutputType($type)
+    public static function isOutputType($type) : bool
     {
-        return $type instanceof OutputType &&
-            (
-                ! $type instanceof WrappingType ||
-                self::getNamedType($type) instanceof OutputType
-            );
+        return self::getNamedType($type) instanceof OutputType;
     }
 
     /**
@@ -324,11 +293,9 @@ abstract class Type implements JsonSerializable
     /**
      * @param Type $type
      *
-     * @return bool
-     *
      * @api
      */
-    public static function isType($type)
+    public static function isType($type) : bool
     {
         return $type instanceof Type;
     }
@@ -336,11 +303,9 @@ abstract class Type implements JsonSerializable
     /**
      * @param Type $type
      *
-     * @return NullableType
-     *
      * @api
      */
-    public static function getNullableType($type)
+    public static function getNullableType(Type $type): Type
     {
         return $type instanceof NonNull
             ? $type->getWrappedType()

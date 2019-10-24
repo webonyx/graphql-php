@@ -149,7 +149,7 @@ class AST
      *
      * @param Type|mixed|null $value
      *
-     * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
+     * @return null|ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
      *
      * @api
      */
@@ -587,7 +587,7 @@ class AST
      *
      * @param string $operationName
      *
-     * @return bool
+     * @return bool|string
      *
      * @api
      */

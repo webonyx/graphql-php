@@ -30,7 +30,7 @@ class FieldDefinition
      * Callback for resolving field value given parent value.
      * Mutually exclusive with `map`
      *
-     * @var callable
+     * @var ?callable
      */
     public $resolveFn;
 
@@ -38,7 +38,7 @@ class FieldDefinition
      * Callback for mapping list of parent values to list of field values.
      * Mutually exclusive with `resolve`
      *
-     * @var callable
+     * @var ?callable
      */
     public $mapFn;
 
@@ -58,14 +58,24 @@ class FieldDefinition
      */
     public $config;
 
-    /** @var OutputType */
+    /** @var OutputType&Type */
     public $type;
 
     /** @var callable|string */
     private $complexityFn;
 
     /**
-     * @param mixed[] $config
+     * @param array{
+     *      name: string,
+     *      type: OutputType&Type,
+     *      resolveFn?: callable,
+     *      mapFn?: callable,
+     *      args?: array<FieldArgument>,
+     *      description?: string,
+     *      deprecationReason?: string,
+     *      astNode?: FieldDefinitionNode,
+     *      complexityFn?: callable
+     * } $config
      */
     protected function __construct(array $config)
     {
@@ -175,9 +185,9 @@ class FieldDefinition
     }
 
     /**
-     * @return Type
+     * @return OutputType&Type
      */
-    public function getType()
+    public function getType(): Type
     {
         return $this->type;
     }

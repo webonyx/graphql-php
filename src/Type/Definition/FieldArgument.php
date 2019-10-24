@@ -28,14 +28,17 @@ class FieldArgument
     /** @var mixed[] */
     public $config;
 
-    /** @var InputType */
+    /** @var InputType&Type */
     private $type;
 
-    /** @var bool */
-    private $defaultValueExists = false;
-
     /**
-     * @param mixed[] $def
+     * @param array{
+     *      astNode?: InputValueDefinitionNode,
+     *      defaultValue?: mixed,
+     *      description?: string,
+     *      name?: string,
+     *      type: Type&InputType,
+     * } $def
      */
     public function __construct(array $def)
     {
@@ -49,7 +52,6 @@ class FieldArgument
                     break;
                 case 'defaultValue':
                     $this->defaultValue       = $value;
-                    $this->defaultValueExists = true;
                     break;
                 case 'description':
                     $this->description = $value;
@@ -67,7 +69,7 @@ class FieldArgument
      *
      * @return FieldArgument[]
      */
-    public static function createMap(array $config)
+    public static function createMap(array $config): array
     {
         $map = [];
         foreach ($config as $name => $argConfig) {
@@ -81,21 +83,16 @@ class FieldArgument
     }
 
     /**
-     * Returns an InputType
-     *
-     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
+     * @return InputType&Type
      */
-    public function getType()
+    public function getType() : Type
     {
         return $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function defaultValueExists()
+    public function defaultValueExists() : bool
     {
-        return $this->defaultValueExists;
+        return array_key_exists('defaultValue', $this->config);
     }
 
     public function assertValid(FieldDefinition $parentField, Type $parentType)

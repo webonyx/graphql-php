@@ -33,6 +33,7 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
+use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use SplQueue;
 use stdClass;
@@ -73,22 +74,22 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     /** @var string|null */
     private $operationName;
 
-    /** @var Collector */
+    /** @var ?Collector */
     private $collector;
 
-    /** @var Error[] */
+    /** @var ?array<Error> */
     private $errors;
 
-    /** @var SplQueue */
+    /** @var ?SplQueue */
     private $queue;
 
-    /** @var SplQueue */
+    /** @var ?SplQueue */
     private $schedule;
 
-    /** @var stdClass */
+    /** @var ?stdClass */
     private $rootResult;
 
-    /** @var int */
+    /** @var ?int */
     private $pending;
 
     /** @var callable */
@@ -143,10 +144,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     private static function resultToArray($value, $emptyObjectAsStdClass = true)
     {
         if ($value instanceof stdClass) {
-            $array = [];
-            foreach ($value as $propertyName => $propertyValue) {
-                $array[$propertyName] = self::resultToArray($propertyValue);
-            }
+            $array = (array)$value;
             if ($emptyObjectAsStdClass && empty($array)) {
                 return new stdClass();
             }
@@ -937,8 +935,8 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
         $selectedType = null;
         foreach ($possibleTypes as $type) {
-            $typeCheck = yield $type->isTypeOf($value, $this->contextValue, $ctx->resolveInfo);
-            if ($selectedType !== null || $typeCheck !== true) {
+            $typeCheck = yield $type instanceof ObjectType ? $type->isTypeOf($value, $this->contextValue, $ctx->resolveInfo) : null;
+            if ($selectedType !== null || !$typeCheck) {
                 continue;
             }
 

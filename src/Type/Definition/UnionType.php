@@ -22,13 +22,22 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /** @var ObjectType[] */
     private $types;
 
-    /** @var ObjectType[] */
-    private $possibleTypeNames;
+    /** @var null|array<string,bool> */
+    private $possibleTypeNames = null;
 
     /** @var UnionTypeExtensionNode[] */
     public $extensionASTNodes;
 
-    public function __construct($config)
+    /**
+     * UnionType constructor.
+     * @param array{
+     *      astNode?: UnionTypeDefinitionNode,
+     *      description?: string,
+     *      extensionASTNodes?: array<UnionTypeExtensionNode>,
+     *      name: string,
+     * } $config
+     */
+    public function __construct(array $config)
     {
         if (! isset($config['name'])) {
             $config['name'] = $this->tryInferName();

@@ -16,6 +16,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema as SchemaType;
 use GraphQL\Validator\DocumentValidator;
@@ -287,7 +288,7 @@ class GraphQL
      * Replaces standard types with types from this list (matching by name)
      * Standard types not listed here remain untouched.
      *
-     * @param Type[] $types
+     * @param array<string,ScalarType> $types
      *
      * @api
      */

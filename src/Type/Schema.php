@@ -57,8 +57,8 @@ class Schema
      */
     private $resolvedTypes = [];
 
-    /** @var Type[][]|null */
-    private $possibleTypeMap;
+    /** @var array<string,Type[]> */
+    private $possibleTypeMap = [];
 
     /**
      * True when $resolvedTypes contain all possible schema types
@@ -67,7 +67,7 @@ class Schema
      */
     private $fullyLoaded = false;
 
-    /** @var InvariantViolation[]|null */
+    /** @var Error[] */
     private $validationErrors;
 
     /** @var SchemaTypeExtensionNode[] */
@@ -392,7 +392,7 @@ class Schema
      *
      * @param InterfaceType|UnionType $abstractType
      *
-     * @return ObjectType[]
+     * @return Type[]
      *
      * @api
      */
@@ -400,16 +400,15 @@ class Schema
     {
         $possibleTypeMap = $this->getPossibleTypeMap();
 
-        return isset($possibleTypeMap[$abstractType->name]) ? array_values($possibleTypeMap[$abstractType->name]) : [];
+        return array_values($possibleTypeMap[$abstractType->name] ?? []);
     }
 
     /**
-     * @return Type[][]
+     * @return array<string,Type[]>
      */
     private function getPossibleTypeMap()
     {
-        if ($this->possibleTypeMap === null) {
-            $this->possibleTypeMap = [];
+        if (empty($this->possibleTypeMap)) {
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof ObjectType) {
                     foreach ($type->getInterfaces() as $interface) {
@@ -454,11 +453,9 @@ class Schema
      *
      * @param string $name
      *
-     * @return Directive
-     *
      * @api
      */
-    public function getDirective($name)
+    public function getDirective($name) : ?Directive
     {
         foreach ($this->getDirectives() as $directive) {
             if ($directive->name === $name) {

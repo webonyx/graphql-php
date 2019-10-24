@@ -57,9 +57,8 @@ class DirectiveLocation
     /**
      * @param string $name
      *
-     * @return bool
      */
-    public static function has($name)
+    public static function has($name) : bool
     {
         return isset(self::$locations[$name]);
     }

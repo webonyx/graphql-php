@@ -39,6 +39,7 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use SplStack;
+use Symfony\Component\Console\Output\Output;
 use function array_map;
 use function array_merge;
 use function array_pop;
@@ -51,25 +52,25 @@ class TypeInfo
     /** @var Schema */
     private $schema;
 
-    /** @var SplStack<OutputType> */
+    /** @var array<OutputType&Type> */
     private $typeStack;
 
-    /** @var SplStack<CompositeType> */
+    /** @var array<CompositeType&Type> */
     private $parentTypeStack;
 
-    /** @var SplStack<InputType> */
+    /** @var array<null|(InputType&Type)> */
     private $inputTypeStack;
 
-    /** @var SplStack<FieldDefinition> */
+    /** @var array<FieldDefinition> */
     private $fieldDefStack;
 
-    /** @var SplStack<mixed> */
+    /** @var array<mixed> */
     private $defaultValueStack;
 
-    /** @var Directive */
+    /** @var ?Directive */
     private $directive;
 
-    /** @var FieldArgument */
+    /** @var ?FieldArgument */
     private $argument;
 
     /** @var mixed */
@@ -339,11 +340,12 @@ class TypeInfo
                 }
                 $this->argument            = $argDef;
                 $this->defaultValueStack[] = $argDef && $argDef->defaultValueExists() ? $argDef->defaultValue : Utils::undefined();
-                $this->inputTypeStack[]    = Type::isInputType($argType) ? $argType : null;
+                $this->inputTypeStack[]    = $argType;
                 break;
 
             case $node instanceof ListValueNode:
-                $listType = Type::getNullableType($this->getInputType());
+                $type = $this->getInputType();
+                $listType = !is_null($type) ? Type::getNullableType($type) : null;
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;
@@ -363,7 +365,7 @@ class TypeInfo
                     $inputFieldType = $inputField ? $inputField->getType() : null;
                 }
                 $this->defaultValueStack[] = $inputField && $inputField->defaultValueExists() ? $inputField->defaultValue : Utils::undefined();
-                $this->inputTypeStack[]    = Type::isInputType($inputFieldType) ? $inputFieldType : null;
+                $this->inputTypeStack[]    = $inputFieldType;
                 break;
 
             case $node instanceof EnumValueNode:
@@ -378,7 +380,7 @@ class TypeInfo
     }
 
     /**
-     * @return Type
+     * @return (OutputType&Type)|null
      */
     public function getType()
     {
@@ -390,15 +392,11 @@ class TypeInfo
     }
 
     /**
-     * @return Type
+     * @return (CompositeType&Type)|null
      */
-    public function getParentType()
+    public function getParentType() : ?CompositeType
     {
-        if (! empty($this->parentTypeStack)) {
-            return $this->parentTypeStack[count($this->parentTypeStack) - 1];
-        }
-
-        return null;
+        return $this->parentTypeStack[count($this->parentTypeStack) - 1] ?? null;
     }
 
     /**
@@ -406,9 +404,8 @@ class TypeInfo
      * statically evaluated environment we do not always have an Object type,
      * and need to handle Interface and Union types.
      *
-     * @return FieldDefinition
      */
-    private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode)
+    private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode) : ?FieldDefinition
     {
         $name       = $fieldNode->name->value;
         $schemaMeta = Introspection::schemaMetaFieldDef();
@@ -454,10 +451,7 @@ class TypeInfo
         return $this->directive;
     }
 
-    /**
-     * @return FieldDefinition
-     */
-    public function getFieldDef()
+    public function getFieldDef() : ?FieldDefinition
     {
         if (! empty($this->fieldDefStack)) {
             return $this->fieldDefStack[count($this->fieldDefStack) - 1];

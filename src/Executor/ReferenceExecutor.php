@@ -238,7 +238,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param  mixed $rootValue
      *
-     * @return Promise|stdClass|mixed[]
+     * @return null|Promise|stdClass|mixed[]
      */
     private function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
@@ -993,7 +993,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed|null              $contextValue
      * @param InterfaceType|UnionType $abstractType
      *
-     * @return ObjectType|Promise|null
+     * @return string|Type|Promise|null
      */
     private function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {
@@ -1023,7 +1023,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $possibleTypes           = $info->schema->getPossibleTypes($abstractType);
         $promisedIsTypeOfResults = [];
         foreach ($possibleTypes as $index => $type) {
-            $isTypeOfResult = $type->isTypeOf($value, $contextValue, $info);
+            $isTypeOfResult = $type instanceof ObjectType ? $type->isTypeOf($value, $contextValue, $info) : null;
             if ($isTypeOfResult === null) {
                 continue;
             }
