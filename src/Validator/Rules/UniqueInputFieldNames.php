@@ -20,7 +20,7 @@ class UniqueInputFieldNames extends ValidationRule
     /** @var array<string,NameNode> */
     public $knownNames;
 
-    /** @var array<array<string,NameNode>> */
+    /** @var array<array<string, NameNode>> */
     public $knownNameStack;
 
     public function getVisitor(ValidationContext $context)
