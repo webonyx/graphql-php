@@ -99,11 +99,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     /**
      * @param mixed[]|null $variables
      *
-     * @return int
-     *
      * @throws Exception
      */
-    public function parseLiteral(Node $valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null) : int
     {
         if ($valueNode instanceof IntValueNode) {
             $val = (int) $valueNode->value;

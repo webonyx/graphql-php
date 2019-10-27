@@ -288,7 +288,7 @@ class GraphQL
      * Replaces standard types with types from this list (matching by name)
      * Standard types not listed here remain untouched.
      *
-     * @param array<string,ScalarType> $types
+     * @param array<string, ScalarType> $types
      *
      * @api
      */
