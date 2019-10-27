@@ -346,7 +346,7 @@ class TypeInfo
 
             case $node instanceof ListValueNode:
                 $type     = $this->getInputType();
-                $listType = $type !== null ? Type::getNullableType($type) : null;
+                $listType = $type === null ? null : Type::getNullableType($type);
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;
