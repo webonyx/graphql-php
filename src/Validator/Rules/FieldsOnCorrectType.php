@@ -87,6 +87,7 @@ class FieldsOnCorrectType extends ValidationRule
                 if (! $possibleType instanceof ObjectType) {
                     continue;
                 }
+
                 $fields = $possibleType->getFields();
                 if (! isset($fields[$fieldName])) {
                     continue;
