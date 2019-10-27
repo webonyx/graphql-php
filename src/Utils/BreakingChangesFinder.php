@@ -617,6 +617,9 @@ class BreakingChangesFinder
         return $breakingChanges;
     }
 
+    /**
+     * @return string[][]
+     */
     public static function findRemovedDirectives(Schema $oldSchema, Schema $newSchema)
     {
         $removedDirectives = [];
