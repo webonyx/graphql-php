@@ -470,6 +470,8 @@ class BreakingChangesFinder
      * breaking or dangerous changes in the newSchema related to arguments
      * (such as removal or change of type of an argument, or a change in an
      * argument's default value).
+     *
+     * @return array<string, array<int,array<string, string>>>
      */
     public static function findArgChanges(
         Schema $oldSchema,
@@ -575,6 +577,9 @@ class BreakingChangesFinder
         ];
     }
 
+    /**
+     * @return string[][]
+     */
     public static function findInterfacesRemovedFromObjectTypes(
         Schema $oldSchema,
         Schema $newSchema
