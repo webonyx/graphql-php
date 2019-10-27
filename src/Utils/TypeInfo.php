@@ -385,11 +385,7 @@ class TypeInfo
      */
     public function getType()
     {
-        if (! empty($this->typeStack)) {
-            return $this->typeStack[count($this->typeStack) - 1];
-        }
-
-        return null;
+        return $this->typeStack[count($this->typeStack) - 1] ?? null;
     }
 
     /**
