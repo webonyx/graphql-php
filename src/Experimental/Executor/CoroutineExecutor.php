@@ -80,7 +80,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     /** @var ?array<Error> */
     private $errors;
 
-    /** @var ?SplQueue */
+    /** @var SplQueue */
     private $queue;
 
     /** @var ?SplQueue */
@@ -109,6 +109,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             self::$undefined = Utils::undefined();
         }
 
+        $this->queue             = new SplQueue();
         $this->schema            = $schema;
         $this->fieldResolver     = $fieldResolver;
         $this->promiseAdapter    = $promiseAdapter;
@@ -236,7 +237,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     {
         $this->rootResult     = null;
         $this->errors         = null;
-        $this->queue          = null;
+        $this->queue          = new SplQueue();
         $this->schedule       = null;
         $this->pending        = null;
         $this->collector      = null;
