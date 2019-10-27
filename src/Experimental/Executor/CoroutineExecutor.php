@@ -74,22 +74,22 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     /** @var string|null */
     private $operationName;
 
-    /** @var ?Collector */
+    /** @var Collector|null */
     private $collector;
 
-    /** @var ?array<Error> */
+    /** @var array<Error>|null */
     private $errors;
 
     /** @var SplQueue */
     private $queue;
 
-    /** @var ?SplQueue */
+    /** @var SplQueue|null */
     private $schedule;
 
-    /** @var ?stdClass */
+    /** @var stdClass|null */
     private $rootResult;
 
-    /** @var ?int */
+    /** @var int|null */
     private $pending;
 
     /** @var callable */

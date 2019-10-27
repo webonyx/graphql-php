@@ -46,7 +46,7 @@ class Collector
     /** @var FieldNode[][] */
     private $fields;
 
-    /** @var array<string,bool> */
+    /** @var array<string, bool> */
     private $visitedFragments;
 
     public function __construct(Schema $schema, Runtime $runtime)

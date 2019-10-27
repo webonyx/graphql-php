@@ -993,7 +993,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed|null              $contextValue
      * @param InterfaceType|UnionType $abstractType
      *
-     * @return string|Type|Promise|null
+     * @return Promise|Type|string|null
      */
     private function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {
