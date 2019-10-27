@@ -53,7 +53,7 @@ class TypeInfo
     /** @var Schema */
     private $schema;
 
-    /** @var array<OutputType&Type> */
+    /** @var array<(OutputType&Type)|null> */
     private $typeStack;
 
     /** @var array<CompositeType&Type> */
