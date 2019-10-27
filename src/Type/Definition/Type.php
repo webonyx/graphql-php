@@ -35,7 +35,7 @@ abstract class Type implements JsonSerializable
     public const ID      = 'ID';
 
     /** @var array<string,ScalarType|CustomScalarType>> */
-    private static $standardTypes;
+    protected static $standardTypes;
 
     /** @var Type[] */
     private static $builtInTypes;
