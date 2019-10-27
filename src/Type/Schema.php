@@ -57,7 +57,7 @@ class Schema
      */
     private $resolvedTypes = [];
 
-    /** @var array<string,Type[]> */
+    /** @var array<string, Type[]> */
     private $possibleTypeMap = [];
 
     /**
