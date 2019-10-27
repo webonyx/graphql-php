@@ -390,13 +390,13 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @param InterfaceType|UnionType $abstractType
+     * @param (UnionType|InterfaceType) &Type $abstractType
      *
      * @return Type[]
      *
      * @api
      */
-    public function getPossibleTypes(AbstractType $abstractType) : array
+    public function getPossibleTypes(Type $abstractType) : array
     {
         $possibleTypeMap = $this->getPossibleTypeMap();
 
