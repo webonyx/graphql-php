@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\PhpStan\Type\Definition\Type;
 
 use GraphQL\Type\Definition\CompositeType;
-use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\Type;
 use PhpParser\Node\Expr\StaticCall;
 use PHPStan\Analyser\Scope;

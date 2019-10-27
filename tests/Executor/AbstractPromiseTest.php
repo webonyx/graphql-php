@@ -204,7 +204,7 @@ class AbstractPromiseTest extends TestCase
      */
     public function testIsTypeOfUsedToResolveRuntimeTypeForUnion() : void
     {
-        $DogType = new ObjectType([
+        $dogType = new ObjectType([
             'name'     => 'Dog',
             'isTypeOf' => static function ($obj) {
                 return new Deferred(static function () use ($obj) {
@@ -217,7 +217,7 @@ class AbstractPromiseTest extends TestCase
             ],
         ]);
 
-        $CatType = new ObjectType([
+        $catType = new ObjectType([
             'name'     => 'Cat',
             'isTypeOf' => static function ($obj) {
                 return new Deferred(static function () use ($obj) {
@@ -230,9 +230,9 @@ class AbstractPromiseTest extends TestCase
             ],
         ]);
 
-        $PetType = new UnionType([
+        $petType = new UnionType([
             'name'  => 'Pet',
-            'types' => [$DogType, $CatType],
+            'types' => [$dogType, $catType],
         ]);
 
         $schema = new Schema([
@@ -240,7 +240,7 @@ class AbstractPromiseTest extends TestCase
                 'name'   => 'Query',
                 'fields' => [
                     'pets' => [
-                        'type'    => Type::listOf($PetType),
+                        'type'    => Type::listOf($petType),
                         'resolve' => static function () {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
