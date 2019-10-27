@@ -17,7 +17,7 @@ use function sprintf;
 
 class UniqueInputFieldNames extends ValidationRule
 {
-    /** @var array<string,NameNode> */
+    /** @var array<string, NameNode> */
     public $knownNames;
 
     /** @var array<array<string, NameNode>> */
