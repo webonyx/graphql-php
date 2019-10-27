@@ -241,10 +241,7 @@ class TypeInfo
      */
     public function getParentInputType()
     {
-        $inputTypeStackLength = count($this->inputTypeStack);
-        if ($inputTypeStackLength > 1) {
-            return $this->inputTypeStack[$inputTypeStackLength - 2];
-        }
+        return $this->inputTypeStack[count($this->inputTypeStack) - 2] ?? null;
     }
 
     /**
@@ -385,11 +382,7 @@ class TypeInfo
      */
     public function getType() : ?OutputType
     {
-        if (count($this->typeStack)) {
-            return $this->typeStack[count($this->typeStack) - 1];
-        }
-
-        return null;
+        return $this->typeStack[count($this->typeStack) - 1] ?? null;
     }
 
     /**
@@ -397,11 +390,7 @@ class TypeInfo
      */
     public function getParentType() : ?CompositeType
     {
-        if (count($this->parentTypeStack)) {
-            return $this->parentTypeStack[count($this->parentTypeStack) - 1];
-        }
-
-        return null;
+        return $this->parentTypeStack[count($this->parentTypeStack) - 1] ?? null;
     }
 
     /**
