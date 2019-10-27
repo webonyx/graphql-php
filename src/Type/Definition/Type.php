@@ -17,6 +17,7 @@ use function array_keys;
 use function array_merge;
 use function implode;
 use function in_array;
+use function is_null;
 use function preg_replace;
 use function trigger_error;
 use const E_USER_DEPRECATED;
@@ -48,6 +49,7 @@ abstract class Type implements JsonSerializable
     /** @var TypeDefinitionNode|null */
     public $astNode;
 
+    /** @var mixed[] */
     public $config;
 
     /** @var TypeExtensionNode[] */
@@ -56,23 +58,25 @@ abstract class Type implements JsonSerializable
     /**
      * @api
      */
-    public static function id(): ScalarType
+    public static function id() : ScalarType
     {
-        if(is_null(static::$standardTypes[static::ID] ?? null)) {
-            static::$standardTypes[static::ID] = new IDType();
+        if ((static::$standardTypes[self::ID] ?? null) === null) {
+            static::$standardTypes[self::ID] = new IDType();
         }
-        return static::$standardTypes[static::ID];
+
+        return static::$standardTypes[self::ID];
     }
 
     /**
      * @api
      */
-    public static function string(): ScalarType
+    public static function string() : ScalarType
     {
-        if(is_null(static::$standardTypes[static::STRING] ?? null)) {
-            static::$standardTypes[static::STRING] = new StringType();
+        if ((static::$standardTypes[self::STRING] ?? null) === null) {
+            static::$standardTypes[self::STRING] = new StringType();
         }
-        return static::$standardTypes[static::STRING];
+
+        return static::$standardTypes[self::STRING];
     }
 
     /**
@@ -80,10 +84,11 @@ abstract class Type implements JsonSerializable
      */
     public static function boolean() : ScalarType
     {
-        if(is_null(static::$standardTypes[static::BOOLEAN] ?? null)) {
-            static::$standardTypes[static::BOOLEAN] = new BooleanType();
+        if ((static::$standardTypes[self::BOOLEAN] ?? null) === null) {
+            static::$standardTypes[self::BOOLEAN] = new BooleanType();
         }
-        return static::$standardTypes[static::BOOLEAN];
+
+        return static::$standardTypes[self::BOOLEAN];
     }
 
     /**
@@ -91,10 +96,11 @@ abstract class Type implements JsonSerializable
      */
     public static function int() : ScalarType
     {
-        if(is_null(static::$standardTypes[static::INT] ?? null)) {
-            static::$standardTypes[static::INT] = new IntType();
+        if ((static::$standardTypes[self::INT] ?? null) === null) {
+            static::$standardTypes[self::INT] = new IntType();
         }
-        return static::$standardTypes[static::INT];
+
+        return static::$standardTypes[self::INT];
     }
 
     /**
@@ -102,15 +108,14 @@ abstract class Type implements JsonSerializable
      */
     public static function float() : ScalarType
     {
-        if(is_null(static::$standardTypes[static::FLOAT] ?? null)) {
-            static::$standardTypes[static::FLOAT] = new FloatType();
+        if ((static::$standardTypes[self::FLOAT] ?? null) === null) {
+            static::$standardTypes[self::FLOAT] = new FloatType();
         }
-        return static::$standardTypes[static::FLOAT];
+
+        return static::$standardTypes[self::FLOAT];
     }
 
     /**
-     * @param Type $wrappedType
-     *
      * @api
      */
     public static function listOf(Type $wrappedType) : ListOfType
@@ -128,8 +133,6 @@ abstract class Type implements JsonSerializable
 
     /**
      * Checks if the type is a builtin type
-     *
-     * @return bool
      */
     public static function isBuiltInType(Type $type) : bool
     {
@@ -217,9 +220,10 @@ abstract class Type implements JsonSerializable
 
     /**
      * @param Type $type
+     *
      * @api
      */
-    public static function getNamedType($type): ?Type
+    public static function getNamedType($type) : ?Type
     {
         if ($type === null) {
             return null;
@@ -301,11 +305,9 @@ abstract class Type implements JsonSerializable
     }
 
     /**
-     * @param Type $type
-     *
      * @api
      */
-    public static function getNullableType(Type $type): Type
+    public static function getNullableType(Type $type) : Type
     {
         return $type instanceof NonNull
             ? $type->getWrappedType()

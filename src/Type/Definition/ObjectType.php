@@ -75,12 +75,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     private $interfaceMap;
 
     /**
-     * @param array{
-     *      description?:string,
-     *      name?:string,
-     *      fields:callable|array<string,mixed>,
-     *      interfaces?:callable|Type[]
-     *  } $config
+     * @param mixed[] $config
      */
     public function __construct(array $config)
     {

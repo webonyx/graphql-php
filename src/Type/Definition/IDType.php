@@ -62,7 +62,6 @@ When expected as an input type, any string (such as `"4"`) or integer
     }
 
     /**
-     * @param Node $valueNode
      * @param mixed[]|null $variables
      *
      * @return string

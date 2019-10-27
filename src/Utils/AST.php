@@ -149,7 +149,7 @@ class AST
      *
      * @param Type|mixed|null $value
      *
-     * @return null|ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
+     * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null
      *
      * @api
      */

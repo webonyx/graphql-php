@@ -1381,7 +1381,7 @@ class BreakingChangesFinderTest extends TestCase
                     'args'      => FieldArgument::createMap([
                         'arg1' => [
                             'name' => 'arg1',
-                            'type' => Type::string()
+                            'type' => Type::string(),
                         ],
                     ]),
                 ]),

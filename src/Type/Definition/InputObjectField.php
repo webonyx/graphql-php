@@ -60,7 +60,7 @@ class InputObjectField
     /**
      * @return Type&InputType
      */
-    public function getType(): Type
+    public function getType() : Type
     {
         return $this->type;
     }

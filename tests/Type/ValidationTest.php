@@ -174,12 +174,8 @@ class ValidationTest extends TestCase
         $this->assertEachCallableThrows(
             [
                 static function () {
-                    /** @var array{
-                     *      name:string,
-                     *      fields:array
-                     *  }
-                     */
                     $empty = [];
+
                     return new ObjectType($empty);
                 },
                 static function () {

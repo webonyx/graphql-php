@@ -67,7 +67,6 @@ values as specified by
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
      * @throws Exception

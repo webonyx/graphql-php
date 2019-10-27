@@ -18,26 +18,26 @@ use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 
 class IsCompositeTypeStaticMethodTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
-    /** @var \PHPStan\Analyser\TypeSpecifier */
+    /** @var TypeSpecifier */
     private $typeSpecifier;
 
-    public function getClass(): string
+    public function getClass() : string
     {
         return Type::class;
     }
 
-    public function setTypeSpecifier(TypeSpecifier $typeSpecifier): void
+    public function setTypeSpecifier(TypeSpecifier $typeSpecifier) : void
     {
         $this->typeSpecifier = $typeSpecifier;
     }
 
-    public function isStaticMethodSupported(MethodReflection $staticMethodReflection, StaticCall $node, TypeSpecifierContext $context): bool
+    public function isStaticMethodSupported(MethodReflection $staticMethodReflection, StaticCall $node, TypeSpecifierContext $context) : bool
     {
         // The $context argument tells us if we're in an if condition or not (as in this case).
-        return $staticMethodReflection->getName() === 'isCompositeType' && !$context->null();
+        return $staticMethodReflection->getName() === 'isCompositeType' && ! $context->null();
     }
 
-    public function specifyTypes (MethodReflection $staticMethodReflection, StaticCall $node, Scope $scope, TypeSpecifierContext $context): SpecifiedTypes
+    public function specifyTypes(MethodReflection $staticMethodReflection, StaticCall $node, Scope $scope, TypeSpecifierContext $context) : SpecifiedTypes
     {
         return $this->typeSpecifier->create($node->args[0]->value, new ObjectType(CompositeType::class), $context);
     }

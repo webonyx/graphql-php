@@ -269,12 +269,6 @@ class BreakingChangesFinder
         return false;
     }
 
-    /**
-     * @return array<string,array<int,array{
-     *      type: string,
-     *      description: string
-     * }>>
-     */
     public static function findFieldsThatChangedTypeOnInputObjectTypes(
         Schema $oldSchema,
         Schema $newSchema
@@ -473,17 +467,6 @@ class BreakingChangesFinder
      * breaking or dangerous changes in the newSchema related to arguments
      * (such as removal or change of type of an argument, or a change in an
      * argument's default value).
-     *
-     * @return array{
-     *      breakingChanges: array<int,array{
-     *          type: string,
-     *          description: string
-     *      }>,
-     *      dangerousChanges: array<int,array{
-     *          type: string,
-     *          description: string
-     *      }>
-     * }
      */
     public static function findArgChanges(
         Schema $oldSchema,
@@ -589,12 +572,6 @@ class BreakingChangesFinder
         ];
     }
 
-    /**
-     * @return array<int,array{
-     *          type: string,
-     *          description: string
-     *      }>
-     */
     public static function findInterfacesRemovedFromObjectTypes(
         Schema $oldSchema,
         Schema $newSchema
@@ -632,12 +609,6 @@ class BreakingChangesFinder
         return $breakingChanges;
     }
 
-    /**
-     * @return array<int,array{
-     *  type: string,
-     *  description: string
-     * }>
-     */
     public static function findRemovedDirectives(Schema $oldSchema, Schema $newSchema)
     {
         $removedDirectives = [];
@@ -667,14 +638,6 @@ class BreakingChangesFinder
         );
     }
 
-    /**
-     * @param Schema $oldSchema
-     * @param Schema $newSchema
-     * @return array<int,array{
-     *      type: string,
-     *      description: string
-     *  }>
-     */
     public static function findRemovedDirectiveArgs(Schema $oldSchema, Schema $newSchema)
     {
         $removedDirectiveArgs  = [];

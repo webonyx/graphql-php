@@ -112,9 +112,8 @@ class ResolveInfo
     private $queryPlan;
 
     /**
-     * @param FieldDefinition           $fieldDefinition
      * @param FieldNode[]              $fieldNodes
-     * @param string[]                  $path
+     * @param string[]                 $path
      * @param FragmentDefinitionNode[] $fragments
      * @param mixed|null               $rootValue
      * @param mixed[]                  $variableValues

@@ -36,12 +36,7 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
     public $extensionASTNodes;
 
     /**
-     * @param array{
-     *      astNode?: ScalarTypeDefinitionNode,
-     *      description?: string,
-     *      extensionASTNodes?: array<ScalarTypeExtensionNode>,
-     *      name?: string,
-     * } $config
+     * @param mixed[] $config
      */
     public function __construct(array $config = [])
     {

@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Utils\Utils;
+use function array_key_exists;
 use function is_array;
 use function is_string;
 use function sprintf;
@@ -32,13 +33,7 @@ class FieldArgument
     private $type;
 
     /**
-     * @param array{
-     *      astNode?: InputValueDefinitionNode,
-     *      defaultValue?: mixed,
-     *      description?: string,
-     *      name?: string,
-     *      type: Type&InputType,
-     * } $def
+     * @param mixed[] $def
      */
     public function __construct(array $def)
     {
@@ -51,7 +46,7 @@ class FieldArgument
                     $this->name = $value;
                     break;
                 case 'defaultValue':
-                    $this->defaultValue       = $value;
+                    $this->defaultValue = $value;
                     break;
                 case 'description':
                     $this->description = $value;
@@ -69,7 +64,7 @@ class FieldArgument
      *
      * @return FieldArgument[]
      */
-    public static function createMap(array $config): array
+    public static function createMap(array $config) : array
     {
         $map = [];
         foreach ($config as $name => $argConfig) {

@@ -40,15 +40,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /** @var EnumTypeExtensionNode[] */
     public $extensionASTNodes;
 
-    /**
-     * EnumType constructor.
-     * @param array{
-     *      name?: string,
-     *      description?: string,
-     *      astNode?: EnumTypeDefinitionNode,
-     *      extensionASTNodes?: array<EnumTypeExtensionNode>
-     * } $config
-     */
     public function __construct($config)
     {
         if (! isset($config['name'])) {
@@ -80,10 +71,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         return $lookup[$name] ?? null;
     }
 
-    /**
-     * @return ArrayObject<string, EnumValueDefinition>
-     */
-    private function getNameLookup(): ArrayObject
+    private function getNameLookup() : ArrayObject
     {
         if (! $this->nameLookup) {
             /** @var ArrayObject<string, EnumValueDefinition> $lookup */
@@ -186,7 +174,6 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
      * @return null

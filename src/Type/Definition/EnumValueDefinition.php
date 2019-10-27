@@ -27,13 +27,7 @@ class EnumValueDefinition
     public $config;
 
     /**
-     * @param array{
-     *      astNode?: EnumValueDefinitionNode,
-     *      description?: string,
-     *      deprecationReason?: string,
-     *      name?: string,
-     *      value?: mixed,
-     * } $config
+     * @param mixed[] $config
      */
     public function __construct(array $config)
     {

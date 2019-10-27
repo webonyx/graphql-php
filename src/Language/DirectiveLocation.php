@@ -56,7 +56,6 @@ class DirectiveLocation
 
     /**
      * @param string $name
-     *
      */
     public static function has($name) : bool
     {

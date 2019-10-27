@@ -44,12 +44,7 @@ class Directive
     public $config;
 
     /**
-     * @param array{
-     *      args: array|FieldArgument[],
-     *      description?: string,
-     *      locations: array<string>,
-     *      name: string
-     * } $config
+     * @param mixed[] $config
      */
     public function __construct(array $config)
     {

@@ -22,9 +22,6 @@ class ListOfType extends Type implements WrappingType, OutputType, NullableType,
         return '[' . $this->ofType->toString() . ']';
     }
 
-    /**
-     * @param bool $recurse
-     */
     public function getWrappedType(bool $recurse = false) : Type
     {
         $type = $this->ofType;

@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use function array_merge;
 use function count;
 use function in_array;
 use function json_encode;

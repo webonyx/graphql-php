@@ -144,7 +144,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     private static function resultToArray($value, $emptyObjectAsStdClass = true)
     {
         if ($value instanceof stdClass) {
-            $array = (array)$value;
+            $array = (array) $value;
             if ($emptyObjectAsStdClass && empty($array)) {
                 return new stdClass();
             }
@@ -936,7 +936,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         $selectedType = null;
         foreach ($possibleTypes as $type) {
             $typeCheck = yield $type instanceof ObjectType ? $type->isTypeOf($value, $this->contextValue, $ctx->resolveInfo) : null;
-            if ($selectedType !== null || !$typeCheck) {
+            if ($selectedType !== null || ! $typeCheck) {
                 continue;
             }
 

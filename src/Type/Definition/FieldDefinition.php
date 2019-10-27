@@ -65,17 +65,7 @@ class FieldDefinition
     private $complexityFn;
 
     /**
-     * @param array{
-     *      name: string,
-     *      type: OutputType&Type,
-     *      resolveFn?: callable,
-     *      mapFn?: callable,
-     *      args?: array<FieldArgument>,
-     *      description?: string,
-     *      deprecationReason?: string,
-     *      astNode?: FieldDefinitionNode,
-     *      complexityFn?: callable
-     * } $config
+     * @param mixed[] $config
      */
     protected function __construct(array $config)
     {
@@ -187,7 +177,7 @@ class FieldDefinition
     /**
      * @return OutputType&Type
      */
-    public function getType(): Type
+    public function getType() : Type
     {
         return $this->type;
     }

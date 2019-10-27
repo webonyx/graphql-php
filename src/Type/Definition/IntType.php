@@ -97,7 +97,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
      * @return int

@@ -49,10 +49,7 @@ class BooleanType extends ScalarType
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
-     *
-     * @return bool
      *
      * @throws Exception
      */

@@ -45,6 +45,7 @@ use function array_merge;
 use function array_pop;
 use function count;
 use function is_array;
+use function is_null;
 use function sprintf;
 
 class TypeInfo
@@ -58,7 +59,7 @@ class TypeInfo
     /** @var array<CompositeType&Type> */
     private $parentTypeStack;
 
-    /** @var array<null|(InputType&Type)> */
+    /** @var array<(InputType&Type)|null> */
     private $inputTypeStack;
 
     /** @var array<FieldDefinition> */
@@ -344,8 +345,8 @@ class TypeInfo
                 break;
 
             case $node instanceof ListValueNode:
-                $type = $this->getInputType();
-                $listType = !is_null($type) ? Type::getNullableType($type) : null;
+                $type     = $this->getInputType();
+                $listType = $type !== null ? Type::getNullableType($type) : null;
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;
@@ -403,7 +404,6 @@ class TypeInfo
      * Not exactly the same as the executor's definition of getFieldDef, in this
      * statically evaluated environment we do not always have an Object type,
      * and need to handle Interface and Union types.
-     *
      */
     private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode) : ?FieldDefinition
     {
