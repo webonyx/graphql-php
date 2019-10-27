@@ -16,36 +16,6 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
         $this->ofType = $type;
     }
 
-    /**
-     * @param mixed $type
-     *
-     * @return NullableType
-     */
-    public static function assertNullableType($type)
-    {
-        Utils::invariant(
-            Type::isType($type) && ! $type instanceof self,
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL nullable type.'
-        );
-
-        return $type;
-    }
-
-    /**
-     * @param mixed $type
-     *
-     * @return self
-     */
-    public static function assertNullType($type)
-    {
-        Utils::invariant(
-            $type instanceof self,
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Non-Null type.'
-        );
-
-        return $type;
-    }
-
     public function toString() : string
     {
         return $this->getWrappedType()->toString() . '!';
