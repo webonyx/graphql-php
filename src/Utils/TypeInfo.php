@@ -56,7 +56,7 @@ class TypeInfo
     /** @var array<(OutputType&Type)|null> */
     private $typeStack;
 
-    /** @var array<CompositeType&Type> */
+    /** @var array<(CompositeType&Type)|null> */
     private $parentTypeStack;
 
     /** @var array<(InputType&Type)|null> */
