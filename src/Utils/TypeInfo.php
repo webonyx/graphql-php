@@ -383,9 +383,13 @@ class TypeInfo
     /**
      * @return (OutputType&Type)|null
      */
-    public function getType()
+    public function getType() : ?OutputType
     {
-        return $this->typeStack[count($this->typeStack) - 1] ?? null;
+        if (count($this->typeStack)) {
+            return $this->typeStack[count($this->typeStack) - 1];
+        }
+
+        return null;
     }
 
     /**
@@ -393,7 +397,11 @@ class TypeInfo
      */
     public function getParentType() : ?CompositeType
     {
-        return $this->parentTypeStack[count($this->parentTypeStack) - 1] ?? null;
+        if (count($this->parentTypeStack)) {
+            return $this->parentTypeStack[count($this->parentTypeStack) - 1];
+        }
+
+        return null;
     }
 
     /**
