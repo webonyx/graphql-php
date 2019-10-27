@@ -269,6 +269,9 @@ class BreakingChangesFinder
         return false;
     }
 
+    /**
+     * @return array<string, array<int, array<string, string>>>
+     */
     public static function findFieldsThatChangedTypeOnInputObjectTypes(
         Schema $oldSchema,
         Schema $newSchema
