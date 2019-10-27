@@ -408,7 +408,7 @@ class Schema
      */
     private function getPossibleTypeMap()
     {
-        if (empty($this->possibleTypeMap)) {
+        if (count($this->possibleTypeMap) === 0) {
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof ObjectType) {
                     foreach ($type->getInterfaces() as $interface) {
