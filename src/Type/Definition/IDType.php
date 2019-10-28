@@ -66,7 +66,7 @@ When expected as an input type, any string (such as `"4"`) or integer
      *
      * @throws Exception
      */
-    public function parseLiteral(Node $valueNode, ?array $variables = null) : string
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
             return $valueNode->value;

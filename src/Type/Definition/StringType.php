@@ -70,7 +70,7 @@ represent free-form human-readable text.';
      *
      * @throws Exception
      */
-    public function parseLiteral(Node $valueNode, ?array $variables = null) : string
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof StringValueNode) {
             return $valueNode->value;
