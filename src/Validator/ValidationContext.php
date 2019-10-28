@@ -230,7 +230,7 @@ class ValidationContext extends ASTValidationContext
     /**
      * @return (CompositeType&Type)|null
      */
-    public function getParentType()
+    public function getParentType() : ?CompositeType
     {
         return $this->typeInfo->getParentType();
     }
