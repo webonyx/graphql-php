@@ -228,7 +228,7 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @return (CompositeType&Type)|null
+     * @return (CompositeType & Type) | null
      */
     public function getParentType() : ?CompositeType
     {
@@ -236,7 +236,7 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
+     * @return (Type & InputType) | null
      */
     public function getInputType() : ?InputType
     {

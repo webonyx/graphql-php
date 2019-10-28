@@ -427,30 +427,21 @@ class TypeInfo
     /**
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
-     * @return Type|null
-     *
      * @throws InvariantViolation
      */
-    public static function typeFromAST(Schema $schema, $inputTypeNode)
+    public static function typeFromAST(Schema $schema, $inputTypeNode) : ?Type
     {
         return AST::typeFromAST($schema, $inputTypeNode);
     }
 
-    /**
-     * @return Directive|null
-     */
-    public function getDirective()
+    public function getDirective() : ?Directive
     {
         return $this->directive;
     }
 
     public function getFieldDef() : ?FieldDefinition
     {
-        if (! empty($this->fieldDefStack)) {
-            return $this->fieldDefStack[count($this->fieldDefStack) - 1];
-        }
-
-        return null;
+        return $this->fieldDefStack[count($this->fieldDefStack) - 1] ?? null;
     }
 
     /**
@@ -458,23 +449,15 @@ class TypeInfo
      */
     public function getDefaultValue()
     {
-        if (! empty($this->defaultValueStack)) {
-            return $this->defaultValueStack[count($this->defaultValueStack) - 1];
-        }
-
-        return null;
+        return $this->defaultValueStack[count($this->defaultValueStack) - 1] ?? null;
     }
 
     /**
-     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null
+     * @return (Type & InputType) | null
      */
     public function getInputType() : ?InputType
     {
-        if (! empty($this->inputTypeStack)) {
-            return $this->inputTypeStack[count($this->inputTypeStack) - 1];
-        }
-
-        return null;
+        return $this->inputTypeStack[count($this->inputTypeStack) - 1] ?? null;
     }
 
     public function leave(Node $node)
