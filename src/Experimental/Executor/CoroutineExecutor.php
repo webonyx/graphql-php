@@ -149,7 +149,11 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     private static function resultToArray($value, $emptyObjectAsStdClass = true)
     {
         if ($value instanceof stdClass) {
-            $array = json_decode(json_encode($value), true);
+            $array = (array) $value;
+            foreach ($array as $propertyName => $propertyValue) {
+                $array[$propertyName] = self::resultToArray($propertyValue);
+            }
+
             if ($emptyObjectAsStdClass && empty($array)) {
                 return new stdClass();
             }
