@@ -452,7 +452,7 @@ class Schema
      *
      * @api
      */
-    public function getDirective($name) : ?Directive
+    public function getDirective(string $name) : ?Directive
     {
         foreach ($this->getDirectives() as $directive) {
             if ($directive->name === $name) {
