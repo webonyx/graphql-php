@@ -8,9 +8,12 @@ use GraphQL\Utils\Utils;
 
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
-    /** @var NullableType */
+    /** @var Type & NullableType */
     private $ofType;
 
+    /**
+     * @param NullableType &Type $type
+     */
     public function __construct(NullableType $type)
     {
         $this->ofType = $type;

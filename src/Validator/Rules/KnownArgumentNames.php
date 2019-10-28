@@ -10,6 +10,7 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Type\Definition\Type;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
@@ -38,7 +39,7 @@ class KnownArgumentNames extends ValidationRule
                 if ($argumentOf instanceof FieldNode) {
                     $fieldDef   = $context->getFieldDef();
                     $parentType = $context->getParentType();
-                    if ($fieldDef && $parentType) {
+                    if ($fieldDef && $parentType instanceof Type) {
                         $context->reportError(new Error(
                             self::unknownArgMessage(
                                 $node->name->value,
