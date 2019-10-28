@@ -4,16 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils\Utils;
-
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
-    /** @var Type & NullableType */
+    /** @var NullableType */
     private $ofType;
 
-    /**
-     * @param NullableType &Type $type
-     */
     public function __construct(NullableType $type)
     {
         $this->ofType = $type;
