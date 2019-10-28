@@ -16,7 +16,7 @@ use PHPStan\Reflection\MethodReflection;
 use PHPStan\Type\ObjectType;
 use PHPStan\Type\StaticMethodTypeSpecifyingExtension;
 
-class IsInputTypeStaticMethodTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
+final class IsInputTypeStaticMethodTypeSpecifyingExtension implements StaticMethodTypeSpecifyingExtension, TypeSpecifierAwareExtension
 {
     /** @var TypeSpecifier */
     private $typeSpecifier;
