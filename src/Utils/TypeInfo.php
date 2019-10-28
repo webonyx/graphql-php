@@ -109,7 +109,7 @@ class TypeInfo
     /**
      * @deprecated moved to GraphQL\Utils\TypeComparators
      */
-    public static function isEqualType(Type $typeA, Type $typeB)
+    public static function isEqualType(Type $typeA, Type $typeB) : bool
     {
         return TypeComparators::isEqualType($typeA, $typeB);
     }
@@ -236,18 +236,12 @@ class TypeInfo
         return $typeMap;
     }
 
-    /**
-     * @return InputType|null
-     */
-    public function getParentInputType()
+    public function getParentInputType() : ?InputType
     {
         return $this->inputTypeStack[count($this->inputTypeStack) - 2] ?? null;
     }
 
-    /**
-     * @return FieldArgument|null
-     */
-    public function getArgument()
+    public function getArgument() : ?FieldArgument
     {
         return $this->argument;
     }
@@ -370,7 +364,7 @@ class TypeInfo
                 $enumType  = Type::getNamedType($this->getInputType());
                 $enumValue = null;
                 if ($enumType instanceof EnumType) {
-                    $enumValue = $enumType->getValue($node->value);
+                    $this->enumValue = $enumType->getValue($node->value);
                 }
                 $this->enumValue = $enumValue;
                 break;
