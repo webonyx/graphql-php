@@ -39,17 +39,14 @@ class CustomScalarType extends ScalarType
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
      * @return mixed
      *
      * @throws Exception
      */
-    public function parseLiteral(/* GraphQL\Language\AST\ValueNode */
-        $valueNode,
-        ?array $variables = null
-    ) {
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
+    {
         if (isset($this->config['parseLiteral'])) {
             return call_user_func($this->config['parseLiteral'], $valueNode, $variables);
         }
