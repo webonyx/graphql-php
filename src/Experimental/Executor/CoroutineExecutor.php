@@ -40,6 +40,8 @@ use stdClass;
 use Throwable;
 use function is_array;
 use function is_string;
+use function json_decode;
+use function json_encode;
 use function sprintf;
 
 class CoroutineExecutor implements Runtime, ExecutorImplementation
@@ -147,7 +149,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     private static function resultToArray($value, $emptyObjectAsStdClass = true)
     {
         if ($value instanceof stdClass) {
-            $array = (array) $value;
+            $array = json_decode(json_encode($value), true);
             if ($emptyObjectAsStdClass && empty($array)) {
                 return new stdClass();
             }
