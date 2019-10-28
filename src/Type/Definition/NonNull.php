@@ -6,12 +6,14 @@ namespace GraphQL\Type\Definition;
 
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
-    /** @var NullableType */
+    /** @var Type&NullableType */
     private $ofType;
 
     public function __construct(NullableType $type)
     {
-        $this->ofType = $type;
+        /** @var Type&NullableType $nullableType*/
+        $nullableType = $type;
+        $this->ofType = $nullableType;
     }
 
     public function toString() : string
