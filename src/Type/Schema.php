@@ -341,10 +341,8 @@ class Schema
 
     /**
      * @param string $typeName
-     *
-     * @return Type
      */
-    private function loadType($typeName)
+    private function loadType($typeName) : ?Type
     {
         $typeLoader = $this->config->typeLoader;
 
@@ -374,10 +372,8 @@ class Schema
 
     /**
      * @param string $typeName
-     *
-     * @return Type
      */
-    private function defaultTypeLoader($typeName)
+    private function defaultTypeLoader($typeName) : ?Type
     {
         // Default type loader simply fallbacks to collecting all types
         $typeMap = $this->getTypeMap();
