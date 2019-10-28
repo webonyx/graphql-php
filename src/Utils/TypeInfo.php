@@ -372,7 +372,7 @@ class TypeInfo
     }
 
     /**
-     * @return (OutputType&Type)|null
+     * @return (Type & OutputType) | null
      */
     public function getType() : ?OutputType
     {
@@ -380,7 +380,7 @@ class TypeInfo
     }
 
     /**
-     * @return (CompositeType&Type)|null
+     * @return (Type & CompositeType) | null
      */
     public function getParentType() : ?CompositeType
     {
