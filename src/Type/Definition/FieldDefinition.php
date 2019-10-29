@@ -239,5 +239,9 @@ class FieldDefinition
                 Utils::printSafe($this->resolveFn)
             )
         );
+
+        foreach($this->args as $fieldArgument) {
+            $fieldArgument->assertValid($this, $type);
+        }
     }
 }
