@@ -176,13 +176,15 @@ class GraphQL
 
     /**
      * @deprecated Use executeQuery()->toArray() instead
-     * @codeCoverageIgnore
+     *
      * @param string|DocumentNode $source
      * @param mixed               $rootValue
      * @param mixed               $contextValue
      * @param mixed[]|null        $variableValues
      *
      * @return Promise|mixed[]
+     *
+     * @codeCoverageIgnore
      */
     public static function execute(
         SchemaType $schema,
@@ -221,13 +223,15 @@ class GraphQL
 
     /**
      * @deprecated renamed to executeQuery()
-     * @codeCoverageIgnore
+     *
      * @param string|DocumentNode $source
      * @param mixed               $rootValue
      * @param mixed               $contextValue
      * @param mixed[]|null        $variableValues
      *
      * @return ExecutionResult|Promise
+     *
+     * @codeCoverageIgnore
      */
     public static function executeAndReturnResult(
         SchemaType $schema,
@@ -344,8 +348,10 @@ class GraphQL
      * Returns directives defined in GraphQL spec
      *
      * @deprecated Renamed to getStandardDirectives
-     * @codeCoverageIgnore
+     *
      * @return Directive[]
+     *
+     * @codeCoverageIgnore
      */
     public static function getInternalDirectives() : array
     {

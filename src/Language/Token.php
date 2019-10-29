@@ -84,6 +84,9 @@ class Token
     /** @var ?Token */
     public $next;
 
+    /**
+     * @param mixed|null $value
+     */
     public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, $value = null)
     {
         $this->kind   = $kind;
