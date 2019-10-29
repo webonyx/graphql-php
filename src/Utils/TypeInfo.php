@@ -68,10 +68,10 @@ class TypeInfo
     /** @var array<mixed> */
     private $defaultValueStack;
 
-    /** @var ?Directive */
+    /** @var Directive|null */
     private $directive;
 
-    /** @var ?FieldArgument */
+    /** @var FieldArgument|null */
     private $argument;
 
     /** @var mixed */

@@ -174,9 +174,7 @@ class ValidationTest extends TestCase
         $this->assertEachCallableThrows(
             [
                 static function () {
-                    $empty = [];
-
-                    return new ObjectType($empty);
+                    return new ObjectType([]);
                 },
                 static function () {
                     return new EnumType([]);

@@ -448,8 +448,6 @@ class Schema
     /**
      * Returns instance of directive by name
      *
-     * @param string $name
-     *
      * @api
      */
     public function getDirective(string $name) : ?Directive
