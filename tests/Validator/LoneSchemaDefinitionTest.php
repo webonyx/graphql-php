@@ -7,7 +7,6 @@ namespace GraphQL\Tests\Validator;
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Utils\BuildSchema;
-use GraphQL\Validator\Rules\KnownDirectives;
 use GraphQL\Validator\Rules\LoneSchemaDefinition;
 
 class LoneSchemaDefinitionTest extends ValidatorTestCase

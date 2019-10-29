@@ -83,8 +83,8 @@ class CollectorTest extends TestCase
             }
             if (! empty($shared->argumentValueMap)) {
                 $execution->argumentValueMap = [];
+                /** @var Node $valueNode */
                 foreach ($shared->argumentValueMap as $argumentName => $valueNode) {
-                    /** @var Node $valueNode */
                     $execution->argumentValueMap[$argumentName] = $valueNode->toArray(true);
                 }
             }
@@ -359,10 +359,9 @@ class CollectorTest extends TestCase
         foreach ($testCases as [$schema, $query, $variableValues]) {
             $documentNode  = Parser::parse($query, ['noLocation' => true]);
             $operationName = null;
+            /** @var Node $definitionNode */
             foreach ($documentNode->definitions as $definitionNode) {
-                /** @var Node $definitionNode */
                 if ($definitionNode instanceof OperationDefinitionNode) {
-                    /** @var OperationDefinitionNode $definitionNode */
                     self::assertNotNull($definitionNode->name);
                     $operationName = $definitionNode->name->value;
                     break;

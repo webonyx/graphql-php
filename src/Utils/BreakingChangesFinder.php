@@ -305,13 +305,11 @@ class BreakingChangesFinder
                     );
                     if (! $isSafe) {
                         if ($oldFieldType instanceof NamedType) {
-                            /** @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $oldFieldType */
                             $oldFieldTypeString = $oldFieldType->name;
                         } else {
                             $oldFieldTypeString = $oldFieldType;
                         }
                         if ($newFieldType instanceof NamedType) {
-                            /** @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|InputObjectType $newFieldType */
                             $newFieldTypeString = $newFieldType->name;
                         } else {
                             $newFieldTypeString = $newFieldType;

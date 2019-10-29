@@ -434,8 +434,6 @@ class Schema
      * Returns true if object type is concrete type of given abstract type
      * (implementation for interfaces and members of union type for unions)
      *
-     * @param InterfaceType|UnionType $abstractType
-     *
      * @api
      */
     public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType) : bool
@@ -444,8 +442,11 @@ class Schema
             return $possibleType->implementsInterface($abstractType);
         }
 
-        /** @var UnionType $abstractType */
-        return $abstractType->isPossibleType($possibleType);
+        if ($abstractType instanceof UnionType) {
+            return $abstractType->isPossibleType($possibleType);
+        }
+
+        throw InvariantViolation::shouldNotHappen();
     }
 
     /**

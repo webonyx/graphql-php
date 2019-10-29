@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;

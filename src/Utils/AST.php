@@ -213,7 +213,6 @@ class AST
                 } elseif ($isArray) {
                     $fieldExists = array_key_exists($fieldName, $value);
                 } elseif ($isArrayLike) {
-                    /** @var ArrayAccess $value */
                     $fieldExists = $value->offsetExists($fieldName);
                 } else {
                     $fieldExists = property_exists($value, $fieldName);
@@ -411,8 +410,8 @@ class AST
                 }
             );
             foreach ($fields as $field) {
-                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
                 $fieldName = $field->name;
+                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
                 if ($fieldNode === null || self::isMissingVariable($fieldNode->value, $variables)) {

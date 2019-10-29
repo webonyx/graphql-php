@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator;
 
-use GraphQL\Error\Error;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
@@ -182,11 +182,12 @@ class ValidationContext extends ASTValidationContext
                     $selection = $set->selections[$i];
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;
-                    } else {
-                        /** @var FieldNode|InlineFragmentNode $selection*/
+                    } elseif ($selection instanceof FieldNode || $selection instanceof InlineFragmentNode) {
                         if ($selection->selectionSet) {
                             $setsToVisit[] = $selection->selectionSet;
                         }
+                    } else {
+                        throw InvariantViolation::shouldNotHappen();
                     }
                 }
             }

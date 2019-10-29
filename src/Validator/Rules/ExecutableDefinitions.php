@@ -26,6 +26,7 @@ class ExecutableDefinitions extends ValidationRule
     {
         return [
             NodeKind::DOCUMENT => static function (DocumentNode $node) use ($context) {
+                /** @var FragmentDefinitionNode|OperationDefinitionNode|TypeSystemDefinitionNode $definition */
                 foreach ($node->definitions as $definition) {
                     if ($definition instanceof OperationDefinitionNode ||
                         $definition instanceof FragmentDefinitionNode
@@ -33,7 +34,6 @@ class ExecutableDefinitions extends ValidationRule
                         continue;
                     }
 
-                    /** @var TypeSystemDefinitionNode $definition */
                     $context->reportError(new Error(
                         self::nonExecutableDefinitionMessage($definition->name->value),
                         [$definition->name]

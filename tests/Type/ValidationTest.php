@@ -22,11 +22,7 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
-use function array_map;
 use function array_merge;
-use function implode;
-use function print_r;
-use function sprintf;
 
 class ValidationTest extends TestCase
 {

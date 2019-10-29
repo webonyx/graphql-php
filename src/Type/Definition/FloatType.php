@@ -11,14 +11,11 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
 use function floatval;
-use function is_array;
 use function is_bool;
 use function is_finite;
 use function is_float;
 use function is_int;
-use function is_nan;
 use function is_numeric;
-use function sprintf;
 
 class FloatType extends ScalarType
 {

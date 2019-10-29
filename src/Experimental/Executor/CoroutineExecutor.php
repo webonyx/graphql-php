@@ -825,12 +825,11 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                 } else {
                     $childContexts = [];
 
+                    /** @var CoroutineContextShared $childShared */
                     foreach ($this->collector->collectFields(
                         $objectType,
                         $ctx->shared->mergedSelectionSet ?? $this->mergeSelectionSets($ctx)
                     ) as $childShared) {
-                        /** @var CoroutineContextShared $childShared */
-
                         $childPath   = $path;
                         $childPath[] = $childShared->resultName; // !!! uses array COW semantics
                         $childCtx    = new CoroutineContext(

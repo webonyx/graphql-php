@@ -10,7 +10,6 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NodeList;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
@@ -29,12 +28,12 @@ class KnownArgumentNames extends ValidationRule
     {
         return [
             NodeKind::ARGUMENT => static function (ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
-                /** @var NodeList|Node[] $ancestors */
                 $argDef = $context->getArgument();
                 if ($argDef !== null) {
                     return;
                 }
 
+                /** @var Node|mixed $argumentOf */
                 $argumentOf = $ancestors[count($ancestors) - 1];
                 if ($argumentOf instanceof FieldNode) {
                     $fieldDef   = $context->getFieldDef();

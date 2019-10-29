@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor\Promise\Adapter;
 
-use Exception;
 use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;

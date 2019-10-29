@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL;
 
-use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use SplQueue;
 use Throwable;

@@ -27,7 +27,6 @@ use GraphQL\Utils\Utils;
 use function array_filter;
 use function array_key_exists;
 use function array_values;
-use function in_array;
 use function is_bool;
 use function method_exists;
 use function trigger_error;
@@ -510,6 +509,8 @@ EOD;
                             'type' => Type::nonNull(Type::string()),
                             'resolve' => static function ($inputValue) {
                                 /** @var FieldArgument|InputObjectField $inputValue */
+                                $inputValue = $inputValue;
+
                                 return $inputValue->name;
                             },
                         ],
@@ -517,6 +518,8 @@ EOD;
                             'type' => Type::string(),
                             'resolve' => static function ($inputValue) {
                                 /** @var FieldArgument|InputObjectField $inputValue */
+                                $inputValue = $inputValue;
+
                                 return $inputValue->description;
                             },
                         ],
@@ -534,6 +537,8 @@ EOD;
                                 'A GraphQL-formatted string representing the default value for this input value.',
                             'resolve'     => static function ($inputValue) {
                                 /** @var FieldArgument|InputObjectField $inputValue */
+                                $inputValue = $inputValue;
+
                                 return ! $inputValue->defaultValueExists()
                                     ? null
                                     : Printer::doPrint(AST::astFromValue(

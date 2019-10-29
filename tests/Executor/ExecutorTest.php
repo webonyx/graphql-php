@@ -21,7 +21,6 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use function array_keys;
 use function count;
 use function json_encode;
 

@@ -6,7 +6,6 @@ namespace GraphQL\Error;
 
 use Countable;
 use ErrorException;
-use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
