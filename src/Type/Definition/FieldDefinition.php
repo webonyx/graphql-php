@@ -240,7 +240,7 @@ class FieldDefinition
             )
         );
 
-        foreach($this->args as $fieldArgument) {
+        foreach ($this->args as $fieldArgument) {
             $fieldArgument->assertValid($this, $type);
         }
     }
