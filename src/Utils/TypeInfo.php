@@ -108,6 +108,7 @@ class TypeInfo
 
     /**
      * @deprecated moved to GraphQL\Utils\TypeComparators
+     * @codeCoverageIgnore
      */
     public static function isEqualType(Type $typeA, Type $typeB) : bool
     {
@@ -116,6 +117,7 @@ class TypeInfo
 
     /**
      * @deprecated moved to GraphQL\Utils\TypeComparators
+     * @codeCoverageIgnore
      */
     public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
     {
@@ -124,6 +126,7 @@ class TypeInfo
 
     /**
      * @deprecated moved to GraphQL\Utils\TypeComparators
+     * @codeCoverageIgnore
      */
     public static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB)
     {

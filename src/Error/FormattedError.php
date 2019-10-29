@@ -425,7 +425,7 @@ class FormattedError
 
     /**
      * @deprecated as of v0.10.0, use general purpose method createFromException() instead
-     *
+     * @codeCoverageIgnore
      * @return mixed[]
      */
     public static function createFromPHPError(ErrorException $e)

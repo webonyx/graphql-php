@@ -175,7 +175,7 @@ abstract class Type implements JsonSerializable
 
     /**
      * @deprecated Use method getStandardTypes() instead
-     *
+     * @codeCoverageIgnore
      * @return Type[]
      */
     public static function getInternalTypes()

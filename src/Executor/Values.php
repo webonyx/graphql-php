@@ -297,6 +297,7 @@ class Values
 
     /**
      * @deprecated as of 8.0 (Moved to \GraphQL\Utils\AST::valueFromAST)
+     * @codeCoverageIgnore
      *
      * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $valueNode
      * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull                                                                              $type
@@ -311,7 +312,7 @@ class Values
 
     /**
      * @deprecated as of 0.12 (Use coerceValue() directly for richer information)
-     *
+     * @codeCoverageIgnore
      * @param mixed[] $value
      *
      * @return string[]

@@ -176,7 +176,7 @@ class GraphQL
 
     /**
      * @deprecated Use executeQuery()->toArray() instead
-     *
+     * @codeCoverageIgnore
      * @param string|DocumentNode $source
      * @param mixed               $rootValue
      * @param mixed               $contextValue
@@ -221,7 +221,7 @@ class GraphQL
 
     /**
      * @deprecated renamed to executeQuery()
-     *
+     * @codeCoverageIgnore
      * @param string|DocumentNode $source
      * @param mixed               $rootValue
      * @param mixed               $contextValue
@@ -344,7 +344,7 @@ class GraphQL
      * Returns directives defined in GraphQL spec
      *
      * @deprecated Renamed to getStandardDirectives
-     *
+     * @codeCoverageIgnore
      * @return Directive[]
      */
     public static function getInternalDirectives() : array
