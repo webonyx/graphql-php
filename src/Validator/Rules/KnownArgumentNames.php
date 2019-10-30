@@ -39,7 +39,7 @@ class KnownArgumentNames extends ValidationRule
                 if ($argumentOf instanceof FieldNode) {
                     $fieldDef   = $context->getFieldDef();
                     $parentType = $context->getParentType();
-                    if ($fieldDef && $parentType instanceof Type) {
+                    if ($fieldDef !== null && $parentType instanceof Type) {
                         $context->reportError(new Error(
                             self::unknownArgMessage(
                                 $node->name->value,
