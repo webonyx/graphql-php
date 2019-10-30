@@ -387,7 +387,7 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @param UnionType|InterfaceType $abstractType
+     * @param InterfaceType|UnionType $abstractType
      *
      * @return Type[]
      *
