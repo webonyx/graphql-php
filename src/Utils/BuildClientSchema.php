@@ -25,15 +25,13 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\TypeKind;
-use stdClass;
 use function array_map;
 use function array_merge;
 use function json_encode;
-use function property_exists;
 
 class BuildClientSchema
 {
-    /** @var stdClass */
+    /** @var mixed[] */
     private $introspection;
 
     /** @var bool[] */
@@ -43,11 +41,10 @@ class BuildClientSchema
     private $typeMap;
 
     /**
+     * @paran mixed[] $introspectionQuery
      * @param bool[] $options
-     *
-     * @paran \stdClass $introspectionQuery
      */
-    public function __construct(stdClass $introspectionQuery, array $options = [])
+    public function __construct(array $introspectionQuery, array $options = [])
     {
         $this->introspection = $introspectionQuery;
         $this->options       = $options;
@@ -80,7 +77,7 @@ class BuildClientSchema
      *
      * @api
      */
-    public static function build(stdClass $introspectionQuery, array $options = []) : Schema
+    public static function build(array $introspectionQuery, array $options = []) : Schema
     {
         $builder = new self($introspectionQuery, $options);
 
@@ -89,18 +86,18 @@ class BuildClientSchema
 
     public function buildSchema()
     {
-        if (! property_exists($this->introspection, '__schema')) {
+        if (! array_key_exists('__schema', $this->introspection)) {
             throw new InvariantViolation('Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: ' . json_encode($this->introspection));
         }
 
-        $schemaIntrospection = $this->introspection->__schema;
+        $schemaIntrospection = $this->introspection['__schema'];
 
         $this->typeMap = Utils::keyValMap(
-            $schemaIntrospection->types,
-            static function (stdClass $typeIntrospection) {
-                return $typeIntrospection->name;
+            $schemaIntrospection['types'],
+            static function (array $typeIntrospection) {
+                return $typeIntrospection['name'];
             },
-            function (stdClass $typeIntrospection) {
+            function (array $typeIntrospection) {
                 return $this->buildType($typeIntrospection);
             }
         );
@@ -117,22 +114,22 @@ class BuildClientSchema
             $this->typeMap[$name] = $type;
         }
 
-        $queryType = $schemaIntrospection->queryType
-            ? $this->getObjectType($schemaIntrospection->queryType)
+        $queryType = isset($schemaIntrospection['queryType'])
+            ? $this->getObjectType($schemaIntrospection['queryType'])
             : null;
 
-        $mutationType = $schemaIntrospection->mutationType
-            ? $this->getObjectType($schemaIntrospection->mutationType)
+        $mutationType = isset($schemaIntrospection['mutationType'])
+            ? $this->getObjectType($schemaIntrospection['mutationType'])
             : null;
 
-        $subscriptionType = $schemaIntrospection->subscriptionType
-            ? $this->getObjectType($schemaIntrospection->subscriptionType)
+        $subscriptionType = isset($schemaIntrospection['subscriptionType'])
+            ? $this->getObjectType($schemaIntrospection['subscriptionType'])
             : null;
 
-        $directives = $schemaIntrospection->directives
+        $directives = isset($schemaIntrospection['directives'])
             ? array_map(
                 [$this, 'buildDirective'],
-                $schemaIntrospection->directives
+                $schemaIntrospection['directives']
             )
             : [];
 
@@ -151,34 +148,36 @@ class BuildClientSchema
         return new Schema($schemaConfig);
     }
 
-    private function getType(stdClass $typeRef) : Type
+    private function getType(array $typeRef) : Type
     {
-        if ($typeRef->kind === TypeKind::LIST) {
-            $itemRef = $typeRef->ofType;
-            if (! $itemRef) {
-                throw new InvariantViolation('Decorated type deeper than introspection query.');
+        if (isset($typeRef['kind'])) {
+            if ($typeRef['kind'] === TypeKind::LIST) {
+                $itemRef = $typeRef['ofType'];
+                if (! $itemRef) {
+                    throw new InvariantViolation('Decorated type deeper than introspection query.');
+                }
+
+                return new ListOfType($this->getType($itemRef));
             }
 
-            return new ListOfType($this->getType($itemRef));
-        }
+            if ($typeRef['kind'] === TypeKind::NON_NULL) {
+                $nullableRef = $typeRef['ofType'];
+                if (! $nullableRef) {
+                    throw new InvariantViolation('Decorated type deeper than introspection query.');
+                }
+                $nullableType = $this->getType($nullableRef);
 
-        if ($typeRef->kind === TypeKind::NON_NULL) {
-            $nullableRef = $typeRef->ofType;
-            if (! $nullableRef) {
-                throw new InvariantViolation('Decorated type deeper than introspection query.');
+                return new NonNull(
+                    NonNull::assertNullableType($nullableType)
+                );
             }
-            $nullableType = $this->getType($nullableRef);
-
-            return new NonNull(
-                NonNull::assertNullableType($nullableType)
-            );
         }
 
-        if (! $typeRef->name) {
+        if (! $typeRef['name']) {
             throw new InvariantViolation('Unknown type reference: ' . json_encode($typeRef));
         }
 
-        return $this->getNamedType($typeRef->name);
+        return $this->getNamedType($typeRef['name']);
     }
 
     private function getNamedType(string $typeName) : NamedType
@@ -192,7 +191,7 @@ class BuildClientSchema
         return $this->typeMap[$typeName];
     }
 
-    private function getInputType(stdClass $typeRef) : InputType
+    private function getInputType(array $typeRef) : InputType
     {
         $type = $this->getType($typeRef);
 
@@ -203,7 +202,7 @@ class BuildClientSchema
         throw new InvariantViolation('Introspection must provide input type for arguments, but received: ' . json_encode($type));
     }
 
-    private function getOutputType(stdClass $typeRef) : OutputType
+    private function getOutputType(array $typeRef) : OutputType
     {
         $type = $this->getType($typeRef);
 
@@ -214,24 +213,24 @@ class BuildClientSchema
         throw new InvariantViolation('Introspection must provide output type for fields, but received: ' . json_encode($type));
     }
 
-    private function getObjectType(stdClass $typeRef) : ObjectType
+    private function getObjectType(array $typeRef) : ObjectType
     {
         $type = $this->getType($typeRef);
 
         return ObjectType::assertObjectType($type);
     }
 
-    private function getInterfaceType(stdClass $typeRef) : InterfaceType
+    private function getInterfaceType(array $typeRef) : InterfaceType
     {
         $type = $this->getType($typeRef);
 
         return InterfaceType::assertInterfaceType($type);
     }
 
-    private function buildType(stdClass $type) : NamedType
+    private function buildType(array $type) : NamedType
     {
-        if (property_exists($type, 'name') && property_exists($type, 'kind')) {
-            switch ($type->kind) {
+        if (array_key_exists('name', $type) && array_key_exists('kind', $type)) {
+            switch ($type['kind']) {
                 case TypeKind::SCALAR:
                     return $this->buildScalarDef($type);
                 case TypeKind::OBJECT:
@@ -252,27 +251,27 @@ class BuildClientSchema
         );
     }
 
-    private function buildScalarDef(stdClass $scalar) : ScalarType
+    private function buildScalarDef(array $scalar) : ScalarType
     {
         return new CustomScalarType([
-            'name' => $scalar->name,
-            'description' => $scalar->description,
+            'name' => $scalar['name'],
+            'description' => $scalar['description'],
         ]);
     }
 
-    private function buildObjectDef(stdClass $object) : ObjectType
+    private function buildObjectDef(array $object) : ObjectType
     {
-        if (! property_exists($object, 'interfaces')) {
+        if (! array_key_exists('interfaces', $object)) {
             throw new InvariantViolation('Introspection result missing interfaces: ' . json_encode($object));
         }
 
         return new ObjectType([
-            'name' => $object->name,
-            'description' => $object->description,
+            'name' => $object['name'],
+            'description' => $object['description'],
             'interfaces' => function () use ($object) {
                 return array_map(
                     [$this, 'getInterfaceType'],
-                    $object->interfaces
+                    $object['interfaces']
                 );
             },
             'fields' => function () use ($object) {
@@ -281,102 +280,102 @@ class BuildClientSchema
         ]);
     }
 
-    private function buildInterfaceDef(stdClass $interface) : InterfaceType
+    private function buildInterfaceDef(array $interface) : InterfaceType
     {
         return new InterfaceType([
-            'name' => $interface->name,
-            'description' => $interface->description,
+            'name' => $interface['name'],
+            'description' => $interface['description'],
             'fields' => function () use ($interface) {
                 return $this->buildFieldDefMap($interface);
             },
         ]);
     }
 
-    private function buildUnionDef(stdClass $union) : UnionType
+    private function buildUnionDef(array $union) : UnionType
     {
-        if (! property_exists($union, 'possibleType')) {
+        if (! array_key_exists('possibleType', $union)) {
             throw new InvariantViolation('Introspection result missing possibleTypes: ' . json_encode($union));
         }
 
         return new UnionType([
-            'name' => $union->name,
-            'description' => $union->description,
+            'name' => $union['name'],
+            'description' => $union['description'],
             'types' => function () use ($union) {
                 return array_map(
                     [$this, 'getObjectType'],
-                    $union->possibleTypes
+                    $union['possibleTypes']
                 );
             },
         ]);
     }
 
-    private function buildEnumDef(stdClass $enum) : EnumType
+    private function buildEnumDef(array $enum) : EnumType
     {
-        if (! property_exists($enum, 'enumValues')) {
+        if (! array_key_exists('enumValues', $enum)) {
             throw new InvariantViolation('Introspection result missing enumValues: ' . json_encode($enum));
         }
 
         return new EnumType([
-            'name' => $enum->name,
-            'description' => $enum->description,
+            'name' => $enum['name'],
+            'description' => $enum['description'],
             'values' => Utils::keyValMap(
-                $enum->enumValues,
-                static function (stdClass $enumValue) : string {
-                    return $enumValue->name;
+                $enum['enumValues'],
+                static function (array $enumValue) : string {
+                    return $enumValue['name'];
                 },
-                static function (stdClass $enumValue) {
+                static function (array $enumValue) {
                     return [
-                        'description' => $enumValue->description,
-                        'deprecationReason' => $enumValue->deprecationReason,
+                        'description' => $enumValue['description'],
+                        'deprecationReason' => $enumValue['deprecationReason'],
                     ];
                 }
             ),
         ]);
     }
 
-    private function buildInputObjectDef(stdClass $inputObject) : InputObjectType
+    private function buildInputObjectDef(array $inputObject) : InputObjectType
     {
-        if (! property_exists($inputObject, 'inputFields')) {
+        if (! array_key_exists('inputFields', $inputObject)) {
             throw new InvariantViolation('Introspection result missing inputFields: ' . json_encode($inputObject));
         }
 
         return new InputObjectType([
-            'name' => $inputObject->name,
-            'description' => $inputObject->description,
+            'name' => $inputObject['name'],
+            'description' => $inputObject['description'],
             'fields' => function () use ($inputObject) {
                 return $this->buildInputValueDefMap($inputObject->inputFields);
             },
         ]);
     }
 
-    private function buildFieldDefMap(stdClass $typeIntrospection)
+    private function buildFieldDefMap(array $typeIntrospection)
     {
-        if (! property_exists($typeIntrospection, 'fields')) {
+        if (! array_key_exists('fields', $typeIntrospection)) {
             throw new InvariantViolation('Introspection result missing fields: ' . json_encode($typeIntrospection));
         }
 
         return Utils::keyValMap(
-            $typeIntrospection->fields,
-            static function (stdClass $fieldIntrospection) : string {
-                return $fieldIntrospection->name;
+            $typeIntrospection['fields'],
+            static function (array $fieldIntrospection) : string {
+                return $fieldIntrospection['name'];
             },
-            function (stdClass $fieldIntrospection) {
-                if (! property_exists($fieldIntrospection, 'args')) {
+            function (array $fieldIntrospection) {
+                if (! array_key_exists('args', $fieldIntrospection)) {
                     throw new InvariantViolation('Introspection result missing field args: ' . json_encode($fieldIntrospection));
                 }
 
                 return [
-                    'description' => $fieldIntrospection->description,
-                    'deprecationReason' => $fieldIntrospection->deprecationReason,
-                    'type' => $this->getOutputType($fieldIntrospection->type),
-                    'args' => $this->buildInputValueDefMap($fieldIntrospection->args),
+                    'description' => $fieldIntrospection['description'],
+                    'deprecationReason' => $fieldIntrospection['deprecationReason'],
+                    'type' => $this->getOutputType($fieldIntrospection['type']),
+                    'args' => $this->buildInputValueDefMap($fieldIntrospection['args']),
                 ];
             }
         );
     }
 
     /**
-     * @param  stdClass[] $inputValueIntrospections
+     * @param  array[] $inputValueIntrospections
      *
      * @return mixed[][]
      */
@@ -384,46 +383,46 @@ class BuildClientSchema
     {
         return Utils::keyValMap(
             $inputValueIntrospections,
-            static function (stdClass $inputValue) : string {
-                return $inputValue->name;
+            static function (array $inputValue) : string {
+                return $inputValue['name'];
             },
             [$this, 'buildInputValue']
         );
     }
 
-    private function buildInputValue(stdClass $inputValueIntrospection)
+    public function buildInputValue(array $inputValueIntrospection)
     {
-        $type = $this->getInputType($inputValueIntrospection->type);
+        $type = $this->getInputType($inputValueIntrospection['type']);
 
         $inputValue = [
-            'description' => $inputValueIntrospection->description,
+            'description' => $inputValueIntrospection['description'],
             'type' => $type,
         ];
 
-        if (! $inputValueIntrospection->defaultValue) {
-            return;
+        if (isset($inputValueIntrospection['defaultValue'])) {
+            $inputValue['defaultValue'] = AST::valueFromAST(
+                Parser::parseValue($inputValueIntrospection['defaultValue']),
+                $type
+            );
         }
 
-        $inputValue['defaultValue'] = AST::valueFromAST(
-            Parser::parseValue($inputValueIntrospection->defaultValue),
-            $type
-        );
+        return $inputValue;
     }
 
-    private function buildDirective(stdClass $directive) : Directive
+    public function buildDirective(array $directive) : Directive
     {
-        if (! property_exists($directive, 'args')) {
+        if (! array_key_exists('args', $directive)) {
             throw new InvariantViolation('Introspection result missing directive args: ' . json_encode($directive));
         }
-        if (! property_exists($directive, 'locations')) {
+        if (! array_key_exists('locations', $directive)) {
             throw new InvariantViolation('Introspection result missing directive locations: ' . json_encode($directive));
         }
 
         return new Directive([
-            'name' => $directive->name,
-            'description' => $directive->description,
-            'locations' => $directive->locations,
-            'args' => $this->buildInputValueDefMap($directive->args),
+            'name' => $directive['name'],
+            'description' => $directive['description'],
+            'locations' => $directive['locations'],
+            'args' => $this->buildInputValueDefMap($directive['args']),
         ]);
     }
 }
