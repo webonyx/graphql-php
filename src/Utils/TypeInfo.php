@@ -386,10 +386,13 @@ class TypeInfo
     }
 
     /**
-     * @return (Type & CompositeType) | null
+     * @return (Type&CompositeType)|null
      */
     public function getParentType() : ?CompositeType
     {
+        /**
+         * @var (Type&CompositeType)|null
+         */
         return $this->parentTypeStack[count($this->parentTypeStack) - 1] ?? null;
     }
 
