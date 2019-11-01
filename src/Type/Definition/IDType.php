@@ -53,7 +53,7 @@ When expected as an input type, any string (such as `"4"`) or integer
      *
      * @throws Error
      */
-    public function parseValue($value)
+    public function parseValue($value) : string
     {
         if (is_string($value) || is_int($value)) {
             return (string) $value;
