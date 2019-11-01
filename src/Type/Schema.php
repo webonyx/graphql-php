@@ -401,7 +401,7 @@ class Schema
     }
 
     /**
-     * @return array<string,Type[]>
+     * @return array<string, Type[]>
      */
     private function getPossibleTypeMap()
     {
