@@ -25,6 +25,7 @@ use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Type\SchemaConfig;
 use GraphQL\Type\TypeKind;
+use function array_key_exists;
 use function array_map;
 use function array_merge;
 use function json_encode;
@@ -41,8 +42,8 @@ class BuildClientSchema
     private $typeMap;
 
     /**
-     * @paran mixed[] $introspectionQuery
-     * @param bool[] $options
+     * @param mixed[] $introspectionQuery
+     * @param  bool[]  $options
      */
     public function __construct(array $introspectionQuery, array $options = [])
     {
@@ -71,9 +72,8 @@ class BuildClientSchema
      *
      *          Default: false
      *
-     * @param bool[] $options
-     *
-     * @throws Error
+     * @param  mixed[] $introspectionQuery
+     * @param  bool[]  $options
      *
      * @api
      */
@@ -148,6 +148,9 @@ class BuildClientSchema
         return new Schema($schemaConfig);
     }
 
+    /**
+     * @param  mixed[] $typeRef
+     */
     private function getType(array $typeRef) : Type
     {
         if (isset($typeRef['kind'])) {

@@ -187,7 +187,6 @@ EOD;
     }
 
     /**
-     *
      * Build an IntrospectionQuery from a GraphQLSchema
      *
      * IntrospectionQuery is useful for utilities that care about type and field
@@ -202,9 +201,10 @@ EOD;
      *     Default: true
      *
      * @param bool[]|bool $options
+     *
      * @return mixed[]|null
      */
-    public static function fromSchema(Schema $schema, array $options = []): ?array
+    public static function fromSchema(Schema $schema, array $options = []) : ?array
     {
         $result = GraphQL::executeQuery(
             $schema,

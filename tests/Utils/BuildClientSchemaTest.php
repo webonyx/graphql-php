@@ -34,24 +34,24 @@ use function count;
  */
 class BuildClientSchemaTest extends TestCase
 {
-    protected static function assertCycleIntrospection(string $sdl): void
+    protected static function assertCycleIntrospection(string $sdl) : void
     {
-        $serverSchema = BuildSchema::build($sdl);
+        $serverSchema         = BuildSchema::build($sdl);
         $initialIntrospection = Introspection::fromSchema($serverSchema);
-        $clientSchema = BuildClientSchema::build($initialIntrospection);
-        $secondIntrospection = Introspection::fromSchema($clientSchema);
+        $clientSchema         = BuildClientSchema::build($initialIntrospection);
+        $secondIntrospection  = Introspection::fromSchema($clientSchema);
 
         self::assertSame($initialIntrospection, $secondIntrospection);
     }
 
-    protected static function introspectionFromSDL(string $sdl): array
+    protected static function introspectionFromSDL(string $sdl) : array
     {
         $schema = BuildSchema::build($sdl);
 
         return Introspection::fromSchema($schema);
     }
 
-    protected static function clientSchemaFromSDL(string $sdl): Schema
+    protected static function clientSchemaFromSDL(string $sdl) : Schema
     {
         $introspection = self::introspectionFromSDL($sdl);
 
@@ -81,9 +81,9 @@ class BuildClientSchemaTest extends TestCase
     /**
      * it('builds a schema without the query type', () => {
      */
-    public function testBuildsASchemaWithoutTheQueryType(): void
+    public function testBuildsASchemaWithoutTheQueryType() : void
     {
-        $sdl = '
+        $sdl           = '
         type Query {
           foo: String
         }
@@ -100,7 +100,7 @@ class BuildClientSchemaTest extends TestCase
     /**
      * it('builds a simple schema with all operation types', () => {
      */
-    public function testBuildsASimpleSchemaWithAllOperationTypes(): void
+    public function testBuildsASimpleSchemaWithAllOperationTypes() : void
     {
         self::assertCycleIntrospection('
           schema {
@@ -132,7 +132,7 @@ class BuildClientSchemaTest extends TestCase
     /**
      * it('uses built-in scalars when possible', () => {
      */
-    public function testUsesBuiltInScalarsWhenPossible(): void
+    public function testUsesBuiltInScalarsWhenPossible() : void
     {
         $sdl = '
           scalar CustomScalar
@@ -149,9 +149,9 @@ class BuildClientSchemaTest extends TestCase
 
         self::assertCycleIntrospection($sdl);
 
-        $schema = BuildSchema::build($sdl);
+        $schema        = BuildSchema::build($sdl);
         $introspection = Introspection::fromSchema($schema);
-        $clientSchema = BuildClientSchema::build($introspection);
+        $clientSchema  = BuildClientSchema::build($introspection);
 
         // Built-ins are used
         $this->assertSame(Type::int(), $clientSchema->getType('Int'));
@@ -170,7 +170,7 @@ class BuildClientSchemaTest extends TestCase
     /**
      * it('includes standard types only if they are used', () => {
      */
-    public function testIncludesStandardTypesOnlyIfTheyAreUsed(): void
+    public function testIncludesStandardTypesOnlyIfTheyAreUsed() : void
     {
         $clientSchema = self::clientSchemaFromSDL('
           type Query {
