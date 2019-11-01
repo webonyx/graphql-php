@@ -386,7 +386,7 @@ class TypeInfo
     }
 
     /**
-     * @return (CompositeType&Type)|null
+     * @return (CompositeType & Type) | null
      */
     public function getParentType() : ?CompositeType
     {
