@@ -81,7 +81,7 @@ class Token
      */
     public $prev;
 
-    /** @var ?Token */
+    /** @var Token|null */
     public $next;
 
     /**
