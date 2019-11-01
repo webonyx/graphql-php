@@ -308,15 +308,11 @@ class Schema
     }
 
     /**
-     * Returns type by it's name
-     *
-     * @param string $name
-     *
-     * @return Type|null
+     * Returns type by its name
      *
      * @api
      */
-    public function getType($name)
+    public function getType(string $name) : ?Type
     {
         if (! isset($this->resolvedTypes[$name])) {
             $type = $this->loadType($name);
@@ -329,20 +325,12 @@ class Schema
         return $this->resolvedTypes[$name];
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasType($name)
+    public function hasType(string $name) : bool
     {
         return $this->getType($name) !== null;
     }
 
-    /**
-     * @param string $typeName
-     */
-    private function loadType($typeName) : ?Type
+    private function loadType(string $typeName) : ?Type
     {
         $typeLoader = $this->config->typeLoader;
 
@@ -370,10 +358,7 @@ class Schema
         return $type;
     }
 
-    /**
-     * @param string $typeName
-     */
-    private function defaultTypeLoader($typeName) : ?Type
+    private function defaultTypeLoader(string $typeName) : ?Type
     {
         // Default type loader simply fallbacks to collecting all types
         $typeMap = $this->getTypeMap();
