@@ -85,7 +85,7 @@ class Token
     public $next;
 
     /**
-     * @param mixed|null $value
+     * @param mixed $value
      */
     public function __construct(string $kind, int $start, int $end, int $line, int $column, ?Token $previous = null, $value = null)
     {
