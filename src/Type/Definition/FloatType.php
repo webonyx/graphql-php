@@ -50,6 +50,8 @@ values as specified by
     /**
      * @param mixed $value
      *
+     * @return float
+     *
      * @throws Error
      */
     public function parseValue($value) : float
@@ -68,6 +70,8 @@ values as specified by
 
     /**
      * @param mixed[]|null $variables
+     *
+     * @return float
      *
      * @throws Exception
      */

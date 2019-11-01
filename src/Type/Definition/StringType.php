@@ -68,6 +68,8 @@ represent free-form human-readable text.';
     /**
      * @param mixed[]|null $variables
      *
+     * @return string
+     *
      * @throws Exception
      */
     public function parseLiteral(Node $valueNode, ?array $variables = null)

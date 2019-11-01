@@ -64,6 +64,8 @@ When expected as an input type, any string (such as `"4"`) or integer
     /**
      * @param mixed[]|null $variables
      *
+     * @return string
+     *
      * @throws Exception
      */
     public function parseLiteral(Node $valueNode, ?array $variables = null)
