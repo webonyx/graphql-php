@@ -51,10 +51,10 @@ class BuildClientSchema
     }
 
     /**
-     * Build a GraphQLSchema for use by client tools.
+     * Build a schema for use by client tools.
      *
      * Given the result of a client running the introspection query, creates and
-     * returns a GraphQLSchema instance which can be then used with all graphql-js
+     * returns a \GraphQL\Type\Schema instance which can be then used with all graphql-php
      * tools, but cannot be used to execute a query, as introspection does not
      * represent the "resolver", "parse" or "serialize" functions or any other
      * server-internal mechanisms.
