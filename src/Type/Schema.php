@@ -58,7 +58,7 @@ class Schema
      */
     private $resolvedTypes = [];
 
-    /** @var array<string, Type[]> */
+    /** @var array<string, array<string, ObjectType>> */
     private $possibleTypeMap = [];
 
     /**
@@ -374,7 +374,7 @@ class Schema
      *
      * @param InterfaceType|UnionType $abstractType
      *
-     * @return Type[]
+     * @return array<Type&ObjectType>
      *
      * @api
      */
@@ -386,7 +386,7 @@ class Schema
     }
 
     /**
-     * @return array<string, Type[]>
+     * @return array<string, array<string, ObjectType>>
      */
     private function getPossibleTypeMap()
     {

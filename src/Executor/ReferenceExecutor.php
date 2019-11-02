@@ -1023,7 +1023,7 @@ class ReferenceExecutor implements ExecutorImplementation
         $possibleTypes           = $info->schema->getPossibleTypes($abstractType);
         $promisedIsTypeOfResults = [];
         foreach ($possibleTypes as $index => $type) {
-            $isTypeOfResult = $type instanceof ObjectType ? $type->isTypeOf($value, $contextValue, $info) : null;
+            $isTypeOfResult = $type->isTypeOf($value, $contextValue, $info);
             if ($isTypeOfResult === null) {
                 continue;
             }
