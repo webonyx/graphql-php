@@ -1,3 +1,7 @@
+checks:
+    php:
+        code_rating: true
+        duplication: true
 build:
     dependencies:
         override:
@@ -21,8 +25,7 @@ build:
                           format: 'general-checkstyle'
 
 tools:
-    external_code_coverage:
-        timeout: 3600
+  php_code_coverage: true
 
 build_failure_conditions:
     - 'elements.rating(<= C).new.exists'                        # No new classes/methods with a rating of C or worse allowed
