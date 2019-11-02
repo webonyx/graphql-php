@@ -363,7 +363,7 @@ class TypeInfo
                     $inputFieldType = $inputField ? $inputField->getType() : null;
                 }
                 $this->defaultValueStack[] = $inputField && $inputField->defaultValueExists() ? $inputField->defaultValue : Utils::undefined();
-                $this->inputTypeStack[]    = $inputFieldType;
+                $this->inputTypeStack[]    = Type::isInputType($inputFieldType) ? $inputFieldType : null;
                 break;
 
             case $node instanceof EnumValueNode:
