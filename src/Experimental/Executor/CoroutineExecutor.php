@@ -949,7 +949,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
         $selectedType = null;
         foreach ($possibleTypes as $type) {
-            $typeCheck = yield $type instanceof ObjectType ? $type->isTypeOf($value, $this->contextValue, $ctx->resolveInfo) : null;
+            $typeCheck = yield $type->isTypeOf($value, $this->contextValue, $ctx->resolveInfo);
             if ($selectedType !== null || ! $typeCheck) {
                 continue;
             }
