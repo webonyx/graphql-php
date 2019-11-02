@@ -1,4 +1,7 @@
 build:
+    dependencies:
+        override:
+            - command: 'composer install --ignore-platform-reqs --no-interaction'
     nodes:
         analysis:
             environment:
@@ -12,11 +15,7 @@ build:
                 override: true
             tests:
                 override:
-                    - php-scrutinizer-run
-
-    dependencies:
-        override:
-            - composer install --ignore-platform-reqs --no-interaction
+                    - command: './vendor/bin/phpstan analyse --ansi --memory-limit 256M'
 
 tools:
     external_code_coverage:
