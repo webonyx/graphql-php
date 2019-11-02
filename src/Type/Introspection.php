@@ -38,7 +38,7 @@ class Introspection
     const TYPE_FIELD_NAME      = '__type';
     const TYPE_NAME_FIELD_NAME = '__typename';
 
-    /** @var array<string, mixed> */
+    /** @var array<string, FieldDefinition|Type> */
     private static $map = [];
 
     /**
