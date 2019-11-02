@@ -58,8 +58,8 @@ class Schema
      */
     private $resolvedTypes = [];
 
-    /** @var array<string, array<string, ObjectType>> */
-    private $possibleTypeMap = [];
+    /** @var array<string, array<string, ObjectType>>|null */
+    private $possibleTypeMap;
 
     /**
      * True when $resolvedTypes contain all possible schema types
@@ -390,7 +390,8 @@ class Schema
      */
     private function getPossibleTypeMap()
     {
-        if (count($this->possibleTypeMap) === 0) {
+        if ($this->possibleTypeMap === null) {
+            $this->possibleTypeMap = [];
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof ObjectType) {
                     foreach ($type->getInterfaces() as $interface) {
