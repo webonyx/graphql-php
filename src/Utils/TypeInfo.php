@@ -338,7 +338,7 @@ class TypeInfo
                 }
                 $this->argument            = $argDef;
                 $this->defaultValueStack[] = $argDef && $argDef->defaultValueExists() ? $argDef->defaultValue : Utils::undefined();
-                $this->inputTypeStack[]    = $argType;
+                $this->inputTypeStack[]    = Type::isInputType($argType) ? $argType : null;
                 break;
 
             case $node instanceof ListValueNode:
