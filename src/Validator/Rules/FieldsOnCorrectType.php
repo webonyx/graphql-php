@@ -84,10 +84,6 @@ class FieldsOnCorrectType extends ValidationRule
             $interfaceUsageCount  = [];
 
             foreach ($schema->getPossibleTypes($type) as $possibleType) {
-                if (! $possibleType instanceof ObjectType) {
-                    continue;
-                }
-
                 $fields = $possibleType->getFields();
                 if (! isset($fields[$fieldName])) {
                     continue;
