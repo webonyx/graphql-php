@@ -30,7 +30,7 @@ class FieldDefinition
      * Callback for resolving field value given parent value.
      * Mutually exclusive with `map`
      *
-     * @var callable
+     * @var callable|null
      */
     public $resolveFn;
 
@@ -38,7 +38,7 @@ class FieldDefinition
      * Callback for mapping list of parent values to list of field values.
      * Mutually exclusive with `resolve`
      *
-     * @var callable
+     * @var callable|null
      */
     public $mapFn;
 
