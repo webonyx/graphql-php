@@ -15,12 +15,10 @@ build:
                 override: true
             tests:
                 override:
-                    -
-                        command: ./vendor/bin/phpstan analyse --ansi --memory-limit 256M --error-format=checkstyle | sed '/^\s*$/d' > phpstan-checkstyle.xml
-                        analysis:
+                    - command: ./vendor/bin/phpstan analyse --ansi --memory-limit 256M --error-format=checkstyle | sed '/^\s*$/d' > phpstan-checkstyle.xml
+                      analysis:
                           file: phpstan-checkstyle.xml
                           format: 'general-checkstyle'
-                    - php-scrutinizer-run
 
 tools:
     external_code_coverage:
