@@ -1,5 +1,8 @@
 ## Master
 
+### Breaking: QueryPlan with introspection fields
+Now when in __typename field is present, QueryPlan return the field definition.
+
 ### Breaking (major): dropped deprecations
  - dropped deprecated `GraphQL\Schema`. Use `GraphQL\Type\Schema`.
 

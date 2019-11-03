@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- Fixed error with __typename fields in QueryPlan (#544)
 - **BREAKING/BUGFIX:** Strict coercion of scalar types (#278)
 - **BREAKING:** Removed deprecated directive introspection fields (onOperation, onFragment, onField)
 - **BREAKING:** Removal of `VariablesDefaultValueAllowed` validation rule. All variables may now specify a default value.

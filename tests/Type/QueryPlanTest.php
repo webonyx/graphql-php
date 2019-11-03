@@ -12,6 +12,7 @@ use GraphQL\Type\Definition\QueryPlan;
 use GraphQL\Type\Definition\ResolveInfo;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use PHPUnit\Framework\TestCase;
 
@@ -73,6 +74,7 @@ final class QueryPlanTest extends TestCase
       query Test {
         article {
             author {
+                __typename
                 name
                 pic(width: 100, height: 200) {
                     url
@@ -114,6 +116,11 @@ final class QueryPlanTest extends TestCase
                 'type' => $author,
                 'args' => [],
                 'fields' => [
+                    '__typename' => [
+                        'type' => Introspection::typeNameMetaFieldDef()->type,
+                        'args' => [],
+                        'fields' => [],
+                    ],
                     'name' => [
                         'type' => Type::string(),
                         'args' => [],
@@ -243,6 +250,7 @@ final class QueryPlanTest extends TestCase
             'url',
             'width',
             'height',
+            '__typename',
             'name',
             'pic',
             'id',

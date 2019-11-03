@@ -379,4 +379,58 @@ class ResolveInfoTest extends TestCase
         self::assertEquals(['data' => ['article' => null]], $result);
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
+
+    public function testIntrospectionFields() : void
+    {
+        $article           = new ObjectType([
+            'name'   => 'Article',
+            'fields' => [
+                'id'          => ['type' => Type::string()],
+                'title'       => ['type' => Type::string()],
+                'body'        => ['type' => Type::string()],
+            ],
+        ]);
+        $doc               = '
+      query Test {
+        article {
+            __typename
+            id
+            title
+            body
+        }
+      }
+';
+        $expectedSelection = [
+            '__typename'  => true,
+            'id'   => true,
+            'title' => true,
+            'body' => true,
+        ];
+        $actualSelection   = [];
+
+        $blogQuery = new ObjectType([
+            'name'   => 'Query',
+            'fields' => [
+                'article' => [
+                    'type'    => $article,
+                    'resolve' => static function (
+                        $value,
+                        $args,
+                        $context,
+                        ResolveInfo $info
+                    ) use (
+                        &$actualSelection
+                    ) {
+                        $actualSelection = $info->getFieldSelection();
+
+                        return null;
+                    },
+                ],
+            ],
+        ]);
+
+        $schema = new Schema(['query' => $blogQuery]);
+        GraphQL::executeQuery($schema, $doc);
+        self::assertEquals($expectedSelection, $actualSelection);
+    }
 }
