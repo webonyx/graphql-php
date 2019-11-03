@@ -16,6 +16,7 @@ use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema as SchemaType;
 use GraphQL\Validator\DocumentValidator;
@@ -182,6 +183,8 @@ class GraphQL
      * @param mixed[]|null        $variableValues
      *
      * @return Promise|mixed[]
+     *
+     * @codeCoverageIgnore
      */
     public static function execute(
         SchemaType $schema,
@@ -227,6 +230,8 @@ class GraphQL
      * @param mixed[]|null        $variableValues
      *
      * @return ExecutionResult|Promise
+     *
+     * @codeCoverageIgnore
      */
     public static function executeAndReturnResult(
         SchemaType $schema,
@@ -287,7 +292,7 @@ class GraphQL
      * Replaces standard types with types from this list (matching by name)
      * Standard types not listed here remain untouched.
      *
-     * @param Type[] $types
+     * @param array<string, ScalarType> $types
      *
      * @api
      */
@@ -345,6 +350,8 @@ class GraphQL
      * @deprecated Renamed to getStandardDirectives
      *
      * @return Directive[]
+     *
+     * @codeCoverageIgnore
      */
     public static function getInternalDirectives() : array
     {

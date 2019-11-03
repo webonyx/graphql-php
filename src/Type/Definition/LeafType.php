@@ -9,6 +9,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
+use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NullValueNode;
 use GraphQL\Language\AST\StringValueNode;
 
@@ -56,5 +57,5 @@ interface LeafType
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null);
+    public function parseLiteral(Node $valueNode, ?array $variables = null);
 }

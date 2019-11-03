@@ -35,6 +35,10 @@ abstract class ServerTestCase extends TestCase
                             trigger_error('deprecated', E_USER_DEPRECATED);
                             trigger_error('notice', E_USER_NOTICE);
                             trigger_error('warning', E_USER_WARNING);
+
+                            /**
+                             * @var array<string>
+                             */
                             $a = [];
                             $a['test']; // should produce PHP notice
 

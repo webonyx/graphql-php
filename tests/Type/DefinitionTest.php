@@ -7,10 +7,14 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
+use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FloatType;
+use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
@@ -481,6 +485,16 @@ class DefinitionTest extends TestCase
             [$this->unionType, false],
             [$this->enumType, true],
             [$this->inputObjectType, true],
+
+            [Type::boolean(), true],
+            [Type::float(),true ],
+            [Type::id(), true],
+            [Type::int(), true],
+            [Type::listOf(Type::string()), true],
+            [Type::listOf($this->objectType), false],
+            [Type::nonNull(Type::string()), true],
+            [Type::nonNull($this->objectType), false],
+            [Type::string(), true],
         ];
 
         foreach ($expected as $index => $entry) {
@@ -504,6 +518,16 @@ class DefinitionTest extends TestCase
             [$this->unionType, true],
             [$this->enumType, true],
             [$this->inputObjectType, false],
+
+            [Type::boolean(), true],
+            [Type::float(),true ],
+            [Type::id(), true],
+            [Type::int(), true],
+            [Type::listOf(Type::string()), true],
+            [Type::listOf($this->objectType), true],
+            [Type::nonNull(Type::string()), true],
+            [Type::nonNull($this->objectType), true],
+            [Type::string(), true],
         ];
 
         foreach ($expected as $index => $entry) {
@@ -513,18 +537,6 @@ class DefinitionTest extends TestCase
                 sprintf('Type %s was detected incorrectly', $entry[0])
             );
         }
-    }
-
-    /**
-     * @see it('prohibits nesting NonNull inside NonNull')
-     */
-    public function testProhibitsNestingNonNullInsideNonNull() : void
-    {
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage(
-            'Expected Int! to be a GraphQL nullable type.'
-        );
-        Type::nonNull(Type::nonNull(Type::int()));
     }
 
     /**
@@ -1583,84 +1595,6 @@ class DefinitionTest extends TestCase
             'of "isDeprecated".'
         );
         $enumType->assertValid();
-    }
-
-    /**
-     * Type System: List must accept only types
-     */
-    public function testListMustAcceptOnlyTypes() : void
-    {
-        $types = [
-            Type::string(),
-            $this->scalarType,
-            $this->objectType,
-            $this->unionType,
-            $this->interfaceType,
-            $this->enumType,
-            $this->inputObjectType,
-            Type::listOf(Type::string()),
-            Type::nonNull(Type::string()),
-        ];
-
-        $badTypes = [[], new stdClass(), '', null];
-
-        foreach ($types as $type) {
-            try {
-                Type::listOf($type);
-            } catch (Throwable $e) {
-                self::fail('List is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
-            }
-        }
-        foreach ($badTypes as $badType) {
-            $typeStr = Utils::printSafe($badType);
-            try {
-                Type::listOf($badType);
-                self::fail(sprintf('List should not accept %s', $typeStr));
-            } catch (InvariantViolation $e) {
-                self::assertEquals(sprintf('Expected %s to be a GraphQL type.', $typeStr), $e->getMessage());
-            }
-        }
-    }
-
-    /**
-     * Type System: NonNull must only accept non-nullable types
-     */
-    public function testNonNullMustOnlyAcceptNonNullableTypes() : void
-    {
-        $nullableTypes    = [
-            Type::string(),
-            $this->scalarType,
-            $this->objectType,
-            $this->unionType,
-            $this->interfaceType,
-            $this->enumType,
-            $this->inputObjectType,
-            Type::listOf(Type::string()),
-            Type::listOf(Type::nonNull(Type::string())),
-        ];
-        $notNullableTypes = [
-            Type::nonNull(Type::string()),
-            [],
-            new stdClass(),
-            '',
-            null,
-        ];
-        foreach ($nullableTypes as $type) {
-            try {
-                Type::nonNull($type);
-            } catch (Throwable $e) {
-                self::fail('NonNull is expected to accept type: ' . get_class($type) . ', but got error: ' . $e->getMessage());
-            }
-        }
-        foreach ($notNullableTypes as $badType) {
-            $typeStr = Utils::printSafe($badType);
-            try {
-                Type::nonNull($badType);
-                self::fail(sprintf('Nulls should not accept %s', $typeStr));
-            } catch (InvariantViolation $e) {
-                self::assertEquals(sprintf('Expected %s to be a GraphQL nullable type.', $typeStr), $e->getMessage());
-            }
-        }
     }
 
     /**

@@ -303,6 +303,8 @@ class Values
      * @param mixed[]|null                                                                                                                        $variables
      *
      * @return mixed[]|stdClass|null
+     *
+     * @codeCoverageIgnore
      */
     public static function valueFromAST(ValueNode $valueNode, InputType $type, ?array $variables = null)
     {
@@ -316,6 +318,7 @@ class Values
      *
      * @return string[]
      *
+     * @codeCoverageIgnore
      * @paarm ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
      */
     public static function isValidPHPValue($value, InputType $type)

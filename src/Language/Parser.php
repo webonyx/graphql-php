@@ -1295,7 +1295,7 @@ class Parser
     }
 
     /**
-     * @return FieldDefinitionNode[]|NodeList
+     * @return array<FieldDefinitionNode>|NodeList
      *
      * @throws SyntaxError
      */

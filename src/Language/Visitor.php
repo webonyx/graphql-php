@@ -393,7 +393,7 @@ class Visitor
     /**
      * @param callable[][] $visitors
      *
-     * @return callable[][]
+     * @return array<string, callable>
      */
     public static function visitInParallel($visitors)
     {

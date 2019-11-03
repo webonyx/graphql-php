@@ -467,10 +467,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      * Two types conflict if both types could not apply to a value simultaneously.
      * Composite types are ignored as their individual field types will be compared
      * later recursively. However List and Non-Null types must match.
-     *
-     * @return bool
      */
-    private function doTypesConflict(OutputType $type1, OutputType $type2)
+    private function doTypesConflict(Type $type1, Type $type2) : bool
     {
         if ($type1 instanceof ListOfType) {
             return $type2 instanceof ListOfType

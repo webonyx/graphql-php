@@ -214,10 +214,10 @@ class BreakingChangesFinder
                         $newFieldType
                     );
                     if (! $isSafe) {
-                        $oldFieldTypeString = $oldFieldType instanceof NamedType
+                        $oldFieldTypeString = $oldFieldType instanceof NamedType && $oldFieldType instanceof Type
                             ? $oldFieldType->name
                             : $oldFieldType;
-                        $newFieldTypeString = $newFieldType instanceof NamedType
+                        $newFieldTypeString = $newFieldType instanceof NamedType && $newFieldType instanceof Type
                             ? $newFieldType->name
                             : $newFieldType;
                         $breakingChanges[]  = [
@@ -270,7 +270,7 @@ class BreakingChangesFinder
     }
 
     /**
-     * @return string[][]
+     * @return array<string, array<int, array<string, string>>>
      */
     public static function findFieldsThatChangedTypeOnInputObjectTypes(
         Schema $oldSchema,
@@ -471,7 +471,7 @@ class BreakingChangesFinder
      * (such as removal or change of type of an argument, or a change in an
      * argument's default value).
      *
-     * @return string[][]
+     * @return array<string, array<int,array<string, string>>>
      */
     public static function findArgChanges(
         Schema $oldSchema,

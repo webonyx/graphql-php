@@ -6,15 +6,12 @@ namespace GraphQL\Type\Definition;
 
 class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
-    /** @var ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType */
+    /** @var Type */
     public $ofType;
 
-    /**
-     * @param callable|Type $type
-     */
-    public function __construct($type)
+    public function __construct(Type $type)
     {
-        $this->ofType = Type::assertType($type);
+        $this->ofType = $type;
     }
 
     public function toString() : string
@@ -22,12 +19,7 @@ class ListOfType extends Type implements WrappingType, OutputType, NullableType,
         return '[' . $this->ofType->toString() . ']';
     }
 
-    /**
-     * @param bool $recurse
-     *
-     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
-     */
-    public function getWrappedType($recurse = false)
+    public function getWrappedType(bool $recurse = false) : Type
     {
         $type = $this->ofType;
 

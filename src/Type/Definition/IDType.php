@@ -51,11 +51,9 @@ When expected as an input type, any string (such as `"4"`) or integer
     /**
      * @param mixed $value
      *
-     * @return string
-     *
      * @throws Error
      */
-    public function parseValue($value)
+    public function parseValue($value) : string
     {
         if (is_string($value) || is_int($value)) {
             return (string) $value;
@@ -64,14 +62,13 @@ When expected as an input type, any string (such as `"4"`) or integer
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
-     * @return string|null
+     * @return string
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
             return $valueNode->value;

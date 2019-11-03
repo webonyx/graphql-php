@@ -40,7 +40,7 @@ class ResolveInfo
      * Expected return type of the field being resolved.
      *
      * @api
-     * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
+     * @var OutputType&Type
      */
     public $returnType;
 
@@ -64,7 +64,7 @@ class ResolveInfo
      * Path to this field from the very root value.
      *
      * @api
-     * @var string[][]
+     * @var string[]
      */
     public $path;
 
@@ -113,7 +113,7 @@ class ResolveInfo
 
     /**
      * @param FieldNode[]              $fieldNodes
-     * @param string[][]               $path
+     * @param string[]                 $path
      * @param FragmentDefinitionNode[] $fragments
      * @param mixed|null               $rootValue
      * @param mixed[]                  $variableValues

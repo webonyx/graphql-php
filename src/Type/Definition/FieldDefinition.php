@@ -30,7 +30,7 @@ class FieldDefinition
      * Callback for resolving field value given parent value.
      * Mutually exclusive with `map`
      *
-     * @var callable
+     * @var callable|null
      */
     public $resolveFn;
 
@@ -38,7 +38,7 @@ class FieldDefinition
      * Callback for mapping list of parent values to list of field values.
      * Mutually exclusive with `resolve`
      *
-     * @var callable
+     * @var callable|null
      */
     public $mapFn;
 
@@ -58,7 +58,7 @@ class FieldDefinition
      */
     public $config;
 
-    /** @var OutputType */
+    /** @var OutputType&Type */
     public $type;
 
     /** @var callable|string */
@@ -175,9 +175,9 @@ class FieldDefinition
     }
 
     /**
-     * @return Type
+     * @return OutputType&Type
      */
-    public function getType()
+    public function getType() : Type
     {
         return $this->type;
     }
@@ -239,5 +239,9 @@ class FieldDefinition
                 Utils::printSafe($this->resolveFn)
             )
         );
+
+        foreach ($this->args as $fieldArgument) {
+            $fieldArgument->assertValid($this, $type);
+        }
     }
 }

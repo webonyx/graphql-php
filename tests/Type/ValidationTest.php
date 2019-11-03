@@ -1305,20 +1305,6 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @see it('rejects an empty Object field type')
-     */
-    public function testRejectsAnEmptyObjectFieldType() : void
-    {
-        $schema = $this->schemaWithObjectFieldOfType(null);
-
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [['message' => 'The type of BadObject.badField must be Output Type but got: null.'],
-            ]
-        );
-    }
-
-    /**
      * @see it('rejects a non-output type as an Object field type')
      */
     public function testRejectsANonOutputTypeAsAnObjectFieldType() : void
@@ -1334,21 +1320,6 @@ class ValidationTest extends TestCase
                 ]
             );
         }
-    }
-
-    /**
-     * @see it('rejects a non-type value as an Object field type')
-     */
-    public function testRejectsANonTypeValueAsAnObjectFieldType()
-    {
-        $schema = $this->schemaWithObjectFieldOfType($this->Number);
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                ['message' => 'The type of BadObject.badField must be Output Type but got: 1.'],
-                ['message' => 'Expected GraphQL named type but got: 1.'],
-            ]
-        );
     }
 
     /**
@@ -1666,21 +1637,6 @@ class ValidationTest extends TestCase
     }
 
     /**
-     * @see it('rejects an empty Interface field type')
-     */
-    public function testRejectsAnEmptyInterfaceFieldType() : void
-    {
-        $schema = $this->schemaWithInterfaceFieldOfType(null);
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                ['message' => 'The type of BadInterface.badField must be Output Type but got: null.'],
-                ['message' => 'The type of BadImplementing.badField must be Output Type but got: null.'],
-            ]
-        );
-    }
-
-    /**
      * @see it('rejects a non-output type as an Interface field type')
      */
     public function testRejectsANonOutputTypeAsAnInterfaceFieldType() : void
@@ -1696,22 +1652,6 @@ class ValidationTest extends TestCase
                 ]
             );
         }
-    }
-
-    /**
-     * @see it('rejects a non-type value as an Interface field type')
-     */
-    public function testRejectsANonTypeValueAsAnInterfaceFieldType()
-    {
-        $schema = $this->schemaWithInterfaceFieldOfType('string');
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                ['message' => 'The type of BadInterface.badField must be Output Type but got: string.'],
-                ['message' => 'Expected GraphQL named type but got: string.'],
-                ['message' => 'The type of BadImplementing.badField must be Output Type but got: string.'],
-            ]
-        );
     }
 
     // DESCRIBE: Type System: Input Object fields must have input types
@@ -1809,19 +1749,6 @@ class ValidationTest extends TestCase
         ]);
     }
 
-    /**
-     * @see it('rejects an empty field arg type')
-     */
-    public function testRejectsAnEmptyFieldArgType() : void
-    {
-        $schema = $this->schemaWithArgOfType(null);
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [['message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: null.'],
-            ]
-        );
-    }
-
     // DESCRIBE: Objects must adhere to Interface they implement
 
     /**
@@ -1838,21 +1765,6 @@ class ValidationTest extends TestCase
                 ]
             );
         }
-    }
-
-    /**
-     * @see it('rejects a non-type value as a field arg type')
-     */
-    public function testRejectsANonTypeValueAsAFieldArgType()
-    {
-        $schema = $this->schemaWithArgOfType('string');
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                ['message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: string.'],
-                ['message' => 'Expected GraphQL named type but got: string.'],
-            ]
-        );
     }
 
     /**
@@ -1892,7 +1804,7 @@ class ValidationTest extends TestCase
 
     private function schemaWithInputFieldOfType($inputFieldType)
     {
-        $BadInputObjectType = new InputObjectType([
+        $badInputObjectType = new InputObjectType([
             'name'   => 'BadInputObject',
             'fields' => [
                 'badField' => ['type' => $inputFieldType],
@@ -1906,26 +1818,13 @@ class ValidationTest extends TestCase
                     'f' => [
                         'type' => Type::string(),
                         'args' => [
-                            'badArg' => ['type' => $BadInputObjectType],
+                            'badArg' => ['type' => $badInputObjectType],
                         ],
                     ],
                 ],
             ]),
             'types' => [ $this->SomeObjectType ],
         ]);
-    }
-
-    /**
-     * @see it('rejects an empty input field type')
-     */
-    public function testRejectsAnEmptyInputFieldType() : void
-    {
-        $schema = $this->schemaWithInputFieldOfType(null);
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [['message' => 'The type of BadInputObject.badField must be Input Type but got: null.'],
-            ]
-        );
     }
 
     /**
@@ -1943,21 +1842,6 @@ class ValidationTest extends TestCase
                 ]
             );
         }
-    }
-
-    /**
-     * @see it('rejects a non-type value as an input field type')
-     */
-    public function testRejectsAAonTypeValueAsAnInputFieldType()
-    {
-        $schema = $this->schemaWithInputFieldOfType('string');
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [
-                ['message' => 'The type of BadInputObject.badField must be Input Type but got: string.'],
-                ['message' => 'Expected GraphQL named type but got: string.'],
-            ]
-        );
     }
 
     /**

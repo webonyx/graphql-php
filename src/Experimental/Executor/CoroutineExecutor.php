@@ -33,12 +33,15 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
+use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use SplQueue;
 use stdClass;
 use Throwable;
 use function is_array;
 use function is_string;
+use function json_decode;
+use function json_encode;
 use function sprintf;
 
 class CoroutineExecutor implements Runtime, ExecutorImplementation
@@ -73,10 +76,10 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     /** @var string|null */
     private $operationName;
 
-    /** @var Collector */
+    /** @var Collector|null */
     private $collector;
 
-    /** @var Error[] */
+    /** @var array<Error> */
     private $errors;
 
     /** @var SplQueue */
@@ -85,10 +88,10 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     /** @var SplQueue */
     private $schedule;
 
-    /** @var stdClass */
+    /** @var stdClass|null */
     private $rootResult;
 
-    /** @var int */
+    /** @var int|null */
     private $pending;
 
     /** @var callable */
@@ -108,6 +111,9 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             self::$undefined = Utils::undefined();
         }
 
+        $this->errors            = [];
+        $this->queue             = new SplQueue();
+        $this->schedule          = new SplQueue();
         $this->schema            = $schema;
         $this->fieldResolver     = $fieldResolver;
         $this->promiseAdapter    = $promiseAdapter;
@@ -143,10 +149,11 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     private static function resultToArray($value, $emptyObjectAsStdClass = true)
     {
         if ($value instanceof stdClass) {
-            $array = [];
-            foreach ($value as $propertyName => $propertyValue) {
+            $array = (array) $value;
+            foreach ($array as $propertyName => $propertyValue) {
                 $array[$propertyName] = self::resultToArray($propertyValue);
             }
+
             if ($emptyObjectAsStdClass && empty($array)) {
                 return new stdClass();
             }
@@ -237,9 +244,9 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     private function finishExecute($value, array $errors) : ExecutionResult
     {
         $this->rootResult     = null;
-        $this->errors         = null;
-        $this->queue          = null;
-        $this->schedule       = null;
+        $this->errors         = [];
+        $this->queue          = new SplQueue();
+        $this->schedule       = new SplQueue();
         $this->pending        = null;
         $this->collector      = null;
         $this->variableValues = null;
@@ -825,11 +832,16 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                 } else {
                     $childContexts = [];
 
+                    $fields = [];
+                    if ($this->collector !== null) {
+                        $fields = $this->collector->collectFields(
+                            $objectType,
+                            $ctx->shared->mergedSelectionSet ?? $this->mergeSelectionSets($ctx)
+                        );
+                    }
+
                     /** @var CoroutineContextShared $childShared */
-                    foreach ($this->collector->collectFields(
-                        $objectType,
-                        $ctx->shared->mergedSelectionSet ?? $this->mergeSelectionSets($ctx)
-                    ) as $childShared) {
+                    foreach ($fields as $childShared) {
                         $childPath   = $path;
                         $childPath[] = $childShared->resultName; // !!! uses array COW semantics
                         $childCtx    = new CoroutineContext(
@@ -938,7 +950,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         $selectedType = null;
         foreach ($possibleTypes as $type) {
             $typeCheck = yield $type->isTypeOf($value, $this->contextValue, $ctx->resolveInfo);
-            if ($selectedType !== null || $typeCheck !== true) {
+            if ($selectedType !== null || ! $typeCheck) {
                 continue;
             }
 

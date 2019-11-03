@@ -330,6 +330,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * @deprecated Use FormattedError::createFromException() instead
      *
      * @return mixed[]
+     *
+     * @codeCoverageIgnore
      */
     public function toSerializableArray()
     {

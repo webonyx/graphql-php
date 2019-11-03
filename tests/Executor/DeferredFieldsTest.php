@@ -28,7 +28,7 @@ class DeferredFieldsTest extends TestCase
     /** @var ObjectType */
     private $categoryType;
 
-    /** @var string[] */
+    /** @var mixed */
     private $paths;
 
     /** @var mixed[][] */

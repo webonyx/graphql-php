@@ -238,7 +238,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param  mixed $rootValue
      *
-     * @return Promise|stdClass|mixed[]
+     * @return Promise|stdClass|mixed[]|null
      */
     private function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
@@ -993,7 +993,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed|null              $contextValue
      * @param InterfaceType|UnionType $abstractType
      *
-     * @return ObjectType|Promise|null
+     * @return Promise|Type|string|null
      */
     private function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {
