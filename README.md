@@ -17,8 +17,7 @@ composer require webonyx/graphql-php
 Full documentation is available on the [Documentation site](https://webonyx.github.io/graphql-php/) as well 
 as in the [docs](docs/) folder of the distribution.
 
-If you don't know what GraphQL is, visit this [official website](http://graphql.org) 
-by the Facebook engineering team.
+If you don't know what GraphQL is, visit the [official website](http://graphql.org) first.
 
 ## Examples
 There are several ready examples in the [examples](examples/) folder of the distribution with specific 
