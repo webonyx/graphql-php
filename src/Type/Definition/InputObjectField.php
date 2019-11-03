@@ -9,6 +9,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
+use function assert;
 use function sprintf;
 
 class InputObjectField
@@ -55,7 +56,10 @@ class InputObjectField
      */
     public function getType() : Type
     {
-        return Type::resolveLazyType($this->type);
+        $type = Type::resolveLazyType($this->type);
+        assert($type instanceof InputType);
+
+        return $type;
     }
 
     public function defaultValueExists() : bool

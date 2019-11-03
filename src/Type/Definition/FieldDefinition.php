@@ -8,6 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Utils\Utils;
+use function assert;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -179,7 +180,10 @@ class FieldDefinition
      */
     public function getType() : Type
     {
-        return Type::resolveLazyType($this->type);
+        $type = Type::resolveLazyType($this->type);
+        assert($type instanceof OutputType, 'Expected type of FieldDefinition to implment OutputType');
+
+        return $type;
     }
 
     /**

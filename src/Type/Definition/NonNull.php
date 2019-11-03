@@ -8,7 +8,7 @@ use GraphQL\Type\Schema;
 
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
-    /** @var NullableType&Type */
+    /** @var callable|(NullableType&Type) */
     private $ofType;
 
     /**

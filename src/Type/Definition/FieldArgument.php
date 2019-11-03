@@ -8,6 +8,7 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
+use function assert;
 use function is_array;
 use function is_string;
 use function sprintf;
@@ -82,7 +83,10 @@ class FieldArgument
      */
     public function getType() : Type
     {
-        return Type::resolveLazyType($this->type);
+        $type = Type::resolveLazyType($this->type);
+        assert($type instanceof InputType, 'Expected type of FieldArgument to implement InputType');
+
+        return $type;
     }
 
     public function defaultValueExists() : bool
