@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
-use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -214,20 +213,6 @@ class ValuesOfCorrectType extends ValidationRule
         // may throw to indicate failure.
         try {
             $type->parseLiteral($node);
-        } catch (Exception $error) {
-            // Ensure a reference to the original error is maintained.
-            $context->reportError(
-                new Error(
-                    self::getBadValueMessage(
-                        (string) $locationType,
-                        Printer::doPrint($node),
-                        $error->getMessage(),
-                        $context,
-                        $fieldName
-                    ),
-                    $node
-                )
-            );
         } catch (Throwable $error) {
             // Ensure a reference to the original error is maintained.
             $context->reportError(

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\Warning;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -40,11 +39,13 @@ use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use SplStack;
+use Symfony\Component\Console\Output\Output;
 use function array_map;
 use function array_merge;
 use function array_pop;
 use function count;
 use function is_array;
+use function is_null;
 use function sprintf;
 
 class TypeInfo
@@ -52,25 +53,25 @@ class TypeInfo
     /** @var Schema */
     private $schema;
 
-    /** @var SplStack<OutputType> */
+    /** @var array<(OutputType&Type)|null> */
     private $typeStack;
 
-    /** @var SplStack<CompositeType> */
+    /** @var array<(CompositeType&Type)|null> */
     private $parentTypeStack;
 
-    /** @var SplStack<InputType> */
+    /** @var array<(InputType&Type)|null> */
     private $inputTypeStack;
 
-    /** @var SplStack<FieldDefinition> */
+    /** @var array<FieldDefinition> */
     private $fieldDefStack;
 
-    /** @var SplStack<mixed> */
+    /** @var array<mixed> */
     private $defaultValueStack;
 
-    /** @var Directive */
+    /** @var Directive|null */
     private $directive;
 
-    /** @var FieldArgument */
+    /** @var FieldArgument|null */
     private $argument;
 
     /** @var mixed */
@@ -107,14 +108,18 @@ class TypeInfo
 
     /**
      * @deprecated moved to GraphQL\Utils\TypeComparators
+     *
+     * @codeCoverageIgnore
      */
-    public static function isEqualType(Type $typeA, Type $typeB)
+    public static function isEqualType(Type $typeA, Type $typeB) : bool
     {
         return TypeComparators::isEqualType($typeA, $typeB);
     }
 
     /**
      * @deprecated moved to GraphQL\Utils\TypeComparators
+     *
+     * @codeCoverageIgnore
      */
     public static function isTypeSubTypeOf(Schema $schema, Type $maybeSubType, Type $superType)
     {
@@ -123,6 +128,8 @@ class TypeInfo
 
     /**
      * @deprecated moved to GraphQL\Utils\TypeComparators
+     *
+     * @codeCoverageIgnore
      */
     public static function doTypesOverlap(Schema $schema, CompositeType $typeA, CompositeType $typeB)
     {
@@ -235,21 +242,12 @@ class TypeInfo
         return $typeMap;
     }
 
-    /**
-     * @return InputType|null
-     */
-    public function getParentInputType()
+    public function getParentInputType() : ?InputType
     {
-        $inputTypeStackLength = count($this->inputTypeStack);
-        if ($inputTypeStackLength > 1) {
-            return $this->inputTypeStack[$inputTypeStackLength - 2];
-        }
+        return $this->inputTypeStack[count($this->inputTypeStack) - 2] ?? null;
     }
 
-    /**
-     * @return FieldArgument|null
-     */
-    public function getArgument()
+    public function getArgument() : ?FieldArgument
     {
         return $this->argument;
     }
@@ -344,7 +342,8 @@ class TypeInfo
                 break;
 
             case $node instanceof ListValueNode:
-                $listType = Type::getNullableType($this->getInputType());
+                $type     = $this->getInputType();
+                $listType = $type === null ? null : Type::getNullableType($type);
                 $itemType = $listType instanceof ListOfType
                     ? $listType->getWrappedType()
                     : $listType;
@@ -371,7 +370,7 @@ class TypeInfo
                 $enumType  = Type::getNamedType($this->getInputType());
                 $enumValue = null;
                 if ($enumType instanceof EnumType) {
-                    $enumValue = $enumType->getValue($node->value);
+                    $this->enumValue = $enumType->getValue($node->value);
                 }
                 $this->enumValue = $enumValue;
                 break;
@@ -379,37 +378,27 @@ class TypeInfo
     }
 
     /**
-     * @return Type
+     * @return (Type & OutputType) | null
      */
-    public function getType()
+    public function getType() : ?OutputType
     {
-        if (! empty($this->typeStack)) {
-            return $this->typeStack[count($this->typeStack) - 1];
-        }
-
-        return null;
+        return $this->typeStack[count($this->typeStack) - 1] ?? null;
     }
 
     /**
-     * @return Type
+     * @return (CompositeType & Type) | null
      */
-    public function getParentType()
+    public function getParentType() : ?CompositeType
     {
-        if (! empty($this->parentTypeStack)) {
-            return $this->parentTypeStack[count($this->parentTypeStack) - 1];
-        }
-
-        return null;
+        return $this->parentTypeStack[count($this->parentTypeStack) - 1] ?? null;
     }
 
     /**
      * Not exactly the same as the executor's definition of getFieldDef, in this
      * statically evaluated environment we do not always have an Object type,
      * and need to handle Interface and Union types.
-     *
-     * @return FieldDefinition
      */
-    private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode)
+    private static function getFieldDefinition(Schema $schema, Type $parentType, FieldNode $fieldNode) : ?FieldDefinition
     {
         $name       = $fieldNode->name->value;
         $schemaMeta = Introspection::schemaMetaFieldDef();
@@ -438,33 +427,21 @@ class TypeInfo
     /**
      * @param NamedTypeNode|ListTypeNode|NonNullTypeNode $inputTypeNode
      *
-     * @return Type|null
-     *
      * @throws InvariantViolation
      */
-    public static function typeFromAST(Schema $schema, $inputTypeNode)
+    public static function typeFromAST(Schema $schema, $inputTypeNode) : ?Type
     {
         return AST::typeFromAST($schema, $inputTypeNode);
     }
 
-    /**
-     * @return Directive|null
-     */
-    public function getDirective()
+    public function getDirective() : ?Directive
     {
         return $this->directive;
     }
 
-    /**
-     * @return FieldDefinition
-     */
-    public function getFieldDef()
+    public function getFieldDef() : ?FieldDefinition
     {
-        if (! empty($this->fieldDefStack)) {
-            return $this->fieldDefStack[count($this->fieldDefStack) - 1];
-        }
-
-        return null;
+        return $this->fieldDefStack[count($this->fieldDefStack) - 1] ?? null;
     }
 
     /**
@@ -472,23 +449,15 @@ class TypeInfo
      */
     public function getDefaultValue()
     {
-        if (! empty($this->defaultValueStack)) {
-            return $this->defaultValueStack[count($this->defaultValueStack) - 1];
-        }
-
-        return null;
+        return $this->defaultValueStack[count($this->defaultValueStack) - 1] ?? null;
     }
 
     /**
-     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull|null
+     * @return (Type & InputType) | null
      */
     public function getInputType() : ?InputType
     {
-        if (! empty($this->inputTypeStack)) {
-            return $this->inputTypeStack[count($this->inputTypeStack) - 1];
-        }
-
-        return null;
+        return $this->inputTypeStack[count($this->inputTypeStack) - 1] ?? null;
     }
 
     public function leave(Node $node)

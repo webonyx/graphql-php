@@ -146,7 +146,7 @@ class Helper
      * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
      * if params are invalid (or empty array when params are valid)
      *
-     * @return Error[]
+     * @return array<int, RequestError>
      *
      * @api
      */
@@ -285,6 +285,11 @@ class Helper
             }
 
             $operationType = AST::getOperation($doc, $op->operation);
+
+            if ($operationType === false) {
+                throw new RequestError('Failed to determine operation type');
+            }
+
             if ($operationType !== 'query' && $op->isReadOnly()) {
                 throw new RequestError('GET supports only query operation');
             }
@@ -385,11 +390,9 @@ class Helper
     }
 
     /**
-     * @param string $operationType
-     *
      * @return mixed
      */
-    private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, $operationType)
+    private function resolveRootValue(ServerConfig $config, OperationParams $params, DocumentNode $doc, string $operationType)
     {
         $rootValue = $config->getRootValue();
 

@@ -9,7 +9,6 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-use function is_array;
 use function is_object;
 use function is_scalar;
 use function is_string;
@@ -67,14 +66,13 @@ represent free-form human-readable text.';
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
-     * @return string|null
+     * @return string
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof StringValueNode) {
             return $valueNode->value;

@@ -13,10 +13,8 @@ use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\Node;
-use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
-use GraphQL\Language\AST\ValueNode;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ObjectType;
@@ -48,7 +46,7 @@ class Collector
     /** @var FieldNode[][] */
     private $fields;
 
-    /** @var string[] */
+    /** @var array<string, bool> */
     private $visitedFragments;
 
     public function __construct(Schema $schema, Runtime $runtime)
@@ -65,7 +63,6 @@ class Collector
             /** @var DefinitionNode|Node $definitionNode */
 
             if ($definitionNode instanceof OperationDefinitionNode) {
-                /** @var OperationDefinitionNode $definitionNode */
                 if ($operationName === null && $this->operation !== null) {
                     $hasMultipleAssumedOperations = true;
                 }
@@ -75,7 +72,6 @@ class Collector
                     $this->operation = $definitionNode;
                 }
             } elseif ($definitionNode instanceof FragmentDefinitionNode) {
-                /** @var FragmentDefinitionNode $definitionNode */
                 $this->fragments[$definitionNode->name->value] = $definitionNode;
             }
         }
@@ -196,8 +192,6 @@ class Collector
             }
 
             if ($selection instanceof FieldNode) {
-                /** @var FieldNode $selection */
-
                 $resultName = $selection->alias === null ? $selection->name->value : $selection->alias->value;
 
                 if (! isset($this->fields[$resultName])) {
@@ -206,8 +200,6 @@ class Collector
 
                 $this->fields[$resultName][] = $selection;
             } elseif ($selection instanceof FragmentSpreadNode) {
-                /** @var FragmentSpreadNode $selection */
-
                 $fragmentName = $selection->name->value;
 
                 if (isset($this->visitedFragments[$fragmentName])) {
@@ -249,8 +241,6 @@ class Collector
 
                 $this->doCollectFields($runtimeType, $fragmentDefinition->selectionSet);
             } elseif ($selection instanceof InlineFragmentNode) {
-                /** @var InlineFragmentNode $selection */
-
                 if ($selection->typeCondition !== null) {
                     $conditionTypeName = $selection->typeCondition->name->value;
 

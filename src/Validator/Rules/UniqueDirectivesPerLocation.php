@@ -33,8 +33,8 @@ class UniqueDirectivesPerLocation extends ValidationRule
                 }
 
                 $knownDirectives = [];
+                /** @var DirectiveNode $directive */
                 foreach ($node->directives as $directive) {
-                    /** @var DirectiveNode $directive */
                     $directiveName = $directive->name->value;
                     if (isset($knownDirectives[$directiveName])) {
                         $context->reportError(new Error(

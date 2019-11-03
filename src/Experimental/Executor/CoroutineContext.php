@@ -27,7 +27,7 @@ class CoroutineContext
     /** @var string[] */
     public $path;
 
-    /** @var ResolveInfo|null */
+    /** @var ResolveInfo */
     public $resolveInfo;
 
     /** @var string[]|null */

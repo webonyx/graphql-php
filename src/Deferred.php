@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL;
 
-use Exception;
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
 use SplQueue;
 use Throwable;
@@ -56,8 +55,6 @@ class Deferred
         try {
             $cb = $this->callback;
             $this->promise->resolve($cb());
-        } catch (Exception $e) {
-            $this->promise->reject($e);
         } catch (Throwable $e) {
             $this->promise->reject($e);
         }

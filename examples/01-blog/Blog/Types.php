@@ -18,14 +18,10 @@ use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\Type;
 
 /**
- * Class Types
- *
  * Acts as a registry and factory for your types.
  *
  * As simplistic as possible for the sake of clarity of this example.
  * Your own may be more dynamic (or even code-generated).
- *
- * @package GraphQL\Examples\Blog
  */
 class Types
 {

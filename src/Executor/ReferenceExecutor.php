@@ -17,7 +17,6 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\FragmentDefinitionNode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
-use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Type\Definition\AbstractType;
@@ -46,7 +45,6 @@ use function array_reduce;
 use function array_values;
 use function get_class;
 use function is_array;
-use function is_object;
 use function is_string;
 use function sprintf;
 
@@ -240,7 +238,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param  mixed $rootValue
      *
-     * @return Promise|stdClass|mixed[]
+     * @return Promise|stdClass|mixed[]|null
      */
     private function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
@@ -626,8 +624,6 @@ class ReferenceExecutor implements ExecutorImplementation
             $contextValue = $this->exeContext->contextValue;
 
             return $resolveFn($rootValue, $args, $contextValue, $info);
-        } catch (Exception $error) {
-            return $error;
         } catch (Throwable $error) {
             return $error;
         }
@@ -917,12 +913,6 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         try {
             return $returnType->serialize($result);
-        } catch (Exception $error) {
-            throw new InvariantViolation(
-                'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
-                0,
-                $error
-            );
         } catch (Throwable $error) {
             throw new InvariantViolation(
                 'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
@@ -1003,7 +993,7 @@ class ReferenceExecutor implements ExecutorImplementation
      * @param mixed|null              $contextValue
      * @param InterfaceType|UnionType $abstractType
      *
-     * @return ObjectType|Promise|null
+     * @return Promise|Type|string|null
      */
     private function defaultTypeResolver($value, $contextValue, ResolveInfo $info, AbstractType $abstractType)
     {

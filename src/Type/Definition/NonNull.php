@@ -4,65 +4,24 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Utils\Utils;
-
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
-    /** @var NullableType */
+    /** @var NullableType&Type */
     private $ofType;
 
-    /**
-     * @param NullableType $type
-     */
-    public function __construct($type)
+    public function __construct(NullableType $type)
     {
-        $this->ofType = self::assertNullableType($type);
+        /** @var Type&NullableType $nullableType*/
+        $nullableType = $type;
+        $this->ofType = $nullableType;
     }
 
-    /**
-     * @param mixed $type
-     *
-     * @return NullableType
-     */
-    public static function assertNullableType($type)
-    {
-        Utils::invariant(
-            Type::isType($type) && ! $type instanceof self,
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL nullable type.'
-        );
-
-        return $type;
-    }
-
-    /**
-     * @param mixed $type
-     *
-     * @return self
-     */
-    public static function assertNullType($type)
-    {
-        Utils::invariant(
-            $type instanceof self,
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL Non-Null type.'
-        );
-
-        return $type;
-    }
-
-    /**
-     * @return string
-     */
-    public function toString()
+    public function toString() : string
     {
         return $this->getWrappedType()->toString() . '!';
     }
 
-    /**
-     * @param bool $recurse
-     *
-     * @return Type
-     */
-    public function getWrappedType($recurse = false)
+    public function getWrappedType(bool $recurse = false) : Type
     {
         $type = $this->ofType;
 

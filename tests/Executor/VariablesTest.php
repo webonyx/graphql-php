@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
-use GraphQL\Error\Error;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\ComplexScalar;
@@ -17,7 +16,6 @@ use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 use function acos;
 use function array_key_exists;
-use function json_encode;
 
 /**
  * Execute: Handles inputs

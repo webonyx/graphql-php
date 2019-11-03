@@ -164,7 +164,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source        = $error->source;
             $positions     = $error->positions;
             $extensions    = $error->extensions;
-        } elseif ($error instanceof Exception || $error instanceof Throwable) {
+        } elseif ($error instanceof Throwable) {
             $message       = $error->getMessage();
             $originalError = $error;
         } else {
@@ -330,6 +330,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * @deprecated Use FormattedError::createFromException() instead
      *
      * @return mixed[]
+     *
+     * @codeCoverageIgnore
      */
     public function toSerializableArray()
     {

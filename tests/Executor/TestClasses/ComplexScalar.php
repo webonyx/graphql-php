@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor\TestClasses;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\Node;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Utils\Utils;
 
@@ -45,7 +46,7 @@ class ComplexScalar extends ScalarType
     /**
      * {@inheritdoc}
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode->value === 'SerializedValue') {
             return 'DeserializedValue';

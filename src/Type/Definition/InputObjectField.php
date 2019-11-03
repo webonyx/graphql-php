@@ -21,7 +21,7 @@ class InputObjectField
     /** @var string|null */
     public $description;
 
-    /** @var mixed */
+    /** @var Type&InputType */
     public $type;
 
     /** @var InputValueDefinitionNode|null */
@@ -58,9 +58,9 @@ class InputObjectField
     }
 
     /**
-     * @return mixed
+     * @return Type&InputType
      */
-    public function getType()
+    public function getType() : Type
     {
         return $this->type;
     }

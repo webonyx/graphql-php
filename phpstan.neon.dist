@@ -1,5 +1,9 @@
 parameters:
-    level: 2
+    level: 3
+
+    reportUnmatchedIgnoredErrors: false
+
+    inferPrivatePropertyTypeFromConstructor: true
 
     paths:
         - %currentWorkingDirectory%/src
@@ -17,13 +21,26 @@ parameters:
         # type system where we can currently use interfaces and lose type safety.
         # Until we find a better way, we can list related error's here.
         - "~Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\NamedType::\\$name~"
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\DefinitionNode::\\$name~"
         # Those come from graphql-php\tests\Language\VisitorTest.php
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
 
 includes:
-	- vendor/phpstan/phpstan-phpunit/extension.neon
-	- vendor/phpstan/phpstan-phpunit/rules.neon
-	- vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+
+services:
+    -
+        class: GraphQL\Tests\PhpStan\Type\Definition\Type\IsInputTypeStaticMethodTypeSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.staticMethodTypeSpecifyingExtension
+    -
+        class: GraphQL\Tests\PhpStan\Type\Definition\Type\IsOutputTypeStaticMethodTypeSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.staticMethodTypeSpecifyingExtension
+    -
+        class: GraphQL\Tests\PhpStan\Type\Definition\Type\IsCompositeTypeStaticMethodTypeSpecifyingExtension
+        tags:
+            - phpstan.typeSpecifier.staticMethodTypeSpecifyingExtension

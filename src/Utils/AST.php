@@ -149,7 +149,7 @@ class AST
      *
      * @param Type|mixed|null $value
      *
-     * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
+     * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null
      *
      * @api
      */
@@ -213,7 +213,6 @@ class AST
                 } elseif ($isArray) {
                     $fieldExists = array_key_exists($fieldName, $value);
                 } elseif ($isArrayLike) {
-                    /** @var ArrayAccess $value */
                     $fieldExists = $value->offsetExists($fieldName);
                 } else {
                     $fieldExists = property_exists($value, $fieldName);
@@ -243,11 +242,6 @@ class AST
             // to an externally represented value before converting into an AST.
             try {
                 $serialized = $type->serialize($value);
-            } catch (Exception $error) {
-                if ($error instanceof Error && $type instanceof EnumType) {
-                    return null;
-                }
-                throw $error;
             } catch (Throwable $error) {
                 if ($error instanceof Error && $type instanceof EnumType) {
                     return null;
@@ -416,8 +410,8 @@ class AST
                 }
             );
             foreach ($fields as $field) {
-                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
                 $fieldName = $field->name;
+                /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode $fieldNode */
                 $fieldNode = $fieldNodes[$fieldName] ?? null;
 
                 if ($fieldNode === null || self::isMissingVariable($fieldNode->value, $variables)) {
@@ -464,8 +458,6 @@ class AST
             // no value is returned.
             try {
                 return $type->parseLiteral($valueNode, $variables);
-            } catch (Exception $error) {
-                return $undefined;
             } catch (Throwable $error) {
                 return $undefined;
             }
@@ -595,7 +587,7 @@ class AST
      *
      * @param string $operationName
      *
-     * @return bool
+     * @return bool|string
      *
      * @api
      */

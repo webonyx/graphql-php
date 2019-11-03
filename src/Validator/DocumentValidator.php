@@ -46,10 +46,8 @@ use GraphQL\Validator\Rules\VariablesAreInputTypes;
 use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 use Throwable;
 use function array_filter;
-use function array_map;
 use function array_merge;
 use function count;
-use function implode;
 use function is_array;
 use function sprintf;
 
@@ -267,10 +265,10 @@ class DocumentValidator
             ? count(array_filter(
                 $value,
                 static function ($item) {
-                    return $item instanceof Exception || $item instanceof Throwable;
+                    return $item instanceof Throwable;
                 }
             )) === count($value)
-            : ($value instanceof Exception || $value instanceof Throwable);
+            : ($value instanceof Throwable);
     }
 
     public static function append(&$arr, $items)

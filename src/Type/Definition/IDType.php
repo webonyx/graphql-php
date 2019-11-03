@@ -10,10 +10,8 @@ use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Utils\Utils;
-use function is_array;
 use function is_int;
 use function is_object;
-use function is_scalar;
 use function is_string;
 use function method_exists;
 
@@ -53,11 +51,9 @@ When expected as an input type, any string (such as `"4"`) or integer
     /**
      * @param mixed $value
      *
-     * @return string
-     *
      * @throws Error
      */
-    public function parseValue($value)
+    public function parseValue($value) : string
     {
         if (is_string($value) || is_int($value)) {
             return (string) $value;
@@ -66,14 +62,13 @@ When expected as an input type, any string (such as `"4"`) or integer
     }
 
     /**
-     * @param Node         $valueNode
      * @param mixed[]|null $variables
      *
-     * @return string|null
+     * @return string
      *
      * @throws Exception
      */
-    public function parseLiteral($valueNode, ?array $variables = null)
+    public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if ($valueNode instanceof StringValueNode || $valueNode instanceof IntValueNode) {
             return $valueNode->value;

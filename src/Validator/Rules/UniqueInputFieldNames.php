@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\Visitor;
@@ -16,10 +17,10 @@ use function sprintf;
 
 class UniqueInputFieldNames extends ValidationRule
 {
-    /** @var string[] */
+    /** @var array<string, NameNode> */
     public $knownNames;
 
-    /** @var string[][] */
+    /** @var array<array<string, NameNode>> */
     public $knownNameStack;
 
     public function getVisitor(ValidationContext $context)
