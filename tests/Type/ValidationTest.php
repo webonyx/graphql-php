@@ -2459,8 +2459,6 @@ class ValidationTest extends TestCase
      */
     public function testRejectsASchemaWithSameSchemaDirectiveUsedTwice()
     {
-        self::markTestSkipped();
-
         $schema = BuildSchema::build('
           directive @schema on SCHEMA
           directive @object on OBJECT
@@ -2497,7 +2495,7 @@ class ValidationTest extends TestCase
           input SomeInput @input_object @input_object {
             some_input_field: String @input_field_definition @input_field_definition
           }
-        ');
+        ', null, ['assumeValid' => true]);
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [
@@ -2579,8 +2577,6 @@ class ValidationTest extends TestCase
      */
     public function testRejectsASchemaWithDirectivesUsedInWrongLocation()
     {
-        self::markTestSkipped();
-
         $schema = BuildSchema::build('
           directive @schema on SCHEMA
           directive @object on OBJECT
@@ -2617,7 +2613,7 @@ class ValidationTest extends TestCase
           input SomeInput @object {
             some_input_field: String @union
           }
-        ');
+        ', null, ['assumeValid' => true]);
 
         $extensions = Parser::parse('
           extend type Query @testA
