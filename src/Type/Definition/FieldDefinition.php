@@ -222,7 +222,7 @@ class FieldDefinition
             )
         );
 
-        $type = $this->type;
+        $type = $this->getType();
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
