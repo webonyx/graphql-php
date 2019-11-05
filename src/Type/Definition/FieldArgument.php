@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
 use function assert;
@@ -83,8 +85,11 @@ class FieldArgument
      */
     public function getType() : Type
     {
-        $type = Type::resolveLazyType($this->type);
-        assert($type instanceof InputType, 'Expected type of FieldArgument to implement InputType');
+        $type = Schema::resolveType($this->type);
+        assert(
+            $type instanceof InputType,
+            new Error(sprintf('Expected type of FieldArgument to implement InputType but got: %s', Utils::printSafe($type)))
+        );
 
         return $type;
     }

@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function assert;
 use function is_array;
@@ -130,7 +131,7 @@ class FieldDefinition
                     );
                 }
 
-                $fieldDef = self::create(['name' => $name, 'type' => Type::resolveLazyType($field)]);
+                $fieldDef = self::create(['name' => $name, 'type' => $field]);
             }
             $map[$fieldDef->name] = $fieldDef;
         }
@@ -180,8 +181,8 @@ class FieldDefinition
      */
     public function getType() : Type
     {
-        $type = Type::resolveLazyType($this->type);
-        assert($type instanceof OutputType, 'Expected type of FieldDefinition to implment OutputType');
+        $type = Schema::resolveType($this->type);
+        assert($type instanceof OutputType, new Error('Expected type of FieldDefinition to implement OutputType but got: ' . Utils::printSafe($type)));
 
         return $type;
     }

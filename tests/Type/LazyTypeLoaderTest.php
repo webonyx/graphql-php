@@ -210,7 +210,7 @@ class LazyTypeLoaderTest extends TestCase
         $schema = new Schema([
             'query'    => $this->query,
             'mutation' => $this->mutation,
-            'types'    => [Type::resolveLazyType($this->blogStory)],
+            'types'    => [Schema::resolveType($this->blogStory)],
         ]);
 
         $expected = [
@@ -224,20 +224,20 @@ class LazyTypeLoaderTest extends TestCase
 
         self::assertSame($this->query, $schema->getType('Query'));
         self::assertSame($this->mutation, $schema->getType('Mutation'));
-        self::assertSame(Type::resolveLazyType($this->node), $schema->getType('Node'));
-        self::assertSame(Type::resolveLazyType($this->content), $schema->getType('Content'));
-        self::assertSame(Type::resolveLazyType($this->blogStory), $schema->getType('BlogStory'));
-        self::assertSame(Type::resolveLazyType($this->postStoryMutation), $schema->getType('PostStoryMutation'));
-        self::assertSame(Type::resolveLazyType($this->postStoryMutationInput), $schema->getType('PostStoryMutationInput'));
+        self::assertSame(Schema::resolveType($this->node), $schema->getType('Node'));
+        self::assertSame(Schema::resolveType($this->content), $schema->getType('Content'));
+        self::assertSame(Schema::resolveType($this->blogStory), $schema->getType('BlogStory'));
+        self::assertSame(Schema::resolveType($this->postStoryMutation), $schema->getType('PostStoryMutation'));
+        self::assertSame(Schema::resolveType($this->postStoryMutationInput), $schema->getType('PostStoryMutationInput'));
 
         $expectedTypeMap = [
             'Query'                  => $this->query,
             'Mutation'               => $this->mutation,
-            'Node'                   => Type::resolveLazyType($this->node),
+            'Node'                   => Schema::resolveType($this->node),
             'String'                 => Type::string(),
-            'Content'                => Type::resolveLazyType($this->content),
-            'BlogStory'              => Type::resolveLazyType($this->blogStory),
-            'PostStoryMutationInput' => Type::resolveLazyType($this->postStoryMutationInput),
+            'Content'                => Schema::resolveType($this->content),
+            'BlogStory'              => Schema::resolveType($this->blogStory),
+            'PostStoryMutationInput' => Schema::resolveType($this->postStoryMutationInput),
         ];
 
         self::assertArraySubset($expectedTypeMap, $schema->getTypeMap());
@@ -253,20 +253,20 @@ class LazyTypeLoaderTest extends TestCase
         self::assertEquals([], $this->calls);
 
         $node = $schema->getType('Node');
-        self::assertSame(Type::resolveLazyType($this->node), $node);
+        self::assertSame(Schema::resolveType($this->node), $node);
         self::assertEquals(['Node'], $this->calls);
 
         $content = $schema->getType('Content');
-        self::assertSame(Type::resolveLazyType($this->content), $content);
+        self::assertSame(Schema::resolveType($this->content), $content);
         self::assertEquals(['Node', 'Content'], $this->calls);
 
         $input = $schema->getType('PostStoryMutationInput');
-        self::assertSame(Type::resolveLazyType($this->postStoryMutationInput), $input);
+        self::assertSame(Schema::resolveType($this->postStoryMutationInput), $input);
         self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
 
         $result = $schema->isPossibleType(
-            Type::resolveLazyType($this->node),
-            Type::resolveLazyType($this->blogStory)
+            Schema::resolveType($this->node),
+            Schema::resolveType($this->blogStory)
         );
         self::assertTrue($result);
         self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);

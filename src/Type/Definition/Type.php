@@ -122,9 +122,11 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @param callable|NullableType $wrappedType
+     *
      * @api
      */
-    public static function nonNull(NullableType $wrappedType) : NonNull
+    public static function nonNull($wrappedType) : NonNull
     {
         return new NonNull($wrappedType);
     }
@@ -292,18 +294,6 @@ abstract class Type implements JsonSerializable
                 $isType,
                 'Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'
             );
-        }
-
-        return $type;
-    }
-
-    /**
-     * @param Type|callable():Type $type
-     */
-    public static function resolveLazyType($type) : Type
-    {
-        if (is_callable($type)) {
-            return $type();
         }
 
         return $type;

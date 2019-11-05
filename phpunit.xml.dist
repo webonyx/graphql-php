@@ -6,6 +6,7 @@
 >
     <php>
         <ini name="error_reporting" value="E_ALL"/>
+        <ini name="assert.exception" value="1"/>
     </php>
 
     <testsuites>

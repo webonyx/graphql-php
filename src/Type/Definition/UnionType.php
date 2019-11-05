@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function array_map;
 use function call_user_func;
@@ -61,7 +62,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         if ($this->possibleTypeNames === null) {
             $this->possibleTypeNames = [];
             foreach ($this->getTypes() as $possibleType) {
-                $this->possibleTypeNames[Type::resolveLazyType($possibleType)->name] = true;
+                $this->possibleTypeNames[Schema::resolveType($possibleType)->name] = true;
             }
         }
 
@@ -92,7 +93,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             }
 
             $this->types = array_map(static function ($type) {
-                return Type::resolveLazyType($type);
+                return Schema::resolveType($type);
             }, $types);
         }
 

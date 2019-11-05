@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use GraphQL\Type\Schema;
+use function assert;
+use function is_callable;
 
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
@@ -17,6 +19,8 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
      */
     public function __construct($type)
     {
+        assert($type instanceof NullableType || is_callable($type), 'NonNull constructor expects an instance of NullableType, or a callable');
+
         /** @var Type&NullableType $nullableType*/
         $nullableType = $type;
         $this->ofType = $nullableType;

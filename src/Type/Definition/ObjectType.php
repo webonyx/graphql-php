@@ -8,6 +8,7 @@ use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function call_user_func;
 use function is_array;
@@ -171,7 +172,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         if ($this->interfaceMap === null) {
             $this->interfaceMap = [];
             foreach ($this->getInterfaces() as $interface) {
-                $interface                            = Type::resolveLazyType($interface);
+                $interface                            = Schema::resolveType($interface);
                 $this->interfaceMap[$interface->name] = $interface;
             }
         }

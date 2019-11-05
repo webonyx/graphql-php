@@ -172,7 +172,7 @@ class Schema
         }
 
         foreach ($types as $index => $type) {
-            $type = Type::resolveLazyType($type);
+            $type = self::resolveType($type);
             if (! $type instanceof Type) {
                 throw new InvariantViolation(sprintf(
                     'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
@@ -320,7 +320,7 @@ class Schema
             if (! $type) {
                 return null;
             }
-            $this->resolvedTypes[$name] = Type::resolveLazyType($type);
+            $this->resolvedTypes[$name] = self::resolveType($type);
         }
 
         return $this->resolvedTypes[$name];
@@ -351,7 +351,7 @@ class Schema
             );
         }
 
-        $type = Type::resolveLazyType($type);
+        $type = self::resolveType($type);
 
         if ($type->name !== $typeName) {
             throw new InvariantViolation(
@@ -368,6 +368,18 @@ class Schema
         $typeMap = $this->getTypeMap();
 
         return $typeMap[$typeName] ?? null;
+    }
+
+    /**
+     * @param Type|callable():Type $type
+     */
+    public static function resolveType($type) : Type
+    {
+        if (is_callable($type)) {
+            return $type();
+        }
+
+        return $type;
     }
 
     /**
@@ -397,7 +409,7 @@ class Schema
         if ($this->possibleTypeMap === null) {
             $this->possibleTypeMap = [];
             foreach ($this->getTypeMap() as $type) {
-                $type = Type::resolveLazyType($type);
+                $type = self::resolveType($type);
 
                 if ($type instanceof ObjectType) {
                     foreach ($type->getInterfaces() as $interface) {
