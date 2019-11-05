@@ -45,7 +45,6 @@ use function array_reduce;
 use function array_values;
 use function get_class;
 use function is_array;
-use function is_callable;
 use function is_string;
 use function sprintf;
 
