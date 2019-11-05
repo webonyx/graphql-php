@@ -160,8 +160,6 @@ class TypeInfo
             return self::extractTypes($type->getWrappedType(true), $typeMap);
         }
 
-        $type = Schema::resolveType($type);
-
         if (! $type instanceof Type) {
             // Preserve these invalid types in map (at numeric index) to make them
             // detectable during $schema->validate()
