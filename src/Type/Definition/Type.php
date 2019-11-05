@@ -13,9 +13,9 @@ use JsonSerializable;
 use ReflectionClass;
 use function array_keys;
 use function array_merge;
+use function assert;
 use function implode;
 use function in_array;
-use function is_callable;
 use function preg_replace;
 use function trigger_error;
 use const E_USER_DEPRECATED;
@@ -283,30 +283,12 @@ abstract class Type implements JsonSerializable
 
     /**
      * @param mixed $type
-     *
-     * @return mixed
      */
-    public static function assertType($type)
+    public static function assertType($type) : Type
     {
-        $isType = self::isType($type);
-        if (! $isType) {
-            Utils::invariant(
-                $isType,
-                'Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'
-            );
-        }
+        assert($type instanceof Type, new InvariantViolation('Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'));
 
         return $type;
-    }
-
-    /**
-     * @param Type $type
-     *
-     * @api
-     */
-    public static function isType($type) : bool
-    {
-        return $type instanceof Type;
     }
 
     /**
