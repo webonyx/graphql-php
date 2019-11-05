@@ -939,11 +939,9 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $exeContext  = $this->exeContext;
         $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
-
         if ($runtimeType === null) {
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
         }
-
         $promise = $this->getPromise($runtimeType);
         if ($promise !== null) {
             return $promise->then(function ($resolvedRuntimeType) use (
