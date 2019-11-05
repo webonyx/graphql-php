@@ -409,8 +409,6 @@ class Schema
         if ($this->possibleTypeMap === null) {
             $this->possibleTypeMap = [];
             foreach ($this->getTypeMap() as $type) {
-                $type = self::resolveType($type);
-
                 if ($type instanceof ObjectType) {
                     foreach ($type->getInterfaces() as $interface) {
                         if (! ($interface instanceof InterfaceType)) {

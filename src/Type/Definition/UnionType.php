@@ -62,7 +62,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         if ($this->possibleTypeNames === null) {
             $this->possibleTypeNames = [];
             foreach ($this->getTypes() as $possibleType) {
-                $this->possibleTypeNames[Schema::resolveType($possibleType)->name] = true;
+                $this->possibleTypeNames[$possibleType->name] = true;
             }
         }
 
