@@ -16,6 +16,7 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NamedType;
 use GraphQL\Type\Definition\NonNull;
+use GraphQL\Type\Definition\NullableType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ScalarType;
@@ -32,18 +33,18 @@ use function json_encode;
 
 class BuildClientSchema
 {
-    /** @var mixed[] */
+    /** @var array<string, mixed[]> */
     private $introspection;
 
-    /** @var bool[] */
+    /** @var array<string, bool> */
     private $options;
 
-    /** @var NamedType[] */
+    /** @var array<string, NamedType&Type> */
     private $typeMap;
 
     /**
-     * @param mixed[] $introspectionQuery
-     * @param  bool[]  $options
+     * @param array<string, mixed[]> $introspectionQuery
+     * @param array<string, bool>    $options
      */
     public function __construct(array $introspectionQuery, array $options = [])
     {
@@ -72,8 +73,8 @@ class BuildClientSchema
      *
      *          Default: false
      *
-     * @param  mixed[] $introspectionQuery
-     * @param  bool[]  $options
+     * @param array<string, mixed[]> $introspectionQuery
+     * @param array<string, bool>    $options
      *
      * @api
      */
@@ -84,7 +85,7 @@ class BuildClientSchema
         return $builder->buildSchema();
     }
 
-    public function buildSchema()
+    public function buildSchema() : Schema
     {
         if (! array_key_exists('__schema', $this->introspection)) {
             throw new InvariantViolation('Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: ' . json_encode($this->introspection));
@@ -149,7 +150,7 @@ class BuildClientSchema
     }
 
     /**
-     * @param  mixed[] $typeRef
+     * @param array<string, mixed> $typeRef
      */
     private function getType(array $typeRef) : Type
     {
@@ -168,11 +169,10 @@ class BuildClientSchema
                 if (! $nullableRef) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
+                /** @var NullableType $nullableType */
                 $nullableType = $this->getType($nullableRef);
 
-                return new NonNull(
-                    NonNull::assertNullableType($nullableType)
-                );
+                return new NonNull($nullableType);
             }
         }
 
@@ -183,6 +183,9 @@ class BuildClientSchema
         return $this->getNamedType($typeRef['name']);
     }
 
+    /**
+     * @return NamedType&Type
+     */
     private function getNamedType(string $typeName) : NamedType
     {
         if (! isset($this->typeMap[$typeName])) {
@@ -194,6 +197,9 @@ class BuildClientSchema
         return $this->typeMap[$typeName];
     }
 
+    /**
+     * @param array<string, mixed> $typeRef
+     */
     private function getInputType(array $typeRef) : InputType
     {
         $type = $this->getType($typeRef);
@@ -205,6 +211,9 @@ class BuildClientSchema
         throw new InvariantViolation('Introspection must provide input type for arguments, but received: ' . json_encode($type));
     }
 
+    /**
+     * @param array<string, mixed> $typeRef
+     */
     private function getOutputType(array $typeRef) : OutputType
     {
         $type = $this->getType($typeRef);
@@ -216,6 +225,9 @@ class BuildClientSchema
         throw new InvariantViolation('Introspection must provide output type for fields, but received: ' . json_encode($type));
     }
 
+    /**
+     * @param array<string, mixed> $typeRef
+     */
     private function getObjectType(array $typeRef) : ObjectType
     {
         $type = $this->getType($typeRef);
@@ -223,6 +235,9 @@ class BuildClientSchema
         return ObjectType::assertObjectType($type);
     }
 
+    /**
+     * @param array<string, mixed> $typeRef
+     */
     private function getInterfaceType(array $typeRef) : InterfaceType
     {
         $type = $this->getType($typeRef);
@@ -230,6 +245,9 @@ class BuildClientSchema
         return InterfaceType::assertInterfaceType($type);
     }
 
+    /**
+     * @param array<string, mixed> $type
+     */
     private function buildType(array $type) : NamedType
     {
         if (array_key_exists('name', $type) && array_key_exists('kind', $type)) {
@@ -254,6 +272,9 @@ class BuildClientSchema
         );
     }
 
+    /**
+     * @param array<string, string> $scalar
+     */
     private function buildScalarDef(array $scalar) : ScalarType
     {
         return new CustomScalarType([
@@ -262,6 +283,9 @@ class BuildClientSchema
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $object
+     */
     private function buildObjectDef(array $object) : ObjectType
     {
         if (! array_key_exists('interfaces', $object)) {
@@ -283,6 +307,9 @@ class BuildClientSchema
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $interface
+     */
     private function buildInterfaceDef(array $interface) : InterfaceType
     {
         return new InterfaceType([
@@ -294,6 +321,9 @@ class BuildClientSchema
         ]);
     }
 
+    /**
+     * @param array<string, string|array<string>> $union
+     */
     private function buildUnionDef(array $union) : UnionType
     {
         if (! array_key_exists('possibleType', $union)) {
@@ -312,6 +342,9 @@ class BuildClientSchema
         ]);
     }
 
+    /**
+     * @param array<string, string|array<string, string>> $enum
+     */
     private function buildEnumDef(array $enum) : EnumType
     {
         if (! array_key_exists('enumValues', $enum)) {
@@ -336,6 +369,9 @@ class BuildClientSchema
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $inputObject
+     */
     private function buildInputObjectDef(array $inputObject) : InputObjectType
     {
         if (! array_key_exists('inputFields', $inputObject)) {
@@ -346,11 +382,14 @@ class BuildClientSchema
             'name' => $inputObject['name'],
             'description' => $inputObject['description'],
             'fields' => function () use ($inputObject) {
-                return $this->buildInputValueDefMap($inputObject->inputFields);
+                return $this->buildInputValueDefMap($inputObject['inputFields']);
             },
         ]);
     }
 
+    /**
+     * @param array<string, mixed> $typeIntrospection
+     */
     private function buildFieldDefMap(array $typeIntrospection)
     {
         if (! array_key_exists('fields', $typeIntrospection)) {
@@ -378,11 +417,11 @@ class BuildClientSchema
     }
 
     /**
-     * @param  array[] $inputValueIntrospections
+     * @param array<int, array<string, mixed>> $inputValueIntrospections
      *
-     * @return mixed[][]
+     * @return array<string, array<string, mixed>>
      */
-    private function buildInputValueDefMap(array $inputValueIntrospections)
+    private function buildInputValueDefMap(array $inputValueIntrospections) : array
     {
         return Utils::keyValMap(
             $inputValueIntrospections,
@@ -393,7 +432,12 @@ class BuildClientSchema
         );
     }
 
-    public function buildInputValue(array $inputValueIntrospection)
+    /**
+     * @param array<string, mixed> $inputValueIntrospection
+     *
+     * @return array<string, mixed>
+     */
+    public function buildInputValue(array $inputValueIntrospection) : array
     {
         $type = $this->getInputType($inputValueIntrospection['type']);
 
@@ -412,6 +456,9 @@ class BuildClientSchema
         return $inputValue;
     }
 
+    /**
+     * @param array<string, mixed> $directive
+     */
     public function buildDirective(array $directive) : Directive
     {
         if (! array_key_exists('args', $directive)) {

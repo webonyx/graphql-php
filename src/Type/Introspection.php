@@ -199,9 +199,9 @@ EOD;
      *     Whether to include descriptions in the introspection result.
      *     Default: true
      *
-     * @param bool[]|bool $options
+     * @param array<string, bool> $options
      *
-     * @return mixed[]|null
+     * @return array<string, mixed[]>|null
      */
     public static function fromSchema(Schema $schema, array $options = []) : ?array
     {
