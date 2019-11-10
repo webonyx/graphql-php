@@ -62,5 +62,5 @@ jobs:
       php: 7.1
       env: STATIC_ANALYSIS
       install: travis_retry composer install --prefer-dist
-      script: composer static-analysis
+      script: composer stan
 
