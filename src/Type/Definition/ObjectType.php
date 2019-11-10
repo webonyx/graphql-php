@@ -10,6 +10,7 @@ use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+use function array_map;
 use function call_user_func;
 use function is_array;
 use function is_callable;
@@ -197,7 +198,10 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
                 );
             }
 
-            $this->interfaces = $interfaces ?: [];
+            /** @var InterfaceType[] $interfaces */
+            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?: []);
+
+            $this->interfaces = $interfaces;
         }
 
         return $this->interfaces;
