@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Utils;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -326,7 +325,7 @@ class BuildClientSchema
      */
     private function buildUnionDef(array $union) : UnionType
     {
-        if (! array_key_exists('possibleType', $union)) {
+        if (! array_key_exists('possibleTypes', $union)) {
             throw new InvariantViolation('Introspection result missing possibleTypes: ' . json_encode($union));
         }
 
