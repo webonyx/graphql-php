@@ -35,7 +35,7 @@ class KnownArgumentNames extends ValidationRule
                 }
 
                 /** @var Node|mixed $argumentOf */
-                $argumentOf = $ancestors[count($ancestors) - 1];
+                $argumentOf = $ancestors[\count($ancestors) - 1];
                 if ($argumentOf instanceof FieldNode) {
                     $fieldDef   = $context->getFieldDef();
                     $parentType = $context->getParentType();
@@ -47,7 +47,7 @@ class KnownArgumentNames extends ValidationRule
                                 $parentType->name,
                                 Utils::suggestionList(
                                     $node->name->value,
-                                    array_map(
+                                    \array_map(
                                         static function ($arg) {
                                             return $arg->name;
                                         },
@@ -67,7 +67,7 @@ class KnownArgumentNames extends ValidationRule
                                 $directive->name,
                                 Utils::suggestionList(
                                     $node->name->value,
-                                    array_map(
+                                    \array_map(
                                         static function ($arg) {
                                             return $arg->name;
                                         },
@@ -88,9 +88,9 @@ class KnownArgumentNames extends ValidationRule
      */
     public static function unknownArgMessage($argName, $fieldName, $typeName, array $suggestedArgs)
     {
-        $message = sprintf('Unknown argument "%s" on field "%s" of type "%s".', $argName, $fieldName, $typeName);
+        $message = \sprintf('Unknown argument "%s" on field "%s" of type "%s".', $argName, $fieldName, $typeName);
         if (! empty($suggestedArgs)) {
-            $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
+            $message .= \sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
         }
 
         return $message;
@@ -101,9 +101,9 @@ class KnownArgumentNames extends ValidationRule
      */
     public static function unknownDirectiveArgMessage($argName, $directiveName, array $suggestedArgs)
     {
-        $message = sprintf('Unknown argument "%s" on directive "@%s".', $argName, $directiveName);
+        $message = \sprintf('Unknown argument "%s" on directive "@%s".', $argName, $directiveName);
         if (! empty($suggestedArgs)) {
-            $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
+            $message .= \sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
         }
 
         return $message;

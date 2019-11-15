@@ -83,7 +83,7 @@ class ValidationContext extends ASTValidationContext
             foreach ($fragments as $i => $fragment) {
                 $tmp[] = $this->getVariableUsages($fragments[$i]);
             }
-            $usages                                    = call_user_func_array('array_merge', $tmp);
+            $usages                                    = \call_user_func_array('array_merge', $tmp);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 
@@ -140,7 +140,7 @@ class ValidationContext extends ASTValidationContext
             $collectedNames = [];
             $nodesToVisit   = [$operation];
             while (! empty($nodesToVisit)) {
-                $node    = array_pop($nodesToVisit);
+                $node    = \array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
                     $fragName = $spread->name->value;
@@ -178,9 +178,9 @@ class ValidationContext extends ASTValidationContext
             /** @var SelectionSetNode[] $setsToVisit */
             $setsToVisit = [$node->selectionSet];
             while (! empty($setsToVisit)) {
-                $set = array_pop($setsToVisit);
+                $set = \array_pop($setsToVisit);
 
-                for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; $i++) {
+                for ($i = 0, $selectionCount = \count($set->selections); $i < $selectionCount; $i++) {
                     $selection = $set->selections[$i];
                     if ($selection instanceof FragmentSpreadNode) {
                         $spreads[] = $selection;

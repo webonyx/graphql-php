@@ -64,6 +64,6 @@ class NoUnusedFragments extends ValidationRule
 
     public static function unusedFragMessage($fragName)
     {
-        return sprintf('Fragment "%s" is never used.', $fragName);
+        return \sprintf('Fragment "%s" is never used.', $fragName);
     }
 }

@@ -35,6 +35,6 @@ class KnownFragmentNames extends ValidationRule
      */
     public static function unknownFragmentMessage($fragName)
     {
-        return sprintf('Unknown fragment "%s".', $fragName);
+        return \sprintf('Unknown fragment "%s".', $fragName);
     }
 }

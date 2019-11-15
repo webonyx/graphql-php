@@ -65,7 +65,7 @@ class SchemaExtender
         $name = $type->name;
         if ($type->extensionASTNodes !== null) {
             if (isset(static::$typeExtensionsMap[$name])) {
-                return array_merge($type->extensionASTNodes, static::$typeExtensionsMap[$name]);
+                return \array_merge($type->extensionASTNodes, static::$typeExtensionsMap[$name]);
             }
 
             return $type->extensionASTNodes;
@@ -255,7 +255,7 @@ class SchemaExtender
      */
     protected static function extendPossibleTypes(UnionType $type) : array
     {
-        $possibleTypes = array_map(static function ($type) {
+        $possibleTypes = \array_map(static function ($type) {
             return static::extendNamedType($type);
         }, $type->getTypes());
 
@@ -276,7 +276,7 @@ class SchemaExtender
      */
     protected static function extendImplementedInterfaces(ObjectType $type) : array
     {
-        $interfaces = array_map(static function (InterfaceType $interfaceType) {
+        $interfaces = \array_map(static function (InterfaceType $interfaceType) {
             return static::extendNamedType($interfaceType);
         }, $type->getInterfaces());
 
@@ -346,7 +346,7 @@ class SchemaExtender
         $newFieldMap = [];
         $oldFieldMap = $type->getFields();
 
-        foreach (array_keys($oldFieldMap) as $fieldName) {
+        foreach (\array_keys($oldFieldMap) as $fieldName) {
             $field = $oldFieldMap[$fieldName];
 
             $newFieldMap[$fieldName] = [
@@ -465,15 +465,15 @@ class SchemaExtender
      */
     protected static function getMergedDirectives(Schema $schema, array $directiveDefinitions) : array
     {
-        $existingDirectives = array_map(static function (Directive $directive) {
+        $existingDirectives = \array_map(static function (Directive $directive) {
             return static::extendDirective($directive);
         }, $schema->getDirectives());
 
-        Utils::invariant(count($existingDirectives) > 0, 'schema must have default directives');
+        Utils::invariant(\count($existingDirectives) > 0, 'schema must have default directives');
 
-        return array_merge(
+        return \array_merge(
             $existingDirectives,
-            array_map(static function (DirectiveDefinitionNode $directive) {
+            \array_map(static function (DirectiveDefinitionNode $directive) {
                 return static::$astBuilder->buildDirective($directive);
             }, $directiveDefinitions)
         );
@@ -507,7 +507,7 @@ class SchemaExtender
         /** @var SchemaTypeExtensionNode[] $schemaExtensions */
         $schemaExtensions = [];
 
-        $definitionsCount = count($documentAST->definitions);
+        $definitionsCount = \count($documentAST->definitions);
         for ($i = 0; $i < $definitionsCount; $i++) {
 
             /** @var Node $def */
@@ -540,7 +540,7 @@ class SchemaExtender
                 static::checkExtensionNode($existingType, $def);
 
                 $existingTypeExtensions                       = static::$typeExtensionsMap[$extendedTypeName] ?? null;
-                static::$typeExtensionsMap[$extendedTypeName] = $existingTypeExtensions !== null ? array_merge($existingTypeExtensions, [$def]) : [$def];
+                static::$typeExtensionsMap[$extendedTypeName] = $existingTypeExtensions !== null ? \array_merge($existingTypeExtensions, [$def]) : [$def];
             } elseif ($def instanceof DirectiveDefinitionNode) {
                 $directiveName     = $def->name->value;
                 $existingDirective = $schema->getDirective($directiveName);
@@ -551,10 +551,10 @@ class SchemaExtender
             }
         }
 
-        if (count(static::$typeExtensionsMap) === 0 &&
-            count($typeDefinitionMap) === 0 &&
-            count($directiveDefinitions) === 0 &&
-            count($schemaExtensions) === 0 &&
+        if (\count(static::$typeExtensionsMap) === 0 &&
+            \count($typeDefinitionMap) === 0 &&
+            \count($directiveDefinitions) === 0 &&
+            \count($schemaExtensions) === 0 &&
             $schemaDef === null
         ) {
             return $schema;
@@ -609,22 +609,22 @@ class SchemaExtender
             }
         }
 
-        $schemaExtensionASTNodes = count($schemaExtensions) > 0
+        $schemaExtensionASTNodes = \count($schemaExtensions) > 0
             ? ($schema->extensionASTNodes
-                ? array_merge($schema->extensionASTNodes, $schemaExtensions)
+                ? \array_merge($schema->extensionASTNodes, $schemaExtensions)
                 : $schemaExtensions)
             : $schema->extensionASTNodes;
 
-        $types = array_merge(
+        $types = \array_merge(
             // Iterate through all types, getting the type definition for each, ensuring
             // that any type not directly referenced by a field will get created.
-            array_map(static function ($type) {
+            \array_map(static function ($type) {
                 return static::extendNamedType($type);
-            }, array_values($schema->getTypeMap())),
+            }, \array_values($schema->getTypeMap())),
             // Do the same with new types.
-            array_map(static function ($type) {
+            \array_map(static function ($type) {
                 return static::$astBuilder->buildType($type);
-            }, array_values($typeDefinitionMap))
+            }, \array_values($typeDefinitionMap))
         );
 
         return new Schema([

@@ -37,7 +37,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
+        Utils::invariant(\is_string($config['name']), 'Must provide name.');
 
         /**
          * Optionally provide a custom type resolver function. If one is not provided,
@@ -75,15 +75,15 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         if ($this->types === null) {
             if (! isset($this->config['types'])) {
                 $types = null;
-            } elseif (is_callable($this->config['types'])) {
-                $types = call_user_func($this->config['types']);
+            } elseif (\is_callable($this->config['types'])) {
+                $types = \call_user_func($this->config['types']);
             } else {
                 $types = $this->config['types'];
             }
 
-            if (! is_array($types)) {
+            if (! \is_array($types)) {
                 throw new InvariantViolation(
-                    sprintf(
+                    \sprintf(
                         'Must provide Array of types or a callable which returns such an array for Union %s',
                         $this->name
                     )
@@ -127,8 +127,8 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
         }
 
         Utils::invariant(
-            is_callable($this->config['resolveType']),
-            sprintf(
+            \is_callable($this->config['resolveType']),
+            \sprintf(
                 '%s must provide "resolveType" as a function, but got: %s',
                 $this->name,
                 Utils::printSafe($this->config['resolveType'])

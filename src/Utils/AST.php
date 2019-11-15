@@ -104,7 +104,7 @@ class AST
             if ($key === 'loc' || $key === 'kind') {
                 continue;
             }
-            if (is_array($value)) {
+            if (\is_array($value)) {
                 if (isset($value[0]) || empty($value)) {
                     $value = new NodeList($value);
                 } else {
@@ -172,7 +172,7 @@ class AST
         // the value is not an array, convert the value using the list's item type.
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            if (is_array($value) || ($value instanceof Traversable)) {
+            if (\is_array($value) || ($value instanceof Traversable)) {
                 $valuesNodes = [];
                 foreach ($value as $item) {
                     $itemNode = self::astFromValue($item, $itemType);
@@ -192,9 +192,9 @@ class AST
         // Populate the fields of the input object by creating ASTs from each value
         // in the PHP object according to the fields in the input type.
         if ($type instanceof InputObjectType) {
-            $isArray     = is_array($value);
+            $isArray     = \is_array($value);
             $isArrayLike = $isArray || $value instanceof ArrayAccess;
-            if ($value === null || (! $isArrayLike && ! is_object($value))) {
+            if ($value === null || (! $isArrayLike && ! \is_object($value))) {
                 return null;
             }
             $fields     = $type->getFields();
@@ -211,11 +211,11 @@ class AST
                 if ($fieldValue !== null) {
                     $fieldExists = true;
                 } elseif ($isArray) {
-                    $fieldExists = array_key_exists($fieldName, $value);
+                    $fieldExists = \array_key_exists($fieldName, $value);
                 } elseif ($isArrayLike) {
                     $fieldExists = $value->offsetExists($fieldName);
                 } else {
-                    $fieldExists = property_exists($value, $fieldName);
+                    $fieldExists = \property_exists($value, $fieldName);
                 }
 
                 if (! $fieldExists) {
@@ -250,13 +250,13 @@ class AST
             }
 
             // Others serialize based on their corresponding PHP scalar types.
-            if (is_bool($serialized)) {
+            if (\is_bool($serialized)) {
                 return new BooleanValueNode(['value' => $serialized]);
             }
-            if (is_int($serialized)) {
+            if (\is_int($serialized)) {
                 return new IntValueNode(['value' => $serialized]);
             }
-            if (is_float($serialized)) {
+            if (\is_float($serialized)) {
                 // int cast with == used for performance reasons
                 // phpcs:ignore
                 if ((int) $serialized == $serialized) {
@@ -265,7 +265,7 @@ class AST
 
                 return new FloatValueNode(['value' => $serialized]);
             }
-            if (is_string($serialized)) {
+            if (\is_string($serialized)) {
                 // Enum types use Enum literals.
                 if ($type instanceof EnumType) {
                     return new EnumValueNode(['value' => $serialized]);
@@ -343,7 +343,7 @@ class AST
         if ($valueNode instanceof VariableNode) {
             $variableName = $valueNode->name->value;
 
-            if (! $variables || ! array_key_exists($variableName, $variables)) {
+            if (! $variables || ! \array_key_exists($variableName, $variables)) {
                 // No valid return value.
                 return $undefined;
             }
@@ -478,7 +478,7 @@ class AST
     private static function isMissingVariable(ValueNode $valueNode, $variables)
     {
         return $valueNode instanceof VariableNode &&
-            (count($variables) === 0 || ! array_key_exists($valueNode->name->value, $variables));
+            (\count($variables) === 0 || ! \array_key_exists($valueNode->name->value, $variables));
     }
 
     /**
@@ -512,33 +512,33 @@ class AST
             case $valueNode instanceof NullValueNode:
                 return null;
             case $valueNode instanceof IntValueNode:
-                return intval($valueNode->value, 10);
+                return \intval($valueNode->value, 10);
             case $valueNode instanceof FloatValueNode:
-                return floatval($valueNode->value);
+                return \floatval($valueNode->value);
             case $valueNode instanceof StringValueNode:
             case $valueNode instanceof EnumValueNode:
             case $valueNode instanceof BooleanValueNode:
                 return $valueNode->value;
             case $valueNode instanceof ListValueNode:
-                return array_map(
+                return \array_map(
                     static function ($node) use ($variables) {
                         return self::valueFromASTUntyped($node, $variables);
                     },
-                    iterator_to_array($valueNode->values)
+                    \iterator_to_array($valueNode->values)
                 );
             case $valueNode instanceof ObjectValueNode:
-                return array_combine(
-                    array_map(
+                return \array_combine(
+                    \array_map(
                         static function ($field) {
                             return $field->name->value;
                         },
-                        iterator_to_array($valueNode->fields)
+                        \iterator_to_array($valueNode->fields)
                     ),
-                    array_map(
+                    \array_map(
                         static function ($field) use ($variables) {
                             return self::valueFromASTUntyped($field->value, $variables);
                         },
-                        iterator_to_array($valueNode->fields)
+                        \iterator_to_array($valueNode->fields)
                     )
                 );
             case $valueNode instanceof VariableNode:

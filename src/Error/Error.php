@@ -105,8 +105,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         // Compute list of blame nodes.
         if ($nodes instanceof Traversable) {
-            $nodes = iterator_to_array($nodes);
-        } elseif ($nodes && ! is_array($nodes)) {
+            $nodes = \iterator_to_array($nodes);
+        } elseif ($nodes && ! \is_array($nodes)) {
             $nodes = [$nodes];
         }
 
@@ -226,21 +226,21 @@ class Error extends Exception implements JsonSerializable, ClientAware
     public function getPositions()
     {
         if ($this->positions === null && ! empty($this->nodes)) {
-            $positions = array_map(
+            $positions = \array_map(
                 static function ($node) {
                     return isset($node->loc) ? $node->loc->start : null;
                 },
                 $this->nodes
             );
 
-            $positions = array_filter(
+            $positions = \array_filter(
                 $positions,
                 static function ($p) {
                     return $p !== null;
                 }
             );
 
-            $this->positions = array_values($positions);
+            $this->positions = \array_values($positions);
         }
 
         return $this->positions;
@@ -269,15 +269,15 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $nodes     = $this->nodes;
 
             if ($positions && $source) {
-                $this->locations = array_map(
+                $this->locations = \array_map(
                     static function ($pos) use ($source) {
                         return $source->getLocation($pos);
                     },
                     $positions
                 );
             } elseif ($nodes) {
-                $locations       = array_filter(
-                    array_map(
+                $locations       = \array_filter(
+                    \array_map(
                         static function ($node) {
                             if ($node->loc && $node->loc->source) {
                                 return $node->loc->source->getLocation($node->loc->start);
@@ -286,7 +286,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
                         $nodes
                     )
                 );
-                $this->locations = array_values($locations);
+                $this->locations = \array_values($locations);
             } else {
                 $this->locations = [];
             }

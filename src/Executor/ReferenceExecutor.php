@@ -89,7 +89,7 @@ class ReferenceExecutor implements ExecutorImplementation
             $promiseAdapter
         );
 
-        if (is_array($exeContext)) {
+        if (\is_array($exeContext)) {
             return new class($promiseAdapter->createFulfilled(new ExecutionResult(null, $exeContext))) implements ExecutorImplementation
             {
                 /** @var Promise */
@@ -156,7 +156,7 @@ class ReferenceExecutor implements ExecutorImplementation
             if ($operationName === null) {
                 $errors[] = new Error('Must provide an operation.');
             } else {
-                $errors[] = new Error(sprintf('Unknown operation named "%s".', $operationName));
+                $errors[] = new Error(\sprintf('Unknown operation named "%s".', $operationName));
             }
         } elseif ($hasMultipleAssumedOperations) {
             $errors[] = new Error(
@@ -173,7 +173,7 @@ class ReferenceExecutor implements ExecutorImplementation
             if (empty($coercionErrors)) {
                 $variableValues = $coercedVariableValues;
             } else {
-                $errors = array_merge($errors, $coercionErrors);
+                $errors = \array_merge($errors, $coercionErrors);
             }
         }
         if (! empty($errors)) {
@@ -467,7 +467,7 @@ class ReferenceExecutor implements ExecutorImplementation
     private function executeFieldsSerially(ObjectType $parentType, $rootValue, $path, $fields)
     {
         $result = $this->promiseReduce(
-            array_keys($fields->getArrayCopy()),
+            \array_keys($fields->getArrayCopy()),
             function ($results, $responseName) use ($path, $parentType, $rootValue, $fields) {
                 $fieldNodes  = $fields[$responseName];
                 $fieldPath   = $path;
@@ -764,14 +764,14 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($returnType !== $this->exeContext->schema->getType($returnType->name)) {
             $hint = '';
             if ($this->exeContext->schema->getConfig()->typeLoader !== null) {
-                $hint = sprintf(
+                $hint = \sprintf(
                     'Make sure that type loader returns the same instance as defined in %s.%s',
                     $info->parentType,
                     $info->fieldName
                 );
             }
             throw new InvariantViolation(
-                sprintf(
+                \sprintf(
                     'Schema must contain unique named types but contains multiple types named "%s". %s ' .
                     '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
                     $returnType,
@@ -791,7 +791,7 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($returnType instanceof ObjectType) {
             return $this->completeObjectValue($returnType, $fieldNodes, $info, $path, $result);
         }
-        throw new RuntimeException(sprintf('Cannot complete value of unexpected type "%s".', $returnType));
+        throw new RuntimeException(\sprintf('Cannot complete value of unexpected type "%s".', $returnType));
     }
 
     /**
@@ -820,9 +820,9 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($this->exeContext->promiseAdapter->isThenable($value)) {
             $promise = $this->exeContext->promiseAdapter->convertThenable($value);
             if (! $promise instanceof Promise) {
-                throw new InvariantViolation(sprintf(
+                throw new InvariantViolation(\sprintf(
                     '%s::convertThenable is expected to return instance of GraphQL\Executor\Promise\Promise, got: %s',
-                    get_class($this->exeContext->promiseAdapter),
+                    \get_class($this->exeContext->promiseAdapter),
                     Utils::printSafe($promise)
                 ));
             }
@@ -847,7 +847,7 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     private function promiseReduce(array $values, callable $callback, $initialValue)
     {
-        return array_reduce(
+        return \array_reduce(
             $values,
             function ($previous, $value) use ($callback) {
                 $promise = $this->getPromise($previous);
@@ -878,7 +878,7 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         $itemType = $returnType->getWrappedType();
         Utils::invariant(
-            is_array($results) || $results instanceof Traversable,
+            \is_array($results) || $results instanceof Traversable,
             'User Error: expected iterable, but did not find one for field ' . $info->parentType . '.' . $info->fieldName . '.'
         );
         $containsPromise = false;
@@ -999,16 +999,16 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         // First, look for `__typename`.
         if ($value !== null &&
-            (is_array($value) || $value instanceof ArrayAccess) &&
+            (\is_array($value) || $value instanceof ArrayAccess) &&
             isset($value['__typename']) &&
-            is_string($value['__typename'])
+            \is_string($value['__typename'])
         ) {
             return $value['__typename'];
         }
 
         if ($abstractType instanceof InterfaceType && $info->schema->getConfig()->typeLoader !== null) {
             Warning::warnOnce(
-                sprintf(
+                \sprintf(
                     'GraphQL Interface Type `%s` returned `null` from its `resolveType` function ' .
                     'for value: %s. Switching to slow resolution method using `isTypeOf` ' .
                     'of all possible implementations. It requires full schema scan and degrades query performance significantly. ' .
@@ -1237,8 +1237,8 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     private function promiseForAssocArray(array $assoc)
     {
-        $keys              = array_keys($assoc);
-        $valuesAndPromises = array_values($assoc);
+        $keys              = \array_keys($assoc);
+        $valuesAndPromises = \array_values($assoc);
         $promise           = $this->exeContext->promiseAdapter->all($valuesAndPromises);
 
         return $promise->then(static function ($values) use ($keys) {
@@ -1264,12 +1264,12 @@ class ReferenceExecutor implements ExecutorImplementation
         ResolveInfo $info,
         &$result
     ) {
-        $runtimeType = is_string($runtimeTypeOrName)
+        $runtimeType = \is_string($runtimeTypeOrName)
             ? $this->exeContext->schema->getType($runtimeTypeOrName)
             : $runtimeTypeOrName;
         if (! $runtimeType instanceof ObjectType) {
             throw new InvariantViolation(
-                sprintf(
+                \sprintf(
                     'Abstract type %s must resolve to an Object type at ' .
                     'runtime for field %s.%s with value "%s", received "%s". ' .
                     'Either the %s type should provide a "resolveType" ' .
@@ -1285,12 +1285,12 @@ class ReferenceExecutor implements ExecutorImplementation
         }
         if (! $this->exeContext->schema->isPossibleType($returnType, $runtimeType)) {
             throw new InvariantViolation(
-                sprintf('Runtime Object type "%s" is not a possible type for "%s".', $runtimeType, $returnType)
+                \sprintf('Runtime Object type "%s" is not a possible type for "%s".', $runtimeType, $returnType)
             );
         }
         if ($runtimeType !== $this->exeContext->schema->getType($runtimeType->name)) {
             throw new InvariantViolation(
-                sprintf(
+                \sprintf(
                     'Schema must contain unique named types but contains multiple types named "%s". ' .
                     'Make sure that `resolveType` function of abstract type "%s" returns the same ' .
                     'type instance as referenced anywhere else within the schema ' .

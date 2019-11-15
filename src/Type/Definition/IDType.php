@@ -37,9 +37,9 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function serialize($value)
     {
-        $canCast = is_string($value)
-            || is_int($value)
-            || (is_object($value) && method_exists($value, '__toString'));
+        $canCast = \is_string($value)
+            || \is_int($value)
+            || (\is_object($value) && \method_exists($value, '__toString'));
 
         if (! $canCast) {
             throw new Error('ID cannot represent value: ' . Utils::printSafe($value));
@@ -55,7 +55,7 @@ When expected as an input type, any string (such as `"4"`) or integer
      */
     public function parseValue($value) : string
     {
-        if (is_string($value) || is_int($value)) {
+        if (\is_string($value) || \is_int($value)) {
             return (string) $value;
         }
         throw new Error('ID cannot represent value: ' . Utils::printSafe($value));

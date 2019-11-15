@@ -46,6 +46,6 @@ abstract class ScalarType extends Type implements OutputType, InputType, LeafTyp
         $this->extensionASTNodes = $config['extensionASTNodes'] ?? null;
         $this->config            = $config;
 
-        Utils::invariant(is_string($this->name), 'Must provide name.');
+        Utils::invariant(\is_string($this->name), 'Must provide name.');
     }
 }

@@ -34,7 +34,7 @@ class LoneAnonymousOperation extends ValidationRule
                     }
                 );
 
-                $operationCount = count($tmp);
+                $operationCount = \count($tmp);
             },
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
                 &$operationCount,

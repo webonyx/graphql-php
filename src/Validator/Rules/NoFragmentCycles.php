@@ -67,9 +67,9 @@ class NoFragmentCycles extends ValidationRule
             return;
         }
 
-        $this->spreadPathIndexByName[$fragmentName] = count($this->spreadPath);
+        $this->spreadPathIndexByName[$fragmentName] = \count($this->spreadPath);
 
-        for ($i = 0; $i < count($spreadNodes); $i++) {
+        for ($i = 0; $i < \count($spreadNodes); $i++) {
             $spreadNode = $spreadNodes[$i];
             $spreadName = $spreadNode->name->value;
             $cycleIndex = $this->spreadPathIndexByName[$spreadName] ?? null;
@@ -81,8 +81,8 @@ class NoFragmentCycles extends ValidationRule
                     $this->detectCycleRecursive($spreadFragment, $context);
                 }
             } else {
-                $cyclePath     = array_slice($this->spreadPath, $cycleIndex);
-                $fragmentNames = Utils::map(array_slice($cyclePath, 0, -1), static function ($s) {
+                $cyclePath     = \array_slice($this->spreadPath, $cycleIndex);
+                $fragmentNames = Utils::map(\array_slice($cyclePath, 0, -1), static function ($s) {
                     return $s->name->value;
                 });
 
@@ -91,7 +91,7 @@ class NoFragmentCycles extends ValidationRule
                     $cyclePath
                 ));
             }
-            array_pop($this->spreadPath);
+            \array_pop($this->spreadPath);
         }
 
         $this->spreadPathIndexByName[$fragmentName] = null;
@@ -102,10 +102,10 @@ class NoFragmentCycles extends ValidationRule
      */
     public static function cycleErrorMessage($fragName, array $spreadNames = [])
     {
-        return sprintf(
+        return \sprintf(
             'Cannot spread fragment "%s" within itself%s.',
             $fragName,
-            ! empty($spreadNames) ? ' via ' . implode(', ', $spreadNames) : ''
+            ! empty($spreadNames) ? ' via ' . \implode(', ', $spreadNames) : ''
         );
     }
 }

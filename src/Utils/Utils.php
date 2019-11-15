@@ -84,15 +84,15 @@ class Utils
     {
         foreach ($requiredKeys as $key) {
             if (! isset($vars[$key])) {
-                throw new InvalidArgumentException(sprintf('Key %s is expected to be set and not to be null', $key));
+                throw new InvalidArgumentException(\sprintf('Key %s is expected to be set and not to be null', $key));
             }
         }
 
         foreach ($vars as $key => $value) {
-            if (! property_exists($obj, $key)) {
-                $cls = get_class($obj);
+            if (! \property_exists($obj, $key)) {
+                $cls = \get_class($obj);
                 Warning::warn(
-                    sprintf("Trying to set non-existing property '%s' on class '%s'", $key, $cls),
+                    \sprintf("Trying to set non-existing property '%s' on class '%s'", $key, $cls),
                     Warning::WARNING_ASSIGN
                 );
             }
@@ -110,7 +110,7 @@ class Utils
     public static function find($traversable, callable $predicate)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            \is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -133,14 +133,14 @@ class Utils
     public static function filter($traversable, callable $predicate)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            \is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
         $result = [];
         $assoc  = false;
         foreach ($traversable as $key => $value) {
-            if (! $assoc && ! is_int($key)) {
+            if (! $assoc && ! \is_int($key)) {
                 $assoc = true;
             }
             if (! $predicate($value, $key)) {
@@ -150,7 +150,7 @@ class Utils
             $result[$key] = $value;
         }
 
-        return $assoc ? $result : array_values($result);
+        return $assoc ? $result : \array_values($result);
     }
 
     /**
@@ -163,7 +163,7 @@ class Utils
     public static function map($traversable, callable $fn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            \is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -185,7 +185,7 @@ class Utils
     public static function mapKeyValue($traversable, callable $fn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            \is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -208,14 +208,14 @@ class Utils
     public static function keyMap($traversable, callable $keyFn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            \is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
         $map = [];
         foreach ($traversable as $key => $value) {
             $newKey = $keyFn($value, $key);
-            if (! is_scalar($newKey)) {
+            if (! \is_scalar($newKey)) {
                 continue;
             }
 
@@ -228,7 +228,7 @@ class Utils
     public static function each($traversable, callable $fn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            \is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -256,7 +256,7 @@ class Utils
     public static function groupBy($traversable, callable $keyFn)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            \is_array($traversable) || $traversable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
@@ -325,10 +325,10 @@ class Utils
     public static function invariant($test, $message = '')
     {
         if (! $test) {
-            if (func_num_args() > 2) {
-                $args = func_get_args();
-                array_shift($args);
-                $message = sprintf(...$args);
+            if (\func_num_args() > 2) {
+                $args = \func_get_args();
+                \array_shift($args);
+                $message = \sprintf(...$args);
             }
             // TODO switch to Error here
             throw new InvariantViolation($message);
@@ -351,7 +351,7 @@ class Utils
             return $var->name;
         }
 
-        return is_object($var) ? get_class($var) : gettype($var);
+        return \is_object($var) ? \get_class($var) : \gettype($var);
     }
 
     /**
@@ -364,8 +364,8 @@ class Utils
         if ($var instanceof stdClass) {
             $var = (array) $var;
         }
-        if (is_array($var)) {
-            return json_encode($var);
+        if (\is_array($var)) {
+            return \json_encode($var);
         }
         if ($var === '') {
             return '(empty string)';
@@ -379,14 +379,14 @@ class Utils
         if ($var === true) {
             return 'true';
         }
-        if (is_string($var)) {
-            return sprintf('"%s"', $var);
+        if (\is_string($var)) {
+            return \sprintf('"%s"', $var);
         }
-        if (is_scalar($var)) {
+        if (\is_scalar($var)) {
             return (string) $var;
         }
 
-        return gettype($var);
+        return \gettype($var);
     }
 
     /**
@@ -399,15 +399,15 @@ class Utils
         if ($var instanceof Type) {
             return $var->toString();
         }
-        if (is_object($var)) {
-            if (method_exists($var, '__toString')) {
+        if (\is_object($var)) {
+            if (\method_exists($var, '__toString')) {
                 return (string) $var;
             }
 
-            return 'instance of ' . get_class($var);
+            return 'instance of ' . \get_class($var);
         }
-        if (is_array($var)) {
-            return json_encode($var);
+        if (\is_array($var)) {
+            return \json_encode($var);
         }
         if ($var === '') {
             return '(empty string)';
@@ -421,14 +421,14 @@ class Utils
         if ($var === true) {
             return 'true';
         }
-        if (is_string($var)) {
+        if (\is_string($var)) {
             return $var;
         }
-        if (is_scalar($var)) {
+        if (\is_scalar($var)) {
             return (string) $var;
         }
 
-        return gettype($var);
+        return \gettype($var);
     }
 
     /**
@@ -442,10 +442,10 @@ class Utils
     public static function chr($ord, $encoding = 'UTF-8')
     {
         if ($encoding === 'UCS-4BE') {
-            return pack('N', $ord);
+            return \pack('N', $ord);
         }
 
-        return mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
+        return \mb_convert_encoding(self::chr($ord, 'UCS-4BE'), $encoding, 'UCS-4BE');
     }
 
     /**
@@ -462,13 +462,13 @@ class Utils
             return 0;
         }
         if (! isset($char[1])) {
-            return ord($char);
+            return \ord($char);
         }
         if ($encoding !== 'UCS-4BE') {
-            $char = mb_convert_encoding($char, 'UCS-4BE', $encoding);
+            $char = \mb_convert_encoding($char, 'UCS-4BE', $encoding);
         }
 
-        return unpack('N', $char)[1];
+        return \unpack('N', $char)[1];
     }
 
     /**
@@ -481,7 +481,7 @@ class Utils
      */
     public static function charCodeAt($string, $position)
     {
-        $char = mb_substr($string, $position, 1, 'UTF-8');
+        $char = \mb_substr($string, $position, 1, 'UTF-8');
 
         return self::ord($char);
     }
@@ -499,9 +499,9 @@ class Utils
 
         return $code < 0x007F
             // Trust JSON for ASCII.
-            ? json_encode(self::chr($code))
+            ? \json_encode(self::chr($code))
             // Otherwise print the escaped form.
-            : '"\\u' . dechex($code) . '"';
+            : '"\\u' . \dechex($code) . '"';
     }
 
     /**
@@ -529,19 +529,19 @@ class Utils
      */
     public static function isValidNameError($name, $node = null)
     {
-        self::invariant(is_string($name), 'Expected string');
+        self::invariant(\is_string($name), 'Expected string');
 
         if (isset($name[1]) && $name[0] === '_' && $name[1] === '_') {
             return new Error(
-                sprintf('Name "%s" must not begin with "__", which is reserved by ', $name) .
+                \sprintf('Name "%s" must not begin with "__", which is reserved by ', $name) .
                 'GraphQL introspection.',
                 $node
             );
         }
 
-        if (! preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
+        if (! \preg_match('/^[_a-zA-Z][_a-zA-Z0-9]*$/', $name)) {
             return new Error(
-                sprintf('Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "%s" does not.', $name),
+                \sprintf('Names must match /^[_a-zA-Z][_a-zA-Z0-9]*$/ but "%s" does not.', $name),
                 $node
             );
         }
@@ -561,14 +561,14 @@ class Utils
     {
         return static function () use ($fn, &$errors) {
             // Catch custom errors (to report them in query results)
-            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) {
+            \set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) {
                 $errors[] = new ErrorException($message, 0, $severity, $file, $line);
             });
 
             try {
                 return $fn();
             } finally {
-                restore_error_handler();
+                \restore_error_handler();
             }
         };
     }
@@ -580,9 +580,9 @@ class Utils
      */
     public static function quotedOrList(array $items)
     {
-        $items = array_map(
+        $items = \array_map(
             static function ($item) {
-                return sprintf('"%s"', $item);
+                return \sprintf('"%s"', $item);
             },
             $items
         );
@@ -597,19 +597,19 @@ class Utils
      */
     public static function orList(array $items)
     {
-        if (count($items) === 0) {
+        if (\count($items) === 0) {
             throw new LogicException('items must not need to be empty.');
         }
-        $selected       = array_slice($items, 0, 5);
-        $selectedLength = count($selected);
+        $selected       = \array_slice($items, 0, 5);
+        $selectedLength = \count($selected);
         $firstSelected  = $selected[0];
 
         if ($selectedLength === 1) {
             return $firstSelected;
         }
 
-        return array_reduce(
-            range(1, $selectedLength - 1),
+        return \array_reduce(
+            \range(1, $selectedLength - 1),
             static function ($list, $index) use ($selected, $selectedLength) {
                 return $list .
                     ($selectedLength > 2 ? ', ' : ' ') .
@@ -636,16 +636,16 @@ class Utils
     public static function suggestionList($input, array $options)
     {
         $optionsByDistance = [];
-        $inputThreshold    = mb_strlen($input) / 2;
+        $inputThreshold    = \mb_strlen($input) / 2;
         foreach ($options as $option) {
             if ($input === $option) {
                 $distance = 0;
             } else {
-                $distance = (strtolower($input) === strtolower($option)
+                $distance = (\strtolower($input) === \strtolower($option)
                     ? 1
-                    : levenshtein($input, $option));
+                    : \levenshtein($input, $option));
             }
-            $threshold = max($inputThreshold, mb_strlen($option) / 2, 1);
+            $threshold = \max($inputThreshold, \mb_strlen($option) / 2, 1);
             if ($distance > $threshold) {
                 continue;
             }
@@ -653,8 +653,8 @@ class Utils
             $optionsByDistance[$option] = $distance;
         }
 
-        asort($optionsByDistance);
+        \asort($optionsByDistance);
 
-        return array_keys($optionsByDistance);
+        return \array_keys($optionsByDistance);
     }
 }

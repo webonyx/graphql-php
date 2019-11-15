@@ -72,7 +72,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
                     $context->reportError(new Error(
                         self::fieldsConflictMessage($responseName, $reason),
-                        array_merge($fields1, $fields2)
+                        \array_merge($fields1, $fields2)
                     ));
                 }
             },
@@ -109,7 +109,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             $fieldMap
         );
 
-        $fragmentNamesLength = count($fragmentNames);
+        $fragmentNamesLength = \count($fragmentNames);
         if ($fragmentNamesLength !== 0) {
             // (B) Then collect conflicts between these fields and those represented by
             // each spread fragment name found.
@@ -169,7 +169,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 $astAndDefs,
                 $fragmentNames
             );
-            $cached                                            = [$astAndDefs, array_keys($fragmentNames)];
+            $cached                                            = [$astAndDefs, \array_keys($fragmentNames)];
             $this->cachedFieldsAndFragmentNames[$selectionSet] = $cached;
         }
 
@@ -304,7 +304,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             // This compares every field in the list to every other field in this list
             // (except to itself). If the list only has one item, nothing needs to
             // be compared.
-            $fieldsLength = count($fields);
+            $fieldsLength = \count($fields);
             if ($fieldsLength <= 1) {
                 continue;
             }
@@ -375,7 +375,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             $name2 = $ast2->name->value;
             if ($name1 !== $name2) {
                 return [
-                    [$responseName, sprintf('%s and %s are different fields', $name1, $name2)],
+                    [$responseName, \sprintf('%s and %s are different fields', $name1, $name2)],
                     [$ast1],
                     [$ast2],
                 ];
@@ -392,7 +392,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         if ($type1 && $type2 && $this->doTypesConflict($type1, $type2)) {
             return [
-                [$responseName, sprintf('they return conflicting types %s and %s', $type1, $type2)],
+                [$responseName, \sprintf('they return conflicting types %s and %s', $type1, $type2)],
                 [$ast1],
                 [$ast2],
             ];
@@ -432,7 +432,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
      */
     private function sameArguments($arguments1, $arguments2)
     {
-        if (count($arguments1) !== count($arguments2)) {
+        if (\count($arguments1) !== \count($arguments2)) {
             return false;
         }
         foreach ($arguments1 as $argument1) {
@@ -540,7 +540,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (I) Then collect conflicts between the first collection of fields and
         // those referenced by each fragment name associated with the second.
-        $fragmentNames2Length = count($fragmentNames2);
+        $fragmentNames2Length = \count($fragmentNames2);
         if ($fragmentNames2Length !== 0) {
             $comparedFragments = [];
             for ($j = 0; $j < $fragmentNames2Length; $j++) {
@@ -557,7 +557,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (I) Then collect conflicts between the second collection of fields and
         // those referenced by each fragment name associated with the first.
-        $fragmentNames1Length = count($fragmentNames1);
+        $fragmentNames1Length = \count($fragmentNames1);
         if ($fragmentNames1Length !== 0) {
             $comparedFragments = [];
             for ($i = 0; $i < $fragmentNames1Length; $i++) {
@@ -620,8 +620,8 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             }
 
             $fields2       = $fieldMap2[$responseName];
-            $fields1Length = count($fields1);
-            $fields2Length = count($fields2);
+            $fields1Length = \count($fields1);
+            $fields2Length = \count($fields2);
             for ($i = 0; $i < $fields1Length; $i++) {
                 for ($j = 0; $j < $fields2Length; $j++) {
                     $conflict = $this->findConflict(
@@ -690,7 +690,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (E) Then collect any conflicts between the provided collection of fields
         // and any fragment names found in the given fragment.
-        $fragmentNames2Length = count($fragmentNames2);
+        $fragmentNames2Length = \count($fragmentNames2);
         for ($i = 0; $i < $fragmentNames2Length; $i++) {
             $this->collectConflictsBetweenFieldsAndFragment(
                 $context,
@@ -790,7 +790,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (G) Then collect conflicts between the first fragment and any nested
         // fragments spread in the second fragment.
-        $fragmentNames2Length = count($fragmentNames2);
+        $fragmentNames2Length = \count($fragmentNames2);
         for ($j = 0; $j < $fragmentNames2Length; $j++) {
             $this->collectConflictsBetweenFragments(
                 $context,
@@ -803,7 +803,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
         // (G) Then collect conflicts between the second fragment and any nested
         // fragments spread in the first fragment.
-        $fragmentNames1Length = count($fragmentNames1);
+        $fragmentNames1Length = \count($fragmentNames1);
         for ($i = 0; $i < $fragmentNames1Length; $i++) {
             $this->collectConflictsBetweenFragments(
                 $context,
@@ -830,31 +830,31 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         FieldNode $ast1,
         FieldNode $ast2
     ) {
-        if (count($conflicts) === 0) {
+        if (\count($conflicts) === 0) {
             return null;
         }
 
         return [
             [
                 $responseName,
-                array_map(
+                \array_map(
                     static function ($conflict) {
                         return $conflict[0];
                     },
                     $conflicts
                 ),
             ],
-            array_reduce(
+            \array_reduce(
                 $conflicts,
                 static function ($allFields, $conflict) {
-                    return array_merge($allFields, $conflict[1]);
+                    return \array_merge($allFields, $conflict[1]);
                 },
                 [$ast1]
             ),
-            array_reduce(
+            \array_reduce(
                 $conflicts,
                 static function ($allFields, $conflict) {
-                    return array_merge($allFields, $conflict[2]);
+                    return \array_merge($allFields, $conflict[2]);
                 },
                 [$ast2]
             ),
@@ -869,7 +869,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     {
         $reasonMessage = self::reasonMessage($reason);
 
-        return sprintf(
+        return \sprintf(
             'Fields "%s" conflict because %s. Use different aliases on the fields to fetch both if this was intentional.',
             $responseName,
             $reasonMessage
@@ -878,19 +878,19 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
 
     public static function reasonMessage($reason)
     {
-        if (is_array($reason)) {
-            $tmp = array_map(
+        if (\is_array($reason)) {
+            $tmp = \array_map(
                 static function ($tmp) {
                     [$responseName, $subReason] = $tmp;
 
                     $reasonMessage = self::reasonMessage($subReason);
 
-                    return sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
+                    return \sprintf('subfields "%s" conflict because %s', $responseName, $reasonMessage);
                 },
                 $reason
             );
 
-            return implode(' and ', $tmp);
+            return \implode(' and ', $tmp);
         }
 
         return $reason;

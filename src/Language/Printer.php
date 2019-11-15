@@ -174,9 +174,9 @@ class Printer
 
                     NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) {
                         // Note: fragment variable definitions are experimental and may be changed or removed in the future.
-                        return sprintf('fragment %s', $node->name)
+                        return \sprintf('fragment %s', $node->name)
                             . $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')')
-                            . sprintf(' on %s ', $node->typeCondition)
+                            . \sprintf(' on %s ', $node->typeCondition)
                             . $this->wrap('', $this->join($node->directives, ' '), ' ')
                             . $node->selectionSet;
                     },
@@ -194,7 +194,7 @@ class Printer
                             return $this->printBlockString($node->value, $key === 'description');
                         }
 
-                        return json_encode($node->value);
+                        return \json_encode($node->value);
                     },
 
                     NodeKind::BOOLEAN => static function (BooleanValueNode $node) {
@@ -271,7 +271,7 @@ class Printer
 
                     NodeKind::FIELD_DEFINITION => $this->addDescription(function (FieldDefinitionNode $def) {
                         $noIndent = Utils::every($def->arguments, static function (string $arg) {
-                            return strpos($arg, "\n") === false;
+                            return \strpos($arg, "\n") === false;
                         });
 
                         return $def->name
@@ -438,7 +438,7 @@ class Printer
 
                     NodeKind::DIRECTIVE_DEFINITION => $this->addDescription(function (DirectiveDefinitionNode $def) {
                         $noIndent = Utils::every($def->arguments, static function (string $arg) {
-                            return strpos($arg, "\n") === false;
+                            return \strpos($arg, "\n") === false;
                         });
 
                         return 'directive @'
@@ -482,7 +482,7 @@ class Printer
 
     public function indent($maybeString)
     {
-        return $maybeString ? '  ' . str_replace("\n", "\n  ", $maybeString) : '';
+        return $maybeString ? '  ' . \str_replace("\n", "\n  ", $maybeString) : '';
     }
 
     public function manyList($start, $list, $separator, $end)
@@ -492,13 +492,13 @@ class Printer
 
     public function length($maybeArray)
     {
-        return $maybeArray ? count($maybeArray) : 0;
+        return $maybeArray ? \count($maybeArray) : 0;
     }
 
     public function join($maybeArray, $separator = '')
     {
         return $maybeArray
-            ? implode(
+            ? \implode(
                 $separator,
                 Utils::filter(
                     $maybeArray,
@@ -517,10 +517,10 @@ class Printer
      */
     private function printBlockString($value, $isDescription)
     {
-        $escaped = str_replace('"""', '\\"""', $value);
+        $escaped = \str_replace('"""', '\\"""', $value);
 
-        return ($value[0] === ' ' || $value[0] === "\t") && strpos($value, "\n") === false
-            ? ('"""' . preg_replace('/"$/', "\"\n", $escaped) . '"""')
+        return ($value[0] === ' ' || $value[0] === "\t") && \strpos($value, "\n") === false
+            ? ('"""' . \preg_replace('/"$/', "\"\n", $escaped) . '"""')
             : ('"""' . "\n" . ($isDescription ? $escaped : $this->indent($escaped)) . "\n" . '"""');
     }
 }

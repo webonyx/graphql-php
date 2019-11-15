@@ -45,7 +45,7 @@ class UniqueInputFieldNames extends ValidationRule
                     $this->knownNames       = [];
                 },
                 'leave' => function () {
-                    $this->knownNames = array_pop($this->knownNameStack);
+                    $this->knownNames = \array_pop($this->knownNameStack);
                 },
             ],
             NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context) {
@@ -67,6 +67,6 @@ class UniqueInputFieldNames extends ValidationRule
 
     public static function duplicateInputFieldMessage($fieldName)
     {
-        return sprintf('There can be only one input field named "%s".', $fieldName);
+        return \sprintf('There can be only one input field named "%s".', $fieldName);
     }
 }

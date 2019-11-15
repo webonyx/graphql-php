@@ -133,7 +133,7 @@ abstract class Type implements JsonSerializable
      */
     public static function isBuiltInType(Type $type) : bool
     {
-        return in_array($type->name, array_keys(self::getAllBuiltInTypes()), true);
+        return \in_array($type->name, \array_keys(self::getAllBuiltInTypes()), true);
     }
 
     /**
@@ -145,7 +145,7 @@ abstract class Type implements JsonSerializable
     public static function getAllBuiltInTypes()
     {
         if (self::$builtInTypes === null) {
-            self::$builtInTypes = array_merge(
+            self::$builtInTypes = \array_merge(
                 Introspection::getTypes(),
                 self::getStandardTypes()
             );
@@ -179,7 +179,7 @@ abstract class Type implements JsonSerializable
      */
     public static function getInternalTypes()
     {
-        trigger_error(__METHOD__ . ' is deprecated. Use Type::getStandardTypes() instead', E_USER_DEPRECATED);
+        \trigger_error(__METHOD__ . ' is deprecated. Use Type::getStandardTypes() instead', E_USER_DEPRECATED);
 
         return self::getStandardTypes();
     }
@@ -200,7 +200,7 @@ abstract class Type implements JsonSerializable
             Utils::invariant(
                 isset($type->name, $standardTypes[$type->name]),
                 'Expecting one of the following names for a standard type: %s, got %s',
-                implode(', ', array_keys($standardTypes)),
+                \implode(', ', \array_keys($standardTypes)),
                 Utils::printSafe($type->name ?? null)
             );
             static::$standardTypes[$type->name] = $type;
@@ -361,7 +361,7 @@ abstract class Type implements JsonSerializable
         $name = $tmp->getShortName();
 
         if ($tmp->getNamespaceName() !== __NAMESPACE__) {
-            return preg_replace('~Type$~', '', $name);
+            return \preg_replace('~Type$~', '', $name);
         }
 
         return null;

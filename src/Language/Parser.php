@@ -332,7 +332,7 @@ class Parser
         throw new SyntaxError(
             $this->lexer->source,
             $token->start,
-            sprintf('Expected %s, found %s', $kind, $token->getDescription())
+            \sprintf('Expected %s, found %s', $kind, $token->getDescription())
         );
     }
 
@@ -1625,7 +1625,7 @@ class Parser
                 Token::BRACE_R
             )
             : [];
-        if (count($directives) === 0 && count($operationTypes) === 0) {
+        if (\count($directives) === 0 && \count($operationTypes) === 0) {
             $this->unexpected();
         }
 
@@ -1648,7 +1648,7 @@ class Parser
         $this->expectKeyword('scalar');
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
-        if (count($directives) === 0) {
+        if (\count($directives) === 0) {
             throw $this->unexpected();
         }
 
@@ -1674,9 +1674,9 @@ class Parser
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseFieldsDefinition();
 
-        if (count($interfaces) === 0 &&
-            count($directives) === 0 &&
-            count($fields) === 0
+        if (\count($interfaces) === 0 &&
+            \count($directives) === 0 &&
+            \count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1703,8 +1703,8 @@ class Parser
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseFieldsDefinition();
-        if (count($directives) === 0 &&
-            count($fields) === 0
+        if (\count($directives) === 0 &&
+            \count($fields) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1734,7 +1734,7 @@ class Parser
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
         $types      = $this->parseUnionMemberTypes();
-        if (count($directives) === 0 && count($types) === 0) {
+        if (\count($directives) === 0 && \count($types) === 0) {
             throw $this->unexpected();
         }
 
@@ -1759,8 +1759,8 @@ class Parser
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
         $values     = $this->parseEnumValuesDefinition();
-        if (count($directives) === 0 &&
-            count($values) === 0
+        if (\count($directives) === 0 &&
+            \count($values) === 0
         ) {
             throw $this->unexpected();
         }
@@ -1786,8 +1786,8 @@ class Parser
         $name       = $this->parseName();
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseInputFieldsDefinition();
-        if (count($directives) === 0 &&
-            count($fields) === 0
+        if (\count($directives) === 0 &&
+            \count($fields) === 0
         ) {
             throw $this->unexpected();
         }

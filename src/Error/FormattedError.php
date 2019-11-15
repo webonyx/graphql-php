@@ -91,7 +91,7 @@ class FormattedError
 
         return ! $printedLocations
             ? $error->getMessage()
-            : implode("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
+            : \implode("\n\n", \array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
 
     /**
@@ -110,20 +110,20 @@ class FormattedError
         $prevLineNum   = (string) ($contextLine - 1);
         $lineNum       = (string) $contextLine;
         $nextLineNum   = (string) ($contextLine + 1);
-        $padLen        = strlen($nextLineNum);
-        $lines         = preg_split('/\r\n|[\n\r]/', $source->body);
+        $padLen        = \strlen($nextLineNum);
+        $lines         = \preg_split('/\r\n|[\n\r]/', $source->body);
 
         $lines[0] = self::whitespace($source->locationOffset->column - 1) . $lines[0];
 
         $outputLines = [
-            sprintf('%s (%s:%s)', $source->name, $contextLine, $contextColumn),
+            \sprintf('%s (%s:%s)', $source->name, $contextLine, $contextColumn),
             $line >= 2 ? (self::lpad($padLen, $prevLineNum) . ': ' . $lines[$line - 2]) : null,
             self::lpad($padLen, $lineNum) . ': ' . $lines[$line - 1],
             self::whitespace(2 + $padLen + $contextColumn - 1) . '^',
-            $line < count($lines) ? self::lpad($padLen, $nextLineNum) . ': ' . $lines[$line] : null,
+            $line < \count($lines) ? self::lpad($padLen, $nextLineNum) . ': ' . $lines[$line] : null,
         ];
 
-        return implode("\n", array_filter($outputLines));
+        return \implode("\n", \array_filter($outputLines));
     }
 
     /**
@@ -141,7 +141,7 @@ class FormattedError
      */
     private static function whitespace($len)
     {
-        return str_repeat(' ', $len);
+        return \str_repeat(' ', $len);
     }
 
     /**
@@ -151,7 +151,7 @@ class FormattedError
      */
     private static function lpad($len, $str)
     {
-        return self::whitespace($len - mb_strlen($str)) . $str;
+        return self::whitespace($len - \mb_strlen($str)) . $str;
     }
 
     /**
@@ -330,20 +330,20 @@ class FormattedError
         if (isset($trace[0]['function']) && isset($trace[0]['class']) &&
             // Remove invariant entries as they don't provide much value:
             ($trace[0]['class'] . '::' . $trace[0]['function'] === 'GraphQL\Utils\Utils::invariant')) {
-            array_shift($trace);
+            \array_shift($trace);
         } elseif (! isset($trace[0]['file'])) {
             // Remove root call as it's likely error handler trace:
-            array_shift($trace);
+            \array_shift($trace);
         }
 
-        return array_map(
+        return \array_map(
             static function ($err) {
-                $safeErr = array_intersect_key($err, ['file' => true, 'line' => true]);
+                $safeErr = \array_intersect_key($err, ['file' => true, 'line' => true]);
 
                 if (isset($err['function'])) {
                     $func    = $err['function'];
-                    $args    = ! empty($err['args']) ? array_map([self::class, 'printVar'], $err['args']) : [];
-                    $funcStr = $func . '(' . implode(', ', $args) . ')';
+                    $args    = ! empty($err['args']) ? \array_map([self::class, 'printVar'], $err['args']) : [];
+                    $funcStr = $func . '(' . \implode(', ', $args) . ')';
 
                     if (isset($err['class'])) {
                         $safeErr['call'] = $err['class'] . '::' . $funcStr;
@@ -374,29 +374,29 @@ class FormattedError
             return 'GraphQLType: ' . $var->name;
         }
 
-        if (is_object($var)) {
-            return 'instance of ' . get_class($var) . ($var instanceof Countable ? '(' . count($var) . ')' : '');
+        if (\is_object($var)) {
+            return 'instance of ' . \get_class($var) . ($var instanceof Countable ? '(' . \count($var) . ')' : '');
         }
-        if (is_array($var)) {
-            return 'array(' . count($var) . ')';
+        if (\is_array($var)) {
+            return 'array(' . \count($var) . ')';
         }
         if ($var === '') {
             return '(empty string)';
         }
-        if (is_string($var)) {
-            return "'" . addcslashes($var, "'") . "'";
+        if (\is_string($var)) {
+            return "'" . \addcslashes($var, "'") . "'";
         }
-        if (is_bool($var)) {
+        if (\is_bool($var)) {
             return $var ? 'true' : 'false';
         }
-        if (is_scalar($var)) {
+        if (\is_scalar($var)) {
             return $var;
         }
         if ($var === null) {
             return 'null';
         }
 
-        return gettype($var);
+        return \gettype($var);
     }
 
     /**
@@ -412,7 +412,7 @@ class FormattedError
         $formatted = ['message' => $error];
 
         if (! empty($locations)) {
-            $formatted['locations'] = array_map(
+            $formatted['locations'] = \array_map(
                 static function ($loc) {
                     return $loc->toArray();
                 },

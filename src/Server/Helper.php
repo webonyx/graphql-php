@@ -72,30 +72,30 @@ class Helper
                 throw new RequestError('Missing "Content-Type" header');
             }
 
-            if (stripos($contentType, 'application/graphql') !== false) {
+            if (\stripos($contentType, 'application/graphql') !== false) {
                 $rawBody    = $readRawBodyFn
                     ? $readRawBodyFn()
                     : $this->readRawBody();
                 $bodyParams = ['query' => $rawBody ?: ''];
-            } elseif (stripos($contentType, 'application/json') !== false) {
+            } elseif (\stripos($contentType, 'application/json') !== false) {
                 $rawBody    = $readRawBodyFn ?
                     $readRawBodyFn()
                     : $this->readRawBody();
-                $bodyParams = json_decode($rawBody ?: '', true);
+                $bodyParams = \json_decode($rawBody ?: '', true);
 
-                if (json_last_error()) {
-                    throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
+                if (\json_last_error()) {
+                    throw new RequestError('Could not parse JSON: ' . \json_last_error_msg());
                 }
 
-                if (! is_array($bodyParams)) {
+                if (! \is_array($bodyParams)) {
                     throw new RequestError(
                         'GraphQL Server expects JSON object or array, but got ' .
                         Utils::printSafeJson($bodyParams)
                     );
                 }
-            } elseif (stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
+            } elseif (\stripos($contentType, 'application/x-www-form-urlencoded') !== false) {
                 $bodyParams = $_POST;
-            } elseif (stripos($contentType, 'multipart/form-data') !== false) {
+            } elseif (\stripos($contentType, 'multipart/form-data') !== false) {
                 $bodyParams = $_POST;
             } else {
                 throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType));
@@ -161,28 +161,28 @@ class Helper
             $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
         }
 
-        if ($params->query !== null && (! is_string($params->query) || empty($params->query))) {
+        if ($params->query !== null && (! \is_string($params->query) || empty($params->query))) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "query" must be string, but got ' .
                 Utils::printSafeJson($params->query)
             );
         }
 
-        if ($params->queryId !== null && (! is_string($params->queryId) || empty($params->queryId))) {
+        if ($params->queryId !== null && (! \is_string($params->queryId) || empty($params->queryId))) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "queryId" must be string, but got ' .
                 Utils::printSafeJson($params->queryId)
             );
         }
 
-        if ($params->operation !== null && (! is_string($params->operation) || empty($params->operation))) {
+        if ($params->operation !== null && (! \is_string($params->operation) || empty($params->operation))) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "operation" must be string, but got ' .
                 Utils::printSafeJson($params->operation)
             );
         }
 
-        if ($params->variables !== null && (! is_array($params->variables) || isset($params->variables[0]))) {
+        if ($params->variables !== null && (! \is_array($params->variables) || isset($params->variables[0]))) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "variables" must be object or JSON string parsed to object, but got ' .
                 Utils::printSafeJson($params->getOriginalInput('variables'))
@@ -350,8 +350,8 @@ class Helper
 
         $source = $loader($operationParams->queryId, $operationParams);
 
-        if (! is_string($source) && ! $source instanceof DocumentNode) {
-            throw new InvariantViolation(sprintf(
+        if (! \is_string($source) && ! $source instanceof DocumentNode) {
+            throw new InvariantViolation(\sprintf(
                 'Persistent query loader must return query string or instance of %s but got: %s',
                 DocumentNode::class,
                 Utils::printSafe($source)
@@ -375,11 +375,11 @@ class Helper
         // Allow customizing validation rules per operation:
         $validationRules = $config->getValidationRules();
 
-        if (is_callable($validationRules)) {
+        if (\is_callable($validationRules)) {
             $validationRules = $validationRules($params, $doc, $operationType);
 
-            if (! is_array($validationRules)) {
-                throw new InvariantViolation(sprintf(
+            if (! \is_array($validationRules)) {
+                throw new InvariantViolation(\sprintf(
                     'Expecting validation rules to be array or callable returning array, but got: %s',
                     Utils::printSafe($validationRules)
                 ));
@@ -396,7 +396,7 @@ class Helper
     {
         $rootValue = $config->getRootValue();
 
-        if (is_callable($rootValue)) {
+        if (\is_callable($rootValue)) {
             $rootValue = $rootValue($params, $doc, $operationType);
         }
 
@@ -416,7 +416,7 @@ class Helper
     ) {
         $context = $config->getContext();
 
-        if (is_callable($context)) {
+        if (\is_callable($context)) {
             $context = $context($params, $doc, $operationType);
         }
 
@@ -455,8 +455,8 @@ class Helper
      */
     public function emitResponse($jsonSerializable, $httpStatus, $exitWhenDone)
     {
-        $body = json_encode($jsonSerializable);
-        header('Content-Type: application/json', true, $httpStatus);
+        $body = \json_encode($jsonSerializable);
+        \header('Content-Type: application/json', true, $httpStatus);
         echo $body;
 
         if ($exitWhenDone) {
@@ -469,7 +469,7 @@ class Helper
      */
     private function readRawBody()
     {
-        return file_get_contents('php://input');
+        return \file_get_contents('php://input');
     }
 
     /**
@@ -479,12 +479,12 @@ class Helper
      */
     private function resolveHttpStatus($result)
     {
-        if (is_array($result) && isset($result[0])) {
+        if (\is_array($result) && isset($result[0])) {
             Utils::each(
                 $result,
                 static function ($executionResult, $index) {
                     if (! $executionResult instanceof ExecutionResult) {
-                        throw new InvariantViolation(sprintf(
+                        throw new InvariantViolation(\sprintf(
                             'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',
                             ExecutionResult::class,
                             $index,
@@ -496,7 +496,7 @@ class Helper
             $httpStatus = 200;
         } else {
             if (! $result instanceof ExecutionResult) {
-                throw new InvariantViolation(sprintf(
+                throw new InvariantViolation(\sprintf(
                     'Expecting query result to be instance of %s but got %s',
                     ExecutionResult::class,
                     Utils::printSafe($result)
@@ -532,9 +532,9 @@ class Helper
                 throw new RequestError('Missing "Content-Type" header');
             }
 
-            if (stripos($contentType[0], 'application/graphql') !== false) {
+            if (\stripos($contentType[0], 'application/graphql') !== false) {
                 $bodyParams = ['query' => $request->getBody()->getContents()];
-            } elseif (stripos($contentType[0], 'application/json') !== false) {
+            } elseif (\stripos($contentType[0], 'application/json') !== false) {
                 $bodyParams = $request->getParsedBody();
 
                 if ($bodyParams === null) {
@@ -543,7 +543,7 @@ class Helper
                     );
                 }
 
-                if (! is_array($bodyParams)) {
+                if (! \is_array($bodyParams)) {
                     throw new RequestError(
                         'GraphQL Server expects JSON object or array, but got ' .
                         Utils::printSafeJson($bodyParams)
@@ -552,7 +552,7 @@ class Helper
             } else {
                 $bodyParams = $request->getParsedBody();
 
-                if (! is_array($bodyParams)) {
+                if (! \is_array($bodyParams)) {
                     throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType[0]));
                 }
             }
@@ -589,7 +589,7 @@ class Helper
     {
         $httpStatus = $this->resolveHttpStatus($result);
 
-        $result = json_encode($result);
+        $result = \json_encode($result);
         $writableBodyStream->write($result);
 
         return $response

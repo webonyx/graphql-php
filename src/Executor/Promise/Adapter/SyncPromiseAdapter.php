@@ -102,7 +102,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     {
         $all = new SyncPromise();
 
-        $total  = count($promisesOrValues);
+        $total  = \count($promisesOrValues);
         $count  = 0;
         $result = [];
 

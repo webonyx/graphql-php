@@ -194,7 +194,7 @@ class GraphQL
         $variableValues = null,
         ?string $operationName = null
     ) {
-        trigger_error(
+        \trigger_error(
             __METHOD__ . ' is deprecated, use GraphQL::executeQuery()->toArray() as a quick replacement',
             E_USER_DEPRECATED
         );
@@ -241,7 +241,7 @@ class GraphQL
         $variableValues = null,
         ?string $operationName = null
     ) {
-        trigger_error(
+        \trigger_error(
             __METHOD__ . ' is deprecated, use GraphQL::executeQuery() as a quick replacement',
             E_USER_DEPRECATED
         );
@@ -273,7 +273,7 @@ class GraphQL
      */
     public static function getStandardDirectives() : array
     {
-        return array_values(Directive::getInternalDirectives());
+        return \array_values(Directive::getInternalDirectives());
     }
 
     /**
@@ -285,7 +285,7 @@ class GraphQL
      */
     public static function getStandardTypes() : array
     {
-        return array_values(Type::getStandardTypes());
+        return \array_values(Type::getStandardTypes());
     }
 
     /**
@@ -310,7 +310,7 @@ class GraphQL
      */
     public static function getStandardValidationRules() : array
     {
-        return array_values(DocumentValidator::defaultRules());
+        return \array_values(DocumentValidator::defaultRules());
     }
 
     /**

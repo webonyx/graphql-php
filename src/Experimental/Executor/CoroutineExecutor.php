@@ -161,7 +161,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             return $array;
         }
 
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $array = [];
             foreach ($value as $key => $item) {
                 $array[$key] = self::resultToArray($item);
@@ -458,7 +458,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         } elseif ($ctx->resolveInfo !== null && $ctx->resolveInfo->returnType instanceof NonNull) { // !!! $ctx->resolveInfo might not have been initialized yet
             $result =& $this->rootResult;
             foreach ($ctx->nullFence ?? [] as $key) {
-                if (is_string($key)) {
+                if (\is_string($key)) {
                     $result =& $result->{$key};
                 } else {
                     $result =& $result[$key];
@@ -510,7 +510,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         if ($type !== $this->schema->getType($type->name)) {
             $hint = '';
             if ($this->schema->getConfig()->typeLoader !== null) {
-                $hint = sprintf(
+                $hint = \sprintf(
                     'Make sure that type loader returns the same instance as defined in %s.%s',
                     $ctx->type,
                     $ctx->shared->fieldName
@@ -518,7 +518,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             }
             $this->addError(Error::createLocatedError(
                 new InvariantViolation(
-                    sprintf(
+                    \sprintf(
                         'Schema must contain unique named types but contains multiple types named "%s". %s ' .
                         '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
                         $type->name,
@@ -553,7 +553,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
         if ($nonNull && $returnValue === null) {
             $this->addError(Error::createLocatedError(
-                new InvariantViolation(sprintf(
+                new InvariantViolation(\sprintf(
                     'Cannot return null for non-nullable field %s.%s.',
                     $ctx->type->name,
                     $ctx->shared->fieldName
@@ -659,7 +659,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             if ($type !== $this->schema->getType($type->name)) {
                 $hint = '';
                 if ($this->schema->getConfig()->typeLoader !== null) {
-                    $hint = sprintf(
+                    $hint = \sprintf(
                         'Make sure that type loader returns the same instance as defined in %s.%s',
                         $ctx->type,
                         $ctx->shared->fieldName
@@ -667,7 +667,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                 }
                 $this->addError(Error::createLocatedError(
                     new InvariantViolation(
-                        sprintf(
+                        \sprintf(
                             'Schema must contain unique named types but contains multiple types named "%s". %s ' .
                             '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
                             $type->name,
@@ -710,13 +710,13 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
                     // !!! $objectType->resolveType() might return promise, yield to resolve
                     $objectType = yield $objectType;
-                    if (is_string($objectType)) {
+                    if (\is_string($objectType)) {
                         $objectType = $this->schema->getType($objectType);
                     }
 
                     if ($objectType === null) {
                         $this->addError(Error::createLocatedError(
-                            sprintf(
+                            \sprintf(
                                 'Composite type "%s" did not resolve concrete object type for value: %s.',
                                 $type->name,
                                 Utils::printSafe($value)
@@ -729,7 +729,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                         goto CHECKED_RETURN;
                     } elseif (! $objectType instanceof ObjectType) {
                         $this->addError(Error::createLocatedError(
-                            new InvariantViolation(sprintf(
+                            new InvariantViolation(\sprintf(
                                 'Abstract type %s must resolve to an Object type at ' .
                                 'runtime for field %s.%s with value "%s", received "%s". ' .
                                 'Either the %s type should provide a "resolveType" ' .
@@ -749,7 +749,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                         goto CHECKED_RETURN;
                     } elseif (! $this->schema->isPossibleType($type, $objectType)) {
                         $this->addError(Error::createLocatedError(
-                            new InvariantViolation(sprintf(
+                            new InvariantViolation(\sprintf(
                                 'Runtime Object type "%s" is not a possible type for "%s".',
                                 $objectType,
                                 $type
@@ -763,7 +763,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                     } elseif ($objectType !== $this->schema->getType($objectType->name)) {
                         $this->addError(Error::createLocatedError(
                             new InvariantViolation(
-                                sprintf(
+                                \sprintf(
                                     'Schema must contain unique named types but contains multiple types named "%s". ' .
                                     'Make sure that `resolveType` function of abstract type "%s" returns the same ' .
                                     'type instance as referenced anywhere else within the schema ' .
@@ -783,7 +783,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                     $objectType = $type;
                 } else {
                     $this->addError(Error::createLocatedError(
-                        sprintf(
+                        \sprintf(
                             'Unexpected field type "%s".',
                             Utils::printSafe($type)
                         ),
@@ -801,7 +801,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                     $typeCheck = yield $typeCheck;
                     if (! $typeCheck) {
                         $this->addError(Error::createLocatedError(
-                            sprintf('Expected value of type "%s" but got: %s.', $type->name, Utils::printSafe($value)),
+                            \sprintf('Expected value of type "%s" but got: %s.', $type->name, Utils::printSafe($value)),
                             $ctx->shared->fieldNodes,
                             $path
                         ));
@@ -868,7 +868,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                 goto CHECKED_RETURN;
             } else {
                 $this->addError(Error::createLocatedError(
-                    sprintf('Unhandled type "%s".', Utils::printSafe($type)),
+                    \sprintf('Unhandled type "%s".', Utils::printSafe($type)),
                     $ctx->shared->fieldNodes,
                     $path
                 ));
@@ -881,7 +881,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         CHECKED_RETURN:
         if ($nonNull && $returnValue === null) {
             $this->addError(Error::createLocatedError(
-                new InvariantViolation(sprintf(
+                new InvariantViolation(\sprintf(
                     'Cannot return null for non-nullable field %s.%s.',
                     $ctx->type->name,
                     $ctx->shared->fieldName
@@ -921,16 +921,16 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     private function resolveTypeSlow(CoroutineContext $ctx, $value, AbstractType $abstractType)
     {
         if ($value !== null &&
-            is_array($value) &&
+            \is_array($value) &&
             isset($value['__typename']) &&
-            is_string($value['__typename'])
+            \is_string($value['__typename'])
         ) {
             return $this->schema->getType($value['__typename']);
         }
 
         if ($abstractType instanceof InterfaceType && $this->schema->getConfig()->typeLoader !== null) {
             Warning::warnOnce(
-                sprintf(
+                \sprintf(
                     'GraphQL Interface Type `%s` returned `null` from its `resolveType` function ' .
                     'for value: %s. Switching to slow resolution method using `isTypeOf` ' .
                     'of all possible implementations. It requires full schema scan and degrades query performance significantly. ' .

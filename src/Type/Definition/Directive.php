@@ -51,7 +51,7 @@ class Directive
         if (isset($config['args'])) {
             $args = [];
             foreach ($config['args'] as $name => $arg) {
-                if (is_array($arg)) {
+                if (\is_array($arg)) {
                     $args[] = new FieldArgument($arg + ['name' => $name]);
                 } else {
                     $args[] = $arg;
@@ -65,7 +65,7 @@ class Directive
         }
 
         Utils::invariant($this->name, 'Directive must be named.');
-        Utils::invariant(is_array($this->locations), 'Must provide locations for directive.');
+        Utils::invariant(\is_array($this->locations), 'Must provide locations for directive.');
         $this->config = $config;
     }
 
@@ -165,6 +165,6 @@ class Directive
      */
     public static function isSpecifiedDirective(Directive $directive)
     {
-        return array_key_exists($directive->name, self::getInternalDirectives());
+        return \array_key_exists($directive->name, self::getInternalDirectives());
     }
 }

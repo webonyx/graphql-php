@@ -57,7 +57,7 @@ class InputObjectCircularRefs
         }
 
         $this->visitedTypes[$inputObj->name]             = true;
-        $this->fieldPathIndexByTypeName[$inputObj->name] = count($this->fieldPath);
+        $this->fieldPathIndexByTypeName[$inputObj->name] = \count($this->fieldPath);
 
         $fieldMap = $inputObj->getFields();
         foreach ($fieldMap as $fieldName => $field) {
@@ -75,8 +75,8 @@ class InputObjectCircularRefs
                         $this->validate($fieldType);
                     } else {
                         $cycleIndex = $this->fieldPathIndexByTypeName[$fieldType->name];
-                        $cyclePath  = array_slice($this->fieldPath, $cycleIndex);
-                        $fieldNames = array_map(
+                        $cyclePath  = \array_slice($this->fieldPath, $cycleIndex);
+                        $fieldNames = \array_map(
                             static function (InputObjectField $field) : string {
                                 return $field->name;
                             },
@@ -85,8 +85,8 @@ class InputObjectCircularRefs
 
                         $this->schemaValidationContext->reportError(
                             'Cannot reference Input Object "' . $fieldType->name . '" within itself '
-                            . 'through a series of non-null fields: "' . implode('.', $fieldNames) . '".',
-                            array_map(
+                            . 'through a series of non-null fields: "' . \implode('.', $fieldNames) . '".',
+                            \array_map(
                                 static function (InputObjectField $field) : ?InputValueDefinitionNode {
                                     return $field->astNode;
                                 },
@@ -97,7 +97,7 @@ class InputObjectCircularRefs
                 }
             }
 
-            array_pop($this->fieldPath);
+            \array_pop($this->fieldPath);
         }
 
         unset($this->fieldPathIndexByTypeName[$inputObj->name]);

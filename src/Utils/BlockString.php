@@ -24,17 +24,17 @@ class BlockString
     public static function value($rawString)
     {
         // Expand a block string's raw value into independent lines.
-        $lines = preg_split("/\\r\\n|[\\n\\r]/", $rawString);
+        $lines = \preg_split("/\\r\\n|[\\n\\r]/", $rawString);
 
         // Remove common indentation from all lines but first.
         $commonIndent = null;
-        $linesLength  = count($lines);
+        $linesLength  = \count($lines);
 
         for ($i = 1; $i < $linesLength; $i++) {
             $line   = $lines[$i];
             $indent = self::leadingWhitespace($line);
 
-            if ($indent >= mb_strlen($line) ||
+            if ($indent >= \mb_strlen($line) ||
                 ($commonIndent !== null && $indent >= $commonIndent)
             ) {
                 continue;
@@ -49,26 +49,26 @@ class BlockString
         if ($commonIndent) {
             for ($i = 1; $i < $linesLength; $i++) {
                 $line      = $lines[$i];
-                $lines[$i] = mb_substr($line, $commonIndent);
+                $lines[$i] = \mb_substr($line, $commonIndent);
             }
         }
 
         // Remove leading and trailing blank lines.
-        while (count($lines) > 0 && trim($lines[0], " \t") === '') {
-            array_shift($lines);
+        while (\count($lines) > 0 && \trim($lines[0], " \t") === '') {
+            \array_shift($lines);
         }
-        while (count($lines) > 0 && trim($lines[count($lines) - 1], " \t") === '') {
-            array_pop($lines);
+        while (\count($lines) > 0 && \trim($lines[\count($lines) - 1], " \t") === '') {
+            \array_pop($lines);
         }
 
         // Return a string of the lines joined with U+000A.
-        return implode("\n", $lines);
+        return \implode("\n", $lines);
     }
 
     private static function leadingWhitespace($str)
     {
         $i = 0;
-        while ($i < mb_strlen($str) && ($str[$i] === ' ' || $str[$i] === '\t')) {
+        while ($i < \mb_strlen($str) && ($str[$i] === ' ' || $str[$i] === '\t')) {
             $i++;
         }
 

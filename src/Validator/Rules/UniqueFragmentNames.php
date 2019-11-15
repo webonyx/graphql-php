@@ -43,6 +43,6 @@ class UniqueFragmentNames extends ValidationRule
 
     public static function duplicateFragmentNameMessage($fragName)
     {
-        return sprintf('There can be only one fragment named "%s".', $fragName);
+        return \sprintf('There can be only one fragment named "%s".', $fragName);
     }
 }

@@ -32,7 +32,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
+        Utils::invariant(\is_string($config['name']), 'Must provide name.');
 
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
@@ -127,8 +127,8 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         $resolveType = $this->config['resolveType'] ?? null;
 
         Utils::invariant(
-            ! isset($resolveType) || is_callable($resolveType),
-            sprintf(
+            ! isset($resolveType) || \is_callable($resolveType),
+            \sprintf(
                 '%s must provide "resolveType" as a function, but got: %s',
                 $this->name,
                 Utils::printSafe($resolveType)

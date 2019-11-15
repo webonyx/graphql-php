@@ -45,13 +45,13 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
     public function serialize($value)
     {
         // Fast path for 90+% of cases:
-        if (is_int($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
+        if (\is_int($value) && $value <= self::MAX_INT && $value >= self::MIN_INT) {
             return $value;
         }
 
-        $float = is_numeric($value) || is_bool($value) ? floatval($value) : null;
+        $float = \is_numeric($value) || \is_bool($value) ? \floatval($value) : null;
 
-        if ($float === null || floor($float) !== $float) {
+        if ($float === null || \floor($float) !== $float) {
             throw new Error(
                 'Int cannot represent non-integer value: ' .
                 Utils::printSafe($value)
@@ -65,7 +65,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             );
         }
 
-        return intval($float);
+        return \intval($float);
     }
 
     /**
@@ -75,7 +75,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
      */
     public function parseValue($value) : int
     {
-        $isInt = is_int($value) || (is_float($value) && floor($value) === $value);
+        $isInt = \is_int($value) || (\is_float($value) && \floor($value) === $value);
 
         if (! $isInt) {
             throw new Error(
@@ -91,7 +91,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             );
         }
 
-        return intval($value);
+        return \intval($value);
     }
 
     /**

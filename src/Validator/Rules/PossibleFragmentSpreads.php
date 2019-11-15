@@ -128,7 +128,7 @@ class PossibleFragmentSpreads extends ValidationRule
 
     public static function typeIncompatibleAnonSpreadMessage($parentType, $fragType)
     {
-        return sprintf(
+        return \sprintf(
             'Fragment cannot be spread here as objects of type "%s" can never be of type "%s".',
             $parentType,
             $fragType
@@ -150,7 +150,7 @@ class PossibleFragmentSpreads extends ValidationRule
 
     public static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)
     {
-        return sprintf(
+        return \sprintf(
             'Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".',
             $fragName,
             $parentType,

@@ -45,7 +45,7 @@ class Value
             if ($value === null) {
                 return self::ofErrors([
                     self::coercionError(
-                        sprintf('Expected non-nullable type %s not to be null', $type),
+                        \sprintf('Expected non-nullable type %s not to be null', $type),
                         $blameNode,
                         $path
                     ),
@@ -69,7 +69,7 @@ class Value
             } catch (Throwable $error) {
                 return self::ofErrors([
                     self::coercionError(
-                        sprintf('Expected type %s', $type->name),
+                        \sprintf('Expected type %s', $type->name),
                         $blameNode,
                         $path,
                         $error->getMessage(),
@@ -80,7 +80,7 @@ class Value
         }
 
         if ($type instanceof EnumType) {
-            if (is_string($value)) {
+            if (\is_string($value)) {
                 $enumValue = $type->getValue($value);
                 if ($enumValue) {
                     return self::ofValue($enumValue->value);
@@ -89,7 +89,7 @@ class Value
 
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
-                array_map(
+                \array_map(
                     static function ($enumValue) {
                         return $enumValue->name;
                     },
@@ -103,7 +103,7 @@ class Value
 
             return self::ofErrors([
                 self::coercionError(
-                    sprintf('Expected type %s', $type->name),
+                    \sprintf('Expected type %s', $type->name),
                     $blameNode,
                     $path,
                     $didYouMean
@@ -113,7 +113,7 @@ class Value
 
         if ($type instanceof ListOfType) {
             $itemType = $type->getWrappedType();
-            if (is_array($value) || $value instanceof Traversable) {
+            if (\is_array($value) || $value instanceof Traversable) {
                 $errors       = [];
                 $coercedValue = [];
                 foreach ($value as $index => $itemValue) {
@@ -139,10 +139,10 @@ class Value
         }
 
         if ($type instanceof InputObjectType) {
-            if (! is_object($value) && ! is_array($value) && ! $value instanceof Traversable) {
+            if (! \is_object($value) && ! \is_array($value) && ! $value instanceof Traversable) {
                 return self::ofErrors([
                     self::coercionError(
-                        sprintf('Expected type %s to be an object', $type->name),
+                        \sprintf('Expected type %s to be an object', $type->name),
                         $blameNode,
                         $path
                     ),
@@ -158,7 +158,7 @@ class Value
             $coercedValue = [];
             $fields       = $type->getFields();
             foreach ($fields as $fieldName => $field) {
-                if (array_key_exists($fieldName, $value)) {
+                if (\array_key_exists($fieldName, $value)) {
                     $fieldValue   = $value[$fieldName];
                     $coercedField = self::coerceValue(
                         $fieldValue,
@@ -178,7 +178,7 @@ class Value
                     $errors    = self::add(
                         $errors,
                         self::coercionError(
-                            sprintf(
+                            \sprintf(
                                 'Field %s of required type %s was not provided',
                                 $fieldPath,
                                 $field->type->toString()
@@ -191,13 +191,13 @@ class Value
 
             // Ensure every provided field is defined.
             foreach ($value as $fieldName => $field) {
-                if (array_key_exists($fieldName, $fields)) {
+                if (\array_key_exists($fieldName, $fields)) {
                     continue;
                 }
 
                 $suggestions = Utils::suggestionList(
                     (string) $fieldName,
-                    array_keys($fields)
+                    \array_keys($fields)
                 );
                 $didYouMean  = $suggestions
                     ? 'did you mean ' . Utils::orList($suggestions) . '?'
@@ -205,7 +205,7 @@ class Value
                 $errors      = self::add(
                     $errors,
                     self::coercionError(
-                        sprintf('Field "%s" is not defined by type %s', $fieldName, $type->name),
+                        \sprintf('Field "%s" is not defined by type %s', $fieldName, $type->name),
                         $blameNode,
                         $path,
                         $didYouMean
@@ -216,7 +216,7 @@ class Value
             return $errors ? self::ofErrors($errors) : self::ofValue($coercedValue);
         }
 
-        throw new Error(sprintf('Unexpected type %s', $type->name));
+        throw new Error(\sprintf('Unexpected type %s', $type->name));
     }
 
     private static function ofErrors($errors)
@@ -268,7 +268,7 @@ class Value
         $currentPath = $path;
         while ($currentPath) {
             $pathStr     =
-                (is_string($currentPath['key'])
+                (\is_string($currentPath['key'])
                     ? '.' . $currentPath['key']
                     : '[' . $currentPath['key'] . ']') . $pathStr;
             $currentPath = $currentPath['prev'];
@@ -306,6 +306,6 @@ class Value
      */
     private static function add($errors, $moreErrors)
     {
-        return array_merge($errors, is_array($moreErrors) ? $moreErrors : [$moreErrors]);
+        return \array_merge($errors, \is_array($moreErrors) ? $moreErrors : [$moreErrors]);
     }
 }

@@ -189,7 +189,7 @@ class ResolveInfo
                 continue;
             }
 
-            $fields = array_merge_recursive(
+            $fields = \array_merge_recursive(
                 $fields,
                 $this->foldSelectionSet($fieldNode->selectionSet, $depth)
             );
@@ -233,13 +233,13 @@ class ResolveInfo
                 if (isset($this->fragments[$spreadName])) {
                     /** @var FragmentDefinitionNode $fragment */
                     $fragment = $this->fragments[$spreadName];
-                    $fields   = array_merge_recursive(
+                    $fields   = \array_merge_recursive(
                         $this->foldSelectionSet($fragment->selectionSet, $descend),
                         $fields
                     );
                 }
             } elseif ($selectionNode instanceof InlineFragmentNode) {
-                $fields = array_merge_recursive(
+                $fields = \array_merge_recursive(
                     $this->foldSelectionSet($selectionNode->selectionSet, $descend),
                     $fields
                 );

@@ -51,6 +51,6 @@ class UniqueDirectivesPerLocation extends ValidationRule
 
     public static function duplicateDirectiveMessage($directiveName)
     {
-        return sprintf('The directive "%s" can only be used once at this location.', $directiveName);
+        return \sprintf('The directive "%s" can only be used once at this location.', $directiveName);
     }
 }

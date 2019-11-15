@@ -81,7 +81,7 @@ class Schema
      */
     public function __construct($config)
     {
-        if (is_array($config)) {
+        if (\is_array($config)) {
             $config = SchemaConfig::create($config);
         }
 
@@ -95,7 +95,7 @@ class Schema
             Utils::invariant(
                 $config instanceof SchemaConfig,
                 'Schema constructor expects instance of GraphQL\Type\SchemaConfig or an array with keys: %s; but got: %s',
-                implode(
+                \implode(
                     ', ',
                     [
                         'query',
@@ -109,11 +109,11 @@ class Schema
                 Utils::getVariableType($config)
             );
             Utils::invariant(
-                ! $config->types || is_array($config->types) || is_callable($config->types),
+                ! $config->types || \is_array($config->types) || \is_callable($config->types),
                 '"types" must be array or callable if provided but got: ' . Utils::getVariableType($config->types)
             );
             Utils::invariant(
-                ! $config->directives || is_array($config->directives),
+                ! $config->directives || \is_array($config->directives),
                 '"directives" must be Array if provided but got: ' . Utils::getVariableType($config->directives)
             );
         }
@@ -130,12 +130,12 @@ class Schema
         if ($config->subscription) {
             $this->resolvedTypes[$config->subscription->name] = $config->subscription;
         }
-        if (is_array($this->config->types)) {
+        if (\is_array($this->config->types)) {
             foreach ($this->resolveAdditionalTypes() as $type) {
                 if (isset($this->resolvedTypes[$type->name])) {
                     Utils::invariant(
                         $type === $this->resolvedTypes[$type->name],
-                        sprintf(
+                        \sprintf(
                             'Schema must contain unique named types but contains multiple types named "%s" (see http://webonyx.github.io/graphql-php/type-system/#type-registry).',
                             $type
                         )
@@ -161,12 +161,12 @@ class Schema
     {
         $types = $this->config->types ?: [];
 
-        if (is_callable($types)) {
+        if (\is_callable($types)) {
             $types = $types();
         }
 
-        if (! is_array($types) && ! $types instanceof Traversable) {
-            throw new InvariantViolation(sprintf(
+        if (! \is_array($types) && ! $types instanceof Traversable) {
+            throw new InvariantViolation(\sprintf(
                 'Schema types callable must return array or instance of Traversable but got: %s',
                 Utils::getVariableType($types)
             ));
@@ -174,7 +174,7 @@ class Schema
 
         foreach ($types as $index => $type) {
             if (! $type instanceof Type) {
-                throw new InvariantViolation(sprintf(
+                throw new InvariantViolation(\sprintf(
                     'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
                     $index,
                     Utils::printSafe($type)
@@ -221,7 +221,7 @@ class Schema
             $typeMap = TypeInfo::extractTypesFromDirectives($directive, $typeMap);
         }
         // When types are set as array they are resolved in constructor
-        if (is_callable($this->config->types)) {
+        if (\is_callable($this->config->types)) {
             foreach ($this->resolveAdditionalTypes() as $type) {
                 $typeMap = TypeInfo::extractTypes($type, $typeMap);
             }
@@ -342,7 +342,7 @@ class Schema
 
         if (! $type instanceof Type) {
             throw new InvariantViolation(
-                sprintf(
+                \sprintf(
                     'Type loader is expected to return valid type "%s", but it returned %s',
                     $typeName,
                     Utils::printSafe($type)
@@ -351,7 +351,7 @@ class Schema
         }
         if ($type->name !== $typeName) {
             throw new InvariantViolation(
-                sprintf('Type loader is expected to return type "%s", but it returned "%s"', $typeName, $type->name)
+                \sprintf('Type loader is expected to return type "%s", but it returned "%s"', $typeName, $type->name)
             );
         }
 
@@ -382,7 +382,7 @@ class Schema
     {
         $possibleTypeMap = $this->getPossibleTypeMap();
 
-        return array_values($possibleTypeMap[$abstractType->name] ?? []);
+        return \array_values($possibleTypeMap[$abstractType->name] ?? []);
     }
 
     /**
@@ -469,7 +469,7 @@ class Schema
         $errors = $this->validate();
 
         if ($errors) {
-            throw new InvariantViolation(implode("\n\n", $this->validationErrors));
+            throw new InvariantViolation(\implode("\n\n", $this->validationErrors));
         }
 
         $internalTypes = Type::getStandardTypes() + Introspection::getTypes();
@@ -487,7 +487,7 @@ class Schema
 
             Utils::invariant(
                 $this->loadType($name) === $type,
-                sprintf(
+                \sprintf(
                     'Type loader returns different instance for %s than field/argument definitions. Make sure you always return the same instance for the same type name.',
                     $name
                 )

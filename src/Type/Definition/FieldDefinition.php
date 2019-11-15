@@ -86,21 +86,21 @@ class FieldDefinition
 
     public static function defineFieldMap(Type $type, $fields)
     {
-        if (is_callable($fields)) {
+        if (\is_callable($fields)) {
             $fields = $fields();
         }
-        if (! is_array($fields)) {
+        if (! \is_array($fields)) {
             throw new InvariantViolation(
-                sprintf('%s fields must be an array or a callable which returns such an array.', $type->name)
+                \sprintf('%s fields must be an array or a callable which returns such an array.', $type->name)
             );
         }
         $map = [];
         foreach ($fields as $name => $field) {
-            if (is_array($field)) {
+            if (\is_array($field)) {
                 if (! isset($field['name'])) {
-                    if (! is_string($name)) {
+                    if (! \is_string($name)) {
                         throw new InvariantViolation(
-                            sprintf(
+                            \sprintf(
                                 '%s fields must be an associative array with field names as keys or a function which returns such an array.',
                                 $type->name
                             )
@@ -109,18 +109,18 @@ class FieldDefinition
 
                     $field['name'] = $name;
                 }
-                if (isset($field['args']) && ! is_array($field['args'])) {
+                if (isset($field['args']) && ! \is_array($field['args'])) {
                     throw new InvariantViolation(
-                        sprintf('%s.%s args must be an array.', $type->name, $name)
+                        \sprintf('%s.%s args must be an array.', $type->name, $name)
                     );
                 }
                 $fieldDef = self::create($field);
             } elseif ($field instanceof self) {
                 $fieldDef = $field;
             } else {
-                if (! is_string($name) || ! $field) {
+                if (! \is_string($name) || ! $field) {
                     throw new InvariantViolation(
-                        sprintf(
+                        \sprintf(
                             '%s.%s field config must be an array, but got: %s',
                             $type->name,
                             $name,
@@ -206,11 +206,11 @@ class FieldDefinition
         try {
             Utils::assertValidName($this->name);
         } catch (Error $e) {
-            throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
+            throw new InvariantViolation(\sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
         }
         Utils::invariant(
             ! isset($this->config['isDeprecated']),
-            sprintf(
+            \sprintf(
                 '%s.%s should provide "deprecationReason" instead of "isDeprecated".',
                 $parentType->name,
                 $this->name
@@ -223,7 +223,7 @@ class FieldDefinition
         }
         Utils::invariant(
             $type instanceof OutputType,
-            sprintf(
+            \sprintf(
                 '%s.%s field type must be Output Type but got: %s',
                 $parentType->name,
                 $this->name,
@@ -231,8 +231,8 @@ class FieldDefinition
             )
         );
         Utils::invariant(
-            $this->resolveFn === null || is_callable($this->resolveFn),
-            sprintf(
+            $this->resolveFn === null || \is_callable($this->resolveFn),
+            \sprintf(
                 '%s.%s field resolver must be a function if provided, but got: %s',
                 $parentType->name,
                 $this->name,

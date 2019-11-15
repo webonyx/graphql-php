@@ -35,7 +35,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
+        Utils::invariant(\is_string($config['name']), 'Must provide name.');
 
         $this->config            = $config;
         $this->name              = $config['name'];
@@ -69,13 +69,13 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         if ($this->fields === null) {
             $this->fields = [];
             $fields       = $this->config['fields'] ?? [];
-            $fields       = is_callable($fields)
-                ? call_user_func($fields)
+            $fields       = \is_callable($fields)
+                ? \call_user_func($fields)
                 : $fields;
 
-            if (! is_array($fields)) {
+            if (! \is_array($fields)) {
                 throw new InvariantViolation(
-                    sprintf('%s fields must be an array or a callable which returns such an array.', $this->name)
+                    \sprintf('%s fields must be an array or a callable which returns such an array.', $this->name)
                 );
             }
 
@@ -103,7 +103,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
 
         Utils::invariant(
             ! empty($this->getFields()),
-            sprintf(
+            \sprintf(
                 '%s fields must be an associative array with field names as keys or a callable which returns such an array.',
                 $this->name
             )

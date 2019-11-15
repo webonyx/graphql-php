@@ -78,7 +78,7 @@ class ProvidedRequiredArguments extends ValidationRule
 
     public static function missingFieldArgMessage($fieldName, $argName, $type)
     {
-        return sprintf(
+        return \sprintf(
             'Field "%s" argument "%s" of type "%s" is required but not provided.',
             $fieldName,
             $argName,
@@ -88,7 +88,7 @@ class ProvidedRequiredArguments extends ValidationRule
 
     public static function missingDirectiveArgMessage($directiveName, $argName, $type)
     {
-        return sprintf(
+        return \sprintf(
             'Directive "@%s" argument "%s" of type "%s" is required but not provided.',
             $directiveName,
             $argName,

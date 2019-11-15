@@ -46,6 +46,6 @@ class UniqueOperationNames extends ValidationRule
 
     public static function duplicateOperationNameMessage($operationName)
     {
-        return sprintf('There can be only one operation named "%s".', $operationName);
+        return \sprintf('There can be only one operation named "%s".', $operationName);
     }
 }

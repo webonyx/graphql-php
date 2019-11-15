@@ -111,7 +111,7 @@ class SchemaValidationContext
      */
     public function reportError($message, $nodes = null)
     {
-        $nodes = array_filter($nodes && is_array($nodes) ? $nodes : [$nodes]);
+        $nodes = \array_filter($nodes && \is_array($nodes) ? $nodes : [$nodes]);
         $this->addError(new Error($message, $nodes));
     }
 
@@ -169,7 +169,7 @@ class SchemaValidationContext
             if (! $directive instanceof Directive) {
                 $this->reportError(
                     'Expected directive but got: ' . Utils::printSafe($directive) . '.',
-                    is_object($directive) ? $directive->astNode : null
+                    \is_object($directive) ? $directive->astNode : null
                 );
                 continue;
             }
@@ -191,7 +191,7 @@ class SchemaValidationContext
 
                 if (isset($argNames[$argName])) {
                     $this->reportError(
-                        sprintf('Argument @%s(%s:) can only be defined once.', $directive->name, $argName),
+                        \sprintf('Argument @%s(%s:) can only be defined once.', $directive->name, $argName),
                         $this->getAllDirectiveArgNodes($directive, $argName)
                     );
                     continue;
@@ -205,7 +205,7 @@ class SchemaValidationContext
                 }
 
                 $this->reportError(
-                    sprintf(
+                    \sprintf(
                         'The type of @%s(%s:) must be Input Type but got: %s.',
                         $directive->name,
                         $argName,
@@ -216,7 +216,7 @@ class SchemaValidationContext
             }
         }
         foreach ($directiveDefinitions as $directiveName => $directiveList) {
-            if (count($directiveList) <= 1) {
+            if (\count($directiveList) <= 1) {
                 continue;
             }
 
@@ -227,8 +227,8 @@ class SchemaValidationContext
                 }
             );
             $this->reportError(
-                sprintf('Directive @%s defined multiple times.', $directiveName),
-                array_filter($nodes)
+                \sprintf('Directive @%s defined multiple times.', $directiveName),
+                \array_filter($nodes)
             );
         }
     }
@@ -371,7 +371,7 @@ class SchemaValidationContext
             $schemaDirective = $schema->getDirective($directiveName);
             if ($schemaDirective === null) {
                 $this->reportError(
-                    sprintf('No directive @%s defined.', $directiveName),
+                    \sprintf('No directive @%s defined.', $directiveName),
                     $directive
                 );
                 continue;
@@ -387,7 +387,7 @@ class SchemaValidationContext
                     ? [$directive, $schemaDirective->astNode]
                     : [$directive];
                 $this->reportError(
-                    sprintf('Directive @%s not allowed at %s location.', $directiveName, $location),
+                    \sprintf('Directive @%s not allowed at %s location.', $directiveName, $location),
                     $errorNodes
                 );
             }
@@ -397,12 +397,12 @@ class SchemaValidationContext
             $directivesNamed[$directiveName] = $existingNodes;
         }
         foreach ($directivesNamed as $directiveName => $directiveList) {
-            if (count($directiveList) <= 1) {
+            if (\count($directiveList) <= 1) {
                 continue;
             }
 
             $this->reportError(
-                sprintf('Directive @%s used twice at the same location.', $directiveName),
+                \sprintf('Directive @%s used twice at the same location.', $directiveName),
                 $directiveList
             );
         }
@@ -418,7 +418,7 @@ class SchemaValidationContext
         // Objects and Interfaces both must define one or more fields.
         if (! $fieldMap) {
             $this->reportError(
-                sprintf('Type %s must define one or more fields.', $type->name),
+                \sprintf('Type %s must define one or more fields.', $type->name),
                 $this->getAllNodes($type)
             );
         }
@@ -429,9 +429,9 @@ class SchemaValidationContext
 
             // Ensure they were defined at most once.
             $fieldNodes = $this->getAllFieldNodes($type, $fieldName);
-            if ($fieldNodes && count($fieldNodes) > 1) {
+            if ($fieldNodes && \count($fieldNodes) > 1) {
                 $this->reportError(
-                    sprintf('Field %s.%s can only be defined once.', $type->name, $fieldName),
+                    \sprintf('Field %s.%s can only be defined once.', $type->name, $fieldName),
                     $fieldNodes
                 );
                 continue;
@@ -440,7 +440,7 @@ class SchemaValidationContext
             // Ensure the type is an output type
             if (! Type::isOutputType($field->getType())) {
                 $this->reportError(
-                    sprintf(
+                    \sprintf(
                         'The type of %s.%s must be Output Type but got: %s.',
                         $type->name,
                         $fieldName,
@@ -460,7 +460,7 @@ class SchemaValidationContext
 
                 if (isset($argNames[$argName])) {
                     $this->reportError(
-                        sprintf(
+                        \sprintf(
                             'Field argument %s.%s(%s:) can only be defined once.',
                             $type->name,
                             $fieldName,
@@ -474,7 +474,7 @@ class SchemaValidationContext
                 // Ensure the type is an input type
                 if (! Type::isInputType($arg->getType())) {
                     $this->reportError(
-                        sprintf(
+                        \sprintf(
                             'The type of %s.%s(%s:) must be Input Type but got: %s.',
                             $type->name,
                             $fieldName,
@@ -525,7 +525,7 @@ class SchemaValidationContext
 
         return $astNode
             ? ($extensionNodes
-                ? array_merge([$astNode], $extensionNodes)
+                ? \array_merge([$astNode], $extensionNodes)
                 : [$astNode])
             : ($extensionNodes ?: []);
     }
@@ -655,7 +655,7 @@ class SchemaValidationContext
         foreach ($object->getInterfaces() as $iface) {
             if (! $iface instanceof InterfaceType) {
                 $this->reportError(
-                    sprintf(
+                    \sprintf(
                         'Type %s must only implement Interface types, it cannot implement %s.',
                         $object->name,
                         Utils::printSafe($iface)
@@ -666,7 +666,7 @@ class SchemaValidationContext
             }
             if (isset($implementedTypeNames[$iface->name])) {
                 $this->reportError(
-                    sprintf('Type %s can only implement %s once.', $object->name, $iface->name),
+                    \sprintf('Type %s can only implement %s once.', $object->name, $iface->name),
                     $this->getAllImplementsInterfaceNodes($object, $iface)
                 );
                 continue;
@@ -726,20 +726,20 @@ class SchemaValidationContext
 
         // Assert each interface field is implemented.
         foreach ($ifaceFieldMap as $fieldName => $ifaceField) {
-            $objectField = array_key_exists($fieldName, $objectFieldMap)
+            $objectField = \array_key_exists($fieldName, $objectFieldMap)
                 ? $objectFieldMap[$fieldName]
                 : null;
 
             // Assert interface field exists on object.
             if (! $objectField) {
                 $this->reportError(
-                    sprintf(
+                    \sprintf(
                         'Interface field %s.%s expected but %s does not provide it.',
                         $iface->name,
                         $fieldName,
                         $object->name
                     ),
-                    array_merge(
+                    \array_merge(
                         [$this->getFieldNode($iface, $fieldName)],
                         $this->getAllNodes($object)
                     )
@@ -756,7 +756,7 @@ class SchemaValidationContext
             )
             ) {
                 $this->reportError(
-                    sprintf(
+                    \sprintf(
                         'Interface field %s.%s expects type %s but %s.%s is type %s.',
                         $iface->name,
                         $fieldName,
@@ -787,7 +787,7 @@ class SchemaValidationContext
                 // Assert interface field arg exists on object field.
                 if (! $objectArg) {
                     $this->reportError(
-                        sprintf(
+                        \sprintf(
                             'Interface field argument %s.%s(%s:) expected but %s.%s does not provide it.',
                             $iface->name,
                             $fieldName,
@@ -808,7 +808,7 @@ class SchemaValidationContext
                 // TODO: change to contravariant?
                 if (! TypeComparators::isEqualType($ifaceArg->getType(), $objectArg->getType())) {
                     $this->reportError(
-                        sprintf(
+                        \sprintf(
                             'Interface field argument %s.%s(%s:) expects type %s but %s.%s(%s:) is type %s.',
                             $iface->name,
                             $fieldName,
@@ -845,7 +845,7 @@ class SchemaValidationContext
                 }
 
                 $this->reportError(
-                    sprintf(
+                    \sprintf(
                         'Object field argument %s.%s(%s:) is of required type %s but is not also provided by the Interface field %s.%s.',
                         $object->name,
                         $fieldName,
@@ -869,7 +869,7 @@ class SchemaValidationContext
 
         if (! $memberTypes) {
             $this->reportError(
-                sprintf('Union type %s must define one or more member types.', $union->name),
+                \sprintf('Union type %s must define one or more member types.', $union->name),
                 $this->getAllNodes($union)
             );
         }
@@ -879,7 +879,7 @@ class SchemaValidationContext
         foreach ($memberTypes as $memberType) {
             if (isset($includedTypeNames[$memberType->name])) {
                 $this->reportError(
-                    sprintf('Union type %s can only include type %s once.', $union->name, $memberType->name),
+                    \sprintf('Union type %s can only include type %s once.', $union->name, $memberType->name),
                     $this->getUnionMemberTypeNodes($union, $memberType->name)
                 );
                 continue;
@@ -890,7 +890,7 @@ class SchemaValidationContext
             }
 
             $this->reportError(
-                sprintf(
+                \sprintf(
                     'Union type %s can only include Object types, it cannot include %s.',
                     $union->name,
                     Utils::printSafe($memberType)
@@ -922,7 +922,7 @@ class SchemaValidationContext
 
         if (! $enumValues) {
             $this->reportError(
-                sprintf('Enum type %s must define one or more values.', $enumType->name),
+                \sprintf('Enum type %s must define one or more values.', $enumType->name),
                 $this->getAllNodes($enumType)
             );
         }
@@ -932,9 +932,9 @@ class SchemaValidationContext
 
             // Ensure no duplicates
             $allNodes = $this->getEnumValueNodes($enumType, $valueName);
-            if ($allNodes && count($allNodes) > 1) {
+            if ($allNodes && \count($allNodes) > 1) {
                 $this->reportError(
-                    sprintf('Enum type %s can include value %s only once.', $enumType->name, $valueName),
+                    \sprintf('Enum type %s can include value %s only once.', $enumType->name, $valueName),
                     $allNodes
                 );
             }
@@ -943,7 +943,7 @@ class SchemaValidationContext
             $this->validateName($enumValue);
             if ($valueName === 'true' || $valueName === 'false' || $valueName === 'null') {
                 $this->reportError(
-                    sprintf('Enum type %s cannot include value: %s.', $enumType->name, $valueName),
+                    \sprintf('Enum type %s cannot include value: %s.', $enumType->name, $valueName),
                     $enumValue->astNode
                 );
             }
@@ -982,7 +982,7 @@ class SchemaValidationContext
 
         if (! $fieldMap) {
             $this->reportError(
-                sprintf('Input Object type %s must define one or more fields.', $inputObj->name),
+                \sprintf('Input Object type %s must define one or more fields.', $inputObj->name),
                 $this->getAllNodes($inputObj)
             );
         }
@@ -997,7 +997,7 @@ class SchemaValidationContext
             // Ensure the type is an input type
             if (! Type::isInputType($field->getType())) {
                 $this->reportError(
-                    sprintf(
+                    \sprintf(
                         'The type of %s.%s must be Input Type but got: %s.',
                         $inputObj->name,
                         $fieldName,

@@ -61,7 +61,7 @@ class BreakingChangesFinder
      */
     public static function findBreakingChanges(Schema $oldSchema, Schema $newSchema)
     {
-        return array_merge(
+        return \array_merge(
             self::findRemovedTypes($oldSchema, $newSchema),
             self::findTypesThatChangedKind($oldSchema, $newSchema),
             self::findFieldsThatChangedTypeOnObjectOrInterfaceTypes($oldSchema, $newSchema),
@@ -91,7 +91,7 @@ class BreakingChangesFinder
         $newTypeMap = $newSchema->getTypeMap();
 
         $breakingChanges = [];
-        foreach (array_keys($oldTypeMap) as $typeName) {
+        foreach (\array_keys($oldTypeMap) as $typeName) {
             if (isset($newTypeMap[$typeName])) {
                 continue;
             }
@@ -289,7 +289,7 @@ class BreakingChangesFinder
 
             $oldTypeFieldsDef = $oldType->getFields();
             $newTypeFieldsDef = $newType->getFields();
-            foreach (array_keys($oldTypeFieldsDef) as $fieldName) {
+            foreach (\array_keys($oldTypeFieldsDef) as $fieldName) {
                 if (! isset($newTypeFieldsDef[$fieldName])) {
                     $breakingChanges[] = [
                         'type'        => self::BREAKING_CHANGE_FIELD_REMOVED,
@@ -419,7 +419,7 @@ class BreakingChangesFinder
 
                 $typesRemovedFromUnion[] = [
                     'type'        => self::BREAKING_CHANGE_TYPE_REMOVED_FROM_UNION,
-                    'description' => sprintf('%s was removed from union type %s.', $type->name, $typeName),
+                    'description' => \sprintf('%s was removed from union type %s.', $type->name, $typeName),
                 ];
             }
         }
@@ -457,7 +457,7 @@ class BreakingChangesFinder
 
                 $valuesRemovedFromEnums[] = [
                     'type'        => self::BREAKING_CHANGE_VALUE_REMOVED_FROM_ENUM,
-                    'description' => sprintf('%s was removed from enum type %s.', $value->name, $typeName),
+                    'description' => \sprintf('%s was removed from enum type %s.', $value->name, $typeName),
                 ];
             }
         }
@@ -531,7 +531,7 @@ class BreakingChangesFinder
                     } else {
                         $breakingChanges[] = [
                             'type'        => self::BREAKING_CHANGE_ARG_REMOVED,
-                            'description' => sprintf(
+                            'description' => \sprintf(
                                 '%s.%s arg %s was removed',
                                 $typeName,
                                 $fieldName,
@@ -609,7 +609,7 @@ class BreakingChangesFinder
 
                 $breakingChanges[] = [
                     'type'        => self::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
-                    'description' => sprintf('%s no longer implements interface %s.', $typeName, $oldInterface->name),
+                    'description' => \sprintf('%s no longer implements interface %s.', $typeName, $oldInterface->name),
                 ];
             }
         }
@@ -632,7 +632,7 @@ class BreakingChangesFinder
 
             $removedDirectives[] = [
                 'type'        => self::BREAKING_CHANGE_DIRECTIVE_REMOVED,
-                'description' => sprintf('%s was removed', $directive->name),
+                'description' => \sprintf('%s was removed', $directive->name),
             ];
         }
 
@@ -665,7 +665,7 @@ class BreakingChangesFinder
             ) as $arg) {
                 $removedDirectiveArgs[] = [
                     'type'        => self::BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED,
-                    'description' => sprintf('%s was removed from %s', $arg->name, $newDirective->name),
+                    'description' => \sprintf('%s was removed from %s', $arg->name, $newDirective->name),
                 ];
             }
         }
@@ -717,7 +717,7 @@ class BreakingChangesFinder
                 }
                 $addedNonNullableArgs[] = [
                     'type'        => self::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
-                    'description' => sprintf(
+                    'description' => \sprintf(
                         'A non-null arg %s on directive %s was added',
                         $arg->name,
                         $newDirective->name
@@ -766,7 +766,7 @@ class BreakingChangesFinder
             ) as $location) {
                 $removedLocations[] = [
                     'type'        => self::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
-                    'description' => sprintf('%s was removed from %s', $location, $newDirective->name),
+                    'description' => \sprintf('%s was removed from %s', $location, $newDirective->name),
                 ];
             }
         }
@@ -777,9 +777,9 @@ class BreakingChangesFinder
     public static function findRemovedLocationsForDirective(Directive $oldDirective, Directive $newDirective)
     {
         $removedLocations = [];
-        $newLocationSet   = array_flip($newDirective->locations);
+        $newLocationSet   = \array_flip($newDirective->locations);
         foreach ($oldDirective->locations as $oldLocation) {
-            if (array_key_exists($oldLocation, $newLocationSet)) {
+            if (\array_key_exists($oldLocation, $newLocationSet)) {
                 continue;
             }
 
@@ -797,7 +797,7 @@ class BreakingChangesFinder
      */
     public static function findDangerousChanges(Schema $oldSchema, Schema $newSchema)
     {
-        return array_merge(
+        return \array_merge(
             self::findArgChanges($oldSchema, $newSchema)['dangerousChanges'],
             self::findValuesAddedToEnums($oldSchema, $newSchema),
             self::findInterfacesAddedToObjectTypes($oldSchema, $newSchema),
@@ -836,7 +836,7 @@ class BreakingChangesFinder
 
                 $valuesAddedToEnums[] = [
                     'type'        => self::DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM,
-                    'description' => sprintf('%s was added to enum type %s.', $value->name, $typeName),
+                    'description' => \sprintf('%s was added to enum type %s.', $value->name, $typeName),
                 ];
             }
         }
@@ -877,7 +877,7 @@ class BreakingChangesFinder
 
                 $interfacesAddedToObjectTypes[] = [
                     'type'        => self::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
-                    'description' => sprintf(
+                    'description' => \sprintf(
                         '%s added to interfaces implemented by %s.',
                         $newInterface->name,
                         $typeName
@@ -920,7 +920,7 @@ class BreakingChangesFinder
 
                 $typesAddedToUnion[] = [
                     'type'        => self::DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION,
-                    'description' => sprintf('%s was added to union type %s.', $type->name, $typeName),
+                    'description' => \sprintf('%s was added to union type %s.', $type->name, $typeName),
                 ];
             }
         }
@@ -929,4 +929,4 @@ class BreakingChangesFinder
     }
 }
 
-class_alias(BreakingChangesFinder::class, 'GraphQL\Utils\FindBreakingChanges');
+\class_alias(BreakingChangesFinder::class, 'GraphQL\Utils\FindBreakingChanges');

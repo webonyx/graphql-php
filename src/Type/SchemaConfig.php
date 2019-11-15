@@ -91,7 +91,7 @@ class SchemaConfig
 
             if (isset($options['typeLoader'])) {
                 Utils::invariant(
-                    is_callable($options['typeLoader']),
+                    \is_callable($options['typeLoader']),
                     'Schema type loader must be callable if provided but got: %s',
                     Utils::printSafe($options['typeLoader'])
                 );

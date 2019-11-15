@@ -78,7 +78,7 @@ class Collector
 
         if ($this->operation === null) {
             if ($operationName !== null) {
-                $this->runtime->addError(new Error(sprintf('Unknown operation named "%s".', $operationName)));
+                $this->runtime->addError(new Error(\sprintf('Unknown operation named "%s".', $operationName)));
             } else {
                 $this->runtime->addError(new Error('Must provide an operation.'));
             }
@@ -99,7 +99,7 @@ class Collector
         } elseif ($this->operation->operation === 'subscription') {
             $this->rootType = $this->schema->getSubscriptionType();
         } else {
-            $this->runtime->addError(new Error(sprintf('Cannot initialize collector with operation type "%s".', $this->operation->operation)));
+            $this->runtime->addError(new Error(\sprintf('Cannot initialize collector with operation type "%s".', $this->operation->operation)));
         }
     }
 
@@ -159,7 +159,7 @@ class Collector
 
                         if ($condition === null) {
                             $this->runtime->addError(new Error(
-                                sprintf('@%s directive is missing "%s" argument.', Directive::SKIP_NAME, Directive::IF_ARGUMENT_NAME),
+                                \sprintf('@%s directive is missing "%s" argument.', Directive::SKIP_NAME, Directive::IF_ARGUMENT_NAME),
                                 $selection
                             ));
                         } else {
@@ -179,7 +179,7 @@ class Collector
 
                         if ($condition === null) {
                             $this->runtime->addError(new Error(
-                                sprintf('@%s directive is missing "%s" argument.', Directive::INCLUDE_NAME, Directive::IF_ARGUMENT_NAME),
+                                \sprintf('@%s directive is missing "%s" argument.', Directive::INCLUDE_NAME, Directive::IF_ARGUMENT_NAME),
                                 $selection
                             ));
                         } else {
@@ -208,7 +208,7 @@ class Collector
 
                 if (! isset($this->fragments[$fragmentName])) {
                     $this->runtime->addError(new Error(
-                        sprintf('Fragment "%s" does not exist.', $fragmentName),
+                        \sprintf('Fragment "%s" does not exist.', $fragmentName),
                         $selection
                     ));
                     continue;
@@ -221,7 +221,7 @@ class Collector
 
                 if (! $this->schema->hasType($conditionTypeName)) {
                     $this->runtime->addError(new Error(
-                        sprintf('Cannot spread fragment "%s", type "%s" does not exist.', $fragmentName, $conditionTypeName),
+                        \sprintf('Cannot spread fragment "%s", type "%s" does not exist.', $fragmentName, $conditionTypeName),
                         $selection
                     ));
                     continue;
@@ -246,7 +246,7 @@ class Collector
 
                     if (! $this->schema->hasType($conditionTypeName)) {
                         $this->runtime->addError(new Error(
-                            sprintf('Cannot spread inline fragment, type "%s" does not exist.', $conditionTypeName),
+                            \sprintf('Cannot spread inline fragment, type "%s" does not exist.', $conditionTypeName),
                             $selection
                         ));
                         continue;

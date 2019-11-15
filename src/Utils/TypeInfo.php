@@ -183,7 +183,7 @@ class TypeInfo
         if (! empty($typeMap[$type->name])) {
             Utils::invariant(
                 $typeMap[$type->name] === $type,
-                sprintf('Schema must contain unique named types but contains multiple types named "%s" ', $type) .
+                \sprintf('Schema must contain unique named types but contains multiple types named "%s" ', $type) .
                 '(see http://webonyx.github.io/graphql-php/type-system/#type-registry).'
             );
 
@@ -197,19 +197,19 @@ class TypeInfo
             $nestedTypes = $type->getTypes();
         }
         if ($type instanceof ObjectType) {
-            $nestedTypes = array_merge($nestedTypes, $type->getInterfaces());
+            $nestedTypes = \array_merge($nestedTypes, $type->getInterfaces());
         }
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
             foreach ($type->getFields() as $fieldName => $field) {
                 if (! empty($field->args)) {
-                    $fieldArgTypes = array_map(
+                    $fieldArgTypes = \array_map(
                         static function (FieldArgument $arg) {
                             return $arg->getType();
                         },
                         $field->args
                     );
 
-                    $nestedTypes = array_merge($nestedTypes, $fieldArgTypes);
+                    $nestedTypes = \array_merge($nestedTypes, $fieldArgTypes);
                 }
                 $nestedTypes[] = $field->getType();
             }
@@ -233,7 +233,7 @@ class TypeInfo
      */
     public static function extractTypesFromDirectives(Directive $directive, array $typeMap = [])
     {
-        if (is_array($directive->args)) {
+        if (\is_array($directive->args)) {
             foreach ($directive->args as $arg) {
                 $typeMap = self::extractTypes($arg->getType(), $typeMap);
             }
@@ -244,7 +244,7 @@ class TypeInfo
 
     public function getParentInputType() : ?InputType
     {
-        return $this->inputTypeStack[count($this->inputTypeStack) - 2] ?? null;
+        return $this->inputTypeStack[\count($this->inputTypeStack) - 2] ?? null;
     }
 
     public function getArgument() : ?FieldArgument
@@ -382,7 +382,7 @@ class TypeInfo
      */
     public function getType() : ?OutputType
     {
-        return $this->typeStack[count($this->typeStack) - 1] ?? null;
+        return $this->typeStack[\count($this->typeStack) - 1] ?? null;
     }
 
     /**
@@ -390,7 +390,7 @@ class TypeInfo
      */
     public function getParentType() : ?CompositeType
     {
-        return $this->parentTypeStack[count($this->parentTypeStack) - 1] ?? null;
+        return $this->parentTypeStack[\count($this->parentTypeStack) - 1] ?? null;
     }
 
     /**
@@ -441,7 +441,7 @@ class TypeInfo
 
     public function getFieldDef() : ?FieldDefinition
     {
-        return $this->fieldDefStack[count($this->fieldDefStack) - 1] ?? null;
+        return $this->fieldDefStack[\count($this->fieldDefStack) - 1] ?? null;
     }
 
     /**
@@ -449,7 +449,7 @@ class TypeInfo
      */
     public function getDefaultValue()
     {
-        return $this->defaultValueStack[count($this->defaultValueStack) - 1] ?? null;
+        return $this->defaultValueStack[\count($this->defaultValueStack) - 1] ?? null;
     }
 
     /**
@@ -457,19 +457,19 @@ class TypeInfo
      */
     public function getInputType() : ?InputType
     {
-        return $this->inputTypeStack[count($this->inputTypeStack) - 1] ?? null;
+        return $this->inputTypeStack[\count($this->inputTypeStack) - 1] ?? null;
     }
 
     public function leave(Node $node)
     {
         switch (true) {
             case $node instanceof SelectionSetNode:
-                array_pop($this->parentTypeStack);
+                \array_pop($this->parentTypeStack);
                 break;
 
             case $node instanceof FieldNode:
-                array_pop($this->fieldDefStack);
-                array_pop($this->typeStack);
+                \array_pop($this->fieldDefStack);
+                \array_pop($this->typeStack);
                 break;
 
             case $node instanceof DirectiveNode:
@@ -479,20 +479,20 @@ class TypeInfo
             case $node instanceof OperationDefinitionNode:
             case $node instanceof InlineFragmentNode:
             case $node instanceof FragmentDefinitionNode:
-                array_pop($this->typeStack);
+                \array_pop($this->typeStack);
                 break;
             case $node instanceof VariableDefinitionNode:
-                array_pop($this->inputTypeStack);
+                \array_pop($this->inputTypeStack);
                 break;
             case $node instanceof ArgumentNode:
                 $this->argument = null;
-                array_pop($this->defaultValueStack);
-                array_pop($this->inputTypeStack);
+                \array_pop($this->defaultValueStack);
+                \array_pop($this->inputTypeStack);
                 break;
             case $node instanceof ListValueNode:
             case $node instanceof ObjectFieldNode:
-                array_pop($this->defaultValueStack);
-                array_pop($this->inputTypeStack);
+                \array_pop($this->defaultValueStack);
+                \array_pop($this->inputTypeStack);
                 break;
             case $node instanceof EnumValueNode:
                 $this->enumValue = null;

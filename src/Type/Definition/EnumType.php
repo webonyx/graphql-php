@@ -46,7 +46,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
+        Utils::invariant(\is_string($config['name']), 'Must provide name.');
 
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
@@ -64,7 +64,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     {
         $lookup = $this->getNameLookup();
 
-        if (! is_string($name)) {
+        if (! \is_string($name)) {
             return null;
         }
 
@@ -95,21 +95,21 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
             $config       = $this->config;
 
             if (isset($config['values'])) {
-                if (! is_array($config['values'])) {
-                    throw new InvariantViolation(sprintf('%s values must be an array', $this->name));
+                if (! \is_array($config['values'])) {
+                    throw new InvariantViolation(\sprintf('%s values must be an array', $this->name));
                 }
                 foreach ($config['values'] as $name => $value) {
-                    if (is_string($name)) {
-                        if (is_array($value)) {
+                    if (\is_string($name)) {
+                        if (\is_array($value)) {
                             $value += ['name' => $name, 'value' => $name];
                         } else {
                             $value = ['name' => $name, 'value' => $value];
                         }
-                    } elseif (is_int($name) && is_string($value)) {
+                    } elseif (\is_int($name) && \is_string($value)) {
                         $value = ['name' => $value, 'value' => $value];
                     } else {
                         throw new InvariantViolation(
-                            sprintf(
+                            \sprintf(
                                 '%s values must be an array with value names as keys.',
                                 $this->name
                             )
@@ -205,14 +205,14 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
 
         Utils::invariant(
             isset($this->config['values']),
-            sprintf('%s values must be an array.', $this->name)
+            \sprintf('%s values must be an array.', $this->name)
         );
 
         $values = $this->getValues();
         foreach ($values as $value) {
             Utils::invariant(
                 ! isset($value->config['isDeprecated']),
-                sprintf(
+                \sprintf(
                     '%s.%s should provide "deprecationReason" instead of "isDeprecated".',
                     $this->name,
                     $value->name

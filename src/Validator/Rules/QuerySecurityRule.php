@@ -35,7 +35,7 @@ abstract class QuerySecurityRule extends ValidationRule
     protected function checkIfGreaterOrEqualToZero($name, $value)
     {
         if ($value < 0) {
-            throw new InvalidArgumentException(sprintf('$%s argument must be greater or equal to 0.', $name));
+            throw new InvalidArgumentException(\sprintf('$%s argument must be greater or equal to 0.', $name));
         }
     }
 
@@ -117,7 +117,7 @@ abstract class QuerySecurityRule extends ValidationRule
                 case $selection instanceof FieldNode:
                     $fieldName = $selection->name->value;
                     $fieldDef  = null;
-                    if ($parentType && method_exists($parentType, 'getFields')) {
+                    if ($parentType && \method_exists($parentType, 'getFields')) {
                         $tmp                  = $parentType->getFields();
                         $schemaMetaFieldDef   = Introspection::schemaMetaFieldDef();
                         $typeMetaFieldDef     = Introspection::typeMetaFieldDef();
@@ -181,4 +181,4 @@ abstract class QuerySecurityRule extends ValidationRule
     }
 }
 
-class_alias(QuerySecurityRule::class, 'GraphQL\Validator\Rules\AbstractQuerySecurity');
+\class_alias(QuerySecurityRule::class, 'GraphQL\Validator\Rules\AbstractQuerySecurity');

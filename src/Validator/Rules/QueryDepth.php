@@ -108,7 +108,7 @@ class QueryDepth extends QuerySecurityRule
 
     public static function maxQueryDepthErrorMessage($max, $count)
     {
-        return sprintf('Max query depth should be %d but got %d.', $max, $count);
+        return \sprintf('Max query depth should be %d but got %d.', $max, $count);
     }
 
     protected function isEnabled()

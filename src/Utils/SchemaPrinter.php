@@ -66,7 +66,7 @@ class SchemaPrinter
      */
     private static function printFilteredSchema(Schema $schema, $directiveFilter, $typeFilter, $options) : string
     {
-        $directives = array_filter(
+        $directives = \array_filter(
             $schema->getDirectives(),
             static function ($directive) use ($directiveFilter) {
                 return $directiveFilter($directive);
@@ -74,23 +74,23 @@ class SchemaPrinter
         );
 
         $types = $schema->getTypeMap();
-        ksort($types);
-        $types = array_filter($types, $typeFilter);
+        \ksort($types);
+        $types = \array_filter($types, $typeFilter);
 
-        return sprintf(
+        return \sprintf(
             "%s\n",
-            implode(
+            \implode(
                 "\n\n",
-                array_filter(
-                    array_merge(
+                \array_filter(
+                    \array_merge(
                         [self::printSchemaDefinition($schema)],
-                        array_map(
+                        \array_map(
                             static function ($directive) use ($options) {
                                 return self::printDirective($directive, $options);
                             },
                             $directives
                         ),
-                        array_map(
+                        \array_map(
                             static function ($type) use ($options) {
                                 return self::printType($type, $options);
                             },
@@ -112,20 +112,20 @@ class SchemaPrinter
 
         $queryType = $schema->getQueryType();
         if ($queryType) {
-            $operationTypes[] = sprintf('  query: %s', $queryType->name);
+            $operationTypes[] = \sprintf('  query: %s', $queryType->name);
         }
 
         $mutationType = $schema->getMutationType();
         if ($mutationType) {
-            $operationTypes[] = sprintf('  mutation: %s', $mutationType->name);
+            $operationTypes[] = \sprintf('  mutation: %s', $mutationType->name);
         }
 
         $subscriptionType = $schema->getSubscriptionType();
         if ($subscriptionType) {
-            $operationTypes[] = sprintf('  subscription: %s', $subscriptionType->name);
+            $operationTypes[] = \sprintf('  subscription: %s', $subscriptionType->name);
         }
 
-        return sprintf("schema {\n%s\n}", implode("\n", $operationTypes));
+        return \sprintf("schema {\n%s\n}", \implode("\n", $operationTypes));
     }
 
     /**
@@ -161,7 +161,7 @@ class SchemaPrinter
     {
         return self::printDescription($options, $directive) .
             'directive @' . $directive->name . self::printArgs($options, $directive->args) .
-            ' on ' . implode(' | ', $directive->locations);
+            ' on ' . \implode(' | ', $directive->locations);
     }
 
     private static function printDescription($options, $def, $indentation = '', $firstInBlock = true) : string
@@ -169,7 +169,7 @@ class SchemaPrinter
         if (! $def->description) {
             return '';
         }
-        $lines = self::descriptionLines($def->description, 120 - strlen($indentation));
+        $lines = self::descriptionLines($def->description, 120 - \strlen($indentation));
         if (isset($options['commentDescriptions'])) {
             return self::printDescriptionWithComments($lines, $indentation, $firstInBlock);
         }
@@ -179,9 +179,9 @@ class SchemaPrinter
             : $indentation . '"""';
 
         // In some circumstances, a single line can be used for the description.
-        if (count($lines) === 1 &&
-            mb_strlen($lines[0]) < 70 &&
-            substr($lines[0], -1) !== '"'
+        if (\count($lines) === 1 &&
+            \mb_strlen($lines[0]) < 70 &&
+            \substr($lines[0], -1) !== '"'
         ) {
             return $description . self::escapeQuote($lines[0]) . "\"\"\"\n";
         }
@@ -189,14 +189,14 @@ class SchemaPrinter
         // Format a multi-line block quote to account for leading space.
         $hasLeadingSpace = isset($lines[0]) &&
             (
-                substr($lines[0], 0, 1) === ' ' ||
-                substr($lines[0], 0, 1) === '\t'
+                \substr($lines[0], 0, 1) === ' ' ||
+                \substr($lines[0], 0, 1) === '\t'
             );
         if (! $hasLeadingSpace) {
             $description .= "\n";
         }
 
-        $lineLength = count($lines);
+        $lineLength = \count($lines);
         for ($i = 0; $i < $lineLength; $i++) {
             if ($i !== 0 || ! $hasLeadingSpace) {
                 $description .= $indentation;
@@ -214,7 +214,7 @@ class SchemaPrinter
     private static function descriptionLines(string $description, int $maxLen) : array
     {
         $lines    = [];
-        $rawLines = explode("\n", $description);
+        $rawLines = \explode("\n", $description);
         foreach ($rawLines as $line) {
             if ($line === '') {
                 $lines[] = $line;
@@ -236,13 +236,13 @@ class SchemaPrinter
      */
     private static function breakLine(string $line, int $maxLen) : array
     {
-        if (strlen($line) < $maxLen + 5) {
+        if (\strlen($line) < $maxLen + 5) {
             return [$line];
         }
-        preg_match_all('/((?: |^).{15,' . ($maxLen - 40) . '}(?= |$))/', $line, $parts);
+        \preg_match_all('/((?: |^).{15,' . ($maxLen - 40) . '}(?= |$))/', $line, $parts);
         $parts = $parts[0];
 
-        return array_map('trim', $parts);
+        return \array_map('trim', $parts);
     }
 
     private static function printDescriptionWithComments($lines, $indentation, $firstInBlock) : string
@@ -261,7 +261,7 @@ class SchemaPrinter
 
     private static function escapeQuote($line) : string
     {
-        return str_replace('"""', '\\"""', $line);
+        return \str_replace('"""', '\\"""', $line);
     }
 
     private static function printArgs($options, $args, $indentation = '') : string
@@ -277,20 +277,20 @@ class SchemaPrinter
                 return empty($arg->description);
             }
         )) {
-            return '(' . implode(', ', array_map('self::printInputValue', $args)) . ')';
+            return '(' . \implode(', ', \array_map('self::printInputValue', $args)) . ')';
         }
 
-        return sprintf(
+        return \sprintf(
             "(\n%s\n%s)",
-            implode(
+            \implode(
                 "\n",
-                array_map(
+                \array_map(
                     static function ($arg, $i) use ($indentation, $options) {
                         return self::printDescription($options, $arg, '  ' . $indentation, ! $i) . '  ' . $indentation .
                             self::printInputValue($arg);
                     },
                     $args,
-                    array_keys($args)
+                    \array_keys($args)
                 )
             ),
             $indentation
@@ -336,7 +336,7 @@ class SchemaPrinter
             return self::printInputObject($type, $options);
         }
 
-        throw new Error(sprintf('Unknown type: %s.', Utils::printSafe($type)));
+        throw new Error(\sprintf('Unknown type: %s.', Utils::printSafe($type)));
     }
 
     /**
@@ -344,7 +344,7 @@ class SchemaPrinter
      */
     private static function printScalar(ScalarType $type, array $options) : string
     {
-        return sprintf('%sscalar %s', self::printDescription($options, $type), $type->name);
+        return \sprintf('%sscalar %s', self::printDescription($options, $type), $type->name);
     }
 
     /**
@@ -354,9 +354,9 @@ class SchemaPrinter
     {
         $interfaces            = $type->getInterfaces();
         $implementedInterfaces = ! empty($interfaces)
-            ? ' implements ' . implode(
+            ? ' implements ' . \implode(
                 ' & ',
-                array_map(
+                \array_map(
                     static function ($i) {
                         return $i->name;
                     },
@@ -366,7 +366,7 @@ class SchemaPrinter
             : '';
 
         return self::printDescription($options, $type) .
-            sprintf("type %s%s {\n%s\n}", $type->name, $implementedInterfaces, self::printFields($options, $type));
+            \sprintf("type %s%s {\n%s\n}", $type->name, $implementedInterfaces, self::printFields($options, $type));
     }
 
     /**
@@ -374,18 +374,18 @@ class SchemaPrinter
      */
     private static function printFields($options, $type) : string
     {
-        $fields = array_values($type->getFields());
+        $fields = \array_values($type->getFields());
 
-        return implode(
+        return \implode(
             "\n",
-            array_map(
+            \array_map(
                 static function ($f, $i) use ($options) {
                     return self::printDescription($options, $f, '  ', ! $i) . '  ' .
                         $f->name . self::printArgs($options, $f->args, '  ') . ': ' .
                         (string) $f->getType() . self::printDeprecated($f);
                 },
                 $fields,
-                array_keys($fields)
+                \array_keys($fields)
             )
         );
     }
@@ -410,7 +410,7 @@ class SchemaPrinter
     private static function printInterface(InterfaceType $type, array $options) : string
     {
         return self::printDescription($options, $type) .
-            sprintf("interface %s {\n%s\n}", $type->name, self::printFields($options, $type));
+            \sprintf("interface %s {\n%s\n}", $type->name, self::printFields($options, $type));
     }
 
     /**
@@ -419,7 +419,7 @@ class SchemaPrinter
     private static function printUnion(UnionType $type, array $options) : string
     {
         return self::printDescription($options, $type) .
-            sprintf('union %s = %s', $type->name, implode(' | ', $type->getTypes()));
+            \sprintf('union %s = %s', $type->name, \implode(' | ', $type->getTypes()));
     }
 
     /**
@@ -428,7 +428,7 @@ class SchemaPrinter
     private static function printEnum(EnumType $type, array $options) : string
     {
         return self::printDescription($options, $type) .
-            sprintf("enum %s {\n%s\n}", $type->name, self::printEnumValues($type->getValues(), $options));
+            \sprintf("enum %s {\n%s\n}", $type->name, self::printEnumValues($type->getValues(), $options));
     }
 
     /**
@@ -436,15 +436,15 @@ class SchemaPrinter
      */
     private static function printEnumValues($values, $options) : string
     {
-        return implode(
+        return \implode(
             "\n",
-            array_map(
+            \array_map(
                 static function ($value, $i) use ($options) {
                     return self::printDescription($options, $value, '  ', ! $i) . '  ' .
                         $value->name . self::printDeprecated($value);
                 },
                 $values,
-                array_keys($values)
+                \array_keys($values)
             )
         );
     }
@@ -454,20 +454,20 @@ class SchemaPrinter
      */
     private static function printInputObject(InputObjectType $type, array $options) : string
     {
-        $fields = array_values($type->getFields());
+        $fields = \array_values($type->getFields());
 
         return self::printDescription($options, $type) .
-            sprintf(
+            \sprintf(
                 "input %s {\n%s\n}",
                 $type->name,
-                implode(
+                \implode(
                     "\n",
-                    array_map(
+                    \array_map(
                         static function ($f, $i) use ($options) {
                             return self::printDescription($options, $f, '  ', ! $i) . '  ' . self::printInputValue($f);
                         },
                         $fields,
-                        array_keys($fields)
+                        \array_keys($fields)
                     )
                 )
             );

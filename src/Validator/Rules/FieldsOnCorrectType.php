@@ -104,11 +104,11 @@ class FieldsOnCorrectType extends ValidationRule
             }
 
             // Suggest interface types based on how common they are.
-            arsort($interfaceUsageCount);
-            $suggestedInterfaceTypes = array_keys($interfaceUsageCount);
+            \arsort($interfaceUsageCount);
+            $suggestedInterfaceTypes = \array_keys($interfaceUsageCount);
 
             // Suggest both interface and object types.
-            return array_merge($suggestedInterfaceTypes, $suggestedObjectTypes);
+            return \array_merge($suggestedInterfaceTypes, $suggestedObjectTypes);
         }
 
         // Otherwise, must be an Object type, which does not have possible fields.
@@ -127,7 +127,7 @@ class FieldsOnCorrectType extends ValidationRule
     private function getSuggestedFieldNames(Schema $schema, $type, $fieldName)
     {
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
-            $possibleFieldNames = array_keys($type->getFields());
+            $possibleFieldNames = \array_keys($type->getFields());
 
             return Utils::suggestionList($fieldName, $possibleFieldNames);
         }
@@ -150,16 +150,16 @@ class FieldsOnCorrectType extends ValidationRule
         array $suggestedTypeNames,
         array $suggestedFieldNames
     ) {
-        $message = sprintf('Cannot query field "%s" on type "%s".', $fieldName, $type);
+        $message = \sprintf('Cannot query field "%s" on type "%s".', $fieldName, $type);
 
         if ($suggestedTypeNames) {
             $suggestions = Utils::quotedOrList($suggestedTypeNames);
 
-            $message .= sprintf(' Did you mean to use an inline fragment on %s?', $suggestions);
+            $message .= \sprintf(' Did you mean to use an inline fragment on %s?', $suggestions);
         } elseif (! empty($suggestedFieldNames)) {
             $suggestions = Utils::quotedOrList($suggestedFieldNames);
 
-            $message .= sprintf(' Did you mean %s?', $suggestions);
+            $message .= \sprintf(' Did you mean %s?', $suggestions);
         }
 
         return $message;

@@ -83,7 +83,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
             $config['name'] = $this->tryInferName();
         }
 
-        Utils::invariant(is_string($config['name']), 'Must provide name.');
+        Utils::invariant(\is_string($config['name']), 'Must provide name.');
 
         $this->name              = $config['name'];
         $this->description       = $config['description'] ?? null;
@@ -185,13 +185,13 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     {
         if ($this->interfaces === null) {
             $interfaces = $this->config['interfaces'] ?? [];
-            $interfaces = is_callable($interfaces)
-                ? call_user_func($interfaces)
+            $interfaces = \is_callable($interfaces)
+                ? \call_user_func($interfaces)
                 : $interfaces;
 
-            if ($interfaces !== null && ! is_array($interfaces)) {
+            if ($interfaces !== null && ! \is_array($interfaces)) {
                 throw new InvariantViolation(
-                    sprintf('%s interfaces must be an Array or a callable which returns an Array.', $this->name)
+                    \sprintf('%s interfaces must be an Array or a callable which returns an Array.', $this->name)
                 );
             }
 
@@ -210,7 +210,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     public function isTypeOf($value, $context, ResolveInfo $info)
     {
         return isset($this->config['isTypeOf'])
-            ? call_user_func(
+            ? \call_user_func(
                 $this->config['isTypeOf'],
                 $value,
                 $context,
@@ -230,8 +230,8 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         parent::assertValid();
 
         Utils::invariant(
-            $this->description === null || is_string($this->description),
-            sprintf(
+            $this->description === null || \is_string($this->description),
+            \sprintf(
                 '%s description must be string if set, but it is: %s',
                 $this->name,
                 Utils::printSafe($this->description)
@@ -241,8 +241,8 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         $isTypeOf = $this->config['isTypeOf'] ?? null;
 
         Utils::invariant(
-            $isTypeOf === null || is_callable($isTypeOf),
-            sprintf('%s must provide "isTypeOf" as a function, but got: %s', $this->name, Utils::printSafe($isTypeOf))
+            $isTypeOf === null || \is_callable($isTypeOf),
+            \sprintf('%s must provide "isTypeOf" as a function, but got: %s', $this->name, Utils::printSafe($isTypeOf))
         );
 
         foreach ($this->getFields() as $field) {

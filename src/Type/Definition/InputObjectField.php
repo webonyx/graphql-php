@@ -81,7 +81,7 @@ class InputObjectField
         try {
             Utils::assertValidName($this->name);
         } catch (Error $e) {
-            throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
+            throw new InvariantViolation(\sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
         }
         $type = $this->type;
         if ($type instanceof WrappingType) {
@@ -89,7 +89,7 @@ class InputObjectField
         }
         Utils::invariant(
             $type instanceof InputType,
-            sprintf(
+            \sprintf(
                 '%s.%s field type must be Input Type but got: %s',
                 $parentType->name,
                 $this->name,
@@ -98,7 +98,7 @@ class InputObjectField
         );
         Utils::invariant(
             empty($this->config['resolve']),
-            sprintf(
+            \sprintf(
                 '%s.%s field type has a resolve property, but Input Types cannot define resolvers.',
                 $parentType->name,
                 $this->name

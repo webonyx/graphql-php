@@ -56,7 +56,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     {
         $item = $this->nodes[$offset];
 
-        if (is_array($item) && isset($item['kind'])) {
+        if (\is_array($item) && isset($item['kind'])) {
             $this->nodes[$offset] = $item = AST::fromArray($item);
         }
 
@@ -69,7 +69,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public function offsetSet($offset, $value)
     {
-        if (is_array($value) && isset($value['kind'])) {
+        if (\is_array($value) && isset($value['kind'])) {
             $value = AST::fromArray($value);
         }
         $this->nodes[$offset] = $value;
@@ -92,7 +92,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public function splice($offset, $length, $replacement = null)
     {
-        return new NodeList(array_splice($this->nodes, $offset, $length, $replacement));
+        return new NodeList(\array_splice($this->nodes, $offset, $length, $replacement));
     }
 
     /**
@@ -106,7 +106,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
             $list = $list->nodes;
         }
 
-        return new NodeList(array_merge($this->nodes, $list));
+        return new NodeList(\array_merge($this->nodes, $list));
     }
 
     /**
@@ -124,6 +124,6 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public function count()
     {
-        return count($this->nodes);
+        return \count($this->nodes);
     }
 }

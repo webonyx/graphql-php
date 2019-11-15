@@ -57,7 +57,7 @@ class QueryPlan
         $this->schema                 = $schema;
         $this->variableValues         = $variableValues;
         $this->fragments              = $fragments;
-        $this->groupImplementorFields = in_array('group-implementor-fields', $options, true);
+        $this->groupImplementorFields = \in_array('group-implementor-fields', $options, true);
         $this->analyzeQueryPlan($parentType, $fieldNodes);
     }
 
@@ -74,12 +74,12 @@ class QueryPlan
      */
     public function getReferencedTypes() : array
     {
-        return array_keys($this->types);
+        return \array_keys($this->types);
     }
 
     public function hasType(string $type) : bool
     {
-        return count(array_filter($this->getReferencedTypes(), static function (string $referencedType) use ($type) {
+        return \count(\array_filter($this->getReferencedTypes(), static function (string $referencedType) use ($type) {
                 return $type === $referencedType;
         })) > 0;
     }
@@ -89,12 +89,12 @@ class QueryPlan
      */
     public function getReferencedFields() : array
     {
-        return array_values(array_unique(array_merge(...array_values($this->types))));
+        return \array_values(\array_unique(\array_merge(...\array_values($this->types))));
     }
 
     public function hasField(string $field) : bool
     {
-        return count(array_filter($this->getReferencedFields(), static function (string $referencedField) use ($field) {
+        return \count(\array_filter($this->getReferencedFields(), static function (string $referencedField) use ($field) {
             return $field === $referencedField;
         })) > 0;
     }
@@ -104,7 +104,7 @@ class QueryPlan
      */
     public function subFields(string $typename) : array
     {
-        if (! array_key_exists($typename, $this->types)) {
+        if (! \array_key_exists($typename, $this->types)) {
             return [];
         }
 
@@ -131,12 +131,12 @@ class QueryPlan
 
             $subfields = $this->analyzeSelectionSet($fieldNode->selectionSet, $type, $implementors);
 
-            $this->types[$type->name] = array_unique(array_merge(
-                array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_keys($subfields)
+            $this->types[$type->name] = \array_unique(\array_merge(
+                \array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
+                \array_keys($subfields)
             ));
 
-            $queryPlan = array_merge_recursive(
+            $queryPlan = \array_merge_recursive(
                 $queryPlan,
                 $subfields
             );
@@ -210,9 +210,9 @@ class QueryPlan
         $subfields = [];
         if ($type instanceof ObjectType) {
             $subfields                = $this->analyzeSelectionSet($selectionSet, $type);
-            $this->types[$type->name] = array_unique(array_merge(
-                array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
-                array_keys($subfields)
+            $this->types[$type->name] = \array_unique(\array_merge(
+                \array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
+                \array_keys($subfields)
             ));
         }
 
@@ -233,13 +233,13 @@ class QueryPlan
                 'type'   => $type,
                 'fields' => $this->arrayMergeDeep(
                     $implementors[$type->name]['fields'] ?? [],
-                    array_diff_key($subfields, $fields)
+                    \array_diff_key($subfields, $fields)
                 ),
             ];
 
             $fields = $this->arrayMergeDeep(
                 $fields,
-                array_intersect_key($subfields, $fields)
+                \array_intersect_key($subfields, $fields)
             );
         } else {
             $fields = $this->arrayMergeDeep(
@@ -267,11 +267,11 @@ class QueryPlan
         $merged = $array1;
 
         foreach ($array2 as $key => & $value) {
-            if (is_numeric($key)) {
-                if (! in_array($value, $merged, true)) {
+            if (\is_numeric($key)) {
+                if (! \in_array($value, $merged, true)) {
                     $merged[] = $value;
                 }
-            } elseif (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+            } elseif (\is_array($value) && isset($merged[$key]) && \is_array($merged[$key])) {
                 $merged[$key] = $this->arrayMergeDeep($merged[$key], $value);
             } else {
                 $merged[$key] = $value;

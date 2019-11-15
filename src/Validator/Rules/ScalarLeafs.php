@@ -41,11 +41,11 @@ class ScalarLeafs extends ValidationRule
 
     public static function noSubselectionAllowedMessage($field, $type)
     {
-        return sprintf('Field "%s" of type "%s" must not have a sub selection.', $field, $type);
+        return \sprintf('Field "%s" of type "%s" must not have a sub selection.', $field, $type);
     }
 
     public static function requiredSubselectionMessage($field, $type)
     {
-        return sprintf('Field "%s" of type "%s" must have a sub selection.', $field, $type);
+        return \sprintf('Field "%s" of type "%s" must have a sub selection.', $field, $type);
     }
 }

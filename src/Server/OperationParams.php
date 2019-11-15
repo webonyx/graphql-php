@@ -70,7 +70,7 @@ class OperationParams
     {
         $instance = new static();
 
-        $params                  = array_change_key_case($params, CASE_LOWER);
+        $params                  = \array_change_key_case($params, CASE_LOWER);
         $instance->originalInput = $params;
 
         $params += [
@@ -89,12 +89,12 @@ class OperationParams
 
         // Some parameters could be provided as serialized JSON.
         foreach (['extensions', 'variables'] as $param) {
-            if (! is_string($params[$param])) {
+            if (! \is_string($params[$param])) {
                 continue;
             }
 
-            $tmp = json_decode($params[$param], true);
-            if (json_last_error() !== JSON_ERROR_NONE) {
+            $tmp = \json_decode($params[$param], true);
+            if (\json_last_error() !== JSON_ERROR_NONE) {
                 continue;
             }
 

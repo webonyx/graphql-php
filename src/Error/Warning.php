@@ -62,7 +62,7 @@ final class Warning
             self::$enableWarnings = 0;
         } elseif ($suppress === false) {
             self::$enableWarnings = self::ALL;
-        } elseif (is_int($suppress)) {
+        } elseif (\is_int($suppress)) {
             self::$enableWarnings &= ~$suppress;
         } else {
             throw InvalidArgument::fromExpectedTypeAndArgument('bool|int', $suppress);
@@ -87,7 +87,7 @@ final class Warning
             self::$enableWarnings = self::ALL;
         } elseif ($enable === false) {
             self::$enableWarnings = 0;
-        } elseif (is_int($enable)) {
+        } elseif (\is_int($enable)) {
             self::$enableWarnings |= $enable;
         } else {
             throw InvalidArgument::fromExpectedTypeAndArgument('bool|int', $enable);
@@ -103,7 +103,7 @@ final class Warning
             $fn($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0 && ! isset(self::$warned[$warningId])) {
             self::$warned[$warningId] = true;
-            trigger_error($errorMessage, $messageLevel);
+            \trigger_error($errorMessage, $messageLevel);
         }
     }
 
@@ -115,7 +115,7 @@ final class Warning
             $fn = self::$warningHandler;
             $fn($errorMessage, $warningId, $messageLevel);
         } elseif ((self::$enableWarnings & $warningId) > 0) {
-            trigger_error($errorMessage, $messageLevel);
+            \trigger_error($errorMessage, $messageLevel);
         }
     }
 }

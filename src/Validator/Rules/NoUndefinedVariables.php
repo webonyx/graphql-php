@@ -56,7 +56,7 @@ class NoUndefinedVariables extends ValidationRule
     public static function undefinedVarMessage($varName, $opName = null)
     {
         return $opName
-            ? sprintf('Variable "$%s" is not defined by operation "%s".', $varName, $opName)
-            : sprintf('Variable "$%s" is not defined.', $varName);
+            ? \sprintf('Variable "$%s" is not defined by operation "%s".', $varName, $opName)
+            : \sprintf('Variable "$%s" is not defined.', $varName);
     }
 }

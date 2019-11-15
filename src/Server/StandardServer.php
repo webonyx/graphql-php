@@ -73,7 +73,7 @@ class StandardServer
      */
     public function __construct($config)
     {
-        if (is_array($config)) {
+        if (\is_array($config)) {
             $config = ServerConfig::create($config);
         }
         if (! $config instanceof ServerConfig) {
@@ -128,7 +128,7 @@ class StandardServer
             $parsedBody = $this->helper->parseHttpRequest();
         }
 
-        if (is_array($parsedBody)) {
+        if (\is_array($parsedBody)) {
             return $this->helper->executeBatch($this->config, $parsedBody);
         }
 

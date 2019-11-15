@@ -172,11 +172,11 @@ class Executor
         $fieldName = $info->fieldName;
         $property  = null;
 
-        if (is_array($objectValue) || $objectValue instanceof ArrayAccess) {
+        if (\is_array($objectValue) || $objectValue instanceof ArrayAccess) {
             if (isset($objectValue[$fieldName])) {
                 $property = $objectValue[$fieldName];
             }
-        } elseif (is_object($objectValue)) {
+        } elseif (\is_object($objectValue)) {
             if (isset($objectValue->{$fieldName})) {
                 $property = $objectValue->{$fieldName};
             }

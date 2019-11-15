@@ -127,7 +127,7 @@ class ASTDefinitionBuilder
             $token      = $token->prev;
         }
 
-        return implode("\n", array_reverse($comments));
+        return \implode("\n", \array_reverse($comments));
     }
 
     private function makeInputValues($values)
@@ -184,7 +184,7 @@ class ASTDefinitionBuilder
      */
     public function buildType($ref)
     {
-        if (is_string($ref)) {
+        if (\is_string($ref)) {
             return $this->internalBuildType($ref);
         }
 
@@ -210,8 +210,8 @@ class ASTDefinitionBuilder
                         $config = $fn($type->config, $this->typeDefinitionsMap[$typeName], $this->typeDefinitionsMap);
                     } catch (Throwable $e) {
                         throw new Error(
-                            sprintf('Type config decorator passed to %s threw an error ', static::class) .
-                            sprintf('when building %s type: %s', $typeName, $e->getMessage()),
+                            \sprintf('Type config decorator passed to %s threw an error ', static::class) .
+                            \sprintf('when building %s type: %s', $typeName, $e->getMessage()),
                             null,
                             null,
                             null,
@@ -219,9 +219,9 @@ class ASTDefinitionBuilder
                             $e
                         );
                     }
-                    if (! is_array($config) || isset($config[0])) {
+                    if (! \is_array($config) || isset($config[0])) {
                         throw new Error(
-                            sprintf(
+                            \sprintf(
                                 'Type config decorator passed to %s is expected to return an array, but got %s',
                                 static::class,
                                 Utils::getVariableType($config)
@@ -263,7 +263,7 @@ class ASTDefinitionBuilder
             case $def instanceof InputObjectTypeDefinitionNode:
                 return $this->makeInputObjectDef($def);
             default:
-                throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
+                throw new Error(\sprintf('Type kind of %s not supported.', $def->kind));
         }
     }
 
@@ -454,7 +454,7 @@ class ASTDefinitionBuilder
             case $def instanceof InputObjectTypeDefinitionNode:
                 return new InputObjectType($config);
             default:
-                throw new Error(sprintf('Type kind of %s not supported.', $def->kind));
+                throw new Error(\sprintf('Type kind of %s not supported.', $def->kind));
         }
     }
 

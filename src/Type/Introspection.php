@@ -53,15 +53,15 @@ class Introspection
      */
     public static function getIntrospectionQuery($options = [])
     {
-        if (is_bool($options)) {
-            trigger_error(
+        if (\is_bool($options)) {
+            \trigger_error(
                 'Calling Introspection::getIntrospectionQuery(boolean) is deprecated. ' .
                 'Please use Introspection::getIntrospectionQuery(["descriptions" => boolean]).',
                 E_USER_DEPRECATED
             );
             $descriptions = $options;
         } else {
-            $descriptions = ! array_key_exists('descriptions', $options) || $options['descriptions'] === true;
+            $descriptions = ! \array_key_exists('descriptions', $options) || $options['descriptions'] === true;
         }
         $descriptionField = $descriptions ? 'description' : '';
 
@@ -167,7 +167,7 @@ EOD;
      */
     public static function isIntrospectionType($type)
     {
-        return array_key_exists($type->name, self::getTypes());
+        return \array_key_exists($type->name, self::getTypes());
     }
 
     public static function getTypes()
@@ -200,7 +200,7 @@ EOD;
                         'description' => 'A list of all types supported by this server.',
                         'type'        => new NonNull(new ListOfType(new NonNull(self::_type()))),
                         'resolve'     => static function (Schema $schema) {
-                            return array_values($schema->getTypeMap());
+                            return \array_values($schema->getTypeMap());
                         },
                     ],
                     'queryType'        => [
@@ -305,7 +305,7 @@ EOD;
                                     $fields = $type->getFields();
 
                                     if (empty($args['includeDeprecated'])) {
-                                        $fields = array_filter(
+                                        $fields = \array_filter(
                                             $fields,
                                             static function (FieldDefinition $field) {
                                                 return ! $field->deprecationReason;
@@ -313,7 +313,7 @@ EOD;
                                         );
                                     }
 
-                                    return array_values($fields);
+                                    return \array_values($fields);
                                 }
 
                                 return null;
@@ -346,10 +346,10 @@ EOD;
                             ],
                             'resolve' => static function ($type, $args) {
                                 if ($type instanceof EnumType) {
-                                    $values = array_values($type->getValues());
+                                    $values = \array_values($type->getValues());
 
                                     if (empty($args['includeDeprecated'])) {
-                                        $values = array_filter(
+                                        $values = \array_filter(
                                             $values,
                                             static function ($value) {
                                                 return ! $value->deprecationReason;
@@ -367,7 +367,7 @@ EOD;
                             'type'    => Type::listOf(Type::nonNull(self::_inputValue())),
                             'resolve' => static function ($type) {
                                 if ($type instanceof InputObjectType) {
-                                    return array_values($type->getFields());
+                                    return \array_values($type->getFields());
                                 }
 
                                 return null;
@@ -526,7 +526,7 @@ EOD;
                         'type'         => [
                             'type'    => Type::nonNull(self::_type()),
                             'resolve' => static function ($value) {
-                                return method_exists($value, 'getType')
+                                return \method_exists($value, 'getType')
                                     ? $value->getType()
                                     : $value->type;
                             },

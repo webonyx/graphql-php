@@ -82,7 +82,7 @@ class VariablesInAllowedPosition extends ValidationRule
      */
     public static function badVarPosMessage($varName, $varType, $expectedType)
     {
-        return sprintf(
+        return \sprintf(
             'Variable "$%s" of type "%s" used in position expecting type "%s".',
             $varName,
             $varType,

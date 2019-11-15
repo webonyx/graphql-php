@@ -105,7 +105,7 @@ class DocumentValidator
             $rules = static::allRules();
         }
 
-        if (is_array($rules) === true && count($rules) === 0) {
+        if (\is_array($rules) === true && \count($rules) === 0) {
             // Skip validation if there are no rules
             return [];
         }
@@ -125,7 +125,7 @@ class DocumentValidator
     public static function allRules()
     {
         if (! self::$initRules) {
-            static::$rules     = array_merge(static::defaultRules(), self::securityRules(), self::$rules);
+            static::$rules     = \array_merge(static::defaultRules(), self::securityRules(), self::$rules);
             static::$initRules = true;
         }
 
@@ -244,7 +244,7 @@ class DocumentValidator
             return $rules[$name];
         }
 
-        $name = sprintf('GraphQL\\Validator\\Rules\\%s', $name);
+        $name = \sprintf('GraphQL\\Validator\\Rules\\%s', $name);
 
         return $rules[$name] ?? null;
     }
@@ -261,20 +261,20 @@ class DocumentValidator
 
     public static function isError($value)
     {
-        return is_array($value)
-            ? count(array_filter(
+        return \is_array($value)
+            ? \count(\array_filter(
                 $value,
                 static function ($item) {
                     return $item instanceof Throwable;
                 }
-            )) === count($value)
+            )) === \count($value)
             : ($value instanceof Throwable);
     }
 
     public static function append(&$arr, $items)
     {
-        if (is_array($items)) {
-            $arr = array_merge($arr, $items);
+        if (\is_array($items)) {
+            $arr = \array_merge($arr, $items);
         } else {
             $arr[] = $items;
         }
@@ -331,7 +331,7 @@ class DocumentValidator
     public static function assertValidSDL(DocumentNode $documentAST)
     {
         $errors = self::validateSDL($documentAST);
-        if (count($errors) !== 0) {
+        if (\count($errors) !== 0) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }
@@ -339,7 +339,7 @@ class DocumentValidator
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
     {
         $errors = self::validateSDL($documentAST, $schema);
-        if (count($errors) !== 0) {
+        if (\count($errors) !== 0) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }

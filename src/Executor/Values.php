@@ -71,7 +71,7 @@ class Values
                 // Must use input types for variables. This should be caught during
                 // validation, however is checked again here for safety.
                 $errors[] = new Error(
-                    sprintf(
+                    \sprintf(
                         'Variable "$%s" expected value of type "%s" which cannot be used as an input type.',
                         $varName,
                         Printer::doPrint($varDefNode->type)
@@ -79,7 +79,7 @@ class Values
                     [$varDefNode->type]
                 );
             } else {
-                $hasValue = array_key_exists($varName, $inputs);
+                $hasValue = \array_key_exists($varName, $inputs);
                 $value    = $hasValue ? $inputs[$varName] : Utils::undefined();
 
                 if (! $hasValue && $varDefNode->defaultValue) {
@@ -90,7 +90,7 @@ class Values
                     // If no value or a nullish value was provided to a variable with a
                     // non-null type (required), produce an error.
                     $errors[] = new Error(
-                        sprintf(
+                        \sprintf(
                             $hasValue
                                 ? 'Variable "$%s" of non-null type "%s" must not be null.'
                                 : 'Variable "$%s" of required type "%s" was not provided.',
@@ -111,7 +111,7 @@ class Values
                         /** @var Error[] $coercionErrors */
                         $coercionErrors = $coerced['errors'];
                         if ($coercionErrors) {
-                            $messagePrelude = sprintf(
+                            $messagePrelude = \sprintf(
                                 'Variable "$%s" got invalid value %s; ',
                                 $varName,
                                 Utils::printSafeJson($value)
@@ -226,7 +226,7 @@ class Values
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue     = $variableValues ? array_key_exists($variableName, $variableValues) : false;
+                $hasValue     = $variableValues ? \array_key_exists($variableName, $variableValues) : false;
                 $isNull       = $hasValue ? $variableValues[$variableName] === null : false;
             } else {
                 $hasValue = $argumentValueNode !== null;
@@ -326,7 +326,7 @@ class Values
         $errors = Value::coerceValue($value, $type)['errors'];
 
         return $errors
-            ? array_map(
+            ? \array_map(
                 static function (Throwable $error) {
                     return $error->getMessage();
                 },

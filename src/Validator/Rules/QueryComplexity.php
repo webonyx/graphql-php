@@ -137,12 +137,12 @@ class QueryComplexity extends QuerySecurityRule
 
                     $args = $this->buildFieldArguments($node);
                     //get complexity fn using fieldDef complexity
-                    if (method_exists($fieldDef, 'getComplexityFn')) {
+                    if (\method_exists($fieldDef, 'getComplexityFn')) {
                         $complexityFn = $fieldDef->getComplexityFn();
                     }
                 }
 
-                $complexity += call_user_func_array($complexityFn, [$childrenComplexity, $args]);
+                $complexity += \call_user_func_array($complexityFn, [$childrenComplexity, $args]);
                 break;
 
             case $node instanceof InlineFragmentNode:
@@ -192,9 +192,9 @@ class QueryComplexity extends QuerySecurityRule
                 $this->getRawVariableValues()
             );
             if (! empty($errors)) {
-                throw new Error(implode(
+                throw new Error(\implode(
                     "\n\n",
-                    array_map(
+                    \array_map(
                         static function ($error) {
                             return $error->getMessage();
                         },
@@ -250,9 +250,9 @@ class QueryComplexity extends QuerySecurityRule
             );
 
             if (! empty($errors)) {
-                throw new Error(implode(
+                throw new Error(\implode(
                     "\n\n",
-                    array_map(
+                    \array_map(
                         static function ($error) {
                             return $error->getMessage();
                         },
@@ -289,7 +289,7 @@ class QueryComplexity extends QuerySecurityRule
 
     public static function maxQueryComplexityErrorMessage($max, $count)
     {
-        return sprintf('Max query complexity should be %d but got %d.', $max, $count);
+        return \sprintf('Max query complexity should be %d but got %d.', $max, $count);
     }
 
     protected function isEnabled()

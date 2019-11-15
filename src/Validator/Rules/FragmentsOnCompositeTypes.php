@@ -54,11 +54,11 @@ class FragmentsOnCompositeTypes extends ValidationRule
 
     public static function inlineFragmentOnNonCompositeErrorMessage($type)
     {
-        return sprintf('Fragment cannot condition on non composite type "%s".', $type);
+        return \sprintf('Fragment cannot condition on non composite type "%s".', $type);
     }
 
     public static function fragmentOnNonCompositeErrorMessage($fragName, $type)
     {
-        return sprintf('Fragment "%s" cannot condition on non composite type "%s".', $fragName, $type);
+        return \sprintf('Fragment "%s" cannot condition on non composite type "%s".', $fragName, $type);
     }
 }

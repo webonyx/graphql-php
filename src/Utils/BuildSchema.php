@@ -123,7 +123,7 @@ class BuildSchema
                 case $definition instanceof InputObjectTypeDefinitionNode:
                     $typeName = $definition->name->value;
                     if (! empty($this->nodeMap[$typeName])) {
-                        throw new Error(sprintf('Type "%s" was defined more than once.', $typeName));
+                        throw new Error(\sprintf('Type "%s" was defined more than once.', $typeName));
                     }
                     $typeDefs[]               = $definition;
                     $this->nodeMap[$typeName] = $definition;
@@ -151,7 +151,7 @@ class BuildSchema
             $this->typeConfigDecorator
         );
 
-        $directives = array_map(
+        $directives = \array_map(
             static function ($def) use ($DefinitionBuilder) {
                 return $DefinitionBuilder->buildDirective($def);
             },
@@ -222,11 +222,11 @@ class BuildSchema
             $operation = $operationType->operation;
 
             if (isset($opTypes[$operation])) {
-                throw new Error(sprintf('Must provide only one %s type in schema.', $operation));
+                throw new Error(\sprintf('Must provide only one %s type in schema.', $operation));
             }
 
             if (! isset($this->nodeMap[$typeName])) {
-                throw new Error(sprintf('Specified %s type "%s" not found in document.', $operation, $typeName));
+                throw new Error(\sprintf('Specified %s type "%s" not found in document.', $operation, $typeName));
             }
 
             $opTypes[$operation] = $typeName;

@@ -40,6 +40,6 @@ class UniqueVariableNames extends ValidationRule
 
     public static function duplicateVariableMessage($variableName)
     {
-        return sprintf('There can be only one variable named "%s".', $variableName);
+        return \sprintf('There can be only one variable named "%s".', $variableName);
     }
 }

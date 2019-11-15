@@ -74,7 +74,7 @@ class KnownDirectives extends ValidationRule
                 continue;
             }
 
-            $locationsMap[$def->name->value] = array_map(
+            $locationsMap[$def->name->value] = \array_map(
                 static function ($name) {
                     return $name->value;
                 },
@@ -107,7 +107,7 @@ class KnownDirectives extends ValidationRule
 
                 $candidateLocation = $this->getDirectiveLocationForASTPath($ancestors);
 
-                if (! $candidateLocation || in_array($candidateLocation, $locations, true)) {
+                if (! $candidateLocation || \in_array($candidateLocation, $locations, true)) {
                     return;
                 }
                 $context->reportError(
@@ -122,7 +122,7 @@ class KnownDirectives extends ValidationRule
 
     public static function unknownDirectiveMessage($directiveName)
     {
-        return sprintf('Unknown directive "%s".', $directiveName);
+        return \sprintf('Unknown directive "%s".', $directiveName);
     }
 
     /**
@@ -132,7 +132,7 @@ class KnownDirectives extends ValidationRule
      */
     private function getDirectiveLocationForASTPath(array $ancestors)
     {
-        $appliedTo = $ancestors[count($ancestors) - 1];
+        $appliedTo = $ancestors[\count($ancestors) - 1];
         switch (true) {
             case $appliedTo instanceof OperationDefinitionNode:
                 switch ($appliedTo->operation) {
@@ -180,7 +180,7 @@ class KnownDirectives extends ValidationRule
             case $appliedTo instanceof InputObjectTypeExtensionNode:
                 return DirectiveLocation::INPUT_OBJECT;
             case $appliedTo instanceof InputValueDefinitionNode:
-                $parentNode = $ancestors[count($ancestors) - 3];
+                $parentNode = $ancestors[\count($ancestors) - 3];
 
                 return $parentNode instanceof InputObjectTypeDefinitionNode
                     ? DirectiveLocation::INPUT_FIELD_DEFINITION
@@ -190,6 +190,6 @@ class KnownDirectives extends ValidationRule
 
     public static function misplacedDirectiveMessage($directiveName, $location)
     {
-        return sprintf('Directive "%s" may not be used on "%s".', $directiveName, $location);
+        return \sprintf('Directive "%s" may not be used on "%s".', $directiveName, $location);
     }
 }

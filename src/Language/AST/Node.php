@@ -69,14 +69,14 @@ abstract class Node
      */
     private function cloneValue($value)
     {
-        if (is_array($value)) {
+        if (\is_array($value)) {
             $cloned = [];
             foreach ($value as $key => $arrValue) {
                 $cloned[$key] = $this->cloneValue($arrValue);
             }
         } elseif ($value instanceof self) {
             $cloned = clone $value;
-            foreach (get_object_vars($cloned) as $prop => $propValue) {
+            foreach (\get_object_vars($cloned) as $prop => $propValue) {
                 $cloned->{$prop} = $this->cloneValue($propValue);
             }
         } else {
@@ -93,7 +93,7 @@ abstract class Node
     {
         $tmp = $this->toArray(true);
 
-        return (string) json_encode($tmp);
+        return (string) \json_encode($tmp);
     }
 
     /**
@@ -135,7 +135,7 @@ abstract class Node
             ];
         }
 
-        foreach (get_object_vars($node) as $prop => $propValue) {
+        foreach (\get_object_vars($node) as $prop => $propValue) {
             if (isset($result[$prop])) {
                 continue;
             }
@@ -144,14 +144,14 @@ abstract class Node
                 continue;
             }
 
-            if (is_array($propValue) || $propValue instanceof NodeList) {
+            if (\is_array($propValue) || $propValue instanceof NodeList) {
                 $tmp = [];
                 foreach ($propValue as $tmp1) {
                     $tmp[] = $tmp1 instanceof Node ? $this->recursiveToArray($tmp1) : (array) $tmp1;
                 }
             } elseif ($propValue instanceof Node) {
                 $tmp = $this->recursiveToArray($propValue);
-            } elseif (is_scalar($propValue) || $propValue === null) {
+            } elseif (\is_scalar($propValue) || $propValue === null) {
                 $tmp = $propValue;
             } else {
                 $tmp = null;

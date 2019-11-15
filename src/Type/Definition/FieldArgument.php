@@ -68,7 +68,7 @@ class FieldArgument
     {
         $map = [];
         foreach ($config as $name => $argConfig) {
-            if (! is_array($argConfig)) {
+            if (! \is_array($argConfig)) {
                 $argConfig = ['type' => $argConfig];
             }
             $map[] = new self($argConfig + ['name' => $name]);
@@ -87,7 +87,7 @@ class FieldArgument
 
     public function defaultValueExists() : bool
     {
-        return array_key_exists('defaultValue', $this->config);
+        return \array_key_exists('defaultValue', $this->config);
     }
 
     public function assertValid(FieldDefinition $parentField, Type $parentType)
@@ -96,7 +96,7 @@ class FieldArgument
             Utils::assertValidName($this->name);
         } catch (InvariantViolation $e) {
             throw new InvariantViolation(
-                sprintf('%s.%s(%s:) %s', $parentType->name, $parentField->name, $this->name, $e->getMessage())
+                \sprintf('%s.%s(%s:) %s', $parentType->name, $parentField->name, $this->name, $e->getMessage())
             );
         }
         $type = $this->type;
@@ -105,7 +105,7 @@ class FieldArgument
         }
         Utils::invariant(
             $type instanceof InputType,
-            sprintf(
+            \sprintf(
                 '%s.%s(%s): argument type must be Input Type but got: %s',
                 $parentType->name,
                 $parentField->name,
@@ -114,8 +114,8 @@ class FieldArgument
             )
         );
         Utils::invariant(
-            $this->description === null || is_string($this->description),
-            sprintf(
+            $this->description === null || \is_string($this->description),
+            \sprintf(
                 '%s.%s(%s): argument description type must be string but got: %s',
                 $parentType->name,
                 $parentField->name,

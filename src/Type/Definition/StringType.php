@@ -34,8 +34,8 @@ represent free-form human-readable text.';
      */
     public function serialize($value)
     {
-        $canCast = is_scalar($value)
-            || (is_object($value) && method_exists($value, '__toString'))
+        $canCast = \is_scalar($value)
+            || (\is_object($value) && \method_exists($value, '__toString'))
             || $value === null;
 
         if (! $canCast) {
@@ -56,7 +56,7 @@ represent free-form human-readable text.';
      */
     public function parseValue($value)
     {
-        if (! is_string($value)) {
+        if (! \is_string($value)) {
             throw new Error(
                 'String cannot represent a non string value: ' . Utils::printSafe($value)
             );

@@ -58,6 +58,6 @@ class UniqueArgumentNames extends ValidationRule
 
     public static function duplicateArgMessage($argName)
     {
-        return sprintf('There can be only one argument named "%s".', $argName);
+        return \sprintf('There can be only one argument named "%s".', $argName);
     }
 }

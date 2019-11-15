@@ -90,15 +90,15 @@ class ValuesOfCorrectType extends ValidationRule
                 unset($fieldName);
                 // Ensure every required field exists.
                 $inputFields  = $type->getFields();
-                $nodeFields   = iterator_to_array($node->fields);
-                $fieldNodeMap = array_combine(
-                    array_map(
+                $nodeFields   = \iterator_to_array($node->fields);
+                $fieldNodeMap = \array_combine(
+                    \array_map(
                         static function ($field) {
                             return $field->name->value;
                         },
                         $nodeFields
                     ),
-                    array_values($nodeFields)
+                    \array_values($nodeFields)
                 );
                 foreach ($inputFields as $fieldName => $fieldDef) {
                     $fieldType = $fieldDef->getType();
@@ -124,7 +124,7 @@ class ValuesOfCorrectType extends ValidationRule
 
                 $suggestions = Utils::suggestionList(
                     $node->name->value,
-                    array_keys($parentType->getFields())
+                    \array_keys($parentType->getFields())
                 );
                 $didYouMean  = $suggestions
                     ? 'Did you mean ' . Utils::orList($suggestions) . '?'
@@ -173,7 +173,7 @@ class ValuesOfCorrectType extends ValidationRule
 
     public static function badValueMessage($typeName, $valueName, $message = null)
     {
-        return sprintf('Expected type %s, found %s', $typeName, $valueName) .
+        return \sprintf('Expected type %s, found %s', $typeName, $valueName) .
             ($message ? "; ${message}" : '.');
     }
 
@@ -238,7 +238,7 @@ class ValuesOfCorrectType extends ValidationRule
         if ($type instanceof EnumType) {
             $suggestions = Utils::suggestionList(
                 Printer::doPrint($node),
-                array_map(
+                \array_map(
                     static function (EnumValueDefinition $value) {
                         return $value->name;
                     },
@@ -252,19 +252,19 @@ class ValuesOfCorrectType extends ValidationRule
 
     public static function badArgumentValueMessage($typeName, $valueName, $fieldName, $argName, $message = null)
     {
-        return sprintf('Field "%s" argument "%s" requires type %s, found %s', $fieldName, $argName, $typeName, $valueName) .
-            ($message ? sprintf('; %s', $message) : '.');
+        return \sprintf('Field "%s" argument "%s" requires type %s, found %s', $fieldName, $argName, $typeName, $valueName) .
+            ($message ? \sprintf('; %s', $message) : '.');
     }
 
     public static function requiredFieldMessage($typeName, $fieldName, $fieldTypeName)
     {
-        return sprintf('Field %s.%s of required type %s was not provided.', $typeName, $fieldName, $fieldTypeName);
+        return \sprintf('Field %s.%s of required type %s was not provided.', $typeName, $fieldName, $fieldTypeName);
     }
 
     public static function unknownFieldMessage($typeName, $fieldName, $message = null)
     {
-        return sprintf('Field "%s" is not defined by type %s', $fieldName, $typeName) .
-            ($message ? sprintf('; %s', $message) : '.');
+        return \sprintf('Field "%s" is not defined by type %s', $fieldName, $typeName) .
+            ($message ? \sprintf('; %s', $message) : '.');
     }
 
     private static function getBadValueMessage($typeName, $valueName, $message = null, $context = null, $fieldName = null)

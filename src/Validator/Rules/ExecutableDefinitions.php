@@ -47,6 +47,6 @@ class ExecutableDefinitions extends ValidationRule
 
     public static function nonExecutableDefinitionMessage($defName)
     {
-        return sprintf('The "%s" definition is not executable.', $defName);
+        return \sprintf('The "%s" definition is not executable.', $defName);
     }
 }

@@ -46,7 +46,7 @@ class KnownTypeNames extends ValidationRule
                 $context->reportError(new Error(
                     self::unknownTypeMessage(
                         $typeName,
-                        Utils::suggestionList($typeName, array_keys($schema->getTypeMap()))
+                        Utils::suggestionList($typeName, \array_keys($schema->getTypeMap()))
                     ),
                     [$node]
                 ));
@@ -60,11 +60,11 @@ class KnownTypeNames extends ValidationRule
      */
     public static function unknownTypeMessage($type, array $suggestedTypes)
     {
-        $message = sprintf('Unknown type "%s".', $type);
+        $message = \sprintf('Unknown type "%s".', $type);
         if (! empty($suggestedTypes)) {
             $suggestions = Utils::quotedOrList($suggestedTypes);
 
-            $message .= sprintf(' Did you mean %s?', $suggestions);
+            $message .= \sprintf(' Did you mean %s?', $suggestions);
         }
 
         return $message;

@@ -37,7 +37,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         $definedDirectives = $schema !== null ? $schema->getDirectives() : Directive::getInternalDirectives();
 
         foreach ($definedDirectives as $directive) {
-            $directiveArgs[$directive->name] = array_map(
+            $directiveArgs[$directive->name] = \array_map(
                 static function (FieldArgument $arg) : string {
                     return $arg->name;
                 },
@@ -56,10 +56,10 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
                 $arguments = $def->arguments;
 
                 if ($arguments instanceof NodeList) {
-                    $arguments = iterator_to_array($arguments->getIterator());
+                    $arguments = \iterator_to_array($arguments->getIterator());
                 }
 
-                $directiveArgs[$name] = array_map(static function (InputValueDefinitionNode $arg) : string {
+                $directiveArgs[$name] = \array_map(static function (InputValueDefinitionNode $arg) : string {
                     return $arg->name->value;
                 }, $arguments);
             } else {
@@ -78,7 +78,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
                 foreach ($directiveNode->arguments as $argNode) {
                     $argName = $argNode->name->value;
-                    if (in_array($argName, $knownArgs, true)) {
+                    if (\in_array($argName, $knownArgs, true)) {
                         continue;
                     }
 

@@ -48,4 +48,4 @@ abstract class ValidationRule
     }
 }
 
-class_alias(ValidationRule::class, 'GraphQL\Validator\Rules\AbstractValidationRule');
+\class_alias(ValidationRule::class, 'GraphQL\Validator\Rules\AbstractValidationRule');
