@@ -1,13 +1,13 @@
 <?php
 namespace GraphQL\Examples\Blog;
 
+use Exception;
 use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeEnumType;
 use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Type\SearchResultType;
 use GraphQL\Examples\Blog\Type\NodeType;
-use GraphQL\Examples\Blog\Type\QueryType;
 use GraphQL\Examples\Blog\Type\Scalar\EmailType;
 use GraphQL\Examples\Blog\Type\StoryType;
 use GraphQL\Examples\Blog\Type\Scalar\UrlType;
