@@ -13,6 +13,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\BuildClientSchema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
+use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -72,18 +73,18 @@ class BuildClientSchemaTest extends TestCase
      */
     public function testBuildsASchemaWithoutTheQueryType() : void
     {
-        $sdl           = '
-        type Query {
-          foo: String
-        }
-        ';
+        $sdl           = <<<SDL
+type Query {
+  foo: String
+}
+
+SDL;
         $introspection = self::introspectionFromSDL($sdl);
         unset($introspection['__schema']['queryType']);
 
         $clientSchema = BuildClientSchema::build($introspection);
         self::assertNull($clientSchema->getQueryType());
-        self::markTestSkipped('Why should this assertion be true?');
-        self::assertSame($sdl, SchemaPrinter::printIntrospectionSchema($clientSchema));
+        self::assertSame($sdl, SchemaPrinter::doPrint($clientSchema));
     }
 
     /**
@@ -594,5 +595,116 @@ SDL;
         );
 
         self::assertSame(['foo' => 'bar'], $result->data);
+    }
+
+    // describe('throws when given invalid introspection', () => {
+
+    protected function dummySchema(): Schema
+    {
+        return BuildSchema::build('
+          type Query {
+            foo(bar: String): String
+          }
+    
+          interface SomeInterface {
+            foo: String
+          }
+    
+          union SomeUnion = Query
+    
+          enum SomeEnum { FOO }
+    
+          input SomeInputObject {
+            foo: String
+          }
+    
+          directive @SomeDirective on QUERY
+        ');
+    }
+
+    /**
+     * it('throws when introspection is missing __schema property', () => {
+     */
+    public function testThrowsWhenIntrospectionIsMissing__schemaProperty(): void
+    {
+        $this->expectExceptionMessage('Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: [].');
+        BuildClientSchema::build([]);
+    }
+
+    /**
+     * it('throws when referenced unknown type', () => {
+     */
+    public function testThrowsWhenReferencedUnknownType(): void
+    {
+        $introspection = Introspection::fromSchema($this->dummySchema());
+
+        $introspection['__schema']['types'] = array_filter(
+            $introspection['__schema']['types'],
+            static function (array $type): bool {
+                return $type['name'] !== 'Query';
+            }
+        );
+
+        $this->expectExceptionMessage('Invalid or incomplete schema, unknown type: Query. Ensure that a full introspection query is used in order to build a client schema.');
+        BuildClientSchema::build($introspection);
+    }
+
+    /**
+     * it('throws when missing definition for one of the standard scalars', () => {
+     */
+    public function testThrowsWhenMissingDefinitionForOneOfTheStandardScalars(): void
+    {
+        $schema = BuildSchema::build('
+        type Query {
+          foo: Float
+        }
+        ');
+        $introspection = Introspection::fromSchema($schema);
+
+        $introspection['__schema']['types'] = array_filter(
+            $introspection['__schema']['types'],
+            static function (array $type): bool {
+                return $type['name'] !== 'Float';
+            }
+        );
+
+        $this->expectExceptionMessage('Invalid or incomplete schema, unknown type: Float. Ensure that a full introspection query is used in order to build a client schema.');
+        BuildClientSchema::build($introspection);
+    }
+
+    /**
+     * it('throws when type reference is missing name', () => {
+     */
+    public function testThrowsWhenTypeReferenceIsMissingName(): void
+    {
+        $introspection = Introspection::fromSchema($this->dummySchema());
+
+        $this->assertNotEmpty($introspection['__schema']['queryType']['name']);
+
+        unset($introspection['__schema']['queryType']['name']);
+
+        $this->expectExceptionMessage('Unknown type reference: [].');
+        BuildClientSchema::build($introspection);
+    }
+
+    /**
+     * it('throws when missing kind', () => {
+     */
+    public function testThrowsWhenMissingKind(): void
+    {
+        $introspection = Introspection::fromSchema($this->dummySchema());
+        $queryTypeIntrospection = null;
+        foreach($introspection['__schema']['types'] as &$type) {
+            if($type['name'] === 'Query'){
+                $queryTypeIntrospection = &$type;
+            }
+        }
+
+        $this->assertArrayHasKey('kind', $queryTypeIntrospection);
+
+        unset($queryTypeIntrospection['kind']);
+
+        $this->expectExceptionMessageRegExp('/Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {"name":"Query",.*}\./');
+        BuildClientSchema::build($introspection);
     }
 }

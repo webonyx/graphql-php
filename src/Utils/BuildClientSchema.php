@@ -87,7 +87,7 @@ class BuildClientSchema
     public function buildSchema() : Schema
     {
         if (! array_key_exists('__schema', $this->introspection)) {
-            throw new InvariantViolation('Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: ' . json_encode($this->introspection));
+            throw new InvariantViolation('Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: ' . json_encode($this->introspection) . '.');
         }
 
         $schemaIntrospection = $this->introspection['__schema'];
@@ -175,8 +175,8 @@ class BuildClientSchema
             }
         }
 
-        if (! $typeRef['name']) {
-            throw new InvariantViolation('Unknown type reference: ' . json_encode($typeRef));
+        if (! isset($typeRef['name'])) {
+            throw new InvariantViolation('Unknown type reference: ' . json_encode($typeRef) . '.');
         }
 
         return $this->getNamedType($typeRef['name']);
@@ -207,7 +207,7 @@ class BuildClientSchema
             return $type;
         }
 
-        throw new InvariantViolation('Introspection must provide input type for arguments, but received: ' . json_encode($type));
+        throw new InvariantViolation('Introspection must provide input type for arguments, but received: ' . json_encode($type) . '.');
     }
 
     /**
@@ -221,7 +221,7 @@ class BuildClientSchema
             return $type;
         }
 
-        throw new InvariantViolation('Introspection must provide output type for fields, but received: ' . json_encode($type));
+        throw new InvariantViolation('Introspection must provide output type for fields, but received: ' . json_encode($type) . '.');
     }
 
     /**
@@ -267,7 +267,7 @@ class BuildClientSchema
         }
 
         throw new InvariantViolation(
-            'Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: ' . json_encode($type)
+            'Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: ' . json_encode($type) . '.'
         );
     }
 
@@ -288,7 +288,7 @@ class BuildClientSchema
     private function buildObjectDef(array $object) : ObjectType
     {
         if (! array_key_exists('interfaces', $object)) {
-            throw new InvariantViolation('Introspection result missing interfaces: ' . json_encode($object));
+            throw new InvariantViolation('Introspection result missing interfaces: ' . json_encode($object) . '.');
         }
 
         return new ObjectType([
@@ -326,7 +326,7 @@ class BuildClientSchema
     private function buildUnionDef(array $union) : UnionType
     {
         if (! array_key_exists('possibleTypes', $union)) {
-            throw new InvariantViolation('Introspection result missing possibleTypes: ' . json_encode($union));
+            throw new InvariantViolation('Introspection result missing possibleTypes: ' . json_encode($union) . '.');
         }
 
         return new UnionType([
@@ -347,7 +347,7 @@ class BuildClientSchema
     private function buildEnumDef(array $enum) : EnumType
     {
         if (! array_key_exists('enumValues', $enum)) {
-            throw new InvariantViolation('Introspection result missing enumValues: ' . json_encode($enum));
+            throw new InvariantViolation('Introspection result missing enumValues: ' . json_encode($enum) . '.');
         }
 
         return new EnumType([
@@ -374,7 +374,7 @@ class BuildClientSchema
     private function buildInputObjectDef(array $inputObject) : InputObjectType
     {
         if (! array_key_exists('inputFields', $inputObject)) {
-            throw new InvariantViolation('Introspection result missing inputFields: ' . json_encode($inputObject));
+            throw new InvariantViolation('Introspection result missing inputFields: ' . json_encode($inputObject) . '.');
         }
 
         return new InputObjectType([
@@ -392,7 +392,7 @@ class BuildClientSchema
     private function buildFieldDefMap(array $typeIntrospection)
     {
         if (! array_key_exists('fields', $typeIntrospection)) {
-            throw new InvariantViolation('Introspection result missing fields: ' . json_encode($typeIntrospection));
+            throw new InvariantViolation('Introspection result missing fields: ' . json_encode($typeIntrospection) . '.');
         }
 
         return Utils::keyValMap(
@@ -402,7 +402,7 @@ class BuildClientSchema
             },
             function (array $fieldIntrospection) {
                 if (! array_key_exists('args', $fieldIntrospection)) {
-                    throw new InvariantViolation('Introspection result missing field args: ' . json_encode($fieldIntrospection));
+                    throw new InvariantViolation('Introspection result missing field args: ' . json_encode($fieldIntrospection) . '.');
                 }
 
                 return [
@@ -461,10 +461,10 @@ class BuildClientSchema
     public function buildDirective(array $directive) : Directive
     {
         if (! array_key_exists('args', $directive)) {
-            throw new InvariantViolation('Introspection result missing directive args: ' . json_encode($directive));
+            throw new InvariantViolation('Introspection result missing directive args: ' . json_encode($directive) . '.');
         }
         if (! array_key_exists('locations', $directive)) {
-            throw new InvariantViolation('Introspection result missing directive locations: ' . json_encode($directive));
+            throw new InvariantViolation('Introspection result missing directive locations: ' . json_encode($directive) . '.');
         }
 
         return new Directive([
