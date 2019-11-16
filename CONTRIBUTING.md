@@ -10,7 +10,7 @@ For smaller contributions just use this workflow:
 * Fork the project.
 * Add your features and or bug fixes.
 * Add tests. Tests are important for us.
-* Check your changes using `composer check-all`.
+* Check your changes using `composer check`.
 * Add an entry to the [Changelog's Unreleases section](CHANGELOG.md#unreleased).
 * Send a pull request.
 
