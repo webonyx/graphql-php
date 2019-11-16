@@ -88,7 +88,7 @@ PSR-7 is useful when you want to integrate the server into existing framework:
 
 - [PSR-7 for Laravel](https://laravel.com/docs/5.1/requests#psr7-requests)
 - [Symfony PSR-7 Bridge](https://symfony.com/doc/current/components/psr7.html)
-- [Slim](https://www.slimframework.com/docs/concepts/value-objects.html)
+- [Slim](https://www.slimframework.com/docs/v4/concepts/value-objects.html)
 - [Zend Expressive](http://zendframework.github.io/zend-expressive/)
 
 ## Server configuration options
