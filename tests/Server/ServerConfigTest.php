@@ -28,7 +28,6 @@ class ServerConfigTest extends TestCase
         self::assertNull($config->getFieldResolver());
         self::assertNull($config->getPersistentQueryLoader());
         self::assertFalse($config->getDebug());
-        self::assertFalse($config->getQueryBatching());
     }
 
     public function testAllowsSettingSchema() : void
@@ -192,7 +191,6 @@ class ServerConfigTest extends TestCase
             'persistentQueryLoader' => static function () {
             },
             'debug'                 => true,
-            'queryBatching'         => true,
         ];
 
         $config = ServerConfig::create($arr);
@@ -206,7 +204,6 @@ class ServerConfigTest extends TestCase
         self::assertSame($arr['fieldResolver'], $config->getFieldResolver());
         self::assertSame($arr['persistentQueryLoader'], $config->getPersistentQueryLoader());
         self::assertTrue($config->getDebug());
-        self::assertTrue($config->getQueryBatching());
     }
 
     public function testThrowsOnInvalidArrayKey() : void

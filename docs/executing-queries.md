@@ -100,7 +100,6 @@ rootValue  | `mixed` | Any value that represents a root of your data graph. It i
 context  | `mixed` | Any value that holds information shared between all field resolvers. Most often they use it to pass currently logged in user, locale details, etc.<br><br>It will be available as the 3rd argument in all field resolvers. (see section on [Field Definitions](type-system/object-types.md#field-configuration-options) for reference) **graphql-php** never modifies this value and passes it *as is* to all underlying resolvers.
 fieldResolver | `callable` | A resolver function to use when one is not provided by the schema. If not provided, the [default field resolver is used](data-fetching.md#default-field-resolver).
 validationRules | `array` or `callable` | A set of rules for query validation step. The default value is all available rules. The empty array would allow skipping query validation (may be convenient for persisted queries which are validated before persisting and assumed valid during execution).<br><br>Pass `callable` to return different validation rules for different queries (e.g. empty array for persisted query and a full list of rules for regular queries). When passed, it is expected to have the following signature: <br><br> **function ([OperationParams](reference.md#graphqlserveroperationparams) $params, DocumentNode $node, $operationType): array**
-queryBatching | `bool` | Flag indicating whether this server supports query batching ([apollo-style](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862)).<br><br> Defaults to **false**
 debug | `int` | Debug flags. See [docs on error debugging](error-handling.md#debugging-tools) (flag values are the same).
 persistentQueryLoader | `callable` | A function which is called to fetch actual query when server encounters **queryId** in request vs **query**.<br><br> The server does not implement persistence part (which you will have to build on your own), but it allows you to execute queries which were persisted previously.<br><br> Expected function signature:<br> **function ($queryId, [OperationParams](reference.md#graphqlserveroperationparams) $params)** <br><br>Function is expected to return query **string** or parsed **DocumentNode** <br><br> [Read more about persisted queries](https://dev-blog.apollodata.com/persisted-graphql-queries-with-apollo-client-119fd7e6bba5).
 errorFormatter | `callable` | Custom error formatter. See [error handling docs](error-handling.md#custom-error-handling-and-formatting).
@@ -127,7 +126,7 @@ $server = new StandardServer($config);
 ```
 
 ## Query batching
-Standard Server supports query batching ([apollo-style](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862)).
+Standard Server supports batching queries used by clients like ([Apollo](https://dev-blog.apollodata.com/query-batching-in-apollo-63acfd859862)).
 
 One of the major benefits of Server over a sequence of **executeQuery()** calls is that
 [Deferred resolvers](data-fetching.md#solving-n1-problem) won't be isolated in queries.
@@ -145,16 +144,6 @@ So for example following batch will require single DB request (if user field is 
     "query": "{user(id: 3) { id }}"
   }
 ]
-```
-
-To enable query batching, pass **queryBatching** option in server config:
-```php
-<?php
-use GraphQL\Server\StandardServer;
-
-$server = new StandardServer([
-    'queryBatching' => true
-]);
 ```
 
 # Custom Validation Rules

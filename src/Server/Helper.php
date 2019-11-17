@@ -228,7 +228,7 @@ class Helper
         $result         = [];
 
         foreach ($operations as $operation) {
-            $result[] = $this->promiseToExecuteOperation($promiseAdapter, $config, $operation, true);
+            $result[] = $this->promiseToExecuteOperation($promiseAdapter, $config, $operation);
         }
 
         $result = $promiseAdapter->all($result);
@@ -241,24 +241,11 @@ class Helper
         return $result;
     }
 
-    /**
-     * @param bool $isBatch
-     *
-     * @return Promise
-     */
-    private function promiseToExecuteOperation(
-        PromiseAdapter $promiseAdapter,
-        ServerConfig $config,
-        OperationParams $op,
-        $isBatch = false
-    ) {
+    private function promiseToExecuteOperation(PromiseAdapter $promiseAdapter, ServerConfig $config, OperationParams $op) : Promise
+    {
         try {
             if (! $config->getSchema()) {
                 throw new InvariantViolation('Schema is required for the server');
-            }
-
-            if ($isBatch && ! $config->getQueryBatching()) {
-                throw new RequestError('Batched queries are not supported by this server');
             }
 
             $errors = $this->validateOperationParams($op);

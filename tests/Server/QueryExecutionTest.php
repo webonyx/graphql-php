@@ -277,42 +277,12 @@ class QueryExecutionTest extends ServerTestCase
         return $result;
     }
 
-    public function testBatchedQueriesAreDisabledByDefault() : void
-    {
-        $batch = [
-            ['query' => '{invalid}'],
-            ['query' => '{f1,fieldWithSafeException}'],
-        ];
-
-        $result = $this->executeBatchedQuery($batch);
-
-        $expected = [
-            [
-                'errors' => [
-                    [
-                        'message'  => 'Batched queries are not supported by this server',
-                        'extensions' => ['category' => 'request'],
-                    ],
-                ],
-            ],
-            [
-                'errors' => [
-                    [
-                        'message'  => 'Batched queries are not supported by this server',
-                        'extensions' => ['category' => 'request'],
-                    ],
-                ],
-            ],
-        ];
-
-        self::assertEquals($expected[0], $result[0]->toArray());
-        self::assertEquals($expected[1], $result[1]->toArray());
-    }
-
     /**
      * @param mixed[][] $qs
+     *
+     * @return ExecutionResult[]
      */
-    private function executeBatchedQuery(array $qs)
+    private function executeBatchedQuery(array $qs) : array
     {
         $batch = [];
         foreach ($qs as $params) {
@@ -462,8 +432,6 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testExecutesBatchedQueries() : void
     {
-        $this->config->setQueryBatching(true);
-
         $batch = [
             ['query' => '{invalid}'],
             ['query' => '{f1,fieldWithSafeException}'],
@@ -517,7 +485,6 @@ class QueryExecutionTest extends ServerTestCase
         $calls = [];
 
         $this->config
-            ->setQueryBatching(true)
             ->setRootValue('1')
             ->setContext([
                 'buffer' => static function ($num) use (&$calls) {

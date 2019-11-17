@@ -72,9 +72,6 @@ class ServerConfig
     /** @var bool */
     private $debug = false;
 
-    /** @var bool */
-    private $queryBatching = false;
-
     /** @var ValidationRule[]|callable */
     private $validationRules;
 
@@ -223,18 +220,6 @@ class ServerConfig
     }
 
     /**
-     * Allow batching queries (disabled by default)
-     *
-     * @api
-     */
-    public function setQueryBatching(bool $enableBatching) : self
-    {
-        $this->queryBatching = $enableBatching;
-
-        return $this;
-    }
-
-    /**
      * @return self
      *
      * @api
@@ -324,13 +309,5 @@ class ServerConfig
     public function getDebug()
     {
         return $this->debug;
-    }
-
-    /**
-     * @return bool
-     */
-    public function getQueryBatching()
-    {
-        return $this->queryBatching;
     }
 }

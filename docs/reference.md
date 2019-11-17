@@ -1877,19 +1877,6 @@ function setDebug($set = true)
 
 ```php
 /**
- * Allow batching queries (disabled by default)
- *
- * @param bool $enableBatching
- *
- * @return self
- *
- * @api
- */
-function setQueryBatching($enableBatching)
-```
-
-```php
-/**
  * @return self
  *
  * @api
