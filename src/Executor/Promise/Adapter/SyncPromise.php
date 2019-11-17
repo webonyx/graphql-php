@@ -177,4 +177,9 @@ class SyncPromise
 
         return $tmp;
     }
+
+    public function catch(callable $onRejected)
+    {
+        return $this->then(null, $onRejected);
+    }
 }
