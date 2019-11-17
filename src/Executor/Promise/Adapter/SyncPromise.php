@@ -47,6 +47,20 @@ class SyncPromise
         }
     }
 
+    public function __construct(?callable $executor = null)
+    {
+        if (! $executor) {
+            return;
+        }
+        self::getQueue()->enqueue(function () use ($executor) {
+            try {
+                $this->resolve($executor());
+            } catch (Throwable $e) {
+                $this->reject($e);
+            }
+        });
+    }
+
     public function resolve($value) : self
     {
         switch ($this->state) {

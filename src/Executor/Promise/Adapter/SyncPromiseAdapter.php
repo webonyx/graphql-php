@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor\Promise\Adapter;
 
-use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
@@ -24,7 +23,7 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function isThenable($value)
     {
-        return $value instanceof Deferred;
+        return $value instanceof SyncPromise;
     }
 
     /**
@@ -32,11 +31,11 @@ class SyncPromiseAdapter implements PromiseAdapter
      */
     public function convertThenable($thenable)
     {
-        if (! $thenable instanceof Deferred) {
+        if (! $thenable instanceof SyncPromise) {
             throw new InvariantViolation('Expected instance of GraphQL\Deferred, got ' . Utils::printSafe($thenable));
         }
 
-        return new Promise($thenable->promise, $this);
+        return new Promise($thenable, $this);
     }
 
     /**
@@ -141,13 +140,11 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function wait(Promise $promise)
     {
         $this->beforeWait($promise);
-        $dfdQueue     = Deferred::getQueue();
-        $promiseQueue = SyncPromise::getQueue();
+        $taskQueue = SyncPromise::getQueue();
 
         while ($promise->adoptedPromise->state === SyncPromise::PENDING &&
-            ! ($dfdQueue->isEmpty() && $promiseQueue->isEmpty())
+            ! $taskQueue->isEmpty()
         ) {
-            Deferred::runQueue();
             SyncPromise::runQueue();
             $this->onWait($promise);
         }
