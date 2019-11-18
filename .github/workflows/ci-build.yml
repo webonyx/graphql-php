@@ -30,12 +30,12 @@ jobs:
         echo $ENV
         ENV composer update --prefer-dist
       env:
-        ENV: $ {{ matrix.env }}
+        ENV: ${{ matrix.env }}
     - name: Run unit tests
       run: |
         ENV ./vendor/bin/phpunit --group default,ReactPromise
       env:
-        ENV: $ {{ matrix.env}}
+        ENV: ${{ matrix.env}}
     - name: Run style-fixer
       run: php${{ matrix.php }} vendor/bin/php-cs-fixer fix --dry-run
     - name: Code coverage
