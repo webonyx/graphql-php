@@ -15,6 +15,10 @@ jobs:
       matrix:
         php: [7.1, 7.2, 7.3, 7.4]
         env: ['EXECUTOR= DEPENDENCIES=--prefer-lowest', 'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest', 'EXECUTOR=', 'EXECUTOR=coroutine']
+        include:
+          - os: ubuntu-latest
+            php: 7.1
+            env: EXECUTOR=coroutine
     steps:
     - uses: actions/checkout@v1
     - name: Install PHP
@@ -40,13 +44,12 @@ jobs:
     - name: Code coverage
       run: |
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
-        EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
+        $ENV ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
         wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
         php${{matrix.php}} ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
       env:
-        COVERALLS_RUN_LOCALLY: 1
-        COVERALLS_REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        ENV: ${{ matrix.env }}
     - name: CODING_STANDARD
       if: matrix.php == 7.1
       run: |
