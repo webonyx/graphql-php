@@ -42,7 +42,7 @@ jobs:
       env:
         ENV: ${{ matrix.env}}
     - name: Code coverage
-      if: matrix.php == 7.1 and matrix.env == 'EXECUTOR=coroutine'
+      if: matrix.php == 7.1 && matrix.env == 'EXECUTOR=coroutine'
       run: |
         export $ENV
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
