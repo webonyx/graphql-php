@@ -26,12 +26,14 @@ jobs:
     - name: Show php version
       run: php${{ matrix.php }} -v && composer -V
     - name: Install dependencies
-      run:  ${ENV} composer update --prefer-dist
+      run: |
+        echo $ENV
+        ENV composer update --prefer-dist
       env:
         ENV: $ {{ matrix.env }}
     - name: Run unit tests
       run: |
-        ${ENV} ./vendor/bin/phpunit --group default,ReactPromise
+        ENV ./vendor/bin/phpunit --group default,ReactPromise
       env:
         ENV: $ {{ matrix.env}}
     - name: Run style-fixer
