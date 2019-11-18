@@ -42,11 +42,11 @@ jobs:
       env:
         ENV: ${{ matrix.env}}
     - name: Code coverage
-      if: matrix.php == 7.1
+      if: matrix.php == 7.1 and matrix.env == 'EXECUTOR=coroutine'
       run: |
         export $ENV
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
-        $ENV ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
+        ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
         wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
         php${{matrix.php}} ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
