@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  push:
+    branches:
+    tags:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    strategy:
+      matrix:
+        php: [7.1, 7.2, 7.3, 7.4]
+        env: [
+          'EXECUTOR= DEPENDENCIES=--prefer-lowest',
+          'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest',
+          'EXECUTOR=',
+          'EXECUTOR=coroutine',
+        ]
+    name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@1.6.0
+      with:
+        php-version: ${{ matrix.php  }}
+        extension-csv: json, mbstring
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
+    - name: Run unit tests
+      run: |
+        export $ENV
+        ./vendor/bin/phpunit --group default,ReactPromise
+      env:
+        ENV: ${{ matrix.env}}
+
+  coding-standard:
+    runs-on: ubuntu-18.04
+    name: Coding Standard
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@1.6.0
+      with:
+        php-version: 7.1
+        extension-csv: json, mbstring
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
+    - name: Coding Standard
+      run: composer lint
+
+  phpstan:
+    runs-on: ubuntu-18.04
+    name: PHPStan
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@1.6.0
+      with:
+        php-version: 7.1
+        extension-csv: json, mbstring
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
+    - name: PHPStan
+      run: composer stan
+
+  coverage:
+    runs-on: ubuntu-18.04
+    name: Code Coverage
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@1.6.0
+      with:
+        php-version: 7.1
+        extension-csv: json, mbstring
+        coverage: pcov
+        pecl: true
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
+    - name: Update xdebug version
+      run: |
+        sudo pecl channel-update pecl.php.net
+        sudo pecl install xdebug-2.9.0
+      continue-on-error: true
+
+    - name: Code coverage
+      run: |
+        ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
+        EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
+        ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
+        wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
+        php7.1 ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
