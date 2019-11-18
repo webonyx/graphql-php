@@ -44,7 +44,6 @@ jobs:
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
         wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
         php${{matrix.php}} ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
-        php${{matrix.php}} vendor/bin/php-coveralls -v
       env:
         COVERALLS_RUN_LOCALLY: 1
         COVERALLS_REPO_TOKEN: ${{secrets.GITHUB_TOKEN}}
