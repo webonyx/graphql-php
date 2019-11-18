@@ -44,6 +44,7 @@ jobs:
     - name: Code coverage
       if: matrix.php == 7.1
       run: |
+        export $ENV
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
         $ENV ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
