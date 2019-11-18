@@ -27,7 +27,7 @@ jobs:
       run: php${{ matrix.php }} -v && composer -V
     - name: Install dependencies
       run:  ${ENV} composer update --prefer-dist
-      with:
+      env:
         ENV: $ {{ matrix.env }}
     - name: Run unit tests
       run: |
