@@ -32,7 +32,7 @@ jobs:
     - name: Run unit tests
       run: |
         ${ENV} ./vendor/bin/phpunit --group default,ReactPromise
-      with:
+      env:
         ENV: $ {{ matrix.env}}
     - name: Run style-fixer
       run: php${{ matrix.php }} vendor/bin/php-cs-fixer fix --dry-run
