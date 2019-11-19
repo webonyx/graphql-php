@@ -51,10 +51,10 @@ jobs:
     - name: Coding Standard
       if: matrix.php == 7.1
       run: |
-        composer install --prefer-dist
+        composer update --prefer-dist
         composer lint
     - name: PHPStan
       if: matrix.php == 7.1
       run: |
-        composer install --prefer-dist
+        composer update --prefer-dist
         composer stan
