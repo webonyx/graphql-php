@@ -57,7 +57,7 @@ jobs:
       run: |
         composer install --prefer-dist
         composer lint
-    - name: STATIC_ANALYSIS
+    - name: PHPStan
       if: matrix.php == 7.1
       run: |
         composer install --prefer-dist
