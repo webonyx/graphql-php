@@ -14,6 +14,7 @@ use GraphQL\Utils\BuildClientSchema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
+use function array_filter;
 
 /**
  * @see BuildClientSchema
@@ -161,7 +162,7 @@ SDL;
      */
     public function testIncludesStandardTypesOnlyIfTheyAreUsed() : void
     {
-        $this->markTestSkipped('Introspection currently does not follow the reference implementation.');
+        self::markTestSkipped('Introspection currently does not follow the reference implementation.');
         $clientSchema = self::clientSchemaFromSDL('
           type Query {
             foo: String
@@ -176,7 +177,7 @@ SDL;
      */
     public function testBuildsASchemaWithARecursiveTypeReference() : void
     {
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           schema {
             query: Recur
           }
@@ -192,7 +193,7 @@ SDL;
      */
     public function testBuildsASchemaWithACircularTypeReference() : void
     {
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           type Dog {
             bestFriend: Human
           }
@@ -213,7 +214,7 @@ SDL;
      */
     public function testBuildsASchemaWithAnInterface() : void
     {
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           type Dog implements Friendly {
             bestFriend: Friendly
           }
@@ -239,7 +240,7 @@ SDL;
     public function testBuildsASchemaWithAnInterfaceHierarchy() : void
     {
         self::markTestSkipped('Will work only once intermediate interfaces are possible');
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           type Dog implements Friendly & Named {
             bestFriend: Friendly
             name: String
@@ -271,7 +272,7 @@ SDL;
      */
     public function testBuildsASchemaWithAnImplicitInterface() : void
     {
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           type Dog implements Friendly {
             bestFriend: Friendly
           }
@@ -292,7 +293,7 @@ SDL;
      */
     public function testBuildsASchemaWithAUnion() : void
     {
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           type Dog {
             bestFriend: Friendly
           }
@@ -314,7 +315,7 @@ SDL;
      */
     public function testBuildsASchemaWithComplexFieldValues() : void
     {
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           type Query {
             string: String
             listOfString: [String]
@@ -330,7 +331,7 @@ SDL;
      */
     public function testBuildsASchemaWithFieldArguments() : void
     {
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           type Query {
             """A field with a single arg"""
             one(
@@ -355,7 +356,7 @@ SDL;
      */
     public function testBuildsASchemaWithDefaultValueOnCustomScalarField() : void
     {
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
           scalar CustomScalar
     
           type Query {
@@ -367,7 +368,7 @@ SDL;
     /**
      * it('builds a schema with an enum', () => {
      */
-    public function testBuildsASchemaWithAnEnum(): void
+    public function testBuildsASchemaWithAnEnum() : void
     {
         $foodEnum = new EnumType([
             'name' => 'Food',
@@ -377,16 +378,14 @@ SDL;
                     'description' => 'Foods that are vegetables',
                     'value' => 1,
                 ],
-                'FRUITS' => [
-                    'value' => 2,
-                ],
+                'FRUITS' => ['value' => 2],
                 'OILS' => [
                     'value' => 3,
-                    'deprecationReason' => 'Too fatty'
-                ]
-            ]
+                    'deprecationReason' => 'Too fatty',
+                ],
+            ],
         ]);
-        $schema = new Schema([
+        $schema   = new Schema([
             'query' => new ObjectType([
                 'name' => 'EnumFields',
                 'fields' => [
@@ -397,15 +396,15 @@ SDL;
                             'kind' => [
                                 'description' => 'what kind of food?',
                                 'type' => $foodEnum,
-                            ]
-                        ]
-                    ]
-                ]
-            ])
+                            ],
+                        ],
+                    ],
+                ],
+            ]),
         ]);
 
         $introspection = Introspection::fromSchema($schema);
-        $clientSchema = BuildClientSchema::build($introspection);
+        $clientSchema  = BuildClientSchema::build($introspection);
 
         $introspectionFromClientSchema = Introspection::fromSchema($clientSchema);
         self::assertSame($introspection, $introspectionFromClientSchema);
@@ -437,7 +436,7 @@ SDL;
     /**
      * it('builds a schema with an input object', () => {
      */
-    public function testBuildsASchemaWithAnInputObject(): void
+    public function testBuildsASchemaWithAnInputObject() : void
     {
         self::assertCycleIntrospection('
           """An input address"""
@@ -465,7 +464,7 @@ SDL;
     /**
      * it('builds a schema with field arguments with default values', () => {
      */
-    public function testBuildsASchemaWithFieldArgumentsWithDefaultValues(): void
+    public function testBuildsASchemaWithFieldArgumentsWithDefaultValues() : void
     {
         self::assertCycleIntrospection('
           input Geo {
@@ -486,7 +485,7 @@ SDL;
     /**
      * it('builds a schema with custom directives', () => {
      */
-    public function testBuildsASchemaWithCustomDirectives(): void
+    public function testBuildsASchemaWithCustomDirectives() : void
     {
         self::assertCycleIntrospection('
           """This is a custom directive"""
@@ -501,7 +500,7 @@ SDL;
     /**
      * it('builds a schema without directives', () => {
      */
-    public function testBuildsASchemaWithoutDirectives(): void
+    public function testBuildsASchemaWithoutDirectives() : void
     {
         $sdl = <<<SDL
 type Query {
@@ -510,7 +509,7 @@ type Query {
 
 SDL;
 
-        $schema = BuildSchema::build($sdl);
+        $schema        = BuildSchema::build($sdl);
         $introspection = Introspection::fromSchema($schema);
 
         unset($introspection['__schema']['directives']);
@@ -525,7 +524,7 @@ SDL;
     /**
      * it('builds a schema aware of deprecation', () => {
      */
-    public function testBuildsASchemaAwareOfDeprecation(): void
+    public function testBuildsASchemaAwareOfDeprecation() : void
     {
         self::assertCycleIntrospection('
           enum Color {
@@ -556,7 +555,7 @@ SDL;
     /**
      * it('builds a schema with empty deprecation reasons', () => {
      */
-    public function testBuildsASchemaWithEmptyDeprecationReasons(): void
+    public function testBuildsASchemaWithEmptyDeprecationReasons() : void
     {
         self::assertCycleIntrospection('
           type Query {
@@ -572,7 +571,7 @@ SDL;
     /**
      * it('can use client schema for limited execution', () => {
      */
-    public function testUseClientSchemaForLimitedExecution(): void
+    public function testUseClientSchemaForLimitedExecution() : void
     {
         $schema = BuildSchema::build('
           scalar CustomScalar
@@ -583,7 +582,7 @@ SDL;
         ');
 
         $introspection = Introspection::fromSchema($schema);
-        $clientSchema = BuildClientSchema::build($introspection);
+        $clientSchema  = BuildClientSchema::build($introspection);
 
         $result = GraphQL::executeQuery(
             $clientSchema,
@@ -598,7 +597,7 @@ SDL;
 
     // describe('throws when given invalid introspection', () => {
 
-    protected function dummySchema(): Schema
+    protected static function dummySchema() : Schema
     {
         return BuildSchema::build('
           type Query {
@@ -624,9 +623,9 @@ SDL;
     /**
      * it('throws when introspection is missing __schema property', () => {
      */
-    public function testThrowsWhenIntrospectionIsMissing__schemaProperty(): void
+    public function testThrowsWhenIntrospectionIsMissing__schemaProperty() : void
     {
-        $this->expectExceptionMessage(
+        self::expectExceptionMessage(
             'Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: [].'
         );
         BuildClientSchema::build([]);
@@ -635,18 +634,18 @@ SDL;
     /**
      * it('throws when referenced unknown type', () => {
      */
-    public function testThrowsWhenReferencedUnknownType(): void
+    public function testThrowsWhenReferencedUnknownType() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection = Introspection::fromSchema(self::dummySchema());
 
         $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
-            static function (array $type): bool {
+            static function (array $type) : bool {
                 return $type['name'] !== 'Query';
             }
         );
 
-        $this->expectExceptionMessage(
+        self::expectExceptionMessage(
             'Invalid or incomplete schema, unknown type: Query. Ensure that a full introspection query is used in order to build a client schema.'
         );
         BuildClientSchema::build($introspection);
@@ -655,9 +654,9 @@ SDL;
     /**
      * it('throws when missing definition for one of the standard scalars', () => {
      */
-    public function testThrowsWhenMissingDefinitionForOneOfTheStandardScalars(): void
+    public function testThrowsWhenMissingDefinitionForOneOfTheStandardScalars() : void
     {
-        $schema = BuildSchema::build('
+        $schema        = BuildSchema::build('
         type Query {
           foo: Float
         }
@@ -666,12 +665,12 @@ SDL;
 
         $introspection['__schema']['types'] = array_filter(
             $introspection['__schema']['types'],
-            static function (array $type): bool {
+            static function (array $type) : bool {
                 return $type['name'] !== 'Float';
             }
         );
 
-        $this->expectExceptionMessage(
+        self::expectExceptionMessage(
             'Invalid or incomplete schema, unknown type: Float. Ensure that a full introspection query is used in order to build a client schema.'
         );
         BuildClientSchema::build($introspection);
@@ -680,36 +679,38 @@ SDL;
     /**
      * it('throws when type reference is missing name', () => {
      */
-    public function testThrowsWhenTypeReferenceIsMissingName(): void
+    public function testThrowsWhenTypeReferenceIsMissingName() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection = Introspection::fromSchema(self::dummySchema());
 
-        $this->assertNotEmpty($introspection['__schema']['queryType']['name']);
+        self::assertNotEmpty($introspection['__schema']['queryType']['name']);
 
         unset($introspection['__schema']['queryType']['name']);
 
-        $this->expectExceptionMessage('Unknown type reference: [].');
+        self::expectExceptionMessage('Unknown type reference: [].');
         BuildClientSchema::build($introspection);
     }
 
     /**
      * it('throws when missing kind', () => {
      */
-    public function testThrowsWhenMissingKind(): void
+    public function testThrowsWhenMissingKind() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection          = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'Query'){
-                $queryTypeIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
             }
+
+            $queryTypeIntrospection = &$type;
         }
 
-        $this->assertArrayHasKey('kind', $queryTypeIntrospection);
+        self::assertArrayHasKey('kind', $queryTypeIntrospection);
 
         unset($queryTypeIntrospection['kind']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {"name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -718,21 +719,23 @@ SDL;
     /**
      * it('throws when missing interfaces', () => {
      */
-    public function testThrowsWhenMissingInterfaces(): void
+    public function testThrowsWhenMissingInterfaces() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection          = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'Query'){
-                $queryTypeIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
             }
+
+            $queryTypeIntrospection = &$type;
         }
 
-        $this->assertArrayHasKey('interfaces', $queryTypeIntrospection);
+        self::assertArrayHasKey('interfaces', $queryTypeIntrospection);
 
         unset($queryTypeIntrospection['interfaces']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Introspection result missing interfaces: {"kind":"OBJECT","name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -741,23 +744,25 @@ SDL;
     /**
      * it('Legacy support for interfaces with null as interfaces field', () => {
      */
-    public function testLegacySupportForInterfacesWithNullAsInterfacesField(): void
+    public function testLegacySupportForInterfacesWithNullAsInterfacesField() : void
     {
-        $dummySchema = $this->dummySchema();
-        $introspection = Introspection::fromSchema($dummySchema);
+        $dummySchema            = self::dummySchema();
+        $introspection          = Introspection::fromSchema($dummySchema);
         $queryTypeIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'Query'){
-                $queryTypeIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
             }
+
+            $queryTypeIntrospection = &$type;
         }
 
-        $this->assertArrayHasKey('interfaces', $queryTypeIntrospection);
+        self::assertArrayHasKey('interfaces', $queryTypeIntrospection);
 
         $queryTypeIntrospection['interfaces'] = null;
 
         $clientSchema = BuildClientSchema::build($introspection);
-        $this->assertSame(
+        self::assertSame(
             SchemaPrinter::doPrint($dummySchema),
             SchemaPrinter::doPrint($clientSchema)
         );
@@ -766,21 +771,23 @@ SDL;
     /**
      * it('throws when missing fields', () => {
      */
-    public function testThrowsWhenMissingFields(): void
+    public function testThrowsWhenMissingFields() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection          = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'Query'){
-                $queryTypeIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
             }
+
+            $queryTypeIntrospection = &$type;
         }
 
-        $this->assertArrayHasKey('fields', $queryTypeIntrospection);
+        self::assertArrayHasKey('fields', $queryTypeIntrospection);
 
         unset($queryTypeIntrospection['fields']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Introspection result missing fields: {"kind":"OBJECT","name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -789,22 +796,24 @@ SDL;
     /**
      * it('throws when missing field args', () => {
      */
-    public function testThrowsWhenMissingFieldArgs(): void
+    public function testThrowsWhenMissingFieldArgs() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection          = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'Query'){
-                $queryTypeIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
             }
+
+            $queryTypeIntrospection = &$type;
         }
 
         $firstField = &$queryTypeIntrospection['fields'][0];
-        $this->assertArrayHasKey('args', $firstField);
+        self::assertArrayHasKey('args', $firstField);
 
         unset($firstField['args']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Introspection result missing field args: {"name":"foo",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -813,22 +822,24 @@ SDL;
     /**
      * it('throws when output type is used as an arg type', () => {
      */
-    public function testThrowsWhenOutputTypeIsUsedAsAnArgType(): void
+    public function testThrowsWhenOutputTypeIsUsedAsAnArgType() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection          = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'Query'){
-                $queryTypeIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
             }
+
+            $queryTypeIntrospection = &$type;
         }
 
         $firstArgType = &$queryTypeIntrospection['fields'][0]['args'][0]['type'];
-        $this->assertArrayHasKey('name', $firstArgType);
+        self::assertArrayHasKey('name', $firstArgType);
 
         $firstArgType['name'] = 'SomeUnion';
 
-        $this->expectExceptionMessage(
+        self::expectExceptionMessage(
             'Introspection must provide input type for arguments, but received: "SomeUnion".'
         );
         BuildClientSchema::build($introspection);
@@ -837,22 +848,24 @@ SDL;
     /**
      * it('throws when input type is used as a field type', () => {
      */
-    public function testThrowsWhenInputTypeIsUsedAsAFieldType(): void
+    public function testThrowsWhenInputTypeIsUsedAsAFieldType() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection          = Introspection::fromSchema(self::dummySchema());
         $queryTypeIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'Query'){
-                $queryTypeIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'Query') {
+                continue;
             }
+
+            $queryTypeIntrospection = &$type;
         }
 
         $firstFieldType = &$queryTypeIntrospection['fields'][0]['type'];
-        $this->assertArrayHasKey('name', $firstFieldType);
+        self::assertArrayHasKey('name', $firstFieldType);
 
         $firstFieldType['name'] = 'SomeInputObject';
 
-        $this->expectExceptionMessage(
+        self::expectExceptionMessage(
             'Introspection must provide output type for fields, but received: "SomeInputObject".'
         );
         BuildClientSchema::build($introspection);
@@ -861,21 +874,23 @@ SDL;
     /**
      * it('throws when missing possibleTypes', () => {
      */
-    public function testThrowsWhenMissingPossibleTypes(): void
+    public function testThrowsWhenMissingPossibleTypes() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection          = Introspection::fromSchema(self::dummySchema());
         $someUnionIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'SomeUnion'){
-                $someUnionIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'SomeUnion') {
+                continue;
             }
+
+            $someUnionIntrospection = &$type;
         }
 
-        $this->assertArrayHasKey('possibleTypes', $someUnionIntrospection);
+        self::assertArrayHasKey('possibleTypes', $someUnionIntrospection);
 
         unset($someUnionIntrospection['possibleTypes']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Introspection result missing possibleTypes: {"kind":"UNION","name":"SomeUnion",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -884,21 +899,23 @@ SDL;
     /**
      * it('throws when missing enumValues', () => {
      */
-    public function testThrowsWhenMissingEnumValues(): void
+    public function testThrowsWhenMissingEnumValues() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection         = Introspection::fromSchema(self::dummySchema());
         $someEnumIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'SomeEnum'){
-                $someEnumIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'SomeEnum') {
+                continue;
             }
+
+            $someEnumIntrospection = &$type;
         }
 
-        $this->assertArrayHasKey('enumValues', $someEnumIntrospection);
+        self::assertArrayHasKey('enumValues', $someEnumIntrospection);
 
         unset($someEnumIntrospection['enumValues']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Introspection result missing enumValues: {"kind":"ENUM","name":"SomeEnum",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -907,21 +924,23 @@ SDL;
     /**
      * it('throws when missing inputFields', () => {
      */
-    public function testThrowsWhenMissingInputFields(): void
+    public function testThrowsWhenMissingInputFields() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection                = Introspection::fromSchema(self::dummySchema());
         $someInputObjectIntrospection = null;
-        foreach($introspection['__schema']['types'] as &$type) {
-            if($type['name'] === 'SomeInputObject'){
-                $someInputObjectIntrospection = &$type;
+        foreach ($introspection['__schema']['types'] as &$type) {
+            if ($type['name'] !== 'SomeInputObject') {
+                continue;
             }
+
+            $someInputObjectIntrospection = &$type;
         }
 
-        $this->assertArrayHasKey('inputFields', $someInputObjectIntrospection);
+        self::assertArrayHasKey('inputFields', $someInputObjectIntrospection);
 
         unset($someInputObjectIntrospection['inputFields']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Introspection result missing inputFields: {"kind":"INPUT_OBJECT","name":"SomeInputObject",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -930,17 +949,17 @@ SDL;
     /**
      * it('throws when missing directive locations', () => {
      */
-    public function testThrowsWhenMissingDirectiveLocations(): void
+    public function testThrowsWhenMissingDirectiveLocations() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection = Introspection::fromSchema(self::dummySchema());
 
         $someDirectiveIntrospection = &$introspection['__schema']['directives'][0];
-        $this->assertSame('SomeDirective', $someDirectiveIntrospection['name']);
-        $this->assertSame(['QUERY'], $someDirectiveIntrospection['locations']);
+        self::assertSame('SomeDirective', $someDirectiveIntrospection['name']);
+        self::assertSame(['QUERY'], $someDirectiveIntrospection['locations']);
 
         unset($someDirectiveIntrospection['locations']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Introspection result missing directive locations: {"name":"SomeDirective",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -949,17 +968,17 @@ SDL;
     /**
      * it('throws when missing directive args', () => {
      */
-    public function testThrowsWhenMissingDirectiveArgs(): void
+    public function testThrowsWhenMissingDirectiveArgs() : void
     {
-        $introspection = Introspection::fromSchema($this->dummySchema());
+        $introspection = Introspection::fromSchema(self::dummySchema());
 
         $someDirectiveIntrospection = &$introspection['__schema']['directives'][0];
-        $this->assertSame('SomeDirective', $someDirectiveIntrospection['name']);
-        $this->assertSame([], $someDirectiveIntrospection['args']);
+        self::assertSame('SomeDirective', $someDirectiveIntrospection['name']);
+        self::assertSame([], $someDirectiveIntrospection['args']);
 
         unset($someDirectiveIntrospection['args']);
 
-        $this->expectExceptionMessageRegExp(
+        self::expectExceptionMessageRegExp(
             '/Introspection result missing directive args: {"name":"SomeDirective",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -970,16 +989,16 @@ SDL;
     /**
      * it('fails on very deep (> 7 levels) lists', () => {
      */
-    public function testFailsOnVeryDeepListsWithMoreThan7Levels(): void
+    public function testFailsOnVeryDeepListsWithMoreThan7Levels() : void
     {
-        $schema = BuildSchema::build('
+        $schema        = BuildSchema::build('
         type Query {
           foo: [[[[[[[[String]]]]]]]]
         }
         ');
         $introspection = Introspection::fromSchema($schema);
 
-        $this->expectExceptionMessage(
+        self::expectExceptionMessage(
             'Decorated type deeper than introspection query.'
         );
         BuildClientSchema::build($introspection);
@@ -988,16 +1007,16 @@ SDL;
     /**
      * it('fails on very deep (> 7 levels) non-null', () => {
      */
-    public function testFailsOnVeryDeepNonNullWithMoreThan7Levels(): void
+    public function testFailsOnVeryDeepNonNullWithMoreThan7Levels() : void
     {
-        $schema = BuildSchema::build('
+        $schema        = BuildSchema::build('
         type Query {
           foo: [[[[String!]!]!]!]
         }
         ');
         $introspection = Introspection::fromSchema($schema);
 
-        $this->expectExceptionMessage(
+        self::expectExceptionMessage(
             'Decorated type deeper than introspection query.'
         );
         BuildClientSchema::build($introspection);
@@ -1006,10 +1025,10 @@ SDL;
     /**
      * it('succeeds on deep (<= 7 levels) types', () => {
      */
-    public function testSucceedsOnDeepTypesWithMoreThanOrEqualTo7Levels(): void
+    public function testSucceedsOnDeepTypesWithMoreThanOrEqualTo7Levels() : void
     {
         // e.g., fully non-null 3D matrix
-        $this->assertCycleIntrospection('
+        self::assertCycleIntrospection('
         type Query {
           foo: [[[String!]!]!]!
         }
@@ -1021,9 +1040,9 @@ SDL;
     /**
      * it('recursive interfaces', () => {
      */
-    public function testRecursiveInterfaces(): void
+    public function testRecursiveInterfaces() : void
     {
-        $sdl = '
+        $sdl           = '
         type Query {
           foo: Foo
         }
@@ -1032,29 +1051,29 @@ SDL;
           foo: String
         }
         ';
-        $schema = BuildSchema::build($sdl);
+        $schema        = BuildSchema::build($sdl);
         $introspection = Introspection::fromSchema($schema);
 
-        $this->expectExceptionMessage('Expected Foo to be a GraphQL Interface type.');
+        self::expectExceptionMessage('Expected Foo to be a GraphQL Interface type.');
         BuildClientSchema::build($introspection);
     }
 
     /**
      * it('recursive union', () => {
      */
-    public function testRecursiveUnion(): void
+    public function testRecursiveUnion() : void
     {
-        $sdl = '
+        $sdl           = '
         type Query {
           foo: Foo
         }
 
         union Foo = Foo
         ';
-        $schema = BuildSchema::build($sdl);
+        $schema        = BuildSchema::build($sdl);
         $introspection = Introspection::fromSchema($schema);
 
-        $this->expectExceptionMessage('Expected Foo to be a GraphQL Object type.');
+        self::expectExceptionMessage('Expected Foo to be a GraphQL Object type.');
         BuildClientSchema::build($introspection);
     }
 }

@@ -53,7 +53,7 @@ class FieldArgument
                     $this->name = $value;
                     break;
                 case 'defaultValue':
-                    $this->defaultValue = $value;
+                    $this->defaultValue       = $value;
                     $this->defaultValueExists = true;
                     break;
                 case 'description':

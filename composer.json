@@ -51,7 +51,7 @@
     "test": "phpunit",
     "lint" : "phpcs",
     "fix" : "phpcbf",
-    "stan": "phpstan analyse --ansi --memory-limit 256M",
+    "stan": "phpstan analyse --ansi --memory-limit 512M",
     "check": "composer lint && composer stan && composer test"
   }
 }
