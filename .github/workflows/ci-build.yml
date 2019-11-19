@@ -27,7 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         export $ENV
-        composer update --prefer-dist
+        composer update ${DEPENDENCIES}
       env:
         ENV: ${{ matrix.env }}
     - name: Run unit tests
