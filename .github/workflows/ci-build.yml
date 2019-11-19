@@ -52,7 +52,7 @@ jobs:
         php${{matrix.php}} ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
       env:
         ENV: ${{ matrix.env }}
-    - name: CODING_STANDARD
+    - name: Coding Standard
       if: matrix.php == 7.1
       run: |
         composer install --prefer-dist
