@@ -10,13 +10,13 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         php: [7.1, 7.2, 7.3, 7.4]
         env: ['EXECUTOR= DEPENDENCIES=--prefer-lowest', 'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest', 'EXECUTOR=', 'EXECUTOR=coroutine']
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-18.04
             php: 7.1
             env: EXECUTOR=coroutine
     steps:
@@ -27,8 +27,6 @@ jobs:
         php-version: ${{ matrix.php  }}
         extension-csv: dom, mbstring
         coverage: xdebug
-    - name: Show php version
-      run: php${{ matrix.php }} -v && composer -V
     - name: Install dependencies
       run: |
         export $ENV
