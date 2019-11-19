@@ -33,6 +33,13 @@ class FieldArgument
     private $type;
 
     /**
+     * Helps to differentiate when `defaultValue` is `null` and when it was not even set initially
+     *
+     * @var bool
+     */
+    private $defaultValueExists = false;
+
+    /**
      * @param mixed[] $def
      */
     public function __construct(array $def)
@@ -47,6 +54,7 @@ class FieldArgument
                     break;
                 case 'defaultValue':
                     $this->defaultValue = $value;
+                    $this->defaultValueExists = true;
                     break;
                 case 'description':
                     $this->description = $value;
@@ -87,7 +95,7 @@ class FieldArgument
 
     public function defaultValueExists() : bool
     {
-        return array_key_exists('defaultValue', $this->config);
+        return $this->defaultValueExists;
     }
 
     public function assertValid(FieldDefinition $parentField, Type $parentType)

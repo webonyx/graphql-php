@@ -155,21 +155,19 @@ class BuildClientSchema
     {
         if (isset($typeRef['kind'])) {
             if ($typeRef['kind'] === TypeKind::LIST) {
-                $itemRef = $typeRef['ofType'];
-                if (! $itemRef) {
+                if (! isset($typeRef['ofType'])) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
 
-                return new ListOfType($this->getType($itemRef));
+                return new ListOfType($this->getType($typeRef['ofType']));
             }
 
             if ($typeRef['kind'] === TypeKind::NON_NULL) {
-                $nullableRef = $typeRef['ofType'];
-                if (! $nullableRef) {
+                if (! isset($typeRef['ofType'])) {
                     throw new InvariantViolation('Decorated type deeper than introspection query.');
                 }
                 /** @var NullableType $nullableType */
-                $nullableType = $this->getType($nullableRef);
+                $nullableType = $this->getType($typeRef['ofType']);
 
                 return new NonNull($nullableType);
             }
@@ -279,6 +277,9 @@ class BuildClientSchema
         return new CustomScalarType([
             'name' => $scalar['name'],
             'description' => $scalar['description'],
+            'serialize' => static function ($value): string {
+                return (string) $value;
+            }
         ]);
     }
 
@@ -297,7 +298,8 @@ class BuildClientSchema
             'interfaces' => function () use ($object) {
                 return array_map(
                     [$this, 'getInterfaceType'],
-                    $object['interfaces']
+                    // Legacy support for interfaces with null as interfaces field
+                    $object['interfaces'] ?? []
                 );
             },
             'fields' => function () use ($object) {
