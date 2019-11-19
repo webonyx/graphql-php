@@ -27,6 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         export $ENV
+        echo ${DEPENDENCIES}
         composer update ${DEPENDENCIES}
       env:
         ENV: ${{ matrix.env }}
