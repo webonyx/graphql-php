@@ -22,7 +22,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Install PHP
-      uses: shivammathur/setup-php@master
+      uses: shivammathur/setup-php@1.5.2
       with:
         php-version: ${{ matrix.php  }}
         extension-csv: dom, mbstring
