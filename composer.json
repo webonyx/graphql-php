@@ -50,8 +50,8 @@
     "bench": "phpbench run .",
     "test": "phpunit",
     "lint" : "phpcs",
-    "fix-style" : "phpcbf",
-    "static-analysis": "phpstan analyse --ansi --memory-limit 256M",
-    "check-all": "composer lint && composer static-analysis && composer test"
+    "fix" : "phpcbf",
+    "stan": "phpstan analyse --ansi --memory-limit 256M",
+    "check": "composer lint && composer stan && composer test"
   }
 }

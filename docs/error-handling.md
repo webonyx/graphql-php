@@ -17,7 +17,9 @@ By default, each error entry is converted to an associative array with following
 <?php
 [
     'message' => 'Error message',
-    'category' => 'graphql',
+    'extensions' => [
+        'category' => 'graphql'
+    ],
     'locations' => [
         ['line' => 1, 'column' => 2]
     ],
@@ -67,7 +69,9 @@ When such exception is thrown it will be reported with a full error message:
 <?php
 [
     'message' => 'My reported error',
-    'category' => 'businessLogic',
+    'extensions' => [
+        'category' => 'businessLogic'
+    ],
     'locations' => [
         ['line' => 10, 'column' => 2]
     ],
@@ -101,7 +105,9 @@ This will make each error entry to look like this:
 [
     'debugMessage' => 'Actual exception message',
     'message' => 'Internal server error',
-    'category' => 'internal',
+    'extensions' => [
+        'category' => 'internal'
+    ],
     'locations' => [
         ['line' => 10, 'column' => 2]
     ],

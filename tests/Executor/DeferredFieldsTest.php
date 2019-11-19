@@ -123,12 +123,7 @@ class DeferredFieldsTest extends TestCase
                         return new Deferred(function () use ($story) {
                             $this->paths[] = 'deferred-for-story-' . $story['id'] . '-author';
 
-                            return Utils::find(
-                                $this->userDataSource,
-                                static function ($entry) use ($story) {
-                                    return $entry['id'] === $story['authorId'];
-                                }
-                            );
+                            return $this->findUserById($story['authorId']);
                         });
                     },
                 ],
@@ -168,12 +163,24 @@ class DeferredFieldsTest extends TestCase
                         return new Deferred(function () use ($category) {
                             $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStory';
 
-                            return Utils::find(
-                                $this->storyDataSource,
-                                static function ($story) use ($category) {
-                                    return $story['id'] === $category['topStoryId'];
-                                }
-                            );
+                            return $this->findStoryById($category['topStoryId']);
+                        });
+                    },
+                ],
+                'topStoryAuthor' => [
+                    'type' => $this->userType,
+                    'resolve' => function ($category, $args, $context, ResolveInfo $info) {
+                        $this->paths[] = $info->path;
+
+                        return new Deferred(function () use ($category) {
+                            $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStoryAuthor1';
+                            $story         = $this->findStoryById($category['topStoryId']);
+
+                            return new Deferred(function () use ($category, $story) {
+                                $this->paths[] = 'deferred-for-category-' . $category['id'] . '-topStoryAuthor2';
+
+                                return $this->findUserById($story['authorId']);
+                            });
                         });
                     },
                 ],
@@ -539,9 +546,113 @@ class DeferredFieldsTest extends TestCase
             ['!dfd for: ', ['deferredNest', 'deferredNest', 'deferred']],
         ];
 
+        // Note: not using self::assertEquals() because coroutineExecutor has a different sequence of calls
         self::assertCount(count($expectedPaths), $this->paths);
         foreach ($expectedPaths as $expectedPath) {
             self::assertTrue(in_array($expectedPath, $this->paths, true), 'Missing path: ' . json_encode($expectedPath));
         }
+    }
+
+    public function testDeferredChaining()
+    {
+        $schema = new Schema([
+            'query' => $this->queryType,
+        ]);
+
+        $query = Parser::parse('
+            {
+                categories {
+                    name
+                    topStory {
+                        title
+                        author {
+                            name
+                        }
+                    }
+                    topStoryAuthor {
+                        name
+                    }
+                }
+            }
+        ');
+
+        $author1 = ['name' => 'John'/*, 'bestFriend' => ['name' => 'Dirk']*/];
+        $author2 = ['name' => 'Jane'/*, 'bestFriend' => ['name' => 'Joe']*/];
+        $author3 = ['name' => 'Joe'/*, 'bestFriend' => ['name' => 'Jane']*/];
+        $author4 = ['name' => 'Dirk'/*, 'bestFriend' => ['name' => 'John']*/];
+
+        $story1 = ['title' => 'Story #8', 'author' => $author1];
+        $story2 = ['title' => 'Story #3', 'author' => $author3];
+        $story3 = ['title' => 'Story #9', 'author' => $author2];
+
+        $result   = Executor::execute($schema, $query);
+        $expected = [
+            'data' => [
+                'categories' => [
+                    ['name' => 'Category #1', 'topStory' => $story1, 'topStoryAuthor' => $author1],
+                    ['name' => 'Category #2', 'topStory' => $story2, 'topStoryAuthor' => $author3],
+                    ['name' => 'Category #3', 'topStory' => $story3, 'topStoryAuthor' => $author2],
+                ],
+            ],
+        ];
+        self::assertEquals($expected, $result->toArray());
+
+        $expectedPaths = [
+            ['categories'],
+            ['categories', 0, 'name'],
+            ['categories', 0, 'topStory'],
+            ['categories', 0, 'topStoryAuthor'],
+            ['categories', 1, 'name'],
+            ['categories', 1, 'topStory'],
+            ['categories', 1, 'topStoryAuthor'],
+            ['categories', 2, 'name'],
+            ['categories', 2, 'topStory'],
+            ['categories', 2, 'topStoryAuthor'],
+            'deferred-for-category-1-topStory',
+            'deferred-for-category-1-topStoryAuthor1',
+            'deferred-for-category-2-topStory',
+            'deferred-for-category-2-topStoryAuthor1',
+            'deferred-for-category-3-topStory',
+            'deferred-for-category-3-topStoryAuthor1',
+            'deferred-for-category-1-topStoryAuthor2',
+            'deferred-for-category-2-topStoryAuthor2',
+            'deferred-for-category-3-topStoryAuthor2',
+            ['categories', 0, 'topStory', 'title'],
+            ['categories', 0, 'topStory', 'author'],
+            ['categories', 1, 'topStory', 'title'],
+            ['categories', 1, 'topStory', 'author'],
+            ['categories', 2, 'topStory', 'title'],
+            ['categories', 2, 'topStory', 'author'],
+            ['categories', 0, 'topStoryAuthor', 'name'],
+            ['categories', 1, 'topStoryAuthor', 'name'],
+            ['categories', 2, 'topStoryAuthor', 'name'],
+            'deferred-for-story-8-author',
+            'deferred-for-story-3-author',
+            'deferred-for-story-9-author',
+            ['categories', 0, 'topStory', 'author', 'name'],
+            ['categories', 1, 'topStory', 'author', 'name'],
+            ['categories', 2, 'topStory', 'author', 'name'],
+        ];
+        self::assertEquals($expectedPaths, $this->paths);
+    }
+
+    private function findStoryById($id)
+    {
+        return Utils::find(
+            $this->storyDataSource,
+            static function ($story) use ($id) {
+                return $story['id'] === $id;
+            }
+        );
+    }
+
+    private function findUserById($id)
+    {
+        return Utils::find(
+            $this->userDataSource,
+            static function ($user) use ($id) {
+                return $user['id'] === $id;
+            }
+        );
     }
 }
