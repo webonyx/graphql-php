@@ -31,13 +31,6 @@ class InputObjectField
     public $config;
 
     /**
-     * Helps to differentiate when `defaultValue` is `null` and when it was not even set initially
-     *
-     * @var bool
-     */
-    private $defaultValueExists = false;
-
-    /**
      * @param mixed[] $opts
      */
     public function __construct(array $opts)
@@ -46,7 +39,6 @@ class InputObjectField
             switch ($k) {
                 case 'defaultValue':
                     $this->defaultValue       = $v;
-                    $this->defaultValueExists = true;
                     break;
                 case 'defaultValueExists':
                     break;
@@ -65,12 +57,9 @@ class InputObjectField
         return $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function defaultValueExists()
+    public function defaultValueExists() : bool
     {
-        return $this->defaultValueExists;
+        return array_key_exists('defaultValue', $this->config);
     }
 
     /**
