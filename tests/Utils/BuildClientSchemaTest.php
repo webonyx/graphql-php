@@ -625,7 +625,7 @@ SDL;
      */
     public function testThrowsWhenIntrospectionIsMissing__schemaProperty() : void
     {
-        self::expectExceptionMessage(
+        $this->expectExceptionMessage(
             'Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: [].'
         );
         BuildClientSchema::build([]);
@@ -645,7 +645,7 @@ SDL;
             }
         );
 
-        self::expectExceptionMessage(
+        $this->expectExceptionMessage(
             'Invalid or incomplete schema, unknown type: Query. Ensure that a full introspection query is used in order to build a client schema.'
         );
         BuildClientSchema::build($introspection);
@@ -670,7 +670,7 @@ SDL;
             }
         );
 
-        self::expectExceptionMessage(
+        $this->expectExceptionMessage(
             'Invalid or incomplete schema, unknown type: Float. Ensure that a full introspection query is used in order to build a client schema.'
         );
         BuildClientSchema::build($introspection);
@@ -687,7 +687,7 @@ SDL;
 
         unset($introspection['__schema']['queryType']['name']);
 
-        self::expectExceptionMessage('Unknown type reference: [].');
+        $this->expectExceptionMessage('Unknown type reference: [].');
         BuildClientSchema::build($introspection);
     }
 
@@ -710,7 +710,7 @@ SDL;
 
         unset($queryTypeIntrospection['kind']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {"name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -735,7 +735,7 @@ SDL;
 
         unset($queryTypeIntrospection['interfaces']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Introspection result missing interfaces: {"kind":"OBJECT","name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -787,7 +787,7 @@ SDL;
 
         unset($queryTypeIntrospection['fields']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Introspection result missing fields: {"kind":"OBJECT","name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -813,7 +813,7 @@ SDL;
 
         unset($firstField['args']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Introspection result missing field args: {"name":"foo",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -839,7 +839,7 @@ SDL;
 
         $firstArgType['name'] = 'SomeUnion';
 
-        self::expectExceptionMessage(
+        $this->expectExceptionMessage(
             'Introspection must provide input type for arguments, but received: "SomeUnion".'
         );
         BuildClientSchema::build($introspection);
@@ -865,7 +865,7 @@ SDL;
 
         $firstFieldType['name'] = 'SomeInputObject';
 
-        self::expectExceptionMessage(
+        $this->expectExceptionMessage(
             'Introspection must provide output type for fields, but received: "SomeInputObject".'
         );
         BuildClientSchema::build($introspection);
@@ -890,7 +890,7 @@ SDL;
 
         unset($someUnionIntrospection['possibleTypes']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Introspection result missing possibleTypes: {"kind":"UNION","name":"SomeUnion",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -915,7 +915,7 @@ SDL;
 
         unset($someEnumIntrospection['enumValues']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Introspection result missing enumValues: {"kind":"ENUM","name":"SomeEnum",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -940,7 +940,7 @@ SDL;
 
         unset($someInputObjectIntrospection['inputFields']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Introspection result missing inputFields: {"kind":"INPUT_OBJECT","name":"SomeInputObject",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -959,7 +959,7 @@ SDL;
 
         unset($someDirectiveIntrospection['locations']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Introspection result missing directive locations: {"name":"SomeDirective",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -978,7 +978,7 @@ SDL;
 
         unset($someDirectiveIntrospection['args']);
 
-        self::expectExceptionMessageRegExp(
+        $this->expectExceptionMessageRegExp(
             '/Introspection result missing directive args: {"name":"SomeDirective",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -998,7 +998,7 @@ SDL;
         ');
         $introspection = Introspection::fromSchema($schema);
 
-        self::expectExceptionMessage(
+        $this->expectExceptionMessage(
             'Decorated type deeper than introspection query.'
         );
         BuildClientSchema::build($introspection);
@@ -1016,7 +1016,7 @@ SDL;
         ');
         $introspection = Introspection::fromSchema($schema);
 
-        self::expectExceptionMessage(
+        $this->expectExceptionMessage(
             'Decorated type deeper than introspection query.'
         );
         BuildClientSchema::build($introspection);
@@ -1054,7 +1054,7 @@ SDL;
         $schema        = BuildSchema::build($sdl);
         $introspection = Introspection::fromSchema($schema);
 
-        self::expectExceptionMessage('Expected Foo to be a GraphQL Interface type.');
+        $this->expectExceptionMessage('Expected Foo to be a GraphQL Interface type.');
         BuildClientSchema::build($introspection);
     }
 
@@ -1073,7 +1073,7 @@ SDL;
         $schema        = BuildSchema::build($sdl);
         $introspection = Introspection::fromSchema($schema);
 
-        self::expectExceptionMessage('Expected Foo to be a GraphQL Object type.');
+        $this->expectExceptionMessage('Expected Foo to be a GraphQL Object type.');
         BuildClientSchema::build($introspection);
     }
 }
