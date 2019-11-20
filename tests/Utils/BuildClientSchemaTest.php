@@ -597,6 +597,11 @@ SDL;
 
     // describe('throws when given invalid introspection', () => {
 
+    /**
+     * Construct a default dummy schema that is used in the following tests.
+     *
+     * @return \GraphQL\Type\Schema
+     */
     protected static function dummySchema() : Schema
     {
         return BuildSchema::build('
@@ -623,7 +628,7 @@ SDL;
     /**
      * it('throws when introspection is missing __schema property', () => {
      */
-    public function testThrowsWhenIntrospectionIsMissing__schemaProperty() : void
+    public function testThrowsWhenIntrospectionIsMissingSchemaProperty() : void
     {
         $this->expectExceptionMessage(
             'Invalid or incomplete introspection result. Ensure that you are passing "data" property of introspection response and no "errors" was returned alongside: [].'
