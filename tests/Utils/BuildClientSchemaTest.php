@@ -599,8 +599,6 @@ SDL;
 
     /**
      * Construct a default dummy schema that is used in the following tests.
-     *
-     * @return \GraphQL\Type\Schema
      */
     protected static function dummySchema() : Schema
     {

@@ -235,7 +235,7 @@ class BuildClientSchema
     /**
      * @param array<string, mixed> $typeRef
      */
-    private function getInterfaceType(array $typeRef) : InterfaceType
+    public function getInterfaceType(array $typeRef) : InterfaceType
     {
         $type = $this->getType($typeRef);
 
