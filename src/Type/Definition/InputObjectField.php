@@ -8,6 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Utils\Utils;
+use function array_key_exists;
 use function sprintf;
 
 class InputObjectField
@@ -38,7 +39,7 @@ class InputObjectField
         foreach ($opts as $k => $v) {
             switch ($k) {
                 case 'defaultValue':
-                    $this->defaultValue       = $v;
+                    $this->defaultValue = $v;
                     break;
                 case 'defaultValueExists':
                     break;
