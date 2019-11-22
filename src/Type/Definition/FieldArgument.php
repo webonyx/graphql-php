@@ -88,7 +88,7 @@ class FieldArgument
         $type = Schema::resolveType($this->type);
         assert(
             $type instanceof InputType,
-            new Error(sprintf('Expected type of FieldArgument to implement InputType but got: %s', Utils::printSafe($type)))
+            new InvariantViolation(sprintf('Expected type of FieldArgument to implement InputType but got: %s', Utils::printSafe($type)))
         );
 
         return $type;

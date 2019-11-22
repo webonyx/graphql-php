@@ -60,7 +60,7 @@ class InputObjectField
         $type = Schema::resolveType($this->type);
         assert(
             $type instanceof InputType,
-            new Error(sprintf('Expected type of InputObjectField to implement InputType but got: %s', Utils::printSafe($type)))
+            new InvariantViolation(sprintf('Expected type of InputObjectField to implement InputType but got: %s', Utils::printSafe($type)))
         );
 
         return $type;
