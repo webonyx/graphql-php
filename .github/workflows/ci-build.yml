@@ -5,7 +5,7 @@ on:
     branches:
     tags:
   pull_request:
-  
+
 jobs:
   build:
     runs-on: ${{ matrix.operating-system }}
@@ -13,7 +13,10 @@ jobs:
       matrix:
         php: [7.1, 7.2, 7.3, 7.4]
         operating-system: [ubuntu-18.04]
-        env: ['EXECUTOR= DEPENDENCIES=--prefer-lowest', 'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest', 'EXECUTOR=', 'EXECUTOR=coroutine']
+        env: ['EXECUTOR= DEPENDENCIES=--prefer-lowest',
+          'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest',
+          'EXECUTOR=', 'EXECUTOR=coroutine', 'CODING_STANDARD', 'STATIC_ANALYSIS'
+          ]
         include:
           - os: ubuntu-18.04
             php: 7.1
@@ -59,12 +62,12 @@ jobs:
       env:
         ENV: ${{ matrix.env }}
     - name: Coding Standard
-      if: matrix.php == 7.1
+      if: matrix.php == 7.1 && matrix.env == 'CODING_STANDARD'
       run: |
         composer update --prefer-dist
         composer lint
     - name: PHPStan
-      if: matrix.php == 7.1
+      if: matrix.php == 7.1 && matrix.env == 'STATIC_ANALYSIS'
       run: |
         composer update --prefer-dist
         composer stan
