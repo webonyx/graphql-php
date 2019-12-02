@@ -72,7 +72,7 @@ class Schema
     private $validationErrors;
 
     /** @var SchemaTypeExtensionNode[] */
-    public $extensionASTNodes;
+    public $extensionASTNodes = [];
 
     /**
      * @param mixed[]|SchemaConfig $config
@@ -448,7 +448,7 @@ class Schema
     }
 
     /**
-     * @return SchemaDefinitionNode
+     * @return SchemaDefinitionNode|null
      */
     public function getAstNode()
     {
