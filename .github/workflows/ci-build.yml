@@ -15,7 +15,11 @@ jobs:
         operating-system: [ubuntu-18.04]
         env: ['EXECUTOR= DEPENDENCIES=--prefer-lowest',
           'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest',
-          'EXECUTOR=', 'EXECUTOR=coroutine', 'CODING_STANDARD', 'STATIC_ANALYSIS'
+          'EXECUTOR=',
+          'EXECUTOR=coroutine',
+          'CODING_STANDARD',
+          'STATIC_ANALYSIS',
+          'COVERAGE'
           ]
         include:
           - os: ubuntu-18.04
@@ -51,11 +55,10 @@ jobs:
       env:
         ENV: ${{ matrix.env}}
     - name: Code coverage
-      if: matrix.php == 7.1 && matrix.env == 'EXECUTOR=coroutine'
+      if: matrix.php == 7.1 && matrix.env == 'COVERAGE'
       run: |
-        export $ENV
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
-        ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
+        EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
         wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
         php${{matrix.php}} ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
