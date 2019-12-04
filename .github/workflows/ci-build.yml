@@ -49,6 +49,7 @@ jobs:
       env:
         ENV: ${{ matrix.env }}
     - name: Run unit tests
+      if: matrix.env == 'COVERAGE'
       run: |
         export $ENV
         ./vendor/bin/phpunit --group default,ReactPromise
