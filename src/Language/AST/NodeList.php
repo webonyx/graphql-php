@@ -14,13 +14,16 @@ use function array_splice;
 use function count;
 use function is_array;
 
+/**
+ * @template T
+ */
 class NodeList implements ArrayAccess, IteratorAggregate, Countable
 {
-    /** @var Node[]|mixed[] */
+    /** @var T[] */
     private $nodes;
 
     /**
-     * @param Node[]|mixed[] $nodes
+     * @param T[] $nodes
      *
      * @return static
      */
@@ -30,7 +33,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param Node[]|mixed[] $nodes
+     * @param T[] $nodes
      */
     public function __construct(array $nodes)
     {
@@ -50,7 +53,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param mixed $offset
      *
-     * @return mixed
+     * @return T
      */
     public function offsetGet($offset)
     {
@@ -96,7 +99,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param NodeList|Node[] $list
+     * @param NodeList<T>|T[] $list
      *
      * @return NodeList
      */

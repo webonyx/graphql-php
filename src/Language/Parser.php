@@ -66,13 +66,13 @@ use function sprintf;
  * @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
  * @method static OperationDefinitionNode operationDefinition(Source|string $source, bool[] $options = [])
  * @method static string operationType(Source|string $source, bool[] $options = [])
- * @method static NodeList|VariableDefinitionNode[] variableDefinitions(Source|string $source, bool[] $options = [])
+ * @method static NodeList<VariableDefinitionNode> variableDefinitions(Source|string $source, bool[] $options = [])
  * @method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
  * @method static VariableNode variable(Source|string $source, bool[] $options = [])
  * @method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
  * @method static mixed selection(Source|string $source, bool[] $options = [])
  * @method static FieldNode field(Source|string $source, bool[] $options = [])
- * @method static NodeList|ArgumentNode[] arguments(Source|string $source, bool[] $options = [])
+ * @method static NodeList<ArgumentNode> arguments(Source|string $source, bool[] $options = [])
  * @method static ArgumentNode argument(Source|string $source, bool[] $options = [])
  * @method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
  * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
@@ -85,7 +85,7 @@ use function sprintf;
  * @method static ListValueNode array(Source|string $source, bool[] $options = [])
  * @method static ObjectValueNode object(Source|string $source, bool[] $options = [])
  * @method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
- * @method static NodeList|DirectiveNode[] directives(Source|string $source, bool[] $options = [])
+ * @method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
  * @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
  * @method static ListTypeNode|NameNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
  * @method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
@@ -383,7 +383,7 @@ class Parser
      * @param callable $parseFn
      * @param string   $closeKind
      *
-     * @return NodeList
+     * @return NodeList<Node>
      *
      * @throws SyntaxError
      */
@@ -409,7 +409,7 @@ class Parser
      * @param callable $parseFn
      * @param string   $closeKind
      *
-     * @return NodeList
+     * @return NodeList<Node>
      *
      * @throws SyntaxError
      */
@@ -585,7 +585,7 @@ class Parser
     }
 
     /**
-     * @return VariableDefinitionNode[]|NodeList
+     * @return NodeList<Node>
      */
     private function parseVariableDefinitions()
     {
@@ -706,7 +706,7 @@ class Parser
     /**
      * @param bool $isConst
      *
-     * @return ArgumentNode[]|NodeList
+     * @return NodeList<Node>
      *
      * @throws SyntaxError
      */
@@ -1030,7 +1030,7 @@ class Parser
     /**
      * @param bool $isConst
      *
-     * @return DirectiveNode[]|NodeList
+     * @return NodeList<DirectiveNode>
      *
      * @throws SyntaxError
      */
@@ -1295,7 +1295,7 @@ class Parser
     }
 
     /**
-     * @return array<FieldDefinitionNode>|NodeList
+     * @return NodeList<FieldDefinitionNode>
      *
      * @throws SyntaxError
      */
@@ -1309,7 +1309,7 @@ class Parser
             $this->lexer->advance();
             $this->lexer->advance();
 
-            return [];
+            return new NodeList([]);
         }
 
         return $this->peek(Token::BRACE_L)
@@ -1349,7 +1349,7 @@ class Parser
     }
 
     /**
-     * @return InputValueDefinitionNode[]|NodeList
+     * @return NodeList<InputValueDefinitionNode>
      *
      * @throws SyntaxError
      */
@@ -1490,7 +1490,7 @@ class Parser
     }
 
     /**
-     * @return EnumValueDefinitionNode[]|NodeList
+     * @return NodeList<EnumValueDefinitionNode>
      *
      * @throws SyntaxError
      */
@@ -1551,7 +1551,7 @@ class Parser
     }
 
     /**
-     * @return InputValueDefinitionNode[]|NodeList
+     * @return NodeList<InputValueDefinitionNode>
      *
      * @throws SyntaxError
      */
