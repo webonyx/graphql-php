@@ -16,24 +16,26 @@ use function is_array;
 
 /**
  * @template T
+ * @phpstan-implements ArrayAccess<mixed, T>
+ * @phpstan-implements IteratorAggregate<T>
  */
 class NodeList implements ArrayAccess, IteratorAggregate, Countable
 {
-    /** @var T[] */
+    /** @var array<T> */
     private $nodes;
 
     /**
-     * @param T[] $nodes
+     * @param array<T> $nodes
      *
-     * @return static
+     * @return self<T>
      */
     public static function create(array $nodes)
     {
-        return new static($nodes);
+        return new self($nodes);
     }
 
     /**
-     * @param T[] $nodes
+     * @param array<T> $nodes
      */
     public function __construct(array $nodes)
     {
@@ -99,7 +101,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param NodeList<T>|T[] $list
+     * @param NodeList<T>|array<T> $list
      *
      * @return NodeList
      */

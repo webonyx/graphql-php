@@ -1176,6 +1176,8 @@ class Parser
         if ($this->peekDescription()) {
             return $this->parseStringLiteral();
         }
+
+        return null;
     }
 
     /**
@@ -1295,7 +1297,7 @@ class Parser
     }
 
     /**
-     * @return NodeList<FieldDefinitionNode>
+     * @return NodeList<FieldDefinitionNode&Node>
      *
      * @throws SyntaxError
      */
@@ -1349,7 +1351,7 @@ class Parser
     }
 
     /**
-     * @return NodeList<InputValueDefinitionNode>
+     * @return NodeList<InputValueDefinitionNode&Node>
      *
      * @throws SyntaxError
      */
@@ -1490,7 +1492,7 @@ class Parser
     }
 
     /**
-     * @return NodeList<EnumValueDefinitionNode>
+     * @return NodeList<EnumValueDefinitionNode&Node>
      *
      * @throws SyntaxError
      */
@@ -1551,7 +1553,7 @@ class Parser
     }
 
     /**
-     * @return NodeList<InputValueDefinitionNode>
+     * @return NodeList<InputValueDefinitionNode&Node>
      *
      * @throws SyntaxError
      */

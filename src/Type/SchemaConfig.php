@@ -66,7 +66,7 @@ class SchemaConfig
      */
     public static function create(array $options = [])
     {
-        $config = new static();
+        $config = new self();
 
         if (! empty($options)) {
             if (isset($options['query'])) {

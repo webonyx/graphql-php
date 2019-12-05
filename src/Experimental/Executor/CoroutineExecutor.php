@@ -134,7 +134,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         ?string $operationName,
         callable $fieldResolver
     ) {
-        return new static(
+        return new self(
             $promiseAdapter,
             $schema,
             $documentNode,

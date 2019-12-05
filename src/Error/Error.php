@@ -171,7 +171,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $message = (string) $error;
         }
 
-        return new static(
+        return new self(
             $message ?: 'An unknown error occurred.',
             $nodes,
             $source,

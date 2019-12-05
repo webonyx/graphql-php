@@ -89,7 +89,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                 $directiveName = $directiveNode->name->value;
                 $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
                 if (! $requiredArgs) {
-                    return;
+                    return null;
                 }
 
                 $argNodes   = $directiveNode->arguments ?: [];

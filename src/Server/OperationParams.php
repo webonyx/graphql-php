@@ -68,7 +68,7 @@ class OperationParams
      */
     public static function create(array $params, bool $readonly = false) : OperationParams
     {
-        $instance = new static();
+        $instance = new self();
 
         $params                  = array_change_key_case($params, CASE_LOWER);
         $instance->originalInput = $params;

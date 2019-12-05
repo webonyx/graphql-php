@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
@@ -217,15 +218,15 @@ class SchemaExtenderTest extends TestCase
 
     protected function printTestSchemaChanges(Schema $extendedSchema) : string
     {
-        $ast              = Parser::parse(SchemaPrinter::doPrint($extendedSchema));
-        $ast->definitions = array_values(array_filter(
-            $ast->definitions instanceof NodeList
-                ? iterator_to_array($ast->definitions->getIterator())
-                : $ast->definitions,
+        $ast = Parser::parse(SchemaPrinter::doPrint($extendedSchema));
+        /** @var array<Node&DefinitionNode> $extraDefinitions */
+        $extraDefinitions = array_values(array_filter(
+            iterator_to_array($ast->definitions->getIterator()),
             function (Node $node) : bool {
                 return ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true);
             }
         ));
+        $ast->definitions = new NodeList($extraDefinitions);
 
         return Printer::doPrint($ast);
     }

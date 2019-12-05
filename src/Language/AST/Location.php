@@ -52,11 +52,11 @@ class Location
      * @param int $start
      * @param int $end
      *
-     * @return static
+     * @return self
      */
     public static function create($start, $end)
     {
-        $tmp        = new static();
+        $tmp        = new self();
         $tmp->start = $start;
         $tmp->end   = $end;
 
