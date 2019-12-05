@@ -22,6 +22,10 @@ tools:
     external_code_coverage:
         timeout: 3600
 
+filter:
+    paths:
+        - "src/"
+
 build_failure_conditions:
     - 'elements.rating(<= C).new.exists'                        # No new classes/methods with a rating of C or worse allowed
     - 'project.metric_change("scrutinizer.test_coverage", < 0)' # Code Coverage decreased from previous inspection
