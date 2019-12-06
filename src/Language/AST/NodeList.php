@@ -58,11 +58,13 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
+     * TODO this *should* always return a Node, but sometimes a string is in here?
+     *
      * @param int|string $offset
      *
      * @phpstan-return T
      */
-    public function offsetGet($offset) : Node
+    public function offsetGet($offset)// : Node
     {
         $item = $this->nodes[$offset];
 
