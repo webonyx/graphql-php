@@ -1297,32 +1297,34 @@ class Parser
     }
 
     /**
-     * @return NodeList<FieldDefinitionNode&Node>
-     *
      * @throws SyntaxError
      */
-    private function parseFieldsDefinition()
+    private function parseFieldsDefinition() : NodeList
     {
         // Legacy support for the SDL?
-        if (! empty($this->lexer->options['allowLegacySDLEmptyFields']) &&
-            $this->peek(Token::BRACE_L) &&
-            $this->lexer->lookahead()->kind === Token::BRACE_R
+        if (empty($this->lexer->options['allowLegacySDLEmptyFields'])
+            || ! $this->peek(Token::BRACE_L)
+            || $this->lexer->lookahead()->kind !== Token::BRACE_R
         ) {
+            /** @phpstan-var NodeList<FieldDefinitionNode&Node> $nodeList */
+            $nodeList = $this->peek(Token::BRACE_L)
+                ? $this->many(
+                    Token::BRACE_L,
+                    function () {
+                        return $this->parseFieldDefinition();
+                    },
+                    Token::BRACE_R
+                )
+                : new NodeList([]);
+        } else {
             $this->lexer->advance();
             $this->lexer->advance();
 
-            return new NodeList([]);
+            /** @phpstan-var NodeList<FieldDefinitionNode&Node> $nodeList */
+            $nodeList = new NodeList([]);
         }
 
-        return $this->peek(Token::BRACE_L)
-            ? $this->many(
-                Token::BRACE_L,
-                function () {
-                    return $this->parseFieldDefinition();
-                },
-                Token::BRACE_R
-            )
-            : new NodeList([]);
+        return $nodeList;
     }
 
     /**
@@ -1351,23 +1353,22 @@ class Parser
     }
 
     /**
-     * @return NodeList<InputValueDefinitionNode&Node>
-     *
      * @throws SyntaxError
      */
-    private function parseArgumentsDefinition()
+    private function parseArgumentsDefinition() : NodeList
     {
-        if (! $this->peek(Token::PAREN_L)) {
-            return new NodeList([]);
-        }
+        /** @var NodeList<InputValueDefinitionNode&Node> $nodeList */
+        $nodeList = $this->peek(Token::PAREN_L)
+            ? new NodeList([])
+            : $this->many(
+                Token::PAREN_L,
+                function () {
+                    return $this->parseInputValueDefinition();
+                },
+                Token::PAREN_R
+            );
 
-        return $this->many(
-            Token::PAREN_L,
-            function () {
-                return $this->parseInputValueDefinition();
-            },
-            Token::PAREN_R
-        );
+        return $nodeList;
     }
 
     /**
@@ -1492,13 +1493,12 @@ class Parser
     }
 
     /**
-     * @return NodeList<EnumValueDefinitionNode&Node>
-     *
      * @throws SyntaxError
      */
-    private function parseEnumValuesDefinition()
+    private function parseEnumValuesDefinition() : NodeList
     {
-        return $this->peek(Token::BRACE_L)
+        /** @var NodeList<EnumValueDefinitionNode&Node> $nodeList */
+        $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
                 function () {
@@ -1507,6 +1507,8 @@ class Parser
                 Token::BRACE_R
             )
             : new NodeList([]);
+
+        return $nodeList;
     }
 
     /**
@@ -1553,13 +1555,12 @@ class Parser
     }
 
     /**
-     * @return NodeList<InputValueDefinitionNode&Node>
-     *
      * @throws SyntaxError
      */
-    private function parseInputFieldsDefinition()
+    private function parseInputFieldsDefinition() : NodeList
     {
-        return $this->peek(Token::BRACE_L)
+        /** @var NodeList<InputValueDefinitionNode&Node> $nodeList */
+        $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
                 function () {
@@ -1568,6 +1569,8 @@ class Parser
                 Token::BRACE_R
             )
             : new NodeList([]);
+
+        return $nodeList;
     }
 
     /**

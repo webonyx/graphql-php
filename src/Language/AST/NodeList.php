@@ -30,9 +30,8 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * @param Node[] $nodes
-     * @phpstan-param array<T> $nodes
      *
-     * @return self
+     * @phpstan-param array<T> $nodes
      * @phpstan-return self<T>
      */
     public static function create(array $nodes) : self
@@ -42,6 +41,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * @param Node[] $nodes
+     *
      * @phpstan-param array<T> $nodes
      */
     public function __construct(array $nodes)
@@ -68,7 +68,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
         if (is_array($item) && isset($item['kind'])) {
             /** @phpstan-var T $node */
-            $node = AST::fromArray($item);
+            $node                 = AST::fromArray($item);
             $this->nodes[$offset] = $node;
         }
 
@@ -76,8 +76,9 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param int|string $offset
+     * @param int|string   $offset
      * @param Node|mixed[] $value
+     *
      * @phpstan-param T|mixed[] $value
      */
     public function offsetSet($offset, $value) : void
@@ -110,7 +111,6 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     /**
      * @param mixed $replacement
      *
-     * @return NodeList
      * @phpstan-return NodeList<T>
      */
     public function splice(int $offset, int $length, $replacement = null) : NodeList
@@ -120,8 +120,8 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
 
     /**
      * @param NodeList|Node[] $list
-     * @phpstan-param NodeList<T>|array<T> $list
      *
+     * @phpstan-param NodeList<T>|array<T> $list
      * @phpstan-return NodeList<T>
      */
     public function merge($list) : NodeList

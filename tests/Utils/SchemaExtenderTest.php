@@ -226,7 +226,9 @@ class SchemaExtenderTest extends TestCase
                 return ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true);
             }
         ));
-        $ast->definitions = new NodeList($extraDefinitions);
+        /** @phpstan-var NodeList<DefinitionNode&Node> $definitionNodeList */
+        $definitionNodeList = new NodeList($extraDefinitions);
+        $ast->definitions   = $definitionNodeList;
 
         return Printer::doPrint($ast);
     }
