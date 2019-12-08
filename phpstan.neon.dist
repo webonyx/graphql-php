@@ -31,10 +31,6 @@ parameters:
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
 
-        # TODO remove once https://github.com/phpstan/phpstan/issues/2650 is fixed
-        - "~Array \\(array<string, array>\\) does not accept key 'implementors'~"
-        - "~Array \\(array\\) does not accept key int~"
-
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
     - vendor/phpstan/phpstan-phpunit/rules.neon
