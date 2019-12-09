@@ -143,7 +143,7 @@ jobs:
 
     - name: Code coverage
       run: |
-        pecl install xdebug-2.8.1
+        pecl install xdebug-2.7.0
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
         EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
