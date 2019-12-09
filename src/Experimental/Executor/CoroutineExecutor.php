@@ -91,7 +91,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
     /** @var int|null */
     private $pending;
 
-    /** @var callable */
+    /** @var callable|null */
     private $doResolve;
 
     public function __construct(
@@ -177,6 +177,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         $this->queue      = new SplQueue();
         $this->schedule   = new SplQueue();
         $this->pending    = 0;
+        $this->doResolve  = null;
 
         $this->collector = new Collector($this->schema, $this);
         $this->collector->initialize($this->documentNode, $this->operationName);
@@ -245,6 +246,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         $this->queue          = new SplQueue();
         $this->schedule       = new SplQueue();
         $this->pending        = null;
+        $this->doResolve      = null;
         $this->collector      = null;
         $this->variableValues = null;
 
