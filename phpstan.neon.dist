@@ -8,6 +8,19 @@ parameters:
         - %currentWorkingDirectory%/tests
 
     ignoreErrors:
+        # Since this is a library that is supposed to be flexible, we don't
+        # want to lock down every possible extension point.
+        - "~Unsafe usage of new static\\(\\)~"
+
+        # This class uses magic methods to reduce a whole lot of boilerplate required to
+        # allow partial parsing of language fragments.
+        - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
+
+        # Those come from graphql-php\tests\Language\VisitorTest.php
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
+        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
+
         # TODO fix those errors to improve type safety
         - "~Construct empty\\(\\) is not allowed\\. Use more strict comparison~"
         - "~Variable property access on .+~"
@@ -16,20 +29,11 @@ parameters:
         - "~Anonymous function sometimes return something but return statement at the end is missing.~"
         - "~Short ternary operator is not allowed. Use null coalesce operator if applicable or consider using long ternary.~"
 
-        # This class uses magic methods to reduce a whole lot of boilerplate required to
-        # allow partial parsing of language fragments.
-        - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
-
         # TODO convert to less magical code
         - "~Variable method call on GraphQL\\\\Server\\\\ServerConfig~"
 
         # TODO cast booleans explicitly https://github.com/phpstan/phpstan-strict-rules/issues/2
         - "~Only booleans are allowed in .*~"
-
-        # Those come from graphql-php\tests\Language\VisitorTest.php
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
-        - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
 
 includes:
     - vendor/phpstan/phpstan-phpunit/extension.neon
