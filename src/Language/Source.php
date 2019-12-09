@@ -77,7 +77,7 @@ class Source
         foreach ($matches[0] as $index => $match) {
             $line += 1;
 
-            $column = $position + 1 - ($match[1] + mb_strlen($match[0], 'UTF-8'));
+            $column = $position + 1 - $match[1] + mb_strlen($match[0], 'UTF-8');
         }
 
         return new SourceLocation($line, $column);
