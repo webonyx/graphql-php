@@ -6,72 +6,144 @@ on:
     tags:
   pull_request:
 
+env:
+    SETUP-PHP-ACTION-VERSION: 1.5.7
+
 jobs:
   build:
-    runs-on: ${{ matrix.operating-system }}
+    runs-on: ubuntu-18.04
     strategy:
       matrix:
         php: [7.1, 7.2, 7.3, 7.4]
-        operating-system: [ubuntu-18.04]
-        env: ['EXECUTOR= DEPENDENCIES=--prefer-lowest',
+        env: [
+          'EXECUTOR= DEPENDENCIES=--prefer-lowest',
           'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest',
           'EXECUTOR=',
           'EXECUTOR=coroutine',
-          'CODING_STANDARD',
-          'STATIC_ANALYSIS',
-          'COVERAGE'
-          ]
-        include:
-          - os: ubuntu-18.04
-            php: 7.1
-            env: EXECUTOR=coroutine
+        ]
+    name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
+
     steps:
     - uses: actions/checkout@v1
+
     - name: Install PHP
-      uses: shivammathur/setup-php@1.5.2
+      uses: shivammathur/setup-php@${SETUP-PHP-ACTION-VERSION}
       with:
         php-version: ${{ matrix.php  }}
-        extension-csv: dom, mbstring
-        coverage: xdebug
+        extension-csv: json, mbstring
     - name: Get Composer Cache Directory
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
     - name: Cache dependencies
       uses: actions/cache@v1
       with:
         path: ${{ steps.composer-cache.outputs.dir }}
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
         restore-keys: ${{ runner.os }}-composer-
-    - name: Install dependencies
-      run: |
-        export $ENV
-        composer update ${DEPENDENCIES}
-      env:
-        ENV: ${{ matrix.env }}
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
     - name: Run unit tests
-      if: matrix.env == 'COVERAGE'
       run: |
         export $ENV
         ./vendor/bin/phpunit --group default,ReactPromise
       env:
         ENV: ${{ matrix.env}}
+
+  coding-standard:
+    runs-on: ubuntu-18.04
+    name: Coding Standard
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@${SETUP-PHP-ACTION-VERSION}
+      with:
+        php-version: 7.1
+        extension-csv: json, mbstring
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
+    - name: Coding Standard
+      run: composer lint
+
+  phpstan:
+    runs-on: ubuntu-18.04
+    name: PHPStan
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@${SETUP-PHP-ACTION-VERSION}
+      with:
+        php-version: 7.1
+        extension-csv: json, mbstring
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
+    - name: PHPStan
+      run: composer stan
+
+  coverage:
+    runs-on: ubuntu-18.04
+    name: Code Coverage
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install PHP
+      uses: shivammathur/setup-php@${SETUP-PHP-ACTION-VERSION}
+      with:
+        php-version: 7.1
+        extension-csv: json, mbstring
+        coverage: xdebug
+
+    - name: Get Composer Cache Directory
+      id: composer-cache
+      run: echo "::set-output name=dir::$(composer config cache-files-dir)"
+
+    - name: Cache dependencies
+      uses: actions/cache@v1
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install Dependencies
+      run: composer install ${DEPENDENCIES}
+
     - name: Code coverage
-      if: matrix.php == 7.1 && matrix.env == 'COVERAGE'
       run: |
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
         EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
         wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-        php${{matrix.php}} ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
-      env:
-        ENV: ${{ matrix.env }}
-    - name: Coding Standard
-      if: matrix.php == 7.1 && matrix.env == 'CODING_STANDARD'
-      run: |
-        composer update --prefer-dist
-        composer lint
-    - name: PHPStan
-      if: matrix.php == 7.1 && matrix.env == 'STATIC_ANALYSIS'
-      run: |
-        composer update --prefer-dist
-        composer stan
+        php7.1 ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
