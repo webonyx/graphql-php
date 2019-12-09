@@ -143,7 +143,8 @@ jobs:
 
     - name: Code coverage
       run: |
-        pecl install xdebug-2.7.0
+        pear config-set http_proxy $(printenv http_proxy)
+        pecl install xdebug-2.8.1
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
         EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
