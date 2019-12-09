@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.5.7
+      uses: shivammathur/setup-php@1.6.0
       with:
         php-version: ${{ matrix.php  }}
         extension-csv: json, mbstring
@@ -57,7 +57,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.5.7
+      uses: shivammathur/setup-php@1.6.0
       with:
         php-version: 7.1
         extension-csv: json, mbstring
@@ -87,7 +87,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.5.7
+      uses: shivammathur/setup-php@1.6.0
       with:
         php-version: 7.1
         extension-csv: json, mbstring
@@ -117,11 +117,12 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.5.7
+      uses: shivammathur/setup-php@1.6.0
       with:
         php-version: 7.1
         extension-csv: json, mbstring
         coverage: xdebug
+        pecl: true
 
     - name: Get Composer Cache Directory
       id: composer-cache
