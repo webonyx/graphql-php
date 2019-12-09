@@ -6,9 +6,6 @@ on:
     tags:
   pull_request:
 
-env:
-    SETUP-PHP-ACTION-VERSION: 1.5.7
-
 jobs:
   build:
     runs-on: ubuntu-18.04
@@ -27,7 +24,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@${SETUP-PHP-ACTION-VERSION}
+      uses: shivammathur/setup-php@1.5.7
       with:
         php-version: ${{ matrix.php  }}
         extension-csv: json, mbstring
@@ -60,7 +57,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@${SETUP-PHP-ACTION-VERSION}
+      uses: shivammathur/setup-php@1.5.7
       with:
         php-version: 7.1
         extension-csv: json, mbstring
@@ -90,7 +87,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@${SETUP-PHP-ACTION-VERSION}
+      uses: shivammathur/setup-php@1.5.7
       with:
         php-version: 7.1
         extension-csv: json, mbstring
@@ -120,7 +117,7 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@${SETUP-PHP-ACTION-VERSION}
+      uses: shivammathur/setup-php@1.5.7
       with:
         php-version: 7.1
         extension-csv: json, mbstring
