@@ -35,7 +35,6 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use RuntimeException;
-use shmax\api\types\SortedSkuType;
 use SplObjectStorage;
 use stdClass;
 use Throwable;
