@@ -138,6 +138,12 @@ jobs:
     - name: Install Dependencies
       run: composer install ${DEPENDENCIES}
 
+    - name: Update xdebug version
+      run: |
+        sudo pecl channel-update pecl.php.net
+        sudo pecl install xdebug-2.9.0
+      continue-on-error: true
+
     - name: Show php version
       run: php -v
 
