@@ -33,15 +33,12 @@ use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\AST;
-use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use SplQueue;
 use stdClass;
 use Throwable;
 use function is_array;
 use function is_string;
-use function json_decode;
-use function json_encode;
 use function sprintf;
 
 class CoroutineExecutor implements Runtime, ExecutorImplementation

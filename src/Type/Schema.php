@@ -20,7 +20,6 @@ use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use Traversable;
 use function array_values;
-use function count;
 use function implode;
 use function is_array;
 use function is_callable;
