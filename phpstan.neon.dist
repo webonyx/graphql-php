@@ -30,7 +30,7 @@ parameters:
         - "~Short ternary operator is not allowed. Use null coalesce operator if applicable or consider using long ternary.~"
 
         # TODO convert to less magical code
-        - "~Variable method call on GraphQL\\\\Server\\\\ServerConfig~"
+        - "~Variable method call on static\\(GraphQL\\\\Server\\\\ServerConfig\\)~"
 
         # TODO cast booleans explicitly https://github.com/phpstan/phpstan-strict-rules/issues/2
         - "~Only booleans are allowed in .*~"
