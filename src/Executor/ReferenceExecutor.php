@@ -35,6 +35,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use RuntimeException;
+use shmax\api\types\SortedSkuType;
 use SplObjectStorage;
 use stdClass;
 use Throwable;
@@ -938,7 +939,7 @@ class ReferenceExecutor implements ExecutorImplementation
     private function completeAbstractValue(AbstractType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
         $exeContext  = $this->exeContext;
-        $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
+        $runtimeType = Schema::resolveType($returnType->resolveType($result, $exeContext->contextValue, $info));
         if ($runtimeType === null) {
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
         }
