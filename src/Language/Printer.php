@@ -84,7 +84,7 @@ class Printer
     public static function doPrint($ast)
     {
         static $instance;
-        $instance = $instance ?: new self();
+        $instance = $instance ?: new static();
 
         return $instance->printAST($ast);
     }

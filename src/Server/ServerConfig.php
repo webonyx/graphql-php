@@ -42,7 +42,7 @@ class ServerConfig
      */
     public static function create(array $config = [])
     {
-        $instance = new self();
+        $instance = new static();
         foreach ($config as $key => $value) {
             $method = 'set' . ucfirst($key);
             if (! method_exists($instance, $method)) {

@@ -36,7 +36,7 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
      */
     public static function create(array $nodes) : self
     {
-        return new self($nodes);
+        return new static($nodes);
     }
 
     /**
