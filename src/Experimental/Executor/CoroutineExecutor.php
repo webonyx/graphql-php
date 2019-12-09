@@ -367,7 +367,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
         $this->run();
 
-        if ($this->pending > 0) {
+        if ($this->pending > 0 || $this->doResolve === null) {
             return;
         }
 
