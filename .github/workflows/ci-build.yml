@@ -140,8 +140,8 @@ jobs:
 
     - name: Update xdebug version
       run: |
-        pecl channel-update pecl.php.net
-        pecl install xdebug-2.8.1
+        sudo pecl channel-update pecl.php.net
+        sudo pecl install xdebug-2.8.1
 
     - name: Show php version
       run: php -v
