@@ -138,13 +138,16 @@ jobs:
     - name: Install Dependencies
       run: composer install ${DEPENDENCIES}
 
+    - name: Update xdebug version
+      run: |
+        pecl channel-update pecl.php.net
+        pecl install xdebug-2.8.1
+
     - name: Show php version
       run: php -v
 
     - name: Code coverage
       run: |
-        pecl channel-update pecl.php.net
-        pecl install xdebug-2.8.1
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
         EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
         ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
