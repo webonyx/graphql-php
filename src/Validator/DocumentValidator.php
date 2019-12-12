@@ -268,7 +268,7 @@ class DocumentValidator
                     return $item instanceof Throwable;
                 }
             )) === count($value)
-            : ($value instanceof Throwable);
+            : $value instanceof Throwable;
     }
 
     public static function append(&$arr, $items)
