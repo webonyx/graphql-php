@@ -144,9 +144,6 @@ jobs:
         sudo pecl install xdebug-2.9.0
       continue-on-error: true
 
-    - name: Show php version
-      run: php -v
-
     - name: Code coverage
       run: |
         ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
