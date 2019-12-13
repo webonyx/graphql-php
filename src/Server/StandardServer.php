@@ -9,8 +9,8 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Utils\Utils;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Throwable;
 use function is_array;
@@ -146,7 +146,7 @@ class StandardServer
      * @api
      */
     public function processPsrRequest(
-        ServerRequestInterface $request,
+        RequestInterface $request,
         ResponseInterface $response,
         StreamInterface $writableBodyStream
     ) {
@@ -163,7 +163,7 @@ class StandardServer
      *
      * @api
      */
-    public function executePsrRequest(ServerRequestInterface $request)
+    public function executePsrRequest(RequestInterface $request)
     {
         $parsedBody = $this->helper->parsePsrRequest($request);
 

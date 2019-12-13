@@ -16,6 +16,7 @@
   "require-dev": {
     "amphp/amp": "^2.3",
     "doctrine/coding-standard": "^6.0",
+    "nyholm/psr7": "^1.2",
     "phpbench/phpbench": "^0.14",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan": "0.12.18",
