@@ -29,23 +29,18 @@ use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\OutputType;
-use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Definition\WrappingType;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
-use SplStack;
-use Symfony\Component\Console\Output\Output;
 use function array_map;
 use function array_merge;
 use function array_pop;
 use function count;
 use function is_array;
-use function is_null;
 use function sprintf;
 
 class TypeInfo
@@ -89,7 +84,7 @@ class TypeInfo
         $this->fieldDefStack     = [];
         $this->defaultValueStack = [];
 
-        if (! $initialType) {
+        if ($initialType === null) {
             return;
         }
 

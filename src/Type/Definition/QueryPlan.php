@@ -34,7 +34,7 @@ class QueryPlan
     /** @var Schema */
     private $schema;
 
-    /** @var mixed[] */
+    /** @var array<string, mixed> */
     private $queryPlan = [];
 
     /** @var mixed[] */

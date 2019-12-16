@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\PhpStan\Type\Definition\Type;
 
-use GraphQL\Type\Definition\InputType;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\Type;
 use PhpParser\Node\Expr\StaticCall;

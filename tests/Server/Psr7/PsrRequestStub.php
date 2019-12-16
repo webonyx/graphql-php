@@ -314,7 +314,7 @@ class PsrRequestStub implements ServerRequestInterface
      */
     public function getUri()
     {
-        // TODO: Implement getUri() method.
+        throw new \Exception('Not implemented');
     }
 
     /**

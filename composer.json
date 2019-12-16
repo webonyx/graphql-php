@@ -15,10 +15,10 @@
   },
   "require-dev": {
     "doctrine/coding-standard": "^6.0",
-    "phpbench/phpbench": "^0.14.0",
-    "phpstan/phpstan": "0.11.16",
-    "phpstan/phpstan-phpunit": "0.11.2",
-    "phpstan/phpstan-strict-rules": "0.11.1",
+    "phpbench/phpbench": "^0.14",
+    "phpstan/phpstan": "0.12.2",
+    "phpstan/phpstan-phpunit": "0.12.1",
+    "phpstan/phpstan-strict-rules": "0.12.0",
     "phpunit/phpcov": "^5.0",
     "phpunit/phpunit": "^7.2",
     "psr/http-message": "^1.0",
@@ -51,7 +51,7 @@
     "test": "phpunit",
     "lint" : "phpcs",
     "fix" : "phpcbf",
-    "stan": "phpstan analyse --ansi --memory-limit 512M",
+    "stan": "phpstan analyse --ansi --memory-limit 2048M",
     "check": "composer lint && composer stan && composer test"
   }
 }

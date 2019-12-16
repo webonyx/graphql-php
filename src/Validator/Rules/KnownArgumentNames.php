@@ -31,7 +31,7 @@ class KnownArgumentNames extends ValidationRule
             NodeKind::ARGUMENT => static function (ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
                 $argDef = $context->getArgument();
                 if ($argDef !== null) {
-                    return;
+                    return null;
                 }
 
                 /** @var Node|mixed $argumentOf */
