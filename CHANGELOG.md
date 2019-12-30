@@ -26,6 +26,7 @@
 - Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
 - Renamed `GraphQL\Error\Debug` to `GraphQL\Error\DebugFlag`. 
 - Debug flags in `GraphQL\Executor\ExecutionResult`, `GraphQL\Error\FormattedError` and `GraphQL\Server\ServerConfig` do not accept `boolean` value anymore but `int` only.
+- `$positions` in `GraphQL\Error\Error` are not nullable anymore. Same can be expressesed by passing empty array.
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 
