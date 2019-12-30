@@ -91,12 +91,7 @@ class DeferredFieldsTest extends TestCase
                             return new Deferred(function () use ($user) {
                                 $this->paths[] = 'deferred-for-best-friend-of-' . $user['id'];
 
-                                return Utils::find(
-                                    $this->userDataSource,
-                                    static function ($entry) use ($user) {
-                                        return $entry['id'] === $user['bestFriendId'];
-                                    }
-                                );
+                                return $this->findUserById($user['bestFriendId']);
                             });
                         },
                     ],

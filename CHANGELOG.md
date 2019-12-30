@@ -5,11 +5,13 @@
 - **BREAKING:** Removed deprecated directive introspection fields (onOperation, onFragment, onField)
 - **BREAKING:** Removal of `VariablesDefaultValueAllowed` validation rule. All variables may now specify a default value.
 - **BREAKING:** renamed `ProvidedNonNullArguments` to `ProvidedRequiredArguments` (no longer require values to be provided to non-null arguments which provide a default value).
+- **BREAKING:** `GraphQL\Deferred` now extends `GraphQL\Executor\Promise\Adapter\SyncPromise`
 - Add schema validation: Input Objects must not contain non-nullable circular references (#492)
 - Added retrieving query complexity once query has been completed (#316) 
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
 - Fixes parsing of string literals of the form \u0000 for code points in the range [128, 255] inclusive
-- Parse UTF-16 surrogate pairs within string literals 
+- Parse UTF-16 surrogate pairs within string literals
+- Simplified Deferred implementation 
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 

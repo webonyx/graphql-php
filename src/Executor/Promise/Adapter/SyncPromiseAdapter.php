@@ -32,6 +32,7 @@ class SyncPromiseAdapter implements PromiseAdapter
     public function convertThenable($thenable)
     {
         if (! $thenable instanceof SyncPromise) {
+            // End-users should always use Deferred (and don't use SyncPromise directly)
             throw new InvariantViolation('Expected instance of GraphQL\Deferred, got ' . Utils::printSafe($thenable));
         }
 
