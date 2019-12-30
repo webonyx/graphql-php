@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Experimental\Executor;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\FormattedError;
 use GraphQL\Experimental\Executor\Collector;
 use GraphQL\Experimental\Executor\Runtime;
@@ -106,7 +107,7 @@ class CollectorTest extends TestCase
         $result = [];
         if (! empty($runtime->errors)) {
             $result['errors'] = array_map(
-                FormattedError::prepareFormatter(null, 0),
+                FormattedError::prepareFormatter(null, DebugFlag::NONE),
                 $runtime->errors
             );
         }

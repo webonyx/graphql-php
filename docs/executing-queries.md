@@ -120,7 +120,7 @@ use GraphQL\Server\StandardServer;
 $config = ServerConfig::create()
     ->setSchema($schema)
     ->setErrorFormatter($myFormatter)
-    ->setDebug($debug)
+    ->setDebugFlag($debug)
 ;
 
 $server = new StandardServer($config);

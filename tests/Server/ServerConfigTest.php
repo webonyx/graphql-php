@@ -28,7 +28,7 @@ class ServerConfigTest extends TestCase
         self::assertNull($config->getValidationRules());
         self::assertNull($config->getFieldResolver());
         self::assertNull($config->getPersistentQueryLoader());
-        self::assertSame(0, $config->getDebugFlag());
+        self::assertSame(DebugFlag::NONE, $config->getDebugFlag());
         self::assertFalse($config->getQueryBatching());
     }
 
@@ -170,8 +170,8 @@ class ServerConfigTest extends TestCase
         $config->setDebugFlag(DebugFlag::INCLUDE_DEBUG_MESSAGE);
         self::assertEquals(DebugFlag::INCLUDE_DEBUG_MESSAGE, $config->getDebugFlag());
 
-        $config->setDebugFlag(0);
-        self::assertEquals(0, $config->getDebugFlag());
+        $config->setDebugFlag(DebugFlag::NONE);
+        self::assertEquals(DebugFlag::NONE, $config->getDebugFlag());
     }
 
     public function testAcceptsArray() : void

@@ -14,7 +14,7 @@ use \GraphQL\Error\DebugFlag;
 // Disable default PHP error reporting - we have better one for debug mode (see bellow)
 ini_set('display_errors', 0);
 
-$debug = 0;
+$debug = DebugFlag::NONE;
 if (!empty($_GET['debug'])) {
     set_error_handler(function($severity, $message, $file, $line) use (&$phpErrors) {
         throw new ErrorException($message, 0, $severity, $file, $line);

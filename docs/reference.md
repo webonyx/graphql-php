@@ -1864,15 +1864,15 @@ function setPersistentQueryLoader(callable $persistentQueryLoader)
 
 ```php
 /**
- * Set response debug flags. See GraphQL\Error\Debug class for a list of all available flags
+ * Set response debug flags. @see GraphQL\Error\DebugFlag class for a list of all available flags
  *
- * @param bool|int $set
+ * @param int $debug
  *
  * @return self
  *
  * @api
  */
-function setDebug($set = true)
+function setDebugFlag($debugFlag = DebugFlag::NONE)
 ```
 
 ```php

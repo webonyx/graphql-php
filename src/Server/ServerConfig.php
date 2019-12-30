@@ -71,7 +71,7 @@ class ServerConfig
     private $errorsHandler;
 
     /** @var int */
-    private $debugFlag = 0;
+    private $debugFlag = DebugFlag::NONE;
 
     /** @var bool */
     private $queryBatching = false;
@@ -208,7 +208,7 @@ class ServerConfig
     }
 
     /**
-     * Set response debug flags. See GraphQL\Error\Debug class for a list of all available flags
+     * Set response debug flags. @see \GraphQL\Error\DebugFlag class for a list of all available flags
      *
      * @api
      */

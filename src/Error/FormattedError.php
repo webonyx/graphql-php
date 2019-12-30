@@ -161,7 +161,7 @@ class FormattedError
      * This method only exposes exception message when exception implements ClientAware interface
      * (or when debug flags are passed).
      *
-     * For a list of available debug flags see GraphQL\Error\Debug constants.
+     * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
      *
      * @param string $internalErrorMessage
      *
@@ -171,7 +171,7 @@ class FormattedError
      *
      * @api
      */
-    public static function createFromException(Throwable $exception, int $debug = 0, $internalErrorMessage = null)
+    public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, $internalErrorMessage = null) : array
     {
         $internalErrorMessage = $internalErrorMessage ?: self::$internalErrorMessage;
 
@@ -209,7 +209,7 @@ class FormattedError
             }
         }
 
-        if ($debug !== 0) {
+        if ($debug !== DebugFlag::NONE) {
             $formattedError = self::addDebugEntries($formattedError, $exception, $debug);
         }
 
@@ -218,7 +218,7 @@ class FormattedError
 
     /**
      * Decorates spec-compliant $formattedError with debug entries according to $debug flags
-     * (see GraphQL\Error\Debug for available flags)
+     * (@see \GraphQL\Error\DebugFlag for available flags)
      *
      * @param mixed[] $formattedError
      *
@@ -226,9 +226,9 @@ class FormattedError
      *
      * @throws Throwable
      */
-    public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag)
+    public static function addDebugEntries(array $formattedError, Throwable $e, int $debugFlag) : array
     {
-        if ($debugFlag === 0) {
+        if ($debugFlag === DebugFlag::NONE) {
             return $formattedError;
         }
 
@@ -275,10 +275,8 @@ class FormattedError
     /**
      * Prepares final error formatter taking in account $debug flags.
      * If initial formatter is not set, FormattedError::createFromException is used
-     *
-     * @return callable
      */
-    public static function prepareFormatter(?callable $formatter = null, int $debug)
+    public static function prepareFormatter(?callable $formatter = null, int $debug) : callable
     {
         $formatter = $formatter ?: static function ($e) {
             return FormattedError::createFromException($e);

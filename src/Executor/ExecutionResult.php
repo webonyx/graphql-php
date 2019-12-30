@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use JsonSerializable;
@@ -125,14 +126,13 @@ class ExecutionResult implements JsonSerializable
      * If debug argument is passed, output of error formatter is enriched which debugging information
      * ("debugMessage", "trace" keys depending on flags).
      *
-     * $debug argument must be either bool (only adds "debugMessage" to result) or sum of flags from
-     * GraphQL\Error\Debug
+     * $debug argument must sum of flags from @see \GraphQL\Error\DebugFlag
      *
      * @return mixed[]
      *
      * @api
      */
-    public function toArray(int $debug = 0) : array
+    public function toArray(int $debug = DebugFlag::NONE) : array
     {
         $result = [];
 
