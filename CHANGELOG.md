@@ -10,6 +10,7 @@
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
 - Fixes parsing of string literals of the form \u0000 for code points in the range [128, 255] inclusive
 - Parse UTF-16 surrogate pairs within string literals 
+- `$positions` in `GraphQL\Error\Error` are not nullable anymore. Same can be expressesed by passing empty array.
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 
