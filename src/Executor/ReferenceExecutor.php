@@ -238,7 +238,7 @@ class ReferenceExecutor implements ExecutorImplementation
      *
      * @param  mixed $rootValue
      *
-     * @return Promise|stdClass|mixed[]|null
+     * @return Promise|stdClass|mixed[]
      */
     private function executeOperation(OperationDefinitionNode $operation, $rootValue)
     {
