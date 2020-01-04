@@ -160,7 +160,7 @@ class Values
         if (isset($node->directives) && $node->directives instanceof NodeList) {
             $directiveNode = Utils::find(
                 $node->directives,
-                static function (DirectiveNode $directive) use ($directiveDef) {
+                static function (DirectiveNode $directive) use ($directiveDef) : bool {
                     return $directive->name->value === $directiveDef->name;
                 }
             );
@@ -327,7 +327,7 @@ class Values
 
         return $errors
             ? array_map(
-                static function (Throwable $error) {
+                static function (Throwable $error) : string {
                     return $error->getMessage();
                 },
                 $errors

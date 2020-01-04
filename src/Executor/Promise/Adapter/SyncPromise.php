@@ -56,10 +56,10 @@ class SyncPromise
                 }
                 if (is_object($value) && method_exists($value, 'then')) {
                     $value->then(
-                        function ($resolvedValue) {
+                        function ($resolvedValue) : void {
                             $this->resolve($resolvedValue);
                         },
-                        function ($reason) {
+                        function ($reason) : void {
                             $this->reject($reason);
                         }
                     );
@@ -115,7 +115,7 @@ class SyncPromise
         );
 
         foreach ($this->waiting as $descriptor) {
-            self::getQueue()->enqueue(function () use ($descriptor) {
+            self::getQueue()->enqueue(function () use ($descriptor) : void {
                 /** @var self $promise */
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 

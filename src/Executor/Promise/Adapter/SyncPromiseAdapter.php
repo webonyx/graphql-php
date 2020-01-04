@@ -110,7 +110,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             if ($promiseOrValue instanceof Promise) {
                 $result[$index] = null;
                 $promiseOrValue->then(
-                    static function ($value) use ($index, &$count, $total, &$result, $all) {
+                    static function ($value) use ($index, &$count, $total, &$result, $all) : void {
                         $result[$index] = $value;
                         $count++;
                         if ($count < $total) {

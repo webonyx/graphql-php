@@ -31,7 +31,7 @@ class DisableIntrospection extends QuerySecurityRule
         return $this->invokeIfNeeded(
             $context,
             [
-                NodeKind::FIELD => static function (FieldNode $node) use ($context) {
+                NodeKind::FIELD => static function (FieldNode $node) use ($context) : void {
                     if ($node->name->value !== '__type' && $node->name->value !== '__schema') {
                         return;
                     }

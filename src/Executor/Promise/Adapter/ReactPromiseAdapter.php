@@ -85,7 +85,7 @@ class ReactPromiseAdapter implements PromiseAdapter
             }
         );
 
-        $promise = all($promisesOrValues)->then(static function ($values) use ($promisesOrValues) {
+        $promise = all($promisesOrValues)->then(static function ($values) use ($promisesOrValues) : array {
             $orderedResults = [];
 
             foreach ($promisesOrValues as $key => $value) {
