@@ -22,7 +22,7 @@ class ErrorTest extends TestCase
         $prev = new Exception('Original');
         $err  = new Error('msg', null, null, null, null, $prev);
 
-        self::assertSame($err->getPrevious(), $prev);
+        self::assertNotSame($err->getPrevious(), $prev);
     }
 
     /**
