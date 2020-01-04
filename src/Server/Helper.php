@@ -31,7 +31,6 @@ use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
 use function sprintf;
-use function stripos;
 
 /**
  * Contains functionality that could be re-used by various server implementations
