@@ -35,11 +35,6 @@ parameters:
         # TODO cast booleans explicitly https://github.com/phpstan/phpstan-strict-rules/issues/2
         - "~Only booleans are allowed in .*~"
 
-includes:
-    - vendor/phpstan/phpstan-phpunit/extension.neon
-    - vendor/phpstan/phpstan-phpunit/rules.neon
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
-
 services:
     -
         class: GraphQL\Tests\PhpStan\Type\Definition\Type\IsInputTypeStaticMethodTypeSpecifyingExtension
