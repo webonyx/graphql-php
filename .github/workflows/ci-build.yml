@@ -145,9 +145,12 @@ jobs:
       continue-on-error: true
 
     - name: Code coverage
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
+        COVERALLS_GIT_COMMIT: ${{ github.sha }}
+        COVERALLS_GIT_BRANCH: ${{ github.ref }}
       run: |
-        ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
-        EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
-        ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
-        wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-        php7.1 ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
+        ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover_executor.xml
+        EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover_executor-coroutine.xml
+        wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.2.0/php-coveralls.phar
+        php7.1 php-coveralls.phar --verbose
