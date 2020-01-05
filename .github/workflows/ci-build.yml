@@ -24,10 +24,11 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.6.0
+      uses: shivammathur/setup-php@1.7.0
       with:
         php-version: ${{ matrix.php  }}
-        extension-csv: json, mbstring
+        coverage: none
+        extensions: json, mbstring
     - name: Get Composer Cache Directory
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
@@ -57,10 +58,11 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.6.0
+      uses: shivammathur/setup-php@1.7.0
       with:
         php-version: 7.1
-        extension-csv: json, mbstring
+        coverage: none
+        extensions: json, mbstring
 
     - name: Get Composer Cache Directory
       id: composer-cache
@@ -87,10 +89,11 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.6.0
+      uses: shivammathur/setup-php@1.7.0
       with:
         php-version: 7.1
-        extension-csv: json, mbstring
+        coverage: none
+        extensions: json, mbstring
 
     - name: Get Composer Cache Directory
       id: composer-cache
@@ -117,12 +120,12 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.6.0
+      uses: shivammathur/setup-php@1.7.0
       with:
         php-version: 7.1
-        extension-csv: json, mbstring
-        coverage: pcov
-        pecl: true
+        coverage: none
+        extensions: json, mbstring
+        tools: pecl
 
     - name: Get Composer Cache Directory
       id: composer-cache
