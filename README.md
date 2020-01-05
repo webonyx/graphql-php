@@ -1,6 +1,6 @@
 # graphql-php
 [![Build Status](https://travis-ci.org/webonyx/graphql-php.svg?branch=master)](https://travis-ci.org/webonyx/graphql-php)
-[![Coverage Status](https://coveralls.io/repos/github/simPod/graphql-php/badge.svg?branch=master)](https://coveralls.io/github/simPod/graphql-php?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/webonyx/graphql-php/badge.svg?branch=master)](https://coveralls.io/github/webonyx/graphql-php?branch=master)
 [![Latest Stable Version](https://poser.pugx.org/webonyx/graphql-php/version)](https://packagist.org/packages/webonyx/graphql-php)
 [![License](https://poser.pugx.org/webonyx/graphql-php/license)](https://packagist.org/packages/webonyx/graphql-php)
 
