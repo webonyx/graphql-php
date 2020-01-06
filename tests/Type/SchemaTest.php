@@ -33,7 +33,7 @@ class SchemaTest extends TestCase
     /** @var Schema */
     private $schema;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->interfaceType = new InterfaceType([
             'name'   => 'Interface',

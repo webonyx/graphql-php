@@ -8,15 +8,18 @@ use GraphQL\Executor\ExecutionResult;
 use GraphQL\Server\Helper;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Tests\Server\Psr7\PsrRequestStub;
 use function json_encode;
 
 class StandardServerTest extends ServerTestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var ServerConfig */
     private $config;
 
-    public function setUp()
+    public function setUp() : void
     {
         $schema       = $this->buildSchema();
         $this->config = ServerConfig::create()

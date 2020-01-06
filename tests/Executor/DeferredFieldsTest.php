@@ -43,7 +43,7 @@ class DeferredFieldsTest extends TestCase
     /** @var ObjectType */
     private $queryType;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->storyDataSource = [
             ['id' => 1, 'authorId' => 1, 'title' => 'Story #1', 'categoryIds' => [2, 3]],

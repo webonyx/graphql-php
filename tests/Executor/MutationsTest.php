@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Executor;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\Root;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -14,7 +15,10 @@ use PHPUnit\Framework\TestCase;
 
 class MutationsTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     // Execute: Handles mutation execution ordering
+
     /**
      * @see it('evaluates mutations serially')
      */

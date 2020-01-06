@@ -11,6 +11,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -22,6 +23,8 @@ use function json_encode;
 
 class NonNullTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var Exception */
     public $syncError;
 
@@ -46,7 +49,7 @@ class NonNullTest extends TestCase
     /** @var Schema */
     public $schemaWithNonNullArg;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->syncError           = new UserError('sync');
         $this->syncNonNullError    = new UserError('syncNonNull');

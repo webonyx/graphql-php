@@ -9,6 +9,7 @@ use GraphQL\Language\Lexer;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Language\Token;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 use function count;
@@ -16,6 +17,8 @@ use function json_decode;
 
 class LexerTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @see it('disallows uncommon control characters')
      */

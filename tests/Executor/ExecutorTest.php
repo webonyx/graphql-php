@@ -12,6 +12,7 @@ use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
 use GraphQL\Tests\Executor\TestClasses\Special;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -27,7 +28,9 @@ use function json_encode;
 
 class ExecutorTest extends TestCase
 {
-    public function tearDown()
+    use ArraySubsetAsserts;
+
+    public function tearDown() : void
     {
         Executor::setPromiseAdapter(null);
     }

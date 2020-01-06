@@ -378,7 +378,7 @@ class RequestParsingTest extends TestCase
             'psr' => $this->parsePsrRequest('application/json', json_encode($body)),
         ];
         foreach ($parsed as $method => $parsedBody) {
-            self::assertInternalType('array', $parsedBody, $method);
+            self::assertIsArray($parsedBody, $method);
             self::assertCount(2, $parsedBody, $method);
             self::assertValidOperationParams(
                 $parsedBody[0],
