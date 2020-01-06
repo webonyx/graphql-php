@@ -64,6 +64,15 @@ class EnumTypeTest extends TestCase
             ],
         ]);
 
+        $Array1          = ['one', 'ONE'];
+        $ArrayValuesEnum = new EnumType([
+            'name' => 'ArrayValuesEnum',
+            'values' => [
+                'ONE' => ['value' => $Array1],
+                'TWO' => ['value' => ['two', 'TWO']],
+            ],
+        ]);
+
         $QueryType = new ObjectType([
             'name'   => 'Query',
             'fields' => [
@@ -142,6 +151,33 @@ class EnumTypeTest extends TestCase
                             // Note: similar shape, but not the same *reference*
                             // as Complex2 above. Enum internal values require === equality.
                             return new ArrayObject(['someRandomValue' => 123]);
+                        }
+
+                        return $args['fromEnum'];
+                    },
+                ],
+                'arrayValuesEnum' => [
+                    'type' => $ArrayValuesEnum,
+                    'args'    => [
+                        'fromEnum'         => [
+                            'type'         => $ArrayValuesEnum,
+                            // Note: defaultValue is provided an *internal* representation for
+                            // Enums, rather than the string name.
+                            'defaultValue' => $Array1,
+                        ],
+                        'provideOneByReference' => [
+                            'type' => Type::boolean(),
+                        ],
+                        'provideTwo'  => [
+                            'type' => Type::boolean(),
+                        ],
+                    ],
+                    'resolve' => static function ($rootValue, $args) use (&$Array1) {
+                        if (! empty($args['provideOneByReference'])) {
+                            return $Array1;
+                        }
+                        if (! empty($args['provideTwo'])) {
+                            return ['two', 'TWO'];
                         }
 
                         return $args['fromEnum'];
@@ -511,6 +547,30 @@ class EnumTypeTest extends TestCase
         ];
 
         self::assertArraySubset($expected, $result);
+    }
+
+    public function testMayBeInternallyRepresentedWithArrayValues() : void
+    {
+        $result = GraphQL::executeQuery(
+            $this->schema,
+            '{
+                defaultValue: arrayValuesEnum
+                fromName: arrayValuesEnum(fromEnum: TWO)
+                oneRef: arrayValuesEnum(provideOneByReference: true)
+                two: arrayValuesEnum(provideTwo: true)
+            }'
+        )->toArray(true);
+
+        $expected = [
+            'data'   => [
+                'defaultValue'  => 'ONE',
+                'fromName' => 'TWO',
+                'oneRef'   => 'ONE',
+                'two'    => 'TWO',
+            ],
+        ];
+
+        self::assertEquals($expected, $result);
     }
 
     /**
