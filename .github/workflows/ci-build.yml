@@ -21,7 +21,7 @@ jobs:
     name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install PHP
       uses: shivammathur/setup-php@1.7.0
@@ -55,7 +55,7 @@ jobs:
     name: Coding Standard
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install PHP
       uses: shivammathur/setup-php@1.7.0
@@ -86,7 +86,7 @@ jobs:
     name: PHPStan
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install PHP
       uses: shivammathur/setup-php@1.7.0
@@ -117,7 +117,9 @@ jobs:
     name: Code Coverage
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.ref }}
 
     - name: Install PHP
       uses: shivammathur/setup-php@1.7.0
@@ -148,12 +150,12 @@ jobs:
       continue-on-error: true
 
     - name: Code coverage
-      env:
-        COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-        COVERALLS_GIT_COMMIT: ${{ github.sha }}
-        COVERALLS_GIT_BRANCH: ${{ github.ref }}
       run: |
         ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover_executor.xml
         EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover_executor-coroutine.xml
-        wget https://github.com/php-coveralls/php-coveralls/releases/download/v2.2.0/php-coveralls.phar
-        php7.1 php-coveralls.phar --verbose
+
+    - name: Report to Coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COVERALLS_RUN_LOCALLY: 1
+      run: vendor/bin/php-coveralls --verbose

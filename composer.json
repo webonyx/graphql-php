@@ -8,6 +8,12 @@
     "graphql",
     "API"
   ],
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/simPod/php-coveralls"
+    }
+  ],
   "require": {
     "php": "^7.1||^8.0",
     "ext-json": "*",
@@ -15,6 +21,7 @@
   },
   "require-dev": {
     "doctrine/coding-standard": "^6.0",
+    "php-coveralls/php-coveralls": "dev-add-support-for-github-actions@dev",
     "phpbench/phpbench": "^0.14",
     "phpstan/phpstan": "0.12.2",
     "phpstan/phpstan-phpunit": "0.12.1",
