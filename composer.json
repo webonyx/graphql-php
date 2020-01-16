@@ -21,7 +21,7 @@
   },
   "require-dev": {
     "doctrine/coding-standard": "^6.0",
-    "php-coveralls/php-coveralls": "dev-add-support-for-github-actions@dev",
+    "php-coveralls/php-coveralls": "dev-add-support-for-github-actions#b9c9d4c8ffdf837c589aba5da3f83e660350bfea",
     "phpbench/phpbench": "^0.14",
     "phpstan/phpstan": "0.12.2",
     "phpstan/phpstan-phpunit": "0.12.1",
