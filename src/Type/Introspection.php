@@ -201,7 +201,7 @@ EOD;
      *
      * @param array<string, bool> $options
      *
-     * @return array<string, mixed[]>|null
+     * @return array<string, array<mixed>>|null
      */
     public static function fromSchema(Schema $schema, array $options = []) : ?array
     {
