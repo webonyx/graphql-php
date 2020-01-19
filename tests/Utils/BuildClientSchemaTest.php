@@ -32,7 +32,7 @@ class BuildClientSchemaTest extends TestCase
     }
 
     /**
-     * @return array<string, mixed[]>
+     * @return array<string, array<mixed>>
      */
     protected static function introspectionFromSDL(string $sdl) : array
     {
