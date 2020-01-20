@@ -130,7 +130,7 @@ class Utils
      *
      * @throws Exception
      */
-    public static function filter($iterable, callable $predicate): array
+    public static function filter($iterable, callable $predicate) : array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -160,7 +160,7 @@ class Utils
      *
      * @throws Exception
      */
-    public static function map($iterable, callable $fn): array
+    public static function map($iterable, callable $fn) : array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -182,7 +182,7 @@ class Utils
      *
      * @throws Exception
      */
-    public static function mapKeyValue($iterable, callable $fn): array
+    public static function mapKeyValue($iterable, callable $fn) : array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -205,7 +205,7 @@ class Utils
      *
      * @throws Exception
      */
-    public static function keyMap($iterable, callable $keyFn): array
+    public static function keyMap($iterable, callable $keyFn) : array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -228,7 +228,7 @@ class Utils
     /**
      * @param iterable<mixed> $iterable
      */
-    public static function each($iterable, callable $fn): void
+    public static function each($iterable, callable $fn) : void
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -256,7 +256,7 @@ class Utils
      *
      * @return array<array<mixed>>
      */
-    public static function groupBy($iterable, callable $keyFn): array
+    public static function groupBy($iterable, callable $keyFn) : array
     {
         self::invariant(
             is_array($iterable) || $iterable instanceof Traversable,
@@ -279,7 +279,7 @@ class Utils
      *
      * @return array<mixed>
      */
-    public static function keyValMap($iterable, callable $keyFn, callable $valFn): array
+    public static function keyValMap($iterable, callable $keyFn, callable $valFn) : array
     {
         $map = [];
         foreach ($iterable as $item) {
@@ -291,10 +291,8 @@ class Utils
 
     /**
      * @param iterable<mixed> $iterable
-     *
-     * @return bool
      */
-    public static function every($iterable, callable $predicate): bool
+    public static function every($iterable, callable $predicate) : bool
     {
         foreach ($iterable as $key => $value) {
             if (! $predicate($value, $key)) {
@@ -307,10 +305,8 @@ class Utils
 
     /**
      * @param iterable<mixed> $iterable
-     *
-     * @return bool
      */
-    public static function some($iterable, callable $predicate): bool
+    public static function some($iterable, callable $predicate) : bool
     {
         foreach ($iterable as $key => $value) {
             if ($predicate($value, $key)) {
