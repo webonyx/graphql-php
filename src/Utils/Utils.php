@@ -272,9 +272,9 @@ class Utils
     }
 
     /**
-     * @param mixed[]|Traversable $traversable
+     * @param iterable<mixed> $traversable
      *
-     * @return mixed[][]
+     * @return array<mixed>
      */
     public static function keyValMap($traversable, callable $keyFn, callable $valFn)
     {
