@@ -166,7 +166,7 @@ class SchemaPrinter
 
     private static function printDescription($options, $def, $indentation = '', $firstInBlock = true) : string
     {
-        if ($options['excludeDescriptions'] || ! $def->description) {
+        if (isset($options['excludeDescriptions']) || ! $def->description) {
             return '';
         }
         $lines = self::descriptionLines($def->description, 120 - strlen($indentation));
