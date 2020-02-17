@@ -13,6 +13,7 @@ use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
 use GraphQL\Language\Parser;
@@ -222,7 +223,9 @@ HEREDOC;
             ]),
         ]);
 
-        self::assertEquals($expected, $result->definitions[0]->selectionSet);
+        /** @var OperationDefinitionNode $operationDefinition */
+        $operationDefinition = $result->definitions[0];
+        self::assertEquals($expected, $operationDefinition->selectionSet);
     }
 
     /**

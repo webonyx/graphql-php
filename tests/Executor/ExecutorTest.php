@@ -8,6 +8,7 @@ use GraphQL\Deferred;
 use GraphQL\Error\Error;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NotSpecial;
 use GraphQL\Tests\Executor\TestClasses\Special;
@@ -285,15 +286,18 @@ class ExecutorTest extends TestCase
 
         Executor::execute($schema, $ast, $rootValue, null, ['var' => '123']);
 
+        /** @var OperationDefinitionNode $operationDefinition */
+        $operationDefinition = $ast->definitions[0];
+
         self::assertEquals('test', $info->fieldName);
         self::assertEquals(1, count($info->fieldNodes));
-        self::assertSame($ast->definitions[0]->selectionSet->selections[0], $info->fieldNodes[0]);
+        self::assertSame($operationDefinition->selectionSet->selections[0], $info->fieldNodes[0]);
         self::assertSame(Type::string(), $info->returnType);
         self::assertSame($schema->getQueryType(), $info->parentType);
         self::assertEquals(['result'], $info->path);
         self::assertSame($schema, $info->schema);
         self::assertSame($rootValue, $info->rootValue);
-        self::assertEquals($ast->definitions[0], $info->operation);
+        self::assertEquals($operationDefinition, $info->operation);
         self::assertEquals(['var' => '123'], $info->variableValues);
         self::assertInstanceOf(FieldDefinition::class, $info->fieldDefinition);
     }

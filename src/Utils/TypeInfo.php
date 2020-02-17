@@ -84,7 +84,7 @@ class TypeInfo
         $this->fieldDefStack     = [];
         $this->defaultValueStack = [];
 
-        if (! $initialType) {
+        if ($initialType === null) {
             return;
         }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Language;
 
+use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
@@ -224,9 +225,11 @@ class VisitorTest extends ValidatorTestCase
                 NodeKind::DOCUMENT => [
                     'enter' => function (DocumentNode $node) use ($ast) {
                         $this->checkVisitorFnArgs($ast, func_get_args());
-                        $tmp              = clone $node;
-                        $tmp->definitions = [];
-                        $tmp->didEnter    = true;
+                        /** @var NodeList<DefinitionNode&Node> $definitionNodeList */
+                        $definitionNodeList = new NodeList([]);
+                        $tmp                = clone $node;
+                        $tmp->definitions   = $definitionNodeList;
+                        $tmp->didEnter      = true;
 
                         return $tmp;
                     },
@@ -322,7 +325,7 @@ class VisitorTest extends ValidatorTestCase
                         ]);
                     }
                     if ($node !== $addedField) {
-                        return;
+                        return null;
                     }
 
                     $didVisitAddedField = true;

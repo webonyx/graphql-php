@@ -9,6 +9,6 @@ class ListValueNode extends Node implements ValueNode
     /** @var string */
     public $kind = NodeKind::LST;
 
-    /** @var ValueNode[]|NodeList */
+    /** @var NodeList<ValueNode&Node> */
     public $values;
 }
