@@ -24,3 +24,4 @@
 * [ChromeiQL](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij)
   or [GraphiQL Feen](https://chrome.google.com/webstore/detail/graphiql-feen/mcbfdonlkfpbfdpimkjilhdneikhfklp) –
   GraphiQL as Google Chrome extension
+* [Altair GraphQL Client](https://altair.sirmuel.design/) - A beautiful feature-rich GraphQL Client for all platforms
