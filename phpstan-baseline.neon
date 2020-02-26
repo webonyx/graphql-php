@@ -592,7 +592,7 @@ parameters:
 
 		-
 			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
+			count: 1
 			path: src/Type/Schema.php
 
 		-
