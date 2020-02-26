@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Type;
 use GraphQL\Error\FormattedError;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -20,6 +21,8 @@ use function sprintf;
 
 class IntrospectionTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @see it('executes an introspection query')
      */

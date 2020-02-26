@@ -13,6 +13,7 @@ use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -22,13 +23,15 @@ use PHPUnit\Framework\TestCase;
 
 class SyncTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var Schema */
     private $schema;
 
     /** @var SyncPromiseAdapter */
     private $promiseAdapter;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->schema = new Schema([
             'query'    => new ObjectType([

@@ -11,6 +11,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\Cat;
 use GraphQL\Tests\Executor\TestClasses\Dog;
 use GraphQL\Tests\Executor\TestClasses\Human;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -23,6 +24,8 @@ use PHPUnit\Framework\TestCase;
  */
 class AbstractTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @see it('isTypeOf used to resolve runtime type for Interface')
      */

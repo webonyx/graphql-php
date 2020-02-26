@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Type;
 
 use Exception;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
@@ -18,6 +19,8 @@ use function lcfirst;
 
 class TypeLoaderTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var ObjectType */
     private $query;
 
@@ -45,7 +48,7 @@ class TypeLoaderTest extends TestCase
     /** @var string[] */
     private $calls;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->calls = [];
 

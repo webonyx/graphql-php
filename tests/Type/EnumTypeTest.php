@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Type;
 use ArrayObject;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -18,6 +19,8 @@ use function is_array;
 
 class EnumTypeTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var Schema */
     private $schema;
 
@@ -30,7 +33,7 @@ class EnumTypeTest extends TestCase
     /** @var ArrayObject */
     private $Complex2;
 
-    public function setUp()
+    public function setUp() : void
     {
         $ColorType = new EnumType([
             'name'   => 'Color',

@@ -50,7 +50,7 @@ class LazyInterfaceTest extends TestCase
     /**
      * Setup schema
      */
-    protected function setUp()
+    protected function setUp() : void
     {
         $query = new ObjectType([
             'name'   => 'query',

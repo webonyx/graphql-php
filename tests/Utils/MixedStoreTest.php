@@ -14,7 +14,7 @@ class MixedStoreTest extends TestCase
     /** @var MixedStore */
     private $mixedStore;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->mixedStore = new MixedStore();
     }

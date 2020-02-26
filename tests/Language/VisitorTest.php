@@ -139,10 +139,10 @@ class VisitorTest extends ValidatorTestCase
 
         self::assertArrayHasKey($key, $parentArray);
 
-        self::assertInternalType('array', $path);
+        self::assertIsArray($path);
         self::assertEquals($key, $path[count($path) - 1]);
 
-        self::assertInternalType('array', $ancestors);
+        self::assertIsArray($ancestors);
         self::assertCount(count($path) - 1, $ancestors);
 
         if ($isEdited) {

@@ -14,6 +14,7 @@ use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
 use GraphQL\Server\ServerConfig;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
@@ -23,10 +24,12 @@ use function sprintf;
 
 class QueryExecutionTest extends ServerTestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var ServerConfig */
     private $config;
 
-    public function setUp()
+    public function setUp() : void
     {
         $schema       = $this->buildSchema();
         $this->config = ServerConfig::create()
@@ -69,7 +72,7 @@ class QueryExecutionTest extends ServerTestCase
         $result = $this->executeQuery($query);
         self::assertNull($result->data);
         self::assertCount(1, $result->errors);
-        self::assertContains(
+        self::assertStringContainsString(
             'Syntax Error: Expected Name, found <EOF>',
             $result->errors[0]->getMessage()
         );
@@ -320,7 +323,7 @@ class QueryExecutionTest extends ServerTestCase
         }
         $helper = new Helper();
         $result = $helper->executeBatch($this->config, $batch);
-        self::assertInternalType('array', $result);
+        self::assertIsArray($result);
         self::assertCount(count($qs), $result);
 
         foreach ($result as $index => $entry) {
@@ -682,9 +685,9 @@ class QueryExecutionTest extends ServerTestCase
         ];
         self::assertTrue($called);
         self::assertArraySubset($expected, $formatted);
-        self::assertInternalType('array', $errors);
+        self::assertIsArray($errors);
         self::assertCount(2, $errors);
-        self::assertInternalType('callable', $formatter);
+        self::assertIsCallable($formatter);
         self::assertArraySubset($expected, $formatted);
     }
 }

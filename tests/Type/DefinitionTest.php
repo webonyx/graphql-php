@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
 use GraphQL\Type\Definition\CustomScalarType;
@@ -25,6 +26,8 @@ use function sprintf;
 
 class DefinitionTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var ObjectType */
     public $blogImage;
 
@@ -64,7 +67,7 @@ class DefinitionTest extends TestCase
     /** @var CustomScalarType */
     public $scalarType;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->objectType      = new ObjectType(['name' => 'Object', 'fields' => ['tmp' => Type::string()]]);
         $this->interfaceType   = new InterfaceType(['name' => 'Interface']);

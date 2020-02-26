@@ -15,12 +15,12 @@ class StandardTypesTest extends TestCase
     /** @var Type[] */
     private static $originalStandardTypes;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass() : void
     {
         self::$originalStandardTypes = Type::getStandardTypes();
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         parent::tearDown();
         Type::overrideStandardTypes(self::$originalStandardTypes);
