@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\NoUnusedVariables;
 class NoUnusedVariablesTest extends ValidatorTestCase
 {
     // Validate: No unused variables
+
     /**
      * @see it('uses all variables')
      */

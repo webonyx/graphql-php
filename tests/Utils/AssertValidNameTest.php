@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 class AssertValidNameTest extends TestCase
 {
     // Describe: assertValidName()
+
     /**
      * @see it('throws for use of leading double underscores')
      */

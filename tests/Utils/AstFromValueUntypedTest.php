@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 class AstFromValueUntypedTest extends TestCase
 {
     // Describe: valueFromASTUntyped
+
     /**
      * @see it('parses simple values')
      */
