@@ -3,6 +3,10 @@
 ### Breaking (major): dropped deprecations
  - dropped deprecated `GraphQL\Schema`. Use `GraphQL\Type\Schema`.
 
+### Breaking: change TypeKind constants
+The constants in `\GraphQL\Type\TypeKind` were partly renamed and their values
+have been changed to match their name instead of a numeric index.
+ 
 ## Upgrade v0.12.x > v0.13.x
 
 ### Breaking (major): minimum supported version of PHP
