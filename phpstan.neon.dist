@@ -26,24 +26,11 @@ parameters:
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
 
-        # TODO fix those errors to improve type safety
-        - "~Construct empty\\(\\) is not allowed\\. Use more strict comparison~"
-        - "~Variable property access on .+~"
-        - "~Anonymous function should have native return typehint~"
-        - "~Anonymous function should return .* but return statement is missing.~"
-        - "~Anonymous function sometimes return something but return statement at the end is missing.~"
-        - "~Short ternary operator is not allowed. Use null coalesce operator if applicable or consider using long ternary.~"
-
         # TODO convert to less magical code
         - "~Variable method call on static\\(GraphQL\\\\Server\\\\ServerConfig\\)~"
 
-        # TODO cast booleans explicitly https://github.com/phpstan/phpstan-strict-rules/issues/2
-        - "~Only booleans are allowed in .*~"
-
 includes:
-    - vendor/phpstan/phpstan-phpunit/extension.neon
-    - vendor/phpstan/phpstan-phpunit/rules.neon
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - phpstan-baseline.neon
 
 services:
     -
