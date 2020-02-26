@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\ExecutableDefinitions;
 class ExecutableDefinitionsTest extends ValidatorTestCase
 {
     // Validate: Executable definitions
+
     /**
      * @see it('with only operation')
      */

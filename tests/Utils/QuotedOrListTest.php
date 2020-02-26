@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 class QuotedOrListTest extends TestCase
 {
     // DESCRIBE: quotedOrList
+
     /**
      * @see it('Does not accept an empty list')
      */

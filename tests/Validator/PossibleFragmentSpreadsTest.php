@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\PossibleFragmentSpreads;
 class PossibleFragmentSpreadsTest extends ValidatorTestCase
 {
     // Validate: Possible fragment spreads
+
     /**
      * @see it('of the same object')
      */

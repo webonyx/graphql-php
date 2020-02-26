@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\UniqueInputFieldNames;
 class UniqueInputFieldNamesTest extends ValidatorTestCase
 {
     // Validate: Unique input field names
+
     /**
      * @see it('input object with fields')
      */

@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\UniqueVariableNames;
 class UniqueVariableNamesTest extends ValidatorTestCase
 {
     // Validate: Unique variable names
+
     /**
      * @see it('unique variable names')
      */

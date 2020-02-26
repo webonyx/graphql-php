@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\UniqueFragmentNames;
 class UniqueFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique fragment names
+
     /**
      * @see it('no fragments')
      */

@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\ProvidedRequiredArguments;
 class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 {
     // Validate: Provided required arguments
+
     /**
      * @see it('ignores unknown arguments')
      */

@@ -15,6 +15,7 @@ use GraphQL\Validator\Rules\OverlappingFieldsCanBeMerged;
 class OverlappingFieldsCanBeMergedTest extends ValidatorTestCase
 {
     // Validate: Overlapping fields can be merged
+
     /**
      * @see it('unique fields')
      */

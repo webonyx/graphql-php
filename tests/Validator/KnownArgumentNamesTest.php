@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\KnownArgumentNames;
 class KnownArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Known argument names:
+
     /**
      * @see it('single arg is known')
      */

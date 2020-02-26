@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 class SuggestionListTest extends TestCase
 {
     // DESCRIBE: suggestionList
+
     /**
      * @see it('Returns results when input is empty')
      */
