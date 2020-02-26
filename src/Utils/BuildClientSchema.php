@@ -97,7 +97,7 @@ class BuildClientSchema
             static function (array $typeIntrospection) {
                 return $typeIntrospection['name'];
             },
-            function (array $typeIntrospection) {
+            function (array $typeIntrospection) : NamedType {
                 return $this->buildType($typeIntrospection);
             }
         );
@@ -295,7 +295,7 @@ class BuildClientSchema
         return new ObjectType([
             'name' => $object['name'],
             'description' => $object['description'],
-            'interfaces' => function () use ($object) {
+            'interfaces' => function () use ($object) : array {
                 return array_map(
                     [$this, 'getInterfaceType'],
                     // Legacy support for interfaces with null as interfaces field
@@ -334,7 +334,7 @@ class BuildClientSchema
         return new UnionType([
             'name' => $union['name'],
             'description' => $union['description'],
-            'types' => function () use ($union) {
+            'types' => function () use ($union) : array {
                 return array_map(
                     [$this, 'getObjectType'],
                     $union['possibleTypes']
@@ -360,7 +360,7 @@ class BuildClientSchema
                 static function (array $enumValue) : string {
                     return $enumValue['name'];
                 },
-                static function (array $enumValue) {
+                static function (array $enumValue) : array {
                     return [
                         'description' => $enumValue['description'],
                         'deprecationReason' => $enumValue['deprecationReason'],
@@ -382,7 +382,7 @@ class BuildClientSchema
         return new InputObjectType([
             'name' => $inputObject['name'],
             'description' => $inputObject['description'],
-            'fields' => function () use ($inputObject) {
+            'fields' => function () use ($inputObject) : array {
                 return $this->buildInputValueDefMap($inputObject['inputFields']);
             },
         ]);
@@ -402,7 +402,7 @@ class BuildClientSchema
             static function (array $fieldIntrospection) : string {
                 return $fieldIntrospection['name'];
             },
-            function (array $fieldIntrospection) {
+            function (array $fieldIntrospection) : array {
                 if (! array_key_exists('args', $fieldIntrospection)) {
                     throw new InvariantViolation('Introspection result missing field args: ' . json_encode($fieldIntrospection) . '.');
                 }
