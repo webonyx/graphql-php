@@ -77,7 +77,7 @@ class KnownDirectives extends ValidationRule
             }
 
             $locationsMap[$def->name->value] = array_map(
-                static function ($name) {
+                static function ($name) : string {
                     return $name->value;
                 },
                 $def->locations
@@ -94,7 +94,7 @@ class KnownDirectives extends ValidationRule
             ) use (
                 $context,
                 $locationsMap
-            ) {
+            ) : void {
                 $name      = $node->name->value;
                 $locations = $locationsMap[$name] ?? null;
 

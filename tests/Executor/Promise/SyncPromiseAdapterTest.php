@@ -19,7 +19,7 @@ class SyncPromiseAdapterTest extends TestCase
     /** @var SyncPromiseAdapter */
     private $promises;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->promises = new SyncPromiseAdapter();
     }

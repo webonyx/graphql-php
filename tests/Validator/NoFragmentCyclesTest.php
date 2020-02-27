@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\NoFragmentCycles;
 class NoFragmentCyclesTest extends ValidatorTestCase
 {
     // Validate: No circular fragment spreads
+
     /**
      * @see it('single reference is valid')
      */

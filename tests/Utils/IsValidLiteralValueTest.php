@@ -13,6 +13,7 @@ use PHPUnit\Framework\TestCase;
 class IsValidLiteralValueTest extends TestCase
 {
     // DESCRIBE: isValidLiteralValue
+
     /**
      * @see it('Returns no errors for a valid value')
      */

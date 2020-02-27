@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\UniqueArgumentNames;
 class UniqueArgumentNamesTest extends ValidatorTestCase
 {
     // Validate: Unique argument names
+
     /**
      * @see it('no arguments on field')
      */

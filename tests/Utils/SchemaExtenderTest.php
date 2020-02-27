@@ -55,7 +55,7 @@ class SchemaExtenderTest extends TestCase
     /** @var Directive */
     protected $FooDirective;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -252,8 +252,8 @@ class SchemaExtenderTest extends TestCase
                 newField: String
             }');
         self::assertNotEquals($extendedSchema, $this->testSchema);
-        self::assertContains('newField', SchemaPrinter::doPrint($extendedSchema));
-        self::assertNotContains('newField', SchemaPrinter::doPrint($this->testSchema));
+        self::assertStringContainsString('newField', SchemaPrinter::doPrint($extendedSchema));
+        self::assertStringNotContainsString('newField', SchemaPrinter::doPrint($this->testSchema));
     }
 
     /**
@@ -1897,7 +1897,7 @@ extend type Query {
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
         $helloResolveFn = $extendedSchema->getQueryType()->getField('hello')->resolveFn;
 
-        self::assertInternalType('callable', $helloResolveFn);
+        self::assertIsCallable($helloResolveFn);
 
         $query  = '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);

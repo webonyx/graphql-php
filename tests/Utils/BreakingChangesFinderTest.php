@@ -23,7 +23,7 @@ class BreakingChangesFinderTest extends TestCase
     /** @var ObjectType */
     private $queryType;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->queryType = new ObjectType([
             'name'   => 'Query',

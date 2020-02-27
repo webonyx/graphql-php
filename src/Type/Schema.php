@@ -238,7 +238,7 @@ class Schema
      */
     public function getDirectives()
     {
-        return $this->config->directives ?: GraphQL::getStandardDirectives();
+        return $this->config->directives ?? GraphQL::getStandardDirectives();
     }
 
     /**

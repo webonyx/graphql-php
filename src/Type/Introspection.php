@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type;
 
 use Exception;
+use GraphQL\GraphQL;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
@@ -184,6 +185,34 @@ EOD;
         ];
     }
 
+    /**
+     * Build an introspection query from a Schema
+     *
+     * Introspection is useful for utilities that care about type and field
+     * relationships, but do not need to traverse through those relationships.
+     *
+     * This is the inverse of BuildClientSchema::build(). The primary use case is outside
+     * of the server context, for instance when doing schema comparisons.
+     *
+     * Options:
+     *   - descriptions
+     *     Whether to include descriptions in the introspection result.
+     *     Default: true
+     *
+     * @param array<string, bool> $options
+     *
+     * @return array<string, array<mixed>>|null
+     */
+    public static function fromSchema(Schema $schema, array $options = []) : ?array
+    {
+        $result = GraphQL::executeQuery(
+            $schema,
+            self::getIntrospectionQuery($options)
+        );
+
+        return $result->data;
+    }
+
     public static function _schema()
     {
         if (! isset(self::$map['__Schema'])) {
@@ -263,7 +292,7 @@ EOD;
                             'resolve' => static function (Type $type) {
                                 switch (true) {
                                     case $type instanceof ListOfType:
-                                        return TypeKind::LIST_KIND;
+                                        return TypeKind::LIST;
                                     case $type instanceof NonNull:
                                         return TypeKind::NON_NULL;
                                     case $type instanceof ScalarType:
@@ -275,7 +304,7 @@ EOD;
                                     case $type instanceof InputObjectType:
                                         return TypeKind::INPUT_OBJECT;
                                     case $type instanceof InterfaceType:
-                                        return TypeKind::INTERFACE_KIND;
+                                        return TypeKind::INTERFACE;
                                     case $type instanceof UnionType:
                                         return TypeKind::UNION;
                                     default:
@@ -408,7 +437,7 @@ EOD;
                         'description' => 'Indicates this type is an object. `fields` and `interfaces` are valid fields.',
                     ],
                     'INTERFACE'    => [
-                        'value'       => TypeKind::INTERFACE_KIND,
+                        'value'       => TypeKind::INTERFACE,
                         'description' => 'Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.',
                     ],
                     'UNION'        => [
@@ -424,7 +453,7 @@ EOD;
                         'description' => 'Indicates this type is an input object. `inputFields` is a valid field.',
                     ],
                     'LIST'         => [
-                        'value'       => TypeKind::LIST_KIND,
+                        'value'       => TypeKind::LIST,
                         'description' => 'Indicates this type is a list. `ofType` is a valid field.',
                     ],
                     'NON_NULL'     => [

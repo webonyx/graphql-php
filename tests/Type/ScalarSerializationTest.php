@@ -16,6 +16,7 @@ use function log;
 class ScalarSerializationTest extends TestCase
 {
     // Type System: Scalar coercion
+
     /**
      * @see it('serializes output as Int')
      */

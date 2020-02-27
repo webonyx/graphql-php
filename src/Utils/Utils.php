@@ -275,7 +275,7 @@ class Utils
     }
 
     /**
-     * @param iterable<mixed> $iterable
+     * @param iterable<mixed> $traversable
      *
      * @return array<mixed>
      */

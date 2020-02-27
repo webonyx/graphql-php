@@ -8,11 +8,15 @@ use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use PHPUnit\Framework\TestCase;
 
 class SchemaParserTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     // Describe: Schema Parser
+
     /**
      * @see it('Simple type')
      */

@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\LoneAnonymousOperation;
 class LoneAnonymousOperationTest extends ValidatorTestCase
 {
     // Validate: Anonymous operation must be alone
+
     /**
      * @see it('no operations')
      */
