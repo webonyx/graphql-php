@@ -253,7 +253,7 @@ class Helper
         $isBatch = false
     ) {
         try {
-            if (! $config->getSchema()) {
+            if ($config->getSchema() === null) {
                 throw new InvariantViolation('Schema is required for the server');
             }
 
@@ -344,7 +344,7 @@ class Helper
         // Load query if we got persisted query id:
         $loader = $config->getPersistentQueryLoader();
 
-        if (! $loader) {
+        if ($loader === null) {
             throw new RequestError('Persisted queries are not supported by this server');
         }
 

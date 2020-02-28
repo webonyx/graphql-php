@@ -114,13 +114,13 @@ class AmpPromiseAdapter implements PromiseAdapter
         $deferred = new Deferred();
 
         $onResolve = static function (?Throwable $reason, ?array $values) use ($promisesOrValues, $deferred) : void {
-            if ($reason) {
-                $deferred->fail($reason);
+            if ($reason === null) {
+                $deferred->resolve(array_replace($promisesOrValues, $values));
 
                 return;
             }
 
-            $deferred->resolve(array_replace($promisesOrValues, $values));
+            $deferred->fail($reason);
         };
 
         all($promises)->onResolve($onResolve);

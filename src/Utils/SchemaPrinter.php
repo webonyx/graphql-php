@@ -102,26 +102,26 @@ class SchemaPrinter
         );
     }
 
-    private static function printSchemaDefinition(Schema $schema)
+    private static function printSchemaDefinition(Schema $schema) : string
     {
         if (self::isSchemaOfCommonNames($schema)) {
-            return;
+            return '';
         }
 
         $operationTypes = [];
 
         $queryType = $schema->getQueryType();
-        if ($queryType) {
+        if ($queryType !== null) {
             $operationTypes[] = sprintf('  query: %s', $queryType->name);
         }
 
         $mutationType = $schema->getMutationType();
-        if ($mutationType) {
+        if ($mutationType !== null) {
             $operationTypes[] = sprintf('  mutation: %s', $mutationType->name);
         }
 
         $subscriptionType = $schema->getSubscriptionType();
-        if ($subscriptionType) {
+        if ($subscriptionType !== null) {
             $operationTypes[] = sprintf('  subscription: %s', $subscriptionType->name);
         }
 
@@ -140,21 +140,21 @@ class SchemaPrinter
      *
      * When using this naming convention, the schema description can be omitted.
      */
-    private static function isSchemaOfCommonNames(Schema $schema)
+    private static function isSchemaOfCommonNames(Schema $schema) : bool
     {
         $queryType = $schema->getQueryType();
-        if ($queryType && $queryType->name !== 'Query') {
+        if ($queryType !== null && $queryType->name !== 'Query') {
             return false;
         }
 
         $mutationType = $schema->getMutationType();
-        if ($mutationType && $mutationType->name !== 'Mutation') {
+        if ($mutationType !== null && $mutationType->name !== 'Mutation') {
             return false;
         }
 
         $subscriptionType = $schema->getSubscriptionType();
 
-        return ! $subscriptionType || $subscriptionType->name === 'Subscription';
+        return $subscriptionType === null || $subscriptionType->name === 'Subscription';
     }
 
     private static function printDirective($directive, $options) : string

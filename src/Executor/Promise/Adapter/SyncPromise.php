@@ -62,7 +62,7 @@ class SyncPromise
         if ($executor === null) {
             return;
         }
-        self::getQueue()->enqueue(function () use ($executor) {
+        self::getQueue()->enqueue(function () use ($executor) : void {
             try {
                 $this->resolve($executor());
             } catch (Throwable $e) {

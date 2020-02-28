@@ -401,11 +401,6 @@ parameters:
 			path: src/Server/Helper.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Schema given\\.$#"
-			count: 1
-			path: src/Server/Helper.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Error\\\\Error\"\\.$#"
 			count: 1
 			path: src/Server/Helper.php
@@ -427,11 +422,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in \\|\\|, \\(callable\\)\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Server/Helper.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, callable given\\.$#"
 			count: 1
 			path: src/Server/Helper.php
 
@@ -512,12 +502,7 @@ parameters:
 
 		-
 			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 4
-			path: src/Type/Introspection.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
+			count: 3
 			path: src/Type/Introspection.php
 
 		-
@@ -576,16 +561,6 @@ parameters:
 			path: src/Type/Schema.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\Directive\\> given\\.$#"
-			count: 1
-			path: src/Type/Schema.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\ObjectType given\\.$#"
-			count: 3
-			path: src/Type/Schema.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
 			count: 1
 			path: src/Type/Schema.php
@@ -616,22 +591,12 @@ parameters:
 			path: src/Type/SchemaConfig.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Type/SchemaConfig.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\ObjectType given\\.$#"
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
 
 		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
 
@@ -921,11 +886,6 @@ parameters:
 			path: src/Utils/SchemaExtender.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\SchemaTypeExtensionNode\\> given\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\Type\"\\.$#"
 			count: 1
 			path: src/Utils/SchemaExtender.php
@@ -938,31 +898,6 @@ parameters:
 		-
 			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
 			count: 7
-			path: src/Utils/SchemaPrinter.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\ObjectType given\\.$#"
-			count: 1
-			path: src/Utils/SchemaPrinter.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given\\.$#"
-			count: 2
-			path: src/Utils/SchemaPrinter.php
-
-		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\ObjectType given on the left side\\.$#"
-			count: 1
-			path: src/Utils/SchemaPrinter.php
-
-		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Utils/SchemaPrinter.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given\\.$#"
-			count: 1
 			path: src/Utils/SchemaPrinter.php
 
 		-
@@ -1224,21 +1159,6 @@ parameters:
 			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Language\\\\AST\\\\NameNode given on the left side\\.$#"
 			count: 1
 			path: src/Validator/Rules/LoneAnonymousOperation.php
-
-		-
-			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Language\\\\AST\\\\SchemaDefinitionNode given on the left side\\.$#"
-			count: 1
-			path: src/Validator/Rules/LoneSchemaDefinition.php
-
-		-
-			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Type\\\\Definition\\\\ObjectType given on the right side\\.$#"
-			count: 1
-			path: src/Validator/Rules/LoneSchemaDefinition.php
-
-		-
-			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given on the right side\\.$#"
-			count: 2
-			path: src/Validator/Rules/LoneSchemaDefinition.php
 
 		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
@@ -1707,7 +1627,7 @@ parameters:
 
 		-
 			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 5
+			count: 4
 			path: tests/Executor/DeferredFieldsTest.php
 
 		-

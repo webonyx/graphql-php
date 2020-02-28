@@ -71,7 +71,7 @@ class SchemaValidationContext
         return $this->errors;
     }
 
-    public function validateRootTypes()
+    public function validateRootTypes() : void
     {
         $queryType = $this->schema->getQueryType();
         if (! $queryType) {
@@ -95,7 +95,7 @@ class SchemaValidationContext
         }
 
         $subscriptionType = $this->schema->getSubscriptionType();
-        if (! $subscriptionType || $subscriptionType instanceof ObjectType) {
+        if ($subscriptionType === null || $subscriptionType instanceof ObjectType) {
             return;
         }
 

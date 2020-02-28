@@ -112,7 +112,7 @@ class Schema
                 '"types" must be array or callable if provided but got: ' . Utils::getVariableType($config->types)
             );
             Utils::invariant(
-                ! $config->directives || is_array($config->directives),
+                $config->directives === null || is_array($config->directives),
                 '"directives" must be Array if provided but got: ' . Utils::getVariableType($config->directives)
             );
         }
@@ -120,13 +120,13 @@ class Schema
         $this->config            = $config;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
-        if ($config->query) {
+        if ($config->query !== null) {
             $this->resolvedTypes[$config->query->name] = $config->query;
         }
-        if ($config->mutation) {
+        if ($config->mutation !== null) {
             $this->resolvedTypes[$config->mutation->name] = $config->mutation;
         }
-        if ($config->subscription) {
+        if ($config->subscription !== null) {
             $this->resolvedTypes[$config->subscription->name] = $config->subscription;
         }
         if (is_array($this->config->types)) {
@@ -267,7 +267,7 @@ class Schema
      *
      * @api
      */
-    public function getQueryType()
+    public function getQueryType() : ?Type
     {
         return $this->config->query;
     }
@@ -279,7 +279,7 @@ class Schema
      *
      * @api
      */
-    public function getMutationType()
+    public function getMutationType() : ?Type
     {
         return $this->config->mutation;
     }
@@ -291,7 +291,7 @@ class Schema
      *
      * @api
      */
-    public function getSubscriptionType()
+    public function getSubscriptionType() : ?Type
     {
         return $this->config->subscription;
     }
@@ -446,10 +446,7 @@ class Schema
         return null;
     }
 
-    /**
-     * @return SchemaDefinitionNode|null
-     */
-    public function getAstNode()
+    public function getAstNode() : ?SchemaDefinitionNode
     {
         return $this->config->getAstNode();
     }

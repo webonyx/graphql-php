@@ -31,10 +31,10 @@ class LoneSchemaDefinition extends ValidationRule
         $oldSchema      = $context->getSchema();
         $alreadyDefined = $oldSchema !== null
             ? (
-                $oldSchema->getAstNode() ||
-                $oldSchema->getQueryType() ||
-                $oldSchema->getMutationType() ||
-                $oldSchema->getSubscriptionType()
+                $oldSchema->getAstNode() !== null ||
+                $oldSchema->getQueryType() !== null ||
+                $oldSchema->getMutationType() !== null ||
+                $oldSchema->getSubscriptionType() !== null
             )
             : false;
 

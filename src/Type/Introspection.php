@@ -251,14 +251,14 @@ EOD;
                     'subscriptionType' => [
                         'description' => 'If this server support subscription, the type that subscription operations will be rooted at.',
                         'type'        => self::_type(),
-                        'resolve'     => static function (Schema $schema) {
+                        'resolve'     => static function (Schema $schema) : ?ObjectType {
                             return $schema->getSubscriptionType();
                         },
                     ],
                     'directives'       => [
                         'description' => 'A list of all directives supported by this server.',
                         'type'        => Type::nonNull(Type::listOf(Type::nonNull(self::_directive()))),
-                        'resolve'     => static function (Schema $schema) {
+                        'resolve'     => static function (Schema $schema) : array {
                             return $schema->getDirectives();
                         },
                     ],

@@ -11,6 +11,7 @@ use Amp\LazyPromise;
 use Amp\Promise;
 use Amp\Success;
 use Exception;
+use Generator;
 use GraphQL\Executor\Promise\Adapter\AmpPromiseAdapter;
 use PHPUnit\Framework\TestCase;
 use stdClass;
@@ -36,7 +37,7 @@ class AmpPromiseAdapterTest extends TestCase
         $ampAdapter = new AmpPromiseAdapter();
 
         self::assertTrue(
-            $ampAdapter->isThenable(call(static function () {
+            $ampAdapter->isThenable(call(static function () : Generator {
                 yield from [];
             }))
         );
@@ -44,7 +45,7 @@ class AmpPromiseAdapterTest extends TestCase
         self::assertTrue($ampAdapter->isThenable(new Failure(new Exception())));
         self::assertTrue($ampAdapter->isThenable(new Delayed(0)));
         self::assertTrue(
-            $ampAdapter->isThenable(new LazyPromise(static function () {
+            $ampAdapter->isThenable(new LazyPromise(static function () : void {
             }))
         );
         self::assertFalse($ampAdapter->isThenable(false));
@@ -78,7 +79,7 @@ class AmpPromiseAdapterTest extends TestCase
 
         $resultPromise = $ampAdapter->then(
             $promise,
-            static function ($value) use (&$result) {
+            static function ($value) use (&$result) : void {
                 $result = $value;
             }
         );
@@ -91,7 +92,7 @@ class AmpPromiseAdapterTest extends TestCase
     public function testCreate() : void
     {
         $ampAdapter      = new AmpPromiseAdapter();
-        $resolvedPromise = $ampAdapter->create(static function ($resolve) {
+        $resolvedPromise = $ampAdapter->create(static function ($resolve) : void {
             $resolve(1);
         });
 
@@ -100,7 +101,7 @@ class AmpPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $resolvedPromise->then(static function ($value) use (&$result) {
+        $resolvedPromise->then(static function ($value) use (&$result) : void {
             $result = $value;
         });
 
@@ -117,7 +118,7 @@ class AmpPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $fulfilledPromise->then(static function ($value) use (&$result) {
+        $fulfilledPromise->then(static function ($value) use (&$result) : void {
             $result = $value;
         });
 
@@ -136,7 +137,7 @@ class AmpPromiseAdapterTest extends TestCase
 
         $rejectedPromise->then(
             null,
-            static function ($error) use (&$exception) {
+            static function ($error) use (&$exception) : void {
                 $exception = $error;
             }
         );
@@ -157,7 +158,7 @@ class AmpPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $allPromise->then(static function ($values) use (&$result) {
+        $allPromise->then(static function ($values) use (&$result) : void {
             $result = $values;
         });
 
@@ -171,7 +172,7 @@ class AmpPromiseAdapterTest extends TestCase
         $promises   = [new Success(1), 2, $deferred->promise(), new Success(4)];
         $result     = null;
 
-        $ampAdapter->all($promises)->then(static function ($values) use (&$result) {
+        $ampAdapter->all($promises)->then(static function ($values) use (&$result) : void {
             $result = $values;
         });
 
