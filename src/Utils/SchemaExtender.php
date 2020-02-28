@@ -391,6 +391,7 @@ class SchemaExtender
             'astNode' => $type->astNode,
             'extensionASTNodes' => static::getExtensionASTNodes($type),
             'isTypeOf' => $type->config['isTypeOf'] ?? null,
+            'resolveField' => $type->resolveFieldFn ?? null,
         ]);
     }
 

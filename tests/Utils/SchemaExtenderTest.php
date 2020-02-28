@@ -1904,6 +1904,38 @@ extend type Query {
         self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
     }
 
+    public function testOriginalResolveFieldIsPreserved()
+    {
+        $queryType = new ObjectType([
+            'name' => 'Query',
+            'fields' => [
+                'hello' => [
+                    'type' => Type::string(),
+                ],
+            ],
+            'resolveField' => static function () : string {
+                return 'Hello World!';
+            },
+        ]);
+
+        $schema = new Schema(['query' => $queryType]);
+
+        $documentNode = Parser::parse('
+extend type Query {
+	misc: String
+}
+');
+
+        $extendedSchema      = SchemaExtender::extend($schema, $documentNode);
+        $queryResolveFieldFn = $extendedSchema->getQueryType()->resolveFieldFn;
+
+        self::assertIsCallable($queryResolveFieldFn);
+
+        $query  = '{ hello }';
+        $result = GraphQL::executeQuery($extendedSchema, $query);
+        self::assertSame(['data' => ['hello' => 'Hello World!']], $result->toArray());
+    }
+
     /**
      * @see https://github.com/webonyx/graphql-php/issues/180
      */
