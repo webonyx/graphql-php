@@ -103,18 +103,18 @@ class Utils
     }
 
     /**
-     * @param mixed|Traversable $traversable
+     * @param iterable<mixed> $iterable
      *
      * @return mixed|null
      */
-    public static function find($traversable, callable $predicate)
+    public static function find($iterable, callable $predicate)
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            is_array($iterable) || $iterable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
-        foreach ($traversable as $key => $value) {
+        foreach ($iterable as $key => $value) {
             if ($predicate($value, $key)) {
                 return $value;
             }
@@ -124,22 +124,22 @@ class Utils
     }
 
     /**
-     * @param mixed|Traversable $traversable
+     * @param iterable<mixed> $iterable
      *
-     * @return mixed[]
+     * @return array<mixed>
      *
      * @throws Exception
      */
-    public static function filter($traversable, callable $predicate)
+    public static function filter($iterable, callable $predicate) : array
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            is_array($iterable) || $iterable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
         $result = [];
         $assoc  = false;
-        foreach ($traversable as $key => $value) {
+        foreach ($iterable as $key => $value) {
             if (! $assoc && ! is_int($key)) {
                 $assoc = true;
             }
@@ -154,21 +154,21 @@ class Utils
     }
 
     /**
-     * @param mixed|Traversable $traversable
+     * @param iterable<mixed> $iterable
      *
-     * @return mixed[]
+     * @return array<mixed>
      *
      * @throws Exception
      */
-    public static function map($traversable, callable $fn)
+    public static function map($iterable, callable $fn) : array
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            is_array($iterable) || $iterable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
         $map = [];
-        foreach ($traversable as $key => $value) {
+        foreach ($iterable as $key => $value) {
             $map[$key] = $fn($value, $key);
         }
 
@@ -176,21 +176,21 @@ class Utils
     }
 
     /**
-     * @param mixed|Traversable $traversable
+     * @param iterable<mixed> $iterable
      *
-     * @return mixed[]
+     * @return array<mixed>
      *
      * @throws Exception
      */
-    public static function mapKeyValue($traversable, callable $fn)
+    public static function mapKeyValue($iterable, callable $fn) : array
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            is_array($iterable) || $iterable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
         $map = [];
-        foreach ($traversable as $key => $value) {
+        foreach ($iterable as $key => $value) {
             [$newKey, $newValue] = $fn($value, $key);
             $map[$newKey]        = $newValue;
         }
@@ -199,21 +199,21 @@ class Utils
     }
 
     /**
-     * @param mixed|Traversable $traversable
+     * @param iterable<mixed> $iterable
      *
-     * @return mixed[]
+     * @return array<mixed>
      *
      * @throws Exception
      */
-    public static function keyMap($traversable, callable $keyFn)
+    public static function keyMap($iterable, callable $keyFn) : array
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            is_array($iterable) || $iterable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
         $map = [];
-        foreach ($traversable as $key => $value) {
+        foreach ($iterable as $key => $value) {
             $newKey = $keyFn($value, $key);
             if (! is_scalar($newKey)) {
                 continue;
@@ -225,20 +225,23 @@ class Utils
         return $map;
     }
 
-    public static function each($traversable, callable $fn)
+    /**
+     * @param iterable<mixed> $iterable
+     */
+    public static function each($iterable, callable $fn) : void
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            is_array($iterable) || $iterable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
-        foreach ($traversable as $key => $item) {
+        foreach ($iterable as $key => $item) {
             $fn($item, $key);
         }
     }
 
     /**
-     * Splits original traversable to several arrays with keys equal to $keyFn return
+     * Splits original iterable to several arrays with keys equal to $keyFn return
      *
      * E.g. Utils::groupBy([1, 2, 3, 4, 5], function($value) {return $value % 3}) will output:
      * [
@@ -249,19 +252,19 @@ class Utils
      *
      * $keyFn is also allowed to return array of keys. Then value will be added to all arrays with given keys
      *
-     * @param mixed[]|Traversable $traversable
+     * @param iterable<mixed> $iterable
      *
-     * @return mixed[]
+     * @return array<array<mixed>>
      */
-    public static function groupBy($traversable, callable $keyFn)
+    public static function groupBy($iterable, callable $keyFn) : array
     {
         self::invariant(
-            is_array($traversable) || $traversable instanceof Traversable,
+            is_array($iterable) || $iterable instanceof Traversable,
             __METHOD__ . ' expects array or Traversable'
         );
 
         $grouped = [];
-        foreach ($traversable as $key => $value) {
+        foreach ($iterable as $key => $value) {
             $newKeys = (array) $keyFn($value, $key);
             foreach ($newKeys as $newKey) {
                 $grouped[$newKey][] = $value;
@@ -272,14 +275,14 @@ class Utils
     }
 
     /**
-     * @param iterable<mixed> $traversable
+     * @param iterable<mixed> $iterable
      *
      * @return array<mixed>
      */
-    public static function keyValMap($traversable, callable $keyFn, callable $valFn)
+    public static function keyValMap($iterable, callable $keyFn, callable $valFn) : array
     {
         $map = [];
-        foreach ($traversable as $item) {
+        foreach ($iterable as $item) {
             $map[$keyFn($item)] = $valFn($item);
         }
 
@@ -287,13 +290,11 @@ class Utils
     }
 
     /**
-     * @param mixed[] $traversable
-     *
-     * @return bool
+     * @param iterable<mixed> $iterable
      */
-    public static function every($traversable, callable $predicate)
+    public static function every($iterable, callable $predicate) : bool
     {
-        foreach ($traversable as $key => $value) {
+        foreach ($iterable as $key => $value) {
             if (! $predicate($value, $key)) {
                 return false;
             }
@@ -303,13 +304,11 @@ class Utils
     }
 
     /**
-     * @param mixed[] $traversable
-     *
-     * @return bool
+     * @param iterable<mixed> $iterable
      */
-    public static function some($traversable, callable $predicate)
+    public static function some($iterable, callable $predicate) : bool
     {
-        foreach ($traversable as $key => $value) {
+        foreach ($iterable as $key => $value) {
             if ($predicate($value, $key)) {
                 return true;
             }
