@@ -39,8 +39,8 @@ class SchemaConfig
     /** @var Type[]|callable */
     public $types = [];
 
-    /** @var Directive[] */
-    public $directives = [];
+    /** @var Directive[]|null */
+    public $directives;
 
     /** @var callable|null */
     public $typeLoader;
@@ -229,7 +229,7 @@ class SchemaConfig
     }
 
     /**
-     * @return Directive[]
+     * @return Directive[]|null
      *
      * @api
      */
