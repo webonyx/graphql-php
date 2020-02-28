@@ -37,7 +37,7 @@ class AmpPromiseAdapter implements PromiseAdapter
      */
     public function then(Promise $promise, ?callable $onFulfilled = null, ?callable $onRejected = null) : Promise
     {
-        $deferred = new Deferred();
+        $deferred  = new Deferred();
         $onResolve = static function (?Throwable $reason, $value) use ($onFulfilled, $onRejected, $deferred) : void {
             if ($reason === null && $onFulfilled !== null) {
                 self::resolveWithCallable($deferred, $onFulfilled, $value);
