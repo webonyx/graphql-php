@@ -207,6 +207,7 @@ class VisitorTest extends ValidatorTestCase
 
         self::assertNotEquals($ast, $editedAst);
 
+        /** @var DocumentNode $expected */
         $expected                           = $ast->cloneDeep();
         $expected->definitions[0]->didEnter = true;
         $expected->definitions[0]->didLeave = true;

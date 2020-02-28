@@ -239,7 +239,7 @@ class ValuesOfCorrectType extends ValidationRule
             $suggestions = Utils::suggestionList(
                 Printer::doPrint($node),
                 array_map(
-                    static function (EnumValueDefinition $value) {
+                    static function (EnumValueDefinition $value) : string {
                         return $value->name;
                     },
                     $type->getValues()
