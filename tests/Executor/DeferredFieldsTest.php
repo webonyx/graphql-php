@@ -91,12 +91,7 @@ class DeferredFieldsTest extends TestCase
                             return new Deferred(function () use ($user) {
                                 $this->paths[] = 'deferred-for-best-friend-of-' . $user['id'];
 
-                                return Utils::find(
-                                    $this->userDataSource,
-                                    static function ($entry) use ($user) {
-                                        return $entry['id'] === $user['bestFriendId'];
-                                    }
-                                );
+                                return $this->findUserById($user['bestFriendId']);
                             });
                         },
                     ],
@@ -614,24 +609,24 @@ class DeferredFieldsTest extends TestCase
             'deferred-for-category-2-topStoryAuthor1',
             'deferred-for-category-3-topStory',
             'deferred-for-category-3-topStoryAuthor1',
-            'deferred-for-category-1-topStoryAuthor2',
-            'deferred-for-category-2-topStoryAuthor2',
-            'deferred-for-category-3-topStoryAuthor2',
             ['categories', 0, 'topStory', 'title'],
             ['categories', 0, 'topStory', 'author'],
+            'deferred-for-category-1-topStoryAuthor2',
             ['categories', 1, 'topStory', 'title'],
             ['categories', 1, 'topStory', 'author'],
+            'deferred-for-category-2-topStoryAuthor2',
             ['categories', 2, 'topStory', 'title'],
             ['categories', 2, 'topStory', 'author'],
-            ['categories', 0, 'topStoryAuthor', 'name'],
-            ['categories', 1, 'topStoryAuthor', 'name'],
-            ['categories', 2, 'topStoryAuthor', 'name'],
+            'deferred-for-category-3-topStoryAuthor2',
             'deferred-for-story-8-author',
             'deferred-for-story-3-author',
             'deferred-for-story-9-author',
             ['categories', 0, 'topStory', 'author', 'name'],
+            ['categories', 0, 'topStoryAuthor', 'name'],
             ['categories', 1, 'topStory', 'author', 'name'],
+            ['categories', 1, 'topStoryAuthor', 'name'],
             ['categories', 2, 'topStory', 'author', 'name'],
+            ['categories', 2, 'topStoryAuthor', 'name'],
         ];
         self::assertEquals($expectedPaths, $this->paths);
     }
