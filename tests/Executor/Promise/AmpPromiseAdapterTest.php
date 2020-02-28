@@ -22,7 +22,7 @@ use function interface_exists;
  */
 class AmpPromiseAdapterTest extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         if (interface_exists(Promise::class)) {
             return;
