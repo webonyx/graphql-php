@@ -14,6 +14,7 @@
     "ext-mbstring": "*"
   },
   "require-dev": {
+    "amphp/amp": "^2.3",
     "doctrine/coding-standard": "^6.0",
     "phpbench/phpbench": "^0.14",
     "phpstan/extension-installer": "^1.0",
