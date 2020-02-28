@@ -10,17 +10,17 @@ use GraphQL\Language\Parser;
 use GraphQL\Type\Introspection;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QuerySecurityRule;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use function array_map;
 
 abstract class QuerySecurityTestCase extends TestCase
 {
-    /**
-     * @expectedException \InvalidArgumentException
-     * @expectedExceptionMessage argument must be greater or equal to 0.
-     */
     public function testMaxQueryDepthMustBeGreaterOrEqualTo0() : void
     {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('argument must be greater or equal to 0.');
+
         $this->getRule(-1);
     }
 

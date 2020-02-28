@@ -59,7 +59,7 @@ class ValidationTest extends TestCase
     /** @var float */
     public $Number;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->Number = 1;
 
@@ -163,7 +163,7 @@ class ValidationTest extends TestCase
         );
     }
 
-    public function tearDown()
+    public function tearDown() : void
     {
         parent::tearDown();
         Warning::enable(Warning::WARNING_NOT_A_TYPE);

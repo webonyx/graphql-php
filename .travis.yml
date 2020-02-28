@@ -38,19 +38,6 @@ jobs:
       install:
         - travis_retry composer update --prefer-dist {$DEPENDENCIES}
 
-    - stage: Test
-      env: COVERAGE
-      before_script:
-        - mv ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini{.disabled,}
-        - if [[ ! $(php -m | grep -si xdebug) ]]; then echo "xdebug required for coverage"; exit 1; fi
-      script:
-        - ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
-        - EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
-      after_script:
-        - ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
-        - wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-        - php ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
-
     - stage: Code Quality
       php: 7.1
       env: CODING_STANDARD

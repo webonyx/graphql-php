@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Utils;
 
 use GraphQL\Error\Error;
 use GraphQL\GraphQL;
+use GraphQL\Language\AST\DefinitionNode;
 use GraphQL\Language\AST\DocumentNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeList;
@@ -54,7 +55,7 @@ class SchemaExtenderTest extends TestCase
     /** @var Directive */
     protected $FooDirective;
 
-    public function setUp()
+    public function setUp() : void
     {
         parent::setUp();
 
@@ -217,15 +218,17 @@ class SchemaExtenderTest extends TestCase
 
     protected function printTestSchemaChanges(Schema $extendedSchema) : string
     {
-        $ast              = Parser::parse(SchemaPrinter::doPrint($extendedSchema));
-        $ast->definitions = array_values(array_filter(
-            $ast->definitions instanceof NodeList
-                ? iterator_to_array($ast->definitions->getIterator())
-                : $ast->definitions,
+        $ast = Parser::parse(SchemaPrinter::doPrint($extendedSchema));
+        /** @var array<Node&DefinitionNode> $extraDefinitions */
+        $extraDefinitions = array_values(array_filter(
+            iterator_to_array($ast->definitions->getIterator()),
             function (Node $node) : bool {
                 return ! in_array(Printer::doPrint($node), $this->testSchemaDefinitions, true);
             }
         ));
+        /** @phpstan-var NodeList<DefinitionNode&Node> $definitionNodeList */
+        $definitionNodeList = new NodeList($extraDefinitions);
+        $ast->definitions   = $definitionNodeList;
 
         return Printer::doPrint($ast);
     }
@@ -249,8 +252,8 @@ class SchemaExtenderTest extends TestCase
                 newField: String
             }');
         self::assertNotEquals($extendedSchema, $this->testSchema);
-        self::assertContains('newField', SchemaPrinter::doPrint($extendedSchema));
-        self::assertNotContains('newField', SchemaPrinter::doPrint($this->testSchema));
+        self::assertStringContainsString('newField', SchemaPrinter::doPrint($extendedSchema));
+        self::assertStringNotContainsString('newField', SchemaPrinter::doPrint($this->testSchema));
     }
 
     /**
@@ -1894,7 +1897,7 @@ extend type Query {
         $extendedSchema = SchemaExtender::extend($schema, $documentNode);
         $helloResolveFn = $extendedSchema->getQueryType()->getField('hello')->resolveFn;
 
-        self::assertInternalType('callable', $helloResolveFn);
+        self::assertIsCallable($helloResolveFn);
 
         $query  = '{ hello }';
         $result = GraphQL::executeQuery($extendedSchema, $query);

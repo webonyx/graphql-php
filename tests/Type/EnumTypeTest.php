@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Type;
 use ArrayObject;
 use GraphQL\GraphQL;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -18,6 +19,8 @@ use function is_array;
 
 class EnumTypeTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var Schema */
     private $schema;
 
@@ -30,7 +33,7 @@ class EnumTypeTest extends TestCase
     /** @var ArrayObject */
     private $Complex2;
 
-    public function setUp()
+    public function setUp() : void
     {
         $ColorType = new EnumType([
             'name'   => 'Color',
@@ -61,6 +64,15 @@ class EnumTypeTest extends TestCase
             'values' => [
                 'ONE' => ['value' => $Complex1],
                 'TWO' => ['value' => $Complex2],
+            ],
+        ]);
+
+        $Array1          = ['one', 'ONE'];
+        $ArrayValuesEnum = new EnumType([
+            'name' => 'ArrayValuesEnum',
+            'values' => [
+                'ONE' => ['value' => $Array1],
+                'TWO' => ['value' => ['two', 'TWO']],
             ],
         ]);
 
@@ -142,6 +154,33 @@ class EnumTypeTest extends TestCase
                             // Note: similar shape, but not the same *reference*
                             // as Complex2 above. Enum internal values require === equality.
                             return new ArrayObject(['someRandomValue' => 123]);
+                        }
+
+                        return $args['fromEnum'];
+                    },
+                ],
+                'arrayValuesEnum' => [
+                    'type' => $ArrayValuesEnum,
+                    'args'    => [
+                        'fromEnum'         => [
+                            'type'         => $ArrayValuesEnum,
+                            // Note: defaultValue is provided an *internal* representation for
+                            // Enums, rather than the string name.
+                            'defaultValue' => $Array1,
+                        ],
+                        'provideOneByReference' => [
+                            'type' => Type::boolean(),
+                        ],
+                        'provideTwo'  => [
+                            'type' => Type::boolean(),
+                        ],
+                    ],
+                    'resolve' => static function ($rootValue, $args) use (&$Array1) {
+                        if (! empty($args['provideOneByReference'])) {
+                            return $Array1;
+                        }
+                        if (! empty($args['provideTwo'])) {
+                            return ['two', 'TWO'];
                         }
 
                         return $args['fromEnum'];
@@ -511,6 +550,30 @@ class EnumTypeTest extends TestCase
         ];
 
         self::assertArraySubset($expected, $result);
+    }
+
+    public function testMayBeInternallyRepresentedWithArrayValues() : void
+    {
+        $result = GraphQL::executeQuery(
+            $this->schema,
+            '{
+                defaultValue: arrayValuesEnum
+                fromName: arrayValuesEnum(fromEnum: TWO)
+                oneRef: arrayValuesEnum(provideOneByReference: true)
+                two: arrayValuesEnum(provideTwo: true)
+            }'
+        )->toArray(true);
+
+        $expected = [
+            'data'   => [
+                'defaultValue'  => 'ONE',
+                'fromName' => 'TWO',
+                'oneRef'   => 'ONE',
+                'two'    => 'TWO',
+            ],
+        ];
+
+        self::assertEquals($expected, $result);
     }
 
     /**

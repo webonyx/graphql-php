@@ -1,35 +1,36 @@
 parameters:
     level: 3
 
-    reportUnmatchedIgnoredErrors: false
-
     inferPrivatePropertyTypeFromConstructor: true
 
     paths:
         - %currentWorkingDirectory%/src
         - %currentWorkingDirectory%/tests
 
+    excludes_analyse:
+        # Ported from dms/phpunit-arraysubset-asserts
+        - tests/PHPUnit/ArraySubsetAsserts.php
+        - tests/PHPUnit/Constraint/ArraySubset.php
+
     ignoreErrors:
-        - "~Construct empty\\(\\) is not allowed\\. Use more strict comparison~"
-        - "~(Method|Property) .+::.+(\\(\\))? (has parameter \\$\\w+ with no|has no return|has no) typehint specified~"
-        - "~Variable property access on .+~"
+        # Since this is a library that is supposed to be flexible, we don't
+        # want to lock down every possible extension point.
+        - "~Unsafe usage of new static\\(\\)~"
+
+        # This class uses magic methods to reduce a whole lot of boilerplate required to
+        # allow partial parsing of language fragments.
         - "~Variable method call on GraphQL\\\\Language\\\\Parser\\.~"
-        - "~Variable method call on static\\(GraphQL\\\\Server\\\\ServerConfig\\)~" # TODO get rid of
-        - "~Only booleans are allowed in .*~" # TODO https://github.com/phpstan/phpstan-strict-rules/issues/2
-        # A whole class of errors in PHPStan is a result of PHP's lack of union types.
-        # This commonly happens in the parts of the code that deal with the GraphQL
-        # type system where we can currently use interfaces and lose type safety.
-        # Until we find a better way, we can list related error's here.
-        - "~Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\NamedType::\\$name~"
+
         # Those come from graphql-php\tests\Language\VisitorTest.php
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didEnter~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\.+::\\$didLeave~"
         - "~Access to an undefined property GraphQL\\\\Language\\\\AST\\\\Node::\\$value~"
 
+        # TODO convert to less magical code
+        - "~Variable method call on static\\(GraphQL\\\\Server\\\\ServerConfig\\)~"
+
 includes:
-    - vendor/phpstan/phpstan-phpunit/extension.neon
-    - vendor/phpstan/phpstan-phpunit/rules.neon
-    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - phpstan-baseline.neon
 
 services:
     -

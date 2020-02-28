@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\DisableIntrospection;
 class DisableIntrospectionTest extends ValidatorTestCase
 {
     // Validate: Disable Introspection
+
     /**
      * @see it('fails if the query contains __schema')
      */

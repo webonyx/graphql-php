@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Validator\Rules;
 
+use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
@@ -40,6 +41,7 @@ use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
 use function count;
+use function get_class;
 use function in_array;
 use function sprintf;
 
@@ -75,7 +77,7 @@ class KnownDirectives extends ValidationRule
             }
 
             $locationsMap[$def->name->value] = array_map(
-                static function ($name) {
+                static function ($name) : string {
                     return $name->value;
                 },
                 $def->locations
@@ -92,7 +94,7 @@ class KnownDirectives extends ValidationRule
             ) use (
                 $context,
                 $locationsMap
-            ) {
+            ) : void {
                 $name      = $node->name->value;
                 $locations = $locationsMap[$name] ?? null;
 
@@ -186,6 +188,8 @@ class KnownDirectives extends ValidationRule
                     ? DirectiveLocation::INPUT_FIELD_DEFINITION
                     : DirectiveLocation::ARGUMENT_DEFINITION;
         }
+
+        throw new Exception('Unknown directive location: ' . get_class($appliedTo));
     }
 
     public static function misplacedDirectiveMessage($directiveName, $location)

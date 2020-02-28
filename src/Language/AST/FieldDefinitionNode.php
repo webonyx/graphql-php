@@ -12,13 +12,13 @@ class FieldDefinitionNode extends Node
     /** @var NameNode */
     public $name;
 
-    /** @var InputValueDefinitionNode[]|NodeList */
+    /** @var NodeList<InputValueDefinitionNode> */
     public $arguments;
 
     /** @var NamedTypeNode|ListTypeNode|NonNullTypeNode */
     public $type;
 
-    /** @var DirectiveNode[]|NodeList */
+    /** @var NodeList<DirectiveNode> */
     public $directives;
 
     /** @var StringValueNode|null */

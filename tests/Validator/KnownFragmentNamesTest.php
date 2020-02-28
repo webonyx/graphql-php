@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\KnownFragmentNames;
 class KnownFragmentNamesTest extends ValidatorTestCase
 {
     // Validate: Known fragment names
+
     /**
      * @see it('known fragment names are valid')
      */

@@ -16,6 +16,7 @@ use function uniqid;
 class ResolveTest extends TestCase
 {
     // Execute: resolve function
+
     /**
      * @see it('default function accesses properties')
      */

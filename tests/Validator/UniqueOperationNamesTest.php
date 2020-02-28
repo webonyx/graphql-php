@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\UniqueOperationNames;
 class UniqueOperationNamesTest extends ValidatorTestCase
 {
     // Validate: Unique operation names
+
     /**
      * @see it('no operations')
      */

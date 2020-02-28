@@ -20,7 +20,7 @@ use function class_exists;
  */
 class ReactPromiseAdapterTest extends TestCase
 {
-    public function setUp()
+    public function setUp() : void
     {
         if (class_exists('React\Promise\Promise')) {
             return;

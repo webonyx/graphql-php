@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\VariablesAreInputTypes;
 class VariablesAreInputTypesTest extends ValidatorTestCase
 {
     // Validate: Variables are input types
+
     /**
      * @see it('input types are valid')
      */

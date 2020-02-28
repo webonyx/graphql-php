@@ -8,6 +8,7 @@ use GraphQL\Deferred;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -15,7 +16,10 @@ use PHPUnit\Framework\TestCase;
 
 class ListsTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     // Describe: Execute: Handles list nullability
+
     /**
      * [T]
      */

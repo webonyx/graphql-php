@@ -5,33 +5,29 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
-use GraphQL\Type\Definition\BooleanType;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
-use GraphQL\Type\Definition\FloatType;
-use GraphQL\Type\Definition\IDType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
-use GraphQL\Type\Definition\IntType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
-use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
 use stdClass;
-use Throwable;
 use function count;
-use function get_class;
 use function json_encode;
 use function sprintf;
 
 class DefinitionTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var ObjectType */
     public $blogImage;
 
@@ -71,7 +67,7 @@ class DefinitionTest extends TestCase
     /** @var CustomScalarType */
     public $scalarType;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->objectType      = new ObjectType(['name' => 'Object', 'fields' => ['tmp' => Type::string()]]);
         $this->interfaceType   = new InterfaceType(['name' => 'Interface']);

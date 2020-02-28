@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Error;
 
 use Exception;
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -29,12 +30,14 @@ class ErrorTest extends TestCase
      */
     public function testConvertsNodesToPositionsAndLocations() : void
     {
-        $source    = new Source('{
+        $source = new Source('{
       field
     }');
-        $ast       = Parser::parse($source);
-        $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
-        $e         = new Error('msg', [$fieldNode]);
+        $ast    = Parser::parse($source);
+        /** @var OperationDefinitionNode $operationDefinition */
+        $operationDefinition = $ast->definitions[0];
+        $fieldNode           = $operationDefinition->selectionSet->selections[0];
+        $e                   = new Error('msg', [$fieldNode]);
 
         self::assertEquals([$fieldNode], $e->nodes);
         self::assertEquals($source, $e->getSource());
@@ -47,12 +50,14 @@ class ErrorTest extends TestCase
      */
     public function testConvertSingleNodeToPositionsAndLocations() : void
     {
-        $source    = new Source('{
+        $source = new Source('{
       field
     }');
-        $ast       = Parser::parse($source);
-        $fieldNode = $ast->definitions[0]->selectionSet->selections[0];
-        $e         = new Error('msg', $fieldNode); // Non-array value.
+        $ast    = Parser::parse($source);
+        /** @var OperationDefinitionNode $operationDefinition */
+        $operationDefinition = $ast->definitions[0];
+        $fieldNode           = $operationDefinition->selectionSet->selections[0];
+        $e                   = new Error('msg', $fieldNode); // Non-array value.
 
         self::assertEquals([$fieldNode], $e->nodes);
         self::assertEquals($source, $e->getSource());
@@ -108,8 +113,11 @@ class ErrorTest extends TestCase
      */
     public function testSerializesToIncludeMessageAndLocations() : void
     {
-        $node = Parser::parse('{ field }')->definitions[0]->selectionSet->selections[0];
-        $e    = new Error('msg', [$node]);
+        $ast = Parser::parse('{ field }');
+        /** @var OperationDefinitionNode $operationDefinition */
+        $operationDefinition = $ast->definitions[0];
+        $node                = $operationDefinition->selectionSet->selections[0];
+        $e                   = new Error('msg', [$node]);
 
         self::assertEquals(
             ['message' => 'msg', 'locations' => [['line' => 1, 'column' => 3]]],
