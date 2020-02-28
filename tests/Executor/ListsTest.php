@@ -221,7 +221,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],
@@ -264,7 +264,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],
@@ -372,7 +372,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => ['test' => null]],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],
@@ -415,7 +415,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => ['test' => null]],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],
@@ -531,7 +531,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],
@@ -546,7 +546,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],
@@ -583,7 +583,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],
@@ -600,7 +600,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],
@@ -664,7 +664,7 @@ class ListsTest extends TestCase
                 'data'   => ['nest' => null],
                 'errors' => [
                     [
-                        'debugMessage' => 'Cannot return null for non-nullable field DataType.test.',
+                        'debugMessage' => 'Cannot return null for non-nullable field "DataType.test".',
                         'locations'    => [['line' => 1, 'column' => 10]],
                     ],
                 ],

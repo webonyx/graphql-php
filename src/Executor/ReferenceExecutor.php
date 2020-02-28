@@ -747,7 +747,7 @@ class ReferenceExecutor implements ExecutorImplementation
             );
             if ($completed === null) {
                 throw new InvariantViolation(
-                    'Cannot return null for non-nullable field ' . $info->parentType . '.' . $info->fieldName . '.'
+                    sprintf('Cannot return null for non-nullable field "%s.%s".', $info->parentType, $info->fieldName)
                 );
             }
 

@@ -551,7 +551,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         if ($nonNull && $returnValue === null) {
             $this->addError(Error::createLocatedError(
                 new InvariantViolation(sprintf(
-                    'Cannot return null for non-nullable field %s.%s.',
+                    'Cannot return null for non-nullable field "%s.%s".',
                     $ctx->type->name,
                     $ctx->shared->fieldName
                 )),
@@ -879,7 +879,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         if ($nonNull && $returnValue === null) {
             $this->addError(Error::createLocatedError(
                 new InvariantViolation(sprintf(
-                    'Cannot return null for non-nullable field %s.%s.',
+                    'Cannot return null for non-nullable field "%s.%s".',
                     $ctx->type->name,
                     $ctx->shared->fieldName
                 )),

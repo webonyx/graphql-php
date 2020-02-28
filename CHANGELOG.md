@@ -11,7 +11,12 @@
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
 - Fixes parsing of string literals of the form \u0000 for code points in the range [128, 255] inclusive
 - Parse UTF-16 surrogate pairs within string literals
-- Simplified Deferred implementation 
+- Added quotes around `parentType.fieldName` in error message:
+```diff
+- Cannot return null for non-nullable field parentType.fieldName.
++ Cannot return null for non-nullable field "parentType.fieldName".
+```
+- Simplified Deferred implementation
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 
