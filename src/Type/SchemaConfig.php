@@ -27,32 +27,32 @@ use function is_callable;
  */
 class SchemaConfig
 {
-    /** @var ObjectType */
+    /** @var ObjectType|null */
     public $query;
 
-    /** @var ObjectType */
+    /** @var ObjectType|null */
     public $mutation;
 
-    /** @var ObjectType */
+    /** @var ObjectType|null */
     public $subscription;
 
     /** @var Type[]|callable */
-    public $types;
+    public $types = [];
 
     /** @var Directive[] */
-    public $directives;
+    public $directives = [];
 
     /** @var callable|null */
     public $typeLoader;
 
-    /** @var SchemaDefinitionNode */
+    /** @var SchemaDefinitionNode|null */
     public $astNode;
 
     /** @var bool */
-    public $assumeValid;
+    public $assumeValid = false;
 
     /** @var SchemaTypeExtensionNode[] */
-    public $extensionASTNodes;
+    public $extensionASTNodes = [];
 
     /**
      * Converts an array of options to instance of SchemaConfig
@@ -115,7 +115,7 @@ class SchemaConfig
     }
 
     /**
-     * @return SchemaDefinitionNode
+     * @return SchemaDefinitionNode|null
      */
     public function getAstNode()
     {
@@ -133,7 +133,7 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType
+     * @return ObjectType|null
      *
      * @api
      */
@@ -143,7 +143,7 @@ class SchemaConfig
     }
 
     /**
-     * @param ObjectType $query
+     * @param ObjectType|null $query
      *
      * @return SchemaConfig
      *
@@ -157,7 +157,7 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType
+     * @return ObjectType|null
      *
      * @api
      */
@@ -167,7 +167,7 @@ class SchemaConfig
     }
 
     /**
-     * @param ObjectType $mutation
+     * @param ObjectType|null $mutation
      *
      * @return SchemaConfig
      *
@@ -181,7 +181,7 @@ class SchemaConfig
     }
 
     /**
-     * @return ObjectType
+     * @return ObjectType|null
      *
      * @api
      */
@@ -191,7 +191,7 @@ class SchemaConfig
     }
 
     /**
-     * @param ObjectType $subscription
+     * @param ObjectType|null $subscription
      *
      * @return SchemaConfig
      *
@@ -205,13 +205,13 @@ class SchemaConfig
     }
 
     /**
-     * @return Type[]
+     * @return Type[]|callable
      *
      * @api
      */
     public function getTypes()
     {
-        return $this->types ?: [];
+        return $this->types;
     }
 
     /**
@@ -235,7 +235,7 @@ class SchemaConfig
      */
     public function getDirectives()
     {
-        return $this->directives ?: [];
+        return $this->directives;
     }
 
     /**
@@ -253,7 +253,7 @@ class SchemaConfig
     }
 
     /**
-     * @return callable
+     * @return callable|null
      *
      * @api
      */

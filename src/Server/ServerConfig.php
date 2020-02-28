@@ -54,7 +54,7 @@ class ServerConfig
         return $instance;
     }
 
-    /** @var Schema */
+    /** @var Schema|null */
     private $schema;
 
     /** @var mixed|callable */
@@ -69,22 +69,22 @@ class ServerConfig
     /** @var callable|null */
     private $errorsHandler;
 
-    /** @var bool */
+    /** @var bool|int */
     private $debug = false;
 
     /** @var bool */
     private $queryBatching = false;
 
-    /** @var ValidationRule[]|callable */
+    /** @var ValidationRule[]|callable|null */
     private $validationRules;
 
-    /** @var callable */
+    /** @var callable|null */
     private $fieldResolver;
 
-    /** @var PromiseAdapter */
+    /** @var PromiseAdapter|null */
     private $promiseAdapter;
 
-    /** @var callable */
+    /** @var callable|null */
     private $persistentQueryLoader;
 
     /**
@@ -158,7 +158,7 @@ class ServerConfig
     /**
      * Set validation rules for this server.
      *
-     * @param ValidationRule[]|callable $validationRules
+     * @param ValidationRule[]|callable|null $validationRules
      *
      * @return self
      *
@@ -263,7 +263,7 @@ class ServerConfig
     }
 
     /**
-     * @return Schema
+     * @return Schema|null
      */
     public function getSchema()
     {
@@ -287,7 +287,7 @@ class ServerConfig
     }
 
     /**
-     * @return PromiseAdapter
+     * @return PromiseAdapter|null
      */
     public function getPromiseAdapter()
     {
@@ -295,7 +295,7 @@ class ServerConfig
     }
 
     /**
-     * @return ValidationRule[]|callable
+     * @return ValidationRule[]|callable|null
      */
     public function getValidationRules()
     {
@@ -303,7 +303,7 @@ class ServerConfig
     }
 
     /**
-     * @return callable
+     * @return callable|null
      */
     public function getFieldResolver()
     {
@@ -311,7 +311,7 @@ class ServerConfig
     }
 
     /**
-     * @return callable
+     * @return callable|null
      */
     public function getPersistentQueryLoader()
     {
@@ -319,7 +319,7 @@ class ServerConfig
     }
 
     /**
-     * @return bool
+     * @return bool|int
      */
     public function getDebug()
     {
