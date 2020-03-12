@@ -902,7 +902,7 @@ parameters:
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 3
+			count: 2
 			path: src/Utils/SchemaPrinter.php
 
 		-

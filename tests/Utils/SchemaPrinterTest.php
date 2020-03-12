@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use Generator;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -146,6 +147,47 @@ type Query {
 ',
             $output
         );
+    }
+
+    /**
+     * @see it('Prints Field With "@deprecated" Directive')
+     *
+     * @dataProvider deprecationReasonDataProvider
+     */
+    public function testPrintDeprecatedField(?string $deprecationReason, string $expectedDeprecationDirective) : void
+    {
+        $output = $this->printSingleFieldSchema([
+            'type' => Type::int(),
+            'deprecationReason' => $deprecationReason,
+        ]);
+        self::assertSame(
+            '
+type Query {
+  singleField: Int' . $expectedDeprecationDirective . '
+}
+',
+            $output
+        );
+    }
+
+    public function deprecationReasonDataProvider() : Generator
+    {
+        yield 'when deprecationReason is null' => [
+            null,
+            '',
+        ];
+        yield 'when deprecationReason is empty string' => [
+            '',
+            '',
+        ];
+        yield 'when deprecationReason is the default deprecation reason' => [
+            Directive::DEFAULT_DEPRECATION_REASON,
+            ' @deprecated',
+        ];
+        yield 'when deprecationReason is not empty string' => [
+            'this is deprecated',
+            ' @deprecated(reason: "this is deprecated")',
+        ];
     }
 
     /**
