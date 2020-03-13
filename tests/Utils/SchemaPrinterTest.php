@@ -178,7 +178,7 @@ type Query {
         ];
         yield 'when deprecationReason is empty string' => [
             '',
-            '',
+            ' @deprecated',
         ];
         yield 'when deprecationReason is the default deprecation reason' => [
             Directive::DEFAULT_DEPRECATION_REASON,
