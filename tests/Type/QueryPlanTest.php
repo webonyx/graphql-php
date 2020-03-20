@@ -72,6 +72,7 @@ final class QueryPlanTest extends TestCase
         $doc               = '
       query Test {
         article {
+            __typename
             author {
                 name
                 pic(width: 100, height: 200) {
@@ -110,6 +111,11 @@ final class QueryPlanTest extends TestCase
       }
 ';
         $expectedQueryPlan = [
+            '__typename' => [
+                'type' => Type::nonNull(Type::string()),
+                'args' => [],
+                'fields' => [],
+            ],
             'author'  => [
                 'type' => $author,
                 'args' => [],
@@ -249,6 +255,7 @@ final class QueryPlanTest extends TestCase
             'recentArticle',
             'title',
             'body',
+            '__typename',
             'author',
             'image',
             'replies',
