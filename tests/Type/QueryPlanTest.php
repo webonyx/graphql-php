@@ -72,6 +72,7 @@ final class QueryPlanTest extends TestCase
         $doc               = '
       query Test {
         article {
+            __typename
             author {
                 name
                 pic(width: 100, height: 200) {
