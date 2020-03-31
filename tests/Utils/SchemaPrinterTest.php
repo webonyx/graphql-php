@@ -1337,4 +1337,71 @@ type Query {
 
       self::assertEquals($exceptedSdl, $actual);
     }
+
+    public function testPrintMultipleSchemaDirectives() {
+      $exceptedSdl = '
+directive @sd(field: [Int!]) on OBJECT
+
+directive @sdb on OBJECT
+
+type Bar @sd(field: [1, 2, 3, 4]) @sdb {
+  foo: String
+}
+
+type Query {
+  foo: Bar
+}
+';
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
+
+    public function testPrintSchemaDirectiveOnClassWithInterface() {
+      $exceptedSdl = '
+directive @sd on OBJECT
+
+type Bar implements Foo @sd {
+  foo: String
+}
+
+interface Foo {
+  bar: String
+}
+
+type Query {
+  foo: Bar
+}
+';
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
+
+    public function testPrintSchemaDirectiveOnInterface() {
+      $exceptedSdl = '
+directive @sd on INTERFACE
+
+type Bar implements Foo {
+  foo: String
+}
+
+interface Foo @sd {
+  bar: String
+}
+
+type Query {
+  foo: Bar
+}
+';
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
 }

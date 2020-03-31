@@ -353,27 +353,6 @@ class SchemaPrinter
      */
     private static function printObject(ObjectType $type, array $options) : string
     {
-      $directives = $type->astNode->directives;
-      $schemaDirectives = !empty($directives) ? implode(' ',
-          array_map(
-              static function ($d) {
-                $s = " @" . $d->name->value;
-                if ($d->arguments->count() > 0) {
-                  $s .= "(";
-                  foreach ($d->arguments as $argument) {
-                    $s .= $argument->name->value . ": ";
-                    $s .= Printer::doPrint($argument->value);
-                  }
-                  $s .= ")";
-                }
-
-                return $s;
-              },
-              iterator_to_array($directives->getIterator())
-          )
-      ) : '';
-
-
         $interfaces            = $type->getInterfaces();
         $implementedInterfaces = ! empty($interfaces)
             ? ' implements ' . implode(
@@ -388,7 +367,7 @@ class SchemaPrinter
             : '';
 
         return self::printDescription($options, $type) .
-            sprintf("type %s%s%s {\n%s\n}", $type->name, $implementedInterfaces, $schemaDirectives, self::printFields($options, $type));
+            sprintf("type %s%s%s {\n%s\n}", $type->name, $implementedInterfaces, self::printSchemaDirectives($type), self::printFields($options, $type));
     }
 
     /**
@@ -432,7 +411,7 @@ class SchemaPrinter
     private static function printInterface(InterfaceType $type, array $options) : string
     {
         return self::printDescription($options, $type) .
-            sprintf("interface %s {\n%s\n}", $type->name, self::printFields($options, $type));
+            sprintf("interface %s%s {\n%s\n}", $type->name, self::printSchemaDirectives($type), self::printFields($options, $type));
     }
 
     /**
@@ -508,5 +487,37 @@ class SchemaPrinter
             [Introspection::class, 'isIntrospectionType'],
             $options
         );
+    }
+
+  /**
+   * @param \GraphQL\Type\Definition\Type $type
+   *
+   * @return string
+   */
+    public static function printSchemaDirectives(Type $type) : string {
+
+      if (!$type->astNode || !$type->astNode->directives) {
+        return '';
+      }
+
+      $directives = $type->astNode->directives;
+      return $directives->count() > 0 ? (' ' . implode(' ',
+              array_map(
+                  static function ($d) {
+                    $s = "@" . $d->name->value;
+                    if ($d->arguments->count() > 0) {
+                      $s .= "(";
+                      foreach ($d->arguments as $argument) {
+                        $s .= $argument->name->value . ": ";
+                        $s .= Printer::doPrint($argument->value);
+                      }
+                      $s .= ")";
+                    }
+
+                    return $s;
+                  },
+                  iterator_to_array($directives->getIterator())
+              )
+          )) : '';
     }
 }
