@@ -1314,6 +1314,29 @@ type Query {
       self::assertEquals($exceptedSdl, $actual);
     }
 
+    public function testPrintSchemaDirectiveWithTypeArgs() {
+      $exceptedSdl = '
+directive @sd(field: Foo) on OBJECT
+
+type Bar @sd(field: {bar: "test"}) {
+  foo: String
+}
+
+type Foo {
+  bar: String
+}
+
+type Query {
+  foo: Bar
+}
+';
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
+
     public function testPrintSchemaDirectiveOptionalArgs() {
       $exceptedSdl = '
 directive @sd(field: String) on OBJECT
