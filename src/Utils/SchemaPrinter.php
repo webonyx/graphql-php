@@ -516,7 +516,7 @@ class SchemaPrinter
         return $count > 0 ? (' ' . implode(
             ' ',
             array_map(
-                static function ($directive) {
+                static function ($directive) : string {
                     $directiveString = '@' . $directive->name->value;
                     if ($directive->arguments->count() > 0) {
                         $directiveString .= '(';
