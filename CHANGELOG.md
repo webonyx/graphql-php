@@ -17,6 +17,7 @@
 + Cannot return null for non-nullable field "parentType.fieldName".
 ```
 - Simplified Deferred implementation
+- Allow SchemaPrinter to print Schema Directives
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 
