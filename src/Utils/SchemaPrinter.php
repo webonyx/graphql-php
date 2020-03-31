@@ -5,6 +5,9 @@ declare(strict_types=1);
 namespace GraphQL\Utils;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
+use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
@@ -491,13 +494,26 @@ class SchemaPrinter
 
     public static function printSchemaDirectives(Type $type) : string
     {
-        if (! $type->astNode || ! $type->astNode->directives) {
+        if ($type->astNode === null) {
             return '';
         }
 
-        $directives = $type->astNode->directives;
+        if ($type->astNode instanceof ObjectTypeDefinitionNode) {
+            $directives = $type->astNode->directives;
+        } elseif ($type->astNode instanceof InterfaceTypeDefinitionNode) {
+            $directives = $type->astNode->directives;
+        } else {
+            return '';
+        }
 
-        return $directives->count() > 0 ? (' ' . implode(
+        if ($directives instanceof NodeList) {
+            $count      = $directives->count();
+            $directives = iterator_to_array($directives->getIterator());
+        } else {
+            $count = count($directives);
+        }
+
+        return $count > 0 ? (' ' . implode(
             ' ',
             array_map(
                 static function ($directive) {
@@ -513,7 +529,7 @@ class SchemaPrinter
 
                     return $directiveString;
                 },
-                iterator_to_array($directives->getIterator())
+                $directives
             )
         )) : '';
     }
