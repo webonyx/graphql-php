@@ -317,8 +317,7 @@ class SchemaPrinter
         }
 
         if ($type instanceof ObjectType) {
-          $result= self::printObject($type, $options);
-            return $result;
+            return self::printObject($type, $options);
         }
 
         if ($type instanceof InterfaceType) {
