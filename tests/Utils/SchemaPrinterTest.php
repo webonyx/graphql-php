@@ -1237,4 +1237,104 @@ enum __TypeKind {
 EOT;
         self::assertEquals($introspectionSchema, $output);
     }
+
+    public function testPrintSchemaDirectiveNoArgs() {
+      $exceptedSdl = "
+directive @sd on OBJECT
+
+type Bar @sd {
+  foo: String
+}
+
+type Query {
+  foo: Bar
+}
+";
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
+
+    public function testPrintSchemaDirectiveWithStringArgs() {
+      $exceptedSdl = '
+directive @sd(field: String!) on OBJECT
+
+type Bar @sd(field: "String") {
+  foo: String
+}
+
+type Query {
+  foo: Bar
+}
+';
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
+
+    public function testPrintSchemaDirectiveWithNumberArgs() {
+      $exceptedSdl = '
+directive @sd(field: Int!) on OBJECT
+
+type Bar @sd(field: 1) {
+  foo: String
+}
+
+type Query {
+  foo: Bar
+}
+';
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
+
+    public function testPrintSchemaDirectiveWithArrayArgs() {
+      $exceptedSdl = '
+directive @sd(field: [Int!]) on OBJECT
+
+type Bar @sd(field: [1, 2, 3, 4]) {
+  foo: String
+}
+
+type Query {
+  foo: Bar
+}
+';
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
+
+    public function testPrintSchemaDirectiveOptionalArgs() {
+      $exceptedSdl = '
+directive @sd(field: String) on OBJECT
+
+type Bar @sd(field: "Testing") {
+  foo: String
+}
+
+type Foo @sd {
+  bar: String
+}
+
+type Query {
+  foo: Bar
+  bar: Foo
+}
+';
+
+      $schema = BuildSchema::build($exceptedSdl);
+      $actual = $this->printForTest($schema);
+
+      self::assertEquals($exceptedSdl, $actual);
+    }
 }
