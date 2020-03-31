@@ -24,6 +24,7 @@ use function array_values;
 use function count;
 use function explode;
 use function implode;
+use function iterator_to_array;
 use function ksort;
 use function mb_strlen;
 use function preg_match_all;
@@ -488,35 +489,32 @@ class SchemaPrinter
         );
     }
 
-  /**
-   * @param \GraphQL\Type\Definition\Type $type
-   *
-   * @return string
-   */
-    public static function printSchemaDirectives(Type $type) : string {
+    public static function printSchemaDirectives(Type $type) : string
+    {
+        if (! $type->astNode || ! $type->astNode->directives) {
+            return '';
+        }
 
-      if (!$type->astNode || !$type->astNode->directives) {
-        return '';
-      }
+        $directives = $type->astNode->directives;
 
-      $directives = $type->astNode->directives;
-      return $directives->count() > 0 ? (' ' . implode(' ',
-              array_map(
-                  static function ($d) {
-                    $s = "@" . $d->name->value;
-                    if ($d->arguments->count() > 0) {
-                      $s .= "(";
-                      foreach ($d->arguments as $argument) {
-                        $s .= $argument->name->value . ": ";
-                        $s .= Printer::doPrint($argument->value);
-                      }
-                      $s .= ")";
+        return $directives->count() > 0 ? (' ' . implode(
+            ' ',
+            array_map(
+                static function ($directive) {
+                    $directiveString = '@' . $directive->name->value;
+                    if ($directive->arguments->count() > 0) {
+                        $directiveString .= '(';
+                        foreach ($directive->arguments as $argument) {
+                            $directiveString .= $argument->name->value . ': ';
+                            $directiveString .= Printer::doPrint($argument->value);
+                        }
+                        $directiveString .= ')';
                     }
 
-                    return $s;
-                  },
-                  iterator_to_array($directives->getIterator())
-              )
-          )) : '';
+                    return $directiveString;
+                },
+                iterator_to_array($directives->getIterator())
+            )
+        )) : '';
     }
 }

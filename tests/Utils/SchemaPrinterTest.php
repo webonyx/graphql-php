@@ -1238,8 +1238,9 @@ EOT;
         self::assertEquals($introspectionSchema, $output);
     }
 
-    public function testPrintSchemaDirectiveNoArgs() {
-      $exceptedSdl = "
+    public function testPrintSchemaDirectiveNoArgs()
+    {
+        $exceptedSdl = '
 directive @sd on OBJECT
 
 type Bar @sd {
@@ -1249,16 +1250,17 @@ type Bar @sd {
 type Query {
   foo: Bar
 }
-";
+';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 
-    public function testPrintSchemaDirectiveWithStringArgs() {
-      $exceptedSdl = '
+    public function testPrintSchemaDirectiveWithStringArgs()
+    {
+        $exceptedSdl = '
 directive @sd(field: String!) on OBJECT
 
 type Bar @sd(field: "String") {
@@ -1270,14 +1272,15 @@ type Query {
 }
 ';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 
-    public function testPrintSchemaDirectiveWithNumberArgs() {
-      $exceptedSdl = '
+    public function testPrintSchemaDirectiveWithNumberArgs()
+    {
+        $exceptedSdl = '
 directive @sd(field: Int!) on OBJECT
 
 type Bar @sd(field: 1) {
@@ -1289,14 +1292,15 @@ type Query {
 }
 ';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 
-    public function testPrintSchemaDirectiveWithArrayArgs() {
-      $exceptedSdl = '
+    public function testPrintSchemaDirectiveWithArrayArgs()
+    {
+        $exceptedSdl = '
 directive @sd(field: [Int!]) on OBJECT
 
 type Bar @sd(field: [1, 2, 3, 4]) {
@@ -1308,14 +1312,15 @@ type Query {
 }
 ';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 
-    public function testPrintSchemaDirectiveWithTypeArgs() {
-      $exceptedSdl = '
+    public function testPrintSchemaDirectiveWithTypeArgs()
+    {
+        $exceptedSdl = '
 directive @sd(field: Foo) on OBJECT
 
 type Bar @sd(field: {bar: "test"}) {
@@ -1331,14 +1336,15 @@ type Query {
 }
 ';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 
-    public function testPrintSchemaDirectiveOptionalArgs() {
-      $exceptedSdl = '
+    public function testPrintSchemaDirectiveOptionalArgs()
+    {
+        $exceptedSdl = '
 directive @sd(field: String) on OBJECT
 
 type Bar @sd(field: "Testing") {
@@ -1355,14 +1361,15 @@ type Query {
 }
 ';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 
-    public function testPrintMultipleSchemaDirectives() {
-      $exceptedSdl = '
+    public function testPrintMultipleSchemaDirectives()
+    {
+        $exceptedSdl = '
 directive @sd(field: [Int!]) on OBJECT
 
 directive @sdb on OBJECT
@@ -1376,14 +1383,15 @@ type Query {
 }
 ';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 
-    public function testPrintSchemaDirectiveOnClassWithInterface() {
-      $exceptedSdl = '
+    public function testPrintSchemaDirectiveOnClassWithInterface()
+    {
+        $exceptedSdl = '
 directive @sd on OBJECT
 
 type Bar implements Foo @sd {
@@ -1399,14 +1407,15 @@ type Query {
 }
 ';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 
-    public function testPrintSchemaDirectiveOnInterface() {
-      $exceptedSdl = '
+    public function testPrintSchemaDirectiveOnInterface()
+    {
+        $exceptedSdl = '
 directive @sd on INTERFACE
 
 type Bar implements Foo {
@@ -1422,9 +1431,9 @@ type Query {
 }
 ';
 
-      $schema = BuildSchema::build($exceptedSdl);
-      $actual = $this->printForTest($schema);
+        $schema = BuildSchema::build($exceptedSdl);
+        $actual = $this->printForTest($schema);
 
-      self::assertEquals($exceptedSdl, $actual);
+        self::assertEquals($exceptedSdl, $actual);
     }
 }
