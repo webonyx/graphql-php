@@ -11,7 +11,7 @@ use \GraphQL\GraphQL;
 use \GraphQL\Error\FormattedError;
 use \GraphQL\Error\Debug;
 
-// Disable default PHP error reporting - we have better one for debug mode (see bellow)
+// Disable default PHP error reporting - we have better one for debug mode (see below)
 ini_set('display_errors', 0);
 
 $debug = false;
