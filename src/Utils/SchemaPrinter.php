@@ -393,7 +393,7 @@ class SchemaPrinter
     private static function printDeprecated($fieldOrEnumVal) : string
     {
         $reason = $fieldOrEnumVal->deprecationReason;
-        if (empty($reason)) {
+        if ($reason === null) {
             return '';
         }
         if ($reason === '' || $reason === Directive::DEFAULT_DEPRECATION_REASON) {

@@ -17,6 +17,7 @@
 + Cannot return null for non-nullable field "parentType.fieldName".
 ```
 - Simplified Deferred implementation
+- Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 
