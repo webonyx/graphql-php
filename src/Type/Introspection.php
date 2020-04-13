@@ -43,28 +43,28 @@ class Introspection
     private static $map = [];
 
     /**
-     * Options:
-     *   - descriptions
-     *     Whether to include descriptions in the introspection result.
-     *     Default: true
-     *
-     * @param bool[]|bool $options
+     * @param array<string, bool> $options
+     *      Available options:
+     *      - descriptions
+     *        Whether to include descriptions in the introspection result.
+     *        Default: true
+     *      - directiveIsRepeatable
+     *        Whether to include `isRepeatable` flag on directives.
+     *        Default: false
      *
      * @return string
+     *
+     * @api
      */
-    public static function getIntrospectionQuery($options = [])
+    public static function getIntrospectionQuery(array $options = [])
     {
-        if (is_bool($options)) {
-            trigger_error(
-                'Calling Introspection::getIntrospectionQuery(boolean) is deprecated. ' .
-                'Please use Introspection::getIntrospectionQuery(["descriptions" => boolean]).',
-                E_USER_DEPRECATED
-            );
-            $descriptions = $options;
-        } else {
-            $descriptions = ! array_key_exists('descriptions', $options) || $options['descriptions'] === true;
-        }
-        $descriptionField = $descriptions ? 'description' : '';
+        $optionsWithDefaults = array_merge([
+            'descriptions' => true,
+            'directiveIsRepeatable' => false,
+        ], $options);
+
+        $descriptions = $optionsWithDefaults['descriptions'] ? 'description' : '';
+        $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable'] ? 'isRepeatable' : '';
 
         return <<<EOD
   query IntrospectionQuery {
@@ -77,7 +77,8 @@ class Introspection
       }
       directives {
         name
-        {$descriptionField}
+        {$descriptions}
+        {$directiveIsRepeatable}
         locations
         args {
           ...InputValue
@@ -89,10 +90,10 @@ class Introspection
   fragment FullType on __Type {
     kind
     name
-    {$descriptionField}
+    {$descriptions}
     fields(includeDeprecated: true) {
       name
-      {$descriptionField}
+      {$descriptions}
       args {
         ...InputValue
       }
@@ -110,7 +111,7 @@ class Introspection
     }
     enumValues(includeDeprecated: true) {
       name
-      {$descriptionField}
+      {$descriptions}
       isDeprecated
       deprecationReason
     }
@@ -121,7 +122,7 @@ class Introspection
 
   fragment InputValue on __InputValue {
     name
-    {$descriptionField}
+    {$descriptions}
     type { ...TypeRef }
     defaultValue
   }
@@ -194,20 +195,29 @@ EOD;
      * This is the inverse of BuildClientSchema::build(). The primary use case is outside
      * of the server context, for instance when doing schema comparisons.
      *
-     * Options:
-     *   - descriptions
-     *     Whether to include descriptions in the introspection result.
-     *     Default: true
      *
      * @param array<string, bool> $options
+     *      Available options:
+     *      - descriptions
+     *        Whether to include `isRepeatable` flag on directives.
+     *        Default: true
+     *      - directiveIsRepeatable
+     *        Whether to include descriptions in the introspection result.
+     *        Default: true
      *
      * @return array<string, array<mixed>>|null
+     *
+     * @api
      */
     public static function fromSchema(Schema $schema, array $options = []) : ?array
     {
+        $optionsWithDefaults = array_merge([
+            'directiveIsRepeatable' => true,
+        ], $options);
+
         $result = GraphQL::executeQuery(
             $schema,
-            self::getIntrospectionQuery($options)
+            self::getIntrospectionQuery($optionsWithDefaults)
         );
 
         return $result->data;
@@ -651,18 +661,24 @@ EOD;
                             return $obj->description;
                         },
                     ],
-                    'locations'   => [
-                        'type' => Type::nonNull(Type::listOf(Type::nonNull(
-                            self::_directiveLocation()
-                        ))),
-                        'resolve' => static function ($obj) {
-                            return $obj->locations;
+                    'isRepeatable' => [
+                        'type' => Type::nonNull(Type::boolean()),
+                        'resolve' => static function (Directive $directive): bool {
+                            return $directive->isRepeatable;
                         },
                     ],
                     'args'        => [
                         'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                         'resolve' => static function (Directive $directive) {
                             return $directive->args ?: [];
+                        },
+                    ],
+                    'locations'   => [
+                        'type' => Type::nonNull(Type::listOf(Type::nonNull(
+                            self::_directiveLocation()
+                        ))),
+                        'resolve' => static function ($obj) {
+                            return $obj->locations;
                         },
                     ],
                 ],
