@@ -79,11 +79,11 @@ class Introspection
       directives {
         name
         {$descriptions}
-        {$directiveIsRepeatable}
-        locations
         args {
           ...InputValue
         }
+        {$directiveIsRepeatable}
+        locations
       }
     }
   }
@@ -659,16 +659,16 @@ EOD;
                             return $obj->description;
                         },
                     ],
-                    'isRepeatable' => [
-                        'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => static function (Directive $directive) : bool {
-                            return $directive->isRepeatable;
-                        },
-                    ],
                     'args'        => [
                         'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                         'resolve' => static function (Directive $directive) {
                             return $directive->args ?: [];
+                        },
+                    ],
+                    'isRepeatable' => [
+                        'type' => Type::nonNull(Type::boolean()),
+                        'resolve' => static function (Directive $directive) : bool {
+                            return $directive->isRepeatable;
                         },
                     ],
                     'locations'   => [

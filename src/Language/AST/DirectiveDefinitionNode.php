@@ -12,6 +12,9 @@ class DirectiveDefinitionNode extends Node implements TypeSystemDefinitionNode
     /** @var NameNode */
     public $name;
 
+    /** @var StringValueNode|null */
+    public $description;
+
     /** @var ArgumentNode[] */
     public $arguments;
 
@@ -20,7 +23,4 @@ class DirectiveDefinitionNode extends Node implements TypeSystemDefinitionNode
 
     /** @var NameNode[] */
     public $locations;
-
-    /** @var StringValueNode|null */
-    public $description;
 }

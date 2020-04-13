@@ -84,7 +84,7 @@ class SchemaPrinter
                             $directives
                         ),
                         array_map(
-                            static function ($type) use ($options) : bool {
+                            static function ($type) use ($options) : string {
                                 return self::printType($type, $options);
                             },
                             $types

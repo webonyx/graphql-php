@@ -797,24 +797,6 @@ class IntrospectionTest extends TestCase
                                                     ],
                                                 2 =>
                                                     [
-                                                        'name'              => 'isRepeatable',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind' => 'NON_NULL',
-                                                                'name' => 'null',
-                                                                'ofType' => [
-                                                                    'kind' => 'SCALAR',
-                                                                    'name' => 'Boolean',
-                                                                    'ofType' => null,
-                                                                ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
                                                         'name'              => 'args',
                                                         'args'              =>
                                                             [],
@@ -837,6 +819,24 @@ class IntrospectionTest extends TestCase
                                                                                     ],
                                                                             ],
                                                                     ],
+                                                            ],
+                                                        'isDeprecated'      => false,
+                                                        'deprecationReason' => null,
+                                                    ],
+                                                3 =>
+                                                    [
+                                                        'name'              => 'isRepeatable',
+                                                        'args'              =>
+                                                            [],
+                                                        'type'              =>
+                                                            [
+                                                                'kind' => 'NON_NULL',
+                                                                'name' => null,
+                                                                'ofType' => [
+                                                                    'kind' => 'SCALAR',
+                                                                    'name' => 'Boolean',
+                                                                    'ofType' => null,
+                                                                ],
                                                             ],
                                                         'isDeprecated'      => false,
                                                         'deprecationReason' => null,

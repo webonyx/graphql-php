@@ -895,8 +895,9 @@ to the executor.
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
+  isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
 }
 
 """
@@ -1135,8 +1136,9 @@ directive @deprecated(
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
+  isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
 }
 
 # A Directive can be adjacent to many parts of the GraphQL language, a

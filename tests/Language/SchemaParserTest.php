@@ -1062,8 +1062,8 @@ input Hello {
             'definitions' => [
                 [
                     'kind'        => NodeKind::DIRECTIVE_DEFINITION,
-                    'description' => null,
                     'name'        => $this->nameNode('foo', $loc(11, 14)),
+                    'description' => null,
                     'arguments'  => [],
                     'repeatable' => false,
                     'locations'      => [
@@ -1102,8 +1102,8 @@ input Hello {
             'definitions' => [
                 [
                     'kind'        => NodeKind::DIRECTIVE_DEFINITION,
-                    'description' => null,
                     'name'        => $this->nameNode('foo', $loc(11, 14)),
+                    'description' => null,
                     'arguments'  => [],
                     'repeatable' => true,
                     'locations'      => [

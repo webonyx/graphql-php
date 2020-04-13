@@ -1693,11 +1693,11 @@ class Parser
 
         return new DirectiveDefinitionNode([
             'name'        => $name,
+            'description' => $description,
             'arguments'   => $args,
             'repeatable'  => $repeatable,
             'locations'   => $locations,
             'loc'         => $this->loc($start),
-            'description' => $description,
         ]);
     }
 

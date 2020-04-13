@@ -31,14 +31,14 @@ class Directive
     /** @var string|null */
     public $description;
 
-    /** @var string[] */
-    public $locations;
-
     /** @var FieldArgument[] */
     public $args = [];
 
     /** @var bool */
     public $isRepeatable;
+
+    /** @var string[] */
+    public $locations;
 
     /** @var DirectiveDefinitionNode|null */
     public $astNode;
@@ -58,11 +58,6 @@ class Directive
 
         $this->description = $config['description'] ?? null;
 
-        if (! isset($config['locations']) || ! is_array($config['locations'])) {
-            throw new InvariantViolation('Must provide locations for directive.');
-        }
-        $this->locations = $config['locations'];
-
         if (isset($config['args'])) {
             $args = [];
             foreach ($config['args'] as $name => $arg) {
@@ -74,6 +69,11 @@ class Directive
             }
             $this->args = $args;
         }
+
+        if (! isset($config['locations']) || ! is_array($config['locations'])) {
+            throw new InvariantViolation('Must provide locations for directive.');
+        }
+        $this->locations = $config['locations'];
 
         $this->isRepeatable = $config['isRepeatable'] ?? false;
         $this->astNode      = $config['astNode'] ?? null;
