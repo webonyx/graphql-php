@@ -808,7 +808,7 @@ class IntrospectionTest extends TestCase
                                                                     'kind' => 'SCALAR',
                                                                     'name' => 'Boolean',
                                                                     'ofType' => null,
-                                                                ]
+                                                                ],
                                                             ],
                                                         'isDeprecated'      => false,
                                                         'deprecationReason' => null,

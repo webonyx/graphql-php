@@ -27,6 +27,7 @@ use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use function array_filter;
 use function array_key_exists;
+use function array_merge;
 use function array_values;
 use function is_bool;
 use function method_exists;
@@ -63,7 +64,7 @@ class Introspection
             'directiveIsRepeatable' => false,
         ], $options);
 
-        $descriptions = $optionsWithDefaults['descriptions'] ? 'description' : '';
+        $descriptions          = $optionsWithDefaults['descriptions'] ? 'description' : '';
         $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable'] ? 'isRepeatable' : '';
 
         return <<<EOD
@@ -195,7 +196,6 @@ EOD;
      * This is the inverse of BuildClientSchema::build(). The primary use case is outside
      * of the server context, for instance when doing schema comparisons.
      *
-     *
      * @param array<string, bool> $options
      *      Available options:
      *      - descriptions
@@ -211,9 +211,7 @@ EOD;
      */
     public static function fromSchema(Schema $schema, array $options = []) : ?array
     {
-        $optionsWithDefaults = array_merge([
-            'directiveIsRepeatable' => true,
-        ], $options);
+        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
 
         $result = GraphQL::executeQuery(
             $schema,
@@ -663,7 +661,7 @@ EOD;
                     ],
                     'isRepeatable' => [
                         'type' => Type::nonNull(Type::boolean()),
-                        'resolve' => static function (Directive $directive): bool {
+                        'resolve' => static function (Directive $directive) : bool {
                             return $directive->isRepeatable;
                         },
                     ],

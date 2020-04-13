@@ -1053,7 +1053,7 @@ input Hello {
     {
         $body = 'directive @foo on OBJECT | INTERFACE';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end): array {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1093,7 +1093,7 @@ input Hello {
     {
         $body = 'directive @foo repeatable on OBJECT | INTERFACE';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end): array {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
