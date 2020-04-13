@@ -446,6 +446,7 @@ class Printer
                             . ($noIndent
                                 ? $this->wrap('(', $this->join($def->arguments, ', '), ')')
                                 : $this->wrap("(\n", $this->indent($this->join($def->arguments, "\n")), "\n"))
+                            . ($def->repeatable ? ' repeatable' : '')
                             . ' on ' . $this->join($def->locations, ' | ');
                     }),
                 ],

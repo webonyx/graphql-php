@@ -86,6 +86,7 @@ class ASTDefinitionBuilder
                 }
             ),
             'args'        => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
+            'isRepeatable'        => $directiveNode->repeatable,
             'astNode'     => $directiveNode,
         ]);
     }

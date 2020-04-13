@@ -176,6 +176,8 @@ directive @skip(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 directive @include(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
 directive @include2(if: Boolean!) on FIELD | FRAGMENT_SPREAD | INLINE_FRAGMENT
+
+directive @myRepeatableDir(name: String!) repeatable on OBJECT | INTERFACE
 ';
         self::assertEquals($expected, $printed);
     }

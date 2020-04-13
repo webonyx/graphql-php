@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\DirectiveLocation;
-use GraphQL\Utils\Utils;
 use function array_key_exists;
 use function is_array;
 
@@ -37,6 +37,9 @@ class Directive
     /** @var FieldArgument[] */
     public $args = [];
 
+    /** @var bool */
+    public $isRepeatable;
+
     /** @var DirectiveDefinitionNode|null */
     public $astNode;
 
@@ -48,6 +51,18 @@ class Directive
      */
     public function __construct(array $config)
     {
+        if (! isset($config['name'])) {
+            throw new InvariantViolation('Directive must be named.');
+        }
+        $this->name = $config['name'];
+
+        $this->description = $config['description'] ?? null;
+
+        if (! isset($config['locations']) || ! is_array($config['locations'])) {
+            throw new InvariantViolation('Must provide locations for directive.');
+        }
+        $this->locations = $config['locations'];
+
         if (isset($config['args'])) {
             $args = [];
             foreach ($config['args'] as $name => $arg) {
@@ -58,14 +73,11 @@ class Directive
                 }
             }
             $this->args = $args;
-            unset($config['args']);
-        }
-        foreach ($config as $key => $value) {
-            $this->{$key} = $value;
         }
 
-        Utils::invariant($this->name, 'Directive must be named.');
-        Utils::invariant(is_array($this->locations), 'Must provide locations for directive.');
+        $this->isRepeatable = $config['isRepeatable'] ?? false;
+        $this->astNode      = $config['astNode'] ?? null;
+
         $this->config = $config;
     }
 

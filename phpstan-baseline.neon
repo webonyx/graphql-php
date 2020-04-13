@@ -441,11 +441,6 @@ parameters:
 			path: src/Server/OperationParams.php
 
 		-
-			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\Directive\\)\\.$#"
-			count: 1
-			path: src/Type/Definition/Directive.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, ArrayObject\\<string, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\> given\\.$#"
 			count: 1
 			path: src/Type/Definition/EnumType.php
@@ -891,13 +886,8 @@ parameters:
 			path: src/Utils/SchemaExtender.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 3
-			path: src/Utils/SchemaPrinter.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 7
+			message: "#^Anonymous function should return bool but returns string\\.$#"
+			count: 1
 			path: src/Utils/SchemaPrinter.php
 
 		-
@@ -1496,6 +1486,11 @@ parameters:
 			path: src/Validator/Rules/ValuesOfCorrectType.php
 
 		-
+			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
+			count: 1
+			path: src/Validator/Rules/ValuesOfCorrectType.php
+
+		-
 			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType given on the left side\\.$#"
 			count: 1
 			path: src/Validator/Rules/ValuesOfCorrectType.php
@@ -1507,11 +1502,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType given\\.$#"
-			count: 1
-			path: src/Validator/Rules/ValuesOfCorrectType.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
 			count: 1
 			path: src/Validator/Rules/ValuesOfCorrectType.php
 
