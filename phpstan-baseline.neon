@@ -886,11 +886,6 @@ parameters:
 			path: src/Utils/SchemaExtender.php
 
 		-
-			message: "#^Anonymous function should return bool but returns string\\.$#"
-			count: 1
-			path: src/Utils/SchemaPrinter.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 2
 			path: src/Utils/SchemaPrinter.php
