@@ -34,6 +34,7 @@ use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use GraphQL\Validator\Rules\ScalarLeafs;
+use GraphQL\Validator\Rules\SingleFieldSubscription;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
@@ -139,6 +140,7 @@ class DocumentValidator
                 ExecutableDefinitions::class        => new ExecutableDefinitions(),
                 UniqueOperationNames::class         => new UniqueOperationNames(),
                 LoneAnonymousOperation::class       => new LoneAnonymousOperation(),
+                SingleFieldSubscription::class      => new SingleFieldSubscription(),
                 KnownTypeNames::class               => new KnownTypeNames(),
                 FragmentsOnCompositeTypes::class    => new FragmentsOnCompositeTypes(),
                 VariablesAreInputTypes::class       => new VariablesAreInputTypes(),
