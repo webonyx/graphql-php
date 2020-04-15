@@ -15,7 +15,7 @@ class ListOfType extends Type implements WrappingType, OutputType, NullableType,
     /**
      * @param callable():Type|Type $type
      */
-    public function __construct(Type $type)
+    public function __construct($type)
     {
         $this->ofType = is_callable($type) ? $type : Type::assertType($type);
     }
