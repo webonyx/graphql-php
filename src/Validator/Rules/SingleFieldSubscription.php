@@ -17,7 +17,10 @@ use function sprintf;
 
 class SingleFieldSubscription extends ValidationRule
 {
-    public function getVisitor(ValidationContext $context)
+    /**
+     * @return array<string, callable>
+     */
+    public function getVisitor(ValidationContext $context) : array
     {
         return [
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use ($context) : VisitorOperation {
@@ -43,7 +46,7 @@ class SingleFieldSubscription extends ValidationRule
         ];
     }
 
-    public static function multipleFieldsInOperation($operationName)
+    public static function multipleFieldsInOperation(?string $operationName) : string
     {
         if ($operationName === null) {
             return sprintf('Anonymous Subscription must select only one top level field.');

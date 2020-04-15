@@ -176,7 +176,10 @@ class SingleFieldSubscriptionsTest extends ValidatorTestCase
         );
     }
 
-    private function multipleFieldsInOperation($operationName, ...$locations)
+    /**
+     * @param array<int, int> ...$locations A tuple of line and column
+     */
+    private function multipleFieldsInOperation(?string $operationName, array ...$locations)
     {
         return FormattedError::create(
             SingleFieldSubscription::multipleFieldsInOperation($operationName),
