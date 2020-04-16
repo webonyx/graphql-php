@@ -57,14 +57,14 @@ class LazyTypeLoaderTest extends TestCase
                     case 'Node':
                         $type = new InterfaceType([
                             'name' => 'Node',
-                            'fields' => function () {
+                            'fields' => function () : array {
                                 $this->calls[] = 'Node.fields';
 
                                 return [
                                     'id' => Type::string(),
                                 ];
                             },
-                            'resolveType' => static function () {
+                            'resolveType' => static function () : void {
                             },
                         ]);
                         break;
@@ -72,7 +72,7 @@ class LazyTypeLoaderTest extends TestCase
                     case 'Content':
                         $type = new InterfaceType([
                             'name' => 'Content',
-                            'fields' => function () {
+                            'fields' => function () : array {
                                 $this->calls[] = 'Content.fields';
 
                                 return [
@@ -80,7 +80,7 @@ class LazyTypeLoaderTest extends TestCase
                                     'body' => Type::string(),
                                 ];
                             },
-                            'resolveType' => static function () {
+                            'resolveType' => static function () : void {
                             },
                         ]);
                         break;
@@ -92,7 +92,7 @@ class LazyTypeLoaderTest extends TestCase
                                 $this->node,
                                 $this->content,
                             ],
-                            'fields' => function () {
+                            'fields' => function () : array {
                                 $this->calls[] = 'BlogStory.fields';
 
                                 return [
@@ -132,7 +132,7 @@ class LazyTypeLoaderTest extends TestCase
         };
     }
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->calls = [];
 
@@ -143,7 +143,7 @@ class LazyTypeLoaderTest extends TestCase
         $this->postStoryMutationInput = $this->_lazyLoad('PostStoryMutationInput');
         $this->query                  = new ObjectType([
             'name'   => 'Query',
-            'fields' => function () {
+            'fields' => function () : array {
                 $this->calls[] = 'Query.fields';
 
                 return [
@@ -155,7 +155,7 @@ class LazyTypeLoaderTest extends TestCase
 
         $this->mutation = new ObjectType([
             'name'   => 'Mutation',
-            'fields' => function () {
+            'fields' => function () : array {
                 $this->calls[] = 'Mutation.fields';
 
                 return [
@@ -170,11 +170,24 @@ class LazyTypeLoaderTest extends TestCase
             },
         ]);
 
-        $this->typeLoader = function ($name) {
+        $this->typeLoader = function ($name) : ?callable {
             $this->calls[] = $name;
             $prop          = lcfirst($name);
 
-            return $this->{$prop} ?? null;
+            switch ($prop) {
+                case 'Node':
+                    return $this->node;
+                case 'BlogStory':
+                    return $this->blogStory;
+                case 'Content':
+                    return $this->content;
+                case 'PostStoryMutation':
+                    return $this->postStoryMutation;
+                case 'PostStoryMutationInput':
+                    return $this->postStoryMutationInput;
+            }
+
+            return null;
         };
     }
 
@@ -186,7 +199,7 @@ class LazyTypeLoaderTest extends TestCase
                 'name'   => 'Query',
                 'fields' => ['a' => Type::string()],
             ]),
-            'typeLoader' => static function () {
+            'typeLoader' => static function () : void {
             },
         ]);
     }
@@ -290,7 +303,7 @@ class LazyTypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () {
+            'typeLoader' => static function () : void {
             },
         ]);
 
@@ -304,7 +317,7 @@ class LazyTypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () {
+            'typeLoader' => static function () : stdClass {
                 return new stdClass();
             },
         ]);
@@ -319,7 +332,7 @@ class LazyTypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => function () {
+            'typeLoader' => function () : callable {
                 return $this->content;
             },
         ]);
@@ -334,7 +347,7 @@ class LazyTypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () {
+            'typeLoader' => static function () : void {
                 throw new Exception('This is the exception we are looking for');
             },
         ]);
