@@ -15,7 +15,6 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     private $ofType;
 
     /**
-     * NonNull constructor.
      * @param  callable|(NullableType&Type) $type
      */
     public function __construct($type)
@@ -40,6 +39,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     public function getWrappedType(bool $recurse = false) : Type
     {
         $type = $this->getOfType();
+
         return $recurse && $type instanceof WrappingType
             ? $type->getWrappedType($recurse)
             : $type;
