@@ -175,15 +175,15 @@ class LazyTypeLoaderTest extends TestCase
             $prop          = lcfirst($name);
 
             switch ($prop) {
-                case 'Node':
+                case 'node':
                     return $this->node;
-                case 'BlogStory':
+                case 'blogStory':
                     return $this->blogStory;
-                case 'Content':
+                case 'content':
                     return $this->content;
-                case 'PostStoryMutation':
+                case 'postStoryMutation':
                     return $this->postStoryMutation;
-                case 'PostStoryMutationInput':
+                case 'postStoryMutationInput':
                     return $this->postStoryMutationInput;
             }
 

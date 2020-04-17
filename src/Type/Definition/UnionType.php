@@ -93,7 +93,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             }
 
             $this->types = array_map(static function ($type) : ?ObjectType {
-                $o = Schema::resolveType($type);
+                return Schema::resolveType($type);
                 if ($o instanceof ObjectType) {
                     return $o;
                 }

@@ -45,6 +45,7 @@ use function array_reduce;
 use function array_values;
 use function get_class;
 use function is_array;
+use function is_callable;
 use function is_string;
 use function sprintf;
 
@@ -937,10 +938,15 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     private function completeAbstractValue(AbstractType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
-        $exeContext  = $this->exeContext;
-        $runtimeType = Schema::resolveType($returnType->resolveType($result, $exeContext->contextValue, $info));
-        if ($runtimeType === null) {
+        $exeContext    = $this->exeContext;
+        $typeCandidate = $returnType->resolveType($result, $exeContext->contextValue, $info);
+
+        if ($typeCandidate === null) {
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
+        } elseif (is_callable($typeCandidate)) {
+            $runtimeType = Schema::resolveType($typeCandidate);
+        } else {
+            $runtimeType = $typeCandidate;
         }
         $promise = $this->getPromise($runtimeType);
         if ($promise !== null) {
