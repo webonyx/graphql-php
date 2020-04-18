@@ -181,7 +181,7 @@ class FormattedError
             Utils::getVariableType($e)
         );
 
-        $internalErrorMessage = $internalErrorMessage ?? self::$internalErrorMessage;
+        $internalErrorMessage = $internalErrorMessage === '' || $internalErrorMessage === null ? self::$internalErrorMessage : $internalErrorMessage;
 
         if ($e instanceof ClientAware) {
             $formattedError = [
