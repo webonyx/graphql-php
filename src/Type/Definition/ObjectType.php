@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use Exception;
+use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
