@@ -211,7 +211,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      * @param mixed        $value
      * @param mixed[]|null $context
      *
-     * @return bool|null|Deferred
+     * @return bool|Deferred|null
      */
     public function isTypeOf($value, $context, ResolveInfo $info)
     {
