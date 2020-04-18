@@ -199,7 +199,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
             }
 
             /** @var InterfaceType[] $interfaces */
-            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?: []);
+            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?? []);
 
             $this->interfaces = $interfaces;
         }
@@ -211,7 +211,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      * @param mixed        $value
      * @param mixed[]|null $context
      *
-     * @return bool|null
+     * @return bool|null|Deferred
      */
     public function isTypeOf($value, $context, ResolveInfo $info)
     {

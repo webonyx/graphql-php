@@ -43,7 +43,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
         /**
          * Optionally provide a custom type resolver function. If one is not provided,
-         * the default implemenation will call `isTypeOf` on each implementing
+         * the default implementation will call `isTypeOf` on each implementing
          * Object type.
          */
         $this->name              = $config['name'];
@@ -55,7 +55,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
     public function isPossibleType(Type $type) : bool
     {
-        if (! $type instanceof ObjectType) {
+        if (! ($type instanceof ObjectType && $type instanceof Type)) {
             return false;
         }
 
@@ -92,13 +92,8 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
                 );
             }
 
-            $this->types = array_map(static function ($type) : ?ObjectType {
+            $this->types = array_map(static function ($type) {
                 return Schema::resolveType($type);
-                if ($o instanceof ObjectType) {
-                    return $o;
-                }
-
-                return null;
             }, $types);
         }
 

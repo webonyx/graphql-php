@@ -877,10 +877,6 @@ class SchemaValidationContext
         $includedTypeNames = [];
 
         foreach ($memberTypes as $memberType) {
-            if(!is_object($memberType)) {
-                xdebug_break();
-            }
-
             if (isset($includedTypeNames[$memberType->name])) {
                 $this->reportError(
                     sprintf('Union type %s can only include type %s once.', $union->name, $memberType->name),

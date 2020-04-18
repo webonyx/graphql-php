@@ -57,7 +57,7 @@ class Schema
      */
     private $resolvedTypes = [];
 
-    /** @var array<string, array<string, ObjectType>>|null */
+    /** @var array<string, array<string, ObjectType|UnionType>> */
     private $possibleTypeMap;
 
     /**
