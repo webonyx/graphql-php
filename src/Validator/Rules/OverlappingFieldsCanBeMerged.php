@@ -380,7 +380,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 ];
             }
 
-            if (! $this->sameArguments($ast1->arguments ?: [], $ast2->arguments ?: [])) {
+            if (! $this->sameArguments($ast1->arguments ?? [], $ast2->arguments ?? [])) {
                 return [
                     [$responseName, 'they have differing arguments'],
                     [$ast1],

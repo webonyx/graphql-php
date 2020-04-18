@@ -6,11 +6,6 @@ parameters:
 			path: src/Error/Error.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 6
-			path: src/Error/Error.php
-
-		-
 			message: "#^Only booleans are allowed in &&, Throwable\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Error/Error.php
@@ -86,11 +81,6 @@ parameters:
 			path: src/Error/FormattedError.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 3
-			path: src/Error/FormattedError.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 5
 			path: src/Error/FormattedError.php
@@ -116,44 +106,14 @@ parameters:
 			path: src/Error/FormattedError.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Error/Warning.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Executor/ExecutionContext.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 2
 			path: src/Executor/ExecutionResult.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Executor/ExecutionResult.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Executor/Executor.php
-
-		-
 			message: "#^Variable property access on object\\.$#"
 			count: 2
 			path: src/Executor/Executor.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Executor/Promise/Adapter/SyncPromise.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 5
-			path: src/Executor/ReferenceExecutor.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -196,11 +156,6 @@ parameters:
 			path: src/Experimental/Executor/CoroutineExecutor.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Experimental/Executor/CoroutineExecutor.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 3
 			path: src/Experimental/Executor/CoroutineExecutor.php
@@ -214,11 +169,6 @@ parameters:
 			message: "#^Variable property access on mixed\\.$#"
 			count: 1
 			path: src/Experimental/Executor/CoroutineExecutor.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/GraphQL.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -241,18 +191,8 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Language/Lexer.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
 			path: src/Language/Parser.php
 
 		-
@@ -291,11 +231,6 @@ parameters:
 			path: src/Language/Parser.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
 			count: 18
 			path: src/Language/Printer.php
@@ -319,16 +254,6 @@ parameters:
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
 			count: 2
 			path: src/Language/Printer.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Language/Source.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Language/Visitor.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<int, array\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\> given\\.$#"
@@ -368,11 +293,6 @@ parameters:
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, \\(callable\\)\\|null given\\.$#"
 			count: 2
-			path: src/Server/Helper.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 4
 			path: src/Server/Helper.php
 
 		-
@@ -431,11 +351,6 @@ parameters:
 			path: src/Server/Helper.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Server/OperationParams.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 2
 			path: src/Server/OperationParams.php
@@ -451,11 +366,6 @@ parameters:
 			path: src/Type/Definition/EnumType.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Type/Definition/FieldDefinition.php
-
-		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
 			count: 1
 			path: src/Type/Definition/InputObjectField.php
@@ -469,11 +379,6 @@ parameters:
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Type/Definition/InputObjectType.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Type/Definition/ObjectType.php
 
 		-
 			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
@@ -546,11 +451,6 @@ parameters:
 			path: src/Type/Introspection.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Type/Introspection.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Schema\"\\.$#"
 			count: 1
 			path: src/Type/Introspection.php
@@ -562,11 +462,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
-			count: 1
-			path: src/Type/Schema.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 1
 			path: src/Type/Schema.php
 
@@ -657,11 +552,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\EnumTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\SchemaTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeExtensionNode\\> given\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
 
@@ -826,11 +716,6 @@ parameters:
 			path: src/Utils/BreakingChangesFinder.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Utils/BreakingChangesFinder.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
 			path: src/Utils/BuildSchema.php
@@ -936,11 +821,6 @@ parameters:
 			path: src/Utils/TypeInfo.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Utils/TypeInfo.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\Directive\\|GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null given\\.$#"
 			count: 1
 			path: src/Utils/TypeInfo.php
@@ -964,11 +844,6 @@ parameters:
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Utils/TypeInfo.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Utils/Utils.php
 
 		-
 			message: "#^Variable property access on object\\.$#"
@@ -1024,11 +899,6 @@ parameters:
 			message: "#^Only booleans are allowed in a ternary operator condition, string\\|null given\\.$#"
 			count: 1
 			path: src/Utils/Value.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Validator/DocumentValidator.php
 
 		-
 			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
@@ -1246,11 +1116,6 @@ parameters:
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
@@ -1301,11 +1166,6 @@ parameters:
 			path: src/Validator/Rules/ProvidedRequiredArguments.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Validator/Rules/ProvidedRequiredArguments.php
-
-		-
 			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArguments.php
@@ -1336,11 +1196,6 @@ parameters:
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 2
 			path: src/Validator/Rules/QueryComplexity.php
@@ -1356,19 +1211,9 @@ parameters:
 			path: src/Validator/Rules/QueryComplexity.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Validator/Rules/QueryComplexity.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 1
 			path: src/Validator/Rules/QueryDepth.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Validator/Rules/QuerySecurityRule.php
 
 		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given on the left side\\.$#"
@@ -1479,11 +1324,6 @@ parameters:
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Validator/Rules/UniqueVariableNames.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Validator/Rules/ValidationRule.php
 
 		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
@@ -1646,11 +1486,6 @@ parameters:
 			path: tests/Executor/DirectivesTest.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: tests/Executor/DirectivesTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
 			count: 13
 			path: tests/Executor/ExecutorLazySchemaTest.php
@@ -1658,11 +1493,6 @@ parameters:
 		-
 			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
 			count: 2
-			path: tests/Executor/ExecutorLazySchemaTest.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 7
 			path: tests/Executor/ExecutorLazySchemaTest.php
 
 		-
@@ -1956,11 +1786,6 @@ parameters:
 			path: tests/Regression/Issue396Test.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: tests/Server/Psr7/PsrStreamStub.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
 			count: 7
 			path: tests/Server/QueryExecutionTest.php
@@ -2199,11 +2024,6 @@ parameters:
 			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
 			count: 5
 			path: tests/Utils/SchemaExtenderTest.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: tests/Utils/ValueFromAstTest.php
 
 		-
 			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"

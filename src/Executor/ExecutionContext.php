@@ -64,7 +64,7 @@ class ExecutionContext
         $this->contextValue   = $contextValue;
         $this->operation      = $operation;
         $this->variableValues = $variableValues;
-        $this->errors         = $errors ?: [];
+        $this->errors         = $errors ?? [];
         $this->fieldResolver  = $fieldResolver;
         $this->promiseAdapter = $promiseAdapter;
     }

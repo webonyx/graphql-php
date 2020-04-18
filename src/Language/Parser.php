@@ -351,7 +351,7 @@ class Parser
 
     private function unexpected(?Token $atToken = null) : SyntaxError
     {
-        $token = $atToken ?: $this->lexer->token;
+        $token = $atToken ?? $this->lexer->token;
 
         return new SyntaxError($this->lexer->source, $token->start, 'Unexpected ' . $token->getDescription());
     }

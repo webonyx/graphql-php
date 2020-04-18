@@ -25,7 +25,7 @@ class ProvidedRequiredArguments extends ValidationRule
                     if (! $fieldDef) {
                         return Visitor::skipNode();
                     }
-                    $argNodes = $fieldNode->arguments ?: [];
+                    $argNodes = $fieldNode->arguments ?? [];
 
                     $argNodeMap = [];
                     foreach ($argNodes as $argNode) {
@@ -50,7 +50,7 @@ class ProvidedRequiredArguments extends ValidationRule
                     if (! $directiveDef) {
                         return Visitor::skipNode();
                     }
-                    $argNodes   = $directiveNode->arguments ?: [];
+                    $argNodes   = $directiveNode->arguments ?? [];
                     $argNodeMap = [];
                     foreach ($argNodes as $argNode) {
                         $argNodeMap[$argNode->name->value] = $argNodes;

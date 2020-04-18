@@ -317,7 +317,7 @@ class TypeInfo
                 break;
 
             case $node instanceof ArgumentNode:
-                $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
+                $fieldOrDirective = $this->getDirective() ?? $this->getFieldDef();
                 $argDef           = $argType = null;
                 if ($fieldOrDirective) {
                     /** @var FieldArgument $argDef */

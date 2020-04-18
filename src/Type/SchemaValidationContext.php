@@ -527,7 +527,7 @@ class SchemaValidationContext
             ? ($extensionNodes
                 ? array_merge([$astNode], $extensionNodes)
                 : [$astNode])
-            : ($extensionNodes ?: []);
+            : ($extensionNodes ?? []);
     }
 
     /**

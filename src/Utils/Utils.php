@@ -58,7 +58,7 @@ class Utils
     {
         static $undefined;
 
-        return $undefined ?: $undefined = new stdClass();
+        return $undefined ?? $undefined = new stdClass();
     }
 
     /**

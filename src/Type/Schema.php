@@ -158,7 +158,7 @@ class Schema
      */
     private function resolveAdditionalTypes()
     {
-        $types = $this->config->types ?: [];
+        $types = $this->config->types ?? [];
 
         if (is_callable($types)) {
             $types = $types();

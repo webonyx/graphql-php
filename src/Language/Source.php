@@ -34,7 +34,6 @@ class Source
      * be "Foo.graphql" and location to be `{ line: 40, column: 0 }`.
      * line and column in locationOffset are 1-indexed
      *
-     * @param string      $body
      * @param string|null $name
      */
     public function __construct($body, $name = null, ?SourceLocation $location = null)
@@ -46,8 +45,8 @@ class Source
 
         $this->body           = $body;
         $this->length         = mb_strlen($body, 'UTF-8');
-        $this->name           = $name ?: 'GraphQL request';
-        $this->locationOffset = $location ?: new SourceLocation(1, 1);
+        $this->name           = $name === '' || $name === null ? 'GraphQL request' : $name;
+        $this->locationOffset = $location ?? new SourceLocation(1, 1);
 
         Utils::invariant(
             $this->locationOffset->line > 0,

@@ -15,7 +15,7 @@ abstract class ValidationRule
 
     public function getName()
     {
-        return $this->name ?: static::class;
+        return $this->name !== '' ? $this->name : static::class;
     }
 
     public function __invoke(ValidationContext $context)
