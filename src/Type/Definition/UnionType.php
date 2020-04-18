@@ -92,11 +92,12 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
                 );
             }
 
-            $this->types = array_map(static function ($type) : ObjectType {
-                /** @var ObjectType **/
-                $res = Schema::resolveType($type);
-                return $res;
-            }, $types);
+            $rawTypes = $types;
+            foreach ($rawTypes as $i => $rawType) {
+                $rawTypes[$i] = Schema::resolveType($rawType);
+            }
+
+            $this->types = $rawTypes;
         }
 
         return $this->types;
