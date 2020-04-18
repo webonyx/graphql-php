@@ -32,7 +32,7 @@ final class QueryPlanTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) {
+            'fields' => static function () use ($image, &$article) : array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -302,7 +302,7 @@ final class QueryPlanTest extends TestCase
     {
         $petType = new InterfaceType([
             'name'   => 'Pet',
-            'fields' => static function () {
+            'fields' => static function () : array {
                 return [
                     'name' => ['type' => Type::string()],
                 ];
@@ -312,10 +312,10 @@ final class QueryPlanTest extends TestCase
         $dogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) {
+            'isTypeOf'   => static function ($obj) : bool {
                 return $obj instanceof Dog;
             },
-            'fields' => static function () {
+            'fields' => static function () : array {
                 return [
                     'name'  => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
@@ -372,7 +372,7 @@ final class QueryPlanTest extends TestCase
                     ) use (
                         &$hasCalled,
                         &$queryPlan
-) {
+                    ) : array {
                         $hasCalled = true;
                         $queryPlan = $info->lookAhead();
 
