@@ -34,7 +34,7 @@ class Source
      * be "Foo.graphql" and location to be `{ line: 40, column: 0 }`.
      * line and column in locationOffset are 1-indexed
      *
-     * @param string $body
+     * @param string      $body
      * @param string|null $name
      */
     public function __construct($body, $name = null, ?SourceLocation $location = null)
