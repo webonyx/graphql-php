@@ -123,7 +123,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-            $this->category     = $previous->getCategory() !== '' ? $previous->getCategory() : self::CATEGORY_INTERNAL;
+            $cat                = $previous->getCategory();
+            $this->category     = $cat === '' || $cat === null  ? self::CATEGORY_INTERNAL: $cat;
         } elseif ($previous) {
             $this->isClientSafe = false;
             $this->category     = self::CATEGORY_INTERNAL;
