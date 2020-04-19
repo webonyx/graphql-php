@@ -16,6 +16,7 @@ use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Runner\Version;
 use function array_filter;
+use function method_exists;
 use function version_compare;
 
 /**
@@ -629,7 +630,7 @@ SDL;
     {
         if (version_compare(Version::id(), '8.4', '<')) {
             $this->expectExceptionMessageRegExp($message);
-        } else {
+        } elseif (method_exists($this, 'expectExceptionMessageMatches')) {
             $this->expectExceptionMessageMatches($message);
         }
     }
