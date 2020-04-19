@@ -18,7 +18,7 @@
     "doctrine/coding-standard": "^6.0",
     "phpbench/phpbench": "^0.14",
     "phpstan/extension-installer": "^1.0",
-    "phpstan/phpstan": "0.12.11",
+    "phpstan/phpstan": "0.12.18",
     "phpstan/phpstan-phpunit": "0.12.18",
     "phpstan/phpstan-strict-rules": "0.12.2",
     "phpunit/phpunit": "^7.2|^8.5",
