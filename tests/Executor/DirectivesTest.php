@@ -20,7 +20,7 @@ class DirectivesTest extends TestCase
     /** @var Schema */
     private static $schema;
 
-    /** @var Array<string, string> */
+    /** @var array<string, string> */
     private static $data = [
         'a' => 'a',
         'b' => 'b',
