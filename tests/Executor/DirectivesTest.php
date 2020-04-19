@@ -41,7 +41,7 @@ class DirectivesTest extends TestCase
      */
     private function executeTestQuery($doc) : array
     {
-        return Executor::execute(self::getSchema(), Parser::parse($doc), self::getData())->toArray();
+        return Executor::execute(self::getSchema(), Parser::parse($doc), self::$data)->toArray();
     }
 
     private static function getSchema() : Schema
@@ -59,14 +59,6 @@ class DirectivesTest extends TestCase
         }
 
         return self::$schema;
-    }
-
-    /**
-     * @return Array<string, string>
-     */
-    private static function getData() : array
-    {
-        return self::$data;
     }
 
     public function testWorksOnScalars() : void
