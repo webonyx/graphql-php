@@ -14,7 +14,9 @@ use GraphQL\Utils\BuildClientSchema;
 use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaPrinter;
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Runner\Version;
 use function array_filter;
+use function version_compare;
 
 /**
  * @see BuildClientSchema
@@ -623,6 +625,15 @@ SDL;
         ');
     }
 
+    protected function _expectExceptionMessage(string $message) : void
+    {
+        if (version_compare(Version::id(), '8.4', '<')) {
+            $this->expectExceptionMessageRegExp($message);
+        } else {
+            $this->expectExceptionMessageMatches($message);
+        }
+    }
+
     /**
      * it('throws when introspection is missing __schema property', () => {
      */
@@ -713,7 +724,7 @@ SDL;
 
         unset($queryTypeIntrospection['kind']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Invalid or incomplete introspection result. Ensure that a full introspection query is used in order to build a client schema: {"name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -738,7 +749,7 @@ SDL;
 
         unset($queryTypeIntrospection['interfaces']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Introspection result missing interfaces: {"kind":"OBJECT","name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -790,7 +801,7 @@ SDL;
 
         unset($queryTypeIntrospection['fields']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Introspection result missing fields: {"kind":"OBJECT","name":"Query",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -816,7 +827,7 @@ SDL;
 
         unset($firstField['args']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Introspection result missing field args: {"name":"foo",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -893,7 +904,7 @@ SDL;
 
         unset($someUnionIntrospection['possibleTypes']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Introspection result missing possibleTypes: {"kind":"UNION","name":"SomeUnion",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -918,7 +929,7 @@ SDL;
 
         unset($someEnumIntrospection['enumValues']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Introspection result missing enumValues: {"kind":"ENUM","name":"SomeEnum",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -943,7 +954,7 @@ SDL;
 
         unset($someInputObjectIntrospection['inputFields']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Introspection result missing inputFields: {"kind":"INPUT_OBJECT","name":"SomeInputObject",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -962,7 +973,7 @@ SDL;
 
         unset($someDirectiveIntrospection['locations']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Introspection result missing directive locations: {"name":"SomeDirective",.*}\./'
         );
         BuildClientSchema::build($introspection);
@@ -981,7 +992,7 @@ SDL;
 
         unset($someDirectiveIntrospection['args']);
 
-        $this->expectExceptionMessageMatches(
+        $this->_expectExceptionMessage(
             '/Introspection result missing directive args: {"name":"SomeDirective",.*}\./'
         );
         BuildClientSchema::build($introspection);
