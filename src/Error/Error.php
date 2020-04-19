@@ -174,7 +174,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         }
 
         return new static(
-            $message !== '' ? $message : 'An unknown error occurred.',
+            $message === '' || $message === null ? 'An unknown error occurred.' : $message,
             $nodes,
             $source,
             $positions,
