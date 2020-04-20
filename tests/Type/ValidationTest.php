@@ -1123,7 +1123,6 @@ class ValidationTest extends TestCase
      */
     public function testRejectsAnInputObjectTypeWithIncorrectlyTypedFields() : void
     {
-        $this->expectExceptionMessage('Expected type of InputObjectField to implement InputType but got: SomeObject');
         $schema = BuildSchema::build('
       type Query {
         field(arg: SomeInputObject): String
@@ -1141,7 +1140,19 @@ class ValidationTest extends TestCase
         goodInputObject: SomeInputObject
       }
         ');
-        $schema->validate();
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message'   => 'The type of SomeInputObject.badObject must be Input Type but got: SomeObject.',
+                    'locations' => [['line' => 13, 'column' => 20]],
+                ],
+                [
+                    'message'   => 'The type of SomeInputObject.badUnion must be Input Type but got: SomeUnion.',
+                    'locations' => [['line' => 14, 'column' => 19]],
+                ],
+            ]
+        );
     }
 
     /**
@@ -1299,8 +1310,15 @@ class ValidationTest extends TestCase
     public function testRejectsANonOutputTypeAsAnObjectFieldType() : void
     {
         foreach ($this->notOutputTypes as $type) {
-            $this->expectExceptionMessage('Expected type of FieldDefinition to implement OutputType but got: ' . Utils::printSafe($type));
-            $this->schemaWithObjectFieldOfType($type);
+            $schema = $this->schemaWithObjectFieldOfType($type);
+
+            $this->assertMatchesValidationMessage(
+                $schema->validate(),
+                [[
+                    'message' => 'The type of BadObject.badField must be Output Type but got: ' . Utils::printSafe($type) . '.',
+                ],
+                ]
+            );
         }
     }
 
@@ -1602,8 +1620,15 @@ class ValidationTest extends TestCase
     public function testRejectsANonOutputTypeAsAnInterfaceFieldType() : void
     {
         foreach ($this->notOutputTypes as $type) {
-            $this->expectExceptionMessage('Expected type of FieldDefinition to implement OutputType but got: ' . Utils::printSafe($type));
-            $this->schemaWithInterfaceFieldOfType($type);
+            $schema = $this->schemaWithInterfaceFieldOfType($type);
+
+            $this->assertMatchesValidationMessage(
+                $schema->validate(),
+                [
+                    ['message' => 'The type of BadInterface.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
+                    ['message' => 'The type of BadImplementing.badField must be Output Type but got: ' . Utils::printSafe($type) . '.'],
+                ]
+            );
         }
     }
 
@@ -1614,7 +1639,6 @@ class ValidationTest extends TestCase
      */
     public function testRejectsANonOutputTypeAsAnInterfaceFieldTypeWithLocations() : void
     {
-        $this->expectExceptionMessage('Expected type of FieldDefinition to implement OutputType but got: SomeInputObject');
         $schema = BuildSchema::build('
       type Query {
         field: SomeInterface
@@ -1632,8 +1656,19 @@ class ValidationTest extends TestCase
         field: SomeInputObject
       }
         ');
-
-        $schema->validate();
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [
+                [
+                    'message'   => 'The type of SomeInterface.field must be Output Type but got: SomeInputObject.',
+                    'locations' => [['line' => 7, 'column' => 16]],
+                ],
+                [
+                    'message' => 'The type of SomeObject.field must be Output Type but got: SomeInputObject.',
+                    'locations' => [[ 'line' => 15, 'column' => 16 ]],
+                ],
+            ]
+        );
     }
 
     /**
@@ -1700,8 +1735,13 @@ class ValidationTest extends TestCase
     public function testRejectsANonInputTypeAsAFieldArgType() : void
     {
         foreach ($this->notInputTypes as $type) {
-            $this->expectExceptionMessage('Expected type of FieldArgument to implement InputType but got: ' . Utils::printSafe($type));
             $schema = $this->schemaWithArgOfType($type);
+            $this->assertMatchesValidationMessage(
+                $schema->validate(),
+                [
+                    ['message' => 'The type of BadObject.badField(badArg:) must be Input Type but got: ' . Utils::printSafe($type) . '.'],
+                ]
+            );
         }
     }
 
@@ -1710,18 +1750,23 @@ class ValidationTest extends TestCase
      */
     public function testANonInputTypeAsAFieldArgWithLocations() : void
     {
-        $this->expectExceptionMessage('Expected type of FieldArgument to implement InputType but got: SomeObject');
-
         $schema = BuildSchema::build('
-          type Query {
-            test(arg: SomeObject): String
-          }
-          
-          type SomeObject {
-            foo: String
-          }
+      type Query {
+        test(arg: SomeObject): String
+      }
+      
+      type SomeObject {
+        foo: String
+      }
         ');
-        $schema->validate();
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'The type of Query.test(arg:) must be Input Type but got: SomeObject.',
+                'locations' => [['line' => 3, 'column' => 19]],
+            ],
+            ]
+        );
     }
 
     /**
@@ -1766,8 +1811,14 @@ class ValidationTest extends TestCase
     public function testRejectsANonInputTypeAsAnInputFieldType() : void
     {
         foreach ($this->notInputTypes as $type) {
-            $this->expectExceptionMessage('Expected type of InputObjectField to implement InputType but got: ' . Utils::printSafe($type));
-            $this->schemaWithInputFieldOfType($type);
+            $schema = $this->schemaWithInputFieldOfType($type);
+            $this->assertMatchesValidationMessage(
+                $schema->validate(),
+                [[
+                    'message' => 'The type of BadInputObject.badField must be Input Type but got: ' . Utils::printSafe($type) . '.',
+                ],
+                ]
+            );
         }
     }
 
@@ -1776,21 +1827,27 @@ class ValidationTest extends TestCase
      */
     public function testRejectsANonInputTypeAsAnInputObjectFieldWithLocations() : void
     {
-        $this->expectExceptionMessage('Expected type of InputObjectField to implement InputType but got: SomeObject');
         $schema = BuildSchema::build('
-          type Query {
-            test(arg: SomeInputObject): String
-          }
-          
-          input SomeInputObject {
-            foo: SomeObject
-          }
-          
-          type SomeObject {
-            bar: String
-          }
+      type Query {
+        test(arg: SomeInputObject): String
+      }
+      
+      input SomeInputObject {
+        foo: SomeObject
+      }
+      
+      type SomeObject {
+        bar: String
+      }
         ');
-        $schema->validate();
+        $this->assertMatchesValidationMessage(
+            $schema->validate(),
+            [[
+                'message'   => 'The type of SomeInputObject.foo must be Input Type but got: SomeObject.',
+                'locations' => [['line' => 7, 'column' => 14]],
+            ],
+            ]
+        );
     }
 
     /**

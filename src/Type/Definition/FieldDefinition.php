@@ -181,10 +181,7 @@ class FieldDefinition
      */
     public function getType() : Type
     {
-        $type = Schema::resolveType($this->type);
-        assert($type instanceof OutputType, new InvariantViolation('Expected type of FieldDefinition to implement OutputType but got: ' . Utils::printSafe($type)));
-
-        return $type;
+        return Schema::resolveType($this->type);
     }
 
     /**

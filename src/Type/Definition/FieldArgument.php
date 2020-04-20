@@ -85,13 +85,7 @@ class FieldArgument
      */
     public function getType() : Type
     {
-        $type = Schema::resolveType($this->type);
-        assert(
-            $type instanceof InputType,
-            new InvariantViolation(sprintf('Expected type of FieldArgument to implement InputType but got: %s', Utils::printSafe($type)))
-        );
-
-        return $type;
+        return Schema::resolveType($this->type);
     }
 
     public function defaultValueExists() : bool
