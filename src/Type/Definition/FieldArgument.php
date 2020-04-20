@@ -4,13 +4,11 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
-use function assert;
 use function is_array;
 use function is_string;
 use function sprintf;
