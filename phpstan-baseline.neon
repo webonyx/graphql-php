@@ -241,11 +241,6 @@ parameters:
 			path: src/Language/Printer.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\NameNode\"\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
 			count: 3
 			path: src/Language/Printer.php
