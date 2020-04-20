@@ -21,8 +21,6 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
      */
     public function __construct($type)
     {
-        assert($type instanceof NullableType || is_callable($type), new InvariantViolation('NonNull constructor expects an instance of NullableType, or a callable'));
-
         /** @var Type&NullableType $nullableType*/
         $nullableType = $type;
         $this->ofType = $nullableType;
