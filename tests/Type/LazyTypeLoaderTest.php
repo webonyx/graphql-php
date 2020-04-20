@@ -51,7 +51,7 @@ final class LazyTypeLoaderTest extends TestCase
     /** @var Type[] */
     private $loadedTypes = [];
 
-    protected function _lazyLoad(string $name) : callable
+    private function lazyLoad(string $name) : callable
     {
         return function () use ($name) {
             if (! isset($this->loadedTypes[$name])) {
@@ -139,19 +139,19 @@ final class LazyTypeLoaderTest extends TestCase
     {
         $this->calls = [];
 
-        $this->node                   = $this->_lazyLoad('Node');
-        $this->blogStory              = $this->_lazyLoad('BlogStory');
-        $this->content                = $this->_lazyLoad('Content');
-        $this->postStoryMutation      = $this->_lazyLoad('PostStoryMutation');
-        $this->postStoryMutationInput = $this->_lazyLoad('PostStoryMutationInput');
+        $this->node                   = $this->lazyLoad('Node');
+        $this->blogStory              = $this->lazyLoad('BlogStory');
+        $this->content                = $this->lazyLoad('Content');
+        $this->postStoryMutation      = $this->lazyLoad('PostStoryMutation');
+        $this->postStoryMutationInput = $this->lazyLoad('PostStoryMutationInput');
         $this->query                  = new ObjectType([
             'name'   => 'Query',
             'fields' => function () : array {
                 $this->calls[] = 'Query.fields';
 
                 return [
-                    'latestContent' => $this->_lazyLoad('Content'),
-                    'node'          => $this->_lazyLoad('Node'),
+                    'latestContent' => $this->lazyLoad('Content'),
+                    'node'          => $this->lazyLoad('Node'),
                 ];
             },
         ]);
