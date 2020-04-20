@@ -51,7 +51,7 @@ final class LazyTypeLoaderTest extends TestCase
     /** @var Type[] */
     private $loadedTypes = [];
 
-    protected function _lazyLoad(string $name)
+    protected function _lazyLoad(string $name) : callable
     {
         return function () use ($name) {
             if (! isset($this->loadedTypes[$name])) {
