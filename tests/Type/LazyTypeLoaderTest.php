@@ -17,7 +17,7 @@ use stdClass;
 use Throwable;
 use function lcfirst;
 
-class LazyTypeLoaderTest extends TestCase
+final class LazyTypeLoaderTest extends TestCase
 {
     use ArraySubsetAsserts;
 
