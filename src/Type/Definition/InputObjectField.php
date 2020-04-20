@@ -52,9 +52,6 @@ class InputObjectField
         $this->config = $opts;
     }
 
-    /**
-     * @return Type&InputType
-     */
     public function getType() : Type
     {
         return Schema::resolveType($this->type);

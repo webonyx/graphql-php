@@ -80,9 +80,6 @@ class FieldArgument
         return $map;
     }
 
-    /**
-     * @return InputType&Type
-     */
     public function getType() : Type
     {
         return Schema::resolveType($this->type);

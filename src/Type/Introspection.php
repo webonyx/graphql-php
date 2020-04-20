@@ -498,7 +498,7 @@ EOD;
                         ],
                         'type'              => [
                             'type'    => Type::nonNull(self::_type()),
-                            'resolve' => static function (FieldDefinition $field) {
+                            'resolve' => static function (FieldDefinition $field) : Type {
                                 return $field->getType();
                             },
                         ],

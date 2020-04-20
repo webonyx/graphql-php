@@ -176,9 +176,6 @@ class FieldDefinition
         return null;
     }
 
-    /**
-     * @return OutputType&Type
-     */
     public function getType() : Type
     {
         return Schema::resolveType($this->type);
