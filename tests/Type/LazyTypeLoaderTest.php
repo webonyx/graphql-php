@@ -173,7 +173,7 @@ final class LazyTypeLoaderTest extends TestCase
             },
         ]);
 
-        $this->typeLoader = function ($name) : ?callable {
+        $this->typeLoader = function (string $name) : ?callable {
             $this->calls[] = $name;
             $prop          = lcfirst($name);
 
