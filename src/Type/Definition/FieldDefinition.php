@@ -9,7 +9,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-use function assert;
 use function is_array;
 use function is_callable;
 use function is_string;
