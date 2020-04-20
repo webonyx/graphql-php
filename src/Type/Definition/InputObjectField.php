@@ -10,7 +10,6 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
-use function assert;
 use function sprintf;
 
 class InputObjectField
