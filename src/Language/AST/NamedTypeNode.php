@@ -9,6 +9,6 @@ class NamedTypeNode extends Node implements TypeNode
     /** @var string */
     public $kind = NodeKind::NAMED_TYPE;
 
-    /** @var string */
+    /** @var NameNode|string */
     public $name;
 }

@@ -181,11 +181,6 @@ parameters:
 			path: src/Experimental/Executor/Collector.php
 
 		-
-			message: "#^Cannot access property \\$value on string\\.$#"
-			count: 2
-			path: src/Experimental/Executor/Collector.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
 			path: src/Experimental/Executor/CoroutineExecutor.php
@@ -403,11 +398,6 @@ parameters:
 		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
 			count: 1
-			path: src/Type/Definition/QueryPlan.php
-
-		-
-			message: "#^Cannot access property \\$value on string\\.$#"
-			count: 2
 			path: src/Type/Definition/QueryPlan.php
 
 		-
@@ -631,11 +621,6 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Cannot access property \\$value on string\\.$#"
-			count: 1
-			path: src/Utils/AST.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\DefinitionNode&GraphQL\\\\Language\\\\AST\\\\Node\\> given\\.$#"
 			count: 1
 			path: src/Utils/AST.php
@@ -647,11 +632,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\> given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
-			message: "#^Cannot access property \\$value on string\\.$#"
 			count: 1
 			path: src/Utils/ASTDefinitionBuilder.php
 
@@ -698,11 +678,6 @@ parameters:
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
-			path: src/Utils/BuildSchema.php
-
-		-
-			message: "#^Cannot access property \\$value on string\\.$#"
-			count: 1
 			path: src/Utils/BuildSchema.php
 
 		-
@@ -896,11 +871,6 @@ parameters:
 			path: src/Validator/Rules/KnownFragmentNames.php
 
 		-
-			message: "#^Cannot access property \\$value on string\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownTypeNames.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Validator/Rules/KnownTypeNames.php
@@ -1017,11 +987,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\> given\\.$#"
-			count: 1
-			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
-			message: "#^Cannot access property \\$value on string\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
 
