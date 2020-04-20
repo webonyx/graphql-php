@@ -379,9 +379,6 @@ class Schema
             return $type();
         }
 
-        /**
-         * @var Type $type
-         */
         return $type;
     }
 
