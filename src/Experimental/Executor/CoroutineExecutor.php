@@ -192,7 +192,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             $this->rawVariableValues ?: []
         );
 
-        if (! empty($errors)) {
+        if (count($errors) > 0) {
             return $this->promiseAdapter->createFulfilled($this->finishExecute(null, $errors));
         }
 
