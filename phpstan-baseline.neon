@@ -161,11 +161,6 @@ parameters:
 			path: src/Executor/Values.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 3
-			path: src/Experimental/Executor/CoroutineExecutor.php
-
-		-
 			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 2
 			path: src/Experimental/Executor/CoroutineExecutor.php
