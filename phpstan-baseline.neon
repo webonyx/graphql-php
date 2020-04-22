@@ -341,11 +341,6 @@ parameters:
 			path: src/Server/Helper.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 5
-			path: src/Server/Helper.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Error\\\\Error\"\\.$#"
 			count: 1
 			path: src/Server/Helper.php

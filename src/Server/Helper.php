@@ -21,6 +21,7 @@ use JsonSerializable;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
+use function count;
 use function file_get_contents;
 use function header;
 use function is_array;
@@ -161,21 +162,21 @@ class Helper
             $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
         }
 
-        if ($params->query !== null && (! is_string($params->query) || empty($params->query))) {
+        if ($params->query !== null && ! is_string($params->query)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "query" must be string, but got ' .
                 Utils::printSafeJson($params->query)
             );
         }
 
-        if ($params->queryId !== null && (! is_string($params->queryId) || empty($params->queryId))) {
+        if ($params->queryId !== null && ! is_string($params->queryId)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "queryId" must be string, but got ' .
                 Utils::printSafeJson($params->queryId)
             );
         }
 
-        if ($params->operation !== null && (! is_string($params->operation) || empty($params->operation))) {
+        if ($params->operation !== null && ! is_string($params->operation)) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "operation" must be string, but got ' .
                 Utils::printSafeJson($params->operation)
@@ -263,7 +264,7 @@ class Helper
 
             $errors = $this->validateOperationParams($op);
 
-            if (! empty($errors)) {
+            if (count($errors) > 0) {
                 $errors = Utils::map(
                     $errors,
                     static function (RequestError $err) {
@@ -502,7 +503,7 @@ class Helper
                     Utils::printSafe($result)
                 ));
             }
-            if ($result->data === null && ! empty($result->errors)) {
+            if ($result->data === null && count($result->errors) > 0) {
                 $httpStatus = 400;
             } else {
                 $httpStatus = 200;
