@@ -191,11 +191,6 @@ parameters:
 			path: src/GraphQL.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Language/AST/Node.php
-
-		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
