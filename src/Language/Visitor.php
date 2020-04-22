@@ -403,7 +403,7 @@ class Visitor
         return [
             'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
-                    if (! empty($skipping[$i])) {
+                    if ($skipping[$i] !== null) {
                         continue;
                     }
 
@@ -434,7 +434,7 @@ class Visitor
             },
             'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
-                    if (empty($skipping[$i])) {
+                    if ($skipping[$i] === null) {
                         $fn = self::getVisitFn(
                             $visitors[$i],
                             $node->kind, /* isLeaving */
