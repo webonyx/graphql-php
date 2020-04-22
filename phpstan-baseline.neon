@@ -141,11 +141,6 @@ parameters:
 			path: src/Executor/ReferenceExecutor.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 4
-			path: src/Executor/ReferenceExecutor.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
 			count: 1
 			path: src/Executor/ReferenceExecutor.php
