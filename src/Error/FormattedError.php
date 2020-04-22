@@ -206,13 +206,13 @@ class FormattedError
                     return $loc->toSerializableArray();
                 }
             );
-            if (! empty($locations)) {
+            if (count($locations) !== 0) {
                 $formattedError['locations'] = $locations;
             }
-            if (! empty($e->path)) {
+            if (count($e->path ?? []) !== 0) {
                 $formattedError['path'] = $e->path;
             }
-            if (! empty($e->getExtensions())) {
+            if (count($e->getExtensions()) !== 0) {
                 $formattedError['extensions'] = $e->getExtensions() + $formattedError['extensions'];
             }
         }
@@ -342,7 +342,7 @@ class FormattedError
 
                 if (isset($err['function'])) {
                     $func    = $err['function'];
-                    $args    = ! empty($err['args']) ? array_map([self::class, 'printVar'], $err['args']) : [];
+                    $args    = array_map([self::class, 'printVar'], $err['args'] ?? []);
                     $funcStr = $func . '(' . implode(', ', $args) . ')';
 
                     if (isset($err['class'])) {
@@ -411,7 +411,7 @@ class FormattedError
     {
         $formatted = ['message' => $error];
 
-        if (! empty($locations)) {
+        if (count($locations) !== 0) {
             $formatted['locations'] = array_map(
                 static function ($loc) : array {
                     return $loc->toArray();
