@@ -156,11 +156,6 @@ parameters:
 			path: src/Executor/Values.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 3
-			path: src/Executor/Values.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\|null given\\.$#"
 			count: 1
 			path: src/Executor/Values.php
