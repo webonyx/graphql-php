@@ -273,7 +273,7 @@ class Parser
      */
     private function loc(Token $startToken) : ?Location
     {
-        if (!($this->lexer->options['noLocation'] ?? false)) {
+        if (! ($this->lexer->options['noLocation'] ?? false)) {
             return new Location($startToken, $this->lexer->lastToken, $this->lexer->source);
         }
 
@@ -1180,7 +1180,7 @@ class Parser
                 $types[] = $this->parseNamedType();
             } while ($this->skip(Token::AMP) ||
                 // Legacy support for the SDL?
-                (($this->lexer->options['allowLegacySDLImplementsInterfaces'] ?? false)  && $this->peek(Token::NAME))
+                (($this->lexer->options['allowLegacySDLImplementsInterfaces'] ?? false) && $this->peek(Token::NAME))
             );
         }
 
