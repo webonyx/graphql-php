@@ -376,11 +376,6 @@ parameters:
 			path: src/Server/OperationParams.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 2
-			path: src/Server/OperationParams.php
-
-		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\Directive\\)\\.$#"
 			count: 1
 			path: src/Type/Definition/Directive.php
