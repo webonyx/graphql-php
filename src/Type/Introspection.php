@@ -333,7 +333,7 @@ EOD;
                                 if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                                     $fields = $type->getFields();
 
-                                    if (empty($args['includeDeprecated'])) {
+                                    if (! ($args['includeDeprecated'] ?? false)) {
                                         $fields = array_filter(
                                             $fields,
                                             static function (FieldDefinition $field) {
@@ -377,7 +377,7 @@ EOD;
                                 if ($type instanceof EnumType) {
                                     $values = array_values($type->getValues());
 
-                                    if (empty($args['includeDeprecated'])) {
+                                    if (! ($args['includeDeprecated'] ?? false)) {
                                         $values = array_filter(
                                             $values,
                                             static function ($value) {
@@ -493,7 +493,7 @@ EOD;
                         'args'              => [
                             'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                             'resolve' => static function (FieldDefinition $field) {
-                                return empty($field->args) ? [] : $field->args;
+                                return $field->args ?? [];
                             },
                         ],
                         'type'              => [

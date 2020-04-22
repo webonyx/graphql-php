@@ -431,11 +431,6 @@ parameters:
 			path: src/Type/Introspection.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 3
-			path: src/Type/Introspection.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
 			count: 4
 			path: src/Type/Introspection.php
