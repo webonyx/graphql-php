@@ -89,7 +89,7 @@ class KnownArgumentNames extends ValidationRule
     public static function unknownArgMessage($argName, $fieldName, $typeName, array $suggestedArgs)
     {
         $message = sprintf('Unknown argument "%s" on field "%s" of type "%s".', $argName, $fieldName, $typeName);
-        if (! empty($suggestedArgs)) {
+        if (count($suggestedArgs) > 0) {
             $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
         }
 
@@ -102,7 +102,7 @@ class KnownArgumentNames extends ValidationRule
     public static function unknownDirectiveArgMessage($argName, $directiveName, array $suggestedArgs)
     {
         $message = sprintf('Unknown argument "%s" on directive "@%s".', $argName, $directiveName);
-        if (! empty($suggestedArgs)) {
+        if (count($suggestedArgs) > 0) {
             $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
         }
 
