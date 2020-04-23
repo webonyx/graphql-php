@@ -1071,11 +1071,6 @@ parameters:
 			path: src/Validator/Rules/NoUnusedFragments.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Validator/Rules/NoUnusedFragments.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 3
 			path: src/Validator/Rules/NoUnusedVariables.php

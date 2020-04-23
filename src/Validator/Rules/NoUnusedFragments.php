@@ -48,7 +48,7 @@ class NoUnusedFragments extends ValidationRule
 
                     foreach ($this->fragmentDefs as $fragmentDef) {
                         $fragName = $fragmentDef->name->value;
-                        if (! empty($fragmentNameUsed[$fragName])) {
+                        if ($fragmentNameUsed[$fragName] ?? false) {
                             continue;
                         }
 
