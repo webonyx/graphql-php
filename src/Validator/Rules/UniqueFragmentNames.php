@@ -27,7 +27,7 @@ class UniqueFragmentNames extends ValidationRule
             },
             NodeKind::FRAGMENT_DEFINITION  => function (FragmentDefinitionNode $node) use ($context) {
                 $fragmentName = $node->name->value;
-                if (empty($this->knownFragmentNames[$fragmentName])) {
+                if (! isset($this->knownFragmentNames[$fragmentName])) {
                     $this->knownFragmentNames[$fragmentName] = $node->name;
                 } else {
                     $context->reportError(new Error(
