@@ -1266,11 +1266,6 @@ parameters:
 			path: src/Validator/Rules/UniqueArgumentNames.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Validator/Rules/UniqueArgumentNames.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 1
 			path: src/Validator/Rules/UniqueDirectivesPerLocation.php

@@ -42,7 +42,7 @@ class UniqueArgumentNames extends ValidationRule
             },
             NodeKind::ARGUMENT  => function (ArgumentNode $node) use ($context) {
                 $argName = $node->name->value;
-                if (! empty($this->knownArgNames[$argName])) {
+                if ($this->knownArgNames[$argName] ?? false) {
                     $context->reportError(new Error(
                         self::duplicateArgMessage($argName),
                         [$this->knownArgNames[$argName], $node->name]
