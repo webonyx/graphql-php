@@ -1376,11 +1376,6 @@ parameters:
 			path: src/Validator/ValidationContext.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 3
-			path: src/Validator/ValidationContext.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/ValidationContext.php
