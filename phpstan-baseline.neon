@@ -1286,11 +1286,6 @@ parameters:
 			path: src/Validator/Rules/UniqueInputFieldNames.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Validator/Rules/UniqueInputFieldNames.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
 			count: 2
 			path: src/Validator/Rules/UniqueOperationNames.php
