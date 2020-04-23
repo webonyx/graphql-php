@@ -26,7 +26,7 @@ class UniqueVariableNames extends ValidationRule
             },
             NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $node) use ($context) {
                 $variableName = $node->variable->name->value;
-                if (empty($this->knownVariableNames[$variableName])) {
+                if (! isset($this->knownVariableNames[$variableName])) {
                     $this->knownVariableNames[$variableName] = $node->variable->name;
                 } else {
                     $context->reportError(new Error(
