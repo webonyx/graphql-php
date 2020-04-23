@@ -26,7 +26,7 @@ class UniqueOperationNames extends ValidationRule
                 $operationName = $node->name;
 
                 if ($operationName) {
-                    if (empty($this->knownOperationNames[$operationName->value])) {
+                    if (! isset($this->knownOperationNames[$operationName->value])) {
                         $this->knownOperationNames[$operationName->value] = $operationName;
                     } else {
                         $context->reportError(new Error(
