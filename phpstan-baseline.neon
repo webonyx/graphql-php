@@ -1801,11 +1801,6 @@ parameters:
 			path: tests/Server/RequestParsingTest.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: tests/Server/RequestValidationTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 10
 			path: tests/Server/ServerConfigTest.php
