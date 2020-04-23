@@ -641,11 +641,6 @@ parameters:
 			path: src/Type/SchemaValidationContext.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Utils/AST.php
-
-		-
 			message: "#^Variable property access on mixed\\.$#"
 			count: 2
 			path: src/Utils/AST.php
