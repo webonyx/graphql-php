@@ -1016,11 +1016,6 @@ parameters:
 			path: src/Validator/Rules/KnownTypeNames.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownTypeNames.php
-
-		-
 			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
 			count: 1
 			path: src/Validator/Rules/LoneAnonymousOperation.php

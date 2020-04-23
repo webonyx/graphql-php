@@ -11,6 +11,7 @@ use GraphQL\Language\Visitor;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 use function array_keys;
+use function count;
 use function sprintf;
 
 /**
@@ -61,7 +62,7 @@ class KnownTypeNames extends ValidationRule
     public static function unknownTypeMessage($type, array $suggestedTypes)
     {
         $message = sprintf('Unknown type "%s".', $type);
-        if (! empty($suggestedTypes)) {
+        if (count($suggestedTypes) > 0) {
             $suggestions = Utils::quotedOrList($suggestedTypes);
 
             $message .= sprintf(' Did you mean %s?', $suggestions);
