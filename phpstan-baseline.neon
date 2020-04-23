@@ -501,11 +501,6 @@ parameters:
 			path: src/Type/Schema.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Type/SchemaConfig.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
