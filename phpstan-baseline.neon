@@ -1976,11 +1976,6 @@ parameters:
 			path: tests/Utils/MixedStoreTest.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 2
-			path: tests/Utils/MixedStoreTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
 			count: 5
 			path: tests/Utils/SchemaExtenderTest.php
