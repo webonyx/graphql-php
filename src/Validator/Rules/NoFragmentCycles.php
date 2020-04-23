@@ -54,7 +54,7 @@ class NoFragmentCycles extends ValidationRule
 
     private function detectCycleRecursive(FragmentDefinitionNode $fragment, ValidationContext $context)
     {
-        if (! empty($this->visitedFrags[$fragment->name->value])) {
+        if (isset($this->visitedFrags[$fragment->name->value])) {
             return;
         }
 
@@ -63,7 +63,7 @@ class NoFragmentCycles extends ValidationRule
 
         $spreadNodes = $context->getFragmentSpreads($fragment);
 
-        if (empty($spreadNodes)) {
+        if (count($spreadNodes) === 0) {
             return;
         }
 
@@ -105,7 +105,7 @@ class NoFragmentCycles extends ValidationRule
         return sprintf(
             'Cannot spread fragment "%s" within itself%s.',
             $fragName,
-            ! empty($spreadNames) ? ' via ' . implode(', ', $spreadNames) : ''
+            count($spreadNames) > 0 ? ' via ' . implode(', ', $spreadNames) : ''
         );
     }
 }
