@@ -38,7 +38,7 @@ class NoUnusedVariables extends ValidationRule
                     foreach ($this->variableDefs as $variableDef) {
                         $variableName = $variableDef->variable->name->value;
 
-                        if (! empty($variableNameUsed[$variableName])) {
+                        if ($variableNameUsed[$variableName] ?? false) {
                             continue;
                         }
 
