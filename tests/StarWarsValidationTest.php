@@ -7,6 +7,7 @@ namespace GraphQL\Tests;
 use GraphQL\Language\Parser;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
+use function count;
 
 class StarWarsValidationTest extends TestCase
 {
@@ -37,7 +38,7 @@ class StarWarsValidationTest extends TestCase
         }
       ';
         $errors = $this->validationErrors($query);
-        self::assertEquals(true, empty($errors));
+        self::assertEquals(true, count($errors) === 0);
     }
 
     /**
@@ -63,7 +64,7 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        self::assertEquals(false, empty($errors));
+        self::assertEquals(false, count($errors) === 0);
     }
 
     /**
@@ -78,7 +79,7 @@ class StarWarsValidationTest extends TestCase
         ';
 
         $errors = $this->validationErrors($query);
-        self::assertEquals(false, empty($errors));
+        self::assertEquals(false, count($errors) === 0);
     }
 
     /**
@@ -96,7 +97,7 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        self::assertEquals(false, empty($errors));
+        self::assertEquals(false, count($errors) === 0);
     }
 
     /**
@@ -113,7 +114,7 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        self::assertEquals(false, empty($errors));
+        self::assertEquals(false, count($errors) === 0);
     }
 
     /**
@@ -134,7 +135,7 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        self::assertEquals(true, empty($errors));
+        self::assertEquals(true, count($errors) === 0);
     }
 
     /**
@@ -153,6 +154,6 @@ class StarWarsValidationTest extends TestCase
         }
         ';
         $errors = $this->validationErrors($query);
-        self::assertEquals(true, empty($errors));
+        self::assertEquals(true, count($errors) === 0);
     }
 }

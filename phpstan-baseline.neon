@@ -1826,11 +1826,6 @@ parameters:
 			path: tests/StarWarsSchema.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 7
-			path: tests/StarWarsValidationTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 16
 			path: tests/Type/DefinitionTest.php
