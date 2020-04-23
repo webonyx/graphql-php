@@ -801,11 +801,6 @@ parameters:
 			path: src/Utils/SchemaPrinter.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 2
-			path: src/Utils/SchemaPrinter.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\Type\\>\\|null given\\.$#"
 			count: 1
 			path: src/Utils/TypeInfo.php

@@ -274,7 +274,7 @@ class SchemaPrinter
         if (Utils::every(
             $args,
             static function ($arg) {
-                return empty($arg->description);
+                return strlen($arg->description ?? '') === 0;
             }
         )) {
             return '(' . implode(', ', array_map('self::printInputValue', $args)) . ')';
@@ -353,7 +353,7 @@ class SchemaPrinter
     private static function printObject(ObjectType $type, array $options) : string
     {
         $interfaces            = $type->getInterfaces();
-        $implementedInterfaces = ! empty($interfaces)
+        $implementedInterfaces = count($interfaces) > 0
             ? ' implements ' . implode(
                 ' & ',
                 array_map(
