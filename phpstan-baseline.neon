@@ -1056,11 +1056,6 @@ parameters:
 			path: src/Validator/Rules/NoUndefinedVariables.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Validator/Rules/NoUndefinedVariables.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NameNode given\\.$#"
 			count: 1
 			path: src/Validator/Rules/NoUndefinedVariables.php
