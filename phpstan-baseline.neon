@@ -1206,11 +1206,6 @@ parameters:
 			path: src/Validator/Rules/QueryComplexity.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 3
-			path: src/Validator/Rules/QueryComplexity.php
-
-		-
 			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 1
 			path: src/Validator/Rules/QueryComplexity.php
