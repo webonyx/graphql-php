@@ -951,11 +951,6 @@ parameters:
 			path: src/Validator/Rules/FieldsOnCorrectType.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Validator/Rules/FieldsOnCorrectType.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 2
 			path: src/Validator/Rules/FragmentsOnCompositeTypes.php
