@@ -736,11 +736,6 @@ parameters:
 			path: src/Utils/BreakingChangesFinder.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 3
-			path: src/Utils/BuildSchema.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 1
 			path: src/Utils/BuildSchema.php
