@@ -152,7 +152,7 @@ abstract class QuerySecurityRule extends ValidationRule
                 case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
 
-                    if (empty($_visitedFragmentNames[$fragName])) {
+                    if (! ($_visitedFragmentNames[$fragName] ?? false)) {
                         $_visitedFragmentNames[$fragName] = true;
                         $fragment                         = $context->getFragment($fragName);
 
