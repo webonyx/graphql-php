@@ -27,10 +27,10 @@ class PsrRequestStub implements ServerRequestInterface
     public $parsedBody;
 
     public function __construct() {
-    	$this->body = new PsrStreamStub();
+        $this->body = new PsrStreamStub();
     }
 
-	/**
+    /**
      * Retrieves the HTTP protocol version as a string.
      *
      * The string MUST contain only the HTTP version number (e.g., "1.1", "1.0").

@@ -535,11 +535,11 @@ class Helper
             if (stripos($contentType[0], 'application/graphql') !== false) {
                 $bodyParams = ['query' => $request->getBody()->getContents()];
             } elseif (stripos($contentType[0], 'application/json') !== false) {
-            	$bodyParams = json_decode($request->getBody()->getContents(), true);
+                $bodyParams = json_decode($request->getBody()->getContents(), true);
 
-	            if (json_last_error()) {
-		            throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
-	            }
+                if (json_last_error()) {
+                    throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
+                }
 
                 if (! is_array($bodyParams)) {
                     throw new RequestError(
