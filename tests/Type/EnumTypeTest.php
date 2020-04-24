@@ -279,7 +279,7 @@ class EnumTypeTest extends TestCase
     private function expectFailure($query, $vars, $err)
     {
         $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
-        self::assertEquals(1, count($result->errors));
+        self::assertCount(1, $result->errors);
 
         if (is_array($err)) {
             self::assertEquals(
