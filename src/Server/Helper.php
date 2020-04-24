@@ -538,7 +538,7 @@ class Helper
             } elseif (stripos($contentType[0], 'application/json') !== false) {
                 $bodyParams = json_decode($request->getBody()->getContents(), true);
 
-                if (json_last_error()) {
+                if (json_last_error() !== JSON_ERROR_NONE) {
                     throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
                 }
 
