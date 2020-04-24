@@ -535,13 +535,11 @@ class Helper
             if (stripos($contentType[0], 'application/graphql') !== false) {
                 $bodyParams = ['query' => $request->getBody()->getContents()];
             } elseif (stripos($contentType[0], 'application/json') !== false) {
-                $bodyParams = $request->getParsedBody();
+            	$bodyParams = json_decode($request->getBody()->getContents(), true);
 
-                if ($bodyParams === null) {
-                    throw new InvariantViolation(
-                        'PSR-7 request is expected to provide parsed body for "application/json" requests but got null'
-                    );
-                }
+	            if (json_last_error()) {
+		            throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
+	            }
 
                 if (! is_array($bodyParams)) {
                     throw new RequestError(

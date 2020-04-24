@@ -13,7 +13,7 @@ use const SEEK_SET;
  */
 class PsrStreamStub implements StreamInterface
 {
-    public $content;
+    public $content = "";
 
     /**
      * Reads all data from the stream into a string, from the beginning to end.

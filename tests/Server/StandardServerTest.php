@@ -55,7 +55,7 @@ class StandardServerTest extends ServerTestCase
 
     public function testSimplePsrRequestExecution() : void
     {
-        $body = ['query' => '{f1}'];
+        $body = json_encode(['query' => '{f1}']);
 
         $expected = [
             'data' => ['f1' => 'f1'],
@@ -65,12 +65,12 @@ class StandardServerTest extends ServerTestCase
         $this->assertPsrRequestEquals($expected, $request);
     }
 
-    private function preparePsrRequest($contentType, $parsedBody)
+    private function preparePsrRequest($contentType, $body)
     {
         $psrRequest                          = new PsrRequestStub();
         $psrRequest->headers['content-type'] = [$contentType];
         $psrRequest->method                  = 'POST';
-        $psrRequest->parsedBody              = $parsedBody;
+        $psrRequest->body->content           = $body;
 
         return $psrRequest;
     }
@@ -94,10 +94,10 @@ class StandardServerTest extends ServerTestCase
 
     public function testMultipleOperationPsrRequestExecution() : void
     {
-        $body = [
+        $body = json_encode([
             'query'         => 'query firstOp {fieldWithPhpError} query secondOp {f1}',
             'operationName' => 'secondOp',
-        ];
+        ]);
 
         $expected = [
             'data' => ['f1' => 'f1'],

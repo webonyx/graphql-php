@@ -414,23 +414,9 @@ class RequestParsingTest extends TestCase
     {
         $body = 'not really{} a json';
 
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('PSR-7 request is expected to provide parsed body for "application/json" requests but got null');
+        $this->expectException(RequestError::class);
+        $this->expectExceptionMessage('Could not parse JSON: Syntax error');
         $this->parsePsrRequest('application/json', $body);
-    }
-
-    public function testFailsParsingNonPreParsedPsrRequest() : void
-    {
-        try {
-            $this->parsePsrRequest('application/json', json_encode(null));
-            self::fail('Expected exception not thrown');
-        } catch (InvariantViolation $e) {
-            // Expecting parsing exception to be thrown somewhere else:
-            self::assertEquals(
-                'PSR-7 request is expected to provide parsed body for "application/json" requests but got null',
-                $e->getMessage()
-            );
-        }
     }
 
     /**
