@@ -32,6 +32,7 @@ use function json_last_error;
 use function json_last_error_msg;
 use function sprintf;
 use function stripos;
+use const JSON_ERROR_NONE;
 
 /**
  * Contains functionality that could be re-used by various server implementations
