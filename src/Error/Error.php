@@ -349,13 +349,13 @@ class Error extends Exception implements JsonSerializable, ClientAware
             }
         );
 
-        if (count($locations) !== 0) {
+        if (count($locations) > 0) {
             $arr['locations'] = $locations;
         }
-        if (count($this->path ?? []) !== 0) {
+        if (count($this->path ?? []) > 0) {
             $arr['path'] = $this->path;
         }
-        if (count($this->extensions ?? []) !== 0) {
+        if (count($this->extensions ?? []) > 0) {
             $arr['extensions'] = $this->extensions;
         }
 

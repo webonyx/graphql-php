@@ -205,7 +205,7 @@ class Visitor
             $isLeaving = $index === count($keys);
             $key       = null;
             $node      = null;
-            $isEdited  = $isLeaving && count($edits) !== 0;
+            $isEdited  = $isLeaving && count($edits) > 0;
 
             if ($isLeaving) {
                 $key    = ! $ancestors ? $UNDEFINED : $path[count($path) - 1];
@@ -338,7 +338,7 @@ class Visitor
             }
         } while ($stack);
 
-        if (count($edits) !== 0) {
+        if (count($edits) > 0) {
             $newRoot = $edits[0][1];
         }
 
