@@ -301,11 +301,6 @@ parameters:
 			path: src/Language/Printer.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\NameNode given\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\NameNode\"\\.$#"
 			count: 1
 			path: src/Language/Printer.php
@@ -1156,11 +1151,6 @@ parameters:
 			path: src/Validator/Rules/LoneAnonymousOperation.php
 
 		-
-			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Language\\\\AST\\\\NameNode given on the left side\\.$#"
-			count: 1
-			path: src/Validator/Rules/LoneAnonymousOperation.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 1
 			path: src/Validator/Rules/LoneSchemaDefinition.php
@@ -1191,11 +1181,6 @@ parameters:
 			path: src/Validator/Rules/NoUndefinedVariables.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NameNode given\\.$#"
-			count: 1
-			path: src/Validator/Rules/NoUndefinedVariables.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
 			count: 2
 			path: src/Validator/Rules/NoUnusedFragments.php
@@ -1213,11 +1198,6 @@ parameters:
 		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 3
-			path: src/Validator/Rules/NoUnusedVariables.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NameNode given\\.$#"
-			count: 1
 			path: src/Validator/Rules/NoUnusedVariables.php
 
 		-
@@ -1461,11 +1441,6 @@ parameters:
 			path: src/Validator/Rules/UniqueOperationNames.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\NameNode given\\.$#"
-			count: 1
-			path: src/Validator/Rules/UniqueOperationNames.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Validator/Rules/UniqueOperationNames.php
@@ -1496,6 +1471,11 @@ parameters:
 			path: src/Validator/Rules/ValuesOfCorrectType.php
 
 		-
+			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
+			count: 1
+			path: src/Validator/Rules/ValuesOfCorrectType.php
+
+		-
 			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType given on the left side\\.$#"
 			count: 1
 			path: src/Validator/Rules/ValuesOfCorrectType.php
@@ -1507,11 +1487,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType given\\.$#"
-			count: 1
-			path: src/Validator/Rules/ValuesOfCorrectType.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
 			count: 1
 			path: src/Validator/Rules/ValuesOfCorrectType.php
 
