@@ -39,7 +39,6 @@ class LoneAnonymousOperation extends ValidationRule
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
                 &$operationCount,
                 $context
-
             ) {
                 if ($node->name !== null || $operationCount <= 1) {
                     return;
