@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 /**
  * @see describe('Type System: Directive', () => {
  */
-class DirectiveTest extends TestCase
+final class DirectiveTest extends TestCase
 {
     // TODO implement https://github.com/graphql/graphql-js/blob/master/src/type/__tests__/directive-test.js
 }
