@@ -175,7 +175,7 @@ class ResolveInfo
      *
      * @param int $depth How many levels to include in output
      *
-     * @return array<string, bool>
+     * @return array<string, mixed>
      *
      * @api
      */
