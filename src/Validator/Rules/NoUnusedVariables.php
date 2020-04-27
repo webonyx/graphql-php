@@ -28,7 +28,9 @@ class NoUnusedVariables extends ValidationRule
                 'leave' => function (OperationDefinitionNode $operation) use ($context) : void {
                     $variableNameUsed = [];
                     $usages           = $context->getRecursiveVariableUsages($operation);
-                    $opName           = $operation->name ? $operation->name->value : null;
+                    $opName           = $operation->name !== null
+                        ? $operation->name->value
+                        : null;
 
                     foreach ($usages as $usage) {
                         $node                                 = $usage['node'];

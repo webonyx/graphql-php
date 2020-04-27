@@ -120,7 +120,7 @@ class Printer
 
                         // Anonymous queries with no directives or variable definitions can use
                         // the query short form.
-                        return ! $name && ! $directives && ! $varDefs && $op === 'query'
+                        return $name === null && ! $directives && ! $varDefs && $op === 'query'
                             ? $selectionSet
                             : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
                     },

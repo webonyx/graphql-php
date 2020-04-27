@@ -472,7 +472,7 @@ class ASTDefinitionBuilder
             'astNode' => $value,
         ];
 
-        if ($value->defaultValue) {
+        if ($value->defaultValue !== null) {
             $config['defaultValue'] = $value->defaultValue;
         }
 

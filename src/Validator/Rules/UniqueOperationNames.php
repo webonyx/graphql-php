@@ -26,7 +26,7 @@ class UniqueOperationNames extends ValidationRule
             NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) use ($context) : VisitorOperation {
                 $operationName = $node->name;
 
-                if ($operationName) {
+                if ($operationName !== null) {
                     if (empty($this->knownOperationNames[$operationName->value])) {
                         $this->knownOperationNames[$operationName->value] = $operationName;
                     } else {
