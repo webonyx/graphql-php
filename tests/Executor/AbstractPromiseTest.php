@@ -41,7 +41,7 @@ class AbstractPromiseTest extends TestCase
             'name'       => 'Dog',
             'interfaces' => [$petType],
             'isTypeOf'   => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Dog;
                 });
             },
@@ -55,7 +55,7 @@ class AbstractPromiseTest extends TestCase
             'name'       => 'Cat',
             'interfaces' => [$petType],
             'isTypeOf'   => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Cat;
                 });
             },
@@ -139,7 +139,7 @@ class AbstractPromiseTest extends TestCase
             'name'       => 'Cat',
             'interfaces' => [$PetType],
             'isTypeOf'   => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Cat;
                 });
             },
@@ -210,7 +210,7 @@ class AbstractPromiseTest extends TestCase
         $dogType = new ObjectType([
             'name'     => 'Dog',
             'isTypeOf' => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Dog;
                 });
             },
@@ -223,7 +223,7 @@ class AbstractPromiseTest extends TestCase
         $catType = new ObjectType([
             'name'     => 'Cat',
             'isTypeOf' => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Cat;
                 });
             },
