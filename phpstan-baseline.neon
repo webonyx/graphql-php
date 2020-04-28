@@ -1111,46 +1111,6 @@ parameters:
 			path: src/Validator/ValidationContext.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 2
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Deferred\"\\.$#"
-			count: 1
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 4
-			path: tests/Executor/AbstractTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 7
-			path: tests/Executor/AbstractTest.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: tests/Executor/AbstractTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Executor/AbstractTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
 			count: 4
 			path: tests/Executor/DeferredFieldsTest.php
