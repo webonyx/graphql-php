@@ -90,7 +90,7 @@ class Value
             $suggestions = Utils::suggestionList(
                 Utils::printSafe($value),
                 array_map(
-                    static function ($enumValue) {
+                    static function ($enumValue) : string {
                         return $enumValue->name;
                     },
                     $type->getValues()

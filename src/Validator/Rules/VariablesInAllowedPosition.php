@@ -32,10 +32,10 @@ class VariablesInAllowedPosition extends ValidationRule
     {
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function () {
+                'enter' => function () : void {
                     $this->varDefMap = [];
                 },
-                'leave' => function (OperationDefinitionNode $operation) use ($context) {
+                'leave' => function (OperationDefinitionNode $operation) use ($context) : void {
                     $usages = $context->getRecursiveVariableUsages($operation);
 
                     foreach ($usages as $usage) {
@@ -68,7 +68,7 @@ class VariablesInAllowedPosition extends ValidationRule
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $varDefNode) {
+            NodeKind::VARIABLE_DEFINITION  => function (VariableDefinitionNode $varDefNode) : void {
                 $this->varDefMap[$varDefNode->variable->name->value] = $varDefNode;
             },
         ];

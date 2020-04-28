@@ -266,7 +266,7 @@ class Helper
             if (! empty($errors)) {
                 $errors = Utils::map(
                     $errors,
-                    static function (RequestError $err) {
+                    static function (RequestError $err) : Error {
                         return Error::createLocatedError($err, null, null);
                     }
                 );
@@ -315,7 +315,7 @@ class Helper
             );
         }
 
-        $applyErrorHandling = static function (ExecutionResult $result) use ($config) {
+        $applyErrorHandling = static function (ExecutionResult $result) use ($config) : ExecutionResult {
             if ($config->getErrorsHandler()) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
@@ -434,7 +434,7 @@ class Helper
     public function sendResponse($result, $exitWhenDone = false)
     {
         if ($result instanceof Promise) {
-            $result->then(function ($actualResult) use ($exitWhenDone) {
+            $result->then(function ($actualResult) use ($exitWhenDone) : void {
                 $this->doSendResponse($actualResult, $exitWhenDone);
             });
         } else {
@@ -482,7 +482,7 @@ class Helper
         if (is_array($result) && isset($result[0])) {
             Utils::each(
                 $result,
-                static function ($executionResult, $index) {
+                static function ($executionResult, $index) : void {
                     if (! $executionResult instanceof ExecutionResult) {
                         throw new InvariantViolation(sprintf(
                             'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',

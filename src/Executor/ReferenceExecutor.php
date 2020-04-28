@@ -1038,7 +1038,7 @@ class ReferenceExecutor implements ExecutorImplementation
         }
         if (! empty($promisedIsTypeOfResults)) {
             return $this->exeContext->promiseAdapter->all($promisedIsTypeOfResults)
-                ->then(static function ($isTypeOfResults) use ($possibleTypes) {
+                ->then(static function ($isTypeOfResults) use ($possibleTypes) : ?ObjectType {
                     foreach ($isTypeOfResults as $index => $result) {
                         if ($result) {
                             return $possibleTypes[$index];
