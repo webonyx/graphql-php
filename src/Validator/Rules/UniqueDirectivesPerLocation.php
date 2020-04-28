@@ -27,7 +27,7 @@ class UniqueDirectivesPerLocation extends ValidationRule
     public function getASTVisitor(ASTValidationContext $context)
     {
         return [
-            'enter' => static function (Node $node) use ($context) {
+            'enter' => static function (Node $node) use ($context) : void {
                 if (! isset($node->directives)) {
                     return;
                 }

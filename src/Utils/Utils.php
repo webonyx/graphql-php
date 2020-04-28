@@ -560,7 +560,7 @@ class Utils
     {
         return static function () use ($fn, &$errors) {
             // Catch custom errors (to report them in query results)
-            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) {
+            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) : void {
                 $errors[] = new ErrorException($message, 0, $severity, $file, $line);
             });
 
@@ -580,7 +580,7 @@ class Utils
     public static function quotedOrList(array $items)
     {
         $items = array_map(
-            static function ($item) {
+            static function ($item) : string {
                 return sprintf('"%s"', $item);
             },
             $items
@@ -609,7 +609,7 @@ class Utils
 
         return array_reduce(
             range(1, $selectedLength - 1),
-            static function ($list, $index) use ($selected, $selectedLength) {
+            static function ($list, $index) use ($selected, $selectedLength) : string {
                 return $list .
                     ($selectedLength > 2 ? ', ' : ' ') .
                     ($index === $selectedLength - 1 ? 'or ' : '') .

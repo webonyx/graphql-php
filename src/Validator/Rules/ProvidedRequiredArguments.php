@@ -9,6 +9,7 @@ use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Validator\ValidationContext;
 use function sprintf;
@@ -19,7 +20,7 @@ class ProvidedRequiredArguments extends ValidationRule
     {
         return [
             NodeKind::FIELD     => [
-                'leave' => static function (FieldNode $fieldNode) use ($context) {
+                'leave' => static function (FieldNode $fieldNode) use ($context) : ?VisitorOperation {
                     $fieldDef = $context->getFieldDef();
 
                     if (! $fieldDef) {
@@ -42,10 +43,12 @@ class ProvidedRequiredArguments extends ValidationRule
                             [$fieldNode]
                         ));
                     }
+
+                    return null;
                 },
             ],
             NodeKind::DIRECTIVE => [
-                'leave' => static function (DirectiveNode $directiveNode) use ($context) {
+                'leave' => static function (DirectiveNode $directiveNode) use ($context) : ?VisitorOperation {
                     $directiveDef = $context->getDirective();
                     if (! $directiveDef) {
                         return Visitor::skipNode();
@@ -71,6 +74,8 @@ class ProvidedRequiredArguments extends ValidationRule
                             [$directiveNode]
                         ));
                     }
+
+                    return null;
                 },
             ],
         ];

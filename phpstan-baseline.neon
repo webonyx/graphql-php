@@ -46,11 +46,6 @@ parameters:
 			path: src/Error/Error.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Language\\\\SourceLocation\"\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Location given on the left side\\.$#"
 			count: 1
 			path: src/Error/Error.php
@@ -121,11 +116,6 @@ parameters:
 			path: src/Executor/ReferenceExecutor.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: src/Executor/ReferenceExecutor.php
-
-		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\BooleanValueNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueNode\\|GraphQL\\\\Language\\\\AST\\\\FloatValueNode\\|GraphQL\\\\Language\\\\AST\\\\IntValueNode\\|GraphQL\\\\Language\\\\AST\\\\ListValueNode\\|GraphQL\\\\Language\\\\AST\\\\NullValueNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectValueNode\\|GraphQL\\\\Language\\\\AST\\\\StringValueNode\\|GraphQL\\\\Language\\\\AST\\\\VariableNode\\|null given on the right side\\.$#"
 			count: 1
 			path: src/Executor/Values.php
@@ -156,11 +146,6 @@ parameters:
 			path: src/Experimental/Executor/CoroutineExecutor.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 3
-			path: src/Experimental/Executor/CoroutineExecutor.php
-
-		-
 			message: "#^Variable property access on object\\.$#"
 			count: 2
 			path: src/Experimental/Executor/CoroutineExecutor.php
@@ -173,11 +158,6 @@ parameters:
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 2
-			path: src/GraphQL.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
 			path: src/GraphQL.php
 
 		-
@@ -194,51 +174,6 @@ parameters:
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
 			path: src/Language/Parser.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\VariableDefinitionNode\"\\.$#"
-			count: 1
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\SelectionNode\"\\.$#"
-			count: 1
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\ArgumentNode\"\\.$#"
-			count: 2
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\"\\.$#"
-			count: 1
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\"\\.$#"
-			count: 1
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\"\\.$#"
-			count: 2
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\"\\.$#"
-			count: 1
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 18
-			path: src/Language/Printer.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 3
-			path: src/Language/Printer.php
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
@@ -311,17 +246,7 @@ parameters:
 			path: src/Server/Helper.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Error\\\\Error\"\\.$#"
-			count: 1
-			path: src/Server/Helper.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, string given\\.$#"
-			count: 1
-			path: src/Server/Helper.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Executor\\\\ExecutionResult\"\\.$#"
 			count: 1
 			path: src/Server/Helper.php
 
@@ -333,11 +258,6 @@ parameters:
 		-
 			message: "#^Only booleans are allowed in \\|\\|, \\(callable\\)\\|null given on the left side\\.$#"
 			count: 1
-			path: src/Server/Helper.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
 			path: src/Server/Helper.php
 
 		-
@@ -371,11 +291,6 @@ parameters:
 			path: src/Type/Definition/InputObjectType.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 2
-			path: src/Type/Definition/QueryPlan.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
 			count: 1
 			path: src/Type/Definition/QueryPlan.php
@@ -396,23 +311,8 @@ parameters:
 			path: src/Type/Definition/Type.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 3
-			path: src/Type/Introspection.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 2
-			path: src/Type/Introspection.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
-			path: src/Type/Introspection.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 4
 			path: src/Type/Introspection.php
 
 		-
@@ -421,27 +321,7 @@ parameters:
 			path: src/Type/Introspection.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"\\?array\"\\.$#"
-			count: 3
-			path: src/Type/Introspection.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Type\\\\Definition\\\\Type\"\\.$#"
-			count: 2
-			path: src/Type/Introspection.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 3
-			path: src/Type/Introspection.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?string\"\\.$#"
-			count: 4
-			path: src/Type/Introspection.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Schema\"\\.$#"
+			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
 			count: 1
 			path: src/Type/Introspection.php
 
@@ -501,18 +381,8 @@ parameters:
 			path: src/Type/SchemaValidationContext.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Language\\\\AST\\\\DirectiveDefinitionNode\"\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Error\\\\Error\\|null given\\.$#"
 			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 6
 			path: src/Type/SchemaValidationContext.php
 
 		-
@@ -671,17 +541,7 @@ parameters:
 			path: src/Utils/ASTDefinitionBuilder.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\Type\"\\.$#"
-			count: 2
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\>\\|null given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
 			count: 1
 			path: src/Utils/ASTDefinitionBuilder.php
 
@@ -696,49 +556,14 @@ parameters:
 			path: src/Utils/ASTDefinitionBuilder.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 2
-			path: src/Utils/BreakingChangesFinder.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
-			path: src/Utils/BuildSchema.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Utils/BuildSchema.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\Type\"\\.$#"
-			count: 1
-			path: src/Utils/BuildSchema.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
 			path: src/Utils/BuildSchema.php
 
 		-
 			message: "#^Only booleans are allowed in &&, array\\<bool\\>\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Utils/PairSet.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 5
-			path: src/Utils/SchemaExtender.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\Directive\"\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
 
 		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
@@ -754,21 +579,6 @@ parameters:
 			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\>\\|null given\\.$#"
 			count: 1
 			path: src/Utils/SchemaExtender.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\Type\"\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 3
-			path: src/Utils/SchemaPrinter.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 7
-			path: src/Utils/SchemaPrinter.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -811,11 +621,6 @@ parameters:
 			path: src/Utils/TypeInfo.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 1
-			path: src/Utils/TypeInfo.php
-
-		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\FieldArgument\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Utils/TypeInfo.php
@@ -846,22 +651,7 @@ parameters:
 			path: src/Utils/Utils.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Utils/Utils.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 2
-			path: src/Utils/Utils.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\|null given\\.$#"
-			count: 1
-			path: src/Utils/Value.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
 			count: 1
 			path: src/Utils/Value.php
 
@@ -886,21 +676,6 @@ parameters:
 			path: src/Utils/Value.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 1
-			path: src/Validator/DocumentValidator.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/ExecutableDefinitions.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/FieldsOnCorrectType.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/FieldsOnCorrectType.php
@@ -921,11 +696,6 @@ parameters:
 			path: src/Validator/Rules/FieldsOnCorrectType.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/FragmentsOnCompositeTypes.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\NamedTypeNode given\\.$#"
 			count: 1
 			path: src/Validator/Rules/FragmentsOnCompositeTypes.php
@@ -936,19 +706,9 @@ parameters:
 			path: src/Validator/Rules/FragmentsOnCompositeTypes.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownArgumentNames.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 2
 			path: src/Validator/Rules/KnownArgumentNames.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownArgumentNamesOnDirectives.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<string\\>\\|null given\\.$#"
@@ -971,24 +731,9 @@ parameters:
 			path: src/Validator/Rules/KnownDirectives.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownFragmentNames.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/KnownFragmentNames.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownTypeNames.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownTypeNames.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -996,29 +741,9 @@ parameters:
 			path: src/Validator/Rules/KnownTypeNames.php
 
 		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: src/Validator/Rules/LoneAnonymousOperation.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/LoneAnonymousOperation.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 1
 			path: src/Validator/Rules/LoneAnonymousOperation.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/LoneSchemaDefinition.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/NoFragmentCycles.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -1031,44 +756,19 @@ parameters:
 			path: src/Validator/Rules/NoFragmentCycles.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 3
-			path: src/Validator/Rules/NoUndefinedVariables.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Validator/Rules/NoUndefinedVariables.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/NoUnusedFragments.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Validator/Rules/NoUnusedFragments.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
-			path: src/Validator/Rules/NoUnusedFragments.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 3
 			path: src/Validator/Rules/NoUnusedVariables.php
-
-		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 1
-			path: src/Validator/Rules/NoUnusedVariables.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NameNode\\|null given\\.$#"
@@ -1101,21 +801,6 @@ parameters:
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/PossibleFragmentSpreads.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/PossibleFragmentSpreads.php
@@ -1124,11 +809,6 @@ parameters:
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/PossibleFragmentSpreads.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 2
-			path: src/Validator/Rules/ProvidedRequiredArguments.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition given\\.$#"
@@ -1156,34 +836,14 @@ parameters:
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
 
 		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/QueryComplexity.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/QueryComplexity.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
 			path: src/Validator/Rules/QueryComplexity.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/QueryDepth.php
 
 		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given on the left side\\.$#"
@@ -1206,11 +866,6 @@ parameters:
 			path: src/Validator/Rules/QuerySecurityRule.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/ScalarLeafs.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\OutputType\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ScalarLeafs.php
@@ -1226,29 +881,9 @@ parameters:
 			path: src/Validator/Rules/ScalarLeafs.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/UniqueArgumentNames.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/UniqueArgumentNames.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Validator/Rules/UniqueArgumentNames.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/UniqueDirectivesPerLocation.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/UniqueFragmentNames.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -1256,24 +891,9 @@ parameters:
 			path: src/Validator/Rules/UniqueFragmentNames.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/UniqueInputFieldNames.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/UniqueInputFieldNames.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Validator/Rules/UniqueInputFieldNames.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\VisitorOperation\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/UniqueOperationNames.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -1281,29 +901,9 @@ parameters:
 			path: src/Validator/Rules/UniqueOperationNames.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: src/Validator/Rules/UniqueVariableNames.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: src/Validator/Rules/UniqueVariableNames.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 8
-			path: src/Validator/Rules/ValuesOfCorrectType.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: src/Validator/Rules/ValuesOfCorrectType.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/ValuesOfCorrectType.php
 
 		-
 			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType given on the left side\\.$#"
@@ -1326,19 +926,9 @@ parameters:
 			path: src/Validator/Rules/ValuesOfCorrectType.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/VariablesAreInputTypes.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/VariablesAreInputTypes.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 3
-			path: src/Validator/Rules/VariablesInAllowedPosition.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
@@ -1349,16 +939,6 @@ parameters:
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\ValueNode\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Validator/Rules/VariablesInAllowedPosition.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 1
-			path: src/Validator/ValidationContext.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/ValidationContext.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -1852,11 +1432,6 @@ parameters:
 
 		-
 			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 5
-			path: tests/Type/QueryPlanTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
 			count: 1
 			path: tests/Type/QueryPlanTest.php
 
@@ -1864,36 +1439,6 @@ parameters:
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
 			count: 1
 			path: tests/Type/QueryPlanTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 2
-			path: tests/Type/ResolveInfoTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Type/SchemaTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Type/SchemaTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 3
-			path: tests/Type/StandardTypesTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 5
-			path: tests/Type/TypeLoaderTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 5
-			path: tests/Type/TypeLoaderTest.php
 
 		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"
@@ -1901,117 +1446,12 @@ parameters:
 			path: tests/Type/TypeLoaderTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"stdClass\"\\.$#"
-			count: 1
-			path: tests/Type/TypeLoaderTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\InterfaceType\"\\.$#"
-			count: 1
-			path: tests/Type/TypeLoaderTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 3
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 5
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ListOfType\"\\.$#"
-			count: 1
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\NonNull\"\\.$#"
-			count: 2
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\EnumType\"\\.$#"
-			count: 1
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\InputObjectType\"\\.$#"
-			count: 1
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\UnionType\"\\.$#"
-			count: 1
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\InterfaceType\"\\.$#"
-			count: 1
-			path: tests/Type/ValidationTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: tests/Type/ValidationTest.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, stdClass given\\.$#"
 			count: 1
 			path: tests/Utils/AstFromValueTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 7
-			path: tests/Utils/ExtractTypesTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: tests/Utils/MixedStoreTest.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 2
 			path: tests/Utils/MixedStoreTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 5
-			path: tests/Utils/SchemaExtenderTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 5
-			path: tests/Utils/SchemaExtenderTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 3
-			path: tests/Validator/OverlappingFieldsCanBeMergedTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Validator/QueryComplexityTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: tests/Validator/QueryComplexityTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 3
-			path: tests/Validator/ValidatorTestCase.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: tests/Validator/ValidatorTestCase.php
 

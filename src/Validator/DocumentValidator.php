@@ -264,7 +264,7 @@ class DocumentValidator
         return is_array($value)
             ? count(array_filter(
                 $value,
-                static function ($item) {
+                static function ($item) : bool {
                     return $item instanceof Throwable;
                 }
             )) === count($value)

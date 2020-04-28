@@ -68,7 +68,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         }
 
         return [
-            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) : void {
                 $directiveName = $directiveNode->name->value;
                 $knownArgs     = $directiveArgs[$directiveName] ?? null;
 
