@@ -71,7 +71,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -155,7 +155,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -244,7 +244,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -338,7 +338,7 @@ class AbstractPromiseTest extends TestCase
                     'pets' => [
                         'type'    => Type::listOf($PetType),
                         'resolve' => static function () {
-                            return new Deferred(static function () {
+                            return new Deferred(static function () : array {
                                 return [
                                     new Dog('Odie', true),
                                     new Cat('Garfield', false),
@@ -440,7 +440,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -535,7 +535,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -613,7 +613,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),

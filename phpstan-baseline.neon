@@ -1111,11 +1111,6 @@ parameters:
 			path: src/Validator/ValidationContext.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 7
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
 			count: 2
 			path: tests/Executor/AbstractPromiseTest.php
