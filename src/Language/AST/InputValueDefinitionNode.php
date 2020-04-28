@@ -15,7 +15,7 @@ class InputValueDefinitionNode extends Node
     /** @var NamedTypeNode|ListTypeNode|NonNullTypeNode */
     public $type;
 
-    /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode */
+    /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null */
     public $defaultValue;
 
     /** @var DirectiveNode[] */
