@@ -1136,11 +1136,6 @@ parameters:
 			path: tests/Executor/LazyInterfaceTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Executor/ResolveTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"float\"\\.$#"
 			count: 1
 			path: tests/Executor/TestClasses/Adder.php
