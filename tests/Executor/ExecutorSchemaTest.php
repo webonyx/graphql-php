@@ -82,7 +82,7 @@ class ExecutorSchemaTest extends TestCase
                 ],
                 'feed'    => [
                     'type'    => Type::listOf($BlogArticle),
-                    'resolve' => function () {
+                    'resolve' => function () : array {
                         return [
                             $this->article(1),
                             $this->article(2),
@@ -213,7 +213,7 @@ class ExecutorSchemaTest extends TestCase
     private function article($id)
     {
         $johnSmith = null;
-        $article   = static function ($id) use (&$johnSmith) {
+        $article   = static function ($id) use (&$johnSmith) : array {
             return [
                 'id'          => $id,
                 'isPublished' => 'true',
@@ -226,7 +226,7 @@ class ExecutorSchemaTest extends TestCase
             ];
         };
 
-        $getPic = static function ($uid, $width, $height) {
+        $getPic = static function ($uid, $width, $height) : array {
             return [
                 'url'    => sprintf('cdn://%s', $uid),
                 'width'  => $width,
@@ -237,7 +237,7 @@ class ExecutorSchemaTest extends TestCase
         $johnSmith = [
             'id'            => 123,
             'name'          => 'John Smith',
-            'pic'           => static function ($width, $height) use ($getPic) {
+            'pic'           => static function ($width, $height) use ($getPic): array {
                 return $getPic(123, $width, $height);
             },
             'recentArticle' => $article(1),

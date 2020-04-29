@@ -1127,51 +1127,6 @@ parameters:
 
 		-
 			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 3
-			path: tests/Executor/ExecutorSchemaTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Deferred\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 19
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 6
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 12
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Error\\\\UserError\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 7
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
 			count: 1
 			path: tests/Executor/LazyInterfaceTest.php
 
