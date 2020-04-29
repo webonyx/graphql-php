@@ -1181,11 +1181,6 @@ parameters:
 			path: tests/StarWarsValidationTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: tests/Type/EnumTypeTest.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 4
 			path: tests/Type/EnumTypeTest.php
