@@ -19,7 +19,7 @@ class Root
 
     public function promiseToChangeTheNumber($newNumber) : Deferred
     {
-        return new Deferred(function () use ($newNumber) {
+        return new Deferred(function () use ($newNumber) : NumberHolder {
             return $this->immediatelyChangeTheNumber($newNumber);
         });
     }
