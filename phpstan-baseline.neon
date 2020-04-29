@@ -1191,16 +1191,6 @@ parameters:
 			path: tests/Type/EnumTypeTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Type/QueryPlanTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: tests/Type/QueryPlanTest.php
-
-		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"
 			count: 1
 			path: tests/Type/TypeLoaderTest.php
