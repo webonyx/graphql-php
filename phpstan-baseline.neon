@@ -1136,16 +1136,6 @@ parameters:
 			path: tests/Executor/LazyInterfaceTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 3
-			path: tests/Executor/UnionInterfaceTest.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: tests/Executor/UnionInterfaceTest.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Schema given\\.$#"
 			count: 1
 			path: tests/Executor/ValuesTest.php
