@@ -1142,31 +1142,6 @@ parameters:
 
 		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 4
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 2
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 9
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Deferred\"\\.$#"
-			count: 2
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 9
 			path: tests/Executor/Promise/ReactPromiseAdapterTest.php
 
