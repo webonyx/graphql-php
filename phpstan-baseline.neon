@@ -1141,36 +1141,6 @@ parameters:
 			path: tests/Executor/LazyInterfaceTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 7
-			path: tests/Executor/Promise/SyncPromiseAdapterTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Executor/Promise/SyncPromiseAdapterTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"int\"\\.$#"
-			count: 4
-			path: tests/Executor/Promise/SyncPromiseAdapterTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 3
-			path: tests/Executor/Promise/SyncPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 10
-			path: tests/Executor/Promise/SyncPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"int\"\\.$#"
-			count: 1
-			path: tests/Executor/Promise/SyncPromiseTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
 			count: 1
 			path: tests/Executor/ResolveTest.php
