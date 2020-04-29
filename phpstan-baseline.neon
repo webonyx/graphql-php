@@ -1177,16 +1177,6 @@ parameters:
 
 		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 10
-			path: tests/Server/ServerConfigTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Server/ServerConfigTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 2
 			path: tests/Server/ServerTestCase.php
 
