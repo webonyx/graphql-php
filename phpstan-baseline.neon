@@ -1151,11 +1151,6 @@ parameters:
 			path: tests/Language/LexerTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 20
-			path: tests/Language/SchemaParserTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 31
 			path: tests/Language/VisitorTest.php
