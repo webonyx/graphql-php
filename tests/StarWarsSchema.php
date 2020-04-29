@@ -109,7 +109,7 @@ class StarWarsSchema
         $characterInterface = new InterfaceType([
             'name'        => 'Character',
             'description' => 'A character in the Star Wars Trilogy',
-            'fields'      => static function () use (&$characterInterface, $episodeEnum) {
+            'fields'      => static function () use (&$characterInterface, $episodeEnum) : array {
                 return [
                     'id'              => [
                         'type'        => Type::nonNull(Type::string()),
@@ -165,12 +165,12 @@ class StarWarsSchema
                 'friends'         => [
                     'type'        => Type::listOf($characterInterface),
                     'description' => 'The friends of the human, or an empty list if they have none.',
-                    'resolve'     => static function ($human, $args, $context, ResolveInfo $info) {
+                    'resolve'     => static function ($human, $args, $context, ResolveInfo $info) : array {
                         $fieldSelection       = $info->getFieldSelection();
                         $fieldSelection['id'] = true;
 
                         return array_map(
-                            static function ($friend) use ($fieldSelection) {
+                            static function ($friend) use ($fieldSelection) : array {
                                 return array_intersect_key($friend, $fieldSelection);
                             },
                             StarWarsData::getFriends($human)
@@ -188,7 +188,7 @@ class StarWarsSchema
                 'secretBackstory' => [
                     'type'        => Type::string(),
                     'description' => 'Where are they from and how they came to be who they are.',
-                    'resolve'     => static function () {
+                    'resolve'     => static function () : array {
                         // This is to demonstrate error reporting
                         throw new Exception('secretBackstory is secret.');
                     },
@@ -236,7 +236,7 @@ class StarWarsSchema
                 'secretBackstory' => [
                     'type'        => Type::string(),
                     'description' => 'Construction date and the name of the designer.',
-                    'resolve'     => static function () {
+                    'resolve'     => static function () : void {
                         // This is to demonstrate error reporting
                         throw new Exception('secretBackstory is secret.');
                     },
@@ -273,7 +273,7 @@ class StarWarsSchema
                             'type'        => $episodeEnum,
                         ],
                     ],
-                    'resolve' => static function ($rootValue, $args) {
+                    'resolve' => static function ($rootValue, $args) : array {
                         return StarWarsData::getHero($args['episode'] ?? null);
                     },
                 ],
