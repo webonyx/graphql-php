@@ -1146,11 +1146,6 @@ parameters:
 			path: tests/Executor/ResolveTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Executor/SyncTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"float\"\\.$#"
 			count: 1
 			path: tests/Executor/TestClasses/Adder.php
