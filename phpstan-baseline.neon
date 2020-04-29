@@ -866,11 +866,6 @@ parameters:
 			path: src/Validator/Rules/KnownTypeNames.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: src/Validator/Rules/LoneAnonymousOperation.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 3
 			path: src/Validator/Rules/NoFragmentCycles.php
@@ -1116,71 +1111,6 @@ parameters:
 			path: src/Validator/ValidationContext.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 5
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 7
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 2
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Deferred\"\\.$#"
-			count: 1
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: tests/Executor/AbstractPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 4
-			path: tests/Executor/AbstractTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 7
-			path: tests/Executor/AbstractTest.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: tests/Executor/AbstractTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Executor/AbstractTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 4
-			path: tests/Executor/DeferredFieldsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 4
-			path: tests/Executor/DeferredFieldsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 2
-			path: tests/Executor/DeferredFieldsTest.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Schema given\\.$#"
 			count: 1
 			path: tests/Executor/DirectivesTest.php
@@ -1191,82 +1121,12 @@ parameters:
 			path: tests/Executor/DirectivesTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 13
-			path: tests/Executor/ExecutorLazySchemaTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 2
-			path: tests/Executor/ExecutorLazySchemaTest.php
-
-		-
 			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 7
 			path: tests/Executor/ExecutorLazySchemaTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorLazySchemaTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 3
-			path: tests/Executor/ExecutorSchemaTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Deferred\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 19
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 6
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 12
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Error\\\\UserError\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 7
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: tests/Executor/ExecutorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Executor/LazyInterfaceTest.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\InterfaceType given\\.$#"
-			count: 1
-			path: tests/Executor/LazyInterfaceTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
 			count: 1
 			path: tests/Executor/LazyInterfaceTest.php
 
@@ -1276,149 +1136,9 @@ parameters:
 			path: tests/Executor/LazyInterfaceTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Executor/LazyInterfaceTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 9
-			path: tests/Executor/ListsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 4
-			path: tests/Executor/ListsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 8
-			path: tests/Executor/ListsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"int\"\\.$#"
-			count: 24
-			path: tests/Executor/ListsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Tests\\\\Executor\\\\TestClasses\\\\NumberHolder\"\\.$#"
-			count: 1
-			path: tests/Executor/MutationsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 2
-			path: tests/Executor/MutationsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: tests/Executor/MutationsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 4
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 2
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 9
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?GraphQL\\\\Deferred\"\\.$#"
-			count: 2
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: tests/Executor/NonNullTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 9
-			path: tests/Executor/Promise/ReactPromiseAdapterTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 7
-			path: tests/Executor/Promise/SyncPromiseAdapterTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Executor/Promise/SyncPromiseAdapterTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"int\"\\.$#"
-			count: 4
-			path: tests/Executor/Promise/SyncPromiseAdapterTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 3
-			path: tests/Executor/Promise/SyncPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 10
-			path: tests/Executor/Promise/SyncPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"int\"\\.$#"
-			count: 1
-			path: tests/Executor/Promise/SyncPromiseTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Executor/ResolveTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Executor/SyncTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"float\"\\.$#"
-			count: 1
-			path: tests/Executor/TestClasses/Adder.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Tests\\\\Executor\\\\TestClasses\\\\NumberHolder\"\\.$#"
-			count: 1
-			path: tests/Executor/TestClasses/Root.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: tests/Executor/TestClasses/Root.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 3
-			path: tests/Executor/UnionInterfaceTest.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 1
-			path: tests/Executor/UnionInterfaceTest.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Schema given\\.$#"
 			count: 1
 			path: tests/Executor/ValuesTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"\\?string\"\\.$#"
-			count: 1
-			path: tests/Executor/VariablesTest.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -1426,49 +1146,9 @@ parameters:
 			path: tests/Experimental/Executor/CollectorTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Experimental/Executor/CollectorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Executor\\\\Promise\\\\Promise\"\\.$#"
-			count: 1
-			path: tests/GraphQLTest.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: tests/Language/LexerTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Language/ParserTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 20
-			path: tests/Language/SchemaParserTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 31
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\OperationDefinitionNode\"\\.$#"
-			count: 2
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\DocumentNode\"\\.$#"
-			count: 1
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 18
-			path: tests/Language/VisitorTest.php
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
@@ -1486,54 +1166,9 @@ parameters:
 			path: tests/Language/VisitorTest.php
 
 		-
-			message: "#^Anonymous function should return GraphQL\\\\Type\\\\Definition\\\\Type but return statement is missing\\.$#"
-			count: 1
-			path: tests/Regression/Issue396Test.php
-
-		-
-			message: "#^Anonymous function should return GraphQL\\\\Type\\\\Definition\\\\Type\\|null but return statement is missing\\.$#"
-			count: 1
-			path: tests/Regression/Issue396Test.php
-
-		-
 			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 1
 			path: tests/Server/Psr7/PsrStreamStub.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 7
-			path: tests/Server/QueryExecutionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 4
-			path: tests/Server/QueryExecutionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 3
-			path: tests/Server/QueryExecutionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\DocumentNode\"\\.$#"
-			count: 1
-			path: tests/Server/QueryExecutionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"stdClass\"\\.$#"
-			count: 1
-			path: tests/Server/QueryExecutionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
-			count: 1
-			path: tests/Server/RequestParsingTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 3
-			path: tests/Server/RequestParsingTest.php
 
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
@@ -1541,74 +1176,14 @@ parameters:
 			path: tests/Server/RequestValidationTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 10
-			path: tests/Server/ServerConfigTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Server/ServerConfigTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: tests/Server/ServerTestCase.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 4
-			path: tests/StarWarsSchema.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: tests/StarWarsSchema.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 7
 			path: tests/StarWarsValidationTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 16
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 16
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"stdClass\"\\.$#"
-			count: 1
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"int\"\\.$#"
-			count: 1
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: tests/Type/EnumTypeTest.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 4
 			path: tests/Type/EnumTypeTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Type/QueryPlanTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Type\\\\Definition\\\\ObjectType\"\\.$#"
-			count: 1
-			path: tests/Type/QueryPlanTest.php
 
 		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"

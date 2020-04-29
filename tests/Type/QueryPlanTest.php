@@ -424,7 +424,7 @@ final class QueryPlanTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) {
+            'fields' => static function () use ($image, &$article) : array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -868,7 +868,7 @@ final class QueryPlanTest extends TestCase
         $item = new UnionType([
             'name'        => 'Item',
             'types'       => [$car, $building],
-            'resolveType' => static function () use ($car) {
+            'resolveType' => static function () use ($car) : ObjectType {
                 return $car;
             },
         ]);
