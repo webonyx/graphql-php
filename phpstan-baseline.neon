@@ -1151,26 +1151,6 @@ parameters:
 			path: tests/Language/LexerTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 31
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\OperationDefinitionNode\"\\.$#"
-			count: 2
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Language\\\\AST\\\\DocumentNode\"\\.$#"
-			count: 1
-			path: tests/Language/VisitorTest.php
-
-		-
-			message: "#^Anonymous function sometimes return something but return statement at the end is missing\\.$#"
-			count: 18
-			path: tests/Language/VisitorTest.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
 			count: 4
 			path: tests/Language/VisitorTest.php

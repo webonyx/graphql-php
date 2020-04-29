@@ -237,7 +237,7 @@ class ExecutorSchemaTest extends TestCase
         $johnSmith = [
             'id'            => 123,
             'name'          => 'John Smith',
-            'pic'           => static function ($width, $height) use ($getPic): array {
+            'pic'           => static function ($width, $height) use ($getPic) : array {
                 return $getPic(123, $width, $height);
             },
             'recentArticle' => $article(1),

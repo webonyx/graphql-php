@@ -324,7 +324,7 @@ class ExecutorTest extends TestCase
                 'fields' => [
                     'a' => [
                         'type'    => Type::string(),
-                        'resolve' => static function ($context) use (&$gotHere)  : void {
+                        'resolve' => static function ($context) use (&$gotHere) : void {
                             self::assertEquals('thing', $context['contextThing']);
                             $gotHere = true;
                         },
