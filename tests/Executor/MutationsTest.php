@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Deferred;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
+use GraphQL\Tests\Executor\TestClasses\NumberHolder;
 use GraphQL\Tests\Executor\TestClasses\Root;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
@@ -76,28 +78,28 @@ class MutationsTest extends TestCase
                     'immediatelyChangeTheNumber'      => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) {
+                        'resolve' => static function (Root $obj, $args) : NumberHolder {
                             return $obj->immediatelyChangeTheNumber($args['newNumber']);
                         },
                     ],
                     'promiseToChangeTheNumber'        => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) {
+                        'resolve' => static function (Root $obj, $args) : Deferred {
                             return $obj->promiseToChangeTheNumber($args['newNumber']);
                         },
                     ],
                     'failToChangeTheNumber'           => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) {
+                        'resolve' => static function (Root $obj, $args) : void {
                             $obj->failToChangeTheNumber();
                         },
                     ],
                     'promiseAndFailToChangeTheNumber' => [
                         'type'    => $numberHolderType,
                         'args'    => ['newNumber' => ['type' => Type::int()]],
-                        'resolve' => static function (Root $obj, $args) {
+                        'resolve' => static function (Root $obj, $args) : Deferred {
                             return $obj->promiseAndFailToChangeTheNumber();
                         },
                     ],

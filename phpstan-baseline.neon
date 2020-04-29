@@ -1141,21 +1141,6 @@ parameters:
 			path: tests/Executor/LazyInterfaceTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Tests\\\\Executor\\\\TestClasses\\\\NumberHolder\"\\.$#"
-			count: 1
-			path: tests/Executor/MutationsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Deferred\"\\.$#"
-			count: 2
-			path: tests/Executor/MutationsTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
-			path: tests/Executor/MutationsTest.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 4
 			path: tests/Executor/NonNullTest.php
