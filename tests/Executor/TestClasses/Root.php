@@ -38,7 +38,7 @@ class Root
 
     public function promiseAndFailToChangeTheNumber() : Deferred
     {
-        return new Deferred(function () {
+        return new Deferred(function () : void {
             $this->failToChangeTheNumber();
         });
     }
