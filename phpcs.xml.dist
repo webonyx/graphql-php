@@ -16,6 +16,7 @@
         <!-- Disable PHP7+ features that might cause BC breaks for now -->
         <exclude name="SlevomatCodingStandard.Classes.ClassConstantVisibility.MissingConstantVisibility" />
         <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingParameterTypeHint" />
+        <exclude name="SlevomatCodingStandard.TypeHints.TypeHintDeclaration.MissingReturnTypeHint" />
         <!-- Enable when Slevomat starts supporting variadics, see https://github.com/slevomat/coding-standard/issues/251 -->
         <exclude name="SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse" />
     </rule>
