@@ -1121,23 +1121,8 @@ parameters:
 			path: tests/Executor/DirectivesTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 13
-			path: tests/Executor/ExecutorLazySchemaTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"bool\"\\.$#"
-			count: 2
-			path: tests/Executor/ExecutorLazySchemaTest.php
-
-		-
 			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 7
-			path: tests/Executor/ExecutorLazySchemaTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 1
 			path: tests/Executor/ExecutorLazySchemaTest.php
 
 		-

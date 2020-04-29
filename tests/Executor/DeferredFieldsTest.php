@@ -192,7 +192,7 @@ class DeferredFieldsTest extends TestCase
 
                         return Utils::filter(
                             $this->storyDataSource,
-                            static function ($story)  : bool {
+                            static function ($story) : bool {
                                 return $story['id'] % 2 === 1;
                             }
                         );
