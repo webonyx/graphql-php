@@ -1166,16 +1166,6 @@ parameters:
 			path: tests/Language/VisitorTest.php
 
 		-
-			message: "#^Anonymous function should return GraphQL\\\\Type\\\\Definition\\\\Type but return statement is missing\\.$#"
-			count: 1
-			path: tests/Regression/Issue396Test.php
-
-		-
-			message: "#^Anonymous function should return GraphQL\\\\Type\\\\Definition\\\\Type\\|null but return statement is missing\\.$#"
-			count: 1
-			path: tests/Regression/Issue396Test.php
-
-		-
 			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 1
 			path: tests/Server/Psr7/PsrStreamStub.php
