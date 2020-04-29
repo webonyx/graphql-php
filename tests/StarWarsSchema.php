@@ -188,7 +188,7 @@ class StarWarsSchema
                 'secretBackstory' => [
                     'type'        => Type::string(),
                     'description' => 'Where are they from and how they came to be who they are.',
-                    'resolve'     => static function () : array {
+                    'resolve'     => static function () : void {
                         // This is to demonstrate error reporting
                         throw new Exception('secretBackstory is secret.');
                     },

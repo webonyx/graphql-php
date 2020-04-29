@@ -1182,26 +1182,6 @@ parameters:
 
 		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 16
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 16
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"stdClass\"\\.$#"
-			count: 1
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"int\"\\.$#"
-			count: 1
-			path: tests/Type/DefinitionTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 1
 			path: tests/Type/EnumTypeTest.php
 
