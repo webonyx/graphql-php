@@ -1142,11 +1142,6 @@ parameters:
 
 		-
 			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 9
-			path: tests/Executor/Promise/ReactPromiseAdapterTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
 			count: 7
 			path: tests/Executor/Promise/SyncPromiseAdapterTest.php
 
