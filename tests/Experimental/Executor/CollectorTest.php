@@ -71,7 +71,7 @@ class CollectorTest extends TestCase
         foreach ($collector->collectFields($collector->rootType, $collector->operation->selectionSet) as $shared) {
             $execution = new stdClass();
             if (! empty($shared->fieldNodes)) {
-                $execution->fieldNodes = array_map(static function (Node $node) {
+                $execution->fieldNodes = array_map(static function (Node $node) : array {
                     return $node->toArray(true);
                 }, $shared->fieldNodes);
             }

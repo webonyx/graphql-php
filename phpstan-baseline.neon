@@ -1146,16 +1146,6 @@ parameters:
 			path: tests/Experimental/Executor/CollectorTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Experimental/Executor/CollectorTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"GraphQL\\\\Executor\\\\Promise\\\\Promise\"\\.$#"
-			count: 1
-			path: tests/GraphQLTest.php
-
-		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 1
 			path: tests/Language/LexerTest.php
