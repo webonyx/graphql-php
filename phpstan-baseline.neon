@@ -1126,11 +1126,6 @@ parameters:
 			path: tests/Executor/ExecutorLazySchemaTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
-			count: 1
-			path: tests/Executor/LazyInterfaceTest.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\InterfaceType given\\.$#"
 			count: 1
 			path: tests/Executor/LazyInterfaceTest.php
@@ -1142,11 +1137,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\ObjectType given\\.$#"
-			count: 1
-			path: tests/Executor/LazyInterfaceTest.php
-
-		-
-			message: "#^Anonymous function should have native return typehint \"string\"\\.$#"
 			count: 1
 			path: tests/Executor/LazyInterfaceTest.php
 
