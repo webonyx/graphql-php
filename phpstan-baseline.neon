@@ -1176,11 +1176,6 @@ parameters:
 			path: tests/Server/RequestValidationTest.php
 
 		-
-			message: "#^Anonymous function should have native return typehint \"void\"\\.$#"
-			count: 2
-			path: tests/Server/ServerTestCase.php
-
-		-
 			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
 			count: 4
 			path: tests/StarWarsSchema.php
