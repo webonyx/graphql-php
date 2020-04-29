@@ -43,7 +43,7 @@ class RequestParsingTest extends TestCase
 
         $helper = new Helper();
 
-        return $helper->parseHttpRequest(static function () use ($content) {
+        return $helper->parseHttpRequest(static function () use ($content) : string {
             return $content;
         });
     }
