@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Language\Parser;
 use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use PHPUnit\Framework\TestCase;
@@ -84,15 +85,29 @@ class RequestValidationTest extends TestCase
         );
     }
 
-    public function testFailsWhenQueryParameterIsNotString() : void
+    public function testFailsWhenQueryParameterIsInvalid() : void
     {
+        // Only string or DocumentNode is valid parameter
         $parsedBody = OperationParams::create([
             'query' => ['t' => '{my query}'],
         ]);
 
         $this->assertInputError(
             $parsedBody,
-            'GraphQL Request parameter "query" must be string, but got {"t":"{my query}"}'
+            'GraphQL Request parameter "query" must be string or DocumentNode, but got {"t":"{my query}"}'
+        );
+    }
+
+    public function testQueryCanBeDocumentNode() : void
+    {
+        $doc =  Parser::parse('{my query}');
+
+        $parsedBody = OperationParams::create(['query' => $doc]);
+
+        self::assertEquals(
+            $doc,
+            $parsedBody->query,
+            'GraphQL Request parameter "query" must be string or DocumentNode, but got {"t":"{my query}"}'
         );
     }
 

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
+use GraphQL\Language\AST\DocumentNode;
 use function array_change_key_case;
 use function is_string;
 use function json_decode;
@@ -31,7 +32,7 @@ class OperationParams
 
     /**
      * @api
-     * @var string
+     * @var string|DocumentNode
      */
     public $query;
 

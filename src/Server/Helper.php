@@ -161,9 +161,9 @@ class Helper
             $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
         }
 
-        if ($params->query !== null && (! is_string($params->query) || empty($params->query))) {
+        if ($params->query !== null && ! $params->query instanceof DocumentNode && (! is_string($params->query) || empty($params->query))) {
             $errors[] = new RequestError(
-                'GraphQL Request parameter "query" must be string, but got ' .
+                'GraphQL Request parameter "query" must be string or DocumentNode, but got ' .
                 Utils::printSafeJson($params->query)
             );
         }
