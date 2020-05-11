@@ -307,11 +307,16 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, string given\\.$#"
+			count: 1
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\DocumentNode|string given\\.$#"
 			count: 2
 			path: src/Server/Helper.php
 
 		-
-			message: "#^Only booleans are allowed in &&, string given on the left side\\.$#"
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\DocumentNode|string given on the left side\\.$#"
 			count: 1
 			path: src/Server/Helper.php
 
@@ -323,11 +328,6 @@ parameters:
 		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 5
-			path: src/Server/Helper.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, string given\\.$#"
-			count: 1
 			path: src/Server/Helper.php
 
 		-
