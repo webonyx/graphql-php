@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Only booleans are allowed in an elseif condition, Throwable\\|null given\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
 			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given on the right side\\.$#"
 			count: 1
 			path: src/Error/Error.php

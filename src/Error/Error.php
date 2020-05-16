@@ -122,8 +122,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-            $this->category     = $previous->getCategory() ?: self::CATEGORY_INTERNAL;
-        } elseif ($previous) {
+            $this->category     = $previous->getCategory() ?? self::CATEGORY_INTERNAL;
+        } elseif ($previous !== null) {
             $this->isClientSafe = false;
             $this->category     = self::CATEGORY_INTERNAL;
         } else {
