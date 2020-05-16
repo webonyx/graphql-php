@@ -146,7 +146,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     public static function createLocatedError($error, $nodes = null, $path = null)
     {
         if ($error instanceof self) {
-            if ($error->path && $error->nodes) {
+            if (count($error->path ?? []) > 0 && count($error->nodes ?? []) > 0) {
                 return $error;
             }
 
