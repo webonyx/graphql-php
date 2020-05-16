@@ -1,21 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Node\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 6
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in &&, Throwable\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
 			message: "#^Only booleans are allowed in an elseif condition, Throwable\\|null given\\.$#"
 			count: 1
 			path: src/Error/Error.php
