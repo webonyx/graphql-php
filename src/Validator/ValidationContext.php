@@ -105,13 +105,13 @@ class ValidationContext extends ASTValidationContext
                 Visitor::visitWithTypeInfo(
                     $typeInfo,
                     [
-                        NodeKind::VARIABLE_DEFINITION => static function () {
+                        NodeKind::VARIABLE_DEFINITION => static function () : bool {
                             return false;
                         },
                         NodeKind::VARIABLE            => static function (VariableNode $variable) use (
                             &$newUsages,
                             $typeInfo
-                        ) {
+                        ) : void {
                             $newUsages[] = [
                                 'node' => $variable,
                                 'type' => $typeInfo->getInputType(),

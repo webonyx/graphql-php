@@ -227,7 +227,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         $this->run();
 
         if ($this->pending > 0) {
-            return $this->promiseAdapter->create(function (callable $resolve) {
+            return $this->promiseAdapter->create(function (callable $resolve) : void {
                 $this->doResolve = $resolve;
             });
         }
@@ -314,13 +314,13 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                         $this->promiseAdapter
                             ->then(
                                 $value,
-                                function ($value) use ($strand) {
+                                function ($value) use ($strand) : void {
                                     $strand->success = true;
                                     $strand->value   = $value;
                                     $this->queue->enqueue($strand);
                                     $this->done();
                                 },
-                                function (Throwable $throwable) use ($strand) {
+                                function (Throwable $throwable) use ($strand) : void {
                                     $strand->success = false;
                                     $strand->value   = $throwable;
                                     $this->queue->enqueue($strand);

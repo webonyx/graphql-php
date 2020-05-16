@@ -15,6 +15,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\ValidationContext;
@@ -61,7 +62,7 @@ class QueryComplexity extends QuerySecurityRule
         return $this->invokeIfNeeded(
             $context,
             [
-                NodeKind::SELECTION_SET        => function (SelectionSetNode $selectionSet) use ($context) {
+                NodeKind::SELECTION_SET        => function (SelectionSetNode $selectionSet) use ($context) : void {
                     $this->fieldNodeAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $context->getParentType(),
@@ -70,13 +71,13 @@ class QueryComplexity extends QuerySecurityRule
                         $this->fieldNodeAndDefs
                     );
                 },
-                NodeKind::VARIABLE_DEFINITION  => function ($def) {
+                NodeKind::VARIABLE_DEFINITION  => function ($def) : VisitorOperation {
                     $this->variableDefs[] = $def;
 
                     return Visitor::skipNode();
                 },
                 NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) {
+                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) : void {
                         $errors = $context->getErrors();
 
                         if (count($errors) > 0) {

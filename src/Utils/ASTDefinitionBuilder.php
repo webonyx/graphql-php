@@ -336,7 +336,7 @@ class ASTDefinitionBuilder
             // validation with validateSchema() will produce more actionable results.
             return Utils::map(
                 $def->interfaces,
-                function ($iface) {
+                function ($iface) : Type {
                     return $this->buildType($iface);
                 }
             );
@@ -370,7 +370,7 @@ class ASTDefinitionBuilder
                     static function ($enumValue) {
                         return $enumValue->name->value;
                     },
-                    function ($enumValue) {
+                    function ($enumValue) : array {
                         return [
                             'description'       => $this->getDescription($enumValue),
                             'deprecationReason' => $this->getDeprecationReason($enumValue),
@@ -395,7 +395,7 @@ class ASTDefinitionBuilder
                 ? function () use ($def) {
                     return Utils::map(
                         $def->types,
-                        function ($typeNode) {
+                        function ($typeNode) : Type {
                             return $this->buildType($typeNode);
                         }
                     );

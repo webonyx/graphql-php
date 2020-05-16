@@ -24,7 +24,7 @@ class FieldsOnCorrectType extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::FIELD => function (FieldNode $node) use ($context) {
+            NodeKind::FIELD => function (FieldNode $node) use ($context) : void {
                 $type = $context->getParentType();
                 if (! $type) {
                     return;

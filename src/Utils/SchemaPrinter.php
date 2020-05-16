@@ -51,10 +51,10 @@ class SchemaPrinter
     {
         return self::printFilteredSchema(
             $schema,
-            static function ($type) {
+            static function ($type) : bool {
                 return ! Directive::isSpecifiedDirective($type);
             },
-            static function ($type) {
+            static function ($type) : bool {
                 return ! Type::isBuiltInType($type);
             },
             $options
@@ -85,13 +85,13 @@ class SchemaPrinter
                     array_merge(
                         [self::printSchemaDefinition($schema)],
                         array_map(
-                            static function ($directive) use ($options) {
+                            static function ($directive) use ($options) : string {
                                 return self::printDirective($directive, $options);
                             },
                             $directives
                         ),
                         array_map(
-                            static function ($type) use ($options) {
+                            static function ($type) use ($options) : string {
                                 return self::printType($type, $options);
                             },
                             $types
@@ -273,7 +273,7 @@ class SchemaPrinter
         // If every arg does not have a description, print them on one line.
         if (Utils::every(
             $args,
-            static function ($arg) {
+            static function ($arg) : bool {
                 return strlen($arg->description ?? '') === 0;
             }
         )) {
@@ -285,7 +285,7 @@ class SchemaPrinter
             implode(
                 "\n",
                 array_map(
-                    static function ($arg, $i) use ($indentation, $options) {
+                    static function ($arg, $i) use ($indentation, $options) : string {
                         return self::printDescription($options, $arg, '  ' . $indentation, ! $i) . '  ' . $indentation .
                             self::printInputValue($arg);
                     },
@@ -357,7 +357,7 @@ class SchemaPrinter
             ? ' implements ' . implode(
                 ' & ',
                 array_map(
-                    static function ($i) {
+                    static function ($i) : string {
                         return $i->name;
                     },
                     $interfaces
@@ -379,7 +379,7 @@ class SchemaPrinter
         return implode(
             "\n",
             array_map(
-                static function ($f, $i) use ($options) {
+                static function ($f, $i) use ($options) : string {
                     return self::printDescription($options, $f, '  ', ! $i) . '  ' .
                         $f->name . self::printArgs($options, $f->args, '  ') . ': ' .
                         (string) $f->getType() . self::printDeprecated($f);
@@ -439,7 +439,7 @@ class SchemaPrinter
         return implode(
             "\n",
             array_map(
-                static function ($value, $i) use ($options) {
+                static function ($value, $i) use ($options) : string {
                     return self::printDescription($options, $value, '  ', ! $i) . '  ' .
                         $value->name . self::printDeprecated($value);
                 },
@@ -463,7 +463,7 @@ class SchemaPrinter
                 implode(
                     "\n",
                     array_map(
-                        static function ($f, $i) use ($options) {
+                        static function ($f, $i) use ($options) : string {
                             return self::printDescription($options, $f, '  ', ! $i) . '  ' . self::printInputValue($f);
                         },
                         $fields,

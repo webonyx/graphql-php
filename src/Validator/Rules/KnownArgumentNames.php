@@ -48,7 +48,7 @@ class KnownArgumentNames extends ValidationRule
                                 Utils::suggestionList(
                                     $node->name->value,
                                     array_map(
-                                        static function ($arg) {
+                                        static function ($arg) : string {
                                             return $arg->name;
                                         },
                                         $fieldDef->args

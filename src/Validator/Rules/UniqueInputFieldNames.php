@@ -9,6 +9,7 @@ use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\ObjectFieldNode;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
@@ -40,15 +41,15 @@ class UniqueInputFieldNames extends ValidationRule
 
         return [
             NodeKind::OBJECT       => [
-                'enter' => function () {
+                'enter' => function () : void {
                     $this->knownNameStack[] = $this->knownNames;
                     $this->knownNames       = [];
                 },
-                'leave' => function () {
+                'leave' => function () : void {
                     $this->knownNames = array_pop($this->knownNameStack);
                 },
             ],
-            NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context) {
+            NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context) : VisitorOperation {
                 $fieldName = $node->name->value;
 
                 if (isset($this->knownNames[$fieldName])) {

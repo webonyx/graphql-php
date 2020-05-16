@@ -323,7 +323,7 @@ class TypeInfo
                     /** @var FieldArgument $argDef */
                     $argDef = Utils::find(
                         $fieldOrDirective->args,
-                        static function ($arg) use ($node) {
+                        static function ($arg) use ($node) : bool {
                             return $arg->name === $node->name->value;
                         }
                     );

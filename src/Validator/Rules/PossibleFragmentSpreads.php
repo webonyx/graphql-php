@@ -23,7 +23,7 @@ class PossibleFragmentSpreads extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context) {
+            NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) use ($context) : void {
                 $fragType   = $context->getType();
                 $parentType = $context->getParentType();
 
@@ -38,7 +38,7 @@ class PossibleFragmentSpreads extends ValidationRule
                     [$node]
                 ));
             },
-            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context) {
+            NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) use ($context) : void {
                 $fragName   = $node->name->value;
                 $fragType   = $this->getFragmentType($context, $fragName);
                 $parentType = $context->getParentType();

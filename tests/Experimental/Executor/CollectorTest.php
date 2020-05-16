@@ -71,8 +71,13 @@ class CollectorTest extends TestCase
         $pipeline = [];
         foreach ($collector->collectFields($collector->rootType, $collector->operation->selectionSet) as $shared) {
             $execution = new stdClass();
+<<<<<<< HEAD
             if (count($shared->fieldNodes ?? []) > 0) {
                 $execution->fieldNodes = array_map(static function (Node $node) {
+=======
+            if (! empty($shared->fieldNodes)) {
+                $execution->fieldNodes = array_map(static function (Node $node) : array {
+>>>>>>> master
                     return $node->toArray(true);
                 }, $shared->fieldNodes);
             }

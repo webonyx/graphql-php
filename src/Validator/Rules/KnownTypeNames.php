@@ -8,6 +8,7 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\NamedTypeNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
 use function array_keys;
@@ -24,7 +25,7 @@ class KnownTypeNames extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
-        $skip = static function () {
+        $skip = static function () : VisitorOperation {
             return Visitor::skipNode();
         };
 
@@ -36,7 +37,7 @@ class KnownTypeNames extends ValidationRule
             NodeKind::INTERFACE_TYPE_DEFINITION    => $skip,
             NodeKind::UNION_TYPE_DEFINITION        => $skip,
             NodeKind::INPUT_OBJECT_TYPE_DEFINITION => $skip,
-            NodeKind::NAMED_TYPE                   => static function (NamedTypeNode $node) use ($context) {
+            NodeKind::NAMED_TYPE                   => static function (NamedTypeNode $node) use ($context) : void {
                 $schema   = $context->getSchema();
                 $typeName = $node->name->value;
                 $type     = $schema->getType($typeName);

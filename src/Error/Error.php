@@ -279,7 +279,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             } elseif ($nodes) {
                 $locations       = array_filter(
                     array_map(
-                        static function ($node) {
+                        static function ($node) : ?SourceLocation {
                             if ($node->loc && $node->loc->source) {
                                 return $node->loc->source->getLocation($node->loc->start);
                             }

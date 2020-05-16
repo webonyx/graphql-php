@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Type;
 
 use GraphQL\Error\Error;
+use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\EnumValueDefinitionNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
@@ -222,7 +223,7 @@ class SchemaValidationContext
 
             $nodes = Utils::map(
                 $directiveList,
-                static function (Directive $directive) {
+                static function (Directive $directive) : DirectiveDefinitionNode {
                     return $directive->astNode;
                 }
             );
@@ -263,7 +264,7 @@ class SchemaValidationContext
 
         return Utils::filter(
             $subNodes,
-            static function ($argNode) use ($argName) {
+            static function ($argNode) use ($argName) : bool {
                 return $argNode->name->value === $argName;
             }
         );
@@ -378,7 +379,7 @@ class SchemaValidationContext
             }
             $includes = Utils::some(
                 $schemaDirective->locations,
-                static function ($schemaLocation) use ($location) {
+                static function ($schemaLocation) use ($location) : bool {
                     return $schemaLocation === $location;
                 }
             );
@@ -566,7 +567,7 @@ class SchemaValidationContext
             return $typeNode->fields;
         });
 
-        return Utils::filter($subNodes, static function ($fieldNode) use ($fieldName) {
+        return Utils::filter($subNodes, static function ($fieldNode) use ($fieldName) : bool {
             return $fieldNode->name->value === $fieldName;
         });
     }
@@ -711,7 +712,7 @@ class SchemaValidationContext
             return $typeNode->interfaces;
         });
 
-        return Utils::filter($subNodes, static function ($ifaceNode) use ($iface) {
+        return Utils::filter($subNodes, static function ($ifaceNode) use ($iface) : bool {
             return $ifaceNode->name->value === $iface->name;
         });
     }
@@ -911,7 +912,7 @@ class SchemaValidationContext
             return $unionNode->types;
         });
 
-        return Utils::filter($subNodes, static function ($typeNode) use ($typeName) {
+        return Utils::filter($subNodes, static function ($typeNode) use ($typeName) : bool {
             return $typeNode->name->value === $typeName;
         });
     }
@@ -971,7 +972,7 @@ class SchemaValidationContext
             return $enumNode->values;
         });
 
-        return Utils::filter($subNodes, static function ($valueNode) use ($valueName) {
+        return Utils::filter($subNodes, static function ($valueNode) use ($valueName) : bool {
             return $valueNode->name->value === $valueName;
         });
     }
