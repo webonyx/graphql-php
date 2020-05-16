@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests;
 
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
+use GraphQL\Executor\Promise\Promise;
 use GraphQL\GraphQL;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -30,7 +31,7 @@ class GraphQLTest extends TestCase
                                         'type' => Type::nonNull(Type::string()),
                                     ],
                                 ],
-                                'resolve' => static function ($rootValue, $args) use ($promiseAdapter) {
+                                'resolve' => static function ($rootValue, $args) use ($promiseAdapter) : Promise {
                                     return $promiseAdapter->createFulfilled(sprintf('Hi %s!', $args['name']));
                                 },
                             ],

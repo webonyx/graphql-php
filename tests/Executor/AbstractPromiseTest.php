@@ -41,7 +41,7 @@ class AbstractPromiseTest extends TestCase
             'name'       => 'Dog',
             'interfaces' => [$petType],
             'isTypeOf'   => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Dog;
                 });
             },
@@ -55,7 +55,7 @@ class AbstractPromiseTest extends TestCase
             'name'       => 'Cat',
             'interfaces' => [$petType],
             'isTypeOf'   => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Cat;
                 });
             },
@@ -71,7 +71,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -124,8 +124,8 @@ class AbstractPromiseTest extends TestCase
         $DogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$PetType],
-            'isTypeOf'   => static function () {
-                return new Deferred(static function () {
+            'isTypeOf'   => static function () : Deferred {
+                return new Deferred(static function () : void {
                     throw new UserError('We are testing this error');
                 });
             },
@@ -139,7 +139,7 @@ class AbstractPromiseTest extends TestCase
             'name'       => 'Cat',
             'interfaces' => [$PetType],
             'isTypeOf'   => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Cat;
                 });
             },
@@ -155,7 +155,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -210,7 +210,7 @@ class AbstractPromiseTest extends TestCase
         $dogType = new ObjectType([
             'name'     => 'Dog',
             'isTypeOf' => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Dog;
                 });
             },
@@ -223,7 +223,7 @@ class AbstractPromiseTest extends TestCase
         $catType = new ObjectType([
             'name'     => 'Cat',
             'isTypeOf' => static function ($obj) {
-                return new Deferred(static function () use ($obj) {
+                return new Deferred(static function () use ($obj) : bool {
                     return $obj instanceof Cat;
                 });
             },
@@ -244,7 +244,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -286,8 +286,8 @@ class AbstractPromiseTest extends TestCase
     {
         $PetType = new InterfaceType([
             'name'        => 'Pet',
-            'resolveType' => static function ($obj) use (&$DogType, &$CatType, &$HumanType) {
-                return new Deferred(static function () use ($obj, $DogType, $CatType, $HumanType) {
+            'resolveType' => static function ($obj) use (&$DogType, &$CatType, &$HumanType) : Deferred {
+                return new Deferred(static function () use ($obj, $DogType, $CatType, $HumanType) : ?Type {
                     if ($obj instanceof Dog) {
                         return $DogType;
                     }
@@ -338,7 +338,7 @@ class AbstractPromiseTest extends TestCase
                     'pets' => [
                         'type'    => Type::listOf($PetType),
                         'resolve' => static function () {
-                            return new Deferred(static function () {
+                            return new Deferred(static function () : array {
                                 return [
                                     new Dog('Odie', true),
                                     new Cat('Garfield', false),
@@ -417,7 +417,7 @@ class AbstractPromiseTest extends TestCase
         $PetType = new UnionType([
             'name'        => 'Pet',
             'resolveType' => static function ($obj) use ($DogType, $CatType, $HumanType) {
-                return new Deferred(static function () use ($obj, $DogType, $CatType, $HumanType) {
+                return new Deferred(static function () use ($obj, $DogType, $CatType, $HumanType) : ?Type {
                     if ($obj instanceof Dog) {
                         return $DogType;
                     }
@@ -440,7 +440,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -535,7 +535,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -579,8 +579,8 @@ class AbstractPromiseTest extends TestCase
     {
         $PetType = new InterfaceType([
             'name'        => 'Pet',
-            'resolveType' => static function () {
-                return new Deferred(static function () {
+            'resolveType' => static function () : Deferred {
+                return new Deferred(static function () : void {
                     throw new UserError('We are testing this error');
                 });
             },
@@ -613,7 +613,7 @@ class AbstractPromiseTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),

@@ -57,35 +57,35 @@ class NonNullTest extends TestCase
         $this->promiseNonNullError = new UserError('promiseNonNull');
 
         $this->throwingData = [
-            'sync'               => function () {
+            'sync'               => function () : void {
                 throw $this->syncError;
             },
-            'syncNonNull'        => function () {
+            'syncNonNull'        => function () : void {
                 throw $this->syncNonNullError;
             },
-            'promise'            => function () {
-                return new Deferred(function () {
+            'promise'            => function () : Deferred {
+                return new Deferred(function () : void {
                     throw $this->promiseError;
                 });
             },
-            'promiseNonNull'     => function () {
-                return new Deferred(function () {
+            'promiseNonNull'     => function () : Deferred {
+                return new Deferred(function () : void {
                     throw $this->promiseNonNullError;
                 });
             },
-            'syncNest'           => function () {
+            'syncNest'           => function () : array {
                 return $this->throwingData;
             },
-            'syncNonNullNest'    => function () {
+            'syncNonNullNest'    => function () : array {
                 return $this->throwingData;
             },
-            'promiseNest'        => function () {
-                return new Deferred(function () {
+            'promiseNest'        => function () : Deferred {
+                return new Deferred(function () : array {
                     return $this->throwingData;
                 });
             },
-            'promiseNonNullNest' => function () {
-                return new Deferred(function () {
+            'promiseNonNullNest' => function () : Deferred {
+                return new Deferred(function () : array {
                     return $this->throwingData;
                 });
             },
@@ -98,29 +98,29 @@ class NonNullTest extends TestCase
             'syncNonNull'        => static function () {
                 return null;
             },
-            'promise'            => static function () {
+            'promise'            => static function () : Deferred {
                 return new Deferred(static function () {
                     return null;
                 });
             },
-            'promiseNonNull'     => static function () {
+            'promiseNonNull'     => static function () : Deferred {
                 return new Deferred(static function () {
                     return null;
                 });
             },
-            'syncNest'           => function () {
+            'syncNest'           => function () : array {
                 return $this->nullingData;
             },
-            'syncNonNullNest'    => function () {
+            'syncNonNullNest'    => function () : array {
                 return $this->nullingData;
             },
-            'promiseNest'        => function () {
-                return new Deferred(function () {
+            'promiseNest'        => function () : Deferred {
+                return new Deferred(function () : array {
                     return $this->nullingData;
                 });
             },
-            'promiseNonNullNest' => function () {
-                return new Deferred(function () {
+            'promiseNonNullNest' => function () : Deferred {
+                return new Deferred(function () : array {
                     return $this->nullingData;
                 });
             },
@@ -128,7 +128,7 @@ class NonNullTest extends TestCase
 
         $dataType = new ObjectType([
             'name'   => 'DataType',
-            'fields' => static function () use (&$dataType) {
+            'fields' => static function () use (&$dataType) : array {
                 return [
                     'sync'               => ['type' => Type::string()],
                     'syncNonNull'        => ['type' => Type::nonNull(Type::string())],
@@ -155,10 +155,12 @@ class NonNullTest extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static function ($value, $args) {
+                        'resolve' => static function ($value, $args) : ?string {
                             if (is_string($args['cannotBeNull'])) {
                                 return 'Passed: ' . $args['cannotBeNull'];
                             }
+
+                            return null;
                         },
                     ],
                 ],
