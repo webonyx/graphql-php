@@ -15,6 +15,7 @@ use Traversable;
 use function array_filter;
 use function array_map;
 use function array_values;
+use function count;
 use function is_array;
 use function iterator_to_array;
 

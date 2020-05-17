@@ -89,7 +89,7 @@ class FormattedError
             }
         }
 
-        return count($printedLocations) == 0
+        return count($printedLocations) === 0
             ? $error->getMessage()
             : implode("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
@@ -263,7 +263,7 @@ class FormattedError
         $isUnsafe = ! $e instanceof ClientAware || ! $e->isClientSafe();
 
         if ((($debug & Debug::RETHROW_UNSAFE_EXCEPTIONS) > 0) && $isUnsafe) {
-            if ($e->getPrevious() != null) {
+            if ($e->getPrevious() !== null) {
                 throw $e->getPrevious();
             }
         }
@@ -281,7 +281,7 @@ class FormattedError
                 ];
             }
 
-            $isTrivial = $e instanceof Error && ($e->getPrevious() == null);
+            $isTrivial = $e instanceof Error && ($e->getPrevious() === null);
 
             if (! $isTrivial) {
                 $debugging               = $e->getPrevious() ?? $e;

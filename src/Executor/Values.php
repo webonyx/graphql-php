@@ -44,6 +44,7 @@ use stdClass;
 use Throwable;
 use function array_key_exists;
 use function array_map;
+use function count;
 use function sprintf;
 
 class Values
@@ -82,7 +83,7 @@ class Values
                 $hasValue = array_key_exists($varName, $inputs);
                 $value    = $hasValue ? $inputs[$varName] : Utils::undefined();
 
-                if (! $hasValue && ($varDefNode->defaultValue != null)) {
+                if (! $hasValue && ($varDefNode->defaultValue !== null)) {
                     // If no value was provided to a variable with a default value,
                     // use the default value.
                     $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
