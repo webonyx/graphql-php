@@ -11,21 +11,6 @@ parameters:
 			path: src/Error/Error.php
 
 		-
-			message: "#^Only booleans are allowed in &&, array\\<int\\> given on the left side\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in an elseif condition, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Location given on the left side\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given\\.$#"
 			count: 1
 			path: src/Error/FormattedError.php

@@ -268,14 +268,14 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source    = $this->getSource();
             $nodes     = $this->nodes;
 
-            if ($positions && $source) {
+            if ((count($positions ?? []) > 0) && $source instanceof Source) {
                 $this->locations = array_map(
                     static function ($pos) use ($source) : SourceLocation {
                         return $source->getLocation($pos);
                     },
                     $positions
                 );
-            } elseif ($nodes) {
+            } elseif (count($nodes ?? []) > 0) {
                 $locations       = array_filter(
                     array_map(
                         static function ($node) : ?SourceLocation {
