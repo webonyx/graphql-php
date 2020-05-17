@@ -82,7 +82,7 @@ class Values
                 $hasValue = array_key_exists($varName, $inputs);
                 $value    = $hasValue ? $inputs[$varName] : Utils::undefined();
 
-                if (! $hasValue && $varDefNode->defaultValue) {
+                if (! $hasValue && ($varDefNode->defaultValue != null)) {
                     // If no value was provided to a variable with a default value,
                     // use the default value.
                     $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
@@ -110,7 +110,7 @@ class Values
                         $coerced = Value::coerceValue($value, $varType, $varDefNode);
                         /** @var Error[] $coercionErrors */
                         $coercionErrors = $coerced['errors'];
-                        if ($coercionErrors) {
+                        if (count($coercionErrors ?? []) > 0) {
                             $messagePrelude = sprintf(
                                 'Variable "$%s" got invalid value %s; ',
                                 $varName,
@@ -226,7 +226,7 @@ class Values
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue     = $variableValues ? array_key_exists($variableName, $variableValues) : false;
+                $hasValue     = array_key_exists($variableName, $variableValues ?? []);
                 $isNull       = $hasValue ? $variableValues[$variableName] === null : false;
             } else {
                 $hasValue = $argumentValueNode !== null;
