@@ -66,10 +66,10 @@ class FormattedError
     public static function printError(Error $error)
     {
         $printedLocations = [];
-        if ($error->nodes) {
+        if (count($error->nodes ?? []) > 0) {
             /** @var Node $node */
             foreach ($error->nodes as $node) {
-                if (! $node->loc) {
+                if ($node->loc === null) {
                     continue;
                 }
 
@@ -82,14 +82,14 @@ class FormattedError
                     $node->loc->source->getLocation($node->loc->start)
                 );
             }
-        } elseif ($error->getSource() && $error->getLocations()) {
+        } elseif ($error->getSource() !== null) {
             $source = $error->getSource();
-            foreach ($error->getLocations() as $location) {
+            foreach (($error->getLocations() ?? []) as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
 
-        return ! $printedLocations
+        return count($printedLocations) == 0
             ? $error->getMessage()
             : implode("\n\n", array_merge([$error->getMessage()], $printedLocations)) . "\n";
     }
@@ -181,7 +181,7 @@ class FormattedError
             Utils::getVariableType($e)
         );
 
-        $internalErrorMessage = $internalErrorMessage ?: self::$internalErrorMessage;
+        $internalErrorMessage = $internalErrorMessage ?? self::$internalErrorMessage;
 
         if ($e instanceof ClientAware) {
             $formattedError = [
@@ -250,30 +250,30 @@ class FormattedError
 
         $debug = (int) $debug;
 
-        if ($debug & Debug::RETHROW_INTERNAL_EXCEPTIONS) {
+        if (($debug & Debug::RETHROW_INTERNAL_EXCEPTIONS) > 0) {
             if (! $e instanceof Error) {
                 throw $e;
             }
 
-            if ($e->getPrevious()) {
+            if ($e->getPrevious() !== null) {
                 throw $e->getPrevious();
             }
         }
 
         $isUnsafe = ! $e instanceof ClientAware || ! $e->isClientSafe();
 
-        if (($debug & Debug::RETHROW_UNSAFE_EXCEPTIONS) && $isUnsafe) {
-            if ($e->getPrevious()) {
+        if ((($debug & Debug::RETHROW_UNSAFE_EXCEPTIONS) > 0) && $isUnsafe) {
+            if ($e->getPrevious() != null) {
                 throw $e->getPrevious();
             }
         }
 
-        if (($debug & Debug::INCLUDE_DEBUG_MESSAGE) && $isUnsafe) {
+        if ((($debug & Debug::INCLUDE_DEBUG_MESSAGE) > 0) && $isUnsafe) {
             // Displaying debugMessage as a first entry:
             $formattedError = ['debugMessage' => $e->getMessage()] + $formattedError;
         }
 
-        if ($debug & Debug::INCLUDE_TRACE) {
+        if (($debug & Debug::INCLUDE_TRACE) > 0) {
             if ($e instanceof ErrorException || $e instanceof \Error) {
                 $formattedError += [
                     'file' => $e->getFile(),
@@ -281,10 +281,10 @@ class FormattedError
                 ];
             }
 
-            $isTrivial = $e instanceof Error && ! $e->getPrevious();
+            $isTrivial = $e instanceof Error && ($e->getPrevious() == null);
 
             if (! $isTrivial) {
-                $debugging               = $e->getPrevious() ?: $e;
+                $debugging               = $e->getPrevious() ?? $e;
                 $formattedError['trace'] = static::toSafeTrace($debugging);
             }
         }
@@ -302,7 +302,7 @@ class FormattedError
      */
     public static function prepareFormatter(?callable $formatter = null, $debug)
     {
-        $formatter = $formatter ?: static function ($e) : array {
+        $formatter = $formatter ?? static function ($e) : array {
             return FormattedError::createFromException($e);
         };
         if ($debug) {
