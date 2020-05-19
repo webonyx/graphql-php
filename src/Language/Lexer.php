@@ -121,7 +121,7 @@ class Lexer
         $token = $this->token;
         if ($token->kind !== Token::EOF) {
             do {
-                $token = $token->next ?: ($token->next = $this->readToken($token));
+                $token = $token->next ?? ($token->next = $this->readToken($token));
             } while ($token->kind === Token::COMMENT);
         }
 
@@ -793,7 +793,7 @@ class Lexer
     {
         $result     = '';
         $totalBytes = 0;
-        $byteOffset = $byteStreamPosition ?: $this->byteStreamPosition;
+        $byteOffset = $byteStreamPosition ?? $this->byteStreamPosition;
 
         for ($i = 0; $i < $charCount; $i++) {
             [$char, $code, $bytes] = $this->readChar(false, $byteOffset);

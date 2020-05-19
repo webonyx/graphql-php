@@ -233,7 +233,7 @@ class QueryComplexity extends QuerySecurityRule
      */
     public function setRawVariableValues(?array $rawVariableValues = null)
     {
-        $this->rawVariableValues = $rawVariableValues ?: [];
+        $this->rawVariableValues = $rawVariableValues ?? [];
     }
 
     private function buildFieldArguments(FieldNode $node)

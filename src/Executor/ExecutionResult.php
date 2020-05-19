@@ -140,7 +140,7 @@ class ExecutionResult implements JsonSerializable
         $result = [];
 
         if (count($this->errors ?? []) > 0) {
-            $errorsHandler = $this->errorsHandler ?: static function (array $errors, callable $formatter) : array {
+            $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter) : array {
                 return array_map($formatter, $errors);
             };
 

@@ -181,7 +181,7 @@ class FormattedError
             Utils::getVariableType($e)
         );
 
-        $internalErrorMessage = $internalErrorMessage ?: self::$internalErrorMessage;
+        $internalErrorMessage = $internalErrorMessage === '' || $internalErrorMessage === null ? self::$internalErrorMessage : $internalErrorMessage;
 
         if ($e instanceof ClientAware) {
             $formattedError = [
@@ -284,7 +284,7 @@ class FormattedError
             $isTrivial = $e instanceof Error && ! $e->getPrevious();
 
             if (! $isTrivial) {
-                $debugging               = $e->getPrevious() ?: $e;
+                $debugging               = $e->getPrevious() ?? $e;
                 $formattedError['trace'] = static::toSafeTrace($debugging);
             }
         }
@@ -302,7 +302,7 @@ class FormattedError
      */
     public static function prepareFormatter(?callable $formatter = null, $debug)
     {
-        $formatter = $formatter ?: static function ($e) : array {
+        $formatter = $formatter ?? static function ($e) : array {
             return FormattedError::createFromException($e);
         };
         if ($debug) {

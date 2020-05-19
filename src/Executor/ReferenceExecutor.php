@@ -168,8 +168,8 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($operation !== null) {
             [$coercionErrors, $coercedVariableValues] = Values::getVariableValues(
                 $schema,
-                $operation->variableDefinitions ?: [],
-                $rawVariableValues ?: []
+                $operation->variableDefinitions ?? [],
+                $rawVariableValues ?? []
             );
             if (count($coercionErrors ?? []) === 0) {
                 $variableValues = $coercedVariableValues;
@@ -584,9 +584,9 @@ class ReferenceExecutor implements ExecutorImplementation
     private function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName) : ?FieldDefinition
     {
         static $schemaMetaFieldDef, $typeMetaFieldDef, $typeNameMetaFieldDef;
-        $schemaMetaFieldDef   = $schemaMetaFieldDef ?: Introspection::schemaMetaFieldDef();
-        $typeMetaFieldDef     = $typeMetaFieldDef ?: Introspection::typeMetaFieldDef();
-        $typeNameMetaFieldDef = $typeNameMetaFieldDef ?: Introspection::typeNameMetaFieldDef();
+        $schemaMetaFieldDef   = $schemaMetaFieldDef ?? Introspection::schemaMetaFieldDef();
+        $typeMetaFieldDef     = $typeMetaFieldDef ?? Introspection::typeMetaFieldDef();
+        $typeNameMetaFieldDef = $typeNameMetaFieldDef ?? Introspection::typeNameMetaFieldDef();
         if ($fieldName === $schemaMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $schemaMetaFieldDef;
         }

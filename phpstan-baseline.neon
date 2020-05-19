@@ -6,11 +6,6 @@ parameters:
 			path: src/Error/Error.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 6
-			path: src/Error/Error.php
-
-		-
 			message: "#^Only booleans are allowed in &&, Throwable\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Error/Error.php
@@ -76,11 +71,6 @@ parameters:
 			path: src/Error/FormattedError.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 3
-			path: src/Error/FormattedError.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, int given\\.$#"
 			count: 2
 			path: src/Error/FormattedError.php
@@ -101,39 +91,9 @@ parameters:
 			path: src/Error/FormattedError.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Error/Warning.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Executor/ExecutionContext.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Executor/ExecutionResult.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Executor/Executor.php
-
-		-
 			message: "#^Variable property access on object\\.$#"
 			count: 2
 			path: src/Executor/Executor.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Executor/Promise/Adapter/SyncPromise.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 5
-			path: src/Executor/ReferenceExecutor.php
 
 		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\BooleanValueNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueNode\\|GraphQL\\\\Language\\\\AST\\\\FloatValueNode\\|GraphQL\\\\Language\\\\AST\\\\IntValueNode\\|GraphQL\\\\Language\\\\AST\\\\ListValueNode\\|GraphQL\\\\Language\\\\AST\\\\NullValueNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectValueNode\\|GraphQL\\\\Language\\\\AST\\\\StringValueNode\\|GraphQL\\\\Language\\\\AST\\\\VariableNode\\|null given on the right side\\.$#"
@@ -151,11 +111,6 @@ parameters:
 			path: src/Executor/Values.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Experimental/Executor/CoroutineExecutor.php
-
-		-
 			message: "#^Variable property access on object\\.$#"
 			count: 2
 			path: src/Experimental/Executor/CoroutineExecutor.php
@@ -166,44 +121,14 @@ parameters:
 			path: src/Experimental/Executor/CoroutineExecutor.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/GraphQL.php
-
-		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Language/Lexer.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Language/Parser.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
 			count: 2
 			path: src/Language/Printer.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Language/Source.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Language/Visitor.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<int, array\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\> given\\.$#"
@@ -238,11 +163,6 @@ parameters:
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, \\(callable\\)\\|null given\\.$#"
 			count: 2
-			path: src/Server/Helper.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 4
 			path: src/Server/Helper.php
 
 		-
@@ -281,11 +201,6 @@ parameters:
 			path: src/Server/Helper.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Server/OperationParams.php
-
-		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\Directive\\)\\.$#"
 			count: 1
 			path: src/Type/Definition/Directive.php
@@ -296,19 +211,9 @@ parameters:
 			path: src/Type/Definition/EnumType.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Type/Definition/FieldDefinition.php
-
-		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
 			count: 1
 			path: src/Type/Definition/InputObjectField.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Type/Definition/ObjectType.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
@@ -331,7 +236,7 @@ parameters:
 			path: src/Type/Introspection.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
+			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
 			count: 1
 			path: src/Type/Introspection.php
 
@@ -342,11 +247,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
-			count: 1
-			path: src/Type/Schema.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 1
 			path: src/Type/Schema.php
 
@@ -422,11 +322,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\EnumTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\SchemaTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeExtensionNode\\> given\\.$#"
-			count: 1
-			path: src/Type/SchemaValidationContext.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
 			count: 1
 			path: src/Type/SchemaValidationContext.php
 
@@ -566,11 +461,6 @@ parameters:
 			path: src/Utils/ASTDefinitionBuilder.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Utils/BreakingChangesFinder.php
-
-		-
 			message: "#^Only booleans are allowed in &&, array\\<bool\\>\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Utils/PairSet.php
@@ -616,11 +506,6 @@ parameters:
 			path: src/Utils/TypeInfo.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Utils/TypeInfo.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\Directive\\|GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null given\\.$#"
 			count: 1
 			path: src/Utils/TypeInfo.php
@@ -639,11 +524,6 @@ parameters:
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Utils/TypeInfo.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Utils/Utils.php
 
 		-
 			message: "#^Variable property access on object\\.$#"
@@ -684,11 +564,6 @@ parameters:
 			message: "#^Only booleans are allowed in a ternary operator condition, string\\|null given\\.$#"
 			count: 1
 			path: src/Utils/Value.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Validator/DocumentValidator.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
@@ -761,11 +636,6 @@ parameters:
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
@@ -796,11 +666,6 @@ parameters:
 			path: src/Validator/Rules/ProvidedRequiredArguments.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Validator/Rules/ProvidedRequiredArguments.php
-
-		-
 			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArguments.php
@@ -824,21 +689,6 @@ parameters:
 			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Validator/Rules/QueryComplexity.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 2
-			path: src/Validator/Rules/QuerySecurityRule.php
 
 		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given on the left side\\.$#"
@@ -869,11 +719,6 @@ parameters:
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ScalarLeafs.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: src/Validator/Rules/ValidationRule.php
 
 		-
 			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType given on the left side\\.$#"
@@ -931,16 +776,6 @@ parameters:
 			path: tests/Executor/DirectivesTest.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: tests/Executor/DirectivesTest.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 7
-			path: tests/Executor/ExecutorLazySchemaTest.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\InterfaceType given\\.$#"
 			count: 1
 			path: tests/Executor/LazyInterfaceTest.php
@@ -971,11 +806,6 @@ parameters:
 			path: tests/Language/VisitorTest.php
 
 		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: tests/Server/Psr7/PsrStreamStub.php
-
-		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"
 			count: 1
 			path: tests/Type/TypeLoaderTest.php
@@ -984,9 +814,4 @@ parameters:
 			message: "#^Only booleans are allowed in a negated boolean, stdClass given\\.$#"
 			count: 1
 			path: tests/Utils/AstFromValueTest.php
-
-		-
-			message: "#^Short ternary operator is not allowed\\. Use null coalesce operator if applicable or consider using long ternary\\.$#"
-			count: 1
-			path: tests/Utils/ValueFromAstTest.php
 

@@ -44,7 +44,7 @@ class Executor
 
     public static function getPromiseAdapter() : PromiseAdapter
     {
-        return self::$defaultPromiseAdapter ?: (self::$defaultPromiseAdapter = new SyncPromiseAdapter());
+        return self::$defaultPromiseAdapter ?? (self::$defaultPromiseAdapter = new SyncPromiseAdapter());
     }
 
     public static function setPromiseAdapter(?PromiseAdapter $defaultPromiseAdapter = null)
@@ -149,7 +149,7 @@ class Executor
             $contextValue,
             $variableValues,
             $operationName,
-            $fieldResolver ?: self::$defaultFieldResolver
+            $fieldResolver ?? self::$defaultFieldResolver
         );
 
         return $executor->doExecute();

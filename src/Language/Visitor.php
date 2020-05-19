@@ -186,7 +186,7 @@ class Visitor
      */
     public static function visit($root, $visitor, $keyMap = null)
     {
-        $visitorKeys = $keyMap ?: self::$visitorKeys;
+        $visitorKeys = $keyMap ?? self::$visitorKeys;
 
         $stack     = null;
         $inArray   = $root instanceof NodeList || is_array($root);
@@ -328,7 +328,7 @@ class Visitor
                 ];
                 $inArray = $node instanceof NodeList || is_array($node);
 
-                $keys  = ($inArray ? $node : $visitorKeys[$node->kind]) ?: [];
+                $keys  = ($inArray ? $node : $visitorKeys[$node->kind]) ?? [];
                 $index = -1;
                 $edits = [];
                 if ($parent !== null) {

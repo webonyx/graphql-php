@@ -132,7 +132,7 @@ class GraphQL
             if ($source instanceof DocumentNode) {
                 $documentNode = $source;
             } else {
-                $documentNode = Parser::parse(new Source($source ?: '', 'GraphQL'));
+                $documentNode = Parser::parse(new Source($source ?? '', 'GraphQL'));
             }
 
             // FIXME

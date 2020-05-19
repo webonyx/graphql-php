@@ -92,7 +92,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                     return null;
                 }
 
-                $argNodes   = $directiveNode->arguments ?: [];
+                $argNodes   = $directiveNode->arguments ?? [];
                 $argNodeMap = Utils::keyMap(
                     $argNodes,
                     static function (ArgumentNode $arg) : string {

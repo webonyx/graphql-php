@@ -103,7 +103,7 @@ class OperationParams
         }
 
         $instance->query      = $params['query'];
-        $instance->queryId    = $params['queryid'] ?: $params['documentid'] ?: $params['id'];
+        $instance->queryId    = $params['queryid'] ?? $params['documentid'] ?? $params['id'];
         $instance->operation  = $params['operationname'];
         $instance->variables  = $params['variables'];
         $instance->extensions = $params['extensions'];
