@@ -76,12 +76,12 @@ class Helper
                 $rawBody    = $readRawBodyFn
                     ? $readRawBodyFn()
                     : $this->readRawBody();
-                $bodyParams = ['query' => $rawBody ?: ''];
+                $bodyParams = ['query' => $rawBody ?? ''];
             } elseif (stripos($contentType, 'application/json') !== false) {
                 $rawBody    = $readRawBodyFn ?
                     $readRawBodyFn()
                     : $this->readRawBody();
-                $bodyParams = json_decode($rawBody ?: '', true);
+                $bodyParams = json_decode($rawBody ?? '', true);
 
                 if (json_last_error()) {
                     throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
@@ -202,7 +202,7 @@ class Helper
      */
     public function executeOperation(ServerConfig $config, OperationParams $op)
     {
-        $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
+        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
         $result         = $this->promiseToExecuteOperation($promiseAdapter, $config, $op);
 
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -224,7 +224,7 @@ class Helper
      */
     public function executeBatch(ServerConfig $config, array $operations)
     {
-        $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
+        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
         $result         = [];
 
         foreach ($operations as $operation) {

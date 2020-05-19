@@ -661,8 +661,8 @@ EOD;
                     ],
                     'args'        => [
                         'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                        'resolve' => static function (Directive $directive) : array {
-                            return $directive->args ?: [];
+                        'resolve' => static function (Directive $directive) {
+                            return $directive->args ?? [];
                         },
                     ],
                 ],

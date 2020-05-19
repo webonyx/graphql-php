@@ -167,7 +167,7 @@ class SyncPromise
 
     public static function getQueue() : SplQueue
     {
-        return self::$queue ?: self::$queue = new SplQueue();
+        return self::$queue ?? self::$queue = new SplQueue();
     }
 
     /**

@@ -15,6 +15,7 @@ use Traversable;
 use function array_filter;
 use function array_map;
 use function array_values;
+use function count;
 use function is_array;
 use function iterator_to_array;
 
@@ -114,7 +115,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         $this->source     = $source;
         $this->positions  = $positions;
         $this->path       = $path;
-        $this->extensions = $extensions ?: (
+        $this->extensions = count($extensions) > 0 ? $extensions : (
         $previous && $previous instanceof self
             ? $previous->extensions
             : []
@@ -122,7 +123,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-            $this->category     = $previous->getCategory() ?: self::CATEGORY_INTERNAL;
+            $cat                = $previous->getCategory();
+            $this->category     = $cat === '' || $cat === null  ? self::CATEGORY_INTERNAL: $cat;
         } elseif ($previous) {
             $this->isClientSafe = false;
             $this->category     = self::CATEGORY_INTERNAL;
@@ -150,8 +152,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
                 return $error;
             }
 
-            $nodes = $nodes ?: $error->nodes;
-            $path  = $path ?: $error->path;
+            $nodes = $nodes ?? $error->nodes;
+            $path  = $path ?? $error->path;
         }
 
         $source     = $positions = $originalError = null;
@@ -160,7 +162,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         if ($error instanceof self) {
             $message       = $error->getMessage();
             $originalError = $error;
-            $nodes         = $error->nodes ?: $nodes;
+            $nodes         = $error->nodes ?? $nodes;
             $source        = $error->source;
             $positions     = $error->positions;
             $extensions    = $error->extensions;
@@ -172,7 +174,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         }
 
         return new static(
-            $message ?: 'An unknown error occurred.',
+            $message === '' || $message === null ? 'An unknown error occurred.' : $message,
             $nodes,
             $source,
             $positions,

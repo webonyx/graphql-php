@@ -54,7 +54,7 @@
     "lint" : "phpcs",
     "fix" : "phpcbf",
     "stan": "phpstan analyse --ansi --memory-limit 2048M",
-    "phpstan-baseline": "phpstan analyse --ansi --generate-baseline=phpstan-baseline.neon",
+    "phpstan-baseline": "phpstan analyse --ansi --generate-baseline",
     "check": "composer lint && composer stan && composer test"
   }
 }

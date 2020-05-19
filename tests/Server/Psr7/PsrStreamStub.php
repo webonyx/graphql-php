@@ -13,6 +13,7 @@ use const SEEK_SET;
  */
 class PsrStreamStub implements StreamInterface
 {
+    /** @var string */
     public $content;
 
     /**
@@ -27,9 +28,8 @@ class PsrStreamStub implements StreamInterface
      * string casting operations.
      *
      * @see http://php.net/manual/en/language.oop5.magic.php#object.tostring
-     * @return string
      */
-    public function __toString()
+    public function __toString() : string
     {
         return $this->content;
     }
@@ -59,11 +59,10 @@ class PsrStreamStub implements StreamInterface
     /**
      * Get the size of the stream if known.
      *
-     * @return int|null Returns the size in bytes if known, or null if unknown.
      */
-    public function getSize()
+    public function getSize() : ?int
     {
-        return strlen($this->content ?: '');
+        return $this->content === null ? null : strlen($this->content);
     }
 
     /**
@@ -185,7 +184,7 @@ class PsrStreamStub implements StreamInterface
      * @throws \RuntimeException if unable to read or an error occurs while
      *     reading.
      */
-    public function getContents()
+    public function getContents() : string
     {
         return $this->content;
     }
