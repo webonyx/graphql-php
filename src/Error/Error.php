@@ -38,13 +38,6 @@ class Error extends Exception implements JsonSerializable, ClientAware
     const CATEGORY_GRAPHQL  = 'graphql';
     const CATEGORY_INTERNAL = 'internal';
 
-    /**
-     * A message describing the Error for debugging purposes.
-     *
-     * @var string
-     */
-    public $message;
-
     /** @var SourceLocation[] */
     private $locations;
 
