@@ -38,12 +38,10 @@ use function substr;
 class SchemaPrinter
 {
     /**
-     * Accepts options as a second argument:
-     *
+     * @param array<string, bool> $options
+     *    Available options:
      *    - commentDescriptions:
      *        Provide true to use preceding comments as the description.
-     *
-     * @param bool[] $options
      *
      * @api
      */
@@ -62,16 +60,11 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
-    private static function printFilteredSchema(Schema $schema, $directiveFilter, $typeFilter, $options) : string
+    private static function printFilteredSchema(Schema $schema, callable $directiveFilter, callable $typeFilter, array $options) : string
     {
-        $directives = array_filter(
-            $schema->getDirectives(),
-            static function ($directive) use ($directiveFilter) {
-                return $directiveFilter($directive);
-            }
-        );
+        $directives = array_filter($schema->getDirectives(), $directiveFilter);
 
         $types = $schema->getTypeMap();
         ksort($types);
@@ -85,7 +78,7 @@ class SchemaPrinter
                     array_merge(
                         [self::printSchemaDefinition($schema)],
                         array_map(
-                            static function ($directive) use ($options) : string {
+                            static function (Directive $directive) use ($options) : string {
                                 return self::printDirective($directive, $options);
                             },
                             $directives
@@ -157,14 +150,22 @@ class SchemaPrinter
         return $subscriptionType === null || $subscriptionType->name === 'Subscription';
     }
 
-    private static function printDirective($directive, $options) : string
+    /**
+     * @param array<string, bool> $options
+     */
+    private static function printDirective(Directive $directive, array $options) : string
     {
-        return self::printDescription($options, $directive) .
-            'directive @' . $directive->name . self::printArgs($options, $directive->args) .
-            ' on ' . implode(' | ', $directive->locations);
+        return self::printDescription($options, $directive)
+            . 'directive @' . $directive->name
+            . self::printArgs($options, $directive->args)
+            . ($directive->isRepeatable ? ' repeatable' : '')
+            . ' on ' . implode(' | ', $directive->locations);
     }
 
-    private static function printDescription($options, $def, $indentation = '', $firstInBlock = true) : string
+    /**
+     * @param array<string, bool> $options
+     */
+    private static function printDescription(array $options, $def, $indentation = '', $firstInBlock = true) : string
     {
         if (! $def->description) {
             return '';
@@ -264,7 +265,10 @@ class SchemaPrinter
         return str_replace('"""', '\\"""', $line);
     }
 
-    private static function printArgs($options, $args, $indentation = '') : string
+    /**
+     * @param array<string, bool> $options
+     */
+    private static function printArgs(array $options, $args, $indentation = '') : string
     {
         if (! $args) {
             return '';
@@ -308,7 +312,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
     public static function printType(Type $type, array $options = []) : string
     {
@@ -340,7 +344,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
     private static function printScalar(ScalarType $type, array $options) : string
     {
@@ -348,7 +352,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
     private static function printObject(ObjectType $type, array $options) : string
     {
@@ -357,8 +361,8 @@ class SchemaPrinter
             ? ' implements ' . implode(
                 ' & ',
                 array_map(
-                    static function ($i) : string {
-                        return $i->name;
+                    static function (InterfaceType $interface) : string {
+                        return $interface->name;
                     },
                     $interfaces
                 )
@@ -370,9 +374,9 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
-    private static function printFields($options, $type) : string
+    private static function printFields(array $options, $type) : string
     {
         $fields = array_values($type->getFields());
 
@@ -405,7 +409,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
     private static function printInterface(InterfaceType $type, array $options) : string
     {
@@ -414,7 +418,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
     private static function printUnion(UnionType $type, array $options) : string
     {
@@ -423,7 +427,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
     private static function printEnum(EnumType $type, array $options) : string
     {
@@ -432,9 +436,9 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
-    private static function printEnumValues($values, $options) : string
+    private static function printEnumValues($values, array $options) : string
     {
         return implode(
             "\n",
@@ -450,7 +454,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
     private static function printInputObject(InputObjectType $type, array $options) : string
     {
@@ -474,7 +478,7 @@ class SchemaPrinter
     }
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      *
      * @api
      */

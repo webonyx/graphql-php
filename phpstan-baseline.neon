@@ -266,11 +266,6 @@ parameters:
 			path: src/Server/OperationParams.php
 
 		-
-			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\Directive\\)\\.$#"
-			count: 1
-			path: src/Type/Definition/Directive.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, ArrayObject\\<string, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\> given\\.$#"
 			count: 1
 			path: src/Type/Definition/EnumType.php

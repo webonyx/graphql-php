@@ -23,10 +23,12 @@ class BuildClientSchemaTest extends TestCase
 {
     protected static function assertCycleIntrospection(string $sdl) : void
     {
+        $options = ['directiveIsRepeatable' => true];
+
         $serverSchema         = BuildSchema::build($sdl);
-        $initialIntrospection = Introspection::fromSchema($serverSchema);
+        $initialIntrospection = Introspection::fromSchema($serverSchema, $options);
         $clientSchema         = BuildClientSchema::build($initialIntrospection);
-        $secondIntrospection  = Introspection::fromSchema($clientSchema);
+        $secondIntrospection  = Introspection::fromSchema($clientSchema, $options);
 
         self::assertSame($initialIntrospection, $secondIntrospection);
     }
@@ -489,8 +491,8 @@ SDL;
     {
         self::assertCycleIntrospection('
           """This is a custom directive"""
-          directive @customDirective on FIELD
-    
+          directive @customDirective repeatable on FIELD
+
           type Query {
             string: String
           }

@@ -706,26 +706,50 @@ enum RGB {
         $query = new ObjectType([
             'name'   => 'Query',
             'fields' => [
-                'field' => ['type' => Type::string()],
+                'field' => [
+                    'type' => Type::string(),
+                ],
             ],
         ]);
 
-        $customDirectives = new Directive([
-            'name'      => 'customDirective',
+        $simpleDirective = new Directive([
+            'name'      => 'simpleDirective',
             'locations' => [
                 DirectiveLocation::FIELD,
             ],
         ]);
 
+        $complexDirective = new Directive([
+            'name'      => 'complexDirective',
+            'description' => 'Complex Directive',
+            'args' => [
+                'stringArg' => [
+                    'type' => Type::string(),
+                ],
+                'intArg' => [
+                    'type' => Type::int(),
+                    'defaultValue' => -1,
+                ],
+            ],
+            'isRepeatable' => true,
+            'locations' => [
+                DirectiveLocation::FIELD,
+                DirectiveLocation::QUERY,
+            ],
+        ]);
+
         $schema = new Schema([
             'query'      => $query,
-            'directives' => [$customDirectives],
+            'directives' => [$simpleDirective, $complexDirective],
         ]);
 
         $output = $this->printForTest($schema);
         self::assertEquals(
             '
-directive @customDirective on FIELD
+directive @simpleDirective on FIELD
+
+"""Complex Directive"""
+directive @complexDirective(stringArg: String, intArg: Int = -1) repeatable on FIELD | QUERY
 
 type Query {
   field: String
@@ -871,8 +895,9 @@ to the executor.
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
+  isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
 }
 
 """
@@ -1111,8 +1136,9 @@ directive @deprecated(
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
+  isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
 }
 
 # A Directive can be adjacent to many parts of the GraphQL language, a

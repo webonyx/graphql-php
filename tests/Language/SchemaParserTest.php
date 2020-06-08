@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Language;
 
 use GraphQL\Error\SyntaxError;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
@@ -1043,6 +1044,86 @@ input Hello {
             'Expected :, found (',
             $this->loc(3, 14)
         );
+    }
+
+    /**
+     * @see it('Directive definition', () => {
+     */
+    public function testDirectiveDefinition() : void
+    {
+        $body = 'directive @foo on OBJECT | INTERFACE';
+        $doc  = Parser::parse($body);
+        $loc  = static function ($start, $end) : array {
+            return TestUtils::locArray($start, $end);
+        };
+
+        $expected = [
+            'kind'        => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind'        => NodeKind::DIRECTIVE_DEFINITION,
+                    'name'        => $this->nameNode('foo', $loc(11, 14)),
+                    'description' => null,
+                    'arguments'  => [],
+                    'repeatable' => false,
+                    'locations'      => [
+                        [
+                            'kind' => NodeKind::NAME,
+                            'value' => DirectiveLocation::OBJECT,
+                            'loc' => $loc(18, 24),
+                        ],
+                        [
+                            'kind' => NodeKind::NAME,
+                            'value' => DirectiveLocation::IFACE,
+                            'loc' => $loc(27, 36),
+                        ],
+                    ],
+                    'loc'         => $loc(0, 36),
+                ],
+            ],
+            'loc'         => $loc(0, 36),
+        ];
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @see it('Repeatable directive definition', () => {
+     */
+    public function testRepeatableDirectiveDefinition() : void
+    {
+        $body = 'directive @foo repeatable on OBJECT | INTERFACE';
+        $doc  = Parser::parse($body);
+        $loc  = static function ($start, $end) : array {
+            return TestUtils::locArray($start, $end);
+        };
+
+        $expected = [
+            'kind'        => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind'        => NodeKind::DIRECTIVE_DEFINITION,
+                    'name'        => $this->nameNode('foo', $loc(11, 14)),
+                    'description' => null,
+                    'arguments'  => [],
+                    'repeatable' => true,
+                    'locations'      => [
+                        [
+                            'kind' => NodeKind::NAME,
+                            'value' => DirectiveLocation::OBJECT,
+                            'loc' => $loc(29, 35),
+                        ],
+                        [
+                            'kind' => NodeKind::NAME,
+                            'value' => DirectiveLocation::IFACE,
+                            'loc' => $loc(38, 47),
+                        ],
+                    ],
+                    'loc'         => $loc(0, 47),
+                ],
+            ],
+            'loc'         => $loc(0, 47),
+        ];
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }
 
     /**
