@@ -202,7 +202,7 @@ class SyncTest extends TestCase
         $expected         = [
             'errors' => Utils::map(
                 $validationErrors,
-                static function ($e) {
+                static function ($e) : array {
                     return FormattedError::createFromException($e);
                 }
             ),

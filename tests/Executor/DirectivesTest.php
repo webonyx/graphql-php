@@ -20,8 +20,11 @@ class DirectivesTest extends TestCase
     /** @var Schema */
     private static $schema;
 
-    /** @var string[] */
-    private static $data;
+    /** @var array<string, string> */
+    private static $data = [
+        'a' => 'a',
+        'b' => 'b',
+    ];
 
     /**
      * @see it('basic query works')
@@ -38,7 +41,7 @@ class DirectivesTest extends TestCase
      */
     private function executeTestQuery($doc) : array
     {
-        return Executor::execute(self::getSchema(), Parser::parse($doc), self::getData())->toArray();
+        return Executor::execute(self::getSchema(), Parser::parse($doc), self::$data)->toArray();
     }
 
     private static function getSchema() : Schema
@@ -56,17 +59,6 @@ class DirectivesTest extends TestCase
         }
 
         return self::$schema;
-    }
-
-    /**
-     * @return string[]
-     */
-    private static function getData() : array
-    {
-        return self::$data ?: (self::$data = [
-            'a' => 'a',
-            'b' => 'b',
-        ]);
     }
 
     public function testWorksOnScalars() : void

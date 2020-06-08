@@ -9,6 +9,7 @@ use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
@@ -34,13 +35,13 @@ class UniqueArgumentNames extends ValidationRule
         $this->knownArgNames = [];
 
         return [
-            NodeKind::FIELD     => function () {
+            NodeKind::FIELD     => function () : void {
                 $this->knownArgNames = [];
             },
-            NodeKind::DIRECTIVE => function () {
+            NodeKind::DIRECTIVE => function () : void {
                 $this->knownArgNames = [];
             },
-            NodeKind::ARGUMENT  => function (ArgumentNode $node) use ($context) {
+            NodeKind::ARGUMENT  => function (ArgumentNode $node) use ($context) : VisitorOperation {
                 $argName = $node->name->value;
                 if (! empty($this->knownArgNames[$argName])) {
                     $context->reportError(new Error(

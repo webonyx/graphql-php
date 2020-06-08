@@ -76,12 +76,12 @@ class Helper
                 $rawBody    = $readRawBodyFn
                     ? $readRawBodyFn()
                     : $this->readRawBody();
-                $bodyParams = ['query' => $rawBody ?: ''];
+                $bodyParams = ['query' => $rawBody ?? ''];
             } elseif (stripos($contentType, 'application/json') !== false) {
                 $rawBody    = $readRawBodyFn ?
                     $readRawBodyFn()
                     : $this->readRawBody();
-                $bodyParams = json_decode($rawBody ?: '', true);
+                $bodyParams = json_decode($rawBody ?? '', true);
 
                 if (json_last_error()) {
                     throw new RequestError('Could not parse JSON: ' . json_last_error_msg());
@@ -202,7 +202,7 @@ class Helper
      */
     public function executeOperation(ServerConfig $config, OperationParams $op)
     {
-        $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
+        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
         $result         = $this->promiseToExecuteOperation($promiseAdapter, $config, $op);
 
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
@@ -224,7 +224,7 @@ class Helper
      */
     public function executeBatch(ServerConfig $config, array $operations)
     {
-        $promiseAdapter = $config->getPromiseAdapter() ?: Executor::getPromiseAdapter();
+        $promiseAdapter = $config->getPromiseAdapter() ?? Executor::getPromiseAdapter();
         $result         = [];
 
         foreach ($operations as $operation) {
@@ -266,7 +266,7 @@ class Helper
             if (! empty($errors)) {
                 $errors = Utils::map(
                     $errors,
-                    static function (RequestError $err) {
+                    static function (RequestError $err) : Error {
                         return Error::createLocatedError($err, null, null);
                     }
                 );
@@ -315,7 +315,7 @@ class Helper
             );
         }
 
-        $applyErrorHandling = static function (ExecutionResult $result) use ($config) {
+        $applyErrorHandling = static function (ExecutionResult $result) use ($config) : ExecutionResult {
             if ($config->getErrorsHandler()) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
@@ -434,7 +434,7 @@ class Helper
     public function sendResponse($result, $exitWhenDone = false)
     {
         if ($result instanceof Promise) {
-            $result->then(function ($actualResult) use ($exitWhenDone) {
+            $result->then(function ($actualResult) use ($exitWhenDone) : void {
                 $this->doSendResponse($actualResult, $exitWhenDone);
             });
         } else {
@@ -482,7 +482,7 @@ class Helper
         if (is_array($result) && isset($result[0])) {
             Utils::each(
                 $result,
-                static function ($executionResult, $index) {
+                static function ($executionResult, $index) : void {
                     if (! $executionResult instanceof ExecutionResult) {
                         throw new InvariantViolation(sprintf(
                             'Expecting every entry of batched query result to be instance of %s but entry at position %d is %s',

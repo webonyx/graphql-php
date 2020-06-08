@@ -65,7 +65,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name'   => 'Canine',
-            'fields' => static function () {
+            'fields' => static function () : array {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -112,7 +112,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Cat = new ObjectType([
             'name'       => 'Cat',
-            'fields'     => static function () use (&$FurColor) {
+            'fields'     => static function () use (&$FurColor) : array {
                 return [
                     'name'       => [
                         'type' => Type::string(),
@@ -143,7 +143,7 @@ abstract class ValidatorTestCase extends TestCase
         $Human = new ObjectType([
             'name'       => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields'     => static function () use (&$Human, $Pet) {
+            'fields'     => static function () use (&$Human, $Pet) : array {
                 return [
                     'name'      => [
                         'type' => Type::string(),
@@ -301,10 +301,10 @@ abstract class ValidatorTestCase extends TestCase
             'serialize'    => static function ($value) {
                 return $value;
             },
-            'parseLiteral' => static function ($node) {
+            'parseLiteral' => static function ($node) : void {
                 throw new Exception('Invalid scalar is always invalid: ' . $node->value);
             },
-            'parseValue'   => static function ($node) {
+            'parseValue'   => static function ($node) : void {
                 throw new Exception('Invalid scalar is always invalid: ' . $node);
             },
         ]);

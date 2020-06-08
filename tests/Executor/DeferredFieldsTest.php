@@ -144,7 +144,7 @@ class DeferredFieldsTest extends TestCase
 
                         return Utils::filter(
                             $this->storyDataSource,
-                            static function ($story) use ($category) {
+                            static function ($story) use ($category) : bool {
                                 return in_array($category['id'], $story['categoryIds'], true);
                             }
                         );
@@ -192,7 +192,7 @@ class DeferredFieldsTest extends TestCase
 
                         return Utils::filter(
                             $this->storyDataSource,
-                            static function ($story) {
+                            static function ($story) : bool {
                                 return $story['id'] % 2 === 1;
                             }
                         );
@@ -200,7 +200,7 @@ class DeferredFieldsTest extends TestCase
                 ],
                 'featuredCategory' => [
                     'type'    => $this->categoryType,
-                    'resolve' => function ($rootValue, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($rootValue, $args, $context, ResolveInfo $info) : array {
                         $this->paths[] = $info->path;
 
                         return $this->categoryDataSource[0];
@@ -208,7 +208,7 @@ class DeferredFieldsTest extends TestCase
                 ],
                 'categories'       => [
                     'type'    => Type::listOf($this->categoryType),
-                    'resolve' => function ($rootValue, $args, $context, ResolveInfo $info) {
+                    'resolve' => function ($rootValue, $args, $context, ResolveInfo $info) : array {
                         $this->paths[] = $info->path;
 
                         return $this->categoryDataSource;
@@ -403,7 +403,7 @@ class DeferredFieldsTest extends TestCase
                 return [
                     'sync'         => [
                         'type'    => Type::string(),
-                        'resolve' => function ($complexType, $args, $context, ResolveInfo $info) {
+                        'resolve' => function ($complexType, $args, $context, ResolveInfo $info) : string {
                             $this->paths[] = $info->path;
 
                             return 'sync';
@@ -414,7 +414,7 @@ class DeferredFieldsTest extends TestCase
                         'resolve' => function ($complexType, $args, $context, ResolveInfo $info) {
                             $this->paths[] = $info->path;
 
-                            return new Deferred(function () use ($info) {
+                            return new Deferred(function () use ($info) : string {
                                 $this->paths[] = ['!dfd for: ', $info->path];
 
                                 return 'deferred';
@@ -423,7 +423,7 @@ class DeferredFieldsTest extends TestCase
                     ],
                     'nest'         => [
                         'type'    => $complexType,
-                        'resolve' => function ($complexType, $args, $context, ResolveInfo $info) {
+                        'resolve' => function ($complexType, $args, $context, ResolveInfo $info) : array {
                             $this->paths[] = $info->path;
 
                             return [];
@@ -434,7 +434,7 @@ class DeferredFieldsTest extends TestCase
                         'resolve' => function ($complexType, $args, $context, ResolveInfo $info) {
                             $this->paths[] = $info->path;
 
-                            return new Deferred(function () use ($info) {
+                            return new Deferred(function () use ($info) : array {
                                 $this->paths[] = ['!dfd nest for: ', $info->path];
 
                                 return [];
@@ -635,7 +635,7 @@ class DeferredFieldsTest extends TestCase
     {
         return Utils::find(
             $this->storyDataSource,
-            static function ($story) use ($id) {
+            static function ($story) use ($id) : bool {
                 return $story['id'] === $id;
             }
         );
@@ -645,7 +645,7 @@ class DeferredFieldsTest extends TestCase
     {
         return Utils::find(
             $this->userDataSource,
-            static function ($user) use ($id) {
+            static function ($user) use ($id) : bool {
                 return $user['id'] === $id;
             }
         );

@@ -364,7 +364,7 @@ class Parser
 
     private function unexpected(?Token $atToken = null) : SyntaxError
     {
-        $token = $atToken ?: $this->lexer->token;
+        $token = $atToken ?? $this->lexer->token;
 
         return new SyntaxError($this->lexer->source, $token->start, 'Unexpected ' . $token->getDescription());
     }
@@ -563,7 +563,7 @@ class Parser
         return $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
-                function () {
+                function () : VariableDefinitionNode {
                     return $this->parseVariableDefinition();
                 },
                 Token::PAREN_R
@@ -614,7 +614,7 @@ class Parser
             [
                 'selections' => $this->many(
                     Token::BRACE_L,
-                    function () {
+                    function () : SelectionNode {
                         return $this->parseSelection();
                     },
                     Token::BRACE_R
@@ -669,10 +669,10 @@ class Parser
     private function parseArguments(bool $isConst) : NodeList
     {
         $parseFn = $isConst
-            ? function () {
+            ? function () : ArgumentNode {
                 return $this->parseConstArgument();
             }
-            : function () {
+            : function () : ArgumentNode {
                 return $this->parseArgument();
             };
 
@@ -1098,7 +1098,7 @@ class Parser
 
         $operationTypes = $this->many(
             Token::BRACE_L,
-            function () {
+            function () : OperationTypeDefinitionNode {
                 return $this->parseOperationTypeDefinition();
             },
             Token::BRACE_R
@@ -1214,7 +1214,7 @@ class Parser
             $nodeList = $this->peek(Token::BRACE_L)
                 ? $this->many(
                     Token::BRACE_L,
-                    function () {
+                    function () : FieldDefinitionNode {
                         return $this->parseFieldDefinition();
                     },
                     Token::BRACE_R
@@ -1257,7 +1257,7 @@ class Parser
         $nodeList = $this->peek(Token::PAREN_L)
             ? $this->many(
                 Token::PAREN_L,
-                function () {
+                function () : InputValueDefinitionNode {
                     return $this->parseInputValueDefinition();
                 },
                 Token::PAREN_R
@@ -1389,7 +1389,7 @@ class Parser
         $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function () {
+                function () : EnumValueDefinitionNode {
                     return $this->parseEnumValueDefinition();
                 },
                 Token::BRACE_R
@@ -1447,7 +1447,7 @@ class Parser
         $nodeList = $this->peek(Token::BRACE_L)
             ? $this->many(
                 Token::BRACE_L,
-                function () {
+                function () : InputValueDefinitionNode {
                     return $this->parseInputValueDefinition();
                 },
                 Token::BRACE_R

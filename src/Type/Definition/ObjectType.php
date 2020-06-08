@@ -195,7 +195,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
                 );
             }
 
-            $this->interfaces = $interfaces ?: [];
+            $this->interfaces = $interfaces ?? [];
         }
 
         return $this->interfaces;

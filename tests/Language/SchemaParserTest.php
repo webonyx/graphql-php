@@ -28,7 +28,7 @@ type Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -103,7 +103,7 @@ type Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -150,7 +150,7 @@ type Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -194,7 +194,7 @@ extend type Hello {
 }
 ';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -228,7 +228,7 @@ extend type Hello {
     {
         $body = 'extend type Hello implements Greeting';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -361,7 +361,7 @@ type Hello {
 }';
         $doc  = Parser::parse($body);
 
-        $loc = static function ($start, $end) {
+        $loc = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -401,7 +401,7 @@ type Hello {
     {
         $body = 'type Hello implements World { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -439,7 +439,7 @@ type Hello {
     {
         $body = 'type Hello implements Wo & rld { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -478,7 +478,7 @@ type Hello {
     {
         $body = 'type Hello implements & Wo & rld { field: String }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -516,7 +516,7 @@ type Hello {
     {
         $body = 'enum Hello { WORLD }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -556,7 +556,7 @@ type Hello {
     {
         $body = 'enum Hello { WO, RLD }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -591,7 +591,7 @@ interface Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -628,7 +628,7 @@ type Hello {
   world(flag: Boolean): String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -688,7 +688,7 @@ type Hello {
   world(flag: Boolean = true): String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -734,7 +734,7 @@ type Hello {
   world(things: [String]): String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -787,7 +787,7 @@ type Hello {
   world(argOne: Boolean, argTwo: Int): String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -837,7 +837,7 @@ type Hello {
     {
         $body = 'union Hello = World';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -866,7 +866,7 @@ type Hello {
     {
         $body = 'union Hello = Wo | Rld';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -972,7 +972,7 @@ type Hello {
     {
         $body = 'scalar Hello';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 
@@ -1002,7 +1002,7 @@ input Hello {
   world: String
 }';
         $doc  = Parser::parse($body);
-        $loc  = static function ($start, $end) {
+        $loc  = static function ($start, $end) : array {
             return TestUtils::locArray($start, $end);
         };
 

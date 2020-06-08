@@ -85,14 +85,14 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         }
 
         return [
-            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) : ?string {
                 $directiveName = $directiveNode->name->value;
                 $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
                 if (! $requiredArgs) {
                     return null;
                 }
 
-                $argNodes   = $directiveNode->arguments ?: [];
+                $argNodes   = $directiveNode->arguments ?? [];
                 $argNodeMap = Utils::keyMap(
                     $argNodes,
                     static function (ArgumentNode $arg) : string {
@@ -109,6 +109,8 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
                         new Error(static::missingDirectiveArgMessage($directiveName, $argName), [$directiveNode])
                     );
                 }
+
+                return null;
             },
         ];
     }

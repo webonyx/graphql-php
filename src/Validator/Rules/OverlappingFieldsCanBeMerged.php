@@ -59,7 +59,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
         $this->cachedFieldsAndFragmentNames = new SplObjectStorage();
 
         return [
-            NodeKind::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context) {
+            NodeKind::SELECTION_SET => function (SelectionSetNode $selectionSet) use ($context) : void {
                 $conflicts = $this->findConflictsWithinSelectionSet(
                     $context,
                     $context->getParentType(),
@@ -380,7 +380,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                 ];
             }
 
-            if (! $this->sameArguments($ast1->arguments ?: [], $ast2->arguments ?: [])) {
+            if (! $this->sameArguments($ast1->arguments ?? [], $ast2->arguments ?? [])) {
                 return [
                     [$responseName, 'they have differing arguments'],
                     [$ast1],
@@ -845,14 +845,14 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
             ],
             array_reduce(
                 $conflicts,
-                static function ($allFields, $conflict) {
+                static function ($allFields, $conflict) : array {
                     return array_merge($allFields, $conflict[1]);
                 },
                 [$ast1]
             ),
             array_reduce(
                 $conflicts,
-                static function ($allFields, $conflict) {
+                static function ($allFields, $conflict) : array {
                     return array_merge($allFields, $conflict[2]);
                 },
                 [$ast2]
@@ -879,7 +879,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
     {
         if (is_array($reason)) {
             $tmp = array_map(
-                static function ($tmp) {
+                static function ($tmp) : string {
                     [$responseName, $subReason] = $tmp;
 
                     $reasonMessage = self::reasonMessage($subReason);
