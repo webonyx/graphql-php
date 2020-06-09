@@ -341,7 +341,11 @@ class Schema
 
         $type = $typeLoader($typeName);
 
-        if (! $type instanceof Type && ! is_callable($type)) {
+        if (is_callable($type)) {
+            $type = self::resolveType($type);
+        }
+
+        if (! $type instanceof Type) {
             throw new InvariantViolation(
                 sprintf(
                     'Type loader is expected to return a callable or valid type "%s", but it returned %s',
