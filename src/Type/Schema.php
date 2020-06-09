@@ -402,7 +402,7 @@ class Schema
     }
 
     /**
-     * @return array<string, array<string, ObjectType>>
+     * @return array<string, array<string, ObjectType|UnionType>>
      */
     private function getPossibleTypeMap()
     {
