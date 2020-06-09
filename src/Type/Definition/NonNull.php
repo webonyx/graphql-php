@@ -6,7 +6,6 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Schema;
-use function assert;
 use function is_callable;
 
 class NonNull extends Type implements WrappingType, OutputType, InputType
