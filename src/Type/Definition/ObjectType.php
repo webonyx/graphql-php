@@ -150,7 +150,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     public function getFields()
     {
         if ($this->fields === null) {
-            $fields       = $this->config['fields'] ?: [];
+            $fields       = $this->config['fields'] ?? [];
             $this->fields = FieldDefinition::defineFieldMap($this, $fields);
         }
 
