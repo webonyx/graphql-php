@@ -106,6 +106,8 @@ type HelloScalars {
         $body   = '
 directive @foo(arg: Int) on FIELD
 
+directive @repeatableFoo(arg: Int) repeatable on FIELD
+
 type Query {
   str: String
 }

@@ -1,5 +1,7 @@
 ## Master
 
+- Dropped `GraphQL\Error\Error::$message`, use `->getMessage()` instead.
+
 ### Breaking (major): dropped deprecations
  - dropped deprecated `GraphQL\Schema`. Use `GraphQL\Type\Schema`.
 

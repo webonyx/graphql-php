@@ -54,20 +54,20 @@ class TypeLoaderTest extends TestCase
 
         $this->node = new InterfaceType([
             'name'        => 'Node',
-            'fields'      => function () {
+            'fields'      => function () : array {
                 $this->calls[] = 'Node.fields';
 
                 return [
                     'id' => Type::string(),
                 ];
             },
-            'resolveType' => static function () {
+            'resolveType' => static function () : void {
             },
         ]);
 
         $this->content = new InterfaceType([
             'name'        => 'Content',
-            'fields'      => function () {
+            'fields'      => function () : array {
                 $this->calls[] = 'Content.fields';
 
                 return [
@@ -75,7 +75,7 @@ class TypeLoaderTest extends TestCase
                     'body'  => Type::string(),
                 ];
             },
-            'resolveType' => static function () {
+            'resolveType' => static function () : void {
             },
         ]);
 
@@ -85,7 +85,7 @@ class TypeLoaderTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function () {
+            'fields'     => function () : array {
                 $this->calls[] = 'BlogStory.fields';
 
                 return [
@@ -98,7 +98,7 @@ class TypeLoaderTest extends TestCase
 
         $this->query = new ObjectType([
             'name'   => 'Query',
-            'fields' => function () {
+            'fields' => function () : array {
                 $this->calls[] = 'Query.fields';
 
                 return [
@@ -110,7 +110,7 @@ class TypeLoaderTest extends TestCase
 
         $this->mutation = new ObjectType([
             'name'   => 'Mutation',
-            'fields' => function () {
+            'fields' => function () : array {
                 $this->calls[] = 'Mutation.fields';
 
                 return [
@@ -158,7 +158,7 @@ class TypeLoaderTest extends TestCase
                 'name'   => 'Query',
                 'fields' => ['a' => Type::string()],
             ]),
-            'typeLoader' => static function () {
+            'typeLoader' => static function () : void {
             },
         ]);
     }
@@ -259,7 +259,7 @@ class TypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () {
+            'typeLoader' => static function () : void {
             },
         ]);
 
@@ -273,7 +273,7 @@ class TypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () {
+            'typeLoader' => static function () : stdClass {
                 return new stdClass();
             },
         ]);
@@ -288,7 +288,7 @@ class TypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => function () {
+            'typeLoader' => function () : InterfaceType {
                 return $this->content;
             },
         ]);
@@ -303,7 +303,7 @@ class TypeLoaderTest extends TestCase
     {
         $schema = new Schema([
             'query'      => $this->query,
-            'typeLoader' => static function () {
+            'typeLoader' => static function () : void {
                 throw new Exception('This is the exception we are looking for');
             },
         ]);

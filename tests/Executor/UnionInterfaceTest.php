@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
 use GraphQL\Language\Parser;
@@ -51,7 +52,7 @@ class UnionInterfaceTest extends TestCase
                 'name'  => ['type' => Type::string()],
                 'woofs' => ['type' => Type::boolean()],
             ],
-            'isTypeOf'   => static function ($value) {
+            'isTypeOf'   => static function ($value) : bool {
                 return $value instanceof Dog;
             },
         ]);
@@ -63,7 +64,7 @@ class UnionInterfaceTest extends TestCase
                 'name'  => ['type' => Type::string()],
                 'meows' => ['type' => Type::boolean()],
             ],
-            'isTypeOf'   => static function ($value) {
+            'isTypeOf'   => static function ($value) : bool {
                 return $value instanceof Cat;
             },
         ]);
@@ -71,13 +72,15 @@ class UnionInterfaceTest extends TestCase
         $PetType = new UnionType([
             'name'        => 'Pet',
             'types'       => [$DogType, $CatType],
-            'resolveType' => static function ($value) use ($DogType, $CatType) {
+            'resolveType' => static function ($value) use ($DogType, $CatType) : ObjectType {
                 if ($value instanceof Dog) {
                     return $DogType;
                 }
                 if ($value instanceof Cat) {
                     return $CatType;
                 }
+
+                throw new InvariantViolation('Unknown type');
             },
         ]);
 
@@ -89,7 +92,7 @@ class UnionInterfaceTest extends TestCase
                 'pets'    => ['type' => Type::listOf($PetType)],
                 'friends' => ['type' => Type::listOf($NamedType)],
             ],
-            'isTypeOf'   => static function ($value) {
+            'isTypeOf'   => static function ($value) : bool {
                 return $value instanceof Person;
             },
         ]);

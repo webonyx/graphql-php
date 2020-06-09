@@ -183,7 +183,7 @@ class ValueFromAstTest extends TestCase
 
     private function inputObj()
     {
-        return $this->inputObj ?: $this->inputObj = new InputObjectType([
+        return $this->inputObj ?? $this->inputObj = new InputObjectType([
             'name'   => 'TestInput',
             'fields' => [
                 'int'          => ['type' => Type::int(), 'defaultValue' => 42],

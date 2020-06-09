@@ -13,6 +13,8 @@ use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
+use GraphQL\Type\Definition\ListOfType;
+use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
@@ -65,27 +67,27 @@ class ValidationTest extends TestCase
 
         $this->SomeScalarType = new CustomScalarType([
             'name'         => 'SomeScalar',
-            'serialize'    => static function () {
+            'serialize'    => static function () : void {
             },
-            'parseValue'   => static function () {
+            'parseValue'   => static function () : void {
             },
-            'parseLiteral' => static function () {
+            'parseLiteral' => static function () : void {
             },
         ]);
 
         $this->SomeInterfaceType = new InterfaceType([
             'name'   => 'SomeInterface',
-            'fields' => function () {
+            'fields' => function () : array {
                 return ['f' => ['type' => $this->SomeObjectType]];
             },
         ]);
 
         $this->SomeObjectType = new ObjectType([
             'name'       => 'SomeObject',
-            'fields'     => function () {
+            'fields'     => function () : array {
                 return ['f' => ['type' => $this->SomeObjectType]];
             },
-            'interfaces' => function () {
+            'interfaces' => function () : array {
                 return [$this->SomeInterfaceType];
             },
         ]);
@@ -144,19 +146,19 @@ class ValidationTest extends TestCase
             $types,
             Utils::map(
                 $types,
-                static function ($type) {
+                static function ($type) : ListOfType {
                     return Type::listOf($type);
                 }
             ),
             Utils::map(
                 $types,
-                static function ($type) {
+                static function ($type) : NonNull {
                     return Type::nonNull($type);
                 }
             ),
             Utils::map(
                 $types,
-                static function ($type) {
+                static function ($type) : NonNull {
                     return Type::nonNull(Type::listOf($type));
                 }
             )
@@ -173,19 +175,19 @@ class ValidationTest extends TestCase
     {
         $this->assertEachCallableThrows(
             [
-                static function () {
+                static function () : ObjectType {
                     return new ObjectType([]);
                 },
-                static function () {
+                static function () : EnumType {
                     return new EnumType([]);
                 },
-                static function () {
+                static function () : InputObjectType {
                     return new InputObjectType([]);
                 },
-                static function () {
+                static function () : UnionType {
                     return new UnionType([]);
                 },
-                static function () {
+                static function () : InterfaceType {
                     return new InterfaceType([]);
                 },
             ],
@@ -335,7 +337,7 @@ class ValidationTest extends TestCase
 
     private function formatLocations(Error $error)
     {
-        return Utils::map($error->getLocations(), static function (SourceLocation $loc) {
+        return Utils::map($error->getLocations(), static function (SourceLocation $loc) : array {
             return ['line' => $loc->line, 'column' => $loc->column];
         });
     }
@@ -348,7 +350,7 @@ class ValidationTest extends TestCase
      */
     private function formatErrors(array $errors, $withLocation = true)
     {
-        return Utils::map($errors, function (Error $error) use ($withLocation) {
+        return Utils::map($errors, function (Error $error) use ($withLocation) : array {
             if (! $withLocation) {
                 return [ 'message' => $error->getMessage() ];
             }
@@ -641,7 +643,7 @@ class ValidationTest extends TestCase
         $manualSchema2 = $this->schemaWithFieldType(
             new ObjectType([
                 'name'   => 'IncompleteObject',
-                'fields' => static function () {
+                'fields' => static function () : array {
                     return [];
                 },
             ])
@@ -2333,7 +2335,7 @@ class ValidationTest extends TestCase
     public function testRejectsDifferentInstancesOfTheSameType() : void
     {
         // Invalid: always creates new instance vs returning one from registry
-        $typeLoader = static function ($name) {
+        $typeLoader = static function ($name) : ?ObjectType {
             switch ($name) {
                 case 'Query':
                     return new ObjectType([

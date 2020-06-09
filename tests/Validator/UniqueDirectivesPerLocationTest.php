@@ -90,6 +90,39 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     }
 
     /**
+     * @see it('repeatable directives in same location', () => {
+     */
+    public function testRepeatableDirectivesInSameLocation() : void
+    {
+        $this->expectPassesRule(
+            new UniqueDirectivesPerLocation(),
+            '
+      fragment Test on Type @repeatable @repeatable {
+        field @repeatable @repeatable
+      }
+        '
+        );
+    }
+
+    /**
+     * @see it('unknown directives must be ignored', () => {
+     */
+    public function testUnknownDirectivesMustBeIgnored() : void
+    {
+        $this->expectPassesRule(
+            new UniqueDirectivesPerLocation(),
+            '
+	      type Test @unknown @unknown {
+            field: String! @unknown @unknown
+          }
+          extend type Test @unknown {
+            anotherField: String!
+          }
+        '
+        );
+    }
+
+    /**
      * @see it('duplicate directives in one location')
      */
     public function testDuplicateDirectivesInOneLocation() : void
@@ -180,38 +213,25 @@ class UniqueDirectivesPerLocationTest extends ValidatorTestCase
     {
         $this->expectSDLErrors(
             '
-      schema @directive @directive { query: Dummy }
-      extend schema @directive @directive
+      directive @nonRepeatable on
+        SCHEMA | SCALAR | OBJECT | INTERFACE | UNION | INPUT_OBJECT
 
-      scalar TestScalar @directive @directive
-      extend scalar TestScalar @directive @directive
+      schema @nonRepeatable @nonRepeatable { query: Dummy }
 
-      type TestObject @directive @directive
-      extend type TestObject @directive @directive
-
-      interface TestInterface @directive @directive
-      extend interface TestInterface @directive @directive
-
-      union TestUnion @directive @directive
-      extend union TestUnion @directive @directive
-
-      input TestInput @directive @directive
-      extend input TestInput @directive @directive
+      scalar TestScalar @nonRepeatable @nonRepeatable
+      type TestObject @nonRepeatable @nonRepeatable
+      interface TestInterface @nonRepeatable @nonRepeatable
+      union TestUnion @nonRepeatable @nonRepeatable
+      input TestInput @nonRepeatable @nonRepeatable
     ',
             null,
             [
-                $this->duplicateDirective('directive', 2, 14, 2, 25),
-                $this->duplicateDirective('directive', 3, 21, 3, 32),
-                $this->duplicateDirective('directive', 5, 25, 5, 36),
-                $this->duplicateDirective('directive', 6, 32, 6, 43),
-                $this->duplicateDirective('directive', 8, 23, 8, 34),
-                $this->duplicateDirective('directive', 9, 30, 9, 41),
-                $this->duplicateDirective('directive', 11, 31, 11, 42),
-                $this->duplicateDirective('directive', 12, 38, 12, 49),
-                $this->duplicateDirective('directive', 14, 23, 14, 34),
-                $this->duplicateDirective('directive', 15, 30, 15, 41),
-                $this->duplicateDirective('directive', 17, 23, 17, 34),
-                $this->duplicateDirective('directive', 18, 30, 18, 41),
+                $this->duplicateDirective('nonRepeatable', 5, 14, 5, 29),
+                $this->duplicateDirective('nonRepeatable', 7, 25, 7, 40),
+                $this->duplicateDirective('nonRepeatable', 8, 23, 8, 38),
+                $this->duplicateDirective('nonRepeatable', 9, 31, 9, 46),
+                $this->duplicateDirective('nonRepeatable', 10, 23, 10, 38),
+                $this->duplicateDirective('nonRepeatable', 11, 23, 11, 38),
             ]
         );
     }

@@ -66,11 +66,11 @@ Server also supports [PSR-7 request/response interfaces](http://www.php-fig.org/
 <?php
 use GraphQL\Server\StandardServer;
 use GraphQL\Executor\ExecutionResult;
-use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
-/** @var ServerRequestInterface $psrRequest */
+/** @var RequestInterface $psrRequest */
 /** @var ResponseInterface $psrResponse */
 /** @var StreamInterface $psrBodyStream */
 $server = new StandardServer([/* server options, see below */]);

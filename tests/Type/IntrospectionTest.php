@@ -35,7 +35,10 @@ class IntrospectionTest extends TestCase
             ]),
         ]);
 
-        $request  = Introspection::getIntrospectionQuery(['descriptions' => false]);
+        $request  = Introspection::getIntrospectionQuery([
+            'descriptions' => false,
+            'directiveIsRepeatable' => true,
+        ]);
         $expected = [
             'data' =>
                 [
@@ -794,34 +797,6 @@ class IntrospectionTest extends TestCase
                                                     ],
                                                 2 =>
                                                     [
-                                                        'name'              => 'locations',
-                                                        'args'              =>
-                                                            [],
-                                                        'type'              =>
-                                                            [
-                                                                'kind'   => 'NON_NULL',
-                                                                'name'   => null,
-                                                                'ofType' =>
-                                                                    [
-                                                                        'kind'   => 'LIST',
-                                                                        'name'   => null,
-                                                                        'ofType' =>
-                                                                            [
-                                                                                'kind'   => 'NON_NULL',
-                                                                                'name'   => null,
-                                                                                'ofType' =>
-                                                                                    [
-                                                                                        'kind' => 'ENUM',
-                                                                                        'name' => '__DirectiveLocation',
-                                                                                    ],
-                                                                            ],
-                                                                    ],
-                                                            ],
-                                                        'isDeprecated'      => false,
-                                                        'deprecationReason' => null,
-                                                    ],
-                                                3 =>
-                                                    [
                                                         'name'              => 'args',
                                                         'args'              =>
                                                             [],
@@ -841,6 +816,52 @@ class IntrospectionTest extends TestCase
                                                                                     [
                                                                                         'kind' => 'OBJECT',
                                                                                         'name' => '__InputValue',
+                                                                                    ],
+                                                                            ],
+                                                                    ],
+                                                            ],
+                                                        'isDeprecated'      => false,
+                                                        'deprecationReason' => null,
+                                                    ],
+                                                3 =>
+                                                    [
+                                                        'name'              => 'isRepeatable',
+                                                        'args'              =>
+                                                            [],
+                                                        'type'              =>
+                                                            [
+                                                                'kind' => 'NON_NULL',
+                                                                'name' => null,
+                                                                'ofType' => [
+                                                                    'kind' => 'SCALAR',
+                                                                    'name' => 'Boolean',
+                                                                    'ofType' => null,
+                                                                ],
+                                                            ],
+                                                        'isDeprecated'      => false,
+                                                        'deprecationReason' => null,
+                                                    ],
+                                                4 =>
+                                                    [
+                                                        'name'              => 'locations',
+                                                        'args'              =>
+                                                            [],
+                                                        'type'              =>
+                                                            [
+                                                                'kind'   => 'NON_NULL',
+                                                                'name'   => null,
+                                                                'ofType' =>
+                                                                    [
+                                                                        'kind'   => 'LIST',
+                                                                        'name'   => null,
+                                                                        'ofType' =>
+                                                                            [
+                                                                                'kind'   => 'NON_NULL',
+                                                                                'name'   => null,
+                                                                                'ofType' =>
+                                                                                    [
+                                                                                        'kind' => 'ENUM',
+                                                                                        'name' => '__DirectiveLocation',
                                                                                     ],
                                                                             ],
                                                                     ],
@@ -975,12 +996,7 @@ class IntrospectionTest extends TestCase
                                     0 =>
                                         [
                                             'name'      => 'include',
-                                            'locations' =>
-                                                [
-                                                    0 => 'FIELD',
-                                                    1 => 'FRAGMENT_SPREAD',
-                                                    2 => 'INLINE_FRAGMENT',
-                                                ],
+                                            'isRepeatable' => false,
                                             'args'      =>
                                                 [
                                                     0 =>
@@ -998,17 +1014,18 @@ class IntrospectionTest extends TestCase
                                                                         ],
                                                                 ],
                                                         ],
+                                                ],
+                                            'locations' =>
+                                                [
+                                                    0 => 'FIELD',
+                                                    1 => 'FRAGMENT_SPREAD',
+                                                    2 => 'INLINE_FRAGMENT',
                                                 ],
                                         ],
                                     1 =>
                                         [
                                             'name'      => 'skip',
-                                            'locations' =>
-                                                [
-                                                    0 => 'FIELD',
-                                                    1 => 'FRAGMENT_SPREAD',
-                                                    2 => 'INLINE_FRAGMENT',
-                                                ],
+                                            'isRepeatable' => false,
                                             'args'      =>
                                                 [
                                                     0 =>
@@ -1027,15 +1044,17 @@ class IntrospectionTest extends TestCase
                                                                 ],
                                                         ],
                                                 ],
+                                            'locations' =>
+                                                [
+                                                    0 => 'FIELD',
+                                                    1 => 'FRAGMENT_SPREAD',
+                                                    2 => 'INLINE_FRAGMENT',
+                                                ],
                                         ],
                                     2 =>
                                         [
                                             'name'      => 'deprecated',
-                                            'locations' =>
-                                                [
-                                                    0 => 'FIELD_DEFINITION',
-                                                    1 => 'ENUM_VALUE',
-                                                ],
+                                            'isRepeatable' => false,
                                             'args'      =>
                                                 [
                                                     0 =>
@@ -1049,6 +1068,11 @@ class IntrospectionTest extends TestCase
                                                                     'ofType' => null,
                                                                 ],
                                                         ],
+                                                ],
+                                            'locations' =>
+                                                [
+                                                    0 => 'FIELD_DEFINITION',
+                                                    1 => 'ENUM_VALUE',
                                                 ],
                                         ],
                                 ],
@@ -1608,7 +1632,7 @@ class IntrospectionTest extends TestCase
         ]);
 
         $schema = new Schema([ 'query' => $QueryRoot ]);
-        $source = Introspection::getIntrospectionQuery();
+        $source = Introspection::getIntrospectionQuery(['directiveIsRepeatable' => true]);
 
         $calledForFields = [];
         /* istanbul ignore next */

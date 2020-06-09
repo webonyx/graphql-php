@@ -58,7 +58,7 @@ class LazyInterfaceTest extends TestCase
                 return [
                     'lazyInterface' => [
                         'type'    => $this->getLazyInterfaceType(),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [];
                         },
                     ],
@@ -82,7 +82,7 @@ class LazyInterfaceTest extends TestCase
                 'fields'      => [
                     'a' => Type::string(),
                 ],
-                'resolveType' => function () {
+                'resolveType' => function () : ObjectType {
                     return $this->getTestObjectType();
                 },
             ]);
@@ -104,7 +104,7 @@ class LazyInterfaceTest extends TestCase
                 'fields'     => [
                     'name' => [
                         'type'    => Type::string(),
-                        'resolve' => static function () {
+                        'resolve' => static function () : string {
                             return 'testname';
                         },
                     ],

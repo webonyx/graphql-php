@@ -68,7 +68,7 @@ class SchemaExtenderTest extends TestCase
 
         $SomeInterfaceType = new InterfaceType([
             'name' => 'SomeInterface',
-            'fields' => static function () use (&$SomeInterfaceType) {
+            'fields' => static function () use (&$SomeInterfaceType) : array {
                 return [
                     'name' => [ 'type' => Type::string()],
                     'some' => [ 'type' => $SomeInterfaceType],
@@ -79,7 +79,7 @@ class SchemaExtenderTest extends TestCase
         $FooType = new ObjectType([
             'name' => 'Foo',
             'interfaces' => [$SomeInterfaceType],
-            'fields' => static function () use ($SomeInterfaceType, &$FooType) {
+            'fields' => static function () use ($SomeInterfaceType, &$FooType) : array {
                 return [
                     'name' => [ 'type' => Type::string() ],
                     'some' => [ 'type' => $SomeInterfaceType ],
@@ -184,7 +184,7 @@ class SchemaExtenderTest extends TestCase
 
         $testSchemaAst = Parser::parse(SchemaPrinter::doPrint($this->testSchema));
 
-        $this->testSchemaDefinitions = array_map(static function ($node) {
+        $this->testSchemaDefinitions = array_map(static function ($node) : string {
             return Printer::doPrint($node);
         }, iterator_to_array($testSchemaAst->definitions->getIterator()));
 
@@ -522,7 +522,7 @@ class SchemaExtenderTest extends TestCase
             type TestType implements TestInterface {
                 interfaceField: String
             }
-            directive @test(arg: Int) on FIELD | SCALAR
+            directive @test(arg: Int) repeatable on FIELD | SCALAR
         ');
 
         $extendedTwiceSchema = SchemaExtender::extend($extendedSchema, $ast);
@@ -1156,19 +1156,19 @@ class SchemaExtenderTest extends TestCase
         $mutationSchema = new Schema([
             'query' => new ObjectType([
                 'name' => 'Query',
-                'fields' => static function () {
+                'fields' => static function () : array {
                     return [ 'queryField' => [ 'type' => Type::string() ] ];
                 },
             ]),
             'mutation' => new ObjectType([
                 'name' => 'Mutation',
-                'fields' => static function () {
+                'fields' => static function () : array {
                     return [ 'mutationField' => ['type' => Type::string() ] ];
                 },
             ]),
             'subscription' => new ObjectType([
                 'name' => 'Subscription',
-                'fields' => static function () {
+                'fields' => static function () : array {
                     return ['subscriptionField' => ['type' => Type::string()]];
                 },
             ]),
@@ -1263,7 +1263,7 @@ class SchemaExtenderTest extends TestCase
     public function testMayExtendDirectivesWithNewComplexDirective()
     {
         $extendedSchema = $this->extendTestSchema('
-          directive @profile(enable: Boolean! tag: String) on QUERY | FIELD
+          directive @profile(enable: Boolean! tag: String) repeatable on QUERY | FIELD
         ');
 
         $extendedDirective = $extendedSchema->getDirective('profile');
@@ -1357,7 +1357,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testDoesNotAllowReplacingAnExistingType()
     {
-        $existingTypeError = static function ($type) {
+        $existingTypeError = static function ($type) : string {
             return 'Type "' . $type . '" already exists in the schema. It cannot also be defined in this type definition.';
         };
 
@@ -1433,7 +1433,7 @@ class SchemaExtenderTest extends TestCase
      */
     public function testDoesNotAllowReplacingAnExistingField()
     {
-        $existingFieldError = static function (string $type, string $field) {
+        $existingFieldError = static function (string $type, string $field) : string {
             return 'Field "' . $type . '.' . $field . '" already exists in the schema. It cannot also be defined in this type extension.';
         };
 
@@ -1786,7 +1786,7 @@ class SchemaExtenderTest extends TestCase
             '),
             implode(
                 "\n",
-                array_map(static function ($node) {
+                array_map(static function ($node) : string {
                     return Printer::doPrint($node) . "\n";
                 }, $nodes)
             )
@@ -1879,7 +1879,7 @@ class SchemaExtenderTest extends TestCase
             'fields' => [
                 'hello' => [
                     'type' => Type::string(),
-                    'resolve' => static function () {
+                    'resolve' => static function () : string {
                         return 'Hello World!';
                     },
                 ],

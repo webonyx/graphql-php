@@ -318,13 +318,13 @@ class TypeInfo
                 break;
 
             case $node instanceof ArgumentNode:
-                $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
+                $fieldOrDirective = $this->getDirective() ?? $this->getFieldDef();
                 $argDef           = $argType = null;
                 if ($fieldOrDirective) {
                     /** @var FieldArgument $argDef */
                     $argDef = Utils::find(
                         $fieldOrDirective->args,
-                        static function ($arg) use ($node) {
+                        static function ($arg) use ($node) : bool {
                             return $arg->name === $node->name->value;
                         }
                     );

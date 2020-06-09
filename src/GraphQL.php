@@ -131,7 +131,7 @@ class GraphQL
             if ($source instanceof DocumentNode) {
                 $documentNode = $source;
             } else {
-                $documentNode = Parser::parse(new Source($source ?: '', 'GraphQL'));
+                $documentNode = Parser::parse(new Source($source ?? '', 'GraphQL'));
             }
 
             // FIXME
@@ -213,7 +213,7 @@ class GraphQL
         if ($promiseAdapter instanceof SyncPromiseAdapter) {
             $result = $promiseAdapter->wait($result)->toArray();
         } else {
-            $result = $result->then(static function (ExecutionResult $r) {
+            $result = $result->then(static function (ExecutionResult $r) : array {
                 return $r->toArray();
             });
         }

@@ -504,7 +504,7 @@ class BreakingChangesFinder
                     $newArgs   = $newTypeFields[$fieldName]->args;
                     $newArgDef = Utils::find(
                         $newArgs,
-                        static function ($arg) use ($oldArgDef) {
+                        static function ($arg) use ($oldArgDef) : bool {
                             return $arg->name === $oldArgDef->name;
                         }
                     );
@@ -544,7 +544,7 @@ class BreakingChangesFinder
                         $oldArgs   = $oldTypeFields[$fieldName]->args;
                         $oldArgDef = Utils::find(
                             $oldArgs,
-                            static function ($arg) use ($newTypeFieldArgDef) {
+                            static function ($arg) use ($newTypeFieldArgDef) : bool {
                                 return $arg->name === $newTypeFieldArgDef->name;
                             }
                         );
@@ -691,7 +691,7 @@ class BreakingChangesFinder
     private static function getArgumentMapForDirective(Directive $directive)
     {
         return Utils::keyMap(
-            $directive->args ?: [],
+            $directive->args ?? [],
             static function ($arg) {
                 return $arg->name;
             }
