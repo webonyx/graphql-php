@@ -9,7 +9,7 @@ use function is_callable;
 
 class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
-    /** @var Type */
+    /** @var callable():Type|Type */
     public $ofType;
 
     /**
