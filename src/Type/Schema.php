@@ -410,7 +410,7 @@ class Schema
      */
     private function getPossibleTypeMap()
     {
-        if ($this->possibleTypeMap === null) {
+        if (! isset($this->possibleTypeMap)) {
             $this->possibleTypeMap = [];
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof ObjectType) {
