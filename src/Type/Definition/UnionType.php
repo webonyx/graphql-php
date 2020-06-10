@@ -55,7 +55,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
     public function isPossibleType(Type $type) : bool
     {
-        if (! ($type instanceof ObjectType && $type instanceof Type)) {
+        if (! $type instanceof ObjectType) {
             return false;
         }
 
