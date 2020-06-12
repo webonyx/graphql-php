@@ -355,8 +355,6 @@ class Schema
             );
         }
 
-        $type = self::resolveType($type);
-
         if ($type->name !== $typeName) {
             throw new InvariantViolation(
                 sprintf('Type loader is expected to return type "%s", but it returned "%s"', $typeName, $type->name)
