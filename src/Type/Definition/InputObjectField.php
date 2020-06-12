@@ -51,8 +51,16 @@ class InputObjectField
         $this->config = $opts;
     }
 
+    /**
+     * @return Type&InputType
+     */
     public function getType() : Type
     {
+        /**
+         * TODO: Replace this cast with native assert
+         *
+         * @var Type&InputType
+         */
         return Schema::resolveType($this->type);
     }
 
