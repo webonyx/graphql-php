@@ -342,7 +342,7 @@ class Schema
         $type = $typeLoader($typeName);
 
         if (is_callable($type)) {
-            $type = self::resolveType($type);
+            $type = $type();
         }
 
         if (! $type instanceof Type) {
