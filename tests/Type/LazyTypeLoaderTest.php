@@ -53,7 +53,7 @@ final class LazyTypeLoaderTest extends TestCase
 
     private function lazyLoad(string $name) : callable
     {
-        return function () use ($name) {
+        return function () use ($name) : ?Type {
             if (! isset($this->loadedTypes[$name])) {
                 $type = null;
                 switch ($name) {
