@@ -332,21 +332,6 @@ final class LazyTypeLoaderTest extends TestCase
         $schema->getType('Node');
     }
 
-    public function testFailsOnInvalidLoad() : void
-    {
-        $schema = new Schema([
-            'query'      => $this->query,
-            'typeLoader' => function () : callable {
-                return $this->content;
-            },
-        ]);
-
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Type loader is expected to return type "Node", but it returned "Content"');
-
-        $schema->getType('Node');
-    }
-
     public function testPassesThroughAnExceptionInLoader() : void
     {
         $schema = new Schema([
