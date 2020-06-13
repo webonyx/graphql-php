@@ -341,10 +341,6 @@ class Schema
 
         $type = $typeLoader($typeName);
 
-        if (is_callable($type)) {
-            $type = $type();
-        }
-
         if (! $type instanceof Type) {
             throw new InvariantViolation(
                 sprintf(

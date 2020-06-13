@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Type;
 
 use Exception;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Exception\InvalidArgument;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -42,7 +43,7 @@ final class LazyTypeLoaderTest extends TestCase
     /** @var callable */
     private $postStoryMutationInput;
 
-    /** @var callable */
+    /** @var callable(string $name):Type */
     private $typeLoader;
 
     /** @var string[] */
@@ -173,24 +174,24 @@ final class LazyTypeLoaderTest extends TestCase
             },
         ]);
 
-        $this->typeLoader = function (string $name) : ?callable {
+        $this->typeLoader = function (string $name) : Type {
             $this->calls[] = $name;
             $prop          = lcfirst($name);
 
             switch ($prop) {
                 case 'node':
-                    return $this->node;
+                    return ($this->node)();
                 case 'blogStory':
-                    return $this->blogStory;
+                    return ($this->blogStory)();
                 case 'content':
-                    return $this->content;
+                    return ($this->content)();
                 case 'postStoryMutation':
-                    return $this->postStoryMutation;
+                    return ($this->postStoryMutation)();
                 case 'postStoryMutationInput':
-                    return $this->postStoryMutationInput;
+                    return ($this->postStoryMutationInput)();
             }
 
-            return null;
+            throw new InvalidArgument('Unknown type');
         };
     }
 
