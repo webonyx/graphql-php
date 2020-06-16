@@ -89,7 +89,7 @@ class FieldDefinition
      *
      * @return array<string, self>
      */
-    public static function defineFieldMap(Type $type, $fields): array
+    public static function defineFieldMap(Type $type, $fields) : array
     {
         if (is_callable($fields)) {
             $fields = $fields();
