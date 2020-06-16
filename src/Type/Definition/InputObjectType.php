@@ -50,7 +50,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     /**
      * @throws InvariantViolation
      */
-    public function getField(string $name): InputObjectField
+    public function getField(string $name) : InputObjectField
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -63,7 +63,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     /**
      * @return InputObjectField[]
      */
-    public function getFields(): array
+    public function getFields() : array
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -72,15 +72,15 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         return $this->fields;
     }
 
-    protected function initializeFields(): void
+    protected function initializeFields() : void
     {
         $this->fields = [];
-        $fields = $this->config['fields'] ?? [];
-        $fields = is_callable($fields)
+        $fields       = $this->config['fields'] ?? [];
+        $fields       = is_callable($fields)
             ? call_user_func($fields)
             : $fields;
 
-        if (!is_array($fields)) {
+        if (! is_array($fields)) {
             throw new InvariantViolation(
                 sprintf('%s fields must be an array or a callable which returns such an array.', $this->name)
             );
@@ -90,7 +90,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
             if ($field instanceof Type) {
                 $field = ['type' => $field];
             }
-            $field = new InputObjectField($field + ['name' => $name]);
+            $field                      = new InputObjectField($field + ['name' => $name]);
             $this->fields[$field->name] = $field;
         }
     }
@@ -101,7 +101,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      *
      * @throws InvariantViolation
      */
-    public function assertValid(): void
+    public function assertValid() : void
     {
         parent::assertValid();
 

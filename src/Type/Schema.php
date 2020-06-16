@@ -391,7 +391,7 @@ class Schema
     /**
      * @return array<string, array<string, ObjectType>>
      */
-    private function getPossibleTypeMap(): array
+    private function getPossibleTypeMap() : array
     {
         if (! isset($this->possibleTypeMap)) {
             $this->possibleTypeMap = [];

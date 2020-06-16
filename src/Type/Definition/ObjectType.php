@@ -111,7 +111,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      *
      * @throws InvariantViolation
      */
-    public static function assertObjectType($type): self
+    public static function assertObjectType($type) : self
     {
         Utils::invariant(
             $type instanceof self,
@@ -124,7 +124,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /**
      * @throws InvariantViolation
      */
-    public function getField(string $name): FieldDefinition
+    public function getField(string $name) : FieldDefinition
     {
         if (isset($this->fields)) {
             $this->getFields();
@@ -134,7 +134,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         return $this->fields[$name];
     }
 
-    public function hasField(string $name): bool
+    public function hasField(string $name) : bool
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -148,7 +148,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      *
      * @throws InvariantViolation
      */
-    public function getFields(): array
+    public function getFields() : array
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -157,13 +157,13 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         return $this->fields;
     }
 
-    protected function initializeFields(): void
+    protected function initializeFields() : void
     {
-        $fields = $this->config['fields'] ?? [];
+        $fields       = $this->config['fields'] ?? [];
         $this->fields = FieldDefinition::defineFieldMap($this, $fields);
     }
 
-    public function implementsInterface(InterfaceType $interfaceType): bool
+    public function implementsInterface(InterfaceType $interfaceType) : bool
     {
         if (! isset($this->interfaceMap)) {
             $this->interfaceMap = [];
@@ -178,7 +178,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /**
      * @return InterfaceType[]
      */
-    public function getInterfaces(): array
+    public function getInterfaces() : array
     {
         if (! isset($this->interfaces)) {
             $interfaces = $this->config['interfaces'] ?? [];
@@ -222,7 +222,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      *
      * @throws InvariantViolation
      */
-    public function assertValid(): void
+    public function assertValid() : void
     {
         parent::assertValid();
 

@@ -35,6 +35,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      * Lazily initialized.
      *
      * Actually a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way.
+     *
      * @var MixedStore
      */
     private $valueLookup;
@@ -93,7 +94,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * @return EnumValueDefinition[]
      */
-    public function getValues(): array
+    public function getValues() : array
     {
         if (! isset($this->values)) {
             $this->values = [];

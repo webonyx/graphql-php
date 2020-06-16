@@ -85,7 +85,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @param string                       $message
      * @param Node|Node[]|Traversable|null $nodes
-     * @param int[]|null                 $positions
+     * @param int[]|null                   $positions
      * @param mixed[]|null                 $path
      * @param Throwable                    $previous
      * @param mixed[]                      $extensions
@@ -205,10 +205,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         return $this->category;
     }
 
-    /**
-     * @return Source|null
-     */
-    public function getSource(): ?Source
+    public function getSource() : ?Source
     {
         if ($this->source === null) {
             if (! empty($this->nodes[0]) && ! empty($this->nodes[0]->loc)) {
@@ -222,7 +219,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @return int[]
      */
-    public function getPositions(): array
+    public function getPositions() : array
     {
         if ($this->positions === null && ! empty($this->nodes)) {
             $positions = array_map(
@@ -260,7 +257,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      *
      * @api
      */
-    public function getLocations(): array
+    public function getLocations() : array
     {
         if (! isset($this->locations)) {
             $positions = $this->getPositions();

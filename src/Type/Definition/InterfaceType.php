@@ -52,7 +52,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      *
      * @throws InvariantViolation
      */
-    public static function assertInterfaceType($type): self
+    public static function assertInterfaceType($type) : self
     {
         Utils::invariant(
             $type instanceof self,
@@ -62,7 +62,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $type;
     }
 
-    public function getField(string $name): FieldDefinition
+    public function getField(string $name) : FieldDefinition
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -72,7 +72,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $this->fields[$name];
     }
 
-    public function hasField(string $name): bool
+    public function hasField(string $name) : bool
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -84,7 +84,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @return FieldDefinition[]
      */
-    public function getFields(): array
+    public function getFields() : array
     {
         if (! isset($this->fields)) {
             $this->initializeFields();
@@ -93,7 +93,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $this->fields;
     }
 
-    protected function initializeFields(): void
+    protected function initializeFields() : void
     {
         $fields       = $this->config['fields'] ?? [];
         $this->fields = FieldDefinition::defineFieldMap($this, $fields);
@@ -121,7 +121,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @throws InvariantViolation
      */
-    public function assertValid(): void
+    public function assertValid() : void
     {
         parent::assertValid();
 

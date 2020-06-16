@@ -80,7 +80,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
      *
      * @throws InvariantViolation
      */
-    public function getTypes(): array
+    public function getTypes() : array
     {
         if (! isset($this->types)) {
             if (! isset($this->config['types'])) {
@@ -128,7 +128,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /**
      * @throws InvariantViolation
      */
-    public function assertValid(): void
+    public function assertValid() : void
     {
         parent::assertValid();
 
