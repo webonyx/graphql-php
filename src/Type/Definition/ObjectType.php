@@ -184,7 +184,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     {
         if ($this->interfaces === null) {
             $interfaces = $this->config['interfaces'] ?? [];
-            if(is_callable($interfaces)) {
+            if (is_callable($interfaces)) {
                 $interfaces = $interfaces();
             }
 

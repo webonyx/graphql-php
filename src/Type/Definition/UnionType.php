@@ -73,7 +73,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     {
         if ($this->types === null) {
             $types = $this->config['types'] ?? null;
-            if(is_callable($types)) {
+            if (is_callable($types)) {
                 $types = $types();
             }
 

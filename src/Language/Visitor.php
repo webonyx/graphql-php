@@ -501,10 +501,8 @@ class Visitor
      * @param callable[]|null $visitor
      * @param string          $kind
      * @param bool            $isLeaving
-     *
-     * @return callable|null
      */
-    public static function getVisitFn($visitor, $kind, $isLeaving): ?callable
+    public static function getVisitFn($visitor, $kind, $isLeaving) : ?callable
     {
         if ($visitor === null) {
             return null;

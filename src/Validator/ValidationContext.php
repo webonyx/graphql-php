@@ -28,6 +28,7 @@ use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use SplObjectStorage;
+use function array_merge;
 use function array_pop;
 use function count;
 

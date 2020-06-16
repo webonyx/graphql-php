@@ -68,7 +68,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         if ($this->fields === null) {
             $this->fields = [];
 
-            $fields       = $this->config['fields'] ?? [];
+            $fields = $this->config['fields'] ?? [];
             if (is_callable($fields)) {
                 $fields = $fields();
             }
