@@ -69,7 +69,7 @@ class FormattedError
         if ($error->nodes) {
             /** @var Node $node */
             foreach ($error->nodes as $node) {
-                if (! $node->loc) {
+                if ($node->loc === null) {
                     continue;
                 }
 

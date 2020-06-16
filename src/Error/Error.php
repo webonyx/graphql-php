@@ -271,11 +271,11 @@ class Error extends Exception implements JsonSerializable, ClientAware
                     },
                     $positions
                 );
-            } elseif ($nodes) {
+            } elseif ($nodes !== null) {
                 $locations       = array_filter(
                     array_map(
                         static function ($node) : ?SourceLocation {
-                            if ($node->loc && $node->loc->source) {
+                            if ($node->loc !== null && $node->loc->source !== null) {
                                 return $node->loc->source->getLocation($node->loc->start);
                             }
 

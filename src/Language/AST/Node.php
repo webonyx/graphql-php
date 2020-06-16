@@ -36,7 +36,7 @@ use function json_encode;
  */
 abstract class Node
 {
-    /** @var Location */
+    /** @var Location|null */
     public $loc;
 
     /** @var string */
