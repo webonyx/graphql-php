@@ -264,7 +264,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source    = $this->getSource();
             $nodes     = $this->nodes;
 
-            if ($positions && $source) {
+            if ($positions !== null && $source !== null) {
                 $this->locations = array_map(
                     static function ($pos) use ($source) : SourceLocation {
                         return $source->getLocation($pos);
