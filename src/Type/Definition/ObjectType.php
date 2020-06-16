@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
@@ -65,13 +64,25 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /** @var ?callable */
     public $resolveFieldFn;
 
-    /** @var FieldDefinition[] */
+    /**
+     * Lazily initialized.
+     *
+     * @var FieldDefinition[]
+     */
     private $fields;
 
-    /** @var InterfaceType[] */
+    /**
+     * Lazily initialized.
+     *
+     * @var InterfaceType[]
+     */
     private $interfaces;
 
-    /** @var InterfaceType[]|null */
+    /**
+     * Lazily initialized.
+     *
+     * @var InterfaceType[]
+     */
     private $interfaceMap;
 
     /**
@@ -96,9 +107,11 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /**
      * @param mixed $type
      *
-     * @return self
+     * @return $this
+     *
+     * @throws InvariantViolation
      */
-    public static function assertObjectType($type)
+    public static function assertObjectType($type): self
     {
         Utils::invariant(
             $type instanceof self,
@@ -109,15 +122,11 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     }
 
     /**
-     * @param string $name
-     *
-     * @return FieldDefinition
-     *
-     * @throws Exception
+     * @throws InvariantViolation
      */
-    public function getField($name)
+    public function getField(string $name): FieldDefinition
     {
-        if ($this->fields === null) {
+        if (isset($this->fields)) {
             $this->getFields();
         }
         Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
@@ -125,15 +134,10 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         return $this->fields[$name];
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasField($name)
+    public function hasField(string $name): bool
     {
-        if ($this->fields === null) {
-            $this->getFields();
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
 
         return isset($this->fields[$name]);
@@ -144,46 +148,39 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      *
      * @throws InvariantViolation
      */
-    public function getFields()
+    public function getFields(): array
     {
-        if ($this->fields === null) {
-            $fields       = $this->config['fields'] ?? [];
-            $this->fields = FieldDefinition::defineFieldMap($this, $fields);
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
 
         return $this->fields;
     }
 
-    /**
-     * @param InterfaceType $iface
-     *
-     * @return bool
-     */
-    public function implementsInterface($iface)
+    protected function initializeFields(): void
     {
-        $map = $this->getInterfaceMap();
-
-        return isset($map[$iface->name]);
+        $fields = $this->config['fields'] ?? [];
+        $this->fields = FieldDefinition::defineFieldMap($this, $fields);
     }
 
-    private function getInterfaceMap()
+    public function implementsInterface(InterfaceType $interfaceType): bool
     {
-        if ($this->interfaceMap === null) {
+        if (! isset($this->interfaceMap)) {
             $this->interfaceMap = [];
             foreach ($this->getInterfaces() as $interface) {
                 $this->interfaceMap[$interface->name] = $interface;
             }
         }
 
-        return $this->interfaceMap;
+        return isset($this->interfaceMap[$interfaceType->name]);
     }
 
     /**
      * @return InterfaceType[]
      */
-    public function getInterfaces()
+    public function getInterfaces(): array
     {
-        if ($this->interfaces === null) {
+        if (! isset($this->interfaces)) {
             $interfaces = $this->config['interfaces'] ?? [];
             $interfaces = is_callable($interfaces)
                 ? call_user_func($interfaces)
@@ -202,8 +199,8 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     }
 
     /**
-     * @param mixed        $value
-     * @param mixed[]|null $context
+     * @param mixed $value
+     * @param mixed $context
      *
      * @return bool|null
      */
@@ -225,7 +222,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      *
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 

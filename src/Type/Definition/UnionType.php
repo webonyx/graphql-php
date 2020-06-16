@@ -19,10 +19,18 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /** @var UnionTypeDefinitionNode */
     public $astNode;
 
-    /** @var ObjectType[] */
+    /**
+     * Lazily initialized.
+     *
+     * @var ObjectType[]
+     */
     private $types;
 
-    /** @var array<string, bool>|null */
+    /**
+     * Lazily initialized.
+     *
+     * @var array<string, bool>
+     */
     private $possibleTypeNames;
 
     /** @var UnionTypeExtensionNode[] */
@@ -57,7 +65,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
             return false;
         }
 
-        if ($this->possibleTypeNames === null) {
+        if (! isset($this->possibleTypeNames)) {
             $this->possibleTypeNames = [];
             foreach ($this->getTypes() as $possibleType) {
                 $this->possibleTypeNames[$possibleType->name] = true;
@@ -69,10 +77,12 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
     /**
      * @return ObjectType[]
+     *
+     * @throws InvariantViolation
      */
-    public function getTypes()
+    public function getTypes(): array
     {
-        if ($this->types === null) {
+        if (! isset($this->types)) {
             if (! isset($this->config['types'])) {
                 $types = null;
             } elseif (is_callable($this->config['types'])) {
@@ -118,7 +128,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     /**
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid(): void
     {
         parent::assertValid();
 

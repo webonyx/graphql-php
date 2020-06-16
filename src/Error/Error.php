@@ -38,7 +38,11 @@ class Error extends Exception implements JsonSerializable, ClientAware
     const CATEGORY_GRAPHQL  = 'graphql';
     const CATEGORY_INTERNAL = 'internal';
 
-    /** @var SourceLocation[] */
+    /**
+     * Lazily initialized.
+     *
+     * @var SourceLocation[]
+     */
     private $locations;
 
     /**
@@ -81,7 +85,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @param string                       $message
      * @param Node|Node[]|Traversable|null $nodes
-     * @param mixed[]|null                 $positions
+     * @param int[]|null                 $positions
      * @param mixed[]|null                 $path
      * @param Throwable                    $previous
      * @param mixed[]                      $extensions
@@ -204,7 +208,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @return Source|null
      */
-    public function getSource()
+    public function getSource(): ?Source
     {
         if ($this->source === null) {
             if (! empty($this->nodes[0]) && ! empty($this->nodes[0]->loc)) {
@@ -218,7 +222,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @return int[]
      */
-    public function getPositions()
+    public function getPositions(): array
     {
         if ($this->positions === null && ! empty($this->nodes)) {
             $positions = array_map(
@@ -256,9 +260,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
      *
      * @api
      */
-    public function getLocations()
+    public function getLocations(): array
     {
-        if ($this->locations === null) {
+        if (! isset($this->locations)) {
             $positions = $this->getPositions();
             $source    = $this->getSource();
             $nodes     = $this->nodes;

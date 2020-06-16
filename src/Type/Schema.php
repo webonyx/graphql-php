@@ -57,7 +57,11 @@ class Schema
      */
     private $resolvedTypes = [];
 
-    /** @var array<string, array<string, ObjectType>>|null */
+    /**
+     * Lazily initialized.
+     *
+     * @var array<string, array<string, ObjectType>>
+     */
     private $possibleTypeMap;
 
     /**
@@ -387,9 +391,9 @@ class Schema
     /**
      * @return array<string, array<string, ObjectType>>
      */
-    private function getPossibleTypeMap()
+    private function getPossibleTypeMap(): array
     {
-        if ($this->possibleTypeMap === null) {
+        if (! isset($this->possibleTypeMap)) {
             $this->possibleTypeMap = [];
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof ObjectType) {
