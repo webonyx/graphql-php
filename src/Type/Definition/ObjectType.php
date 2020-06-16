@@ -9,7 +9,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
-use function call_user_func;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -185,17 +184,17 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     {
         if ($this->interfaces === null) {
             $interfaces = $this->config['interfaces'] ?? [];
-            $interfaces = is_callable($interfaces)
-                ? call_user_func($interfaces)
-                : $interfaces;
+            if(is_callable($interfaces)) {
+                $interfaces = $interfaces();
+            }
 
-            if ($interfaces !== null && ! is_array($interfaces)) {
+            if (! is_array($interfaces)) {
                 throw new InvariantViolation(
                     sprintf('%s interfaces must be an Array or a callable which returns an Array.', $this->name)
                 );
             }
 
-            $this->interfaces = $interfaces ?? [];
+            $this->interfaces = $interfaces;
         }
 
         return $this->interfaces;
@@ -210,8 +209,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     public function isTypeOf($value, $context, ResolveInfo $info)
     {
         return isset($this->config['isTypeOf'])
-            ? call_user_func(
-                $this->config['isTypeOf'],
+            ? $this->config['isTypeOf'](
                 $value,
                 $context,
                 $info

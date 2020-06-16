@@ -25,12 +25,10 @@ use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\OutputType;
 use GraphQL\Type\Definition\ScalarType;
-use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use SplObjectStorage;
 use function array_pop;
-use function call_user_func_array;
 use function count;
 
 /**
@@ -83,7 +81,7 @@ class ValidationContext extends ASTValidationContext
             foreach ($fragments as $i => $fragment) {
                 $tmp[] = $this->getVariableUsages($fragments[$i]);
             }
-            $usages                                    = call_user_func_array('array_merge', $tmp);
+            $usages                                    = array_merge(...$tmp);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 

@@ -8,7 +8,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Utils\Utils;
-use function call_user_func;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -73,12 +72,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     public function getTypes()
     {
         if ($this->types === null) {
-            if (! isset($this->config['types'])) {
-                $types = null;
-            } elseif (is_callable($this->config['types'])) {
-                $types = call_user_func($this->config['types']);
-            } else {
-                $types = $this->config['types'];
+            $types = $this->config['types'] ?? null;
+            if(is_callable($types)) {
+                $types = $types();
             }
 
             if (! is_array($types)) {
