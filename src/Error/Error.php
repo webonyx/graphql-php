@@ -217,9 +217,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
     }
 
     /**
-     * @return int[]
+     * @return int[]|null
      */
-    public function getPositions() : array
+    public function getPositions() : ?array
     {
         if ($this->positions === null && ! empty($this->nodes)) {
             $positions = array_map(

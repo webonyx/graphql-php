@@ -126,8 +126,8 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      */
     public function getField(string $name) : FieldDefinition
     {
-        if (isset($this->fields)) {
-            $this->getFields();
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
         Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
 
