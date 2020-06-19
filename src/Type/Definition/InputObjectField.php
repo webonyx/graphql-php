@@ -100,7 +100,7 @@ class InputObjectField
         Utils::invariant(
             empty($this->config['resolve']),
             sprintf(
-                '%s.%s field type has a resolve property, but Input Types cannot define resolvers.',
+                '%s.%s field has a resolve property, but Input Types cannot define resolvers.',
                 $parentType->name,
                 $this->name
             )
