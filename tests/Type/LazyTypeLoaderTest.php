@@ -6,6 +6,7 @@ namespace GraphQL\Tests\Type;
 
 use Exception;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Exception\InvalidArgument;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
@@ -17,7 +18,7 @@ use stdClass;
 use Throwable;
 use function lcfirst;
 
-class TypeLoaderTest extends TestCase
+final class LazyTypeLoaderTest extends TestCase
 {
     use ArraySubsetAsserts;
 
@@ -27,83 +28,131 @@ class TypeLoaderTest extends TestCase
     /** @var ObjectType */
     private $mutation;
 
-    /** @var InterfaceType */
+    /** @var callable */
     private $node;
 
-    /** @var InterfaceType */
+    /** @var callable */
     private $content;
 
-    /** @var ObjectType */
+    /** @var callable */
     private $blogStory;
 
-    /** @var ObjectType */
+    /** @var callable */
     private $postStoryMutation;
 
-    /** @var InputObjectType */
+    /** @var callable */
     private $postStoryMutationInput;
 
-    /** @var callable */
+    /** @var callable(string $name):Type */
     private $typeLoader;
 
     /** @var string[] */
     private $calls;
 
+    /** @var Type[] */
+    private $loadedTypes = [];
+
+    private function lazyLoad(string $name) : callable
+    {
+        return function () use ($name) : ?Type {
+            if (! isset($this->loadedTypes[$name])) {
+                $type = null;
+                switch ($name) {
+                    case 'Node':
+                        $type = new InterfaceType([
+                            'name' => 'Node',
+                            'fields' => function () : array {
+                                $this->calls[] = 'Node.fields';
+
+                                return [
+                                    'id' => Type::string(),
+                                ];
+                            },
+                            'resolveType' => static function () : void {
+                            },
+                        ]);
+                        break;
+
+                    case 'Content':
+                        $type = new InterfaceType([
+                            'name' => 'Content',
+                            'fields' => function () : array {
+                                $this->calls[] = 'Content.fields';
+
+                                return [
+                                    'title' => Type::string(),
+                                    'body' => Type::string(),
+                                ];
+                            },
+                            'resolveType' => static function () : void {
+                            },
+                        ]);
+                        break;
+
+                    case 'BlogStory':
+                        $type = new ObjectType([
+                            'name' => 'BlogStory',
+                            'interfaces' => [
+                                $this->node,
+                                $this->content,
+                            ],
+                            'fields' => function () : array {
+                                $this->calls[] = 'BlogStory.fields';
+
+                                return [
+                                    'id' => Type::string(),
+                                    'title' => Type::string(),
+                                    'body' => Type::string(),
+                                ];
+                            },
+                        ]);
+                        break;
+
+                    case 'PostStoryMutation':
+                        $type = new ObjectType([
+                            'name'   => 'PostStoryMutation',
+                            'fields' => [
+                                'story' => $this->blogStory,
+                            ],
+                        ]);
+                        break;
+
+                    case 'PostStoryMutationInput':
+                        $type = new InputObjectType([
+                            'name'   => 'PostStoryMutationInput',
+                            'fields' => [
+                                'title'    => Type::string(),
+                                'body'     => Type::string(),
+                                'author'   => Type::id(),
+                                'category' => Type::id(),
+                            ],
+                        ]);
+                        break;
+                }
+                $this->loadedTypes[$name] = $type;
+            }
+
+            return $this->loadedTypes[$name];
+        };
+    }
+
     public function setUp() : void
     {
         $this->calls = [];
 
-        $this->node = new InterfaceType([
-            'name'        => 'Node',
-            'fields'      => function () : array {
-                $this->calls[] = 'Node.fields';
-
-                return [
-                    'id' => Type::string(),
-                ];
-            },
-            'resolveType' => static function () : void {
-            },
-        ]);
-
-        $this->content = new InterfaceType([
-            'name'        => 'Content',
-            'fields'      => function () : array {
-                $this->calls[] = 'Content.fields';
-
-                return [
-                    'title' => Type::string(),
-                    'body'  => Type::string(),
-                ];
-            },
-            'resolveType' => static function () : void {
-            },
-        ]);
-
-        $this->blogStory = new ObjectType([
-            'name'       => 'BlogStory',
-            'interfaces' => [
-                $this->node,
-                $this->content,
-            ],
-            'fields'     => function () : array {
-                $this->calls[] = 'BlogStory.fields';
-
-                return [
-                    $this->node->getField('id'),
-                    $this->content->getField('title'),
-                    $this->content->getField('body'),
-                ];
-            },
-        ]);
-
-        $this->query = new ObjectType([
+        $this->node                   = $this->lazyLoad('Node');
+        $this->blogStory              = $this->lazyLoad('BlogStory');
+        $this->content                = $this->lazyLoad('Content');
+        $this->postStoryMutation      = $this->lazyLoad('PostStoryMutation');
+        $this->postStoryMutationInput = $this->lazyLoad('PostStoryMutationInput');
+        $this->query                  = new ObjectType([
             'name'   => 'Query',
             'fields' => function () : array {
                 $this->calls[] = 'Query.fields';
 
                 return [
-                    'latestContent' => $this->content,
-                    'node'          => $this->node,
+                    'latestContent' => $this->lazyLoad('Content'),
+                    'node'          => $this->lazyLoad('Node'),
                 ];
             },
         ]);
@@ -125,28 +174,24 @@ class TypeLoaderTest extends TestCase
             },
         ]);
 
-        $this->postStoryMutation = new ObjectType([
-            'name'   => 'PostStoryMutation',
-            'fields' => [
-                'story' => $this->blogStory,
-            ],
-        ]);
-
-        $this->postStoryMutationInput = new InputObjectType([
-            'name'   => 'PostStoryMutationInput',
-            'fields' => [
-                'title'    => Type::string(),
-                'body'     => Type::string(),
-                'author'   => Type::id(),
-                'category' => Type::id(),
-            ],
-        ]);
-
-        $this->typeLoader = function ($name) {
+        $this->typeLoader = function (string $name) : Type {
             $this->calls[] = $name;
             $prop          = lcfirst($name);
 
-            return $this->{$prop} ?? null;
+            switch ($prop) {
+                case 'node':
+                    return ($this->node)();
+                case 'blogStory':
+                    return ($this->blogStory)();
+                case 'content':
+                    return ($this->content)();
+                case 'postStoryMutation':
+                    return ($this->postStoryMutation)();
+                case 'postStoryMutationInput':
+                    return ($this->postStoryMutationInput)();
+            }
+
+            throw new InvalidArgument('Unknown type');
         };
     }
 
@@ -182,7 +227,7 @@ class TypeLoaderTest extends TestCase
         $schema = new Schema([
             'query'    => $this->query,
             'mutation' => $this->mutation,
-            'types'    => [$this->blogStory],
+            'types'    => [Schema::resolveType($this->blogStory)],
         ]);
 
         $expected = [
@@ -196,20 +241,20 @@ class TypeLoaderTest extends TestCase
 
         self::assertSame($this->query, $schema->getType('Query'));
         self::assertSame($this->mutation, $schema->getType('Mutation'));
-        self::assertSame($this->node, $schema->getType('Node'));
-        self::assertSame($this->content, $schema->getType('Content'));
-        self::assertSame($this->blogStory, $schema->getType('BlogStory'));
-        self::assertSame($this->postStoryMutation, $schema->getType('PostStoryMutation'));
-        self::assertSame($this->postStoryMutationInput, $schema->getType('PostStoryMutationInput'));
+        self::assertSame(Schema::resolveType($this->node), $schema->getType('Node'));
+        self::assertSame(Schema::resolveType($this->content), $schema->getType('Content'));
+        self::assertSame(Schema::resolveType($this->blogStory), $schema->getType('BlogStory'));
+        self::assertSame(Schema::resolveType($this->postStoryMutation), $schema->getType('PostStoryMutation'));
+        self::assertSame(Schema::resolveType($this->postStoryMutationInput), $schema->getType('PostStoryMutationInput'));
 
         $expectedTypeMap = [
             'Query'                  => $this->query,
             'Mutation'               => $this->mutation,
-            'Node'                   => $this->node,
+            'Node'                   => Schema::resolveType($this->node),
             'String'                 => Type::string(),
-            'Content'                => $this->content,
-            'BlogStory'              => $this->blogStory,
-            'PostStoryMutationInput' => $this->postStoryMutationInput,
+            'Content'                => Schema::resolveType($this->content),
+            'BlogStory'              => Schema::resolveType($this->blogStory),
+            'PostStoryMutationInput' => Schema::resolveType($this->postStoryMutationInput),
         ];
 
         self::assertArraySubset($expectedTypeMap, $schema->getTypeMap());
@@ -225,18 +270,21 @@ class TypeLoaderTest extends TestCase
         self::assertEquals([], $this->calls);
 
         $node = $schema->getType('Node');
-        self::assertSame($this->node, $node);
+        self::assertSame(Schema::resolveType($this->node), $node);
         self::assertEquals(['Node'], $this->calls);
 
         $content = $schema->getType('Content');
-        self::assertSame($this->content, $content);
+        self::assertSame(Schema::resolveType($this->content), $content);
         self::assertEquals(['Node', 'Content'], $this->calls);
 
         $input = $schema->getType('PostStoryMutationInput');
-        self::assertSame($this->postStoryMutationInput, $input);
+        self::assertSame(Schema::resolveType($this->postStoryMutationInput), $input);
         self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
 
-        $result = $schema->isPossibleType($this->node, $this->blogStory);
+        $result = $schema->isPossibleType(
+            Schema::resolveType($this->node),
+            Schema::resolveType($this->blogStory)
+        );
         self::assertTrue($result);
         self::assertEquals(['Node', 'Content', 'PostStoryMutationInput'], $this->calls);
     }
@@ -280,21 +328,6 @@ class TypeLoaderTest extends TestCase
 
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Type loader is expected to return a callable or valid type "Node", but it returned instance of stdClass');
-
-        $schema->getType('Node');
-    }
-
-    public function testFailsOnInvalidLoad() : void
-    {
-        $schema = new Schema([
-            'query'      => $this->query,
-            'typeLoader' => function () : InterfaceType {
-                return $this->content;
-            },
-        ]);
-
-        $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Type loader is expected to return type "Node", but it returned "Content"');
 
         $schema->getType('Node');
     }

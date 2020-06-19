@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
 use function is_array;
@@ -77,12 +78,9 @@ class FieldArgument
         return $map;
     }
 
-    /**
-     * @return InputType&Type
-     */
     public function getType() : Type
     {
-        return $this->type;
+        return Schema::resolveType($this->type);
     }
 
     public function defaultValueExists() : bool
