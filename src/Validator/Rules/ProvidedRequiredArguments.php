@@ -34,7 +34,7 @@ class ProvidedRequiredArguments extends ValidationRule
                     }
                     foreach ($fieldDef->args as $argDef) {
                         $argNode = $argNodeMap[$argDef->name] ?? null;
-                        if ($argNode || (! ($argDef->getType() instanceof NonNull)) || $argDef->defaultValueExists()) {
+                        if ($argNode || ! $argDef->isRequired()) {
                             continue;
                         }
 

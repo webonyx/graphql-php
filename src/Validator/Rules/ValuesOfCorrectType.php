@@ -105,7 +105,7 @@ class ValuesOfCorrectType extends ValidationRule
                 );
                 foreach ($inputFields as $fieldName => $fieldDef) {
                     $fieldType = $fieldDef->getType();
-                    if (isset($fieldNodeMap[$fieldName]) || ! ($fieldType instanceof NonNull) || ($fieldDef->defaultValueExists())) {
+                    if (isset($fieldNodeMap[$fieldName]) || ! $fieldDef->isRequired()) {
                         continue;
                     }
 

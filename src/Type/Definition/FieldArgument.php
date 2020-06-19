@@ -88,6 +88,11 @@ class FieldArgument
         return array_key_exists('defaultValue', $this->config);
     }
 
+    public function isRequired() : bool
+    {
+        return $this->getType() instanceof NonNull && ! $this->defaultValueExists();
+    }
+
     public function assertValid(FieldDefinition $parentField, Type $parentType)
     {
         try {

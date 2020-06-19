@@ -69,6 +69,11 @@ class InputObjectField
         return array_key_exists('defaultValue', $this->config);
     }
 
+    public function isRequired() : bool
+    {
+        return $this->getType() instanceof NonNull && ! $this->defaultValueExists();
+    }
+
     /**
      * @throws InvariantViolation
      */
