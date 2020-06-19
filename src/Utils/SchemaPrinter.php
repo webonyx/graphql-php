@@ -42,6 +42,7 @@ class SchemaPrinter
      *    Available options:
      *    - commentDescriptions:
      *        Provide true to use preceding comments as the description.
+     *        This option is provided to ease adoption and will be removed in v16.
      *
      * @api
      */
