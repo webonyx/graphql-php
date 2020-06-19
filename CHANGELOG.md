@@ -6,6 +6,12 @@
 - **BREAKING:** Removal of `VariablesDefaultValueAllowed` validation rule. All variables may now specify a default value.
 - **BREAKING:** renamed `ProvidedNonNullArguments` to `ProvidedRequiredArguments` (no longer require values to be provided to non-null arguments which provide a default value).
 - **BREAKING:** `GraphQL\Deferred` now extends `GraphQL\Executor\Promise\Adapter\SyncPromise`
+- **BREAKING:** renamed following types of dangerous/breaking changes (returned by `BreakingChangesFinder`):
+     - `NON_NULL_ARG_ADDED` to `REQUIRED_ARG_ADDED`
+     - `NON_NULL_INPUT_FIELD_ADDED` to `REQUIRED_INPUT_FIELD_ADDED`
+     - `NON_NULL_DIRECTIVE_ARG_ADDED` to `REQUIRED_DIRECTIVE_ARG_ADDED`
+     - `NULLABLE_INPUT_FIELD_ADDED` to `OPTIONAL_INPUT_FIELD_ADDED`
+     - `NULLABLE_ARG_ADDED` to `OPTIONAL_ARG_ADDED`
 - Add schema validation: Input Objects must not contain non-nullable circular references (#492)
 - Added retrieving query complexity once query has been completed (#316) 
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
