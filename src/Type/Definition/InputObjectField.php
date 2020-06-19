@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputValueDefinitionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function array_key_exists;
 use function sprintf;
@@ -55,7 +56,12 @@ class InputObjectField
      */
     public function getType() : Type
     {
-        return $this->type;
+        /**
+         * TODO: Replace this cast with native assert
+         *
+         * @var Type&InputType
+         */
+        return Schema::resolveType($this->type);
     }
 
     public function defaultValueExists() : bool

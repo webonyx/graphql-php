@@ -7,6 +7,7 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use function is_array;
 use function is_callable;
@@ -58,7 +59,7 @@ class FieldDefinition
      */
     public $config;
 
-    /** @var OutputType&Type */
+    /** @var callable|(OutputType&Type) */
     public $type;
 
     /** @var callable|string */
@@ -174,12 +175,9 @@ class FieldDefinition
         return null;
     }
 
-    /**
-     * @return OutputType&Type
-     */
     public function getType() : Type
     {
-        return $this->type;
+        return Schema::resolveType($this->type);
     }
 
     /**
@@ -217,7 +215,7 @@ class FieldDefinition
             )
         );
 
-        $type = $this->type;
+        $type = $this->getType();
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }

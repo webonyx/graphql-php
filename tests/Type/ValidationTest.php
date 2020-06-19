@@ -1348,28 +1348,6 @@ class ValidationTest extends TestCase
         );
     }
 
-    // DESCRIBE: Type System: Interface fields must have output types
-
-    /**
-     * @see it('rejects an Object implementing a non-type values')
-     */
-    public function testRejectsAnObjectImplementingANonTypeValues() : void
-    {
-        $schema   = new Schema([
-            'query' => new ObjectType([
-                'name'       => 'BadObject',
-                'interfaces' => [null],
-                'fields'     => ['a' => Type::string()],
-            ]),
-        ]);
-        $expected = ['message' => 'Type BadObject must only implement Interface types, it cannot implement null.'];
-
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [$expected]
-        );
-    }
-
     /**
      * @see it('rejects an Object implementing a non-Interface type')
      */

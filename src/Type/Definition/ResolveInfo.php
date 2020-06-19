@@ -40,7 +40,7 @@ class ResolveInfo
      * Expected return type of the field being resolved.
      *
      * @api
-     * @var OutputType&Type
+     * @var Type
      */
     public $returnType;
 

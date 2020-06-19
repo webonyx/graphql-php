@@ -159,6 +159,7 @@ class TypeInfo
         if ($type instanceof WrappingType) {
             return self::extractTypes($type->getWrappedType(true), $typeMap);
         }
+
         if (! $type instanceof Type) {
             // Preserve these invalid types in map (at numeric index) to make them
             // detectable during $schema->validate()
@@ -198,7 +199,7 @@ class TypeInfo
             foreach ($type->getFields() as $fieldName => $field) {
                 if (! empty($field->args)) {
                     $fieldArgTypes = array_map(
-                        static function (FieldArgument $arg) {
+                        static function (FieldArgument $arg) : Type {
                             return $arg->getType();
                         },
                         $field->args
