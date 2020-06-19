@@ -355,6 +355,7 @@ abstract class ValidatorTestCase extends TestCase
             'directives' => [
                 Directive::includeDirective(),
                 Directive::skipDirective(),
+                Directive::deprecatedDirective(),
                 new Directive([
                     'name'      => 'directive',
                     'locations' => [DirectiveLocation::FIELD],

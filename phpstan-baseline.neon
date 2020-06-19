@@ -516,7 +516,7 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\> given\\.$#"
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\> given\\.$#"
 			count: 1
 			path: src/Utils/ASTDefinitionBuilder.php
 
@@ -701,16 +701,6 @@ parameters:
 			path: src/Validator/Rules/FragmentsOnCompositeTypes.php
 
 		-
-			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
-			count: 2
-			path: src/Validator/Rules/KnownArgumentNames.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownArgumentNamesOnDirectives.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Schema\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/KnownDirectives.php
@@ -811,17 +801,7 @@ parameters:
 			path: src/Validator/Rules/ProvidedRequiredArguments.php
 
 		-
-			message: "#^Only booleans are allowed in \\|\\|, array\\<GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\>\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Validator/Rules/ProvidedRequiredArguments.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Schema\\|null given\\.$#"
-			count: 1
-			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\> given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
 

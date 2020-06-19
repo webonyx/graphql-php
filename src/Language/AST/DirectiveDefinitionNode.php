@@ -15,7 +15,7 @@ class DirectiveDefinitionNode extends Node implements TypeSystemDefinitionNode
     /** @var StringValueNode|null */
     public $description;
 
-    /** @var ArgumentNode[] */
+    /** @var InputValueDefinitionNode[] */
     public $arguments;
 
     /** @var bool */

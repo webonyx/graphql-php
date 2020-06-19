@@ -27,58 +27,40 @@ class KnownArgumentNames extends ValidationRule
 {
     public function getVisitor(ValidationContext $context)
     {
-        return [
-            NodeKind::ARGUMENT => static function (ArgumentNode $node, $key, $parent, $path, $ancestors) use ($context) {
+        $knownArgumentNamesOnDirectives = new KnownArgumentNamesOnDirectives();
+
+        return $knownArgumentNamesOnDirectives->getVisitor($context) + [
+            NodeKind::ARGUMENT => static function (ArgumentNode $node) use ($context) : void {
                 $argDef = $context->getArgument();
                 if ($argDef !== null) {
-                    return null;
+                    return;
                 }
 
-                /** @var Node|mixed $argumentOf */
-                $argumentOf = $ancestors[count($ancestors) - 1];
-                if ($argumentOf instanceof FieldNode) {
-                    $fieldDef   = $context->getFieldDef();
-                    $parentType = $context->getParentType();
-                    if ($fieldDef !== null && $parentType instanceof Type) {
-                        $context->reportError(new Error(
-                            self::unknownArgMessage(
-                                $node->name->value,
-                                $fieldDef->name,
-                                $parentType->name,
-                                Utils::suggestionList(
-                                    $node->name->value,
-                                    array_map(
-                                        static function ($arg) : string {
-                                            return $arg->name;
-                                        },
-                                        $fieldDef->args
-                                    )
-                                )
-                            ),
-                            [$node]
-                        ));
-                    }
-                } elseif ($argumentOf instanceof DirectiveNode) {
-                    $directive = $context->getDirective();
-                    if ($directive) {
-                        $context->reportError(new Error(
-                            self::unknownDirectiveArgMessage(
-                                $node->name->value,
-                                $directive->name,
-                                Utils::suggestionList(
-                                    $node->name->value,
-                                    array_map(
-                                        static function ($arg) {
-                                            return $arg->name;
-                                        },
-                                        $directive->args
-                                    )
-                                )
-                            ),
-                            [$node]
-                        ));
-                    }
+                $fieldDef   = $context->getFieldDef();
+                $parentType = $context->getParentType();
+                if ($fieldDef === null || ! ($parentType instanceof Type)) {
+                    return;
                 }
+
+                $context->reportError(new Error(
+                    self::unknownArgMessage(
+                        $node->name->value,
+                        $fieldDef->name,
+                        $parentType->name,
+                        Utils::suggestionList(
+                            $node->name->value,
+                            array_map(
+                                static function ($arg) : string {
+                                    return $arg->name;
+                                },
+                                $fieldDef->args
+                            )
+                        )
+                    ),
+                    [$node]
+                ));
+
+                return;
             },
         ];
     }
@@ -89,20 +71,7 @@ class KnownArgumentNames extends ValidationRule
     public static function unknownArgMessage($argName, $fieldName, $typeName, array $suggestedArgs)
     {
         $message = sprintf('Unknown argument "%s" on field "%s" of type "%s".', $argName, $fieldName, $typeName);
-        if (! empty($suggestedArgs)) {
-            $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
-        }
-
-        return $message;
-    }
-
-    /**
-     * @param string[] $suggestedArgs
-     */
-    public static function unknownDirectiveArgMessage($argName, $directiveName, array $suggestedArgs)
-    {
-        $message = sprintf('Unknown argument "%s" on directive "@%s".', $argName, $directiveName);
-        if (! empty($suggestedArgs)) {
+        if (isset($suggestedArgs[0])) {
             $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
         }
 
