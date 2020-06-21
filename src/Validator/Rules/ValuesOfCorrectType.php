@@ -229,7 +229,7 @@ class ValuesOfCorrectType extends ValidationRule
                     ),
                     $node,
                     null,
-                    null,
+                    [],
                     null,
                     $error
                 )
