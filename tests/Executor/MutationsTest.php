@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
-use GraphQL\Error\DebugFlag;
 use GraphQL\Deferred;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NumberHolder;

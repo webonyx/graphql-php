@@ -194,7 +194,7 @@ class FormattedError
         if ($exception instanceof Error) {
             $locations = Utils::map(
                 $exception->getLocations(),
-                static function (SourceLocation $loc): array {
+                static function (SourceLocation $loc) : array {
                     return $loc->toSerializableArray();
                 }
             );
