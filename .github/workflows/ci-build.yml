@@ -21,13 +21,14 @@ jobs:
     name: PHP ${{ matrix.php }} Test ${{ matrix.env }}
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.6.0
+      uses: shivammathur/setup-php@2.2.2
       with:
         php-version: ${{ matrix.php  }}
-        extension-csv: json, mbstring
+        coverage: none
+        extensions: json, mbstring
     - name: Get Composer Cache Directory
       id: composer-cache
       run: echo "::set-output name=dir::$(composer config cache-files-dir)"
@@ -54,13 +55,14 @@ jobs:
     name: Coding Standard
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.6.0
+      uses: shivammathur/setup-php@2.2.2
       with:
         php-version: 7.1
-        extension-csv: json, mbstring
+        coverage: none
+        extensions: json, mbstring
 
     - name: Get Composer Cache Directory
       id: composer-cache
@@ -84,13 +86,14 @@ jobs:
     name: PHPStan
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.6.0
+      uses: shivammathur/setup-php@2.2.2
       with:
         php-version: 7.1
-        extension-csv: json, mbstring
+        coverage: none
+        extensions: json, mbstring
 
     - name: Get Composer Cache Directory
       id: composer-cache
@@ -114,15 +117,16 @@ jobs:
     name: Code Coverage
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+      with:
+        ref: ${{ github.ref }}
 
     - name: Install PHP
-      uses: shivammathur/setup-php@1.6.0
+      uses: shivammathur/setup-php@2.2.2
       with:
-        php-version: 7.1
-        extension-csv: json, mbstring
+        php-version: 7.2
         coverage: pcov
-        pecl: true
+        extensions: json, mbstring
 
     - name: Get Composer Cache Directory
       id: composer-cache
@@ -138,16 +142,13 @@ jobs:
     - name: Install Dependencies
       run: composer install ${DEPENDENCIES}
 
-    - name: Update xdebug version
-      run: |
-        sudo pecl channel-update pecl.php.net
-        sudo pecl install xdebug-2.9.0
-      continue-on-error: true
-
     - name: Code coverage
       run: |
-        ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor.cov
-        EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-php /tmp/coverage/clover_executor-coroutine.cov
-        ./vendor/bin/phpcov merge /tmp/coverage --clover /tmp/clover.xml
-        wget https://github.com/scrutinizer-ci/ocular/releases/download/1.5.2/ocular.phar
-        php7.1 ocular.phar code-coverage:upload --format=php-clover /tmp/clover.xml
+        ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover_executor.xml
+        EXECUTOR=coroutine ./vendor/bin/phpunit --coverage-clover /tmp/coverage/clover_executor-coroutine.xml
+
+    - name: Report to Coveralls
+      env:
+        COVERALLS_REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        COVERALLS_RUN_LOCALLY: 1
+      run: vendor/bin/php-coveralls --verbose

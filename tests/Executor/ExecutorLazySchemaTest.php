@@ -65,7 +65,7 @@ class ExecutorLazySchemaTest extends TestCase
         // isTypeOf used to resolve runtime type for Interface
         $petType = new InterfaceType([
             'name'   => 'Pet',
-            'fields' => static function () {
+            'fields' => static function () : array {
                 return [
                     'name' => ['type' => Type::string()],
                 ];
@@ -76,10 +76,10 @@ class ExecutorLazySchemaTest extends TestCase
         $dogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) {
+            'isTypeOf'   => static function ($obj) : bool {
                 return $obj instanceof Dog;
             },
-            'fields'     => static function () {
+            'fields'     => static function () : array {
                 return [
                     'name'  => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
@@ -90,10 +90,10 @@ class ExecutorLazySchemaTest extends TestCase
         $catType = new ObjectType([
             'name'       => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) {
+            'isTypeOf'   => static function ($obj) : bool {
                 return $obj instanceof Cat;
             },
-            'fields'     => static function () {
+            'fields'     => static function () : array {
                 return [
                     'name'  => ['type' => Type::string()],
                     'meows' => ['type' => Type::boolean()],
@@ -107,7 +107,7 @@ class ExecutorLazySchemaTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -172,7 +172,7 @@ class ExecutorLazySchemaTest extends TestCase
                 case 'Test':
                     return new ObjectType([
                         'name'   => 'Test',
-                        'fields' => static function () {
+                        'fields' => static function () : array {
                             return [
                                 'test' => Type::string(),
                             ];
@@ -185,7 +185,7 @@ class ExecutorLazySchemaTest extends TestCase
 
         $query = new ObjectType([
             'name'   => 'Query',
-            'fields' => static function () use ($typeLoader) {
+            'fields' => static function () use ($typeLoader) : array {
                 return [
                     'test' => $typeLoader('Test'),
                 ];
@@ -258,9 +258,9 @@ class ExecutorLazySchemaTest extends TestCase
 
         switch ($name) {
             case 'Query':
-                return $this->queryType ?: $this->queryType = new ObjectType([
+                return $this->queryType ?? $this->queryType = new ObjectType([
                     'name'   => 'Query',
-                    'fields' => function () {
+                    'fields' => function () : array {
                         $this->calls[] = 'Query.fields';
 
                         return [
@@ -270,9 +270,9 @@ class ExecutorLazySchemaTest extends TestCase
                     },
                 ]);
             case 'SomeObject':
-                return $this->someObjectType ?: $this->someObjectType = new ObjectType([
+                return $this->someObjectType ?? $this->someObjectType = new ObjectType([
                     'name'       => 'SomeObject',
-                    'fields'     => function () {
+                    'fields'     => function () : array {
                         $this->calls[] = 'SomeObject.fields';
 
                         return [
@@ -280,7 +280,7 @@ class ExecutorLazySchemaTest extends TestCase
                             'object' => ['type' => $this->someObjectType],
                         ];
                     },
-                    'interfaces' => function () {
+                    'interfaces' => function () : array {
                         $this->calls[] = 'SomeObject.interfaces';
 
                         return [
@@ -289,9 +289,9 @@ class ExecutorLazySchemaTest extends TestCase
                     },
                 ]);
             case 'OtherObject':
-                return $this->otherObjectType ?: $this->otherObjectType = new ObjectType([
+                return $this->otherObjectType ?? $this->otherObjectType = new ObjectType([
                     'name'   => 'OtherObject',
-                    'fields' => function () {
+                    'fields' => function () : array {
                         $this->calls[] = 'OtherObject.fields';
 
                         return [
@@ -301,16 +301,16 @@ class ExecutorLazySchemaTest extends TestCase
                     },
                 ]);
             case 'DeeperObject':
-                return $this->deeperObjectType ?: $this->deeperObjectType = new ObjectType([
+                return $this->deeperObjectType ?? $this->deeperObjectType = new ObjectType([
                     'name'   => 'DeeperObject',
-                    'fields' => function () {
+                    'fields' => function () : array {
                         return [
                             'scalar' => ['type' => $this->loadType('SomeScalar')],
                         ];
                     },
                 ]);
             case 'SomeScalar':
-                return $this->someScalarType ?: $this->someScalarType = new CustomScalarType([
+                return $this->someScalarType ?? $this->someScalarType = new CustomScalarType([
                     'name'         => 'SomeScalar',
                     'serialize'    => static function ($value) {
                         return $value;
@@ -318,32 +318,32 @@ class ExecutorLazySchemaTest extends TestCase
                     'parseValue'   => static function ($value) {
                         return $value;
                     },
-                    'parseLiteral' => static function () {
+                    'parseLiteral' => static function () : void {
                     },
                 ]);
             case 'SomeUnion':
-                return $this->someUnionType ?: $this->someUnionType = new UnionType([
+                return $this->someUnionType ?? $this->someUnionType = new UnionType([
                     'name'        => 'SomeUnion',
                     'resolveType' => function () {
                         $this->calls[] = 'SomeUnion.resolveType';
 
                         return $this->loadType('DeeperObject');
                     },
-                    'types'       => function () {
+                    'types'       => function () : array {
                         $this->calls[] = 'SomeUnion.types';
 
                         return [$this->loadType('DeeperObject')];
                     },
                 ]);
             case 'SomeInterface':
-                return $this->someInterfaceType ?: $this->someInterfaceType = new InterfaceType([
+                return $this->someInterfaceType ?? $this->someInterfaceType = new InterfaceType([
                     'name'        => 'SomeInterface',
                     'resolveType' => function () {
                         $this->calls[] = 'SomeInterface.resolveType';
 
                         return $this->loadType('SomeObject');
                     },
-                    'fields'      => function () {
+                    'fields'      => function () : array {
                         $this->calls[] = 'SomeInterface.fields';
 
                         return [

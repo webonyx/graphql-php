@@ -14,6 +14,7 @@ use GraphQL\Server\Helper;
 use GraphQL\Server\OperationParams;
 use GraphQL\Server\RequestError;
 use GraphQL\Server\ServerConfig;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\CustomValidationRule;
 use GraphQL\Validator\ValidationContext;
@@ -23,10 +24,12 @@ use function sprintf;
 
 class QueryExecutionTest extends ServerTestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var ServerConfig */
     private $config;
 
-    public function setUp()
+    public function setUp() : void
     {
         $schema       = $this->buildSchema();
         $this->config = ServerConfig::create()
@@ -69,7 +72,7 @@ class QueryExecutionTest extends ServerTestCase
         $result = $this->executeQuery($query);
         self::assertNull($result->data);
         self::assertCount(1, $result->errors);
-        self::assertContains(
+        self::assertStringContainsString(
             'Syntax Error: Expected Name, found <EOF>',
             $result->errors[0]->getMessage()
         );
@@ -171,7 +174,7 @@ class QueryExecutionTest extends ServerTestCase
         $called = false;
 
         $rules = [
-            new CustomValidationRule('SomeRule', static function () use (&$called) {
+            new CustomValidationRule('SomeRule', static function () use (&$called) : array {
                 $called = true;
 
                 return [];
@@ -191,7 +194,7 @@ class QueryExecutionTest extends ServerTestCase
         $called = false;
         $params = $doc = $operationType = null;
 
-        $this->config->setValidationRules(static function ($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) {
+        $this->config->setValidationRules(static function ($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) : array {
             $called        = true;
             $params        = $p;
             $doc           = $d;
@@ -215,7 +218,7 @@ class QueryExecutionTest extends ServerTestCase
         $called1 = false;
         $called2 = false;
 
-        $this->config->setValidationRules(static function (OperationParams $params) use ($q1, &$called1, &$called2) {
+        $this->config->setValidationRules(static function (OperationParams $params) use ($q1, &$called1, &$called2) : array {
             if ($params->query === $q1) {
                 $called1 = true;
 
@@ -225,7 +228,7 @@ class QueryExecutionTest extends ServerTestCase
             $called2 = true;
 
             return [
-                new CustomValidationRule('MyRule', static function (ValidationContext $context) {
+                new CustomValidationRule('MyRule', static function (ValidationContext $context) : void {
                     $context->reportError(new Error('This is the error we are looking for!'));
                 }),
             ];
@@ -320,7 +323,7 @@ class QueryExecutionTest extends ServerTestCase
         }
         $helper = new Helper();
         $result = $helper->executeBatch($this->config, $batch);
-        self::assertInternalType('array', $result);
+        self::assertIsArray($result);
         self::assertCount(count($qs), $result);
 
         foreach ($result as $index => $entry) {
@@ -354,7 +357,7 @@ class QueryExecutionTest extends ServerTestCase
     public function testAllowsPersistentQueries() : void
     {
         $called = false;
-        $this->config->setPersistentQueryLoader(static function ($queryId, OperationParams $params) use (&$called) {
+        $this->config->setPersistentQueryLoader(static function ($queryId, OperationParams $params) use (&$called) : string {
             $called = true;
             self::assertEquals('some-id', $queryId);
 
@@ -371,7 +374,7 @@ class QueryExecutionTest extends ServerTestCase
 
         // Make sure it allows returning document node:
         $called = false;
-        $this->config->setPersistentQueryLoader(static function ($queryId, OperationParams $params) use (&$called) {
+        $this->config->setPersistentQueryLoader(static function ($queryId, OperationParams $params) use (&$called) : DocumentNode {
             $called = true;
             self::assertEquals('some-id', $queryId);
 
@@ -389,7 +392,7 @@ class QueryExecutionTest extends ServerTestCase
             'Persistent query loader must return query string or instance of GraphQL\Language\AST\DocumentNode ' .
             'but got: {"err":"err"}'
         );
-        $this->config->setPersistentQueryLoader(static function () {
+        $this->config->setPersistentQueryLoader(static function () : array {
             return ['err' => 'err'];
         });
         $this->executePersistedQuery('some-id');
@@ -397,7 +400,7 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testPersistedQueriesAreStillValidatedByDefault() : void
     {
-        $this->config->setPersistentQueryLoader(static function () {
+        $this->config->setPersistentQueryLoader(static function () : string {
             return '{invalid}';
         });
         $result   = $this->executePersistedQuery('some-id');
@@ -423,7 +426,7 @@ class QueryExecutionTest extends ServerTestCase
 
                 return '{invalid2}';
             })
-            ->setValidationRules(static function (OperationParams $params) {
+            ->setValidationRules(static function (OperationParams $params) : array {
                 if ($params->queryId === 'some-id') {
                     return [];
                 }
@@ -454,7 +457,7 @@ class QueryExecutionTest extends ServerTestCase
     {
         $this->expectException(InvariantViolation::class);
         $this->expectExceptionMessage('Expecting validation rules to be array or callable returning array, but got: instance of stdClass');
-        $this->config->setValidationRules(static function (OperationParams $params) {
+        $this->config->setValidationRules(static function (OperationParams $params) : stdClass {
             return new stdClass();
         });
         $this->executeQuery('{f1}');
@@ -520,10 +523,10 @@ class QueryExecutionTest extends ServerTestCase
             ->setQueryBatching(true)
             ->setRootValue('1')
             ->setContext([
-                'buffer' => static function ($num) use (&$calls) {
+                'buffer' => static function ($num) use (&$calls) : void {
                     $calls[] = sprintf('buffer: %d', $num);
                 },
-                'load'   => static function ($num) use (&$calls) {
+                'load'   => static function ($num) use (&$calls) : string {
                     $calls[] = sprintf('load: %d', $num);
 
                     return sprintf('loaded: %d', $num);
@@ -585,7 +588,7 @@ class QueryExecutionTest extends ServerTestCase
         $called = false;
         $params = $doc = $operationType = null;
 
-        $this->config->setContext(static function ($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) {
+        $this->config->setContext(static function ($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) : void {
             $called        = true;
             $params        = $p;
             $doc           = $d;
@@ -605,7 +608,7 @@ class QueryExecutionTest extends ServerTestCase
         $called = false;
         $params = $doc = $operationType = null;
 
-        $this->config->setRootValue(static function ($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) {
+        $this->config->setRootValue(static function ($p, $d, $o) use (&$called, &$params, &$doc, &$operationType) : void {
             $called        = true;
             $params        = $p;
             $doc           = $d;
@@ -624,7 +627,7 @@ class QueryExecutionTest extends ServerTestCase
     {
         $called = false;
         $error  = null;
-        $this->config->setErrorFormatter(static function ($e) use (&$called, &$error) {
+        $this->config->setErrorFormatter(static function ($e) use (&$called, &$error) : array {
             $called = true;
             $error  = $e;
 
@@ -661,7 +664,7 @@ class QueryExecutionTest extends ServerTestCase
         $called    = false;
         $errors    = null;
         $formatter = null;
-        $this->config->setErrorsHandler(static function ($e, $f) use (&$called, &$errors, &$formatter) {
+        $this->config->setErrorsHandler(static function ($e, $f) use (&$called, &$errors, &$formatter) : array {
             $called    = true;
             $errors    = $e;
             $formatter = $f;
@@ -682,9 +685,9 @@ class QueryExecutionTest extends ServerTestCase
         ];
         self::assertTrue($called);
         self::assertArraySubset($expected, $formatted);
-        self::assertInternalType('array', $errors);
+        self::assertIsArray($errors);
         self::assertCount(2, $errors);
-        self::assertInternalType('callable', $formatter);
+        self::assertIsCallable($formatter);
         self::assertArraySubset($expected, $formatted);
     }
 }

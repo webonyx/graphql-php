@@ -33,7 +33,7 @@ class SchemaTest extends TestCase
     /** @var Schema */
     private $schema;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->interfaceType = new InterfaceType([
             'name'   => 'Interface',
@@ -46,7 +46,7 @@ class SchemaTest extends TestCase
             'fields'     => [
                 'fieldName' => [
                     'type'    => Type::string(),
-                    'resolve' => static function () {
+                    'resolve' => static function () : string {
                         return '';
                     },
                 ],
@@ -90,7 +90,7 @@ class SchemaTest extends TestCase
                 'fields' => [
                     'getObject' => [
                         'type'    => $this->interfaceType,
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [];
                         },
                     ],

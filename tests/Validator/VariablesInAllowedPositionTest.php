@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\VariablesInAllowedPosition;
 class VariablesInAllowedPositionTest extends ValidatorTestCase
 {
     // Validate: Variables are in allowed positions
+
     /**
      * @see it('Boolean => Boolean')
      */

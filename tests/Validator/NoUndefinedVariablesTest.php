@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\NoUndefinedVariables;
 class NoUndefinedVariablesTest extends ValidatorTestCase
 {
     // Validate: No undefined variables
+
     /**
      * @see it('all variables defined')
      */

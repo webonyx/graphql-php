@@ -7,6 +7,7 @@ namespace GraphQL\Tests\Executor;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\ComplexScalar;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\ObjectType;
@@ -23,6 +24,8 @@ use function array_key_exists;
  */
 class VariablesTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     public function testUsingInlineStructs() : void
     {
         // executes with complex input:
@@ -184,7 +187,7 @@ class VariablesTest extends TestCase
         return [
             'type'    => Type::string(),
             'args'    => ['input' => $inputArg],
-            'resolve' => static function ($_, $args) {
+            'resolve' => static function ($_, $args) : ?string {
                 if (isset($args['input'])) {
                     return Utils::printSafeJson($args['input']);
                 }

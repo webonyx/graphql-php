@@ -1321,8 +1321,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                     'ComplexInput',
                     'unknownField',
                     6,
-                    15,
-                    'Did you mean nonNullField, intField, or booleanField?'
+                    15
                 ),
             ]
         );

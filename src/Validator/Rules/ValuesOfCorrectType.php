@@ -20,6 +20,7 @@ use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Printer;
 use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\InputObjectType;
@@ -51,11 +52,11 @@ class ValuesOfCorrectType extends ValidationRule
 
         return [
             NodeKind::FIELD        => [
-                'enter' => static function (FieldNode $node) use (&$fieldName) {
+                'enter' => static function (FieldNode $node) use (&$fieldName) : void {
                     $fieldName = $node->name->value;
                 },
             ],
-            NodeKind::NULL         => static function (NullValueNode $node) use ($context, &$fieldName) {
+            NodeKind::NULL         => static function (NullValueNode $node) use ($context, &$fieldName) : void {
                 $type = $context->getInputType();
                 if (! ($type instanceof NonNull)) {
                     return;
@@ -68,7 +69,7 @@ class ValuesOfCorrectType extends ValidationRule
                     )
                 );
             },
-            NodeKind::LST          => function (ListValueNode $node) use ($context, &$fieldName) {
+            NodeKind::LST          => function (ListValueNode $node) use ($context, &$fieldName) : ?VisitorOperation {
                 // Note: TypeInfo will traverse into a list's item type, so look to the
                 // parent input type to check if it is a list.
                 $type = Type::getNullableType($context->getParentInputType());
@@ -77,6 +78,8 @@ class ValuesOfCorrectType extends ValidationRule
 
                     return Visitor::skipNode();
                 }
+
+                return null;
             },
             NodeKind::OBJECT       => function (ObjectValueNode $node) use ($context, &$fieldName) {
                 // Note: TypeInfo will traverse into a list's item type, so look to the
@@ -93,7 +96,7 @@ class ValuesOfCorrectType extends ValidationRule
                 $nodeFields   = iterator_to_array($node->fields);
                 $fieldNodeMap = array_combine(
                     array_map(
-                        static function ($field) {
+                        static function ($field) : string {
                             return $field->name->value;
                         },
                         $nodeFields
@@ -102,7 +105,7 @@ class ValuesOfCorrectType extends ValidationRule
                 );
                 foreach ($inputFields as $fieldName => $fieldDef) {
                     $fieldType = $fieldDef->getType();
-                    if (isset($fieldNodeMap[$fieldName]) || ! ($fieldType instanceof NonNull) || ($fieldDef->defaultValueExists())) {
+                    if (isset($fieldNodeMap[$fieldName]) || ! $fieldDef->isRequired()) {
                         continue;
                     }
 
@@ -114,7 +117,7 @@ class ValuesOfCorrectType extends ValidationRule
                     );
                 }
             },
-            NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context) {
+            NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) use ($context) : void {
                 $parentType = Type::getNamedType($context->getParentInputType());
                 /** @var ScalarType|EnumType|InputObjectType|ListOfType|NonNull $fieldType */
                 $fieldType = $context->getInputType();
@@ -137,7 +140,7 @@ class ValuesOfCorrectType extends ValidationRule
                     )
                 );
             },
-            NodeKind::ENUM         => function (EnumValueNode $node) use ($context, &$fieldName) {
+            NodeKind::ENUM         => function (EnumValueNode $node) use ($context, &$fieldName) : void {
                 $type = Type::getNamedType($context->getInputType());
                 if (! $type instanceof EnumType) {
                     $this->isValidScalar($context, $node, $fieldName);
@@ -156,16 +159,16 @@ class ValuesOfCorrectType extends ValidationRule
                     );
                 }
             },
-            NodeKind::INT          => function (IntValueNode $node) use ($context, &$fieldName) {
+            NodeKind::INT          => function (IntValueNode $node) use ($context, &$fieldName) : void {
                 $this->isValidScalar($context, $node, $fieldName);
             },
-            NodeKind::FLOAT        => function (FloatValueNode $node) use ($context, &$fieldName) {
+            NodeKind::FLOAT        => function (FloatValueNode $node) use ($context, &$fieldName) : void {
                 $this->isValidScalar($context, $node, $fieldName);
             },
-            NodeKind::STRING       => function (StringValueNode $node) use ($context, &$fieldName) {
+            NodeKind::STRING       => function (StringValueNode $node) use ($context, &$fieldName) : void {
                 $this->isValidScalar($context, $node, $fieldName);
             },
-            NodeKind::BOOLEAN      => function (BooleanValueNode $node) use ($context, &$fieldName) {
+            NodeKind::BOOLEAN      => function (BooleanValueNode $node) use ($context, &$fieldName) : void {
                 $this->isValidScalar($context, $node, $fieldName);
             },
         ];
@@ -239,7 +242,7 @@ class ValuesOfCorrectType extends ValidationRule
             $suggestions = Utils::suggestionList(
                 Printer::doPrint($node),
                 array_map(
-                    static function (EnumValueDefinition $value) {
+                    static function (EnumValueDefinition $value) : string {
                         return $value->name;
                     },
                     $type->getValues()

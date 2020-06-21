@@ -75,7 +75,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $formatter = static function () {
+        $formatter = static function () : void {
         };
         $config->setErrorFormatter($formatter);
         self::assertSame($formatter, $config->getErrorFormatter());
@@ -89,7 +89,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $handler = static function () {
+        $handler = static function () : void {
         };
         $config->setErrorsHandler($handler);
         self::assertSame($handler, $config->getErrorsHandler());
@@ -120,14 +120,14 @@ class ServerConfigTest extends TestCase
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
 
-        $rules = [static function () {
+        $rules = [static function () : void {
         },
         ];
         $config->setValidationRules($rules);
         self::assertSame($rules, $config->getValidationRules());
 
-        $rules = static function () {
-            return [static function () {
+        $rules = static function () : array {
+            return [static function () : void {
             },
             ];
         };
@@ -139,7 +139,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $resolver = static function () {
+        $resolver = static function () : void {
         };
         $config->setFieldResolver($resolver);
         self::assertSame($resolver, $config->getFieldResolver());
@@ -153,7 +153,7 @@ class ServerConfigTest extends TestCase
     {
         $config = ServerConfig::create();
 
-        $loader = static function () {
+        $loader = static function () : void {
         };
         $config->setPersistentQueryLoader($loader);
         self::assertSame($loader, $config->getPersistentQueryLoader());
@@ -182,15 +182,15 @@ class ServerConfigTest extends TestCase
             ]),
             'context'               => new stdClass(),
             'rootValue'             => new stdClass(),
-            'errorFormatter'        => static function () {
+            'errorFormatter'        => static function () : void {
             },
             'promiseAdapter'        => new SyncPromiseAdapter(),
-            'validationRules'       => [static function () {
+            'validationRules'       => [static function () : void {
             },
             ],
-            'fieldResolver'         => static function () {
+            'fieldResolver'         => static function () : void {
             },
-            'persistentQueryLoader' => static function () {
+            'persistentQueryLoader' => static function () : void {
             },
             'debugFlag'             => DebugFlag::INCLUDE_DEBUG_MESSAGE,
             'queryBatching'         => true,

@@ -5,58 +5,22 @@ declare(strict_types=1);
 namespace GraphQL;
 
 use GraphQL\Executor\Promise\Adapter\SyncPromise;
-use SplQueue;
-use Throwable;
 
-class Deferred
+class Deferred extends SyncPromise
 {
-    /** @var SplQueue|null */
-    private static $queue;
-
-    /** @var callable */
-    private $callback;
-
-    /** @var SyncPromise */
-    public $promise;
-
-    public function __construct(callable $callback)
+    /**
+     * @param callable() : mixed $executor
+     */
+    public static function create(callable $executor) : self
     {
-        $this->callback = $callback;
-        $this->promise  = new SyncPromise();
-        self::getQueue()->enqueue($this);
+        return new self($executor);
     }
 
-    public static function getQueue() : SplQueue
+    /**
+     * @param callable() : mixed $executor
+     */
+    public function __construct(callable $executor)
     {
-        if (self::$queue === null) {
-            self::$queue = new SplQueue();
-        }
-
-        return self::$queue;
-    }
-
-    public static function runQueue() : void
-    {
-        $queue = self::getQueue();
-        while (! $queue->isEmpty()) {
-            /** @var self $dequeuedNodeValue */
-            $dequeuedNodeValue = $queue->dequeue();
-            $dequeuedNodeValue->run();
-        }
-    }
-
-    public function then($onFulfilled = null, $onRejected = null)
-    {
-        return $this->promise->then($onFulfilled, $onRejected);
-    }
-
-    public function run() : void
-    {
-        try {
-            $cb = $this->callback;
-            $this->promise->resolve($cb());
-        } catch (Throwable $e) {
-            $this->promise->reject($e);
-        }
+        parent::__construct($executor);
     }
 }

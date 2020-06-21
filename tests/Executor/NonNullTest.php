@@ -12,6 +12,7 @@ use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
@@ -23,6 +24,8 @@ use function json_encode;
 
 class NonNullTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /** @var Exception */
     public $syncError;
 
@@ -47,7 +50,7 @@ class NonNullTest extends TestCase
     /** @var Schema */
     public $schemaWithNonNullArg;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->syncError           = new UserError('sync');
         $this->syncNonNullError    = new UserError('syncNonNull');
@@ -55,35 +58,35 @@ class NonNullTest extends TestCase
         $this->promiseNonNullError = new UserError('promiseNonNull');
 
         $this->throwingData = [
-            'sync'               => function () {
+            'sync'               => function () : void {
                 throw $this->syncError;
             },
-            'syncNonNull'        => function () {
+            'syncNonNull'        => function () : void {
                 throw $this->syncNonNullError;
             },
-            'promise'            => function () {
-                return new Deferred(function () {
+            'promise'            => function () : Deferred {
+                return new Deferred(function () : void {
                     throw $this->promiseError;
                 });
             },
-            'promiseNonNull'     => function () {
-                return new Deferred(function () {
+            'promiseNonNull'     => function () : Deferred {
+                return new Deferred(function () : void {
                     throw $this->promiseNonNullError;
                 });
             },
-            'syncNest'           => function () {
+            'syncNest'           => function () : array {
                 return $this->throwingData;
             },
-            'syncNonNullNest'    => function () {
+            'syncNonNullNest'    => function () : array {
                 return $this->throwingData;
             },
-            'promiseNest'        => function () {
-                return new Deferred(function () {
+            'promiseNest'        => function () : Deferred {
+                return new Deferred(function () : array {
                     return $this->throwingData;
                 });
             },
-            'promiseNonNullNest' => function () {
-                return new Deferred(function () {
+            'promiseNonNullNest' => function () : Deferred {
+                return new Deferred(function () : array {
                     return $this->throwingData;
                 });
             },
@@ -96,29 +99,29 @@ class NonNullTest extends TestCase
             'syncNonNull'        => static function () {
                 return null;
             },
-            'promise'            => static function () {
+            'promise'            => static function () : Deferred {
                 return new Deferred(static function () {
                     return null;
                 });
             },
-            'promiseNonNull'     => static function () {
+            'promiseNonNull'     => static function () : Deferred {
                 return new Deferred(static function () {
                     return null;
                 });
             },
-            'syncNest'           => function () {
+            'syncNest'           => function () : array {
                 return $this->nullingData;
             },
-            'syncNonNullNest'    => function () {
+            'syncNonNullNest'    => function () : array {
                 return $this->nullingData;
             },
-            'promiseNest'        => function () {
-                return new Deferred(function () {
+            'promiseNest'        => function () : Deferred {
+                return new Deferred(function () : array {
                     return $this->nullingData;
                 });
             },
-            'promiseNonNullNest' => function () {
-                return new Deferred(function () {
+            'promiseNonNullNest' => function () : Deferred {
+                return new Deferred(function () : array {
                     return $this->nullingData;
                 });
             },
@@ -126,7 +129,7 @@ class NonNullTest extends TestCase
 
         $dataType = new ObjectType([
             'name'   => 'DataType',
-            'fields' => static function () use (&$dataType) {
+            'fields' => static function () use (&$dataType) : array {
                 return [
                     'sync'               => ['type' => Type::string()],
                     'syncNonNull'        => ['type' => Type::nonNull(Type::string())],
@@ -153,10 +156,12 @@ class NonNullTest extends TestCase
                                 'type' => Type::nonNull(Type::string()),
                             ],
                         ],
-                        'resolve' => static function ($value, $args) {
+                        'resolve' => static function ($value, $args) : ?string {
                             if (is_string($args['cannotBeNull'])) {
                                 return 'Passed: ' . $args['cannotBeNull'];
                             }
+
+                            return null;
                         },
                     ],
                 ],
@@ -548,7 +553,7 @@ class NonNullTest extends TestCase
             'data'   => ['syncNest' => null],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.',
+                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".',
                     'locations'    => [['line' => 4, 'column' => 11]],
                 ],
             ],
@@ -575,7 +580,7 @@ class NonNullTest extends TestCase
             'data'   => ['syncNest' => null],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.',
+                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".',
                     'locations'    => [['line' => 4, 'column' => 11]],
                 ],
             ],
@@ -603,7 +608,7 @@ class NonNullTest extends TestCase
             'data'   => ['promiseNest' => null],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.',
+                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".',
                     'locations'    => [['line' => 4, 'column' => 11]],
                 ],
             ],
@@ -631,7 +636,7 @@ class NonNullTest extends TestCase
             'data'   => ['promiseNest' => null],
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.',
+                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".',
                     'locations'    => [['line' => 4, 'column' => 11]],
                 ],
             ],
@@ -773,10 +778,10 @@ class NonNullTest extends TestCase
                 'anotherPromiseNest' => null,
             ],
             'errors' => [
-                ['debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.', 'locations' => [['line' => 8, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.', 'locations' => [['line' => 19, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.', 'locations' => [['line' => 30, 'column' => 19]]],
-                ['debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.', 'locations' => [['line' => 41, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".', 'locations' => [['line' => 8, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".', 'locations' => [['line' => 19, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".', 'locations' => [['line' => 30, 'column' => 19]]],
+                ['debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".', 'locations' => [['line' => 41, 'column' => 19]]],
             ],
         ];
 
@@ -1022,7 +1027,7 @@ class NonNullTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field DataType.syncNonNull.',
+                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.syncNonNull".',
                     'locations'    => [['line' => 2, 'column' => 17]],
                 ],
             ],
@@ -1044,7 +1049,7 @@ class NonNullTest extends TestCase
         $expected = [
             'errors' => [
                 [
-                    'debugMessage' => 'Cannot return null for non-nullable field DataType.promiseNonNull.',
+                    'debugMessage' => 'Cannot return null for non-nullable field "DataType.promiseNonNull".',
                     'locations'    => [['line' => 2, 'column' => 17]],
                 ],
             ],

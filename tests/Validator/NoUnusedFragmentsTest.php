@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\NoUnusedFragments;
 class NoUnusedFragmentsTest extends ValidatorTestCase
 {
     // Validate: No unused fragments
+
     /**
      * @see it('all fragment names are used')
      */

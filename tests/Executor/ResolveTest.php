@@ -16,6 +16,7 @@ use function uniqid;
 class ResolveTest extends TestCase
 {
     // Execute: resolve function
+
     /**
      * @see it('default function accesses properties')
      */
@@ -50,7 +51,7 @@ class ResolveTest extends TestCase
         $_secret = 'secretValue' . uniqid();
 
         $source = [
-            'test' => static function () use ($_secret) {
+            'test' => static function () use ($_secret) : string {
                 return $_secret;
             },
         ];

@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\FieldsOnCorrectType;
 class FieldsOnCorrectTypeTest extends ValidatorTestCase
 {
     // Validate: Fields on correct type
+
     /**
      * @see it('Object field selection')
      */

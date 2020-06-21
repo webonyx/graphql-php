@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace GraphQL\Executor\Promise\Adapter;
 
 use Exception;
-use GraphQL\Executor\ExecutionResult;
 use GraphQL\Utils\Utils;
 use SplQueue;
 use Throwable;
@@ -15,6 +14,14 @@ use function method_exists;
 /**
  * Simplistic (yet full-featured) implementation of Promises A+ spec for regular PHP `sync` mode
  * (using queue to defer promises execution)
+ *
+ * Note:
+ * Library users are not supposed to use SyncPromise class in their resolvers.
+ * Instead they should use GraphQL\Deferred which enforces $executor callback in the constructor.
+ *
+ * Root SyncPromise without explicit $executor will never resolve (actually throw while trying).
+ * The whole point of Deferred is to ensure it never happens and that any resolver creates
+ * at least one $executor to start the promise chain.
  */
 class SyncPromise
 {
@@ -28,7 +35,7 @@ class SyncPromise
     /** @var string */
     public $state = self::PENDING;
 
-    /** @var ExecutionResult|Throwable */
+    /** @var mixed */
     public $result;
 
     /**
@@ -47,6 +54,23 @@ class SyncPromise
         }
     }
 
+    /**
+     * @param callable() : mixed $executor
+     */
+    public function __construct(?callable $executor = null)
+    {
+        if ($executor === null) {
+            return;
+        }
+        self::getQueue()->enqueue(function () use ($executor) : void {
+            try {
+                $this->resolve($executor());
+            } catch (Throwable $e) {
+                $this->reject($e);
+            }
+        });
+    }
+
     public function resolve($value) : self
     {
         switch ($this->state) {
@@ -56,10 +80,10 @@ class SyncPromise
                 }
                 if (is_object($value) && method_exists($value, 'then')) {
                     $value->then(
-                        function ($resolvedValue) {
+                        function ($resolvedValue) : void {
                             $this->resolve($resolvedValue);
                         },
-                        function ($reason) {
+                        function ($reason) : void {
                             $this->reject($reason);
                         }
                     );
@@ -115,7 +139,7 @@ class SyncPromise
         );
 
         foreach ($this->waiting as $descriptor) {
-            self::getQueue()->enqueue(function () use ($descriptor) {
+            self::getQueue()->enqueue(function () use ($descriptor) : void {
                 /** @var self $promise */
                 [$promise, $onFulfilled, $onRejected] = $descriptor;
 
@@ -143,10 +167,14 @@ class SyncPromise
 
     public static function getQueue() : SplQueue
     {
-        return self::$queue ?: self::$queue = new SplQueue();
+        return self::$queue ?? self::$queue = new SplQueue();
     }
 
-    public function then(?callable $onFulfilled = null, ?callable $onRejected = null)
+    /**
+     * @param callable(mixed) : mixed     $onFulfilled
+     * @param callable(Throwable) : mixed $onRejected
+     */
+    public function then(?callable $onFulfilled = null, ?callable $onRejected = null) : self
     {
         if ($this->state === self::REJECTED && $onRejected === null) {
             return $this;
@@ -162,5 +190,13 @@ class SyncPromise
         }
 
         return $tmp;
+    }
+
+    /**
+     * @param callable(Throwable) : mixed $onRejected
+     */
+    public function catch(callable $onRejected) : self
+    {
+        return $this->then(null, $onRejected);
     }
 }

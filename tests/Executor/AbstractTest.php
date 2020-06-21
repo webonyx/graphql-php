@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Error\DebugFlag;
+use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
 use GraphQL\GraphQL;
@@ -12,6 +13,7 @@ use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\Cat;
 use GraphQL\Tests\Executor\TestClasses\Dog;
 use GraphQL\Tests\Executor\TestClasses\Human;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -24,6 +26,8 @@ use PHPUnit\Framework\TestCase;
  */
 class AbstractTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     /**
      * @see it('isTypeOf used to resolve runtime type for Interface')
      */
@@ -41,7 +45,7 @@ class AbstractTest extends TestCase
         $dogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) {
+            'isTypeOf'   => static function ($obj) : bool {
                 return $obj instanceof Dog;
             },
             'fields'     => [
@@ -53,7 +57,7 @@ class AbstractTest extends TestCase
         $catType = new ObjectType([
             'name'       => 'Cat',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) {
+            'isTypeOf'   => static function ($obj) : bool {
                 return $obj instanceof Cat;
             },
             'fields'     => [
@@ -68,7 +72,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -107,7 +111,7 @@ class AbstractTest extends TestCase
     {
         $dogType = new ObjectType([
             'name'     => 'Dog',
-            'isTypeOf' => static function ($obj) {
+            'isTypeOf' => static function ($obj) : bool {
                 return $obj instanceof Dog;
             },
             'fields'   => [
@@ -118,7 +122,7 @@ class AbstractTest extends TestCase
 
         $catType = new ObjectType([
             'name'     => 'Cat',
-            'isTypeOf' => static function ($obj) {
+            'isTypeOf' => static function ($obj) : bool {
                 return $obj instanceof Cat;
             },
             'fields'   => [
@@ -138,7 +142,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($petType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [new Dog('Odie', true), new Cat('Garfield', false)];
                         },
                     ],
@@ -228,7 +232,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -303,7 +307,7 @@ class AbstractTest extends TestCase
 
         $PetType = new UnionType([
             'name'        => 'Pet',
-            'resolveType' => static function ($obj) use ($DogType, $CatType, $HumanType) {
+            'resolveType' => static function ($obj) use ($DogType, $CatType, $HumanType) : Type {
                 if ($obj instanceof Dog) {
                     return $DogType;
                 }
@@ -313,6 +317,8 @@ class AbstractTest extends TestCase
                 if ($obj instanceof Human) {
                     return $HumanType;
                 }
+
+                throw new InvariantViolation('Invalid type');
             },
             'types'       => [$DogType, $CatType],
         ]);
@@ -323,7 +329,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -381,7 +387,7 @@ class AbstractTest extends TestCase
         $fooInterface = new InterfaceType([
             'name'        => 'FooInterface',
             'fields'      => ['bar' => ['type' => Type::string()]],
-            'resolveType' => static function () {
+            'resolveType' => static function () : array {
                 return [];
             },
         ]);
@@ -398,7 +404,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'foo' => [
                         'type'    => $fooInterface,
-                        'resolve' => static function () {
+                        'resolve' => static function () : string {
                             return 'dummy';
                         },
                     ],
@@ -474,7 +480,7 @@ class AbstractTest extends TestCase
                 'fields' => [
                     'pets' => [
                         'type'    => Type::listOf($PetType),
-                        'resolve' => static function () {
+                        'resolve' => static function () : array {
                             return [
                                 new Dog('Odie', true),
                                 new Cat('Garfield', false),
@@ -521,7 +527,7 @@ class AbstractTest extends TestCase
                 'fields'     => [
                     'a' => Type::string(),
                 ],
-                'interfaces' => static function () use ($iface) {
+                'interfaces' => static function () use ($iface) : array {
                     return [$iface];
                 },
             ]);

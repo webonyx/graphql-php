@@ -31,17 +31,17 @@ class LoneSchemaDefinition extends ValidationRule
         $oldSchema      = $context->getSchema();
         $alreadyDefined = $oldSchema !== null
             ? (
-                $oldSchema->getAstNode() ||
-                $oldSchema->getQueryType() ||
-                $oldSchema->getMutationType() ||
-                $oldSchema->getSubscriptionType()
+                $oldSchema->getAstNode() !== null ||
+                $oldSchema->getQueryType() !== null ||
+                $oldSchema->getMutationType() !== null ||
+                $oldSchema->getSubscriptionType() !== null
             )
             : false;
 
         $schemaDefinitionsCount = 0;
 
         return [
-            NodeKind::SCHEMA_DEFINITION => static function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount) {
+            NodeKind::SCHEMA_DEFINITION => static function (SchemaDefinitionNode $node) use ($alreadyDefined, $context, &$schemaDefinitionsCount) : void {
                 if ($alreadyDefined !== false) {
                     $context->reportError(new Error(self::canNotDefineSchemaWithinExtensionMessage(), $node));
 

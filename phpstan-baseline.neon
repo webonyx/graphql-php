@@ -1,0 +1,1007 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Node\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in &&, Throwable\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in an elseif condition, Throwable\\|null given\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given on the right side\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 6
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\Source\\|null given on the right side\\.$#"
+			count: 2
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\<int\\> given on the left side\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in an elseif condition, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Location given on the left side\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given\\.$#"
+			count: 1
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\Location given\\.$#"
+			count: 1
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\Source\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\SourceLocation\\> given on the right side\\.$#"
+			count: 1
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<int, string\\> given\\.$#"
+			count: 1
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 5
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, int given\\.$#"
+			count: 2
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, Throwable\\|null given\\.$#"
+			count: 2
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Only booleans are allowed in &&, int given on the left side\\.$#"
+			count: 2
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, Throwable\\|null given\\.$#"
+			count: 1
+			path: src/Error/FormattedError.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: src/Executor/ExecutionResult.php
+
+		-
+			message: "#^Variable property access on object\\.$#"
+			count: 2
+			path: src/Executor/Executor.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 4
+			path: src/Executor/ReferenceExecutor.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\BooleanValueNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueNode\\|GraphQL\\\\Language\\\\AST\\\\FloatValueNode\\|GraphQL\\\\Language\\\\AST\\\\IntValueNode\\|GraphQL\\\\Language\\\\AST\\\\ListValueNode\\|GraphQL\\\\Language\\\\AST\\\\NullValueNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectValueNode\\|GraphQL\\\\Language\\\\AST\\\\StringValueNode\\|GraphQL\\\\Language\\\\AST\\\\VariableNode\\|null given on the right side\\.$#"
+			count: 1
+			path: src/Executor/Values.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Error\\\\Error\\> given\\.$#"
+			count: 1
+			path: src/Executor/Values.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: src/Executor/Values.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\|null given\\.$#"
+			count: 1
+			path: src/Executor/Values.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: src/Experimental/Executor/Collector.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: src/Experimental/Executor/CoroutineExecutor.php
+
+		-
+			message: "#^Variable property access on object\\.$#"
+			count: 2
+			path: src/Experimental/Executor/CoroutineExecutor.php
+
+		-
+			message: "#^Variable property access on mixed\\.$#"
+			count: 1
+			path: src/Experimental/Executor/CoroutineExecutor.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: src/GraphQL.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Language/AST/Node.php
+
+		-
+			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			count: 1
+			path: src/Language/AST/Node.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: src/Language/Parser.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
+			count: 2
+			path: src/Language/Printer.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<int, array\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\> given\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\|null\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
+			count: 4
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, \\(callable\\)\\|null given\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, \\(callable\\)\\|null given\\.$#"
+			count: 2
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, int given\\.$#"
+			count: 1
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, string given\\.$#"
+			count: 2
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Only booleans are allowed in &&, string given on the left side\\.$#"
+			count: 1
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Only booleans are allowed in &&, string given on the right side\\.$#"
+			count: 1
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 5
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, string given\\.$#"
+			count: 1
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
+			count: 1
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Only booleans are allowed in \\|\\|, \\(callable\\)\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Server/Helper.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: src/Server/OperationParams.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, ArrayObject\\<string, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\> given\\.$#"
+			count: 1
+			path: src/Type/Definition/EnumType.php
+
+		-
+			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
+			count: 1
+			path: src/Type/Definition/InputObjectField.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Type/Definition/InputObjectField.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Type/Definition/InputObjectType.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
+			count: 1
+			path: src/Type/Definition/QueryPlan.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
+			count: 1
+			path: src/Type/Definition/QueryPlan.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Type/Definition/ResolveInfo.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, string given\\.$#"
+			count: 1
+			path: src/Type/Definition/Type.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: src/Type/Introspection.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, string\\|null given\\.$#"
+			count: 2
+			path: src/Type/Introspection.php
+
+		-
+			message: "#^Anonymous function should have native return typehint \"array\"\\.$#"
+			count: 1
+			path: src/Type/Introspection.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\Type\\>\\|\\(callable\\) given\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
+			count: 2
+			path: src/Type/Schema.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Error\\\\Error\\|GraphQL\\\\Error\\\\InvariantViolation\\> given\\.$#"
+			count: 1
+			path: src/Type/Schema.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Type/SchemaConfig.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\ObjectType\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\TypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\TypeNode\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Definition\\\\Type given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Error\\\\Error\\|null given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\DirectiveDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\> given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\> given on the left side\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\DirectiveDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\EnumTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\SchemaDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\EnumTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InputObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\SchemaTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\UnionTypeExtensionNode\\> given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\InterfaceTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\InterfaceTypeExtensionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeDefinitionNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectTypeExtensionNode given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\FieldDefinitionNode\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\> given on the right side\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\|null given\\.$#"
+			count: 2
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\FieldArgument\\|null given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Type\\\\Definition\\\\FieldArgument\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\ObjectType\\> given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\> given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\> given on the left side\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\> given\\.$#"
+			count: 1
+			path: src/Type/SchemaValidationContext.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Variable property access on mixed\\.$#"
+			count: 2
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\BooleanValueNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueNode\\|GraphQL\\\\Language\\\\AST\\\\FloatValueNode\\|GraphQL\\\\Language\\\\AST\\\\IntValueNode\\|GraphQL\\\\Language\\\\AST\\\\ListValueNode\\|GraphQL\\\\Language\\\\AST\\\\NullValueNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectValueNode\\|GraphQL\\\\Language\\\\AST\\\\StringValueNode\\|null given\\.$#"
+			count: 2
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
+			count: 1
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\|null given\\.$#"
+			count: 1
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
+			count: 2
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\DefinitionNode&GraphQL\\\\Language\\\\AST\\\\Node\\> given\\.$#"
+			count: 1
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, string\\|null given\\.$#"
+			count: 1
+			path: src/Utils/AST.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\> given\\.$#"
+			count: 1
+			path: src/Utils/ASTDefinitionBuilder.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, callable given\\.$#"
+			count: 1
+			path: src/Utils/ASTDefinitionBuilder.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\> given\\.$#"
+			count: 1
+			path: src/Utils/ASTDefinitionBuilder.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\> given\\.$#"
+			count: 1
+			path: src/Utils/ASTDefinitionBuilder.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\>\\|null given\\.$#"
+			count: 1
+			path: src/Utils/ASTDefinitionBuilder.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
+			count: 1
+			path: src/Utils/ASTDefinitionBuilder.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\>\\|null given\\.$#"
+			count: 1
+			path: src/Utils/ASTDefinitionBuilder.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: src/Utils/BuildSchema.php
+
+		-
+			message: "#^Only booleans are allowed in &&, array\\<bool\\>\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Utils/PairSet.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
+			count: 1
+			path: src/Utils/SchemaExtender.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SchemaDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Utils/SchemaExtender.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\>\\|null given\\.$#"
+			count: 1
+			path: src/Utils/SchemaExtender.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: src/Utils/SchemaPrinter.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\Type\\>\\|null given\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null given\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NamedTypeNode given\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\Directive\\|GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\|null given\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\FieldArgument\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\|null given\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Utils/TypeInfo.php
+
+		-
+			message: "#^Variable property access on object\\.$#"
+			count: 1
+			path: src/Utils/Utils.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, string given\\.$#"
+			count: 1
+			path: src/Utils/Utils.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Error\\\\Error\\|null given\\.$#"
+			count: 1
+			path: src/Utils/Utils.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\|null given\\.$#"
+			count: 1
+			path: src/Utils/Value.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<string\\> given\\.$#"
+			count: 2
+			path: src/Utils/Value.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Error\\\\Error\\> given\\.$#"
+			count: 2
+			path: src/Utils/Value.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, string given\\.$#"
+			count: 2
+			path: src/Utils/Value.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, string\\|null given\\.$#"
+			count: 1
+			path: src/Utils/Value.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/FieldsOnCorrectType.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition given\\.$#"
+			count: 1
+			path: src/Validator/Rules/FieldsOnCorrectType.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, array\\<string\\> given\\.$#"
+			count: 1
+			path: src/Validator/Rules/FieldsOnCorrectType.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/FieldsOnCorrectType.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\NamedTypeNode given\\.$#"
+			count: 1
+			path: src/Validator/Rules/FragmentsOnCompositeTypes.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
+			count: 2
+			path: src/Validator/Rules/FragmentsOnCompositeTypes.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Schema\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/KnownDirectives.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<string\\>\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/KnownDirectives.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, string given\\.$#"
+			count: 1
+			path: src/Validator/Rules/KnownDirectives.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/KnownFragmentNames.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/KnownTypeNames.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: src/Validator/Rules/NoFragmentCycles.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/NoFragmentCycles.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/NoUndefinedVariables.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/NoUnusedFragments.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/NoUnusedVariables.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NameNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NamedTypeNode given\\.$#"
+			count: 1
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
+			count: 2
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\Node given\\.$#"
+			count: 2
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
+			count: 3
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/PossibleFragmentSpreads.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/PossibleFragmentSpreads.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\FieldDefinition given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ProvidedRequiredArguments.php
+
+		-
+			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Validator/Rules/ProvidedRequiredArguments.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Schema\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: src/Validator/Rules/QueryComplexity.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Validator/Rules/QuerySecurityRule.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/QuerySecurityRule.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/QuerySecurityRule.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NameNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/QuerySecurityRule.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\OutputType\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ScalarLeafs.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ScalarLeafs.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ScalarLeafs.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/UniqueArgumentNames.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/UniqueFragmentNames.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/UniqueInputFieldNames.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/UniqueOperationNames.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: src/Validator/Rules/UniqueVariableNames.php
+
+		-
+			message: "#^Only booleans are allowed in \\|\\|, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType given on the left side\\.$#"
+			count: 1
+			path: src/Validator/Rules/ValuesOfCorrectType.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ValuesOfCorrectType.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ValuesOfCorrectType.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<string\\> given\\.$#"
+			count: 1
+			path: src/Validator/Rules/ValuesOfCorrectType.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/VariablesAreInputTypes.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given\\.$#"
+			count: 1
+			path: src/Validator/Rules/VariablesInAllowedPosition.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\ValueNode\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Validator/Rules/VariablesInAllowedPosition.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 3
+			path: src/Validator/ValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/ValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/ValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\> given\\.$#"
+			count: 1
+			path: src/Validator/ValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Schema given\\.$#"
+			count: 1
+			path: tests/Executor/DirectivesTest.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\InterfaceType given\\.$#"
+			count: 1
+			path: tests/Executor/LazyInterfaceTest.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Definition\\\\ObjectType given\\.$#"
+			count: 1
+			path: tests/Executor/LazyInterfaceTest.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Type\\\\Schema given\\.$#"
+			count: 1
+			path: tests/Executor/ValuesTest.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 6
+			path: tests/Experimental/Executor/CollectorTest.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: tests/Language/LexerTest.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, \\(GraphQL\\\\Type\\\\Definition\\\\CompositeType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
+			count: 4
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, \\(GraphQL\\\\Type\\\\Definition\\\\OutputType&GraphQL\\\\Type\\\\Definition\\\\Type\\)\\|null given\\.$#"
+			count: 4
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType\\|null given\\.$#"
+			count: 4
+			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 1
+			path: tests/Server/RequestValidationTest.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 7
+			path: tests/StarWarsValidationTest.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 4
+			path: tests/Type/EnumTypeTest.php
+
+		-
+			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"
+			count: 1
+			path: tests/Type/TypeLoaderTest.php
+
+		-
+			message: "#^Only booleans are allowed in a negated boolean, stdClass given\\.$#"
+			count: 1
+			path: tests/Utils/AstFromValueTest.php
+
+		-
+			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
+			count: 2
+			path: tests/Utils/MixedStoreTest.php
+

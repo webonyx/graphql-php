@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\ScalarLeafs;
 class ScalarLeafsTest extends ValidatorTestCase
 {
     // Validate: Scalar leafs
+
     /**
      * @see it('valid scalar selection')
      */

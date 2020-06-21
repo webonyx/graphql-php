@@ -79,7 +79,7 @@ class QueryPlan
 
     public function hasType(string $type) : bool
     {
-        return count(array_filter($this->getReferencedTypes(), static function (string $referencedType) use ($type) {
+        return count(array_filter($this->getReferencedTypes(), static function (string $referencedType) use ($type) : bool {
                 return $type === $referencedType;
         })) > 0;
     }
@@ -94,7 +94,7 @@ class QueryPlan
 
     public function hasField(string $field) : bool
     {
-        return count(array_filter($this->getReferencedFields(), static function (string $referencedField) use ($field) {
+        return count(array_filter($this->getReferencedFields(), static function (string $referencedField) use ($field) : bool {
             return $field === $referencedField;
         })) > 0;
     }
@@ -161,18 +161,20 @@ class QueryPlan
      *
      * @throws Error
      */
-    private function analyzeSelectionSet(SelectionSetNode $selectionSet, Type $parentType, array &$implementors = []) : array
+    private function analyzeSelectionSet(SelectionSetNode $selectionSet, Type $parentType, array &$implementors) : array
     {
-        $fields = [];
+        $fields       = [];
+        $implementors = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
                 $fieldName     = $selectionNode->name->value;
                 $type          = $parentType->getField($fieldName);
                 $selectionType = $type->getType();
 
-                $subfields = [];
+                $subfields       = [];
+                $subImplementors = [];
                 if ($selectionNode->selectionSet) {
-                    $subfields = $this->analyzeSubFields($selectionType, $selectionNode->selectionSet);
+                    $subfields = $this->analyzeSubFields($selectionType, $selectionNode->selectionSet, $subImplementors);
                 }
 
                 $fields[$fieldName] = [
@@ -180,6 +182,9 @@ class QueryPlan
                     'fields' => $subfields ?? [],
                     'args' => Values::getArgumentValues($type, $selectionNode, $this->variableValues),
                 ];
+                if ($this->groupImplementorFields && $subImplementors) {
+                    $fields[$fieldName]['implementors'] = $subImplementors;
+                }
             } elseif ($selectionNode instanceof FragmentSpreadNode) {
                 $spreadName = $selectionNode->name->value;
                 if (isset($this->fragments[$spreadName])) {
@@ -199,17 +204,19 @@ class QueryPlan
     }
 
     /**
+     * @param mixed[] $implementors
+     *
      * @return mixed[]
      */
-    private function analyzeSubFields(Type $type, SelectionSetNode $selectionSet) : array
+    private function analyzeSubFields(Type $type, SelectionSetNode $selectionSet, array &$implementors = []) : array
     {
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType();
         }
 
         $subfields = [];
-        if ($type instanceof ObjectType) {
-            $subfields                = $this->analyzeSelectionSet($selectionSet, $type);
+        if ($type instanceof ObjectType || $type instanceof AbstractType) {
+            $subfields                = $this->analyzeSelectionSet($selectionSet, $type, $implementors);
             $this->types[$type->name] = array_unique(array_merge(
                 array_key_exists($type->name, $this->types) ? $this->types[$type->name] : [],
                 array_keys($subfields)

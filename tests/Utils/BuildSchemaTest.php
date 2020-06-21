@@ -13,6 +13,7 @@ use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\InputObjectType;
@@ -28,7 +29,10 @@ use function count;
 
 class BuildSchemaTest extends TestCase
 {
+    use ArraySubsetAsserts;
+
     // Describe: Schema Builder
+
     /**
      * @see it('can use built schema for limited execution')
      */
@@ -102,6 +106,8 @@ type HelloScalars {
     {
         $body   = '
 directive @foo(arg: Int) on FIELD
+
+directive @repeatableFoo(arg: Int) repeatable on FIELD
 
 type Query {
   str: String

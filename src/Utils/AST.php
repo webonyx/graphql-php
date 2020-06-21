@@ -530,7 +530,7 @@ class AST
             case $valueNode instanceof ObjectValueNode:
                 return array_combine(
                     array_map(
-                        static function ($field) {
+                        static function ($field) : string {
                             return $field->name->value;
                         },
                         iterator_to_array($valueNode->fields)

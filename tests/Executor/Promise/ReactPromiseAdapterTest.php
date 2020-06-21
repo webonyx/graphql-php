@@ -20,7 +20,7 @@ use function class_exists;
  */
 class ReactPromiseAdapterTest extends TestCase
 {
-    public function setUp()
+    public function setUp() : void
     {
         if (class_exists('React\Promise\Promise')) {
             return;
@@ -34,13 +34,13 @@ class ReactPromiseAdapterTest extends TestCase
         $reactAdapter = new ReactPromiseAdapter();
 
         self::assertTrue(
-            $reactAdapter->isThenable(new ReactPromise(static function () {
+            $reactAdapter->isThenable(new ReactPromise(static function () : void {
             }))
         );
         self::assertTrue($reactAdapter->isThenable(new FulfilledPromise()));
         self::assertTrue($reactAdapter->isThenable(new RejectedPromise()));
         self::assertTrue(
-            $reactAdapter->isThenable(new LazyPromise(static function () {
+            $reactAdapter->isThenable(new LazyPromise(static function () : void {
             }))
         );
         self::assertFalse($reactAdapter->isThenable(false));
@@ -74,7 +74,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $resultPromise = $reactAdapter->then(
             $promise,
-            static function ($value) use (&$result) {
+            static function ($value) use (&$result) : void {
                 $result = $value;
             }
         );
@@ -87,7 +87,7 @@ class ReactPromiseAdapterTest extends TestCase
     public function testCreate() : void
     {
         $reactAdapter    = new ReactPromiseAdapter();
-        $resolvedPromise = $reactAdapter->create(static function ($resolve) {
+        $resolvedPromise = $reactAdapter->create(static function ($resolve) : void {
             $resolve(1);
         });
 
@@ -96,7 +96,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $resolvedPromise->then(static function ($value) use (&$result) {
+        $resolvedPromise->then(static function ($value) use (&$result) : void {
             $result = $value;
         });
 
@@ -113,7 +113,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $fulfilledPromise->then(static function ($value) use (&$result) {
+        $fulfilledPromise->then(static function ($value) use (&$result) : void {
             $result = $value;
         });
 
@@ -132,7 +132,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $rejectedPromise->then(
             null,
-            static function ($error) use (&$exception) {
+            static function ($error) use (&$exception) : void {
                 $exception = $error;
             }
         );
@@ -153,7 +153,7 @@ class ReactPromiseAdapterTest extends TestCase
 
         $result = null;
 
-        $allPromise->then(static function ($values) use (&$result) {
+        $allPromise->then(static function ($values) use (&$result) : void {
             $result = $values;
         });
 
@@ -167,7 +167,7 @@ class ReactPromiseAdapterTest extends TestCase
         $promises     = [new FulfilledPromise(1), $deferred->promise(), new FulfilledPromise(3)];
         $result       = null;
 
-        $reactAdapter->all($promises)->then(static function ($values) use (&$result) {
+        $reactAdapter->all($promises)->then(static function ($values) use (&$result) : void {
             $result = $values;
         });
 

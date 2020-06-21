@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Utils;
 
+use Generator;
 use GraphQL\Language\DirectiveLocation;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -21,6 +22,7 @@ use PHPUnit\Framework\TestCase;
 class SchemaPrinterTest extends TestCase
 {
     // Describe: Type System Printer
+
     /**
      * @see it('Prints String Field')
      */
@@ -145,6 +147,47 @@ type Query {
 ',
             $output
         );
+    }
+
+    /**
+     * @see it('Prints Field With "@deprecated" Directive')
+     *
+     * @dataProvider deprecationReasonDataProvider
+     */
+    public function testPrintDeprecatedField(?string $deprecationReason, string $expectedDeprecationDirective) : void
+    {
+        $output = $this->printSingleFieldSchema([
+            'type' => Type::int(),
+            'deprecationReason' => $deprecationReason,
+        ]);
+        self::assertSame(
+            '
+type Query {
+  singleField: Int' . $expectedDeprecationDirective . '
+}
+',
+            $output
+        );
+    }
+
+    public function deprecationReasonDataProvider() : Generator
+    {
+        yield 'when deprecationReason is null' => [
+            null,
+            '',
+        ];
+        yield 'when deprecationReason is empty string' => [
+            '',
+            ' @deprecated',
+        ];
+        yield 'when deprecationReason is the default deprecation reason' => [
+            Directive::DEFAULT_DEPRECATION_REASON,
+            ' @deprecated',
+        ];
+        yield 'when deprecationReason is not empty string' => [
+            'this is deprecated',
+            ' @deprecated(reason: "this is deprecated")',
+        ];
     }
 
     /**
@@ -663,26 +706,50 @@ enum RGB {
         $query = new ObjectType([
             'name'   => 'Query',
             'fields' => [
-                'field' => ['type' => Type::string()],
+                'field' => [
+                    'type' => Type::string(),
+                ],
             ],
         ]);
 
-        $customDirectives = new Directive([
-            'name'      => 'customDirective',
+        $simpleDirective = new Directive([
+            'name'      => 'simpleDirective',
             'locations' => [
                 DirectiveLocation::FIELD,
             ],
         ]);
 
+        $complexDirective = new Directive([
+            'name'      => 'complexDirective',
+            'description' => 'Complex Directive',
+            'args' => [
+                'stringArg' => [
+                    'type' => Type::string(),
+                ],
+                'intArg' => [
+                    'type' => Type::int(),
+                    'defaultValue' => -1,
+                ],
+            ],
+            'isRepeatable' => true,
+            'locations' => [
+                DirectiveLocation::FIELD,
+                DirectiveLocation::QUERY,
+            ],
+        ]);
+
         $schema = new Schema([
             'query'      => $query,
-            'directives' => [$customDirectives],
+            'directives' => [$simpleDirective, $complexDirective],
         ]);
 
         $output = $this->printForTest($schema);
         self::assertEquals(
             '
-directive @customDirective on FIELD
+directive @simpleDirective on FIELD
+
+"""Complex Directive"""
+directive @complexDirective(stringArg: String, intArg: Int = -1) repeatable on FIELD | QUERY
 
 type Query {
   field: String
@@ -811,8 +878,8 @@ directive @skip(
 directive @deprecated(
   """
   Explains why this element was deprecated, usually also including a suggestion
-  for how to access supported similar data. Formatted in
-  [Markdown](https://daringfireball.net/projects/markdown/).
+  for how to access supported similar data. Formatted using the Markdown syntax
+  (as specified by [CommonMark](https://commonmark.org/).
   """
   reason: String = "No longer supported"
 ) on FIELD_DEFINITION | ENUM_VALUE
@@ -828,8 +895,9 @@ to the executor.
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
+  isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
 }
 
 """
@@ -1054,8 +1122,8 @@ directive @skip(
 # Marks an element of a GraphQL schema as no longer supported.
 directive @deprecated(
   # Explains why this element was deprecated, usually also including a suggestion
-  # for how to access supported similar data. Formatted in
-  # [Markdown](https://daringfireball.net/projects/markdown/).
+  # for how to access supported similar data. Formatted using the Markdown syntax
+  # (as specified by [CommonMark](https://commonmark.org/).
   reason: String = "No longer supported"
 ) on FIELD_DEFINITION | ENUM_VALUE
 
@@ -1068,8 +1136,9 @@ directive @deprecated(
 type __Directive {
   name: String!
   description: String
-  locations: [__DirectiveLocation!]!
   args: [__InputValue!]!
+  isRepeatable: Boolean!
+  locations: [__DirectiveLocation!]!
 }
 
 # A Directive can be adjacent to many parts of the GraphQL language, a

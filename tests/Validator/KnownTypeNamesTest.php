@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\KnownTypeNames;
 class KnownTypeNamesTest extends ValidatorTestCase
 {
     // Validate: Known type names
+
     /**
      * @see it('known type names are valid')
      */

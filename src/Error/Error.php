@@ -15,6 +15,7 @@ use Traversable;
 use function array_filter;
 use function array_map;
 use function array_values;
+use function count;
 use function is_array;
 use function iterator_to_array;
 
@@ -36,13 +37,6 @@ class Error extends Exception implements JsonSerializable, ClientAware
 {
     const CATEGORY_GRAPHQL  = 'graphql';
     const CATEGORY_INTERNAL = 'internal';
-
-    /**
-     * A message describing the Error for debugging purposes.
-     *
-     * @var string
-     */
-    public $message;
 
     /** @var SourceLocation[] */
     private $locations;
@@ -114,7 +108,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         $this->source     = $source;
         $this->positions  = $positions;
         $this->path       = $path;
-        $this->extensions = $extensions ?: (
+        $this->extensions = count($extensions) > 0 ? $extensions : (
         $previous && $previous instanceof self
             ? $previous->extensions
             : []
@@ -122,7 +116,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-            $this->category     = $previous->getCategory() ?: self::CATEGORY_INTERNAL;
+            $cat                = $previous->getCategory();
+            $this->category     = $cat === '' || $cat === null  ? self::CATEGORY_INTERNAL: $cat;
         } elseif ($previous) {
             $this->isClientSafe = false;
             $this->category     = self::CATEGORY_INTERNAL;
@@ -150,8 +145,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
                 return $error;
             }
 
-            $nodes = $nodes ?: $error->nodes;
-            $path  = $path ?: $error->path;
+            $nodes = $nodes ?? $error->nodes;
+            $path  = $path ?? $error->path;
         }
 
         $source     = $positions = $originalError = null;
@@ -160,7 +155,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         if ($error instanceof self) {
             $message       = $error->getMessage();
             $originalError = $error;
-            $nodes         = $error->nodes ?: $nodes;
+            $nodes         = $error->nodes ?? $nodes;
             $source        = $error->source;
             $positions     = $error->positions;
             $extensions    = $error->extensions;
@@ -172,7 +167,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         }
 
         return new static(
-            $message ?: 'An unknown error occurred.',
+            $message === '' || $message === null ? 'An unknown error occurred.' : $message,
             $nodes,
             $source,
             $positions,
@@ -227,7 +222,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     {
         if ($this->positions === null && ! empty($this->nodes)) {
             $positions = array_map(
-                static function ($node) {
+                static function ($node) : ?int {
                     return isset($node->loc) ? $node->loc->start : null;
                 },
                 $this->nodes
@@ -235,7 +230,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
             $positions = array_filter(
                 $positions,
-                static function ($p) {
+                static function ($p) : bool {
                     return $p !== null;
                 }
             );
@@ -270,7 +265,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
             if ($positions && $source) {
                 $this->locations = array_map(
-                    static function ($pos) use ($source) {
+                    static function ($pos) use ($source) : SourceLocation {
                         return $source->getLocation($pos);
                     },
                     $positions
@@ -278,10 +273,12 @@ class Error extends Exception implements JsonSerializable, ClientAware
             } elseif ($nodes) {
                 $locations       = array_filter(
                     array_map(
-                        static function ($node) {
+                        static function ($node) : ?SourceLocation {
                             if ($node->loc && $node->loc->source) {
                                 return $node->loc->source->getLocation($node->loc->start);
                             }
+
+                            return null;
                         },
                         $nodes
                     )
@@ -341,7 +338,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         $locations = Utils::map(
             $this->getLocations(),
-            static function (SourceLocation $loc) {
+            static function (SourceLocation $loc) : array {
                 return $loc->toSerializableArray();
             }
         );

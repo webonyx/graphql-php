@@ -40,7 +40,7 @@ class ResolveInfo
      * Expected return type of the field being resolved.
      *
      * @api
-     * @var OutputType&Type
+     * @var Type
      */
     public $returnType;
 
@@ -175,7 +175,7 @@ class ResolveInfo
      *
      * @param int $depth How many levels to include in output
      *
-     * @return bool[]
+     * @return array<string, mixed>
      *
      * @api
      */

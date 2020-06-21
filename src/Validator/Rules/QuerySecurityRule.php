@@ -109,8 +109,8 @@ abstract class QuerySecurityRule extends ValidationRule
         ?ArrayObject $visitedFragmentNames = null,
         ?ArrayObject $astAndDefs = null
     ) {
-        $_visitedFragmentNames = $visitedFragmentNames ?: new ArrayObject();
-        $_astAndDefs           = $astAndDefs ?: new ArrayObject();
+        $_visitedFragmentNames = $visitedFragmentNames ?? new ArrayObject();
+        $_astAndDefs           = $astAndDefs ?? new ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
             switch (true) {

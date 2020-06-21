@@ -32,7 +32,7 @@ final class QueryPlanTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) {
+            'fields' => static function () use ($image, &$article) : array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -302,7 +302,7 @@ final class QueryPlanTest extends TestCase
     {
         $petType = new InterfaceType([
             'name'   => 'Pet',
-            'fields' => static function () {
+            'fields' => static function () : array {
                 return [
                     'name' => ['type' => Type::string()],
                 ];
@@ -312,10 +312,10 @@ final class QueryPlanTest extends TestCase
         $dogType = new ObjectType([
             'name'       => 'Dog',
             'interfaces' => [$petType],
-            'isTypeOf'   => static function ($obj) {
+            'isTypeOf'   => static function ($obj) : bool {
                 return $obj instanceof Dog;
             },
-            'fields' => static function () {
+            'fields' => static function () : array {
                 return [
                     'name'  => ['type' => Type::string()],
                     'woofs' => ['type' => Type::boolean()],
@@ -372,7 +372,7 @@ final class QueryPlanTest extends TestCase
                     ) use (
                         &$hasCalled,
                         &$queryPlan
-) {
+                    ) : array {
                         $hasCalled = true;
                         $queryPlan = $info->lookAhead();
 
@@ -424,7 +424,7 @@ final class QueryPlanTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) {
+            'fields' => static function () use ($image, &$article) : array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -700,7 +700,7 @@ final class QueryPlanTest extends TestCase
         self::assertFalse($queryPlan->hasType('Test'));
     }
 
-    public function testQueryPlanOnInterfaceGroupingImplementorFields() : void
+    public function testQueryPlanGroupingImplementorFieldsForAbstractTypes() : void
     {
         $car = null;
 
@@ -715,6 +715,30 @@ final class QueryPlanTest extends TestCase
             },
         ]);
 
+        $manualTransmission = new ObjectType([
+            'name' => 'ManualTransmission',
+            'fields' => [
+                'speed' => Type::int(),
+                'overdrive' => Type::boolean(),
+            ],
+        ]);
+
+        $automaticTransmission = new ObjectType([
+            'name' => 'AutomaticTransmission',
+            'fields' => [
+                'speed' => Type::int(),
+                'sportMode' => Type::boolean(),
+            ],
+        ]);
+
+        $transmission = new UnionType([
+            'name' => 'Transmission',
+            'types' => [$manualTransmission, $automaticTransmission],
+            'resolveType' => static function () use ($manualTransmission) {
+                return $manualTransmission;
+            },
+        ]);
+
         $car = new ObjectType([
             'name'       => 'Car',
             'fields'    => [
@@ -722,6 +746,7 @@ final class QueryPlanTest extends TestCase
                 'owner' => Type::string(),
                 'mark'  => Type::string(),
                 'model' => Type::string(),
+                'transmission' => $transmission,
             ],
             'interfaces' => [$item],
         ]);
@@ -744,6 +769,16 @@ final class QueryPlanTest extends TestCase
                 ... on Car {
                     mark
                     model
+                    transmission {
+                        ... on ManualTransmission {
+                            speed
+                            overdrive
+                        }
+                        ... on AutomaticTransmission {
+                            speed
+                            sportMode
+                        }
+                    }
                 }
                 ... on Building {
                     city
@@ -786,6 +821,43 @@ final class QueryPlanTest extends TestCase
                             'fields' => [],
                             'args'   => [],
                         ],
+                        'transmission' => [
+                            'type' => $transmission,
+                            'fields' => [],
+                            'args' => [],
+                            'implementors' => [
+                                'ManualTransmission' => [
+                                    'type' => $manualTransmission,
+                                    'fields' => [
+                                        'speed' => [
+                                            'type' => Type::int(),
+                                            'fields' => [],
+                                            'args' => [],
+                                        ],
+                                        'overdrive' => [
+                                            'type' => Type::boolean(),
+                                            'fields' => [],
+                                            'args' => [],
+                                        ],
+                                    ],
+                                ],
+                                'AutomaticTransmission' => [
+                                    'type' => $automaticTransmission,
+                                    'fields' => [
+                                        'speed' => [
+                                            'type' => Type::int(),
+                                            'fields' => [],
+                                            'args' => [],
+                                        ],
+                                        'sportMode' => [
+                                            'type' => Type::boolean(),
+                                            'fields' => [],
+                                            'args' => [],
+                                        ],
+                                    ],
+                                ],
+                            ],
+                        ],
                     ],
                 ],
                 'Building' => [
@@ -806,9 +878,9 @@ final class QueryPlanTest extends TestCase
             ],
         ];
 
-        $expectedReferencedTypes = ['Car', 'Building', 'Item'];
+        $expectedReferencedTypes = ['ManualTransmission', 'AutomaticTransmission', 'Transmission', 'Car', 'Building', 'Item'];
 
-        $expectedReferencedFields = ['mark', 'model', 'city', 'address', 'id', 'owner'];
+        $expectedReferencedFields = ['speed', 'overdrive', 'sportMode', 'mark', 'model', 'transmission', 'city', 'address', 'id', 'owner'];
 
         $expectedItemSubFields     = ['id', 'owner'];
         $expectedBuildingSubFields = ['city', 'address'];
@@ -844,124 +916,6 @@ final class QueryPlanTest extends TestCase
         self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
         self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
         self::assertEquals($expectedItemSubFields, $queryPlan->subFields('Item'));
-        self::assertEquals($expectedBuildingSubFields, $queryPlan->subFields('Building'));
-    }
-
-    public function testQueryPlanOnUnionGroupingImplementorFields() : void
-    {
-        $car = new ObjectType([
-            'name'   => 'Car',
-            'fields' => [
-                'mark'  => Type::string(),
-                'model' => Type::string(),
-            ],
-        ]);
-
-        $building = new ObjectType([
-            'name'   => 'Building',
-            'fields' => [
-                'city'    => Type::string(),
-                'address' => Type::string(),
-            ],
-        ]);
-
-        $item = new UnionType([
-            'name'        => 'Item',
-            'types'       => [$car, $building],
-            'resolveType' => static function () use ($car) {
-                return $car;
-            },
-        ]);
-
-        $query = '{
-            item {
-                ... on Car {
-                    mark
-                    model
-                }
-                ... on Building {
-                    city
-                }
-                ...BuildingFragment
-            }
-        }
-        fragment BuildingFragment on Building {
-            address
-        }';
-
-        $expectedResult = [
-            'data' => ['item' => null],
-        ];
-
-        $expectedQueryPlan = [
-            'fields'       => [],
-            'implementors' => [
-                'Car'      => [
-                    'type'   => $car,
-                    'fields' => [
-                        'mark'  => [
-                            'type'   => Type::string(),
-                            'fields' => [],
-                            'args'   => [],
-                        ],
-                        'model' => [
-                            'type'   => Type::string(),
-                            'fields' => [],
-                            'args'   => [],
-                        ],
-                    ],
-                ],
-                'Building' => [
-                    'type'   => $building,
-                    'fields' => [
-                        'city'    => [
-                            'type'   => Type::string(),
-                            'fields' => [],
-                            'args'   => [],
-                        ],
-                        'address' => [
-                            'type'   => Type::string(),
-                            'fields' => [],
-                            'args'   => [],
-                        ],
-                    ],
-                ],
-            ],
-        ];
-
-        $expectedReferencedTypes = ['Car', 'Building', 'Item'];
-
-        $expectedReferencedFields = ['mark', 'model', 'city', 'address'];
-
-        $expectedBuildingSubFields = ['city', 'address'];
-
-        $hasCalled = false;
-        /** @var QueryPlan $queryPlan */
-        $queryPlan = null;
-
-        $root = new ObjectType([
-            'name'   => 'Query',
-            'fields' => [
-                'item' => [
-                    'type'    => $item,
-                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) use (&$hasCalled, &$queryPlan) {
-                        $hasCalled = true;
-                        $queryPlan = $info->lookAhead(['group-implementor-fields']);
-
-                        return null;
-                    },
-                ],
-            ],
-        ]);
-
-        $schema = new Schema(['query' => $root]);
-        $result = GraphQL::executeQuery($schema, $query)->toArray();
-
-        self::assertTrue($hasCalled);
-        self::assertEquals($expectedResult, $result);
-        self::assertEquals($expectedQueryPlan, $queryPlan->queryPlan());
-        self::assertEquals($expectedReferencedTypes, $queryPlan->getReferencedTypes());
-        self::assertEquals($expectedReferencedFields, $queryPlan->getReferencedFields());
         self::assertEquals($expectedBuildingSubFields, $queryPlan->subFields('Building'));
     }
 }

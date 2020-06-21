@@ -54,7 +54,7 @@ class ExtractTypesTest extends TestCase
     /** @var InputObjectType */
     private $postCommentMutationInput;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->node = new InterfaceType([
             'name'   => 'Node',
@@ -65,7 +65,7 @@ class ExtractTypesTest extends TestCase
 
         $this->content = new InterfaceType([
             'name'   => 'Content',
-            'fields' => function () {
+            'fields' => function () : array {
                 return [
                     'title'      => Type::string(),
                     'body'       => Type::string(),
@@ -82,7 +82,7 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function () {
+            'fields'     => function () : array {
                 return [
                     $this->node->getField('id'),
                     $this->content->getField('title'),
@@ -100,7 +100,7 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function () {
+            'fields'     => function () : array {
                 return [
                     'id'         => $this->node->getField('id'),
                     'title'      => $this->content->getField('title'),
@@ -119,7 +119,7 @@ class ExtractTypesTest extends TestCase
                 $this->node,
                 $this->content,
             ],
-            'fields'     => function () {
+            'fields'     => function () : array {
                 return [
                     'id'          => $this->node->getField('id'),
                     'title'       => $this->content->getField('title'),
@@ -145,7 +145,7 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields'     => function () {
+            'fields'     => function () : array {
                 return [
                     'id'      => $this->node->getField('id'),
                     'author'  => $this->user,
@@ -162,7 +162,7 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields'     => function () {
+            'fields'     => function () : array {
                 return [
                     'id'   => $this->node->getField('id'),
                     'name' => Type::string(),
@@ -175,7 +175,7 @@ class ExtractTypesTest extends TestCase
             'interfaces' => [
                 $this->node,
             ],
-            'fields'     => function () {
+            'fields'     => function () : array {
                 return [
                     'id'   => $this->node->getField('id'),
                     'name' => Type::string(),

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Validator;
 
 use Exception;
+use GraphQL\Language\DirectiveLocation;
 use GraphQL\Language\Parser;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\Directive;
@@ -64,7 +65,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Canine = new InterfaceType([
             'name'   => 'Canine',
-            'fields' => static function () {
+            'fields' => static function () : array {
                 return [
                     'name' => [
                         'type' => Type::string(),
@@ -111,7 +112,7 @@ abstract class ValidatorTestCase extends TestCase
 
         $Cat = new ObjectType([
             'name'       => 'Cat',
-            'fields'     => static function () use (&$FurColor) {
+            'fields'     => static function () use (&$FurColor) : array {
                 return [
                     'name'       => [
                         'type' => Type::string(),
@@ -142,7 +143,7 @@ abstract class ValidatorTestCase extends TestCase
         $Human = new ObjectType([
             'name'       => 'Human',
             'interfaces' => [$Being, $Intelligent],
-            'fields'     => static function () use (&$Human, $Pet) {
+            'fields'     => static function () use (&$Human, $Pet) : array {
                 return [
                     'name'      => [
                         'type' => Type::string(),
@@ -300,10 +301,10 @@ abstract class ValidatorTestCase extends TestCase
             'serialize'    => static function ($value) {
                 return $value;
             },
-            'parseLiteral' => static function ($node) {
+            'parseLiteral' => static function ($node) : void {
                 throw new Exception('Invalid scalar is always invalid: ' . $node->value);
             },
-            'parseValue'   => static function ($node) {
+            'parseValue'   => static function ($node) : void {
                 throw new Exception('Invalid scalar is always invalid: ' . $node);
             },
         ]);
@@ -349,42 +350,64 @@ abstract class ValidatorTestCase extends TestCase
             ],
         ]);
 
+        $subscriptionRoot = new ObjectType([
+            'name'   => 'SubscriptionRoot',
+            'fields' => [
+                'catSubscribe'  => ['type' => $Cat],
+                'barkSubscribe' => ['type' => $Dog],
+            ],
+        ]);
+
         return new Schema([
-            'query'      => $queryRoot,
-            'directives' => [
+            'query'        => $queryRoot,
+            'subscription' => $subscriptionRoot,
+            'directives'   => [
                 Directive::includeDirective(),
                 Directive::skipDirective(),
+                Directive::deprecatedDirective(),
+                new Directive([
+                    'name'      => 'directive',
+                    'locations' => [DirectiveLocation::FIELD],
+                ]),
+                new Directive([
+                    'name'      => 'directiveA',
+                    'locations' => [DirectiveLocation::FIELD],
+                ]),
+                new Directive([
+                    'name'      => 'directiveB',
+                    'locations' => [DirectiveLocation::FIELD],
+                ]),
                 new Directive([
                     'name'      => 'onQuery',
-                    'locations' => ['QUERY'],
+                    'locations' => [DirectiveLocation::QUERY],
                 ]),
                 new Directive([
                     'name'      => 'onMutation',
-                    'locations' => ['MUTATION'],
+                    'locations' => [DirectiveLocation::MUTATION],
                 ]),
                 new Directive([
                     'name'      => 'onSubscription',
-                    'locations' => ['SUBSCRIPTION'],
+                    'locations' => [DirectiveLocation::SUBSCRIPTION],
                 ]),
                 new Directive([
                     'name'      => 'onField',
-                    'locations' => ['FIELD'],
+                    'locations' => [DirectiveLocation::FIELD],
                 ]),
                 new Directive([
                     'name'      => 'onFragmentDefinition',
-                    'locations' => ['FRAGMENT_DEFINITION'],
+                    'locations' => [DirectiveLocation::FRAGMENT_DEFINITION],
                 ]),
                 new Directive([
                     'name'      => 'onFragmentSpread',
-                    'locations' => ['FRAGMENT_SPREAD'],
+                    'locations' => [DirectiveLocation::FRAGMENT_SPREAD],
                 ]),
                 new Directive([
                     'name'      => 'onInlineFragment',
-                    'locations' => ['INLINE_FRAGMENT'],
+                    'locations' => [DirectiveLocation::INLINE_FRAGMENT],
                 ]),
                 new Directive([
                     'name'      => 'onVariableDefinition',
-                    'locations' => ['VARIABLE_DEFINITION'],
+                    'locations' => [DirectiveLocation::VARIABLE_DEFINITION],
                 ]),
             ],
         ]);

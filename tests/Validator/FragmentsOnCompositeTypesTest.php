@@ -11,6 +11,7 @@ use GraphQL\Validator\Rules\FragmentsOnCompositeTypes;
 class FragmentsOnCompositeTypesTest extends ValidatorTestCase
 {
     // Validate: Fragments on composite types
+
     /**
      * @see it('object is valid fragment type')
      */

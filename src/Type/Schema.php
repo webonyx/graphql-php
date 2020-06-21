@@ -57,7 +57,7 @@ class Schema
      */
     private $resolvedTypes = [];
 
-    /** @var array<string, array<string, ObjectType>>|null */
+    /** @var array<string, array<string, ObjectType|UnionType>> */
     private $possibleTypeMap;
 
     /**
@@ -71,7 +71,7 @@ class Schema
     private $validationErrors;
 
     /** @var SchemaTypeExtensionNode[] */
-    public $extensionASTNodes;
+    public $extensionASTNodes = [];
 
     /**
      * @param mixed[]|SchemaConfig $config
@@ -112,7 +112,7 @@ class Schema
                 '"types" must be array or callable if provided but got: ' . Utils::getVariableType($config->types)
             );
             Utils::invariant(
-                ! $config->directives || is_array($config->directives),
+                $config->directives === null || is_array($config->directives),
                 '"directives" must be Array if provided but got: ' . Utils::getVariableType($config->directives)
             );
         }
@@ -120,13 +120,13 @@ class Schema
         $this->config            = $config;
         $this->extensionASTNodes = $config->extensionASTNodes;
 
-        if ($config->query) {
+        if ($config->query !== null) {
             $this->resolvedTypes[$config->query->name] = $config->query;
         }
-        if ($config->mutation) {
+        if ($config->mutation !== null) {
             $this->resolvedTypes[$config->mutation->name] = $config->mutation;
         }
-        if ($config->subscription) {
+        if ($config->subscription !== null) {
             $this->resolvedTypes[$config->subscription->name] = $config->subscription;
         }
         if (is_array($this->config->types)) {
@@ -158,7 +158,7 @@ class Schema
      */
     private function resolveAdditionalTypes()
     {
-        $types = $this->config->types ?: [];
+        $types = $this->config->types ?? [];
 
         if (is_callable($types)) {
             $types = $types();
@@ -172,6 +172,7 @@ class Schema
         }
 
         foreach ($types as $index => $type) {
+            $type = self::resolveType($type);
             if (! $type instanceof Type) {
                 throw new InvariantViolation(sprintf(
                     'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
@@ -238,7 +239,7 @@ class Schema
      */
     public function getDirectives()
     {
-        return $this->config->directives ?: GraphQL::getStandardDirectives();
+        return $this->config->directives ?? GraphQL::getStandardDirectives();
     }
 
     /**
@@ -267,7 +268,7 @@ class Schema
      *
      * @api
      */
-    public function getQueryType()
+    public function getQueryType() : ?Type
     {
         return $this->config->query;
     }
@@ -279,7 +280,7 @@ class Schema
      *
      * @api
      */
-    public function getMutationType()
+    public function getMutationType() : ?Type
     {
         return $this->config->mutation;
     }
@@ -291,7 +292,7 @@ class Schema
      *
      * @api
      */
-    public function getSubscriptionType()
+    public function getSubscriptionType() : ?Type
     {
         return $this->config->subscription;
     }
@@ -315,10 +316,11 @@ class Schema
     {
         if (! isset($this->resolvedTypes[$name])) {
             $type = $this->loadType($name);
+
             if (! $type) {
                 return null;
             }
-            $this->resolvedTypes[$name] = $type;
+            $this->resolvedTypes[$name] = self::resolveType($type);
         }
 
         return $this->resolvedTypes[$name];
@@ -342,12 +344,13 @@ class Schema
         if (! $type instanceof Type) {
             throw new InvariantViolation(
                 sprintf(
-                    'Type loader is expected to return valid type "%s", but it returned %s',
+                    'Type loader is expected to return a callable or valid type "%s", but it returned %s',
                     $typeName,
                     Utils::printSafe($type)
                 )
             );
         }
+
         if ($type->name !== $typeName) {
             throw new InvariantViolation(
                 sprintf('Type loader is expected to return type "%s", but it returned "%s"', $typeName, $type->name)
@@ -359,10 +362,22 @@ class Schema
 
     private function defaultTypeLoader(string $typeName) : ?Type
     {
-        // Default type loader simply fallbacks to collecting all types
+        // Default type loader simply falls back to collecting all types
         $typeMap = $this->getTypeMap();
 
         return $typeMap[$typeName] ?? null;
+    }
+
+    /**
+     * @param Type|callable():Type $type
+     */
+    public static function resolveType($type) : Type
+    {
+        if (is_callable($type)) {
+            return $type();
+        }
+
+        return $type;
     }
 
     /**
@@ -385,11 +400,11 @@ class Schema
     }
 
     /**
-     * @return array<string, array<string, ObjectType>>
+     * @return array<string, array<string, ObjectType|UnionType>>
      */
     private function getPossibleTypeMap()
     {
-        if ($this->possibleTypeMap === null) {
+        if (! isset($this->possibleTypeMap)) {
             $this->possibleTypeMap = [];
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof ObjectType) {
@@ -446,10 +461,7 @@ class Schema
         return null;
     }
 
-    /**
-     * @return SchemaDefinitionNode
-     */
-    public function getAstNode()
+    public function getAstNode() : ?SchemaDefinitionNode
     {
         return $this->config->getAstNode();
     }

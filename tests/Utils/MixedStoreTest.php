@@ -14,7 +14,7 @@ class MixedStoreTest extends TestCase
     /** @var MixedStore */
     private $mixedStore;
 
-    public function setUp()
+    public function setUp() : void
     {
         $this->mixedStore = new MixedStore();
     }
@@ -38,7 +38,7 @@ class MixedStoreTest extends TestCase
             'a',
             [],
             new stdClass(),
-            static function () {
+            static function () : void {
             },
             new MixedStore(),
         ];
@@ -124,7 +124,7 @@ class MixedStoreTest extends TestCase
             $this->assertAcceptsKeyValue(new stdClass(), $value);
             $this->assertAcceptsKeyValue(new MixedStore(), $value);
             $this->assertAcceptsKeyValue(
-                static function () {
+                static function () : void {
                 },
                 $value
             );

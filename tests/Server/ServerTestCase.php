@@ -47,13 +47,13 @@ abstract class ServerTestCase extends TestCase
                     ],
                     'fieldWithSafeException' => [
                         'type' => Type::string(),
-                        'resolve' => static function () {
+                        'resolve' => static function () : void {
                             throw new UserError('This is the exception we want');
                         },
                     ],
                     'fieldWithUnsafeException' => [
                         'type' => Type::string(),
-                        'resolve' => static function () {
+                        'resolve' => static function () : void {
                             throw new Unsafe('This exception should not be shown to the user');
                         },
                     ],

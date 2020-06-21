@@ -83,8 +83,8 @@ class NodeList implements ArrayAccess, IteratorAggregate, Countable
     }
 
     /**
-     * @param int|string   $offset
-     * @param Node|mixed[] $value
+     * @param int|string|null $offset
+     * @param Node|mixed[]    $value
      *
      * @phpstan-param T|mixed[] $value
      */

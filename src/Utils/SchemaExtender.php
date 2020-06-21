@@ -141,7 +141,7 @@ class SchemaExtender
         return new UnionType([
             'name' => $type->name,
             'description' => $type->description,
-            'types' => static function () use ($type) {
+            'types' => static function () use ($type) : array {
                 return static::extendPossibleTypes($type);
             },
             'astNode' => $type->astNode,
@@ -166,7 +166,7 @@ class SchemaExtender
         return new InputObjectType([
             'name' => $type->name,
             'description' => $type->description,
-            'fields' => static function () use ($type) {
+            'fields' => static function () use ($type) : array {
                 return static::extendInputFieldMap($type);
             },
             'astNode' => $type->astNode,
@@ -296,7 +296,7 @@ class SchemaExtender
     protected static function extendType($typeDef)
     {
         if ($typeDef instanceof ListOfType) {
-            return Type::listOf(static::extendType($typeDef->ofType));
+            return Type::listOf(static::extendType($typeDef->getOfType()));
         }
 
         if ($typeDef instanceof NonNull) {
@@ -315,7 +315,7 @@ class SchemaExtender
     {
         return Utils::keyValMap(
             $args,
-            static function (FieldArgument $arg) {
+            static function (FieldArgument $arg) : string {
                 return $arg->name;
             },
             static function (FieldArgument $arg) {
@@ -382,15 +382,16 @@ class SchemaExtender
         return new ObjectType([
             'name' => $type->name,
             'description' => $type->description,
-            'interfaces' => static function () use ($type) {
+            'interfaces' => static function () use ($type) : array {
                 return static::extendImplementedInterfaces($type);
             },
-            'fields' => static function () use ($type) {
+            'fields' => static function () use ($type) : array {
                 return static::extendFieldMap($type);
             },
             'astNode' => $type->astNode,
             'extensionASTNodes' => static::getExtensionASTNodes($type),
             'isTypeOf' => $type->config['isTypeOf'] ?? null,
+            'resolveField' => $type->resolveFieldFn ?? null,
         ]);
     }
 
@@ -399,7 +400,7 @@ class SchemaExtender
         return new InterfaceType([
             'name' => $type->name,
             'description' => $type->description,
-            'fields' => static function () use ($type) {
+            'fields' => static function () use ($type) : array {
                 return static::extendFieldMap($type);
             },
             'astNode' => $type->astNode,
@@ -465,7 +466,7 @@ class SchemaExtender
      */
     protected static function getMergedDirectives(Schema $schema, array $directiveDefinitions) : array
     {
-        $existingDirectives = array_map(static function (Directive $directive) {
+        $existingDirectives = array_map(static function (Directive $directive) : Directive {
             return static::extendDirective($directive);
         }, $schema->getDirectives());
 
@@ -609,11 +610,7 @@ class SchemaExtender
             }
         }
 
-        $schemaExtensionASTNodes = count($schemaExtensions) > 0
-            ? ($schema->extensionASTNodes
-                ? array_merge($schema->extensionASTNodes, $schemaExtensions)
-                : $schemaExtensions)
-            : $schema->extensionASTNodes;
+        $schemaExtensionASTNodes = array_merge($schema->extensionASTNodes, $schemaExtensions);
 
         $types = array_merge(
             // Iterate through all types, getting the type definition for each, ensuring
@@ -622,7 +619,7 @@ class SchemaExtender
                 return static::extendNamedType($type);
             }, array_values($schema->getTypeMap())),
             // Do the same with new types.
-            array_map(static function ($type) {
+            array_map(static function ($type) : Type {
                 return static::$astBuilder->buildType($type);
             }, array_values($typeDefinitionMap))
         );

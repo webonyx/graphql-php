@@ -6,6 +6,7 @@
 * [Laravel GraphQL](https://github.com/rebing/graphql-laravel) - Laravel wrapper for Facebook's GraphQL
 * [OverblogGraphQLBundle](https://github.com/overblog/GraphQLBundle) – Bundle for Symfony
 * [WP-GraphQL](https://github.com/wp-graphql/wp-graphql) - GraphQL API for WordPress
+* [Siler](https://github.com/leocavalcante/siler) - Straightforward way to map GraphQL SDL to resolver callables, also built-in support for Swoole
 
 # GraphQL PHP Tools
 
@@ -24,3 +25,4 @@
 * [ChromeiQL](https://chrome.google.com/webstore/detail/chromeiql/fkkiamalmpiidkljmicmjfbieiclmeij)
   or [GraphiQL Feen](https://chrome.google.com/webstore/detail/graphiql-feen/mcbfdonlkfpbfdpimkjilhdneikhfklp) –
   GraphiQL as Google Chrome extension
+* [Altair GraphQL Client](https://altair.sirmuel.design/) - A beautiful feature-rich GraphQL Client for all platforms
