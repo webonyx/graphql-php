@@ -250,11 +250,9 @@ abstract class Type implements JsonSerializable
     /**
      * @param Type $type
      *
-     * @return bool
-     *
      * @api
      */
-    public static function isLeafType($type)
+    public static function isLeafType($type) : bool
     {
         return $type instanceof LeafType;
     }
@@ -262,11 +260,9 @@ abstract class Type implements JsonSerializable
     /**
      * @param Type $type
      *
-     * @return bool
-     *
      * @api
      */
-    public static function isCompositeType($type)
+    public static function isCompositeType($type) : bool
     {
         return $type instanceof CompositeType;
     }
