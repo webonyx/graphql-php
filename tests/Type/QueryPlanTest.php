@@ -734,7 +734,7 @@ final class QueryPlanTest extends TestCase
         $transmission = new UnionType([
             'name' => 'Transmission',
             'types' => [$manualTransmission, $automaticTransmission],
-            'resolveType' => static function () use ($manualTransmission) {
+            'resolveType' => static function () use ($manualTransmission) : ObjectType {
                 return $manualTransmission;
             },
         ]);

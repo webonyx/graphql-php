@@ -173,7 +173,7 @@ class FormattedError
      */
     public static function createFromException(Throwable $exception, int $debug = DebugFlag::NONE, $internalErrorMessage = null) : array
     {
-        $internalErrorMessage = $internalErrorMessage ?: self::$internalErrorMessage;
+        $internalErrorMessage = $internalErrorMessage ?? self::$internalErrorMessage;
 
         if ($exception instanceof ClientAware) {
             $formattedError = [
