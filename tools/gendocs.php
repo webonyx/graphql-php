@@ -52,8 +52,10 @@ function renderClassMethod(ReflectionMethod $method) {
     if (strlen($argsStr) >= 80) {
         $argsStr = "\n    " . implode(",\n    ", $args) . "\n";
     }
+    $returnType = $method->getReturnType();
     $def = "function {$method->getName()}($argsStr)";
     $def = $method->isStatic() ? "static $def" : $def;
+    $def = $returnType ? "$def: $returnType" : $def;
     $docBlock = unpadDocblock($method->getDocComment());
 
     return <<<TEMPLATE

@@ -93,9 +93,9 @@ GraphQL\Error\FormattedError::setInternalErrorMessage("Unexpected error");
 During development or debugging use `$result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE)` to add **debugMessage** key to 
 each formatted error entry. If you also want to add exception trace - pass flags instead:
 
-```
-use GraphQL\Error\Debug;
-$debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
+```php
+use GraphQL\Error\DebugFlag;
+$debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
 $result = GraphQL::executeQuery(/*args*/)->toArray($debug);
 ```
 
@@ -126,8 +126,8 @@ If you prefer the first resolver exception to be re-thrown, use following flags:
 ```php
 <?php
 use GraphQL\GraphQL;
-use GraphQL\Error\Debug;
-$debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::RETHROW_INTERNAL_EXCEPTIONS;
+use GraphQL\Error\DebugFlag;
+$debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::RETHROW_INTERNAL_EXCEPTIONS;
 
 // Following will throw if there was an exception in resolver during execution:
 $result = GraphQL::executeQuery(/*args*/)->toArray($debug); 

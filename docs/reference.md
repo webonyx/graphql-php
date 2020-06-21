@@ -20,9 +20,11 @@ See [related documentation](executing-queries.md).
  * rootValue:
  *    The value provided as the first argument to resolver functions on the top
  *    level type (e.g. the query object type).
- * context:
- *    The value provided as the third argument to all resolvers.
- *    Use this to pass current session, user data, etc
+ * contextValue:
+ *    The context value is provided as an argument to resolver functions after
+ *    field arguments. It is used to pass shared information useful at any point
+ *    during executing this query, for example the currently logged in user and
+ *    connections to databases or other services.
  * variableValues:
  *    A mapping of variable name to runtime value to use for all variables
  *    defined in the requestString.
@@ -33,7 +35,7 @@ See [related documentation](executing-queries.md).
  * fieldResolver:
  *    A resolver function to use when one is not provided by the schema.
  *    If not provided, the default field resolver is used (which looks for a
- *    value on the object value with the field's name).
+ *    value on the source value with the field's name).
  * validationRules:
  *    A set of rules for query validation step. Default value is all available rules.
  *    Empty array would allow to skip query validation (may be convenient for persisted
@@ -41,7 +43,7 @@ See [related documentation](executing-queries.md).
  *
  * @param string|DocumentNode $source
  * @param mixed               $rootValue
- * @param mixed               $context
+ * @param mixed               $contextValue
  * @param mixed[]|null        $variableValues
  * @param ValidationRule[]    $validationRules
  *
@@ -51,12 +53,12 @@ static function executeQuery(
     GraphQL\Type\Schema $schema,
     $source,
     $rootValue = null,
-    $context = null,
+    $contextValue = null,
     $variableValues = null,
     string $operationName = null,
     callable $fieldResolver = null,
     array $validationRules = null
-)
+): GraphQL\Executor\ExecutionResult
 ```
 
 ```php
@@ -82,7 +84,7 @@ static function promiseToExecute(
     string $operationName = null,
     callable $fieldResolver = null,
     array $validationRules = null
-)
+): GraphQL\Executor\Promise\Promise
 ```
 
 ```php
@@ -93,7 +95,7 @@ static function promiseToExecute(
  *
  * @api
  */
-static function getStandardDirectives()
+static function getStandardDirectives(): array
 ```
 
 ```php
@@ -104,7 +106,7 @@ static function getStandardDirectives()
  *
  * @api
  */
-static function getStandardTypes()
+static function getStandardTypes(): array
 ```
 
 ```php
@@ -112,7 +114,7 @@ static function getStandardTypes()
  * Replaces standard types with types from this list (matching by name)
  * Standard types not listed here remain untouched.
  *
- * @param Type[] $types
+ * @param array<string, ScalarType> $types
  *
  * @api
  */
@@ -127,7 +129,7 @@ static function overrideStandardTypes(array $types)
  *
  * @api
  */
-static function getStandardValidationRules()
+static function getStandardValidationRules(): array
 ```
 
 ```php
@@ -136,7 +138,7 @@ static function getStandardValidationRules()
  *
  * @api
  */
-static function setDefaultFieldResolver(callable $fn)
+static function setDefaultFieldResolver(callable $fn): void
 ```
 # GraphQL\Type\Definition\Type
 Registry of standard GraphQL types
@@ -145,198 +147,164 @@ and a base class for all other types.
 **Class Methods:** 
 ```php
 /**
- * @return IDType
- *
  * @api
  */
-static function id()
+static function id(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @return StringType
- *
  * @api
  */
-static function string()
+static function string(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @return BooleanType
- *
  * @api
  */
-static function boolean()
+static function boolean(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @return IntType
- *
  * @api
  */
-static function int()
+static function int(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @return FloatType
- *
  * @api
  */
-static function float()
+static function float(): GraphQL\Type\Definition\ScalarType
 ```
 
 ```php
 /**
- * @param Type|ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType|NonNull $wrappedType
- *
- * @return ListOfType
- *
  * @api
  */
-static function listOf($wrappedType)
+static function listOf(GraphQL\Type\Definition\Type $wrappedType): GraphQL\Type\Definition\ListOfType
 ```
 
 ```php
 /**
- * @param ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType $wrappedType
- *
- * @return NonNull
+ * @param callable|NullableType $wrappedType
  *
  * @api
  */
-static function nonNull($wrappedType)
+static function nonNull($wrappedType): GraphQL\Type\Definition\NonNull
 ```
 
 ```php
 /**
  * @param Type $type
  *
- * @return bool
- *
  * @api
  */
-static function isInputType($type)
+static function isInputType($type): bool
 ```
 
 ```php
 /**
  * @param Type $type
  *
- * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType
- *
  * @api
  */
-static function getNamedType($type)
+static function getNamedType($type): GraphQL\Type\Definition\Type
 ```
 
 ```php
 /**
  * @param Type $type
  *
- * @return bool
- *
  * @api
  */
-static function isOutputType($type)
+static function isOutputType($type): bool
 ```
 
 ```php
 /**
  * @param Type $type
  *
- * @return bool
- *
  * @api
  */
-static function isLeafType($type)
+static function isLeafType($type): bool
 ```
 
 ```php
 /**
  * @param Type $type
  *
- * @return bool
- *
  * @api
  */
-static function isCompositeType($type)
+static function isCompositeType($type): bool
 ```
 
 ```php
 /**
  * @param Type $type
  *
- * @return bool
- *
  * @api
  */
-static function isAbstractType($type)
+static function isAbstractType($type): bool
 ```
 
 ```php
 /**
- * @param Type $type
- *
- * @return bool
- *
  * @api
  */
-static function isType($type)
-```
-
-```php
-/**
- * @param Type $type
- *
- * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|ListOfType
- *
- * @api
- */
-static function getNullableType($type)
+static function getNullableType(GraphQL\Type\Definition\Type $type): GraphQL\Type\Definition\Type
 ```
 # GraphQL\Type\Definition\ResolveInfo
 Structure containing information useful for field resolution process.
+
 Passed as 4th argument to every field resolver. See [docs on field resolving (data fetching)](data-fetching.md).
 
 **Class Props:** 
 ```php
 /**
- * The name of the field being resolved
+ * The definition of the field being resolved.
  *
  * @api
- * @var string|null
+ * @var FieldDefinition
+ */
+public $fieldDefinition;
+
+/**
+ * The name of the field being resolved.
+ *
+ * @api
+ * @var string
  */
 public $fieldName;
+
+/**
+ * Expected return type of the field being resolved.
+ *
+ * @api
+ * @var Type
+ */
+public $returnType;
 
 /**
  * AST of all nodes referencing this field in the query.
  *
  * @api
- * @var FieldNode[]|null
+ * @var FieldNode[]
  */
 public $fieldNodes;
 
 /**
- * Expected return type of the field being resolved
+ * Parent type of the field being resolved.
  *
  * @api
- * @var ScalarType|ObjectType|InterfaceType|UnionType|EnumType|ListOfType|NonNull
- */
-public $returnType;
-
-/**
- * Parent type of the field being resolved
- *
- * @api
- * @var ObjectType|null
+ * @var ObjectType
  */
 public $parentType;
 
 /**
- * Path to this field from the very root value
+ * Path to this field from the very root value.
  *
  * @api
  * @var string[]
@@ -344,31 +312,31 @@ public $parentType;
 public $path;
 
 /**
- * Instance of a schema used for execution
+ * Instance of a schema used for execution.
  *
  * @api
- * @var Schema|null
+ * @var Schema
  */
 public $schema;
 
 /**
- * AST of all fragments defined in query
+ * AST of all fragments defined in query.
  *
  * @api
- * @var FragmentDefinitionNode[]|null
+ * @var FragmentDefinitionNode[]
  */
 public $fragments;
 
 /**
- * Root value passed to query execution
+ * Root value passed to query execution.
  *
  * @api
- * @var mixed|null
+ * @var mixed
  */
 public $rootValue;
 
 /**
- * AST of operation definition node (query, mutation)
+ * AST of operation definition node (query, mutation).
  *
  * @api
  * @var OperationDefinitionNode|null
@@ -376,10 +344,10 @@ public $rootValue;
 public $operation;
 
 /**
- * Array of variables passed to query execution
+ * Array of variables passed to query execution.
  *
  * @api
- * @var mixed[]|null
+ * @var mixed[]
  */
 public $variableValues;
 ```
@@ -388,7 +356,7 @@ public $variableValues;
 ```php
 /**
  * Helper method that returns names of all fields selected in query for
- * $this->fieldName up to $depth levels
+ * $this->fieldName up to $depth levels.
  *
  * Example:
  * query MyQuery{
@@ -419,7 +387,7 @@ public $variableValues;
  *
  * @param int $depth How many levels to include in output
  *
- * @return bool[]
+ * @return array<string, mixed>
  *
  * @api
  */
@@ -437,6 +405,7 @@ const FIELD = "FIELD";
 const FRAGMENT_DEFINITION = "FRAGMENT_DEFINITION";
 const FRAGMENT_SPREAD = "FRAGMENT_SPREAD";
 const INLINE_FRAGMENT = "INLINE_FRAGMENT";
+const VARIABLE_DEFINITION = "VARIABLE_DEFINITION";
 const SCHEMA = "SCHEMA";
 const SCALAR = "SCALAR";
 const OBJECT = "OBJECT";
@@ -480,7 +449,7 @@ static function create(array $options = [])
 
 ```php
 /**
- * @return ObjectType
+ * @return ObjectType|null
  *
  * @api
  */
@@ -489,7 +458,7 @@ function getQuery()
 
 ```php
 /**
- * @param ObjectType $query
+ * @param ObjectType|null $query
  *
  * @return SchemaConfig
  *
@@ -500,7 +469,7 @@ function setQuery($query)
 
 ```php
 /**
- * @return ObjectType
+ * @return ObjectType|null
  *
  * @api
  */
@@ -509,7 +478,7 @@ function getMutation()
 
 ```php
 /**
- * @param ObjectType $mutation
+ * @param ObjectType|null $mutation
  *
  * @return SchemaConfig
  *
@@ -520,7 +489,7 @@ function setMutation($mutation)
 
 ```php
 /**
- * @return ObjectType
+ * @return ObjectType|null
  *
  * @api
  */
@@ -529,7 +498,7 @@ function getSubscription()
 
 ```php
 /**
- * @param ObjectType $subscription
+ * @param ObjectType|null $subscription
  *
  * @return SchemaConfig
  *
@@ -540,7 +509,7 @@ function setSubscription($subscription)
 
 ```php
 /**
- * @return Type[]
+ * @return Type[]|callable
  *
  * @api
  */
@@ -560,7 +529,7 @@ function setTypes($types)
 
 ```php
 /**
- * @return Directive[]
+ * @return Directive[]|null
  *
  * @api
  */
@@ -580,7 +549,7 @@ function setDirectives(array $directives)
 
 ```php
 /**
- * @return callable
+ * @return callable(string $name):Type|null
  *
  * @api
  */
@@ -658,7 +627,7 @@ function getDirectives()
  *
  * @api
  */
-function getQueryType()
+function getQueryType(): GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -669,7 +638,7 @@ function getQueryType()
  *
  * @api
  */
-function getMutationType()
+function getMutationType(): GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -680,7 +649,7 @@ function getMutationType()
  *
  * @api
  */
-function getSubscriptionType()
+function getSubscriptionType(): GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -694,15 +663,11 @@ function getConfig()
 
 ```php
 /**
- * Returns type by it's name
- *
- * @param string $name
- *
- * @return Type|null
+ * Returns type by its name
  *
  * @api
  */
-function getType($name)
+function getType(string $name): GraphQL\Type\Definition\Type
 ```
 
 ```php
@@ -712,11 +677,13 @@ function getType($name)
  *
  * This operation requires full schema scan. Do not use in production environment.
  *
- * @return ObjectType[]
+ * @param InterfaceType|UnionType $abstractType
+ *
+ * @return array<Type&ObjectType>
  *
  * @api
  */
-function getPossibleTypes(GraphQL\Type\Definition\AbstractType $abstractType)
+function getPossibleTypes(GraphQL\Type\Definition\Type $abstractType): array
 ```
 
 ```php
@@ -724,27 +691,21 @@ function getPossibleTypes(GraphQL\Type\Definition\AbstractType $abstractType)
  * Returns true if object type is concrete type of given abstract type
  * (implementation for interfaces and members of union type for unions)
  *
- * @return bool
- *
  * @api
  */
 function isPossibleType(
     GraphQL\Type\Definition\AbstractType $abstractType,
     GraphQL\Type\Definition\ObjectType $possibleType
-)
+): bool
 ```
 
 ```php
 /**
  * Returns instance of directive by name
  *
- * @param string $name
- *
- * @return Directive
- *
  * @api
  */
-function getDirective($name)
+function getDirective(string $name): GraphQL\Type\Definition\Directive
 ```
 
 ```php
@@ -774,6 +735,36 @@ function validate()
 ```
 # GraphQL\Language\Parser
 Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
+
+@method static DocumentNode document(Source|string $source, bool[] $options = [])
+@method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
+@method static string operationType(Source|string $source, bool[] $options = [])
+@method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
+@method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
+@method static FieldNode field(Source|string $source, bool[] $options = [])
+@method static ArgumentNode argument(Source|string $source, bool[] $options = [])
+@method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
+@method static NameNode fragmentName(Source|string $source, bool[] $options = [])
+@method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
+@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
+@method static ObjectValueNode object(Source|string $source, bool[] $options = [])
+@method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
+@method static ListTypeNode|NameNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
+@method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
+@method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
+@method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
+@method static NamedTypeNode[] implementsInterfaces(Source|string $source, bool[] $options = [])
+@method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
+@method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
+@method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
+@method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
+@method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
+@method static InputValueDefinitionNode[] inputFieldsDefinition(Source|string $source, bool[] $options = [])
+@method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
+@method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
+@method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
+@method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
+@method static DirectiveLocation[] directiveLocations(Source|string $source, bool[] $options = [])
 
 **Class Methods:** 
 ```php
@@ -1095,7 +1086,7 @@ Implements the "Evaluating requests" section of the GraphQL specification.
  * execution are collected in `$result->errors`.
  *
  * @param mixed|null               $rootValue
- * @param mixed[]|null             $contextValue
+ * @param mixed|null               $contextValue
  * @param mixed[]|ArrayAccess|null $variableValues
  * @param string|null              $operationName
  *
@@ -1121,8 +1112,8 @@ static function execute(
  *
  * Useful for async PHP platforms.
  *
- * @param mixed[]|null $rootValue
- * @param mixed[]|null $contextValue
+ * @param mixed|null   $rootValue
+ * @param mixed|null   $contextValue
  * @param mixed[]|null $variableValues
  * @param string|null  $operationName
  *
@@ -1228,16 +1219,13 @@ function setErrorsHandler(callable $handler)
  * If debug argument is passed, output of error formatter is enriched which debugging information
  * ("debugMessage", "trace" keys depending on flags).
  *
- * $debug argument must be either bool (only adds "debugMessage" to result) or sum of flags from
- * GraphQL\Error\Debug
- *
- * @param bool|int $debug
+ * $debug argument must sum of flags from @see \GraphQL\Error\DebugFlag
  *
  * @return mixed[]
  *
  * @api
  */
-function toArray($debug = false)
+function toArray(int $debug = "GraphQL\Error\DebugFlag::NONE"): array
 ```
 # GraphQL\Executor\Promise\PromiseAdapter
 Provides a means for integration of async PHP platforms ([related docs](data-fetching.md#async-php))
@@ -1486,7 +1474,7 @@ const ALL = 63;
  *
  * @api
  */
-static function setWarningHandler(callable $warningHandler = null)
+static function setWarningHandler(callable $warningHandler = null): void
 ```
 
 ```php
@@ -1502,7 +1490,7 @@ static function setWarningHandler(callable $warningHandler = null)
  *
  * @api
  */
-static function suppress($suppress = true)
+static function suppress($suppress = true): void
 ```
 
 ```php
@@ -1518,7 +1506,7 @@ static function suppress($suppress = true)
  *
  * @api
  */
-static function enable($enable = true)
+static function enable($enable = true): void
 ```
 # GraphQL\Error\ClientAware
 This interface is used for [default error formatting](error-handling.md).
@@ -1552,11 +1540,12 @@ function isClientSafe()
  */
 function getCategory()
 ```
-# GraphQL\Error\Debug
+# GraphQL\Error\DebugFlag
 Collection of flags for [error debugging](error-handling.md#debugging-tools).
 
 **Class Constants:** 
 ```php
+const NONE = 0;
 const INCLUDE_DEBUG_MESSAGE = 1;
 const INCLUDE_TRACE = 2;
 const RETHROW_INTERNAL_EXCEPTIONS = 4;
@@ -1589,11 +1578,9 @@ static function setInternalErrorMessage($msg)
  * This method only exposes exception message when exception implements ClientAware interface
  * (or when debug flags are passed).
  *
- * For a list of available debug flags see GraphQL\Error\Debug constants.
+ * For a list of available debug flags @see \GraphQL\Error\DebugFlag constants.
  *
- * @param Throwable $e
- * @param bool|int  $debug
- * @param string    $internalErrorMessage
+ * @param string $internalErrorMessage
  *
  * @return mixed[]
  *
@@ -1601,7 +1588,11 @@ static function setInternalErrorMessage($msg)
  *
  * @api
  */
-static function createFromException($e, $debug = false, $internalErrorMessage = null)
+static function createFromException(
+    Throwable $exception,
+    int $debug = "GraphQL\Error\DebugFlag::NONE",
+    $internalErrorMessage = null
+): array
 ```
 
 ```php
@@ -1831,7 +1822,7 @@ function setErrorsHandler(callable $handler)
 /**
  * Set validation rules for this server.
  *
- * @param ValidationRule[]|callable $validationRules
+ * @param ValidationRule[]|callable|null $validationRules
  *
  * @return self
  *
@@ -1864,28 +1855,20 @@ function setPersistentQueryLoader(callable $persistentQueryLoader)
 
 ```php
 /**
- * Set response debug flags. @see GraphQL\Error\DebugFlag class for a list of all available flags
- *
- * @param int $debug
- *
- * @return self
+ * Set response debug flags. @see \GraphQL\Error\DebugFlag class for a list of all available flags
  *
  * @api
  */
-function setDebugFlag($debugFlag = DebugFlag::NONE)
+function setDebugFlag(int $debugFlag = "GraphQL\Error\DebugFlag::INCLUDE_DEBUG_MESSAGE"): self
 ```
 
 ```php
 /**
  * Allow batching queries (disabled by default)
  *
- * @param bool $enableBatching
- *
- * @return self
- *
  * @api
  */
-function setQueryBatching($enableBatching)
+function setQueryBatching(bool $enableBatching): self
 ```
 
 ```php
@@ -1950,7 +1933,7 @@ function parseRequestParams($method, array $bodyParams, array $queryParams)
  * Checks validity of OperationParams extracted from HTTP request and returns an array of errors
  * if params are invalid (or empty array when params are valid)
  *
- * @return Error[]
+ * @return array<int, RequestError>
  *
  * @api
  */
@@ -2059,6 +2042,12 @@ public $operation;
  * @var mixed[]|null
  */
 public $variables;
+
+/**
+ * @api
+ * @var mixed[]|null
+ */
+public $extensions;
 ```
 
 **Class Methods:** 
@@ -2067,13 +2056,10 @@ public $variables;
  * Creates an instance from given array
  *
  * @param mixed[] $params
- * @param bool    $readonly
- *
- * @return OperationParams
  *
  * @api
  */
-static function create(array $params, $readonly = false)
+static function create(array $params, bool $readonly = false): GraphQL\Server\OperationParams
 ```
 
 ```php
@@ -2133,6 +2119,7 @@ static function build($source, callable $typeConfigDecorator = null, array $opti
  *
  *    - commentDescriptions:
  *        Provide true to use preceding comments as the description.
+ *        This option is provided to ease adoption and will be removed in v16.
  *
  * @param bool[] $options
  *
@@ -2178,7 +2165,7 @@ Various utilities dealing with AST
  *
  * @api
  */
-static function fromArray(array $node)
+static function fromArray(array $node): GraphQL\Language\AST\Node
 ```
 
 ```php
@@ -2189,7 +2176,7 @@ static function fromArray(array $node)
  *
  * @api
  */
-static function toArray(GraphQL\Language\AST\Node $node)
+static function toArray(GraphQL\Language\AST\Node $node): array
 ```
 
 ```php
@@ -2213,7 +2200,7 @@ static function toArray(GraphQL\Language\AST\Node $node)
  *
  * @param Type|mixed|null $value
  *
- * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode
+ * @return ObjectValueNode|ListValueNode|BooleanValueNode|IntValueNode|FloatValueNode|EnumValueNode|StringValueNode|NullValueNode|null
  *
  * @api
  */
@@ -2241,7 +2228,7 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type)
  * | Null Value           | null          |
  *
  * @param VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $valueNode
- * @param mixed[]|null   $variables
+ * @param mixed[]|null                                                                                                                             $variables
  *
  * @return mixed[]|stdClass|null
  *
@@ -2249,7 +2236,11 @@ static function astFromValue($value, GraphQL\Type\Definition\InputType $type)
  *
  * @api
  */
-static function valueFromAST($valueNode, GraphQL\Type\Definition\InputType $type, array $variables = null)
+static function valueFromAST(
+    GraphQL\Language\AST\ValueNode $valueNode,
+    GraphQL\Type\Definition\Type $type,
+    array $variables = null
+)
 ```
 
 ```php
@@ -2302,7 +2293,7 @@ static function typeFromAST(GraphQL\Type\Schema $schema, $inputTypeNode)
  *
  * @param string $operationName
  *
- * @return bool
+ * @return bool|string
  *
  * @api
  */
@@ -2314,23 +2305,22 @@ Given an instance of Schema, prints it in GraphQL type language.
 **Class Methods:** 
 ```php
 /**
- * Accepts options as a second argument:
- *
+ * @param array<string, bool> $options
+ *    Available options:
  *    - commentDescriptions:
  *        Provide true to use preceding comments as the description.
- *
- * @param bool[] $options
+ *        This option is provided to ease adoption and will be removed in v16.
  *
  * @api
  */
-static function doPrint(GraphQL\Type\Schema $schema, array $options = [])
+static function doPrint(GraphQL\Type\Schema $schema, array $options = []): string
 ```
 
 ```php
 /**
- * @param bool[] $options
+ * @param array<string, bool> $options
  *
  * @api
  */
-static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = [])
+static function printIntrospectionSchema(GraphQL\Type\Schema $schema, array $options = []): string
 ```
