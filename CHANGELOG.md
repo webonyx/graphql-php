@@ -1,32 +1,50 @@
 # Changelog
 
-## Unreleased
+## v14.0.0
+
+This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
+
 - **BREAKING/BUGFIX:** Strict coercion of scalar types (#278)
+- **BREAKING/BUGFIX:** Spec-compliance: Fixed ambiguity with null variable values and default values (#274)
 - **BREAKING:** Removed deprecated directive introspection fields (onOperation, onFragment, onField)
-- **BREAKING:** Removal of `VariablesDefaultValueAllowed` validation rule. All variables may now specify a default value.
-- **BREAKING:** renamed `ProvidedNonNullArguments` to `ProvidedRequiredArguments` (no longer require values to be provided to non-null arguments which provide a default value).
 - **BREAKING:** `GraphQL\Deferred` now extends `GraphQL\Executor\Promise\Adapter\SyncPromise`
-- **BREAKING:** renamed following types of dangerous/breaking changes (returned by `BreakingChangesFinder`):
-     - `NON_NULL_ARG_ADDED` to `REQUIRED_ARG_ADDED`
-     - `NON_NULL_INPUT_FIELD_ADDED` to `REQUIRED_INPUT_FIELD_ADDED`
-     - `NON_NULL_DIRECTIVE_ARG_ADDED` to `REQUIRED_DIRECTIVE_ARG_ADDED`
-     - `NULLABLE_INPUT_FIELD_ADDED` to `OPTIONAL_INPUT_FIELD_ADDED`
-     - `NULLABLE_ARG_ADDED` to `OPTIONAL_ARG_ADDED`
-- Add schema validation: Input Objects must not contain non-nullable circular references (#492)
-- Added retrieving query complexity once query has been completed (#316) 
+- **BREAKING:** renamed several types of dangerous/breaking changes (returned by `BreakingChangesFinder`)
+- **BREAKING:** Renamed `GraphQL\Error\Debug` to `GraphQL\Error\DebugFlag`. 
+- **BREAKING:** Debug flags in `GraphQL\Executor\ExecutionResult`, `GraphQL\Error\FormattedError` and `GraphQL\Server\ServerConfig` do not accept `boolean` value anymore but `int` only.
+- **BREAKING:** `$positions` in `GraphQL\Error\Error` constructor are not nullable anymore. Same can be expressed by passing an empty array.
+
+Notable features and improvements:
+
+- Compliant with the GraphQL specification [June 2018 Edition](https://spec.graphql.org/June2018/)
+- Support repeatable directives (#643)
+- Perf: support lazy type definitions (#557)
+- Simplified Deferred implementation (now allows chaining like promises, #573)
+- Support SDL Validation and other schema validation improvements (e.g. #492)
+- Added promise adapter for [Amp](https://amphp.org/) (#551)
+- Query plan utility improvements (#513, #632)
+
+Other noteworthy changes:
+- Allow retrieving query complexity once query has been completed (#316) 
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
-- Fixes parsing of string literals of the form \u0000 for code points in the range [128, 255] inclusive
-- Parse UTF-16 surrogate pairs within string literals
-- Added quotes around `parentType.fieldName` in error message:
-```diff
-- Cannot return null for non-nullable field parentType.fieldName.
-+ Cannot return null for non-nullable field "parentType.fieldName".
-```
-- Simplified Deferred implementation
+- Support UTF-16 surrogate pairs within string literals (#554, #556)
 - Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
-- Renamed `GraphQL\Error\Debug` to `GraphQL\Error\DebugFlag`. 
-- Debug flags in `GraphQL\Executor\ExecutionResult`, `GraphQL\Error\FormattedError` and `GraphQL\Server\ServerConfig` do not accept `boolean` value anymore but `int` only.
-- `$positions` in `GraphQL\Error\Error` are not nullable anymore. Same can be expressesed by passing empty array.
+- Deprecated Experimental executor (#397)
+
+Also some bugs fixed, heavily investe in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
+
+Special thanks to @simPod, @spawnia and @shmax for their major contributions!
+
+### v0.13.8
+- Don't call global field resolver on introspection fields (#481)
+
+### v0.13.7
+- Added retrieving query complexity once query has been completed (#316)
+- Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535) 
+
+#### v0.13.6
+- QueryPlan can now be used on interfaces not only objects. (#495)
+- Array in variables in place of object shouldn't cause fatal error (fixes #467)
+- Scalar type ResolverInfo::getFieldSelection support (#529)
 
 #### v0.13.5
 - Fix coroutine executor when using with promise (#486) 
