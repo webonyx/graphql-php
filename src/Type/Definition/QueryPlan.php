@@ -79,7 +79,7 @@ class QueryPlan
 
     public function hasType(string $type) : bool
     {
-        return count(array_filter($this->getReferencedTypes(), static function (string $referencedType) use ($type) {
+        return count(array_filter($this->getReferencedTypes(), static function (string $referencedType) use ($type) : bool {
                 return $type === $referencedType;
         })) > 0;
     }
@@ -94,7 +94,7 @@ class QueryPlan
 
     public function hasField(string $field) : bool
     {
-        return count(array_filter($this->getReferencedFields(), static function (string $referencedField) use ($field) {
+        return count(array_filter($this->getReferencedFields(), static function (string $referencedField) use ($field) : bool {
             return $field === $referencedField;
         })) > 0;
     }

@@ -18,7 +18,7 @@ class VariablesAreInputTypes extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::VARIABLE_DEFINITION => static function (VariableDefinitionNode $node) use ($context) {
+            NodeKind::VARIABLE_DEFINITION => static function (VariableDefinitionNode $node) use ($context) : void {
                 $type = TypeInfo::typeFromAST($context->getSchema(), $node->type);
 
                 // If the variable type is not an input type, return an error.

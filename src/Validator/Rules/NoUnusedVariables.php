@@ -22,13 +22,15 @@ class NoUnusedVariables extends ValidationRule
 
         return [
             NodeKind::OPERATION_DEFINITION => [
-                'enter' => function () {
+                'enter' => function () : void {
                     $this->variableDefs = [];
                 },
-                'leave' => function (OperationDefinitionNode $operation) use ($context) {
+                'leave' => function (OperationDefinitionNode $operation) use ($context) : void {
                     $variableNameUsed = [];
                     $usages           = $context->getRecursiveVariableUsages($operation);
-                    $opName           = $operation->name ? $operation->name->value : null;
+                    $opName           = $operation->name !== null
+                        ? $operation->name->value
+                        : null;
 
                     foreach ($usages as $usage) {
                         $node                                 = $usage['node'];
@@ -49,7 +51,7 @@ class NoUnusedVariables extends ValidationRule
                     }
                 },
             ],
-            NodeKind::VARIABLE_DEFINITION  => function ($def) {
+            NodeKind::VARIABLE_DEFINITION  => function ($def) : void {
                 $this->variableDefs[] = $def;
             },
         ];

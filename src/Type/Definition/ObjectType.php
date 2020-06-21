@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace GraphQL\Type\Definition;
 
 use Exception;
+use GraphQL\Deferred;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\ObjectTypeExtensionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+use function array_map;
 use function call_user_func;
 use function is_array;
 use function is_callable;
@@ -171,6 +174,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         if ($this->interfaceMap === null) {
             $this->interfaceMap = [];
             foreach ($this->getInterfaces() as $interface) {
+                $interface                            = Schema::resolveType($interface);
                 $this->interfaceMap[$interface->name] = $interface;
             }
         }
@@ -195,7 +199,10 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
                 );
             }
 
-            $this->interfaces = $interfaces ?: [];
+            /** @var InterfaceType[] $interfaces */
+            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?? []);
+
+            $this->interfaces = $interfaces;
         }
 
         return $this->interfaces;
@@ -205,7 +212,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
      * @param mixed        $value
      * @param mixed[]|null $context
      *
-     * @return bool|null
+     * @return bool|Deferred|null
      */
     public function isTypeOf($value, $context, ResolveInfo $info)
     {

@@ -54,7 +54,7 @@ class EnumTypeTest extends TestCase
         ]);
 
         $Complex1 = [
-            'someRandomFunction' => static function () {
+            'someRandomFunction' => static function () : void {
             },
         ];
         $Complex2 = new ArrayObject(['someRandomValue' => 123]);

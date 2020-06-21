@@ -1,13 +1,13 @@
 <?php
 namespace GraphQL\Examples\Blog;
 
+use Exception;
 use GraphQL\Examples\Blog\Type\CommentType;
 use GraphQL\Examples\Blog\Type\Enum\ContentFormatEnum;
 use GraphQL\Examples\Blog\Type\Enum\ImageSizeEnumType;
 use GraphQL\Examples\Blog\Type\Field\HtmlField;
 use GraphQL\Examples\Blog\Type\SearchResultType;
 use GraphQL\Examples\Blog\Type\NodeType;
-use GraphQL\Examples\Blog\Type\QueryType;
 use GraphQL\Examples\Blog\Type\Scalar\EmailType;
 use GraphQL\Examples\Blog\Type\StoryType;
 use GraphQL\Examples\Blog\Type\Scalar\UrlType;
@@ -25,113 +25,66 @@ use GraphQL\Type\Definition\Type;
  */
 class Types
 {
-    // Object types:
-    private static $user;
-    private static $story;
-    private static $comment;
-    private static $image;
-    private static $query;
+    private static $types = [];
+    const LAZY_LOAD_GRAPHQL_TYPES = true;
 
-    /**
-     * @return UserType
-     */
-    public static function user()
+    public static function user() : callable { return static::get(UserType::class); }
+    public static function story() : callable { return static::get(StoryType::class); }
+    public static function comment() : callable { return static::get(CommentType::class); }
+    public static function image() : callable { return static::get(ImageType::class); }
+    public static function node() : callable { return static::get(NodeType::class); }
+    public static function mention() : callable { return static::get(SearchResultType::class); }
+    public static function imageSizeEnum() : callable { return static::get(ImageSizeEnumType::class); }
+    public static function contentFormatEnum() : callable { return static::get(ContentFormatEnum::class); }
+    public static function email() : callable { return static::get(EmailType::class); }
+    public static function url() : callable { return static::get(UrlType::class); }
+
+    public static function get($classname)
     {
-        return self::$user ?: (self::$user = new UserType());
+        return static::LAZY_LOAD_GRAPHQL_TYPES ? function() use ($classname) {
+            return static::byClassName($classname);
+        } : static::byClassName($classname);
     }
 
-    /**
-     * @return StoryType
-     */
-    public static function story()
-    {
-        return self::$story ?: (self::$story = new StoryType());
+    protected static function byClassName($classname) {
+        $parts = explode("\\", $classname);
+        $cacheName = strtolower(preg_replace('~Type$~', '', $parts[count($parts) - 1]));
+        $type = null;
+
+        if (!isset(self::$types[$cacheName])) {
+            if (class_exists($classname)) {
+                $type = new $classname();
+            }
+
+            self::$types[$cacheName] = $type;
+        }
+
+        $type = self::$types[$cacheName];
+
+        if (!$type) {
+            throw new Exception("Unknown graphql type: " . $classname);
+        }
+        return $type;
     }
 
-    /**
-     * @return CommentType
-     */
-    public static function comment()
+    public static function byTypeName($shortName, $removeType=true)
     {
-        return self::$comment ?: (self::$comment = new CommentType());
-    }
+        $cacheName = strtolower($shortName);
+        $type = null;
 
-    /**
-     * @return ImageType
-     */
-    public static function image()
-    {
-        return self::$image ?: (self::$image = new ImageType());
-    }
+        if (isset(self::$types[$cacheName])) {
+            return self::$types[$cacheName];
+        }
 
-    /**
-     * @return QueryType
-     */
-    public static function query()
-    {
-        return self::$query ?: (self::$query = new QueryType());
-    }
+        $method = lcfirst($shortName);
+        if(method_exists(get_called_class(), $method)) {
+            $type = self::{$method}();
+        }
 
-
-    // Interface types
-    private static $node;
-
-    /**
-     * @return NodeType
-     */
-    public static function node()
-    {
-        return self::$node ?: (self::$node = new NodeType());
-    }
-
-
-    // Unions types:
-    private static $mention;
-
-    /**
-     * @return SearchResultType
-     */
-    public static function mention()
-    {
-        return self::$mention ?: (self::$mention = new SearchResultType());
-    }
-
-
-    // Enum types
-    private static $imageSizeEnum;
-    private static $contentFormatEnum;
-
-    /**
-     * @return ImageSizeEnumType
-     */
-    public static function imageSizeEnum()
-    {
-        return self::$imageSizeEnum ?: (self::$imageSizeEnum = new ImageSizeEnumType());
-    }
-
-    /**
-     * @return ContentFormatEnum
-     */
-    public static function contentFormatEnum()
-    {
-        return self::$contentFormatEnum ?: (self::$contentFormatEnum = new ContentFormatEnum());
-    }
-
-    // Custom Scalar types:
-    private static $urlType;
-    private static $emailType;
-
-    public static function email()
-    {
-        return self::$emailType ?: (self::$emailType = EmailType::create());
-    }
-
-    /**
-     * @return UrlType
-     */
-    public static function url()
-    {
-        return self::$urlType ?: (self::$urlType = new UrlType());
+        if(!$type) {
+            throw new Exception("Unknown graphql type: " . $shortName);
+        }
+        return $type;
     }
 
     /**

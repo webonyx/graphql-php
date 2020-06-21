@@ -79,13 +79,14 @@ class ASTDefinitionBuilder
         return new Directive([
             'name'        => $directiveNode->name->value,
             'description' => $this->getDescription($directiveNode),
+            'args'        => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
+            'isRepeatable'        => $directiveNode->repeatable,
             'locations'   => Utils::map(
                 $directiveNode->locations,
                 static function ($node) {
                     return $node->value;
                 }
             ),
-            'args'        => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
             'astNode'     => $directiveNode,
         ]);
     }
@@ -336,7 +337,7 @@ class ASTDefinitionBuilder
             // validation with validateSchema() will produce more actionable results.
             return Utils::map(
                 $def->interfaces,
-                function ($iface) {
+                function ($iface) : Type {
                     return $this->buildType($iface);
                 }
             );
@@ -370,7 +371,7 @@ class ASTDefinitionBuilder
                     static function ($enumValue) {
                         return $enumValue->name->value;
                     },
-                    function ($enumValue) {
+                    function ($enumValue) : array {
                         return [
                             'description'       => $this->getDescription($enumValue),
                             'deprecationReason' => $this->getDeprecationReason($enumValue),
@@ -395,7 +396,7 @@ class ASTDefinitionBuilder
                 ? function () use ($def) {
                     return Utils::map(
                         $def->types,
-                        function ($typeNode) {
+                        function ($typeNode) : Type {
                             return $this->buildType($typeNode);
                         }
                     );
@@ -472,7 +473,7 @@ class ASTDefinitionBuilder
             'astNode' => $value,
         ];
 
-        if ($value->defaultValue) {
+        if ($value->defaultValue !== null) {
             $config['defaultValue'] = $value->defaultValue;
         }
 

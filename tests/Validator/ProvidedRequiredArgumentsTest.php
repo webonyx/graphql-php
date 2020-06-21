@@ -6,7 +6,9 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\ProvidedRequiredArguments;
+use GraphQL\Validator\Rules\ProvidedRequiredArgumentsOnDirectives;
 
 class ProvidedRequiredArgumentsTest extends ValidatorTestCase
 {
@@ -346,10 +348,124 @@ class ProvidedRequiredArgumentsTest extends ValidatorTestCase
         );
     }
 
+    // Describe: within SDL
+
+    /**
+     * @see it('Missing optional args on directive defined inside SDL')
+     */
+    public function testMissingOptionalArgsOnDirectiveDefinedInsideSDL()
+    {
+        $this->expectPassesRule(
+            new ProvidedRequiredArgumentsOnDirectives(),
+            '
+                type Query {
+                  foo: String @test
+                }
+        
+                directive @test(arg1: String, arg2: String! = "") on FIELD_DEFINITION
+            '
+        );
+    }
+
+    /**
+     * @see it('Missing arg on directive defined inside SDL')
+     */
+    public function testMissingArgOnDirectiveDefinedInsideSDL()
+    {
+        $this->expectFailsRule(
+            new ProvidedRequiredArgumentsOnDirectives(),
+            '
+                type Query {
+                  foo: String @test
+                }
+        
+                directive @test(arg: String!) on FIELD_DEFINITION
+            ',
+            [$this->missingDirectiveArg('test', 'arg', 'String!', 3, 31)]
+        );
+    }
+
+    /**
+     * @see it('Missing arg on standard directive')
+     */
+    public function testMissingArgOnStandardDirective()
+    {
+        $this->expectFailsRule(
+            new ProvidedRequiredArgumentsOnDirectives(),
+            '
+                type Query {
+                  foo: String @include
+                }
+            ',
+            [$this->missingDirectiveArg('include', 'if', 'Boolean!', 3, 31)]
+        );
+    }
+
+    /**
+     * @see it('Missing arg on overrided standard directive')
+     */
+    public function testMissingArgOnOverridedStandardDirective()
+    {
+        $this->expectFailsRule(
+            new ProvidedRequiredArgumentsOnDirectives(),
+            '
+                type Query {
+                  foo: String @deprecated
+                }
+                directive @deprecated(reason: String!) on FIELD
+            ',
+            [$this->missingDirectiveArg('deprecated', 'reason', 'String!', 3, 31)]
+        );
+    }
+
+    /**
+     * @see it('Missing arg on directive defined in schema extension')
+     */
+    public function testMissingArgOnDirectiveDefinedInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+            type Query {
+              foo: String
+            }
+        ');
+        $this->expectInvalid(
+            $schema,
+            [new ProvidedRequiredArgumentsOnDirectives()],
+            '
+                directive @test(arg: String!) on OBJECT
+        
+                extend type Query  @test
+            ',
+            [$this->missingDirectiveArg('test', 'arg', 'String!', 4, 36)]
+        );
+    }
+
+    /**
+     * @see it('Missing arg on directive used in schema extension')
+     */
+    public function testMissingArgOnDirectiveUsedInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+            directive @test(arg: String!) on OBJECT
+    
+            type Query {
+              foo: String
+            }
+        ');
+        $this->expectInvalid(
+            $schema,
+            [new ProvidedRequiredArgumentsOnDirectives()],
+            '
+                extend type Query @test
+            ',
+            [$this->missingDirectiveArg('test', 'arg', 'String!', 2, 35)]
+        );
+    }
+
     private function missingDirectiveArg($directiveName, $argName, $typeName, $line, $column)
     {
         return FormattedError::create(
-            ProvidedRequiredArguments::missingDirectiveArgMessage($directiveName, $argName, $typeName),
+            ProvidedRequiredArgumentsOnDirectives::missingDirectiveArgMessage($directiveName, $argName, $typeName),
             [new SourceLocation($line, $column)]
         );
     }

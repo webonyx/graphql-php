@@ -58,7 +58,7 @@ class Utils
     {
         static $undefined;
 
-        return $undefined ?: $undefined = new stdClass();
+        return $undefined ?? $undefined = new stdClass();
     }
 
     /**
@@ -560,7 +560,7 @@ class Utils
     {
         return static function () use ($fn, &$errors) {
             // Catch custom errors (to report them in query results)
-            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) {
+            set_error_handler(static function ($severity, $message, $file, $line) use (&$errors) : void {
                 $errors[] = new ErrorException($message, 0, $severity, $file, $line);
             });
 
@@ -580,7 +580,7 @@ class Utils
     public static function quotedOrList(array $items)
     {
         $items = array_map(
-            static function ($item) {
+            static function ($item) : string {
                 return sprintf('"%s"', $item);
             },
             $items
@@ -609,7 +609,7 @@ class Utils
 
         return array_reduce(
             range(1, $selectedLength - 1),
-            static function ($list, $index) use ($selected, $selectedLength) {
+            static function ($list, $index) use ($selected, $selectedLength) : string {
                 return $list .
                     ($selectedLength > 2 ? ', ' : ' ') .
                     ($index === $selectedLength - 1 ? 'or ' : '') .
@@ -635,7 +635,7 @@ class Utils
     public static function suggestionList($input, array $options)
     {
         $optionsByDistance = [];
-        $inputThreshold    = mb_strlen($input) / 2;
+        $threshold         = mb_strlen($input) * 0.4 + 1;
         foreach ($options as $option) {
             if ($input === $option) {
                 $distance = 0;
@@ -644,7 +644,6 @@ class Utils
                     ? 1
                     : levenshtein($input, $option));
             }
-            $threshold = max($inputThreshold, mb_strlen($option) / 2, 1);
             if ($distance > $threshold) {
                 continue;
             }

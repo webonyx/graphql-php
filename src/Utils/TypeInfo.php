@@ -159,6 +159,7 @@ class TypeInfo
         if ($type instanceof WrappingType) {
             return self::extractTypes($type->getWrappedType(true), $typeMap);
         }
+
         if (! $type instanceof Type) {
             // Preserve these invalid types in map (at numeric index) to make them
             // detectable during $schema->validate()
@@ -198,7 +199,7 @@ class TypeInfo
             foreach ($type->getFields() as $fieldName => $field) {
                 if (! empty($field->args)) {
                     $fieldArgTypes = array_map(
-                        static function (FieldArgument $arg) {
+                        static function (FieldArgument $arg) : Type {
                             return $arg->getType();
                         },
                         $field->args
@@ -317,13 +318,13 @@ class TypeInfo
                 break;
 
             case $node instanceof ArgumentNode:
-                $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
+                $fieldOrDirective = $this->getDirective() ?? $this->getFieldDef();
                 $argDef           = $argType = null;
                 if ($fieldOrDirective) {
                     /** @var FieldArgument $argDef */
                     $argDef = Utils::find(
                         $fieldOrDirective->args,
-                        static function ($arg) use ($node) {
+                        static function ($arg) use ($node) : bool {
                             return $arg->name === $node->name->value;
                         }
                     );

@@ -40,7 +40,7 @@ class SuggestionListTest extends TestCase
     {
         self::assertEquals(
             Utils::suggestionList('abc', ['a', 'ab', 'abc']),
-            ['abc', 'ab']
+            ['abc', 'ab', 'a']
         );
     }
 }

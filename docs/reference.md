@@ -1717,7 +1717,7 @@ function executeRequest($parsedBody = null)
  * @api
  */
 function processPsrRequest(
-    Psr\Http\Message\ServerRequestInterface $request,
+    Psr\Http\Message\RequestInterface $request,
     Psr\Http\Message\ResponseInterface $response,
     Psr\Http\Message\StreamInterface $writableBodyStream
 )
@@ -1732,7 +1732,7 @@ function processPsrRequest(
  *
  * @api
  */
-function executePsrRequest(Psr\Http\Message\ServerRequestInterface $request)
+function executePsrRequest(Psr\Http\Message\RequestInterface $request)
 ```
 
 ```php
@@ -2005,7 +2005,7 @@ function sendResponse($result, $exitWhenDone = false)
  *
  * @api
  */
-function parsePsrRequest(Psr\Http\Message\ServerRequestInterface $request)
+function parsePsrRequest(Psr\Http\Message\RequestInterface $request)
 ```
 
 ```php

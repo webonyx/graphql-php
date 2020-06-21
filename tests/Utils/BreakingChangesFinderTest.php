@@ -486,7 +486,7 @@ class BreakingChangesFinderTest extends TestCase
     }
 
     /**
-     * @see it('should detect if a non-null field is added to an input type')
+     * @see it('should detect if a required field is added to an input type')
      */
     public function testShouldDetectIfANonNullFieldIsAddedToAnInputType() : void
     {
@@ -500,9 +500,13 @@ class BreakingChangesFinderTest extends TestCase
         $newInputType = new InputObjectType([
             'name'   => 'InputType1',
             'fields' => [
-                'field1'        => Type::string(),
-                'requiredField' => Type::nonNull(Type::int()),
-                'optionalField' => Type::boolean(),
+                'field1'         => Type::string(),
+                'requiredField'  => Type::nonNull(Type::int()),
+                'optionalField1' => Type::boolean(),
+                'optionalField2' => [
+                    'type' => Type::nonNull(Type::boolean()),
+                    'defaultValue' => false,
+                ],
             ],
         ]);
 
@@ -518,8 +522,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expected = [
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_INPUT_FIELD_ADDED,
-                'description' => 'A non-null field requiredField on input type InputType1 was added.',
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED,
+                'description' => 'A required field requiredField on input type InputType1 was added.',
             ],
         ];
 
@@ -889,8 +893,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expected = [
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_ARG_ADDED,
-                'description' => 'A non-null arg newRequiredArg on Type1.field1 was added',
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_ARG_ADDED,
+                'description' => 'A required arg newRequiredArg on Type1.field1 was added',
             ],
         ];
 
@@ -1299,8 +1303,8 @@ class BreakingChangesFinderTest extends TestCase
                 'description' => 'arg1 was removed from DirectiveThatRemovesArg',
             ],
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
-                'description' => 'A non-null arg arg1 on directive NonNullDirectiveAdded was added',
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
+                'description' => 'A required arg arg1 on directive NonNullDirectiveAdded was added',
             ],
             [
                 'type'        => BreakingChangesFinder::BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED,
@@ -1441,8 +1445,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expectedBreakingChanges = [
             [
-                'type'        => BreakingChangesFinder::BREAKING_CHANGE_NON_NULL_DIRECTIVE_ARG_ADDED,
-                'description' => 'A non-null arg arg1 on directive DirectiveName was added',
+                'type'        => BreakingChangesFinder::BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED,
+                'description' => 'A required arg arg1 on directive DirectiveName was added',
             ],
         ];
 
@@ -1761,8 +1765,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expectedFieldChanges = [
             [
-                'description' => 'A nullable field field2 on input type InputType1 was added.',
-                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_NULLABLE_INPUT_FIELD_ADDED,
+                'description' => 'An optional field field2 on input type InputType1 was added.',
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED,
             ],
         ];
 
@@ -1962,8 +1966,8 @@ class BreakingChangesFinderTest extends TestCase
 
         $expectedFieldChanges = [
             [
-                'description' => 'A nullable arg arg2 on Type1.field1 was added',
-                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_NULLABLE_ARG_ADDED,
+                'description' => 'An optional arg arg2 on Type1.field1 was added',
+                'type'        => BreakingChangesFinder::DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED,
             ],
         ];
 

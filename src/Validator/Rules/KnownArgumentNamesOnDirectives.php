@@ -9,13 +9,15 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NodeList;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Utils\Utils;
+use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\ValidationContext;
 use function array_map;
 use function in_array;
-use function iterator_to_array;
+use function sprintf;
 
 /**
  * Known argument names on directives
@@ -25,12 +27,30 @@ use function iterator_to_array;
  */
 class KnownArgumentNamesOnDirectives extends ValidationRule
 {
-    protected static function unknownDirectiveArgMessage(string $argName, string $directionName)
+    /**
+     * @param string[] $suggestedArgs
+     */
+    public static function unknownDirectiveArgMessage($argName, $directiveName, array $suggestedArgs)
     {
-        return 'Unknown argument "' . $argName . '" on directive "@' . $directionName . '".';
+        $message = sprintf('Unknown argument "%s" on directive "@%s".', $argName, $directiveName);
+        if (isset($suggestedArgs[0])) {
+            $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
+        }
+
+        return $message;
     }
 
     public function getSDLVisitor(SDLValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getVisitor(ValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getASTVisitor(ASTValidationContext $context)
     {
         $directiveArgs     = [];
         $schema            = $context->getSchema();
@@ -53,27 +73,24 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
             $name = $def->name->value;
             if ($def->arguments !== null) {
-                $arguments = $def->arguments;
-
-                if ($arguments instanceof NodeList) {
-                    $arguments = iterator_to_array($arguments->getIterator());
-                }
-
-                $directiveArgs[$name] = array_map(static function (InputValueDefinitionNode $arg) : string {
-                    return $arg->name->value;
-                }, $arguments);
+                $directiveArgs[$name] = Utils::map(
+                    $def->arguments ?? [],
+                    static function (InputValueDefinitionNode $arg) : string {
+                        return $arg->name->value;
+                    }
+                );
             } else {
                 $directiveArgs[$name] = [];
             }
         }
 
         return [
-            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) : bool {
                 $directiveName = $directiveNode->name->value;
                 $knownArgs     = $directiveArgs[$directiveName] ?? null;
 
-                if ($directiveNode->arguments === null || ! $knownArgs) {
-                    return;
+                if ($directiveNode->arguments === null || $knownArgs === null) {
+                    return false;
                 }
 
                 foreach ($directiveNode->arguments as $argNode) {
@@ -82,11 +99,14 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
                         continue;
                     }
 
+                    $suggestions = Utils::suggestionList($argName, $knownArgs);
                     $context->reportError(new Error(
-                        self::unknownDirectiveArgMessage($argName, $directiveName),
+                        self::unknownDirectiveArgMessage($argName, $directiveName, $suggestions),
                         [$argNode]
                     ));
                 }
+
+                return false;
             },
         ];
     }

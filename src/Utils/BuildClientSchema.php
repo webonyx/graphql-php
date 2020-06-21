@@ -472,8 +472,9 @@ class BuildClientSchema
         return new Directive([
             'name' => $directive['name'],
             'description' => $directive['description'],
-            'locations' => $directive['locations'],
             'args' => $this->buildInputValueDefMap($directive['args']),
+            'isRepeatable' => $directive['isRepeatable'],
+            'locations' => $directive['locations'],
         ]);
     }
 }
