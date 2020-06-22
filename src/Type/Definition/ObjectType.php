@@ -171,6 +171,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
         if (! isset($this->interfaceMap)) {
             $this->interfaceMap = [];
             foreach ($this->getInterfaces() as $interface) {
+                /** @var Type&InterfaceType $interface */
                 $interface                            = Schema::resolveType($interface);
                 $this->interfaceMap[$interface->name] = $interface;
             }
