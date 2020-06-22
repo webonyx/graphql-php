@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
-use GraphQL\Error\Debug;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
@@ -50,7 +50,7 @@ class QueryExecutionTest extends ServerTestCase
     private function assertQueryResultEquals($expected, $query, $variables = null)
     {
         $result = $this->executeQuery($query, $variables);
-        self::assertArraySubset($expected, $result->toArray(true));
+        self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
 
         return $result;
     }
@@ -80,8 +80,8 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testDebugExceptions() : void
     {
-        $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
-        $this->config->setDebug($debug);
+        $debugFlag = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
+        $this->config->setDebugFlag($debugFlag);
 
         $query = '
         {
@@ -110,7 +110,7 @@ class QueryExecutionTest extends ServerTestCase
 
     public function testRethrowUnsafeExceptions() : void
     {
-        $this->config->setDebug(Debug::RETHROW_UNSAFE_EXCEPTIONS);
+        $this->config->setDebugFlag(DebugFlag::RETHROW_UNSAFE_EXCEPTIONS);
         $this->expectException(Unsafe::class);
 
         $this->executeQuery('
@@ -647,7 +647,7 @@ class QueryExecutionTest extends ServerTestCase
         self::assertInstanceOf(Error::class, $error);
 
         // Assert debugging still works even with custom formatter
-        $formatted = $result->toArray(Debug::INCLUDE_TRACE);
+        $formatted = $result->toArray(DebugFlag::INCLUDE_TRACE);
         $expected  = [
             'errors' => [
                 [

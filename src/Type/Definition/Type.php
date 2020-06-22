@@ -13,6 +13,7 @@ use JsonSerializable;
 use ReflectionClass;
 use function array_keys;
 use function array_merge;
+use function assert;
 use function implode;
 use function in_array;
 use function preg_replace;
@@ -121,9 +122,11 @@ abstract class Type implements JsonSerializable
     }
 
     /**
+     * @param callable|NullableType $wrappedType
+     *
      * @api
      */
-    public static function nonNull(NullableType $wrappedType) : NonNull
+    public static function nonNull($wrappedType) : NonNull
     {
         return new NonNull($wrappedType);
     }
@@ -247,11 +250,9 @@ abstract class Type implements JsonSerializable
     /**
      * @param Type $type
      *
-     * @return bool
-     *
      * @api
      */
-    public static function isLeafType($type)
+    public static function isLeafType($type) : bool
     {
         return $type instanceof LeafType;
     }
@@ -259,11 +260,9 @@ abstract class Type implements JsonSerializable
     /**
      * @param Type $type
      *
-     * @return bool
-     *
      * @api
      */
-    public static function isCompositeType($type)
+    public static function isCompositeType($type) : bool
     {
         return $type instanceof CompositeType;
     }
@@ -280,27 +279,12 @@ abstract class Type implements JsonSerializable
 
     /**
      * @param mixed $type
-     *
-     * @return mixed
      */
-    public static function assertType($type)
+    public static function assertType($type) : Type
     {
-        Utils::invariant(
-            self::isType($type),
-            'Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'
-        );
+        assert($type instanceof Type, new InvariantViolation('Expected ' . Utils::printSafe($type) . ' to be a GraphQL type.'));
 
         return $type;
-    }
-
-    /**
-     * @param Type $type
-     *
-     * @api
-     */
-    public static function isType($type) : bool
-    {
-        return $type instanceof Type;
     }
 
     /**

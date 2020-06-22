@@ -3,23 +3,24 @@
 // php -S localhost:8080 ./graphql.php
 require_once __DIR__ . '/../../vendor/autoload.php';
 
+use GraphQL\Examples\Blog\Type\QueryType;
 use \GraphQL\Examples\Blog\Types;
 use \GraphQL\Examples\Blog\AppContext;
 use \GraphQL\Examples\Blog\Data\DataSource;
 use \GraphQL\Type\Schema;
 use \GraphQL\GraphQL;
 use \GraphQL\Error\FormattedError;
-use \GraphQL\Error\Debug;
+use \GraphQL\Error\DebugFlag;
 
 // Disable default PHP error reporting - we have better one for debug mode (see below)
 ini_set('display_errors', 0);
 
-$debug = false;
+$debug = DebugFlag::NONE;
 if (!empty($_GET['debug'])) {
     set_error_handler(function($severity, $message, $file, $line) use (&$phpErrors) {
         throw new ErrorException($message, 0, $severity, $file, $line);
     });
-    $debug = Debug::INCLUDE_DEBUG_MESSAGE | Debug::INCLUDE_TRACE;
+    $debug = DebugFlag::INCLUDE_DEBUG_MESSAGE | DebugFlag::INCLUDE_TRACE;
 }
 
 try {
@@ -48,7 +49,10 @@ try {
 
     // GraphQL schema to be passed to query executor:
     $schema = new Schema([
-        'query' => Types::query()
+        'query' => new QueryType(),
+        'typeLoader' => function($name) {
+            return Types::byTypeName($name, true);
+        }
     ]);
 
     $result = GraphQL::executeQuery(

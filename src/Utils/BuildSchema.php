@@ -84,6 +84,7 @@ class BuildSchema
      *
      *    - commentDescriptions:
      *        Provide true to use preceding comments as the description.
+     *        This option is provided to ease adoption and will be removed in v16.
      *
      * @param bool[] $options
      *
@@ -116,12 +117,7 @@ class BuildSchema
                 case $definition instanceof SchemaDefinitionNode:
                     $schemaDef = $definition;
                     break;
-                case $definition instanceof ScalarTypeDefinitionNode:
-                case $definition instanceof ObjectTypeDefinitionNode:
-                case $definition instanceof InterfaceTypeDefinitionNode:
-                case $definition instanceof EnumTypeDefinitionNode:
-                case $definition instanceof UnionTypeDefinitionNode:
-                case $definition instanceof InputObjectTypeDefinitionNode:
+                case $definition instanceof TypeDefinitionNode:
                     $typeName = $definition->name->value;
                     if (! empty($this->nodeMap[$typeName])) {
                         throw new Error(sprintf('Type "%s" was defined more than once.', $typeName));

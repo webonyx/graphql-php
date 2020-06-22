@@ -60,7 +60,7 @@ class Schema
     /**
      * Lazily initialized.
      *
-     * @var array<string, array<string, ObjectType>>
+     * @var array<string, array<string, ObjectType|UnionType>>
      */
     private $possibleTypeMap;
 
@@ -176,6 +176,7 @@ class Schema
         }
 
         foreach ($types as $index => $type) {
+            $type = self::resolveType($type);
             if (! $type instanceof Type) {
                 throw new InvariantViolation(sprintf(
                     'Each entry of schema types must be instance of GraphQL\Type\Definition\Type but entry at %s is %s',
@@ -319,10 +320,11 @@ class Schema
     {
         if (! isset($this->resolvedTypes[$name])) {
             $type = $this->loadType($name);
+
             if (! $type) {
                 return null;
             }
-            $this->resolvedTypes[$name] = $type;
+            $this->resolvedTypes[$name] = self::resolveType($type);
         }
 
         return $this->resolvedTypes[$name];
@@ -346,12 +348,13 @@ class Schema
         if (! $type instanceof Type) {
             throw new InvariantViolation(
                 sprintf(
-                    'Type loader is expected to return valid type "%s", but it returned %s',
+                    'Type loader is expected to return a callable or valid type "%s", but it returned %s',
                     $typeName,
                     Utils::printSafe($type)
                 )
             );
         }
+
         if ($type->name !== $typeName) {
             throw new InvariantViolation(
                 sprintf('Type loader is expected to return type "%s", but it returned "%s"', $typeName, $type->name)
@@ -363,10 +366,22 @@ class Schema
 
     private function defaultTypeLoader(string $typeName) : ?Type
     {
-        // Default type loader simply fallbacks to collecting all types
+        // Default type loader simply falls back to collecting all types
         $typeMap = $this->getTypeMap();
 
         return $typeMap[$typeName] ?? null;
+    }
+
+    /**
+     * @param Type|callable():Type $type
+     */
+    public static function resolveType($type) : Type
+    {
+        if (is_callable($type)) {
+            return $type();
+        }
+
+        return $type;
     }
 
     /**
@@ -389,7 +404,7 @@ class Schema
     }
 
     /**
-     * @return array<string, array<string, ObjectType>>
+     * @return array<string, array<string, ObjectType|UnionType>>
      */
     private function getPossibleTypeMap() : array
     {

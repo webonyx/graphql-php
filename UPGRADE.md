@@ -1,13 +1,206 @@
-## Master
+## v0.13.x > v14.x.x
 
-- Dropped `GraphQL\Error\Error::$message`, use `->getMessage()` instead.
+### BREAKING: Strict coercion of scalar types (#278)
 
-### Breaking (major): dropped deprecations
- - dropped deprecated `GraphQL\Schema`. Use `GraphQL\Type\Schema`.
+**Impact: Major**
+
+This change may break API clients if they were sending loose variable values.
+
+<details>
+  <summary>See Examples</summary>
+
+Consider the following query:
+
+```graphql
+query($intQueryVariable: Int) {
+    test(intInput: $intQueryVariable)
+}
+```
+
+What happens if we pass non-integer values as `$intQueryVariable`:
+```
+[true, false, 1, 0, 0.0, 'true', 'false', '1', '0', '0.0', [], [0,1]]
+```
+
+#### Integer coercion, changed behavior:
+
+```
+bool(true):
+ 0.13.x: coerced to int(1)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value true; Expected type Int; Int cannot represent non-integer value: true
+
+bool(false):
+ 0.13.x: coerced to int(0)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value false; Expected type Int; Int cannot represent non-integer value: false
+
+string(1) "1"
+ 0.13.x: was coerced to int(1)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value "1"; Expected type Int; Int cannot represent non-integer value: 1
+
+string(1) "0"
+ 0.13.x: was coerced to int(0)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value "0"; Expected type Int; Int cannot represent non-integer value: 0
+
+string(3) "0.0"
+ 0.13.x: was coerced to int(0)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value "0.0"; Expected type Int; Int cannot represent non-integer value: 0.0
+```
+
+Did not change:
+```
+int(1): coerced to int(1)
+int(0) was coerced to int(0)
+float(0) was coerced to int(0)
+
+string(4) "true":
+ Error: Variable "$queryVariable" got invalid value "true"; Expected type Int; Int cannot represent non 32-bit signed integer value: true
+
+string(5) "false":
+ Error: Variable "$queryVariable" got invalid value "false"; Expected type Int; Int cannot represent non 32-bit signed integer value: false
+
+array(0) {}
+ Error: Variable "$queryVariable" got invalid value []; Expected type Int; Int cannot represent non 32-bit signed integer value: []
+
+array(2) { [0]=> int(0) [1]=> int(1) }
+ Error: Variable "$queryVariable" got invalid value [0,1]; Expected type Int; Int cannot represent non 32-bit signed integer value: [0,1]
+```
+
+#### Float coercion, changed behavior:
+```graphql
+query($queryVariable: Float) {
+    test(floatInput: $queryVariable)
+}
+```
+
+```
+bool(true)
+ 0.13.x: was coerced to float(1)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value true; Expected type Float; Float cannot represent non numeric value: true
+
+bool(false)
+ 0.13.x: was coerced to float(0)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value false; Expected type Float; Float cannot represent non numeric value: false
+
+string(1) "1"
+ 0.13.x: was coerced to float(1)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value "1"; Expected type Float; Float cannot represent non numeric value: 1
+
+string(1) "0"
+ 0.13.x: was coerced to float(0)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value "0"; Expected type Float; Float cannot represent non numeric value: 0
+
+string(3) "0.0"
+ 0.13.x: was coerced to float(0)
+ 14.x.x: Error: Variable "$queryVariable" got invalid value "0.0"; Expected type Float; Float cannot represent non numeric value: 0.0
+```
+
+#### String coercion, changed behavior:
+```graphql
+query($queryVariable: String) {
+    test(stringInput: $queryVariable)
+}
+```
+
+```
+bool(true)
+ 0.13.x: was coerced to string(1) "1"
+ 14.x.x: Error: Variable "$queryVariable" got invalid value true; Expected type String; String cannot represent a non string value: true
+
+bool(false)
+ 0.13.x: was coerced to string(0) ""
+ 14.x.x: Error: Variable "$queryVariable" got invalid value false; Expected type String; String cannot represent a non string value: false
+
+int(1)
+ 0.13.x: was coerced to string(1) "1"
+ 14.x.x: Error: Variable "$queryVariable" got invalid value 1; Expected type String; String cannot represent a non string value: 1
+
+int(0)
+ 0.13.x: was coerced to string(1) "0"
+ 14.x.x:  Error: Variable "$queryVariable" got invalid value 0; Expected type String; String cannot represent a non string value: 0
+
+float(0)
+ 0.13.x: was coerced to string(1) "0"
+ 14.x.x: Error: Variable "$queryVariable" got invalid value 0; Expected type String; String cannot represent a non string value: 0
+```
+
+#### Boolean coercion did not change.
+
+</details>
+
+### Breaking: renamed classes and changed signatures
+
+**Impact: Medium**
+
+- Dropped previously deprecated `GraphQL\Schema`. Use `GraphQL\Type\Schema`.
+- Renamed `GraphQL\Error\Debug` to `GraphQL\Error\DebugFlag`. 
+- Debug flags in `GraphQL\Executor\ExecutionResult`, `GraphQL\Error\FormattedError` and `GraphQL\Server\ServerConfig`
+ do not accept `boolean` value anymore but `int` only (pass values of `GraphQL\Error\DebugFlag` constants)
+- `$positions` in `GraphQL\Error\Error` are not nullable anymore. Same can be expressesed by passing empty array.
+
+### BREAKING: Removed deprecated directive introspection fields (onOperation, onFragment, onField)
+
+**Impact: Minor**
+
+Could affect developer tools relying on old introspection format.
+Replaced with [Directive Locations](https://spec.graphql.org/June2018/#sec-Type-System.Directives).
+
+### BREAKING: Changes in validation rules:
+
+**Impact: Minor**
+
+ - Removal of `VariablesDefaultValueAllowed` validation rule. All variables may now specify a default value.
+ - Renamed `ProvidedNonNullArguments` to `ProvidedRequiredArguments` (no longer require values to be provided to non-null arguments which provide a default value).
+
+Could affect projects using custom sets of validation rules.
+
+### BREAKING: `GraphQL\Deferred` now extends `GraphQL\Executor\Promise\Adapter\SyncPromise`
+
+**Impact: Minor**
+
+Can only affect a few projects that were somehow customizing deferreds or the default sync promise adapter.
+
+
+### BREAKING: renamed several types of dangerous/breaking changes (returned by `BreakingChangesFinder`):
+
+**Impact: Minor**
+
+Can affect projects relying on `BreakingChangesFinder` utility in their CI.
+
+Following types of changes were renamed:
+
+```
+- `NON_NULL_ARG_ADDED` to `REQUIRED_ARG_ADDED`
+- `NON_NULL_INPUT_FIELD_ADDED` to `REQUIRED_INPUT_FIELD_ADDED`
+- `NON_NULL_DIRECTIVE_ARG_ADDED` to `REQUIRED_DIRECTIVE_ARG_ADDED`
+- `NULLABLE_INPUT_FIELD_ADDED` to `OPTIONAL_INPUT_FIELD_ADDED`
+- `NULLABLE_ARG_ADDED` to `OPTIONAL_ARG_ADDED`
+```
+
+### Breaking: Dropped `GraphQL\Error\Error::$message`
+
+**Impact: Minor**
+
+Use `GraphQL\Error\Error->getMessage()` instead.
 
 ### Breaking: change TypeKind constants
+
+**Impact: Minor**
+
 The constants in `\GraphQL\Type\TypeKind` were partly renamed and their values
 have been changed to match their name instead of a numeric index.
+
+### Breaking: some error messages were changed
+
+**Impact: Minor**
+
+Can affect projects relying on error messages parsing.
+
+One example: added quotes around `parentType.fieldName` in error message:
+```diff
+- Cannot return null for non-nullable field parentType.fieldName.
++ Cannot return null for non-nullable field "parentType.fieldName".
+```
+But expect other simiar changes like this.
  
 ## Upgrade v0.12.x > v0.13.x
 

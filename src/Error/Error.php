@@ -70,7 +70,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      */
     private $source;
 
-    /** @var int[]|null */
+    /** @var int[] */
     private $positions;
 
     /** @var bool */
@@ -85,7 +85,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @param string                       $message
      * @param Node|Node[]|Traversable|null $nodes
-     * @param int[]|null                   $positions
+     * @param mixed[]                      $positions
      * @param mixed[]|null                 $path
      * @param Throwable                    $previous
      * @param mixed[]                      $extensions
@@ -94,7 +94,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         $message,
         $nodes = null,
         ?Source $source = null,
-        $positions = null,
+        array $positions = [],
         $path = null,
         $previous = null,
         array $extensions = []
@@ -104,7 +104,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         // Compute list of blame nodes.
         if ($nodes instanceof Traversable) {
             $nodes = iterator_to_array($nodes);
-        } elseif ($nodes && ! is_array($nodes)) {
+        } elseif ($nodes !== null && ! is_array($nodes)) {
             $nodes = [$nodes];
         }
 
@@ -113,7 +113,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         $this->positions  = $positions;
         $this->path       = $path;
         $this->extensions = count($extensions) > 0 ? $extensions : (
-        $previous && $previous instanceof self
+        $previous instanceof self
             ? $previous->extensions
             : []
         );
@@ -122,7 +122,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $this->isClientSafe = $previous->isClientSafe();
             $cat                = $previous->getCategory();
             $this->category     = $cat === '' || $cat === null  ? self::CATEGORY_INTERNAL: $cat;
-        } elseif ($previous) {
+        } elseif ($previous !== null) {
             $this->isClientSafe = false;
             $this->category     = self::CATEGORY_INTERNAL;
         } else {
@@ -145,7 +145,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     public static function createLocatedError($error, $nodes = null, $path = null)
     {
         if ($error instanceof self) {
-            if ($error->path && $error->nodes) {
+            if ($error->path !== null && $error->nodes !== null && count($error->nodes) !== 0) {
                 return $error;
             }
 
@@ -153,8 +153,10 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $path  = $path ?? $error->path;
         }
 
-        $source     = $positions = $originalError = null;
-        $extensions = [];
+        $source        = null;
+        $originalError = null;
+        $positions     = [];
+        $extensions    = [];
 
         if ($error instanceof self) {
             $message       = $error->getMessage();
@@ -217,11 +219,11 @@ class Error extends Exception implements JsonSerializable, ClientAware
     }
 
     /**
-     * @return int[]|null
+     * @return int[]
      */
-    public function getPositions() : ?array
+    public function getPositions() : array
     {
-        if ($this->positions === null && ! empty($this->nodes)) {
+        if (count($this->positions) === 0 && ! empty($this->nodes)) {
             $positions = array_map(
                 static function ($node) : ?int {
                     return isset($node->loc) ? $node->loc->start : null;
@@ -264,14 +266,14 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source    = $this->getSource();
             $nodes     = $this->nodes;
 
-            if ($positions !== null && $source !== null) {
+            if ($source !== null && count($positions) !== 0) {
                 $this->locations = array_map(
                     static function ($pos) use ($source) : SourceLocation {
                         return $source->getLocation($pos);
                     },
                     $positions
                 );
-            } elseif ($nodes !== null) {
+            } elseif ($nodes !== null && count($nodes) !== 0) {
                 $locations       = array_filter(
                     array_map(
                         static function ($node) : ?SourceLocation {
