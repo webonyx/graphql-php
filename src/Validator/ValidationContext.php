@@ -79,11 +79,11 @@ class ValidationContext extends ASTValidationContext
             $usages    = $this->getVariableUsages($operation);
             $fragments = $this->getRecursivelyReferencedFragments($operation);
 
-            $tmp = [$usages];
-            foreach ($fragments as $i => $fragment) {
-                $tmp[] = $this->getVariableUsages($fragments[$i]);
+            $allUsages = [$usages];
+            foreach ($fragments as $fragment) {
+                $allUsages[] = $this->getVariableUsages($fragment);
             }
-            $usages                                    = array_merge(...$tmp);
+            $usages                                    = array_merge(...$allUsages);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 
