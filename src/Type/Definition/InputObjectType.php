@@ -9,7 +9,6 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
-use function call_user_func;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -68,10 +67,11 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     {
         if ($this->fields === null) {
             $this->fields = [];
-            $fields       = $this->config['fields'] ?? [];
-            $fields       = is_callable($fields)
-                ? call_user_func($fields)
-                : $fields;
+
+            $fields = $this->config['fields'] ?? [];
+            if (is_callable($fields)) {
+                $fields = $fields();
+            }
 
             if (! is_array($fields)) {
                 throw new InvariantViolation(
