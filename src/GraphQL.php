@@ -333,6 +333,10 @@ class GraphQL
      */
     public static function useExperimentalExecutor()
     {
+        trigger_error(
+            'Experimental Executor is deprecated and will be removed in the next major version',
+            E_USER_DEPRECATED
+        );
         Executor::setImplementationFactory([CoroutineExecutor::class, 'create']);
     }
 

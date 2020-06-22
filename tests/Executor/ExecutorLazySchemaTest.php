@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Error\Warning;
 use GraphQL\Executor\ExecutionResult;
@@ -244,7 +245,7 @@ class ExecutorLazySchemaTest extends TestCase
             'SomeObject',
             'SomeObject.fields',
         ];
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
         self::assertEquals($expectedExecutorCalls, $this->calls);
     }
 
@@ -380,7 +381,7 @@ class ExecutorLazySchemaTest extends TestCase
             'OtherObject' => true,
         ];
 
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
         self::assertEquals($expectedLoadedTypes, $this->loadedTypes);
 
         $expectedExecutorCalls = [
@@ -428,7 +429,7 @@ class ExecutorLazySchemaTest extends TestCase
             'SomeScalar'    => true,
         ];
 
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
         self::assertEquals($expectedLoadedTypes, $this->loadedTypes);
 
         $expectedCalls = [

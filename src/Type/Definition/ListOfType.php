@@ -4,24 +4,38 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
+use GraphQL\Type\Schema;
+use function is_callable;
+
 class ListOfType extends Type implements WrappingType, OutputType, NullableType, InputType
 {
-    /** @var Type */
+    /** @var callable():Type|Type */
     public $ofType;
 
-    public function __construct(Type $type)
+    /**
+     * @param callable():Type|Type $type
+     */
+    public function __construct($type)
     {
-        $this->ofType = $type;
+        $this->ofType = is_callable($type) ? $type : Type::assertType($type);
     }
 
     public function toString() : string
     {
-        return '[' . $this->ofType->toString() . ']';
+        return '[' . $this->getOfType()->toString() . ']';
     }
 
+    public function getOfType()
+    {
+        return Schema::resolveType($this->ofType);
+    }
+
+    /**
+     * @return ObjectType|InterfaceType|UnionType|ScalarType|InputObjectType|EnumType|(Type&WrappingType)
+     */
     public function getWrappedType(bool $recurse = false) : Type
     {
-        $type = $this->ofType;
+        $type = $this->getOfType();
 
         return $recurse && $type instanceof WrappingType
             ? $type->getWrappedType($recurse)

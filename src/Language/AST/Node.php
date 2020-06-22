@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Language\AST;
 
 use GraphQL\Utils\Utils;
+use function count;
 use function get_object_vars;
 use function is_array;
 use function is_scalar;
@@ -36,7 +37,7 @@ use function json_encode;
  */
 abstract class Node
 {
-    /** @var Location */
+    /** @var Location|null */
     public $loc;
 
     /** @var string */
@@ -47,7 +48,7 @@ abstract class Node
      */
     public function __construct(array $vars)
     {
-        if (empty($vars)) {
+        if (count($vars) === 0) {
             return;
         }
 
@@ -86,10 +87,7 @@ abstract class Node
         return $cloned;
     }
 
-    /**
-     * @return string
-     */
-    public function __toString()
+    public function __toString() : string
     {
         $tmp = $this->toArray(true);
 
@@ -97,11 +95,9 @@ abstract class Node
     }
 
     /**
-     * @param bool $recursive
-     *
      * @return mixed[]
      */
-    public function toArray($recursive = false)
+    public function toArray(bool $recursive = false) : array
     {
         if ($recursive) {
             return $this->recursiveToArray($this);

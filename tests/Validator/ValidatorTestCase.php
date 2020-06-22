@@ -350,11 +350,21 @@ abstract class ValidatorTestCase extends TestCase
             ],
         ]);
 
+        $subscriptionRoot = new ObjectType([
+            'name'   => 'SubscriptionRoot',
+            'fields' => [
+                'catSubscribe'  => ['type' => $Cat],
+                'barkSubscribe' => ['type' => $Dog],
+            ],
+        ]);
+
         return new Schema([
-            'query'      => $queryRoot,
-            'directives' => [
+            'query'        => $queryRoot,
+            'subscription' => $subscriptionRoot,
+            'directives'   => [
                 Directive::includeDirective(),
                 Directive::skipDirective(),
+                Directive::deprecatedDirective(),
                 new Directive([
                     'name'      => 'directive',
                     'locations' => [DirectiveLocation::FIELD],

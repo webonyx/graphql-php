@@ -8,19 +8,17 @@ use GraphQL\Error\Error;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
-use GraphQL\Language\AST\NamedTypeNode;
-use GraphQL\Language\AST\Node;
+use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
-use GraphQL\Language\AST\NodeList;
 use GraphQL\Language\AST\NonNullTypeNode;
+use GraphQL\Language\Printer;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
-use GraphQL\Type\Definition\NonNull;
 use GraphQL\Utils\Utils;
+use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
+use GraphQL\Validator\ValidationContext;
 use function array_filter;
-use function is_array;
-use function iterator_to_array;
 
 /**
  * Provided required arguments on directives
@@ -30,12 +28,23 @@ use function iterator_to_array;
  */
 class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 {
-    protected static function missingDirectiveArgMessage(string $directiveName, string $argName)
+    public static function missingDirectiveArgMessage(string $directiveName, string $argName, string $type)
     {
-        return 'Directive "' . $directiveName . '" argument "' . $argName . '" is required but ont provided.';
+        return 'Directive "@' . $directiveName . '" argument "' . $argName
+            . '" of type "' . $type . '" is required but not provided.';
     }
 
     public function getSDLVisitor(SDLValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getVisitor(ValidationContext $context)
+    {
+        return $this->getASTVisitor($context);
+    }
+
+    public function getASTVisitor(ASTValidationContext $context)
     {
         $requiredArgsMap   = [];
         $schema            = $context->getSchema();
@@ -46,7 +55,7 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
         foreach ($definedDirectives as $directive) {
             $requiredArgsMap[$directive->name] = Utils::keyMap(
                 array_filter($directive->args, static function (FieldArgument $arg) : bool {
-                    return $arg->getType() instanceof NonNull && ! isset($arg->defaultValue);
+                    return $arg->isRequired();
                 }),
                 static function (FieldArgument $arg) : string {
                     return $arg->name;
@@ -59,59 +68,61 @@ class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
             if (! ($def instanceof DirectiveDefinitionNode)) {
                 continue;
             }
-
-            if (is_array($def->arguments)) {
-                $arguments = $def->arguments;
-            } elseif ($def->arguments instanceof NodeList) {
-                $arguments = iterator_to_array($def->arguments->getIterator());
-            } else {
-                $arguments = null;
-            }
+            $arguments = $def->arguments ?? [];
 
             $requiredArgsMap[$def->name->value] = Utils::keyMap(
-                $arguments
-                    ? array_filter($arguments, static function (Node $argument) : bool {
-                        return $argument instanceof NonNullTypeNode &&
-                            (
-                                ! isset($argument->defaultValue) ||
-                                $argument->defaultValue === null
-                            );
-                    })
-                    : [],
-                static function (NamedTypeNode $argument) : string {
+                Utils::filter($arguments, static function (InputValueDefinitionNode $argument) : bool {
+                    return $argument->type instanceof NonNullTypeNode &&
+                        (
+                            ! isset($argument->defaultValue) ||
+                            $argument->defaultValue === null
+                        );
+                }),
+                static function (InputValueDefinitionNode $argument) : string {
                     return $argument->name->value;
                 }
             );
         }
 
         return [
-            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) : ?string {
-                $directiveName = $directiveNode->name->value;
-                $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
-                if (! $requiredArgs) {
-                    return null;
-                }
-
-                $argNodes   = $directiveNode->arguments ?? [];
-                $argNodeMap = Utils::keyMap(
-                    $argNodes,
-                    static function (ArgumentNode $arg) : string {
-                        return $arg->name->value;
-                    }
-                );
-
-                foreach ($requiredArgs as $argName => $arg) {
-                    if (isset($argNodeMap[$argName])) {
-                        continue;
+            NodeKind::DIRECTIVE => [
+                // Validate on leave to allow for deeper errors to appear first.
+                'leave' => static function (DirectiveNode $directiveNode) use ($requiredArgsMap, $context) : ?string {
+                    $directiveName = $directiveNode->name->value;
+                    $requiredArgs  = $requiredArgsMap[$directiveName] ?? null;
+                    if (! $requiredArgs) {
+                        return null;
                     }
 
-                    $context->reportError(
-                        new Error(static::missingDirectiveArgMessage($directiveName, $argName), [$directiveNode])
+                    $argNodes   = $directiveNode->arguments ?? [];
+                    $argNodeMap = Utils::keyMap(
+                        $argNodes,
+                        static function (ArgumentNode $arg) : string {
+                            return $arg->name->value;
+                        }
                     );
-                }
 
-                return null;
-            },
+                    foreach ($requiredArgs as $argName => $arg) {
+                        if (isset($argNodeMap[$argName])) {
+                            continue;
+                        }
+
+                        if ($arg instanceof FieldArgument) {
+                            $argType = (string) $arg->getType();
+                        } elseif ($arg instanceof InputValueDefinitionNode) {
+                            $argType = Printer::doPrint($arg->type);
+                        } else {
+                            $argType = '';
+                        }
+
+                        $context->reportError(
+                            new Error(static::missingDirectiveArgMessage($directiveName, $argName, $argType), [$directiveNode])
+                        );
+                    }
+
+                    return null;
+                },
+            ],
         ];
     }
 }
