@@ -255,16 +255,16 @@ class AST
                 return new BooleanValueNode(['value' => $serialized]);
             }
             if (is_int($serialized)) {
-                return new IntValueNode(['value' => $serialized]);
+                return new IntValueNode(['value' => (string) $serialized]);
             }
             if (is_float($serialized)) {
                 // int cast with == used for performance reasons
                 // phpcs:ignore
                 if ((int) $serialized == $serialized) {
-                    return new IntValueNode(['value' => $serialized]);
+                    return new IntValueNode(['value' => (string) $serialized]);
                 }
 
-                return new FloatValueNode(['value' => $serialized]);
+                return new FloatValueNode(['value' => (string) $serialized]);
             }
             if (is_string($serialized)) {
                 // Enum types use Enum literals.
