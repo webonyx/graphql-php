@@ -9,6 +9,6 @@ class FloatValueNode extends Node implements ValueNode
     /** @var string */
     public $kind = NodeKind::FLOAT;
 
-    /** @var float */
+    /** @var string */
     public $value;
 }
