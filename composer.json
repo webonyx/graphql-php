@@ -17,7 +17,7 @@
     "amphp/amp": "^2.3",
     "doctrine/coding-standard": "^6.0",
     "nyholm/psr7": "^1.2",
-    "phpbench/phpbench": "^0.14",
+    "phpbench/phpbench": "^0.17.1",
     "phpstan/extension-installer": "^1.0",
     "phpstan/phpstan": "0.12.18",
     "phpstan/phpstan-phpunit": "0.12.6",
