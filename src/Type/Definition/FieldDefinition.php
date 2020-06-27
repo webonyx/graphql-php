@@ -59,7 +59,10 @@ class FieldDefinition
      */
     public $config;
 
-    /** @var Type  */
+    /**
+     * @TODO narrow this type to OutputType&Type with native asserts
+     * @var Type
+     */
     public $type;
 
     /** @var callable|string */
