@@ -44,6 +44,9 @@ class InputObjectField
                     break;
                 case 'defaultValueExists':
                     break;
+                case 'type':
+                    // do nothing; type is lazy loaded in getType
+                    break;
                 default:
                     $this->{$k} = $v;
             }
@@ -56,12 +59,7 @@ class InputObjectField
      */
     public function getType() : Type
     {
-        /**
-         * TODO: Replace this cast with native assert
-         *
-         * @var Type&InputType
-         */
-        return Schema::resolveType($this->type);
+        return $this->type ?? ($this->type = Schema::resolveType($this->config['type']));
     }
 
     public function defaultValueExists() : bool
