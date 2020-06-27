@@ -59,7 +59,7 @@ class FieldDefinition
      */
     public $config;
 
-    /** @var callable|(OutputType&Type) */
+    /** @var Type  */
     public $type;
 
     /** @var callable|string */
@@ -71,7 +71,6 @@ class FieldDefinition
     protected function __construct(array $config)
     {
         $this->name      = $config['name'];
-        $this->type      = $config['type'];
         $this->resolveFn = $config['resolve'] ?? null;
         $this->mapFn     = $config['map'] ?? null;
         $this->args      = isset($config['args']) ? FieldArgument::createMap($config['args']) : [];
@@ -177,7 +176,7 @@ class FieldDefinition
 
     public function getType() : Type
     {
-        return Schema::resolveType($this->type);
+        return $this->type ?? ($this->type = Schema::resolveType($this->config['type']));
     }
 
     /**
