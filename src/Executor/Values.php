@@ -314,12 +314,12 @@ class Values
     /**
      * @deprecated as of 0.12 (Use coerceValue() directly for richer information)
      *
-     * @param mixed[] $value
+     * @param mixed[]                                                $value
+     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
      *
      * @return string[]
      *
      * @codeCoverageIgnore
-     * @paarm ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
      */
     public static function isValidPHPValue($value, InputType $type)
     {
