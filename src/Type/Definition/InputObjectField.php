@@ -59,7 +59,17 @@ class InputObjectField
      */
     public function getType() : Type
     {
-        return $this->type ?? ($this->type = Schema::resolveType($this->config['type']));
+        if (! isset($this->type)) {
+            /**
+             * TODO: replace this phpstan cast with native assert
+             *
+             * @var Type&InputType
+             */
+            $type       = Schema::resolveType($this->config['type']);
+            $this->type = $type;
+        }
+
+        return $this->type;
     }
 
     public function defaultValueExists() : bool
@@ -82,7 +92,7 @@ class InputObjectField
         } catch (Error $e) {
             throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
         }
-        $type = $this->type;
+        $type = $this->getType();
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }

@@ -373,7 +373,7 @@ class Schema
      */
     public static function resolveType($type) : Type
     {
-        if($type instanceof Type) {
+        if ($type instanceof Type) {
             return $type;
         }
 

@@ -31,7 +31,7 @@ class FieldArgument
     public $config;
 
     /**
-     * @TODO: narrow this type to Type&InputType with native asserts
+     * @var Type&InputType
      * @var Type
      */
     private $type;
@@ -80,7 +80,17 @@ class FieldArgument
 
     public function getType() : Type
     {
-        return $this->type ?? ($this->type = Schema::resolveType($this->config['type']));
+        if (! isset($this->type)) {
+            /**
+             * TODO: replace this phpstan cast with native assert
+             *
+             * @var Type&InputType
+             */
+            $type       = Schema::resolveType($this->config['type']);
+            $this->type = $type;
+        }
+
+        return $this->type;
     }
 
     public function defaultValueExists() : bool

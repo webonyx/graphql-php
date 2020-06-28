@@ -59,10 +59,7 @@ class FieldDefinition
      */
     public $config;
 
-    /**
-     * @TODO narrow this type to OutputType&Type with native asserts
-     * @var Type
-     */
+    /** @var OutputType&Type */
     public $type;
 
     /** @var callable|string */
@@ -179,7 +176,17 @@ class FieldDefinition
 
     public function getType() : Type
     {
-        return $this->type ?? ($this->type = Schema::resolveType($this->config['type']));
+        if (! isset($this->type)) {
+            /**
+             * TODO: replace this phpstan cast with native assert
+             *
+             * @var Type&OutputType
+             */
+            $type       = Schema::resolveType($this->config['type']);
+            $this->type = $type;
+        }
+
+        return $this->type;
     }
 
     /**
