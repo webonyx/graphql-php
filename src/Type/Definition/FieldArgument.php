@@ -30,15 +30,10 @@ class FieldArgument
     /** @var mixed[] */
     public $config;
 
-    /**
-     * @var Type&InputType
-     * @var Type
-     */
+    /** @var Type&InputType */
     private $type;
 
-    /**
-     * @param mixed[] $def
-     */
+    /** @param mixed[] $def */
     public function __construct(array $def)
     {
         foreach ($def as $key => $value) {
