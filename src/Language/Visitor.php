@@ -399,7 +399,7 @@ class Visitor
         $skipping      = new SplFixedArray($visitorsCount);
 
         return [
-            'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
+            'enter' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) : ?VisitorOperation {
                 for ($i = 0; $i < $visitorsCount; $i++) {
                     if (! empty($skipping[$i])) {
                         continue;
@@ -417,18 +417,20 @@ class Visitor
 
                     $result = $fn(...func_get_args());
 
-                    if ($result instanceof VisitorOperation) {
-                        if ($result->doContinue) {
-                            $skipping[$i] = $node;
-                        } elseif ($result->doBreak) {
-                            $skipping[$i] = $result;
-                        } elseif ($result->removeNode) {
-                            return $result;
-                        }
-                    } elseif ($result !== null) {
+                    if (! ($result instanceof VisitorOperation)) {
+                        continue;
+                    }
+
+                    if ($result->doContinue) {
+                        $skipping[$i] = $node;
+                    } elseif ($result->doBreak) {
+                        $skipping[$i] = $result;
+                    } elseif ($result->removeNode) {
                         return $result;
                     }
                 }
+
+                return null;
             },
             'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
