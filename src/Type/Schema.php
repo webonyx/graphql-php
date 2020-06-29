@@ -377,11 +377,7 @@ class Schema
             return $type;
         }
 
-        if (is_callable($type)) {
-            return $type();
-        }
-
-        return $type;
+        return $type();
     }
 
     /**
