@@ -42,7 +42,7 @@ class SchemaConfig
     /** @var Directive[]|null */
     public $directives;
 
-    /** @var callable(string $name):Type|null */
+    /** @var callable|null */
     public $typeLoader;
 
     /** @var SchemaDefinitionNode|null */
@@ -253,7 +253,7 @@ class SchemaConfig
     }
 
     /**
-     * @return callable(string $name):Type|null
+     * @return callable|null
      *
      * @api
      */
