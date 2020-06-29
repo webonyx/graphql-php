@@ -281,12 +281,7 @@ class Visitor
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
                     $editValue = null;
 
-                    if ($result === false) {
-                        if (! $isLeaving) {
-                            array_pop($path);
-                            continue;
-                        }
-                    } elseif ($result !== null) {
+                    if ($result !== null) {
                         if ($result instanceof VisitorOperation) {
                             if ($result->doBreak) {
                                 break;
