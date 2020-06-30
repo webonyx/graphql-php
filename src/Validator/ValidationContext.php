@@ -139,13 +139,13 @@ class ValidationContext extends ASTValidationContext
             $fragments      = [];
             $collectedNames = [];
             $nodesToVisit   = [$operation];
-            while (! empty($nodesToVisit)) {
+            while (count($nodesToVisit) > 0) {
                 $node    = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
                     $fragName = $spread->name->value;
 
-                    if (! empty($collectedNames[$fragName])) {
+                    if ($collectedNames[$fragName] ?? false) {
                         continue;
                     }
 
@@ -177,7 +177,7 @@ class ValidationContext extends ASTValidationContext
             $spreads = [];
             /** @var SelectionSetNode[] $setsToVisit */
             $setsToVisit = [$node->selectionSet];
-            while (! empty($setsToVisit)) {
+            while (count($setsToVisit) > 0) {
                 $set = array_pop($setsToVisit);
 
                 for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; $i++) {

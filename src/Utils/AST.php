@@ -106,7 +106,7 @@ class AST
                 continue;
             }
             if (is_array($value)) {
-                if (isset($value[0]) || empty($value)) {
+                if (isset($value[0]) || count($value) === 0) {
                     $value = new NodeList($value);
                 } else {
                     $value = self::fromArray($value);

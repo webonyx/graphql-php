@@ -43,6 +43,7 @@ use function array_keys;
 use function array_merge;
 use function array_reduce;
 use function array_values;
+use function count;
 use function get_class;
 use function is_array;
 use function is_callable;
@@ -171,13 +172,13 @@ class ReferenceExecutor implements ExecutorImplementation
                 $operation->variableDefinitions ?? [],
                 $rawVariableValues ?? []
             );
-            if (empty($coercionErrors)) {
+            if (count($coercionErrors ?? []) === 0) {
                 $variableValues = $coercedVariableValues;
             } else {
                 $errors = array_merge($errors, $coercionErrors);
             }
         }
-        if (! empty($errors)) {
+        if (count($errors) > 0) {
             return $errors;
         }
         Utils::invariant($operation, 'Has operation if no errors.');
@@ -373,7 +374,8 @@ class ReferenceExecutor implements ExecutorImplementation
                     break;
                 case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
-                    if (! empty($visitedFragmentNames[$fragName]) || ! $this->shouldIncludeNode($selection)) {
+
+                    if (($visitedFragmentNames[$fragName] ?? false) === true || ! $this->shouldIncludeNode($selection)) {
                         break;
                     }
                     $visitedFragmentNames[$fragName] = true;
@@ -1041,7 +1043,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 return $type;
             }
         }
-        if (! empty($promisedIsTypeOfResults)) {
+        if (count($promisedIsTypeOfResults) > 0) {
             return $this->exeContext->promiseAdapter->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes) : ?ObjectType {
                     foreach ($isTypeOfResults as $index => $result) {

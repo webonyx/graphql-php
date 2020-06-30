@@ -273,7 +273,7 @@ class Parser
      */
     private function loc(Token $startToken) : ?Location
     {
-        if (empty($this->lexer->options['noLocation'])) {
+        if (! ($this->lexer->options['noLocation'] ?? false)) {
             return new Location($startToken, $this->lexer->lastToken, $this->lexer->source);
         }
 
@@ -1187,7 +1187,7 @@ class Parser
                 $types[] = $this->parseNamedType();
             } while ($this->skip(Token::AMP) ||
                 // Legacy support for the SDL?
-                (! empty($this->lexer->options['allowLegacySDLImplementsInterfaces']) && $this->peek(Token::NAME))
+                (($this->lexer->options['allowLegacySDLImplementsInterfaces'] ?? false) && $this->peek(Token::NAME))
             );
         }
 
@@ -1200,7 +1200,7 @@ class Parser
     private function parseFieldsDefinition() : NodeList
     {
         // Legacy support for the SDL?
-        if (! empty($this->lexer->options['allowLegacySDLEmptyFields'])
+        if (($this->lexer->options['allowLegacySDLEmptyFields'] ?? false)
             && $this->peek(Token::BRACE_L)
             && $this->lexer->lookahead()->kind === Token::BRACE_R
         ) {

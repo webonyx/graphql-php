@@ -176,7 +176,7 @@ class TypeInfo
             return $typeMap;
         }
 
-        if (! empty($typeMap[$type->name])) {
+        if (isset($typeMap[$type->name])) {
             Utils::invariant(
                 $typeMap[$type->name] === $type,
                 sprintf('Schema must contain unique named types but contains multiple types named "%s" ', $type) .
@@ -197,7 +197,7 @@ class TypeInfo
         }
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
             foreach ($type->getFields() as $fieldName => $field) {
-                if (! empty($field->args)) {
+                if (count($field->args ?? []) > 0) {
                     $fieldArgTypes = array_map(
                         static function (FieldArgument $arg) : Type {
                             return $arg->getType();

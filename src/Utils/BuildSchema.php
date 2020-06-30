@@ -104,7 +104,7 @@ class BuildSchema
     public function buildSchema()
     {
         $options = $this->options;
-        if (empty($options['assumeValid']) && empty($options['assumeValidSDL'])) {
+        if (! ($options['assumeValid'] ?? false) && ! ($options['assumeValidSDL'] ?? false)) {
             DocumentValidator::assertValidSDL($this->ast);
         }
 
@@ -119,7 +119,7 @@ class BuildSchema
                     break;
                 case $definition instanceof TypeDefinitionNode:
                     $typeName = $definition->name->value;
-                    if (! empty($this->nodeMap[$typeName])) {
+                    if (isset($this->nodeMap[$typeName])) {
                         throw new Error(sprintf('Type "%s" was defined more than once.', $typeName));
                     }
                     $typeDefs[]               = $definition;

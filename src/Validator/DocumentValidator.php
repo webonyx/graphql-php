@@ -333,7 +333,7 @@ class DocumentValidator
     public static function assertValidSDL(DocumentNode $documentAST)
     {
         $errors = self::validateSDL($documentAST);
-        if (count($errors) !== 0) {
+        if (count($errors) > 0) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }
@@ -341,7 +341,7 @@ class DocumentValidator
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
     {
         $errors = self::validateSDL($documentAST, $schema);
-        if (count($errors) !== 0) {
+        if (count($errors) > 0) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }
