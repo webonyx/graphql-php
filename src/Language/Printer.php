@@ -57,6 +57,7 @@ use function preg_replace;
 use function sprintf;
 use function str_replace;
 use function strpos;
+use function strval;
 
 /**
  * Prints AST to string. Capable of printing GraphQL queries and Type definition language.
@@ -181,12 +182,12 @@ class Printer
                             . $node->selectionSet;
                     },
 
-                    NodeKind::INT => static function (IntValueNode $node) {
-                        return $node->value;
+                    NodeKind::INT => static function (IntValueNode $node) : string {
+                        return strval($node->value);
                     },
 
                     NodeKind::FLOAT => static function (FloatValueNode $node) : string {
-                        return $node->value;
+                        return strval($node->value);
                     },
 
                     NodeKind::STRING => function (StringValueNode $node, $key) {
