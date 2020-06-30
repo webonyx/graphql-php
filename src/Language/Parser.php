@@ -905,11 +905,13 @@ class Parser
     private function parseArray(bool $isConst) : ListValueNode
     {
         $start   = $this->lexer->token;
-        $parseFn = $isConst ? function () {
-            return $this->parseConstValue();
-        } : function () {
-            return $this->parseVariableValue();
-        };
+        $parseFn = $isConst
+            ? function () {
+                return $this->parseConstValue();
+            }
+            : function () {
+                return $this->parseVariableValue();
+            };
 
         return new ListValueNode(
             [
