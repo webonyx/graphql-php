@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\UserError;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
@@ -50,7 +51,7 @@ class ListsTest extends TestCase
         $this->check($testType, $testData, $expected);
     }
 
-    private function check($testType, $testData, $expected, $debug = false)
+    private function check($testType, $testData, $expected, int $debug = DebugFlag::NONE)
     {
         $data     = ['test' => $testData];
         $dataType = null;
@@ -226,11 +227,11 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
     }
 
-    private function checkHandlesNonNullableLists($testData, $expected, $debug = false)
+    private function checkHandlesNonNullableLists($testData, $expected, int $debug = DebugFlag::NONE)
     {
         $testType = Type::nonNull(Type::listOf(Type::int()));
         $this->check($testType, $testData, $expected, $debug);
@@ -269,7 +270,7 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
 
         // Rejected
@@ -377,7 +378,7 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
 
         // Returns null
@@ -387,7 +388,7 @@ class ListsTest extends TestCase
         );
     }
 
-    private function checkHandlesListOfNonNulls($testData, $expected, $debug = false)
+    private function checkHandlesListOfNonNulls($testData, $expected, int $debug = DebugFlag::NONE)
     {
         $testType = Type::listOf(Type::nonNull(Type::int()));
         $this->check($testType, $testData, $expected, $debug);
@@ -420,7 +421,7 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
 
         // Returns null
@@ -536,7 +537,7 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
 
         // Returns null
@@ -551,11 +552,11 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
     }
 
-    public function checkHandlesNonNullListOfNonNulls($testData, $expected, $debug = false)
+    public function checkHandlesNonNullListOfNonNulls($testData, $expected, int $debug = DebugFlag::NONE)
     {
         $testType = Type::nonNull(Type::listOf(Type::nonNull(Type::int())));
         $this->check($testType, $testData, $expected, $debug);
@@ -588,7 +589,7 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
 
         // Returns null
@@ -605,7 +606,7 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
 
         // Rejected
@@ -669,7 +670,7 @@ class ListsTest extends TestCase
                     ],
                 ],
             ],
-            true
+            DebugFlag::INCLUDE_DEBUG_MESSAGE
         );
 
         // Contains reject

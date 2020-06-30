@@ -46,6 +46,7 @@ use function array_values;
 use function count;
 use function get_class;
 use function is_array;
+use function is_callable;
 use function is_string;
 use function sprintf;
 
@@ -530,7 +531,6 @@ class ReferenceExecutor implements ExecutorImplementation
         // The resolve function's optional 3rd argument is a context value that
         // is provided to every resolve function within an execution. It is commonly
         // used to represent an authenticated user, or request-specific caches.
-        $context = $exeContext->contextValue;
         // The resolve function's optional 4th argument is a collection of
         // information about the current execution state.
         $info = new ResolveInfo(
@@ -940,10 +940,15 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     private function completeAbstractValue(AbstractType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
-        $exeContext  = $this->exeContext;
-        $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
-        if ($runtimeType === null) {
+        $exeContext    = $this->exeContext;
+        $typeCandidate = $returnType->resolveType($result, $exeContext->contextValue, $info);
+
+        if ($typeCandidate === null) {
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
+        } elseif (is_callable($typeCandidate)) {
+            $runtimeType = Schema::resolveType($typeCandidate);
+        } else {
+            $runtimeType = $typeCandidate;
         }
         $promise = $this->getPromise($runtimeType);
         if ($promise !== null) {

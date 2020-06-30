@@ -522,7 +522,7 @@ class SchemaExtenderTest extends TestCase
             type TestType implements TestInterface {
                 interfaceField: String
             }
-            directive @test(arg: Int) on FIELD | SCALAR
+            directive @test(arg: Int) repeatable on FIELD | SCALAR
         ');
 
         $extendedTwiceSchema = SchemaExtender::extend($extendedSchema, $ast);
@@ -1263,7 +1263,7 @@ class SchemaExtenderTest extends TestCase
     public function testMayExtendDirectivesWithNewComplexDirective()
     {
         $extendedSchema = $this->extendTestSchema('
-          directive @profile(enable: Boolean! tag: String) on QUERY | FIELD
+          directive @profile(enable: Boolean! tag: String) repeatable on QUERY | FIELD
         ');
 
         $extendedDirective = $extendedSchema->getDirective('profile');

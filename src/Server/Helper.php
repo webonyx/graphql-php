@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
@@ -18,12 +19,13 @@ use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use JsonSerializable;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use function count;
 use function file_get_contents;
 use function header;
+use function html_entity_decode;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -31,6 +33,7 @@ use function json_decode;
 use function json_encode;
 use function json_last_error;
 use function json_last_error_msg;
+use function parse_str;
 use function sprintf;
 use function stripos;
 
@@ -320,11 +323,11 @@ class Helper
             if ($config->getErrorsHandler()) {
                 $result->setErrorsHandler($config->getErrorsHandler());
             }
-            if ($config->getErrorFormatter() || $config->getDebug()) {
+            if ($config->getErrorFormatter() || $config->getDebugFlag() !== DebugFlag::NONE) {
                 $result->setErrorFormatter(
                     FormattedError::prepareFormatter(
                         $config->getErrorFormatter(),
-                        $config->getDebug()
+                        $config->getDebugFlag()
                     )
                 );
             }
@@ -522,7 +525,7 @@ class Helper
      *
      * @api
      */
-    public function parsePsrRequest(ServerRequestInterface $request)
+    public function parsePsrRequest(RequestInterface $request)
     {
         if ($request->getMethod() === 'GET') {
             $bodyParams = [];
@@ -534,13 +537,13 @@ class Helper
             }
 
             if (stripos($contentType[0], 'application/graphql') !== false) {
-                $bodyParams = ['query' => $request->getBody()->getContents()];
+                $bodyParams = ['query' => (string) $request->getBody()];
             } elseif (stripos($contentType[0], 'application/json') !== false) {
-                $bodyParams = $request->getParsedBody();
+                $bodyParams = json_decode((string) $request->getBody(), true);
 
                 if ($bodyParams === null) {
                     throw new InvariantViolation(
-                        'PSR-7 request is expected to provide parsed body for "application/json" requests but got null'
+                        'Did not receive valid JSON array in PSR-7 request body with Content-Type "application/json"'
                     );
                 }
 
@@ -551,7 +554,7 @@ class Helper
                     );
                 }
             } else {
-                $bodyParams = $request->getParsedBody();
+                parse_str((string) $request->getBody(), $bodyParams);
 
                 if (! is_array($bodyParams)) {
                     throw new RequestError('Unexpected content type: ' . Utils::printSafeJson($contentType[0]));
@@ -559,10 +562,12 @@ class Helper
             }
         }
 
+        parse_str(html_entity_decode($request->getUri()->getQuery()), $queryParams);
+
         return $this->parseRequestParams(
             $request->getMethod(),
             $bodyParams,
-            $request->getQueryParams()
+            $queryParams
         );
     }
 

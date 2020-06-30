@@ -6,7 +6,9 @@ namespace GraphQL\Tests\Validator;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Language\SourceLocation;
+use GraphQL\Utils\BuildSchema;
 use GraphQL\Validator\Rules\KnownArgumentNames;
+use GraphQL\Validator\Rules\KnownArgumentNamesOnDirectives;
 
 class KnownArgumentNamesTest extends ValidatorTestCase
 {
@@ -147,7 +149,7 @@ class KnownArgumentNamesTest extends ValidatorTestCase
     private function unknownDirectiveArg($argName, $directiveName, $suggestedArgs, $line, $column)
     {
         return FormattedError::create(
-            KnownArgumentNames::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
+            KnownArgumentNamesOnDirectives::unknownDirectiveArgMessage($argName, $directiveName, $suggestedArgs),
             [new SourceLocation($line, $column)]
         );
     }
@@ -258,6 +260,142 @@ class KnownArgumentNamesTest extends ValidatorTestCase
                 $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 4, 27),
                 $this->unknownArg('unknown', 'doesKnowCommand', 'Dog', [], 9, 31),
             ]
+        );
+    }
+
+    // within SDL:
+
+    /**
+     * @see it('known arg on directive defined inside SDL')
+     */
+    public function testKnownArgOnDirectiveDefinedInsideSDL()
+    {
+        $this->expectPassesRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @test(arg: "")
+                }
+        
+                directive @test(arg: String) on FIELD_DEFINITION
+            '
+        );
+    }
+
+    /**
+     * @see it('unknown arg on directive defined inside SDL')
+     */
+    public function testUnknownArgOnDirectiveDefinedInsideSDL()
+    {
+        $this->expectFailsRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @test(unknown: "")
+                }
+        
+                directive @test(arg: String) on FIELD_DEFINITION
+            ',
+            [
+                $this->unknownDirectiveArg('unknown', 'test', [], 3, 37),
+            ]
+        );
+    }
+
+    /**
+     * @see it('misspelled arg name is reported on directive defined inside SDL')
+     */
+    public function testMisspelledArgNameIsReportedOnDirectiveDefinedInsideSDL()
+    {
+        $this->expectFailsRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @test(agr: "")
+                }
+        
+                directive @test(arg: String) on FIELD_DEFINITION
+            ',
+            [$this->unknownDirectiveArg('agr', 'test', ['arg'], 3, 37)]
+        );
+    }
+
+    /**
+     * @see it('unknown arg on standard directive')
+     */
+    public function testUnknownArgOnStandardDirective()
+    {
+        $this->expectFailsRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @deprecated(unknown: "")
+                }
+            ',
+            [$this->unknownDirectiveArg('unknown', 'deprecated', [], 3, 43)]
+        );
+    }
+
+    /**
+     * @see it('unknown arg on overrided standard directive')
+     */
+    public function testUnknownArgOnOverriddenStandardDirective()
+    {
+        $this->expectFailsRule(
+            new KnownArgumentNamesOnDirectives(),
+            '
+                type Query {
+                  foo: String @deprecated(reason: "")
+                }
+                directive @deprecated(arg: String) on FIELD
+            ',
+            [$this->unknownDirectiveArg('reason', 'deprecated', [], 3, 43)]
+        );
+    }
+
+    /**
+     * @see it('unknown arg on directive defined in schema extension')
+     */
+    public function testUnknownArgOnDirectiveDefinedInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+            type Query {
+              foo: String
+            }
+        ');
+        $sdl    = '
+            directive @test(arg: String) on OBJECT
+
+            extend type Query  @test(unknown: "")
+        ';
+        $this->expectInvalid(
+            $schema,
+            [new KnownArgumentNamesOnDirectives()],
+            $sdl,
+            [$this->unknownDirectiveArg('unknown', 'test', [], 4, 38)]
+        );
+    }
+
+    /**
+     * @see it('unknown arg on directive used in schema extension')
+     */
+    public function testUnknownArgOnDirectiveUsedInSchemaExtension()
+    {
+        $schema = BuildSchema::build('
+            directive @test(arg: String) on OBJECT
+    
+            type Query {
+              foo: String
+            }
+        ');
+        $sdl    = '
+            extend type Query @test(unknown: "")
+        ';
+        $this->expectInvalid(
+            $schema,
+            [new KnownArgumentNamesOnDirectives()],
+            $sdl,
+            [$this->unknownDirectiveArg('unknown', 'test', [], 2, 37)]
         );
     }
 }

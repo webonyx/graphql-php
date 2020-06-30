@@ -635,7 +635,7 @@ class Utils
     public static function suggestionList($input, array $options)
     {
         $optionsByDistance = [];
-        $inputThreshold    = mb_strlen($input) / 2;
+        $threshold         = mb_strlen($input) * 0.4 + 1;
         foreach ($options as $option) {
             if ($input === $option) {
                 $distance = 0;
@@ -644,7 +644,6 @@ class Utils
                     ? 1
                     : levenshtein($input, $option));
             }
-            $threshold = max($inputThreshold, mb_strlen($option) / 2, 1);
             if ($distance > $threshold) {
                 continue;
             }

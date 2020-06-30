@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\Executor;
 use GraphQL\Language\Parser;
 use GraphQL\Tests\Executor\TestClasses\NumberHolder;
@@ -156,6 +157,6 @@ class MutationsTest extends TestCase
                 ],
             ],
         ];
-        self::assertArraySubset($expected, $mutationResult->toArray(true));
+        self::assertArraySubset($expected, $mutationResult->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 }

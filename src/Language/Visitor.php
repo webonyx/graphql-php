@@ -14,8 +14,6 @@ use SplFixedArray;
 use stdClass;
 use function array_pop;
 use function array_splice;
-use function call_user_func;
-use function call_user_func_array;
 use function count;
 use function func_get_args;
 use function is_array;
@@ -280,7 +278,7 @@ class Visitor
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn) {
-                    $result    = call_user_func($visitFn, $node, $key, $parent, $path, $ancestors);
+                    $result    = $visitFn($node, $key, $parent, $path, $ancestors);
                     $editValue = null;
 
                     if ($result !== null) {
@@ -417,7 +415,7 @@ class Visitor
                         continue;
                     }
 
-                    $result = call_user_func_array($fn, func_get_args());
+                    $result = $fn(...func_get_args());
 
                     if ($result instanceof VisitorOperation) {
                         if ($result->doContinue) {
@@ -442,7 +440,7 @@ class Visitor
                         );
 
                         if ($fn) {
-                            $result = call_user_func_array($fn, func_get_args());
+                            $result = $fn(...func_get_args());
                             if ($result instanceof VisitorOperation) {
                                 if ($result->doBreak) {
                                     $skipping[$i] = $result;
@@ -473,7 +471,7 @@ class Visitor
                 $fn = self::getVisitFn($visitor, $node->kind, false);
 
                 if ($fn) {
-                    $result = call_user_func_array($fn, func_get_args());
+                    $result = $fn(...func_get_args());
                     if ($result !== null) {
                         $typeInfo->leave($node);
                         if ($result instanceof Node) {
@@ -488,7 +486,10 @@ class Visitor
             },
             'leave' => static function (Node $node) use ($typeInfo, $visitor) {
                 $fn     = self::getVisitFn($visitor, $node->kind, true);
-                $result = $fn ? call_user_func_array($fn, func_get_args()) : null;
+                $result = $fn !== null
+                    ? $fn(...func_get_args())
+                    : null;
+
                 $typeInfo->leave($node);
 
                 return $result;
@@ -500,10 +501,8 @@ class Visitor
      * @param callable[]|null $visitor
      * @param string          $kind
      * @param bool            $isLeaving
-     *
-     * @return callable|null
      */
-    public static function getVisitFn($visitor, $kind, $isLeaving)
+    public static function getVisitFn($visitor, $kind, $isLeaving) : ?callable
     {
         if ($visitor === null) {
             return null;

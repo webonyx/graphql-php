@@ -7,8 +7,8 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\UnionTypeDefinitionNode;
 use GraphQL\Language\AST\UnionTypeExtensionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
-use function call_user_func;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -41,7 +41,7 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
 
         /**
          * Optionally provide a custom type resolver function. If one is not provided,
-         * the default implemenation will call `isTypeOf` on each implementing
+         * the default implementation will call `isTypeOf` on each implementing
          * Object type.
          */
         $this->name              = $config['name'];
@@ -73,12 +73,9 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
     public function getTypes()
     {
         if ($this->types === null) {
-            if (! isset($this->config['types'])) {
-                $types = null;
-            } elseif (is_callable($this->config['types'])) {
-                $types = call_user_func($this->config['types']);
-            } else {
-                $types = $this->config['types'];
+            $types = $this->config['types'] ?? null;
+            if (is_callable($types)) {
+                $types = $types();
             }
 
             if (! is_array($types)) {
@@ -90,7 +87,12 @@ class UnionType extends Type implements AbstractType, OutputType, CompositeType,
                 );
             }
 
-            $this->types = $types;
+            $rawTypes = $types;
+            foreach ($rawTypes as $i => $rawType) {
+                $rawTypes[$i] = Schema::resolveType($rawType);
+            }
+
+            $this->types = $rawTypes;
         }
 
         return $this->types;

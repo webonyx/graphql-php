@@ -144,7 +144,7 @@ class QueryComplexity extends QuerySecurityRule
                     }
                 }
 
-                $complexity += call_user_func_array($complexityFn, [$childrenComplexity, $args]);
+                $complexity += $complexityFn($childrenComplexity, $args);
                 break;
 
             case $node instanceof InlineFragmentNode:

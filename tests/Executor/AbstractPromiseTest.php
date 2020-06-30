@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Executor;
 
 use GraphQL\Deferred;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\UserError;
 use GraphQL\GraphQL;
 use GraphQL\Tests\Executor\TestClasses\Cat;
@@ -364,7 +365,7 @@ class AbstractPromiseTest extends TestCase
       }
     }';
 
-        $result = GraphQL::executeQuery($schema, $query)->toArray(true);
+        $result = GraphQL::executeQuery($schema, $query)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
 
         $expected = [
             'data'   => [
@@ -465,7 +466,7 @@ class AbstractPromiseTest extends TestCase
       }
     }';
 
-        $result = GraphQL::executeQuery($schema, $query)->toArray(true);
+        $result = GraphQL::executeQuery($schema, $query)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
 
         $expected = [
             'data'   => [

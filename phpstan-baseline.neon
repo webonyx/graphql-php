@@ -1,92 +1,17 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Node\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in &&, Throwable\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in an elseif condition, Throwable\\|null given\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given on the right side\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in &&, array\\|null given on the left side\\.$#"
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Location\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Error/Error.php
 
 		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\Source\\|null given on the right side\\.$#"
-			count: 2
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in &&, array\\<int\\> given on the left side\\.$#"
 			count: 1
 			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in an elseif condition, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Location given on the left side\\.$#"
-			count: 1
-			path: src/Error/Error.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Language\\\\AST\\\\Node\\>\\|null given\\.$#"
-			count: 1
-			path: src/Error/FormattedError.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\Location given\\.$#"
-			count: 1
-			path: src/Error/FormattedError.php
-
-		-
-			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\Source\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Error/FormattedError.php
-
-		-
-			message: "#^Only booleans are allowed in &&, array\\<GraphQL\\\\Language\\\\SourceLocation\\> given on the right side\\.$#"
-			count: 1
-			path: src/Error/FormattedError.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<int, string\\> given\\.$#"
-			count: 1
-			path: src/Error/FormattedError.php
 
 		-
 			message: "#^Only booleans are allowed in an if condition, int given\\.$#"
-			count: 2
-			path: src/Error/FormattedError.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, Throwable\\|null given\\.$#"
-			count: 2
-			path: src/Error/FormattedError.php
-
-		-
-			message: "#^Only booleans are allowed in &&, int given on the left side\\.$#"
-			count: 2
-			path: src/Error/FormattedError.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, Throwable\\|null given\\.$#"
 			count: 1
 			path: src/Error/FormattedError.php
 
@@ -157,11 +82,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, \\(callable\\)\\|null given\\.$#"
-			count: 1
-			path: src/Language/Visitor.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, \\(callable\\)\\|null given\\.$#"
 			count: 2
 			path: src/Server/Helper.php
 
@@ -199,11 +119,6 @@ parameters:
 			message: "#^Only booleans are allowed in \\|\\|, \\(callable\\)\\|null given on the left side\\.$#"
 			count: 1
 			path: src/Server/Helper.php
-
-		-
-			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\Directive\\)\\.$#"
-			count: 1
-			path: src/Type/Definition/Directive.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, ArrayObject\\<string, GraphQL\\\\Type\\\\Definition\\\\EnumValueDefinition\\> given\\.$#"
@@ -426,7 +341,7 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\> given\\.$#"
+			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\> given\\.$#"
 			count: 1
 			path: src/Utils/ASTDefinitionBuilder.php
 
@@ -591,11 +506,6 @@ parameters:
 			path: src/Validator/Rules/FragmentsOnCompositeTypes.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<string\\>\\|null given\\.$#"
-			count: 1
-			path: src/Validator/Rules/KnownArgumentNamesOnDirectives.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Schema\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/KnownDirectives.php
@@ -671,17 +581,7 @@ parameters:
 			path: src/Validator/Rules/ProvidedRequiredArguments.php
 
 		-
-			message: "#^Only booleans are allowed in \\|\\|, array\\<GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\>\\|null given on the left side\\.$#"
-			count: 1
-			path: src/Validator/Rules/ProvidedRequiredArguments.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Schema\\|null given\\.$#"
-			count: 1
-			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\ArgumentNode\\> given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
 

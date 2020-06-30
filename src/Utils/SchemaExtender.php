@@ -296,7 +296,7 @@ class SchemaExtender
     protected static function extendType($typeDef)
     {
         if ($typeDef instanceof ListOfType) {
-            return Type::listOf(static::extendType($typeDef->ofType));
+            return Type::listOf(static::extendType($typeDef->getOfType()));
         }
 
         if ($typeDef instanceof NonNull) {

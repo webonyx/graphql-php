@@ -88,7 +88,7 @@ class AstFromValueTest extends TestCase
         self::assertEquals(new IntValueNode(['value' => '123']), AST::astFromValue(123.0, Type::float()));
         self::assertEquals(new FloatValueNode(['value' => '123.5']), AST::astFromValue(123.5, Type::float()));
         self::assertEquals(new IntValueNode(['value' => '10000']), AST::astFromValue(1e4, Type::float()));
-        self::assertEquals(new FloatValueNode(['value' => '1e+40']), AST::astFromValue(1e40, Type::float()));
+        self::assertEquals(new FloatValueNode(['value' => '1.0E+40']), AST::astFromValue(1e40, Type::float()));
         self::assertEquals(new IntValueNode(['value' => '0']), AST::astFromValue(0e40, Type::float()));
     }
 
