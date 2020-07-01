@@ -57,7 +57,6 @@ use function preg_replace;
 use function sprintf;
 use function str_replace;
 use function strpos;
-use function strval;
 
 /**
  * Prints AST to string. Capable of printing GraphQL queries and Type definition language.
