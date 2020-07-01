@@ -9,6 +9,8 @@ use GraphQL\Language\AST\FieldNode;
 use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Printer;
+use GraphQL\Type\Definition\Type;
+use GraphQL\Utils\AST;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 use function file_get_contents;
@@ -293,5 +295,11 @@ fragment frag on Friend {
 
 EOT;
         self::assertEquals($expected, $printed);
+    }
+
+    public function testPrintPrimitives() : void
+    {
+        self::assertSame('3', Printer::doPrint(AST::astFromValue(3, Type::int())));
+        self::assertSame('3.14', Printer::doPrint(AST::astFromValue(3.14, Type::float())));
     }
 }

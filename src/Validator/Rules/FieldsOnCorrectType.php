@@ -16,6 +16,7 @@ use GraphQL\Validator\ValidationContext;
 use function array_keys;
 use function array_merge;
 use function arsort;
+use function count;
 use function sprintf;
 
 class FieldsOnCorrectType extends ValidationRule
@@ -156,7 +157,7 @@ class FieldsOnCorrectType extends ValidationRule
             $suggestions = Utils::quotedOrList($suggestedTypeNames);
 
             $message .= sprintf(' Did you mean to use an inline fragment on %s?', $suggestions);
-        } elseif (! empty($suggestedFieldNames)) {
+        } elseif (count($suggestedFieldNames) > 0) {
             $suggestions = Utils::quotedOrList($suggestedFieldNames);
 
             $message .= sprintf(' Did you mean %s?', $suggestions);

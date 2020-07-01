@@ -722,7 +722,7 @@ class LexerTest extends TestCase
 
         $tokens = [];
         for ($tok = $startToken; $tok; $tok = $tok->next) {
-            if (! empty($tokens)) {
+            if (count($tokens) > 0) {
                 // Tokens are double-linked, prev should point to last seen token.
                 self::assertSame($tokens[count($tokens) - 1], $tok->prev);
             }
