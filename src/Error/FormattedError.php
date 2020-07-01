@@ -282,7 +282,7 @@ class FormattedError
         $formatter = $formatter ?? static function ($e) : array {
             return FormattedError::createFromException($e);
         };
-        if ($debug) {
+        if ($debug !== DebugFlag::NONE) {
             $formatter = static function ($e) use ($formatter, $debug) : array {
                 return FormattedError::addDebugEntries($formatter($e), $e, $debug);
             };
