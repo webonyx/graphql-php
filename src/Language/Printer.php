@@ -183,11 +183,11 @@ class Printer
                     },
 
                     NodeKind::INT => static function (IntValueNode $node) : string {
-                        return (string)$node->value;
+                        return (string) $node->value;
                     },
 
                     NodeKind::FLOAT => static function (FloatValueNode $node) : string {
-                        return (string)$node->value;
+                        return $node->value;
                     },
 
                     NodeKind::STRING => function (StringValueNode $node, $key) {
