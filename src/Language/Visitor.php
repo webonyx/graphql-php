@@ -417,23 +417,18 @@ class Visitor
 
                     $result = $fn(...func_get_args());
 
-                    if (! ($result instanceof VisitorOperation)) {
-                        if ($result !== null) {
+                    if ($result instanceof VisitorOperation) {
+                        if ($result->doContinue) {
+                            $skipping[$i] = $node;
+                        } elseif ($result->doBreak) {
+                            $skipping[$i] = $result;
+                        } elseif ($result->removeNode) {
                             return $result;
                         }
-                        continue;
-                    }
-
-                    if ($result->doContinue) {
-                        $skipping[$i] = $node;
-                    } elseif ($result->doBreak) {
-                        $skipping[$i] = $result;
-                    } elseif ($result->removeNode) {
+                    } elseif ($result !== null) {
                         return $result;
                     }
                 }
-
-                return null;
             },
             'leave' => static function (Node $node) use ($visitors, $skipping, $visitorsCount) {
                 for ($i = 0; $i < $visitorsCount; $i++) {
