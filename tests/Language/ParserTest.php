@@ -16,6 +16,7 @@ use GraphQL\Language\AST\ObjectTypeDefinitionNode;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Language\AST\SelectionSetNode;
 use GraphQL\Language\AST\StringValueNode;
+use GraphQL\Language\AST\VariableNode;
 use GraphQL\Language\Parser;
 use GraphQL\Language\Source;
 use GraphQL\Language\SourceLocation;
@@ -741,5 +742,13 @@ GRAPHQL
             ObjectTypeDefinitionNode::class,
             Parser::objectTypeDefinition('type Foo { name: String }')
         );
+
+        self::assertInstanceOf(
+            VariableNode::class,
+            Parser::valueLiteral('$foo')
+        );
+
+        $this->expectException(SyntaxError::class);
+        Parser::constValueLiteral('$foo');
     }
 }

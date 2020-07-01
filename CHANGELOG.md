@@ -1,5 +1,7 @@
 # Changelog
 
+- Fix partial parsing where the underlying functions require `bool $isConst`
+
 ## v14.0.0
 
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.

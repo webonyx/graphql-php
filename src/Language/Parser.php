@@ -64,6 +64,8 @@ use function sprintf;
 /**
  * Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
  *
+ * Those magic functions allow partial parsing:
+ *
  * @method static NameNode name(Source|string $source, bool[] $options = [])
  * @method static DocumentNode document(Source|string $source, bool[] $options = [])
  * @method static ExecutableDefinitionNode|TypeSystemDefinitionNode definition(Source|string $source, bool[] $options = [])
@@ -77,20 +79,27 @@ use function sprintf;
  * @method static mixed selection(Source|string $source, bool[] $options = [])
  * @method static FieldNode field(Source|string $source, bool[] $options = [])
  * @method static NodeList<ArgumentNode> arguments(Source|string $source, bool[] $options = [])
+ * @method static NodeList<ArgumentNode> constArguments(Source|string $source, bool[] $options = [])
  * @method static ArgumentNode argument(Source|string $source, bool[] $options = [])
  * @method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
  * @method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
  * @method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
  * @method static NameNode fragmentName(Source|string $source, bool[] $options = [])
  * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
+ * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode constValueLiteral(Source|string $source, bool[] $options = [])
  * @method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
  * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|StringValueNode|VariableNode constValue(Source|string $source, bool[] $options = [])
  * @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
  * @method static ListValueNode array(Source|string $source, bool[] $options = [])
+ * @method static ListValueNode constArray(Source|string $source, bool[] $options = [])
  * @method static ObjectValueNode object(Source|string $source, bool[] $options = [])
+ * @method static ObjectValueNode constObject(Source|string $source, bool[] $options = [])
  * @method static ObjectFieldNode objectField(Source|string $source, bool[] $options = [])
+ * @method static ObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
  * @method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
+ * @method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
  * @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
+ * @method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
  * @method static ListTypeNode|NameNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
  * @method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
  * @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
@@ -248,7 +257,35 @@ class Parser
     {
         $parser = new Parser(...$arguments);
         $parser->expect(Token::SOF);
-        $type = $parser->{'parse' . $name}();
+
+        if(in_array($name, [
+            'arguments',
+            'valueLiteral',
+            'array',
+            'object',
+            'objectField',
+            'directives',
+            'directive',
+        ])) {
+            $type = $parser->{'parse' . $name}(false);
+        } elseif ($name === 'constArguments') {
+            $type = $parser->parseArguments(true);
+        } elseif ($name === 'constValueLiteral') {
+            $type = $parser->parseValueLiteral(true);
+        } elseif ($name === 'constArray') {
+            $type = $parser->parseArray(true);
+        } elseif ($name === 'constObject') {
+            $type = $parser->parseObject(true);
+        } elseif ($name === 'constObjectField') {
+            $type = $parser->parseObjectField(true);
+        } elseif ($name === 'constDirectives') {
+            $type = $parser->parseDirectives(true);
+        } elseif ($name === 'constDirective') {
+            $type = $parser->parseDirective(true);
+        } else {
+            $type = $parser->{'parse' . $name}();
+        }
+
         $parser->expect(Token::EOF);
 
         return $type;
