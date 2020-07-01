@@ -101,7 +101,7 @@ use function sprintf;
  * @method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
  * @method static DirectiveNode directive(Source|string $source, bool[] $options = [])
  * @method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
- * @method static ListTypeNode|NameNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
+ * @method static ListTypeNode|NamedTypeNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
  * @method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
  * @method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
  * @method static StringValueNode|null description(Source|string $source, bool[] $options = [])
@@ -233,7 +233,7 @@ class Parser
      * @param Source|string $source
      * @param bool[]        $options
      *
-     * @return ListTypeNode|NameNode|NonNullTypeNode
+     * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
      *
      * @api
      */
@@ -1027,7 +1027,7 @@ class Parser
     /**
      * Handles the Type: TypeName, ListType, and NonNullType parsing rules.
      *
-     * @return ListTypeNode|NameNode|NonNullTypeNode
+     * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
      *
      * @throws SyntaxError
      */
