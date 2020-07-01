@@ -8,7 +8,6 @@ use Exception;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
-use function call_user_func;
 use function is_callable;
 use function sprintf;
 
@@ -21,7 +20,7 @@ class CustomScalarType extends ScalarType
      */
     public function serialize($value)
     {
-        return call_user_func($this->config['serialize'], $value);
+        return $this->config['serialize']($value);
     }
 
     /**
@@ -32,7 +31,7 @@ class CustomScalarType extends ScalarType
     public function parseValue($value)
     {
         if (isset($this->config['parseValue'])) {
-            return call_user_func($this->config['parseValue'], $value);
+            return $this->config['parseValue']($value);
         }
 
         return $value;
@@ -48,7 +47,7 @@ class CustomScalarType extends ScalarType
     public function parseLiteral(Node $valueNode, ?array $variables = null)
     {
         if (isset($this->config['parseLiteral'])) {
-            return call_user_func($this->config['parseLiteral'], $valueNode, $variables);
+            return $this->config['parseLiteral']($valueNode, $variables);
         }
 
         return AST::valueFromASTUntyped($valueNode, $variables);

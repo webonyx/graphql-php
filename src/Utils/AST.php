@@ -6,6 +6,7 @@ namespace GraphQL\Utils;
 
 use ArrayAccess;
 use Exception;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\BooleanValueNode;
@@ -105,7 +106,7 @@ class AST
                 continue;
             }
             if (is_array($value)) {
-                if (isset($value[0]) || empty($value)) {
+                if (isset($value[0]) || count($value) === 0) {
                     $value = new NodeList($value);
                 } else {
                     $value = self::fromArray($value);
@@ -124,7 +125,7 @@ class AST
      *
      * @api
      */
-    public static function toArray(Node $node)
+    public static function toArray(Node $node) : array
     {
         return $node->toArray(true);
     }
@@ -254,16 +255,16 @@ class AST
                 return new BooleanValueNode(['value' => $serialized]);
             }
             if (is_int($serialized)) {
-                return new IntValueNode(['value' => $serialized]);
+                return new IntValueNode(['value' => (string) $serialized]);
             }
             if (is_float($serialized)) {
                 // int cast with == used for performance reasons
                 // phpcs:ignore
                 if ((int) $serialized == $serialized) {
-                    return new IntValueNode(['value' => $serialized]);
+                    return new IntValueNode(['value' => (string) $serialized]);
                 }
 
-                return new FloatValueNode(['value' => $serialized]);
+                return new FloatValueNode(['value' => (string) $serialized]);
             }
             if (is_string($serialized)) {
                 // Enum types use Enum literals.

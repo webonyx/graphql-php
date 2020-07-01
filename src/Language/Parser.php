@@ -273,7 +273,7 @@ class Parser
      */
     private function loc(Token $startToken) : ?Location
     {
-        if (empty($this->lexer->options['noLocation'])) {
+        if (! ($this->lexer->options['noLocation'] ?? false)) {
             return new Location($startToken, $this->lexer->lastToken, $this->lexer->source);
         }
 
@@ -327,31 +327,44 @@ class Parser
     }
 
     /**
-     * If the next token is a keyword with the given value, return that token after
-     * advancing the parser. Otherwise, do not change the parser state and return
-     * false.
+     * If the next token is a keyword with the given value, advance the lexer.
+     * Otherwise, throw an error.
      *
      * @throws SyntaxError
      */
-    private function expectKeyword(string $value) : Token
+    private function expectKeyword(string $value) : void
     {
         $token = $this->lexer->token;
+        if ($token->kind !== Token::NAME || $token->value !== $value) {
+            throw new SyntaxError(
+                $this->lexer->source,
+                $token->start,
+                'Expected "' . $value . '", found ' . $token->getDescription()
+            );
+        }
 
+        $this->lexer->advance();
+    }
+
+    /**
+     * If the next token is a given keyword, return "true" after advancing
+     * the lexer. Otherwise, do not change the parser state and return "false".
+     */
+    private function expectOptionalKeyword(string $value) : bool
+    {
+        $token = $this->lexer->token;
         if ($token->kind === Token::NAME && $token->value === $value) {
             $this->lexer->advance();
 
-            return $token;
+            return true;
         }
-        throw new SyntaxError(
-            $this->lexer->source,
-            $token->start,
-            'Expected "' . $value . '", found ' . $token->getDescription()
-        );
+
+        return false;
     }
 
     private function unexpected(?Token $atToken = null) : SyntaxError
     {
-        $token = $atToken ?: $this->lexer->token;
+        $token = $atToken ?? $this->lexer->token;
 
         return new SyntaxError($this->lexer->source, $token->start, 'Unexpected ' . $token->getDescription());
     }
@@ -716,7 +729,8 @@ class Parser
         $start = $this->lexer->token;
         $this->expect(Token::SPREAD);
 
-        if ($this->peek(Token::NAME) && $this->lexer->token->value !== 'on') {
+        $hasTypeCondition = $this->expectOptionalKeyword('on');
+        if (! $hasTypeCondition && $this->peek(Token::NAME)) {
             return new FragmentSpreadNode([
                 'name'       => $this->parseFragmentName(),
                 'directives' => $this->parseDirectives(false),
@@ -724,14 +738,8 @@ class Parser
             ]);
         }
 
-        $typeCondition = null;
-        if ($this->lexer->token->value === 'on') {
-            $this->lexer->advance();
-            $typeCondition = $this->parseNamedType();
-        }
-
         return new InlineFragmentNode([
-            'typeCondition' => $typeCondition,
+            'typeCondition' => $hasTypeCondition ? $this->parseNamedType() : null,
             'directives'    => $this->parseDirectives(false),
             'selectionSet'  => $this->parseSelectionSet(),
             'loc'           => $this->loc($start),
@@ -897,11 +905,13 @@ class Parser
     private function parseArray(bool $isConst) : ListValueNode
     {
         $start   = $this->lexer->token;
-        $parseFn = $isConst ? function () {
-            return $this->parseConstValue();
-        } : function () {
-            return $this->parseVariableValue();
-        };
+        $parseFn = $isConst
+            ? function () {
+                return $this->parseConstValue();
+            }
+            : function () {
+                return $this->parseVariableValue();
+            };
 
         return new ListValueNode(
             [
@@ -1172,15 +1182,14 @@ class Parser
     private function parseImplementsInterfaces() : array
     {
         $types = [];
-        if ($this->lexer->token->value === 'implements') {
-            $this->lexer->advance();
+        if ($this->expectOptionalKeyword('implements')) {
             // Optional leading ampersand
             $this->skip(Token::AMP);
             do {
                 $types[] = $this->parseNamedType();
             } while ($this->skip(Token::AMP) ||
                 // Legacy support for the SDL?
-                (! empty($this->lexer->options['allowLegacySDLImplementsInterfaces']) && $this->peek(Token::NAME))
+                (($this->lexer->options['allowLegacySDLImplementsInterfaces'] ?? false) && $this->peek(Token::NAME))
             );
         }
 
@@ -1193,7 +1202,7 @@ class Parser
     private function parseFieldsDefinition() : NodeList
     {
         // Legacy support for the SDL?
-        if (! empty($this->lexer->options['allowLegacySDLEmptyFields'])
+        if (($this->lexer->options['allowLegacySDLEmptyFields'] ?? false)
             && $this->peek(Token::BRACE_L)
             && $this->lexer->lookahead()->kind === Token::BRACE_R
         ) {
@@ -1668,7 +1677,7 @@ class Parser
 
     /**
      * DirectiveDefinition :
-     *   - directive @ Name ArgumentsDefinition? on DirectiveLocations
+     *   - Description? directive @ Name ArgumentsDefinition? `repeatable`? on DirectiveLocations
      *
      * @throws SyntaxError
      */
@@ -1678,17 +1687,19 @@ class Parser
         $description = $this->parseDescription();
         $this->expectKeyword('directive');
         $this->expect(Token::AT);
-        $name = $this->parseName();
-        $args = $this->parseArgumentsDefinition();
+        $name       = $this->parseName();
+        $args       = $this->parseArgumentsDefinition();
+        $repeatable = $this->expectOptionalKeyword('repeatable');
         $this->expectKeyword('on');
         $locations = $this->parseDirectiveLocations();
 
         return new DirectiveDefinitionNode([
             'name'        => $name,
+            'description' => $description,
             'arguments'   => $args,
+            'repeatable'  => $repeatable,
             'locations'   => $locations,
             'loc'         => $this->loc($start),
-            'description' => $description,
         ]);
     }
 

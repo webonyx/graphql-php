@@ -40,7 +40,7 @@ class ResolveInfo
      * Expected return type of the field being resolved.
      *
      * @api
-     * @var OutputType&Type
+     * @var Type
      */
     public $returnType;
 
@@ -225,7 +225,7 @@ class ResolveInfo
         $fields = [];
         foreach ($selectionSet->selections as $selectionNode) {
             if ($selectionNode instanceof FieldNode) {
-                $fields[$selectionNode->name->value] = $descend > 0 && ! empty($selectionNode->selectionSet)
+                $fields[$selectionNode->name->value] = $descend > 0 && $selectionNode->selectionSet !== null
                     ? $this->foldSelectionSet($selectionNode->selectionSet, $descend - 1)
                     : true;
             } elseif ($selectionNode instanceof FragmentSpreadNode) {

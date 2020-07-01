@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Server\Helper;
 use GraphQL\Server\ServerConfig;
 use GraphQL\Server\StandardServer;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
-use GraphQL\Tests\Server\Psr7\PsrRequestStub;
+use Nyholm\Psr7\Request;
+use Nyholm\Psr7\Stream;
+use Psr\Http\Message\RequestInterface;
 use function json_encode;
 
 class StandardServerTest extends ServerTestCase
@@ -38,7 +41,7 @@ class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     private function parseRawRequest($contentType, $content, $method = 'POST')
@@ -61,24 +64,24 @@ class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        $request = $this->preparePsrRequest('application/json', $body);
+        $request = $this->preparePsrRequest('application/json', json_encode($body));
         $this->assertPsrRequestEquals($expected, $request);
     }
 
-    private function preparePsrRequest($contentType, $parsedBody)
+    private function preparePsrRequest($contentType, $body) : RequestInterface
     {
-        $psrRequest                          = new PsrRequestStub();
-        $psrRequest->headers['content-type'] = [$contentType];
-        $psrRequest->method                  = 'POST';
-        $psrRequest->parsedBody              = $parsedBody;
-
-        return $psrRequest;
+        return new Request(
+            'POST',
+            '',
+            ['Content-Type' => $contentType],
+            $body
+        );
     }
 
     private function assertPsrRequestEquals($expected, $request)
     {
         $result = $this->executePsrRequest($request);
-        self::assertArraySubset($expected, $result->toArray(true));
+        self::assertArraySubset($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
 
         return $result;
     }
@@ -103,7 +106,7 @@ class StandardServerTest extends ServerTestCase
             'data' => ['f1' => 'f1'],
         ];
 
-        $request = $this->preparePsrRequest('application/json', $body);
+        $request = $this->preparePsrRequest('application/json', json_encode($body));
         $this->assertPsrRequestEquals($expected, $request);
     }
 }

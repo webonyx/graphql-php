@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Executor;
@@ -271,7 +272,7 @@ class AbstractTest extends TestCase
             ],
             ],
         ];
-        $actual   = GraphQL::executeQuery($schema, $query)->toArray(true);
+        $actual   = GraphQL::executeQuery($schema, $query)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
 
         self::assertArraySubset($expected, $actual);
     }
@@ -353,7 +354,7 @@ class AbstractTest extends TestCase
           }
         }';
 
-        $result   = GraphQL::executeQuery($schema, $query)->toArray(true);
+        $result   = GraphQL::executeQuery($schema, $query)->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE);
         $expected = [
             'data'   => [
                 'pets' => [
@@ -430,7 +431,7 @@ class AbstractTest extends TestCase
                 ],
             ],
         ];
-        self::assertEquals($expected, $result->toArray(true));
+        self::assertEquals($expected, $result->toArray(DebugFlag::INCLUDE_DEBUG_MESSAGE));
     }
 
     /**

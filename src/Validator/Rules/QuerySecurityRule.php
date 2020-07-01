@@ -109,8 +109,8 @@ abstract class QuerySecurityRule extends ValidationRule
         ?ArrayObject $visitedFragmentNames = null,
         ?ArrayObject $astAndDefs = null
     ) {
-        $_visitedFragmentNames = $visitedFragmentNames ?: new ArrayObject();
-        $_astAndDefs           = $astAndDefs ?: new ArrayObject();
+        $_visitedFragmentNames = $visitedFragmentNames ?? new ArrayObject();
+        $_astAndDefs           = $astAndDefs ?? new ArrayObject();
 
         foreach ($selectionSet->selections as $selection) {
             switch (true) {
@@ -152,7 +152,7 @@ abstract class QuerySecurityRule extends ValidationRule
                 case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
 
-                    if (empty($_visitedFragmentNames[$fragName])) {
+                    if (! ($_visitedFragmentNames[$fragName] ?? false)) {
                         $_visitedFragmentNames[$fragName] = true;
                         $fragment                         = $context->getFragment($fragName);
 

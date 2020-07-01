@@ -20,10 +20,10 @@ $entries = [
     \GraphQL\Executor\ExecutionResult::class,
     \GraphQL\Executor\Promise\PromiseAdapter::class,
     \GraphQL\Validator\DocumentValidator::class,
-    \GraphQL\Error\Error::class => ['constants' => true, 'methods' => true, 'props' => true],
-    \GraphQL\Error\Warning::class => ['constants' => true, 'methods' => true],
+    \GraphQL\Error\Error::class           => ['constants' => true, 'methods' => true, 'props' => true],
+    \GraphQL\Error\Warning::class         => ['constants' => true, 'methods' => true],
     \GraphQL\Error\ClientAware::class,
-    \GraphQL\Error\Debug::class => ['constants' => true],
+    \GraphQL\Error\DebugFlag::class       => ['constants' => true],
     \GraphQL\Error\FormattedError::class,
     \GraphQL\Server\StandardServer::class,
     \GraphQL\Server\ServerConfig::class,
@@ -52,8 +52,10 @@ function renderClassMethod(ReflectionMethod $method) {
     if (strlen($argsStr) >= 80) {
         $argsStr = "\n    " . implode(",\n    ", $args) . "\n";
     }
+    $returnType = $method->getReturnType();
     $def = "function {$method->getName()}($argsStr)";
     $def = $method->isStatic() ? "static $def" : $def;
+    $def = $returnType ? "$def: $returnType" : $def;
     $docBlock = unpadDocblock($method->getDocComment());
 
     return <<<TEMPLATE

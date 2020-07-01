@@ -34,6 +34,7 @@ use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\QueryDepth;
 use GraphQL\Validator\Rules\QuerySecurityRule;
 use GraphQL\Validator\Rules\ScalarLeafs;
+use GraphQL\Validator\Rules\SingleFieldSubscription;
 use GraphQL\Validator\Rules\UniqueArgumentNames;
 use GraphQL\Validator\Rules\UniqueDirectivesPerLocation;
 use GraphQL\Validator\Rules\UniqueFragmentNames;
@@ -110,7 +111,7 @@ class DocumentValidator
             return [];
         }
 
-        $typeInfo = $typeInfo ?: new TypeInfo($schema);
+        $typeInfo = $typeInfo ?? new TypeInfo($schema);
 
         return static::visitUsingRules($schema, $typeInfo, $ast, $rules);
     }
@@ -139,6 +140,7 @@ class DocumentValidator
                 ExecutableDefinitions::class        => new ExecutableDefinitions(),
                 UniqueOperationNames::class         => new UniqueOperationNames(),
                 LoneAnonymousOperation::class       => new LoneAnonymousOperation(),
+                SingleFieldSubscription::class      => new SingleFieldSubscription(),
                 KnownTypeNames::class               => new KnownTypeNames(),
                 FragmentsOnCompositeTypes::class    => new FragmentsOnCompositeTypes(),
                 VariablesAreInputTypes::class       => new VariablesAreInputTypes(),
@@ -331,7 +333,7 @@ class DocumentValidator
     public static function assertValidSDL(DocumentNode $documentAST)
     {
         $errors = self::validateSDL($documentAST);
-        if (count($errors) !== 0) {
+        if (count($errors) > 0) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }
@@ -339,7 +341,7 @@ class DocumentValidator
     public static function assertValidSDLExtension(DocumentNode $documentAST, Schema $schema)
     {
         $errors = self::validateSDL($documentAST, $schema);
-        if (count($errors) !== 0) {
+        if (count($errors) > 0) {
             throw new Error(self::combineErrorMessages($errors));
         }
     }

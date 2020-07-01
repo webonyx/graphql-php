@@ -1348,28 +1348,6 @@ class ValidationTest extends TestCase
         );
     }
 
-    // DESCRIBE: Type System: Interface fields must have output types
-
-    /**
-     * @see it('rejects an Object implementing a non-type values')
-     */
-    public function testRejectsAnObjectImplementingANonTypeValues() : void
-    {
-        $schema   = new Schema([
-            'query' => new ObjectType([
-                'name'       => 'BadObject',
-                'interfaces' => [null],
-                'fields'     => ['a' => Type::string()],
-            ]),
-        ]);
-        $expected = ['message' => 'Type BadObject must only implement Interface types, it cannot implement null.'];
-
-        $this->assertMatchesValidationMessage(
-            $schema->validate(),
-            [$expected]
-        );
-    }
-
     /**
      * @see it('rejects an Object implementing a non-Interface type')
      */
@@ -2200,21 +2178,27 @@ class ValidationTest extends TestCase
       }
 
       interface AnotherInterface {
-        field(input: String): String
+        field(baseArg: String): String
       }
 
       type AnotherObject implements AnotherInterface {
-        field(input: String, anotherInput: String!): String
+        field(
+          baseArg: String,
+          requiredArg: String!
+          optionalArg1: String,
+          optionalArg2: String = "",
+        ): String
       }
         ');
 
         $this->assertMatchesValidationMessage(
             $schema->validate(),
             [[
-                'message'   => 'Object field argument AnotherObject.field(anotherInput:) is of ' .
-                    'required type String! but is not also provided by the Interface ' .
-                    'field AnotherInterface.field.',
-                'locations' => [['line' => 11, 'column' => 44], ['line' => 7, 'column' => 9]],
+                'message'   =>
+                    'Object field AnotherObject.field includes required argument ' .
+                    'requiredArg that is missing from the Interface field ' .
+                    'AnotherInterface.field.',
+                'locations' => [['line' => 13, 'column' => 11], ['line' => 7, 'column' => 9]],
             ],
             ]
         );

@@ -46,8 +46,8 @@ class Source
 
         $this->body           = $body;
         $this->length         = mb_strlen($body, 'UTF-8');
-        $this->name           = $name ?: 'GraphQL request';
-        $this->locationOffset = $location ?: new SourceLocation(1, 1);
+        $this->name           = $name === '' || $name === null ? 'GraphQL request' : $name;
+        $this->locationOffset = $location ?? new SourceLocation(1, 1);
 
         Utils::invariant(
             $this->locationOffset->line > 0,

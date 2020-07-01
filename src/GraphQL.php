@@ -23,6 +23,7 @@ use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\ValidationRule;
 use function array_values;
+use function count;
 use function trigger_error;
 use const E_USER_DEPRECATED;
 
@@ -131,11 +132,11 @@ class GraphQL
             if ($source instanceof DocumentNode) {
                 $documentNode = $source;
             } else {
-                $documentNode = Parser::parse(new Source($source ?: '', 'GraphQL'));
+                $documentNode = Parser::parse(new Source($source ?? '', 'GraphQL'));
             }
 
             // FIXME
-            if (empty($validationRules)) {
+            if (count($validationRules ?? []) === 0) {
                 /** @var QueryComplexity $queryComplexity */
                 $queryComplexity = DocumentValidator::getRule(QueryComplexity::class);
                 $queryComplexity->setRawVariableValues($variableValues);
@@ -151,7 +152,7 @@ class GraphQL
 
             $validationErrors = DocumentValidator::validate($schema, $documentNode, $validationRules);
 
-            if (! empty($validationErrors)) {
+            if (count($validationErrors) > 0) {
                 return $promiseAdapter->createFulfilled(
                     new ExecutionResult(null, $validationErrors)
                 );
@@ -333,6 +334,10 @@ class GraphQL
      */
     public static function useExperimentalExecutor()
     {
+        trigger_error(
+            'Experimental Executor is deprecated and will be removed in the next major version',
+            E_USER_DEPRECATED
+        );
         Executor::setImplementationFactory([CoroutineExecutor::class, 'create']);
     }
 

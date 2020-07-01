@@ -43,8 +43,10 @@ use function array_keys;
 use function array_merge;
 use function array_reduce;
 use function array_values;
+use function count;
 use function get_class;
 use function is_array;
+use function is_callable;
 use function is_string;
 use function sprintf;
 
@@ -167,16 +169,16 @@ class ReferenceExecutor implements ExecutorImplementation
         if ($operation !== null) {
             [$coercionErrors, $coercedVariableValues] = Values::getVariableValues(
                 $schema,
-                $operation->variableDefinitions ?: [],
-                $rawVariableValues ?: []
+                $operation->variableDefinitions ?? [],
+                $rawVariableValues ?? []
             );
-            if (empty($coercionErrors)) {
+            if (count($coercionErrors ?? []) === 0) {
                 $variableValues = $coercedVariableValues;
             } else {
                 $errors = array_merge($errors, $coercionErrors);
             }
         }
-        if (! empty($errors)) {
+        if (count($errors) > 0) {
             return $errors;
         }
         Utils::invariant($operation, 'Has operation if no errors.');
@@ -372,7 +374,8 @@ class ReferenceExecutor implements ExecutorImplementation
                     break;
                 case $selection instanceof FragmentSpreadNode:
                     $fragName = $selection->name->value;
-                    if (! empty($visitedFragmentNames[$fragName]) || ! $this->shouldIncludeNode($selection)) {
+
+                    if (($visitedFragmentNames[$fragName] ?? false) === true || ! $this->shouldIncludeNode($selection)) {
                         break;
                     }
                     $visitedFragmentNames[$fragName] = true;
@@ -528,7 +531,6 @@ class ReferenceExecutor implements ExecutorImplementation
         // The resolve function's optional 3rd argument is a context value that
         // is provided to every resolve function within an execution. It is commonly
         // used to represent an authenticated user, or request-specific caches.
-        $context = $exeContext->contextValue;
         // The resolve function's optional 4th argument is a collection of
         // information about the current execution state.
         $info = new ResolveInfo(
@@ -582,9 +584,9 @@ class ReferenceExecutor implements ExecutorImplementation
     private function getFieldDef(Schema $schema, ObjectType $parentType, string $fieldName) : ?FieldDefinition
     {
         static $schemaMetaFieldDef, $typeMetaFieldDef, $typeNameMetaFieldDef;
-        $schemaMetaFieldDef   = $schemaMetaFieldDef ?: Introspection::schemaMetaFieldDef();
-        $typeMetaFieldDef     = $typeMetaFieldDef ?: Introspection::typeMetaFieldDef();
-        $typeNameMetaFieldDef = $typeNameMetaFieldDef ?: Introspection::typeNameMetaFieldDef();
+        $schemaMetaFieldDef   = $schemaMetaFieldDef ?? Introspection::schemaMetaFieldDef();
+        $typeMetaFieldDef     = $typeMetaFieldDef ?? Introspection::typeMetaFieldDef();
+        $typeNameMetaFieldDef = $typeNameMetaFieldDef ?? Introspection::typeNameMetaFieldDef();
         if ($fieldName === $schemaMetaFieldDef->name && $schema->getQueryType() === $parentType) {
             return $schemaMetaFieldDef;
         }
@@ -938,10 +940,15 @@ class ReferenceExecutor implements ExecutorImplementation
      */
     private function completeAbstractValue(AbstractType $returnType, $fieldNodes, ResolveInfo $info, $path, &$result)
     {
-        $exeContext  = $this->exeContext;
-        $runtimeType = $returnType->resolveType($result, $exeContext->contextValue, $info);
-        if ($runtimeType === null) {
+        $exeContext    = $this->exeContext;
+        $typeCandidate = $returnType->resolveType($result, $exeContext->contextValue, $info);
+
+        if ($typeCandidate === null) {
             $runtimeType = self::defaultTypeResolver($result, $exeContext->contextValue, $info, $returnType);
+        } elseif (is_callable($typeCandidate)) {
+            $runtimeType = Schema::resolveType($typeCandidate);
+        } else {
+            $runtimeType = $typeCandidate;
         }
         $promise = $this->getPromise($runtimeType);
         if ($promise !== null) {
@@ -1036,7 +1043,7 @@ class ReferenceExecutor implements ExecutorImplementation
                 return $type;
             }
         }
-        if (! empty($promisedIsTypeOfResults)) {
+        if (count($promisedIsTypeOfResults) > 0) {
             return $this->exeContext->promiseAdapter->all($promisedIsTypeOfResults)
                 ->then(static function ($isTypeOfResults) use ($possibleTypes) : ?ObjectType {
                     foreach ($isTypeOfResults as $index => $result) {

@@ -30,6 +30,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+use function count;
 use function sprintf;
 
 /**
@@ -127,7 +128,7 @@ class Collector
             $fieldName = $fieldNode->name->value;
 
             $argumentValueMap = null;
-            if (! empty($fieldNode->arguments)) {
+            if (count($fieldNode->arguments) > 0) {
                 foreach ($fieldNode->arguments as $argumentNode) {
                     $argumentValueMap                             = $argumentValueMap ?? [];
                     $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
@@ -154,7 +155,7 @@ class Collector
 
         foreach ($selectionSet->selections as $selection) {
             /** @var FieldNode|FragmentSpreadNode|InlineFragmentNode $selection */
-            if (! empty($selection->directives)) {
+            if (count($selection->directives) > 0) {
                 foreach ($selection->directives as $directiveNode) {
                     if ($directiveNode->name->value === Directive::SKIP_NAME) {
                         /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode|null $condition */

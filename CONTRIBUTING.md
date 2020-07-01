@@ -51,5 +51,5 @@ Based on [PHPStan](https://github.com/phpstan/phpstan).
 ## Running benchmarks
 Benchmarks are run via [PHPBench](https://github.com/phpbench/phpbench).
 ```sh
-./vendor/bin/phpbench run .
+./vendor/bin/phpbench run benchmarks
 ```

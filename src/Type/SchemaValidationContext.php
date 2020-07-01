@@ -528,7 +528,7 @@ class SchemaValidationContext
             ? ($extensionNodes
                 ? array_merge([$astNode], $extensionNodes)
                 : [$astNode])
-            : ($extensionNodes ?: []);
+            : ($extensionNodes ?? []);
     }
 
     /**
@@ -841,22 +841,21 @@ class SchemaValidationContext
                     }
                 }
 
-                if ($ifaceArg || ! ($objectArg->getType() instanceof NonNull)) {
+                if ($ifaceArg || ! $objectArg->isRequired()) {
                     continue;
                 }
 
                 $this->reportError(
                     sprintf(
-                        'Object field argument %s.%s(%s:) is of required type %s but is not also provided by the Interface field %s.%s.',
+                        'Object field %s.%s includes required argument %s that is missing from the Interface field %s.%s.',
                         $object->name,
                         $fieldName,
                         $argName,
-                        Utils::printSafe($objectArg->getType()),
                         $iface->name,
                         $fieldName
                     ),
                     [
-                        $this->getFieldArgTypeNode($object, $fieldName, $argName),
+                        $this->getFieldArgNode($object, $fieldName, $argName),
                         $this->getFieldNode($iface, $fieldName),
                     ]
                 );

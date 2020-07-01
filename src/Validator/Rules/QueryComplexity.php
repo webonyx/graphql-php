@@ -21,6 +21,7 @@ use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\ValidationContext;
 use function array_map;
 use function call_user_func_array;
+use function count;
 use function implode;
 use function method_exists;
 use function sprintf;
@@ -79,7 +80,7 @@ class QueryComplexity extends QuerySecurityRule
                     'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) : void {
                         $errors = $context->getErrors();
 
-                        if (! empty($errors)) {
+                        if (count($errors) > 0) {
                             return;
                         }
 
@@ -143,7 +144,7 @@ class QueryComplexity extends QuerySecurityRule
                     }
                 }
 
-                $complexity += call_user_func_array($complexityFn, [$childrenComplexity, $args]);
+                $complexity += $complexityFn($childrenComplexity, $args);
                 break;
 
             case $node instanceof InlineFragmentNode:
@@ -192,7 +193,7 @@ class QueryComplexity extends QuerySecurityRule
                 $this->variableDefs,
                 $this->getRawVariableValues()
             );
-            if (! empty($errors)) {
+            if (count($errors ?? []) > 0) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(
@@ -232,7 +233,7 @@ class QueryComplexity extends QuerySecurityRule
      */
     public function setRawVariableValues(?array $rawVariableValues = null)
     {
-        $this->rawVariableValues = $rawVariableValues ?: [];
+        $this->rawVariableValues = $rawVariableValues ?? [];
     }
 
     private function buildFieldArguments(FieldNode $node)
@@ -250,7 +251,7 @@ class QueryComplexity extends QuerySecurityRule
                 $rawVariableValues
             );
 
-            if (! empty($errors)) {
+            if (count($errors ?? []) > 0) {
                 throw new Error(implode(
                     "\n\n",
                     array_map(

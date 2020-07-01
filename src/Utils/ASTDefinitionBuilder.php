@@ -79,13 +79,14 @@ class ASTDefinitionBuilder
         return new Directive([
             'name'        => $directiveNode->name->value,
             'description' => $this->getDescription($directiveNode),
+            'args'        => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
+            'isRepeatable'        => $directiveNode->repeatable,
             'locations'   => Utils::map(
                 $directiveNode->locations,
                 static function ($node) {
                     return $node->value;
                 }
             ),
-            'args'        => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
             'astNode'     => $directiveNode,
         ]);
     }
@@ -214,7 +215,7 @@ class ASTDefinitionBuilder
                             sprintf('when building %s type: %s', $typeName, $e->getMessage()),
                             null,
                             null,
-                            null,
+                            [],
                             null,
                             $e
                         );

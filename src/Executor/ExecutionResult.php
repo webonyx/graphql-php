@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace GraphQL\Executor;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\Error;
 use GraphQL\Error\FormattedError;
 use JsonSerializable;
 use function array_map;
+use function count;
 
 /**
  * Returned after [query execution](executing-queries.md).
@@ -125,21 +127,18 @@ class ExecutionResult implements JsonSerializable
      * If debug argument is passed, output of error formatter is enriched which debugging information
      * ("debugMessage", "trace" keys depending on flags).
      *
-     * $debug argument must be either bool (only adds "debugMessage" to result) or sum of flags from
-     * GraphQL\Error\Debug
-     *
-     * @param bool|int $debug
+     * $debug argument must sum of flags from @see \GraphQL\Error\DebugFlag
      *
      * @return mixed[]
      *
      * @api
      */
-    public function toArray($debug = false)
+    public function toArray(int $debug = DebugFlag::NONE) : array
     {
         $result = [];
 
-        if (! empty($this->errors)) {
-            $errorsHandler = $this->errorsHandler ?: static function (array $errors, callable $formatter) : array {
+        if (count($this->errors ?? []) > 0) {
+            $errorsHandler = $this->errorsHandler ?? static function (array $errors, callable $formatter) : array {
                 return array_map($formatter, $errors);
             };
 
@@ -153,7 +152,7 @@ class ExecutionResult implements JsonSerializable
             $result['data'] = $this->data;
         }
 
-        if (! empty($this->extensions)) {
+        if (count($this->extensions ?? []) > 0) {
             $result['extensions'] = $this->extensions;
         }
 

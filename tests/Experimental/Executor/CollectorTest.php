@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Experimental\Executor;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\FormattedError;
 use GraphQL\Experimental\Executor\Collector;
 use GraphQL\Experimental\Executor\Runtime;
@@ -21,6 +22,7 @@ use stdClass;
 use Throwable;
 use function array_map;
 use function basename;
+use function count;
 use function file_exists;
 use function file_put_contents;
 use function json_encode;
@@ -70,18 +72,18 @@ class CollectorTest extends TestCase
         $pipeline = [];
         foreach ($collector->collectFields($collector->rootType, $collector->operation->selectionSet) as $shared) {
             $execution = new stdClass();
-            if (! empty($shared->fieldNodes)) {
+            if (count($shared->fieldNodes ?? []) > 0) {
                 $execution->fieldNodes = array_map(static function (Node $node) : array {
                     return $node->toArray(true);
                 }, $shared->fieldNodes);
             }
-            if (! empty($shared->fieldName)) {
+            if (strlen($shared->fieldName ?? '') > 0) {
                 $execution->fieldName = $shared->fieldName;
             }
-            if (! empty($shared->resultName)) {
+            if (strlen($shared->resultName ?? '') > 0) {
                 $execution->resultName = $shared->resultName;
             }
-            if (! empty($shared->argumentValueMap)) {
+            if (isset($shared->argumentValueMap)) {
                 $execution->argumentValueMap = [];
                 /** @var Node $valueNode */
                 foreach ($shared->argumentValueMap as $argumentName => $valueNode) {
@@ -104,13 +106,13 @@ class CollectorTest extends TestCase
         }
 
         $result = [];
-        if (! empty($runtime->errors)) {
+        if (count($runtime->errors) > 0) {
             $result['errors'] = array_map(
-                FormattedError::prepareFormatter(null, false),
+                FormattedError::prepareFormatter(null, DebugFlag::NONE),
                 $runtime->errors
             );
         }
-        if (! empty($pipeline)) {
+        if (count($pipeline) > 0) {
             $result['pipeline'] = $pipeline;
         }
 

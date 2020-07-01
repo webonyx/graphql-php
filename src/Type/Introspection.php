@@ -27,6 +27,7 @@ use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
 use function array_filter;
 use function array_key_exists;
+use function array_merge;
 use function array_values;
 use function is_bool;
 use function method_exists;
@@ -43,28 +44,28 @@ class Introspection
     private static $map = [];
 
     /**
-     * Options:
-     *   - descriptions
-     *     Whether to include descriptions in the introspection result.
-     *     Default: true
-     *
-     * @param bool[]|bool $options
+     * @param array<string, bool> $options
+     *      Available options:
+     *      - descriptions
+     *        Whether to include descriptions in the introspection result.
+     *        Default: true
+     *      - directiveIsRepeatable
+     *        Whether to include `isRepeatable` flag on directives.
+     *        Default: false
      *
      * @return string
+     *
+     * @api
      */
-    public static function getIntrospectionQuery($options = [])
+    public static function getIntrospectionQuery(array $options = [])
     {
-        if (is_bool($options)) {
-            trigger_error(
-                'Calling Introspection::getIntrospectionQuery(boolean) is deprecated. ' .
-                'Please use Introspection::getIntrospectionQuery(["descriptions" => boolean]).',
-                E_USER_DEPRECATED
-            );
-            $descriptions = $options;
-        } else {
-            $descriptions = ! array_key_exists('descriptions', $options) || $options['descriptions'] === true;
-        }
-        $descriptionField = $descriptions ? 'description' : '';
+        $optionsWithDefaults = array_merge([
+            'descriptions' => true,
+            'directiveIsRepeatable' => false,
+        ], $options);
+
+        $descriptions          = $optionsWithDefaults['descriptions'] ? 'description' : '';
+        $directiveIsRepeatable = $optionsWithDefaults['directiveIsRepeatable'] ? 'isRepeatable' : '';
 
         return <<<EOD
   query IntrospectionQuery {
@@ -77,11 +78,12 @@ class Introspection
       }
       directives {
         name
-        {$descriptionField}
-        locations
+        {$descriptions}
         args {
           ...InputValue
         }
+        {$directiveIsRepeatable}
+        locations
       }
     }
   }
@@ -89,10 +91,10 @@ class Introspection
   fragment FullType on __Type {
     kind
     name
-    {$descriptionField}
+    {$descriptions}
     fields(includeDeprecated: true) {
       name
-      {$descriptionField}
+      {$descriptions}
       args {
         ...InputValue
       }
@@ -110,7 +112,7 @@ class Introspection
     }
     enumValues(includeDeprecated: true) {
       name
-      {$descriptionField}
+      {$descriptions}
       isDeprecated
       deprecationReason
     }
@@ -121,7 +123,7 @@ class Introspection
 
   fragment InputValue on __InputValue {
     name
-    {$descriptionField}
+    {$descriptions}
     type { ...TypeRef }
     defaultValue
   }
@@ -194,20 +196,26 @@ EOD;
      * This is the inverse of BuildClientSchema::build(). The primary use case is outside
      * of the server context, for instance when doing schema comparisons.
      *
-     * Options:
-     *   - descriptions
-     *     Whether to include descriptions in the introspection result.
-     *     Default: true
-     *
      * @param array<string, bool> $options
+     *      Available options:
+     *      - descriptions
+     *        Whether to include `isRepeatable` flag on directives.
+     *        Default: true
+     *      - directiveIsRepeatable
+     *        Whether to include descriptions in the introspection result.
+     *        Default: true
      *
      * @return array<string, array<mixed>>|null
+     *
+     * @api
      */
     public static function fromSchema(Schema $schema, array $options = []) : ?array
     {
+        $optionsWithDefaults = array_merge(['directiveIsRepeatable' => true], $options);
+
         $result = GraphQL::executeQuery(
             $schema,
-            self::getIntrospectionQuery($options)
+            self::getIntrospectionQuery($optionsWithDefaults)
         );
 
         return $result->data;
@@ -333,7 +341,7 @@ EOD;
                                 if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                                     $fields = $type->getFields();
 
-                                    if (empty($args['includeDeprecated'])) {
+                                    if (! ($args['includeDeprecated'] ?? false)) {
                                         $fields = array_filter(
                                             $fields,
                                             static function (FieldDefinition $field) : bool {
@@ -377,7 +385,7 @@ EOD;
                                 if ($type instanceof EnumType) {
                                     $values = array_values($type->getValues());
 
-                                    if (empty($args['includeDeprecated'])) {
+                                    if (! ($args['includeDeprecated'] ?? false)) {
                                         $values = array_filter(
                                             $values,
                                             static function ($value) : bool {
@@ -493,12 +501,12 @@ EOD;
                         'args'              => [
                             'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
                             'resolve' => static function (FieldDefinition $field) : array {
-                                return empty($field->args) ? [] : $field->args;
+                                return $field->args ?? [];
                             },
                         ],
                         'type'              => [
                             'type'    => Type::nonNull(self::_type()),
-                            'resolve' => static function (FieldDefinition $field) {
+                            'resolve' => static function (FieldDefinition $field) : Type {
                                 return $field->getType();
                             },
                         ],
@@ -651,18 +659,24 @@ EOD;
                             return $obj->description;
                         },
                     ],
+                    'args'        => [
+                        'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
+                        'resolve' => static function (Directive $directive) {
+                            return $directive->args ?? [];
+                        },
+                    ],
+                    'isRepeatable' => [
+                        'type' => Type::nonNull(Type::boolean()),
+                        'resolve' => static function (Directive $directive) : bool {
+                            return $directive->isRepeatable;
+                        },
+                    ],
                     'locations'   => [
                         'type' => Type::nonNull(Type::listOf(Type::nonNull(
                             self::_directiveLocation()
                         ))),
                         'resolve' => static function ($obj) {
                             return $obj->locations;
-                        },
-                    ],
-                    'args'        => [
-                        'type'    => Type::nonNull(Type::listOf(Type::nonNull(self::_inputValue()))),
-                        'resolve' => static function (Directive $directive) : array {
-                            return $directive->args ?: [];
                         },
                     ],
                 ],

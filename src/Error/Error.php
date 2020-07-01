@@ -38,13 +38,6 @@ class Error extends Exception implements JsonSerializable, ClientAware
     const CATEGORY_GRAPHQL  = 'graphql';
     const CATEGORY_INTERNAL = 'internal';
 
-    /**
-     * A message describing the Error for debugging purposes.
-     *
-     * @var string
-     */
-    public $message;
-
     /** @var SourceLocation[] */
     private $locations;
 
@@ -73,7 +66,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      */
     private $source;
 
-    /** @var int[]|null */
+    /** @var int[] */
     private $positions;
 
     /** @var bool */
@@ -88,7 +81,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @param string                       $message
      * @param Node|Node[]|Traversable|null $nodes
-     * @param mixed[]|null                 $positions
+     * @param mixed[]                      $positions
      * @param mixed[]|null                 $path
      * @param Throwable                    $previous
      * @param mixed[]                      $extensions
@@ -97,7 +90,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         $message,
         $nodes = null,
         ?Source $source = null,
-        $positions = null,
+        array $positions = [],
         $path = null,
         $previous = null,
         array $extensions = []
@@ -107,7 +100,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         // Compute list of blame nodes.
         if ($nodes instanceof Traversable) {
             $nodes = iterator_to_array($nodes);
-        } elseif ($nodes instanceof Node) {
+        } elseif ($nodes !== null && ! is_array($nodes)) {
             $nodes = [$nodes];
         }
 
@@ -123,7 +116,8 @@ class Error extends Exception implements JsonSerializable, ClientAware
 
         if ($previous instanceof ClientAware) {
             $this->isClientSafe = $previous->isClientSafe();
-            $this->category     = $previous->getCategory() ?? self::CATEGORY_INTERNAL;
+            $cat                = $previous->getCategory();
+            $this->category     = $cat === '' || $cat === null  ? self::CATEGORY_INTERNAL: $cat;
         } elseif ($previous !== null) {
             $this->isClientSafe = false;
             $this->category     = self::CATEGORY_INTERNAL;
@@ -147,21 +141,23 @@ class Error extends Exception implements JsonSerializable, ClientAware
     public static function createLocatedError($error, $nodes = null, $path = null)
     {
         if ($error instanceof self) {
-            if (count($error->path ?? []) > 0 && count($error->nodes ?? []) > 0) {
+            if ($error->path !== null && $error->nodes !== null && count($error->nodes) !== 0) {
                 return $error;
             }
 
-            $nodes = $nodes ?: $error->nodes;
-            $path  = $path ?: $error->path;
+            $nodes = $nodes ?? $error->nodes;
+            $path  = $path ?? $error->path;
         }
 
-        $source     = $positions = $originalError = null;
-        $extensions = [];
+        $source        = null;
+        $originalError = null;
+        $positions     = [];
+        $extensions    = [];
 
         if ($error instanceof self) {
             $message       = $error->getMessage();
             $originalError = $error;
-            $nodes         = $error->nodes ?: $nodes;
+            $nodes         = $error->nodes ?? $nodes;
             $source        = $error->source;
             $positions     = $error->positions;
             $extensions    = $error->extensions;
@@ -173,7 +169,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
         }
 
         return new static(
-            $message ?: 'An unknown error occurred.',
+            $message === '' || $message === null ? 'An unknown error occurred.' : $message,
             $nodes,
             $source,
             $positions,
@@ -213,7 +209,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     public function getSource()
     {
         if ($this->source === null) {
-            if (! empty($this->nodes[0]) && ! empty($this->nodes[0]->loc)) {
+            if (isset($this->nodes[0]) && $this->nodes[0]->loc !== null) {
                 $this->source = $this->nodes[0]->loc->source;
             }
         }
@@ -224,9 +220,9 @@ class Error extends Exception implements JsonSerializable, ClientAware
     /**
      * @return int[]
      */
-    public function getPositions()
+    public function getPositions() : array
     {
-        if ($this->positions === null && ! empty($this->nodes)) {
+        if (count($this->positions) === 0 && count($this->nodes ?? []) > 0) {
             $positions = array_map(
                 static function ($node) : ?int {
                     return isset($node->loc) ? $node->loc->start : null;
@@ -269,14 +265,14 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $source    = $this->getSource();
             $nodes     = $this->nodes;
 
-            if ((count($positions ?? []) > 0) && $source instanceof Source) {
+            if ($source !== null && count($positions) !== 0) {
                 $this->locations = array_map(
                     static function ($pos) use ($source) : SourceLocation {
                         return $source->getLocation($pos);
                     },
                     $positions
                 );
-            } elseif (count($nodes ?? []) > 0) {
+            } elseif ($nodes !== null && count($nodes) !== 0) {
                 $locations       = array_filter(
                     array_map(
                         static function ($node) : ?SourceLocation {
@@ -349,13 +345,13 @@ class Error extends Exception implements JsonSerializable, ClientAware
             }
         );
 
-        if (! empty($locations)) {
+        if (count($locations) > 0) {
             $arr['locations'] = $locations;
         }
-        if (! empty($this->path)) {
+        if (count($this->path ?? []) > 0) {
             $arr['path'] = $this->path;
         }
-        if (! empty($this->extensions)) {
+        if (count($this->extensions ?? []) > 0) {
             $arr['extensions'] = $this->extensions;
         }
 

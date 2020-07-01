@@ -125,7 +125,7 @@ class Values
                                     $error->getSource(),
                                     $error->getPositions(),
                                     $error->getPath(),
-                                    $error,
+                                    $error->getPrevious(),
                                     $error->getExtensions()
                                 );
                             }
@@ -137,7 +137,7 @@ class Values
             }
         }
 
-        if (! empty($errors)) {
+        if (count($errors) > 0) {
             return [$errors, null];
         }
 
@@ -188,15 +188,11 @@ class Values
      */
     public static function getArgumentValues($def, $node, $variableValues = null)
     {
-        if (empty($def->args)) {
+        if (count($def->args) === 0) {
             return [];
         }
 
-        $argumentNodes = $node->arguments;
-        if (empty($argumentNodes)) {
-            return [];
-        }
-
+        $argumentNodes    = $node->arguments;
         $argumentValueMap = [];
         foreach ($argumentNodes as $argumentNode) {
             $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;

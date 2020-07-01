@@ -1321,8 +1321,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                     'ComplexInput',
                     'unknownField',
                     6,
-                    15,
-                    'Did you mean nonNullField, intField, or booleanField?'
+                    15
                 ),
             ]
         );
@@ -1361,6 +1360,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
             'Field "invalidArg" argument "arg" requires type Invalid, found 123; Invalid scalar is always invalid: 123',
             $errors[0]->getMessage()
         );
+        self::assertFalse($errors[0]->isClientSafe());
     }
 
     /**

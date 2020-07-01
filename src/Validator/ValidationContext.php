@@ -29,8 +29,8 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\TypeInfo;
 use SplObjectStorage;
+use function array_merge;
 use function array_pop;
-use function call_user_func_array;
 use function count;
 
 /**
@@ -79,11 +79,11 @@ class ValidationContext extends ASTValidationContext
             $usages    = $this->getVariableUsages($operation);
             $fragments = $this->getRecursivelyReferencedFragments($operation);
 
-            $tmp = [$usages];
-            foreach ($fragments as $i => $fragment) {
-                $tmp[] = $this->getVariableUsages($fragments[$i]);
+            $allUsages = [$usages];
+            foreach ($fragments as $fragment) {
+                $allUsages[] = $this->getVariableUsages($fragment);
             }
-            $usages                                    = call_user_func_array('array_merge', $tmp);
+            $usages                                    = array_merge(...$allUsages);
             $this->recursiveVariableUsages[$operation] = $usages;
         }
 
@@ -139,13 +139,13 @@ class ValidationContext extends ASTValidationContext
             $fragments      = [];
             $collectedNames = [];
             $nodesToVisit   = [$operation];
-            while (! empty($nodesToVisit)) {
+            while (count($nodesToVisit) > 0) {
                 $node    = array_pop($nodesToVisit);
                 $spreads = $this->getFragmentSpreads($node);
                 foreach ($spreads as $spread) {
                     $fragName = $spread->name->value;
 
-                    if (! empty($collectedNames[$fragName])) {
+                    if ($collectedNames[$fragName] ?? false) {
                         continue;
                     }
 
@@ -177,7 +177,7 @@ class ValidationContext extends ASTValidationContext
             $spreads = [];
             /** @var SelectionSetNode[] $setsToVisit */
             $setsToVisit = [$node->selectionSet];
-            while (! empty($setsToVisit)) {
+            while (count($setsToVisit) > 0) {
                 $set = array_pop($setsToVisit);
 
                 for ($i = 0, $selectionCount = count($set->selections); $i < $selectionCount; $i++) {

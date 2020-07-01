@@ -159,6 +159,7 @@ class TypeInfo
         if ($type instanceof WrappingType) {
             return self::extractTypes($type->getWrappedType(true), $typeMap);
         }
+
         if (! $type instanceof Type) {
             // Preserve these invalid types in map (at numeric index) to make them
             // detectable during $schema->validate()
@@ -175,7 +176,7 @@ class TypeInfo
             return $typeMap;
         }
 
-        if (! empty($typeMap[$type->name])) {
+        if (isset($typeMap[$type->name])) {
             Utils::invariant(
                 $typeMap[$type->name] === $type,
                 sprintf('Schema must contain unique named types but contains multiple types named "%s" ', $type) .
@@ -196,9 +197,9 @@ class TypeInfo
         }
         if ($type instanceof ObjectType || $type instanceof InterfaceType) {
             foreach ($type->getFields() as $fieldName => $field) {
-                if (! empty($field->args)) {
+                if (count($field->args ?? []) > 0) {
                     $fieldArgTypes = array_map(
-                        static function (FieldArgument $arg) {
+                        static function (FieldArgument $arg) : Type {
                             return $arg->getType();
                         },
                         $field->args
@@ -317,7 +318,7 @@ class TypeInfo
                 break;
 
             case $node instanceof ArgumentNode:
-                $fieldOrDirective = $this->getDirective() ?: $this->getFieldDef();
+                $fieldOrDirective = $this->getDirective() ?? $this->getFieldDef();
                 $argDef           = $argType = null;
                 if ($fieldOrDirective) {
                     /** @var FieldArgument $argDef */
