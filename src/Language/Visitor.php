@@ -510,11 +510,6 @@ class Visitor
 
         $kindVisitor = $visitor[$kind] ?? null;
 
-        if (! $isLeaving && is_callable($kindVisitor)) {
-            // { Kind() {} }
-            return $kindVisitor;
-        }
-
         if (is_array($kindVisitor)) {
             if ($isLeaving) {
                 $kindSpecificVisitor = $kindVisitor['leave'] ?? null;
@@ -522,29 +517,24 @@ class Visitor
                 $kindSpecificVisitor = $kindVisitor['enter'] ?? null;
             }
 
-            if ($kindSpecificVisitor && is_callable($kindSpecificVisitor)) {
-                // { Kind: { enter() {}, leave() {} } }
-                return $kindSpecificVisitor;
-            }
+            return $kindSpecificVisitor;
+        }
 
-            return null;
+        if ($kindVisitor !== null && ! $isLeaving) {
+            return $kindVisitor;
         }
 
         $visitor += ['leave' => null, 'enter' => null];
 
         $specificVisitor = $isLeaving ? $visitor['leave'] : $visitor['enter'];
 
-        if ($specificVisitor) {
-            if (is_callable($specificVisitor)) {
+        if (isset($specificVisitor)) {
+            if (! is_array($specificVisitor)) {
                 // { enter() {}, leave() {} }
                 return $specificVisitor;
             }
-            $specificKindVisitor = $specificVisitor[$kind] ?? null;
 
-            if (is_callable($specificKindVisitor)) {
-                // { enter: { Kind() {} }, leave: { Kind() {} } }
-                return $specificKindVisitor;
-            }
+            return $specificVisitor[$kind] ?? null;
         }
 
         return null;
