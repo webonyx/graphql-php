@@ -59,6 +59,7 @@ use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use function count;
+use function in_array;
 use function sprintf;
 
 /**
@@ -258,15 +259,19 @@ class Parser
         $parser = new Parser(...$arguments);
         $parser->expect(Token::SOF);
 
-        if(in_array($name, [
-            'arguments',
-            'valueLiteral',
-            'array',
-            'object',
-            'objectField',
-            'directives',
-            'directive',
-        ])) {
+        if (in_array(
+            $name,
+            [
+                'arguments',
+                'valueLiteral',
+                'array',
+                'object',
+                'objectField',
+                'directives',
+                'directive',
+            ],
+            true
+        )) {
             $type = $parser->{'parse' . $name}(false);
         } elseif ($name === 'constArguments') {
             $type = $parser->parseArguments(true);
