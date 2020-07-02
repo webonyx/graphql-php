@@ -259,36 +259,39 @@ class Parser
         $parser = new Parser(...$arguments);
         $parser->expect(Token::SOF);
 
-        if (in_array(
-            $name,
-            [
-                'arguments',
-                'valueLiteral',
-                'array',
-                'object',
-                'objectField',
-                'directives',
-                'directive',
-            ],
-            true
-        )) {
-            $type = $parser->{'parse' . $name}(false);
-        } elseif ($name === 'constArguments') {
-            $type = $parser->parseArguments(true);
-        } elseif ($name === 'constValueLiteral') {
-            $type = $parser->parseValueLiteral(true);
-        } elseif ($name === 'constArray') {
-            $type = $parser->parseArray(true);
-        } elseif ($name === 'constObject') {
-            $type = $parser->parseObject(true);
-        } elseif ($name === 'constObjectField') {
-            $type = $parser->parseObjectField(true);
-        } elseif ($name === 'constDirectives') {
-            $type = $parser->parseDirectives(true);
-        } elseif ($name === 'constDirective') {
-            $type = $parser->parseDirective(true);
-        } else {
-            $type = $parser->{'parse' . $name}();
+        switch($name) {
+            case 'arguments':
+            case 'valueLiteral':
+            case 'array':
+            case 'object':
+            case 'objectField':
+            case 'directives':
+            case 'directive':
+                $type = $parser->{'parse' . $name}(false);
+                break;
+            case 'constArguments':
+                $type = $parser->parseArguments(true);
+                break;
+            case 'constValueLiteral':
+                $type = $parser->parseValueLiteral(true);
+                break;
+            case 'constArray':
+                $type = $parser->parseArray(true);
+                break;
+            case 'constObject':
+                $type = $parser->parseObject(true);
+                break;
+            case 'constObjectField':
+                $type = $parser->parseObjectField(true);
+                break;
+            case 'constDirectives':
+                $type = $parser->parseDirectives(true);
+                break;
+            case 'constDirective':
+                $type = $parser->parseDirective(true);
+                break;
+            default:
+                $type = $parser->{'parse' . $name}();
         }
 
         $parser->expect(Token::EOF);
