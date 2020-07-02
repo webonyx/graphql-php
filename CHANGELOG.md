@@ -3,7 +3,8 @@
 ## v14.0.1
 
 Bug fixes:
-- Fix for "Invalid AST Node: false" error (#865)
+- Fix for: Argument defaults with integer/float values crashes introspection query (#679)
+- Fix for "Invalid AST Node: false" error (#685)
 - Fix double Error wrapping when parsing variables (#688)
 
 Refactoring:
