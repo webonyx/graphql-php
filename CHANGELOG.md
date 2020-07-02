@@ -1,5 +1,15 @@
 # Changelog
 
+## v14.0.1
+
+Bug fixes:
+- Fix for "Invalid AST Node: false" error (#865)
+- Fix double Error wrapping when parsing variables (#688)
+
+Refactoring:
+- Do not use call_user_func or call_user_func_array (#676)
+- Codestyle and static analysis improvements (#648, #690)
+
 ## v14.0.0
 
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
@@ -33,6 +43,9 @@ Other noteworthy changes:
 Also some bugs fixed, heavily investe in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
 
 Special thanks to @simPod, @spawnia and @shmax for their major contributions!
+
+### v0.13.9
+- Fix double Error wrapping when parsing variables (#689)
 
 ### v0.13.8
 - Don't call global field resolver on introspection fields (#481)
