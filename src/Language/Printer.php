@@ -100,7 +100,7 @@ class Printer
             [
                 'leave' => [
                     NodeKind::NAME => static function (NameNode $node) : string {
-                        return '' . $node->value;
+                        return (string) $node->value;
                     },
 
                     NodeKind::VARIABLE => static function (VariableNode $node) : string {
@@ -153,11 +153,13 @@ class Printer
                     },
 
                     NodeKind::ARGUMENT => static function (ArgumentNode $node) : string {
-                        return $node->name . ': ' . $node->value;
+                        return $node->name->value . ': ' . $node->value;
                     },
 
                     NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) : string {
-                        return '...' . $node->name . $this->wrap(' ', $this->join($node->directives, ' '));
+                        return '...'
+                            . $node->name->value
+                            . $this->wrap(' ', $this->join($node->directives, ' '));
                     },
 
                     NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) {
@@ -226,7 +228,7 @@ class Printer
                     },
 
                     NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
-                        return $node->name;
+                        return $node->name->value;
                     },
 
                     NodeKind::LIST_TYPE => static function (ListTypeNode $node) : string {
