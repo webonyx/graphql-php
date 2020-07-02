@@ -42,7 +42,7 @@ Other noteworthy changes:
 - Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
 - Deprecated Experimental executor (#397)
 
-Also some bugs fixed, heavily investe in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
+Also some bugs fixed, heavily invested in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
 
 Special thanks to @simPod, @spawnia and @shmax for their major contributions!
 
