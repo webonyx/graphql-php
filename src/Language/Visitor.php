@@ -277,7 +277,7 @@ class Visitor
 
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
-                if ($visitFn) {
+                if ($visitFn !== null) {
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
                     $editValue = null;
 

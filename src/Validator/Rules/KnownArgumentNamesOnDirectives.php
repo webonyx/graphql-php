@@ -9,6 +9,8 @@ use GraphQL\Language\AST\DirectiveDefinitionNode;
 use GraphQL\Language\AST\DirectiveNode;
 use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\NodeKind;
+use GraphQL\Language\Visitor;
+use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldArgument;
 use GraphQL\Utils\Utils;
@@ -85,12 +87,12 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
         }
 
         return [
-            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) : bool {
+            NodeKind::DIRECTIVE => static function (DirectiveNode $directiveNode) use ($directiveArgs, $context) : VisitorOperation {
                 $directiveName = $directiveNode->name->value;
                 $knownArgs     = $directiveArgs[$directiveName] ?? null;
 
                 if ($directiveNode->arguments === null || $knownArgs === null) {
-                    return false;
+                    return Visitor::skipNode();
                 }
 
                 foreach ($directiveNode->arguments as $argNode) {
@@ -106,7 +108,7 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
                     ));
                 }
 
-                return false;
+                return Visitor::skipNode();
             },
         ];
     }
