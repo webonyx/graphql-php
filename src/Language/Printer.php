@@ -100,7 +100,7 @@ class Printer
             [
                 'leave' => [
                     NodeKind::NAME => static function (NameNode $node) : string {
-                        return (string) $node->value;
+                        return $node->value;
                     },
 
                     NodeKind::VARIABLE => static function (VariableNode $node) : string {
@@ -153,12 +153,12 @@ class Printer
                     },
 
                     NodeKind::ARGUMENT => static function (ArgumentNode $node) : string {
-                        return $node->name->value . ': ' . $node->value;
+                        return $node->name . ': ' . $node->value;
                     },
 
                     NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) : string {
                         return '...'
-                            . $node->name->value
+                            . $node->name
                             . $this->wrap(' ', $this->join($node->directives, ' '));
                     },
 
@@ -228,7 +228,8 @@ class Printer
                     },
 
                     NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
-                        return $node->name->value;
+                        // @phpstan-ignore-next-line the printer works bottom up, so this is already a string here
+                        return $node->name;
                     },
 
                     NodeKind::LIST_TYPE => static function (ListTypeNode $node) : string {
