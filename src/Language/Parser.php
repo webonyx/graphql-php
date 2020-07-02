@@ -259,7 +259,7 @@ class Parser
         $parser = new Parser(...$arguments);
         $parser->expect(Token::SOF);
 
-        switch($name) {
+        switch ($name) {
             case 'arguments':
             case 'valueLiteral':
             case 'array':
