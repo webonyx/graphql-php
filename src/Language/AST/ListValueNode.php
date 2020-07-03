@@ -11,4 +11,12 @@ class ListValueNode extends Node implements ValueNode
 
     /** @var NodeList<ValueNode&Node> */
     public $values;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        $this->values = $edits['values'] ?? $this->values;
+    }
 }

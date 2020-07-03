@@ -11,4 +11,12 @@ class SelectionSetNode extends Node
 
     /** @var SelectionNode[] */
     public $selections;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        $this->selections = $edits['selections'] ?? $this->selections;
+    }
 }

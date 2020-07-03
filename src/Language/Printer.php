@@ -104,7 +104,7 @@ class Printer
                     },
 
                     NodeKind::VARIABLE => static function (VariableNode $node) : string {
-                        return '$' . $node->name;
+                        return '$' . $node->name->value;
                     },
 
                     NodeKind::DOCUMENT => function (DocumentNode $node) : string {
@@ -113,22 +113,24 @@ class Printer
 
                     NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) {
                         $op           = $node->operation;
-                        $name         = $node->name;
+                        $name         = $node->name->value ?? null;
                         $varDefs      = $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')');
                         $directives   = $this->join($node->directives, ' ');
                         $selectionSet = $node->selectionSet;
+
+                        $innerJoin = $this->join([$name, $varDefs]);
 
                         // Anonymous queries with no directives or variable definitions can use
                         // the query short form.
                         return $name === null && ! $directives && ! $varDefs && $op === 'query'
                             ? $selectionSet
-                            : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
+                            : $this->join([$op, $innerJoin, $directives, $selectionSet], ' ');
                     },
 
                     NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) : string {
-                        return $node->variable
+                        return '$' . $node->variable->name->value
                             . ': '
-                            . $node->type
+                            . $node->type->name->value
                             . $this->wrap(' = ', $node->defaultValue)
                             . $this->wrap(' ', $this->join($node->directives, ' '));
                     },
@@ -140,7 +142,7 @@ class Printer
                     NodeKind::FIELD => function (FieldNode $node) {
                         return $this->join(
                             [
-                                $this->wrap('', $node->alias, ': ') . $node->name . $this->wrap(
+                                $this->wrap('', $node->alias->value ?? null, ': ') . $node->name->value . $this->wrap(
                                     '(',
                                     $this->join($node->arguments, ', '),
                                     ')'
@@ -153,7 +155,7 @@ class Printer
                     },
 
                     NodeKind::ARGUMENT => static function (ArgumentNode $node) : string {
-                        return $node->name . ': ' . $node->value;
+                        return $node->name->value . ': ' . $node->value;
                     },
 
                     NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) : string {
@@ -218,11 +220,11 @@ class Printer
                     },
 
                     NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) : string {
-                        return $node->name . ': ' . $node->value;
+                        return $node->name->value . ': ' . $node->value->value;
                     },
 
                     NodeKind::DIRECTIVE => function (DirectiveNode $node) : string {
-                        return '@' . $node->name . $this->wrap('(', $this->join($node->arguments, ', '), ')');
+                        return '@' . $node->name->value . $this->wrap('(', $this->join($node->arguments, ', '), ')');
                     },
 
                     NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {

@@ -115,8 +115,20 @@ abstract class Node
         return $tmp;
     }
 
-    public function setEdits(array $edits) {
-        foreach($edits as $k => $v) {
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        foreach ($edits as $k => $v) {
+            if($k == 'name') {
+                $i = 5;
+                if($v != $this->name->value) {
+                    $i = 7;
+                }
+            } else if($this->{$k} != $v) {
+                $i = 6;
+            }
             $this->{$k} = $v;
         }
     }

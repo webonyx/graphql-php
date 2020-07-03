@@ -9,10 +9,13 @@ class NamedTypeNode extends Node implements TypeNode
     /** @var string */
     public $kind = NodeKind::NAMED_TYPE;
 
-    /** @var NameNode|string */
+    /** @var NameNode */
     public $name;
 
-    public function setEdits(array $edits) {
-        $this->name->value = $edits['name'] ?? $this->name->value;
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
     }
 }

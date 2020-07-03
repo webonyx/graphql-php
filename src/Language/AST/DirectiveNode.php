@@ -14,4 +14,9 @@ class DirectiveNode extends Node
 
     /** @var ArgumentNode[] */
     public $arguments;
+
+    public function setEdits(array $edits)
+    {
+        $this->arguments = $edits['arguments'] ?? $this->arguments;
+    }
 }

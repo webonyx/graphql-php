@@ -19,6 +19,7 @@ use function func_get_args;
 use function is_array;
 use function is_callable;
 use function json_encode;
+use function reset;
 
 /**
  * Utility for efficient AST traversal and modification.
@@ -190,7 +191,7 @@ class Visitor
         $inArray   = $root instanceof NodeList || is_array($root);
         $keys      = [$root];
         $index     = -1;
-        $edits = [];
+        $edits     = [];
         $parent    = null;
         $path      = [];
         $ancestors = [];
@@ -211,7 +212,7 @@ class Visitor
                 $parent = array_pop($ancestors);
 
                 if ($isEdited) {
-                    if (!is_array($node)) {
+                    if (! is_array($node)) {
                         $node = clone $node;
                     }
                     $editOffset = 0;
@@ -231,14 +232,13 @@ class Visitor
                             }
                             continue;
                         }
-                    }
-                    else{
+                    } else {
                         $node->setEdits($edits);
                     }
                 }
                 $index   = $stack['index'];
                 $keys    = $stack['keys'];
-                $edits  = $stack['edits'];
+                $edits   = $stack['edits'];
                 $inArray = $stack['inArray'];
                 $stack   = $stack['prev'];
             } else {
@@ -290,10 +290,6 @@ class Visitor
                             $editValue = $result;
                         }
 
-                        if($editValue == 'first: 10"') {
-                            $isdfsdf = 5;
-                        }
-
                         $edits[$key] = $editValue;
 
                         if (! $isLeaving) {
@@ -319,7 +315,7 @@ class Visitor
                     'inArray' => $inArray,
                     'index'   => $index,
                     'keys'    => $keys,
-                    'edits' => $edits,
+                    'edits'   => $edits,
                     'prev'    => $stack,
                 ];
                 $inArray = $node instanceof NodeList || is_array($node);

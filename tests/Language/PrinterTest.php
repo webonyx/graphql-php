@@ -72,6 +72,7 @@ class PrinterTest extends TestCase
   name
 }
 ';
+
         self::assertEquals($expected, Printer::doPrint($mutationAst));
 
         $queryAstWithArtifacts = Parser::parse(
@@ -107,7 +108,8 @@ class PrinterTest extends TestCase
   id
 }
 ';
-        self::assertEquals($expected, Printer::doPrint($queryAstWithVariableDirective));
+        $actual = Printer::doPrint($queryAstWithVariableDirective);
+        self::assertEquals($expected, $actual);
     }
 
     /**
