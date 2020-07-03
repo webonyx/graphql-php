@@ -191,6 +191,7 @@ class Visitor
         $keys      = [$root];
         $index     = -1;
         $edits     = [];
+        $eedits = [];
         $parent    = null;
         $path      = [];
         $ancestors = [];
@@ -215,13 +216,13 @@ class Visitor
                         $node = clone $node;
                     }
                     $editOffset = 0;
-                    for ($ii = 0; $ii < count($edits); $ii++) {
-                        $editKey   = $edits[$ii][0];
-                        $editValue = $edits[$ii][1];
-
-                        if ($inArray) {
+                    if ($inArray) {
+                        if (count($edits) !== count($eedits)) {
+                            $sdfsd = 5;
+                        }
+                        foreach ($eedits as $editKey => $editValue) {
                             $editKey -= $editOffset;
-                            if($editValue === null) {
+                            if ($editValue === null) {
                                 if ($node instanceof NodeList) {
                                     $node->splice($editKey, 1);
                                 } else {
@@ -229,18 +230,22 @@ class Visitor
                                 }
                                 $editOffset++;
                                 continue;
-                            }
-                            else {
+                            } else {
                                 $node[$editKey] = $editValue;
                             }
                             continue;
                         }
-                        $node->{$editKey} = $editValue;
+                    }
+                    else{
+                        foreach($eedits as $k => $v) {
+                            $node->{$k} = $v;
+                        }
                     }
                 }
                 $index   = $stack['index'];
                 $keys    = $stack['keys'];
                 $edits   = $stack['edits'];
+                $eedits  = $stack['eedits'];
                 $inArray = $stack['inArray'];
                 $stack   = $stack['prev'];
             } else {
@@ -292,7 +297,13 @@ class Visitor
                             $editValue = $result;
                         }
 
+                        if($editValue == 'first: 10"') {
+                            $isdfsdf = 5;
+                        }
+
                         $edits[] = [$key, $editValue];
+                        $eedits[$key] = $editValue;
+
                         if (! $isLeaving) {
                             if (! ($editValue instanceof Node)) {
                                 array_pop($path);
@@ -307,6 +318,7 @@ class Visitor
 
             if ($result === null && $isEdited) {
                 $edits[] = [$key, $node];
+                $eedits[$key] = $node;
             }
 
             if ($isLeaving) {
@@ -317,6 +329,7 @@ class Visitor
                     'index'   => $index,
                     'keys'    => $keys,
                     'edits'   => $edits,
+                    'eedits' => $eedits,
                     'prev'    => $stack,
                 ];
                 $inArray = $node instanceof NodeList || is_array($node);
@@ -324,6 +337,7 @@ class Visitor
                 $keys  = ($inArray ? $node : $visitorKeys[$node->kind]) ?? [];
                 $index = -1;
                 $edits = [];
+                $eedits = [];
                 if ($parent !== null) {
                     $ancestors[] = $parent;
                 }
@@ -333,6 +347,8 @@ class Visitor
 
         if (count($edits) > 0) {
             $newRoot = $edits[0][1];
+
+            $nnewRoot = reset($eedits);
         }
 
         return $newRoot;
