@@ -226,7 +226,7 @@ class Printer
                     },
 
                     NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
-                        return $node->name;
+                        return $node->name->value;
                     },
 
                     NodeKind::LIST_TYPE => static function (ListTypeNode $node) : string {

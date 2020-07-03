@@ -11,4 +11,8 @@ class NamedTypeNode extends Node implements TypeNode
 
     /** @var NameNode|string */
     public $name;
+
+    public function setEdits(array $edits) {
+        $this->name->value = $edits['name'] ?? $this->name->value;
+    }
 }

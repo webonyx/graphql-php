@@ -115,6 +115,12 @@ abstract class Node
         return $tmp;
     }
 
+    public function setEdits(array $edits) {
+        foreach($edits as $k => $v) {
+            $this->{$k} = $v;
+        }
+    }
+
     /**
      * @return mixed[]
      */
