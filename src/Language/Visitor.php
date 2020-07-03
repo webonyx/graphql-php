@@ -211,12 +211,7 @@ class Visitor
                 $parent = array_pop($ancestors);
 
                 if ($isEdited) {
-                    if ($inArray) {
-                        // $node = $node; // arrays are value types in PHP
-                        if ($node instanceof NodeList) {
-                            $node = clone $node;
-                        }
-                    } else {
+                    if (!is_array($node)) {
                         $node = clone $node;
                     }
                     $editOffset = 0;
@@ -226,21 +221,21 @@ class Visitor
 
                         if ($inArray) {
                             $editKey -= $editOffset;
-                        }
-                        if ($inArray && $editValue === null) {
-                            if ($node instanceof NodeList) {
-                                $node->splice($editKey, 1);
-                            } else {
-                                array_splice($node, $editKey, 1);
+                            if($editValue === null) {
+                                if ($node instanceof NodeList) {
+                                    $node->splice($editKey, 1);
+                                } else {
+                                    array_splice($node, $editKey, 1);
+                                }
+                                $editOffset++;
+                                continue;
                             }
-                            $editOffset++;
-                        } else {
-                            if ($node instanceof NodeList || is_array($node)) {
+                            else {
                                 $node[$editKey] = $editValue;
-                            } else {
-                                $node->{$editKey} = $editValue;
                             }
+                            continue;
                         }
+                        $node->{$editKey} = $editValue;
                     }
                 }
                 $index   = $stack['index'];
