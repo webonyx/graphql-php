@@ -138,7 +138,7 @@ class ASTDefinitionBuilder
             static function ($value) {
                 return $value->name->value;
             },
-            function ($value) {
+            function ($value) : array {
                 // Note: While this could make assertions to get the correctly typed
                 // value, that would throw immediately while type system validation
                 // with validateSchema() will produce more actionable results.
