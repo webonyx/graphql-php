@@ -11,4 +11,11 @@ class BooleanValueNode extends Node implements ValueNode
 
     /** @var bool */
     public $value;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+    }
 }

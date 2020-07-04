@@ -30,7 +30,7 @@ class FieldNode extends Node implements SelectionNode
     public function setEdits(array $edits)
     {
         $this->selectionSet = $edits['selectionSet'] ?? $this->selectionSet;
-        $this->arguments = $edits['arguments'] ?? $this->arguments;
-        $this->directives = $edits['directives'] ?? $this->directives;
+        $this->arguments    = $edits['arguments'] ?? $this->arguments;
+        $this->directives   = $edits['directives'] ?? $this->directives;
     }
 }

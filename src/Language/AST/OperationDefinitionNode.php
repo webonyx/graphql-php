@@ -29,8 +29,8 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
      */
     public function setEdits(array $edits)
     {
-        $this->selectionSet = $edits['selectionSet'] ?? $this->selectionSet;
-        $this->directives = $edits['directives'] ?? $this->directives;
+        $this->selectionSet        = $edits['selectionSet'] ?? $this->selectionSet;
+        $this->directives          = $edits['directives'] ?? $this->directives;
         $this->variableDefinitions = $edits['variableDefinitions'] ?? $this->variableDefinitions;
     }
 }

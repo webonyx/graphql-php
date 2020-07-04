@@ -23,4 +23,15 @@ class FieldDefinitionNode extends Node
 
     /** @var StringValueNode|null */
     public $description;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        $this->arguments = $edits['arguments'] ?? $this->arguments;
+
+        // TODO: don't overwrite description with string
+        $this->description = $edits['description'] ?? $this->description;
+    }
 }

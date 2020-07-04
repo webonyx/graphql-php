@@ -108,8 +108,7 @@ class PrinterTest extends TestCase
   id
 }
 ';
-        $actual = Printer::doPrint($queryAstWithVariableDirective);
-        self::assertEquals($expected, $actual);
+        self::assertEquals($expected, Printer::doPrint($queryAstWithVariableDirective));
     }
 
     /**

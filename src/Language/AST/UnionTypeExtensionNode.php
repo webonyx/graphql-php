@@ -17,4 +17,13 @@ class UnionTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var NamedTypeNode[]|null */
     public $types;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        $this->directives = $edits['directives'] ?? $this->directives;
+        $this->types = $edits['types'] ?? $this->types;
+    }
 }

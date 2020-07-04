@@ -14,4 +14,12 @@ class FragmentSpreadNode extends Node implements SelectionNode
 
     /** @var DirectiveNode[] */
     public $directives;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+
+    }
 }

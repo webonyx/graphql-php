@@ -6,9 +6,11 @@ namespace GraphQL\Language;
 
 use ArrayObject;
 use Exception;
+use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
+use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Utils\TypeInfo;
 use SplFixedArray;
 use stdClass;
@@ -271,7 +273,16 @@ class Visitor
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn !== null) {
+                    if($node instanceof FieldDefinitionNode) {
+                        $sdf = 5;
+                    }
+
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
+
+                    if($result !== null && strpos($result, "loc\"") !== false) {
+                        $dfd    = $visitFn($node, $key, $parent, $path, $ancestors);
+                    }
+
                     $editValue = null;
 
                     if ($result !== null) {

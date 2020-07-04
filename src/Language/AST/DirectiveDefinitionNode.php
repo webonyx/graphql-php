@@ -23,4 +23,10 @@ class DirectiveDefinitionNode extends Node implements TypeSystemDefinitionNode
 
     /** @var NameNode[] */
     public $locations;
+
+    public function setEdits(array $edits)
+    {
+        $this->arguments = $edits['arguments'] ?? $this->arguments;
+        $this->locations = $edits['locations'] ?? $this->locations;
+    }
 }

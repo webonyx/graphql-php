@@ -15,7 +15,11 @@ class ObjectFieldNode extends Node
     /** @var VariableNode|NullValueNode|IntValueNode|FloatValueNode|StringValueNode|BooleanValueNode|EnumValueNode|ListValueNode|ObjectValueNode */
     public $value;
 
-    public function setEdits(array $edits) {
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
         $this->value->value = $edits['value'] ?? $this->value->value;
     }
 }

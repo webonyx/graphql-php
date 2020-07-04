@@ -17,4 +17,13 @@ class InterfaceTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var FieldDefinitionNode[]|null */
     public $fields;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        $this->directives = $edits['directives'] ?? $this->directives;
+        $this->fields = $edits['fields'] ?? $this->fields;
+    }
 }

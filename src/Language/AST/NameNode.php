@@ -11,4 +11,11 @@ class NameNode extends Node implements TypeNode
 
     /** @var string */
     public $value;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+    }
 }

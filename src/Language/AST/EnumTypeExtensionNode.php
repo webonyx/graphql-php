@@ -17,4 +17,12 @@ class EnumTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var EnumValueDefinitionNode[]|null */
     public $values;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        $this->directives = $edits['directives'] ?? $this->directives;
+    }
 }

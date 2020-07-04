@@ -11,4 +11,13 @@ class ObjectValueNode extends Node implements ValueNode
 
     /** @var NodeList<ObjectFieldNode> */
     public $fields;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        // TODO: figure out fields
+        $this->fields = $edits['fields'] ?? $this->fields;
+    }
 }

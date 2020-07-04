@@ -17,4 +17,12 @@ class ScalarTypeDefinitionNode extends Node implements TypeDefinitionNode
 
     /** @var StringValueNode|null */
     public $description;
+
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        $this->directives = $edits['directives'] ?? $this->directives;
+    }
 }

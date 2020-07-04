@@ -21,8 +21,12 @@ class VariableDefinitionNode extends Node implements DefinitionNode
     /** @var DirectiveNode[] */
     public $directives;
 
-    public function setEdits(array $edits) {
-        $this->directives = $edits['directives'] ?? $this->directives;
+    /**
+     * @param mixed[] $edits
+     */
+    public function setEdits(array $edits)
+    {
+        $this->directives   = $edits['directives'] ?? $this->directives;
         $this->defaultValue = $edits['defaultValue'] ?? $this->defaultValue;
     }
 }
