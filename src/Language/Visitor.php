@@ -279,7 +279,7 @@ class Visitor
 
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
 
-                    if($result !== null && strpos($result, "loc\"") !== false) {
+                    if($result !== null && (!is_string($result) || strpos($result, "loc\"") !== false)) {
                         $dfd    = $visitFn($node, $key, $parent, $path, $ancestors);
                     }
 

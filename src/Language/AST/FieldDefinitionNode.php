@@ -29,9 +29,14 @@ class FieldDefinitionNode extends Node
      */
     public function setEdits(array $edits)
     {
+        $this->foo = "puppies";
+
         $this->arguments = $edits['arguments'] ?? $this->arguments;
 
         // TODO: don't overwrite description with string
         $this->description = $edits['description'] ?? $this->description;
+
+        // TODO: don't overwrite directives with strings
+        $this->directives = $edits['directives'] ?? $this->directives;
     }
 }
