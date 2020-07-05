@@ -21,6 +21,21 @@ parameters:
 			path: src/Executor/Executor.php
 
 		-
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FieldNode \\(false\\)\\.$#"
+			count: 1
+			path: src/Executor/ReferenceExecutor.php
+
+		-
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FragmentSpreadNode \\(false\\)\\.$#"
+			count: 1
+			path: src/Executor/ReferenceExecutor.php
+
+		-
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\InlineFragmentNode \\(false\\)\\.$#"
+			count: 1
+			path: src/Executor/ReferenceExecutor.php
+
+		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\BooleanValueNode\\|GraphQL\\\\Language\\\\AST\\\\EnumValueNode\\|GraphQL\\\\Language\\\\AST\\\\FloatValueNode\\|GraphQL\\\\Language\\\\AST\\\\IntValueNode\\|GraphQL\\\\Language\\\\AST\\\\ListValueNode\\|GraphQL\\\\Language\\\\AST\\\\NullValueNode\\|GraphQL\\\\Language\\\\AST\\\\ObjectValueNode\\|GraphQL\\\\Language\\\\AST\\\\StringValueNode\\|GraphQL\\\\Language\\\\AST\\\\VariableNode\\|null given on the right side\\.$#"
 			count: 1
 			path: src/Executor/Values.php
@@ -49,11 +64,6 @@ parameters:
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/AST/Node.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
-			count: 2
-			path: src/Language/Printer.php
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<int, array\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\> given\\.$#"
@@ -127,11 +137,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
-			count: 1
-			path: src/Type/Definition/QueryPlan.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
 			count: 1
 			path: src/Type/Definition/QueryPlan.php
 
@@ -386,11 +391,6 @@ parameters:
 			path: src/Utils/SchemaExtender.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\>\\|null given\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\Type\\>\\|null given\\.$#"
 			count: 1
 			path: src/Utils/TypeInfo.php
@@ -526,12 +526,17 @@ parameters:
 			path: src/Validator/Rules/NoFragmentCycles.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NameNode\\|null given\\.$#"
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FieldNode \\(false\\)\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NamedTypeNode given\\.$#"
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FragmentSpreadNode \\(false\\)\\.$#"
+			count: 1
+			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
+
+		-
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\InlineFragmentNode \\(false\\)\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
@@ -584,6 +589,21 @@ parameters:
 			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
+
+		-
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FieldNode \\(false\\)\\.$#"
+			count: 1
+			path: src/Validator/Rules/QuerySecurityRule.php
+
+		-
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FragmentSpreadNode \\(false\\)\\.$#"
+			count: 1
+			path: src/Validator/Rules/QuerySecurityRule.php
+
+		-
+			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\InlineFragmentNode \\(false\\)\\.$#"
+			count: 1
+			path: src/Validator/Rules/QuerySecurityRule.php
 
 		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given on the left side\\.$#"
@@ -652,11 +672,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
-			count: 1
-			path: src/Validator/ValidationContext.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/ValidationContext.php
 
