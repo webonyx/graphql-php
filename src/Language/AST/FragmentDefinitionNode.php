@@ -28,14 +28,4 @@ class FragmentDefinitionNode extends Node implements ExecutableDefinitionNode, H
 
     /** @var SelectionSetNode */
     public $selectionSet;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->selectionSet        = $edits['selectionSet'] ?? $this->selectionSet;
-        $this->variableDefinitions = $edits['variableDefinitions'] ?? $this->variableDefinitions;
-        $this->directives          = $edits['directives'] ?? $this->directives;
-    }
 }

@@ -11,12 +11,4 @@ class DocumentNode extends Node
 
     /** @var NodeList<DefinitionNode&Node> */
     public $definitions;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->definitions = $edits['definitions'] ?? $this->definitions;
-    }
 }

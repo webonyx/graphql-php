@@ -17,13 +17,4 @@ class InlineFragmentNode extends Node implements SelectionNode
 
     /** @var SelectionSetNode */
     public $selectionSet;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->selectionSet = $edits['selectionSet'] ?? $this->selectionSet;
-        $this->directives   = $edits['directives'] ?? $this->directives;
-    }
 }

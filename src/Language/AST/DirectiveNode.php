@@ -14,12 +14,4 @@ class DirectiveNode extends Node
 
     /** @var NodeList<ArgumentNode> */
     public $arguments;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->arguments = $edits['arguments'] ?? $this->arguments;
-    }
 }

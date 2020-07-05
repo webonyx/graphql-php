@@ -115,11 +115,10 @@ abstract class Node
         return $tmp;
     }
 
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
+    public function setEdits($edits) {
+        foreach($edits as $k => $v) {
+            $this->{$k} = $v;
+        }
     }
 
     /**

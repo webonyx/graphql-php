@@ -14,12 +14,4 @@ class ArgumentNode extends Node
 
     /** @var NameNode */
     public $name;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->value = $edits['value'] ?? $this->value;
-    }
 }

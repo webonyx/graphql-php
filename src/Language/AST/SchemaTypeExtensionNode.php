@@ -14,13 +14,4 @@ class SchemaTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var NodeList<OperationTypeDefinitionNode>|null */
     public $operationTypes;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->directives     = $edits['directives'] ?? $this->directives;
-        $this->operationTypes = $edits['operationTypes'] ?? $this->operationTypes;
-    }
 }

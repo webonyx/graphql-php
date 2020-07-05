@@ -23,14 +23,4 @@ class FieldNode extends Node implements SelectionNode
 
     /** @var SelectionSetNode|null */
     public $selectionSet;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->selectionSet = $edits['selectionSet'] ?? $this->selectionSet;
-        $this->arguments    = $edits['arguments'] ?? $this->arguments;
-        $this->directives   = $edits['directives'] ?? $this->directives;
-    }
 }

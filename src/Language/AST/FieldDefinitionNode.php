@@ -23,17 +23,4 @@ class FieldDefinitionNode extends Node
 
     /** @var StringValueNode|null */
     public $description;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->arguments = $edits['arguments'] ?? $this->arguments;
-
-        $this->type = $edits['type'] ?? $this->type;
-
-        // TODO: don't overwrite directives with strings
-        $this->directives = $edits['directives'] ?? $this->directives;
-    }
 }

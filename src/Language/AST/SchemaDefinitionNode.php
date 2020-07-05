@@ -14,12 +14,4 @@ class SchemaDefinitionNode extends Node implements TypeSystemDefinitionNode
 
     /** @var OperationTypeDefinitionNode[] */
     public $operationTypes;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->operationTypes = $edits['operationTypes'] ?? $this->operationTypes;
-    }
 }

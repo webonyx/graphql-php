@@ -23,14 +23,4 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
 
     /** @var SelectionSetNode */
     public $selectionSet;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->selectionSet        = $edits['selectionSet'] ?? $this->selectionSet;
-        $this->directives          = $edits['directives'] ?? $this->directives;
-        $this->variableDefinitions = $edits['variableDefinitions'] ?? $this->variableDefinitions;
-    }
 }

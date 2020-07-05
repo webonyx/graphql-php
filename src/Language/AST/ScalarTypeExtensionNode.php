@@ -14,12 +14,4 @@ class ScalarTypeExtensionNode extends Node implements TypeExtensionNode
 
     /** @var DirectiveNode[]|null */
     public $directives;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-        $this->directives = $edits['directives'] ?? $this->directives;
-    }
 }
