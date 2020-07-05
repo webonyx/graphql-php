@@ -228,7 +228,8 @@ class Printer
                     },
 
                     NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
-                        // @phpstan-ignore-next-line the printer works bottom up, so this is already a string here
+                        assert(is_string($node->name));
+
                         return $node->name;
                     },
 
