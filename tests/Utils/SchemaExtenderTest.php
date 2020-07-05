@@ -354,9 +354,9 @@ class SchemaExtenderTest extends TestCase
             $this->printTestSchemaChanges($extendedSchema),
         );
 
-//        $fooType  = $extendedSchema->getType('Foo');
-//        $fooField = $extendedSchema->getQueryType()->getField('foo');
-//        self::assertEquals($fooField->getType(), $fooType);
+        $fooType  = $extendedSchema->getType('Foo');
+        $fooField = $extendedSchema->getQueryType()->getField('foo');
+        self::assertEquals($fooField->getType(), $fooType);
     }
 
     /**
