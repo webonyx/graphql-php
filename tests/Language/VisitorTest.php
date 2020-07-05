@@ -187,9 +187,7 @@ class VisitorTest extends ValidatorTestCase
                         $selectionSet = $node->selectionSet;
 
                         $newNode               = clone $node;
-                        $newNode->selectionSet = new SelectionSetNode([
-                            'selections' => null,
-                        ]);
+                        $newNode->selectionSet = new SelectionSetNode(['selections' => null]);
                         $newNode->didEnter     = true;
 
                         return $newNode;
@@ -1585,7 +1583,8 @@ class VisitorTest extends ValidatorTestCase
                                     'kind'       => 'SelectionSet',
                                     'selections' => NodeList::create([new FieldNode([
                                         'name' => new NameNode(['value' => '__typename']),
-                                    ])]),
+                                    ]),
+                                    ]),
                                 ]),
                             ]);
                         }

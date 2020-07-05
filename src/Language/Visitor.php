@@ -24,6 +24,7 @@ use function is_array;
 use function is_callable;
 use function json_encode;
 use function reset;
+use function xdebug_break;
 
 /**
  * Utility for efficient AST traversal and modification.
@@ -190,7 +191,7 @@ class Visitor
     public static function visit($root, $visitor, $keyMap = null)
     {
         static $nodesToCheck = [];
-        $visitorKeys = $keyMap ?? self::$visitorKeys;
+        $visitorKeys         = $keyMap ?? self::$visitorKeys;
 
         $stack     = null;
         $inArray   = $root instanceof NodeList || is_array($root);
@@ -238,7 +239,7 @@ class Visitor
                             continue;
                         }
                     } else {
-                        if(isset($edits['description'])) {
+                        if (isset($edits['description'])) {
                             xdebug_break();
                         }
                         $node->setEdits($edits);
@@ -276,14 +277,13 @@ class Visitor
                     throw new Exception('Invalid AST Node: ' . json_encode($node));
                 }
 
-                if($node instanceof ListValueNode){
+                if ($node instanceof ListValueNode) {
                     $erw = 5;
                 }
 
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn !== null) {
-
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
                     $editValue = null;
 
@@ -300,7 +300,6 @@ class Visitor
                                 $editValue = null;
                             }
                         } else {
-
                             $editValue = $result;
                         }
 

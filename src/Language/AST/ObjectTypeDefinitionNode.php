@@ -29,8 +29,8 @@ class ObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
      */
     public function setEdits(array $edits)
     {
-        $this->interfaces  = $edits['interfaces'] ?? $this->interfaces;
-        $this->directives  = $edits['directives'] ?? $this->directives;
-        $this->fields      = $edits['fields'] ?? $this->fields;
+        $this->interfaces = $edits['interfaces'] ?? $this->interfaces;
+        $this->directives = $edits['directives'] ?? $this->directives;
+        $this->fields     = $edits['fields'] ?? $this->fields;
     }
 }

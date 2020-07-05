@@ -52,8 +52,11 @@ use GraphQL\Language\AST\UnionTypeExtensionNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use GraphQL\Utils\Utils;
+use function array_map;
 use function count;
 use function implode;
+use function is_null;
+use function iterator_to_array;
 use function json_encode;
 use function preg_replace;
 use function sprintf;
@@ -88,7 +91,7 @@ class Printer
         static $instance;
         $instance = $instance ?? new static();
 
-        if(! $ast instanceof Node) {
+        if (! $ast instanceof Node) {
             throw new Exception('Invalid AST Node: ' . json_encode($ast));
         }
 
@@ -99,44 +102,53 @@ class Printer
     {
     }
 
-    public function printAST(Node $node) {
+    public function printAST(Node $node)
+    {
         return $this->p($node);
     }
 
+    /**
+     * @return array<Node>
+     */
     protected function listToArray(?NodeList $list) : array
     {
         return isset($list) ? iterator_to_array($list) : [];
     }
 
-    protected function printList(?NodeList $list, $separator = '') : string {
+    protected function printList(?NodeList $list, $separator = '') : string
+    {
         return $this->printArray($this->listToArray($list), $separator);
     }
 
-    protected function printListBlock(?NodeList $list) : string {
-        return $this->block( array_map(fn ($item) => $this->p($item), $this->listToArray($list)));
+    protected function printListBlock(?NodeList $list) : string
+    {
+        return $this->block(array_map(fn ($item) => $this->p($item), $this->listToArray($list)));
     }
 
-    protected function printArray(array $list, $separator = '') : string {
+    /**
+     * @param array<Node> $list
+     */
+    protected function printArray(array $list, string $separator = '') : string
+    {
         return $this->join(array_map(fn ($item) => $this->p($item), $list), $separator);
     }
 
     public function p(?Node $node, bool $isDescription = false) : string
     {
         $res = '';
-        if(is_null($node)) {
+        if ($node === null) {
             return '';
         }
-        switch(true) {
+        switch (true) {
             case $node instanceof ArgumentNode:
                 $res = $node->name->value . ': ' . $this->p($node->value);
                 break;
 
             case $node instanceof BooleanValueNode:
                 return $node->value ? 'true' : 'false';
-
             case $node instanceof DirectiveDefinitionNode:
                 $argStrings = array_map(fn ($item) => $this->p($item), $this->listToArray($node->arguments));
-                $noIndent = Utils::every($argStrings, static function (string $arg) : bool {
+                $noIndent   = Utils::every($argStrings, static function (string $arg) : bool {
                     return strpos($arg, "\n") === false;
                 });
 
@@ -150,15 +162,14 @@ class Printer
                 break;
 
             case $node instanceof DirectiveNode:
-                $res = '@' . $node->name->value . $this->wrap('(', $this->printList( $node->arguments, ', '), ')');
+                $res = '@' . $node->name->value . $this->wrap('(', $this->printList($node->arguments, ', '), ')');
                 break;
 
             case $node instanceof DocumentNode:
-                $res = $this->printList( $node->definitions, "\n\n") . "\n";
+                $res = $this->printList($node->definitions, "\n\n") . "\n";
                 break;
 
             case $node instanceof EnumTypeDefinitionNode:
-
                 $res = $this->printDescription($node->description, $this->join(
                     [
                         'enum',
@@ -180,17 +191,15 @@ class Printer
                     ],
                     ' '
                 );
-
             case $node instanceof EnumValueDefinitionNode:
                 $res = $this->join([$node->name->value, $this->printList($node->directives, ' ')], ' ');
                 break;
 
             case $node instanceof EnumValueNode:
                 return $node->value;
-
             case $node instanceof FieldDefinitionNode:
                 $argStrings = array_map(fn ($item) => $this->p($item), $this->listToArray($node->arguments));
-                $noIndent = Utils::every($argStrings, static function (string $arg) : bool {
+                $noIndent   = Utils::every($argStrings, static function (string $arg) : bool {
                     return strpos($arg, "\n") === false;
                 });
 
@@ -219,7 +228,6 @@ class Printer
 
             case $node instanceof FloatValueNode:
                 return $node->value;
-
             case $node instanceof FragmentDefinitionNode:
                 // Note: fragment variable definitions are experimental and may be changed or removed in the future.
                 $res = sprintf('fragment %s', $node->name->value)
@@ -243,7 +251,7 @@ class Printer
                     ],
                     ' '
                 );
-            break;
+                break;
 
             case $node instanceof InputObjectTypeDefinitionNode:
                 $res = $this->printDescription($node->description, $this->join(
@@ -267,7 +275,6 @@ class Printer
                     ],
                     ' '
                 );
-
             case $node instanceof InputValueDefinitionNode:
                 $res = $this->join(
                     [
@@ -281,14 +288,14 @@ class Printer
 
             case $node instanceof InterfaceTypeDefinitionNode:
                 $res = $this->printDescription($node->description, $this->join(
-                        [
-                            'interface',
-                            $node->name->value,
-                            $this->printList($node->directives, ' '),
-                            $this->printListBlock($node->fields),
-                        ],
-                        ' '
-                    ));
+                    [
+                        'interface',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '),
+                        $this->printListBlock($node->fields),
+                    ],
+                    ' '
+                ));
                 break;
 
             case $node instanceof InterfaceTypeExtensionNode:
@@ -301,29 +308,22 @@ class Printer
                     ],
                     ' '
                 );
-
             case $node instanceof IntValueNode:
                 return $node->value;
-
             case $node instanceof ListTypeNode:
                 return '[' . $this->p($node->type) . ']';
-
             case $node instanceof ListValueNode:
                 return '[' . $this->join(array_map(fn ($item) => $this->p($item), $this->listToArray($node->values)), ', ') . ']';
-
             case $node instanceof NameNode:
                 return $node->value;
-
             case $node instanceof NamedTypeNode:
                 return $node->name->value;
-
             case $node instanceof NonNullTypeNode:
                 $res = $this->p($node->type) . '!';
                 break;
 
             case $node instanceof NullValueNode:
                 return 'null';
-
             case $node instanceof ObjectFieldNode:
                 $res = $node->name->value . ': ' . $this->p($node->value);
                 break;
@@ -352,15 +352,13 @@ class Printer
                     ],
                     ' '
                 );
-
             case $node instanceof ObjectValueNode:
                 return '{' . $this->printList($node->fields, ', ') . '}';
-
             case $node instanceof OperationDefinitionNode:
                 $op           = $node->operation;
                 $name         = $node->name->value ?? null;
-                $varDefs      = $this->wrap('(', $this->join( array_map(fn ($item) => $this->p($item), $this->listToArray($node->variableDefinitions)), ', '), ')');
-                $directives   = $this->join( array_map(fn ($item) => $this->p($item), $this->listToArray($node->directives)), ' ');
+                $varDefs      = $this->wrap('(', $this->join(array_map(fn ($item) => $this->p($item), $this->listToArray($node->variableDefinitions)), ', '), ')');
+                $directives   = $this->join(array_map(fn ($item) => $this->p($item), $this->listToArray($node->directives)), ' ');
                 $selectionSet = $this->p($node->selectionSet);
 
                 // Anonymous queries with no directives or variable definitions can use
@@ -375,9 +373,14 @@ class Printer
                 break;
 
             case $node instanceof ScalarTypeDefinitionNode:
-                $res = $this->join(['scalar', $node->name->value, $this->join(
-                    array_map(fn ($item) => $this->p($item), $this->listToArray($node->directives)), ' '
-                )], ' ');
+                $res = $this->join([
+                    'scalar',
+                    $node->name->value,
+                    $this->join(
+                        array_map(fn ($item) => $this->p($item), $this->listToArray($node->directives)),
+                        ' '
+                    ),
+                ], ' ');
                 break;
 
             case $node instanceof ScalarTypeExtensionNode:
@@ -389,12 +392,11 @@ class Printer
                     ],
                     ' '
                 );
-
             case $node instanceof SchemaDefinitionNode:
                 $res = $this->join(
                     [
                         'schema',
-                        $this->printList( $node->directives, ' '),
+                        $this->printList($node->directives, ' '),
                         $this->block(array_map(fn ($item) => $this->p($item), $this->listToArray($node->operationTypes))),
                     ],
                     ' '
@@ -410,7 +412,6 @@ class Printer
                     ],
                     ' '
                 );
-
             case $node instanceof SelectionSetNode:
                 $res = $this->block(array_map(fn ($item) => $this->p($item), $this->listToArray($node->selections)));
                 break;
@@ -421,7 +422,6 @@ class Printer
                 }
 
                 return json_encode($node->value);
-
             case $node instanceof UnionTypeDefinitionNode:
                 $res = $this->printDescription($node->description, $this->join(
                     [
@@ -448,21 +448,19 @@ class Printer
                     ],
                     ' '
                 );
-
             case $node instanceof VariableDefinitionNode:
                 $res = '$' . $node->variable->name->value
                     . ': '
                     . $node->type->name->value
                     . $this->wrap(' = ', $this->p($node->defaultValue))
-                    . $this->wrap(' ', $this->join( array_map(fn ($item) => $this->p($item), $this->listToArray($node->directives)), ' '));
+                    . $this->wrap(' ', $this->join(array_map(fn ($item) => $this->p($item), $this->listToArray($node->directives)), ' '));
                 break;
 
             case $node instanceof VariableNode:
                 return '$' . $node->name->value;
-
             default:
-                throw new Exception("Here there be dragons");
-        };
+                throw new Exception('Here there be dragons');
+        }
 
         return $res;
     }
@@ -474,7 +472,8 @@ class Printer
         };
     }
 
-    public function printDescription(?StringValueNode $description, string $body) : string {
+    public function printDescription(?StringValueNode $description, string $body) : string
+    {
         return $this->join([$description, $body], "\n");
     }
 
