@@ -6,13 +6,9 @@ namespace GraphQL\Language;
 
 use ArrayObject;
 use Exception;
-use GraphQL\Language\AST\ArgumentNode;
-use GraphQL\Language\AST\FieldDefinitionNode;
-use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
-use GraphQL\Language\AST\ObjectValueNode;
 use GraphQL\Utils\TypeInfo;
 use SplFixedArray;
 use stdClass;
@@ -23,8 +19,6 @@ use function func_get_args;
 use function is_array;
 use function is_callable;
 use function json_encode;
-use function reset;
-use function xdebug_break;
 
 /**
  * Utility for efficient AST traversal and modification.
@@ -190,8 +184,7 @@ class Visitor
      */
     public static function visit($root, $visitor, $keyMap = null)
     {
-        static $nodesToCheck = [];
-        $visitorKeys         = $keyMap ?? self::$visitorKeys;
+        $visitorKeys = $keyMap ?? self::$visitorKeys;
 
         $stack     = null;
         $inArray   = $root instanceof NodeList || is_array($root);
@@ -218,31 +211,36 @@ class Visitor
                 $parent = array_pop($ancestors);
 
                 if ($isEdited) {
-                    if (! is_array($node)) {
+                    if ($inArray) {
+                        // $node = $node; // arrays are value types in PHP
+                        if ($node instanceof NodeList) {
+                            $node = clone $node;
+                        }
+                    } else {
                         $node = clone $node;
                     }
                     $editOffset = 0;
-                    if ($inArray) {
-                        foreach ($edits as $editKey => $editValue) {
+                    for ($ii = 0; $ii < count($edits); $ii++) {
+                        $editKey   = $edits[$ii][0];
+                        $editValue = $edits[$ii][1];
+
+                        if ($inArray) {
                             $editKey -= $editOffset;
-                            if ($editValue === null) {
-                                if ($node instanceof NodeList) {
-                                    $node->splice($editKey, 1);
-                                } else {
-                                    array_splice($node, $editKey, 1);
-                                }
-                                $editOffset++;
-                                continue;
+                        }
+                        if ($inArray && $editValue === null) {
+                            if ($node instanceof NodeList) {
+                                $node->splice($editKey, 1);
                             } else {
-                                $node[$editKey] = $editValue;
+                                array_splice($node, $editKey, 1);
                             }
-                            continue;
+                            $editOffset++;
+                        } else {
+                            if ($node instanceof NodeList || is_array($node)) {
+                                $node[$editKey] = $editValue;
+                            } else {
+                                $node->{$editKey} = $editValue;
+                            }
                         }
-                    } else {
-                        if (isset($edits['description'])) {
-                            xdebug_break();
-                        }
-                        $node->setEdits($edits);
                     }
                 }
                 $index   = $stack['index'];
@@ -277,10 +275,6 @@ class Visitor
                     throw new Exception('Invalid AST Node: ' . json_encode($node));
                 }
 
-                if ($node instanceof ListValueNode) {
-                    $erw = 5;
-                }
-
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn !== null) {
@@ -303,8 +297,7 @@ class Visitor
                             $editValue = $result;
                         }
 
-                        $edits[$key] = $editValue;
-
+                        $edits[] = [$key, $editValue];
                         if (! $isLeaving) {
                             if (! ($editValue instanceof Node)) {
                                 array_pop($path);
@@ -318,7 +311,7 @@ class Visitor
             }
 
             if ($result === null && $isEdited) {
-                $edits[$key] = $node;
+                $edits[] = [$key, $node];
             }
 
             if ($isLeaving) {
@@ -344,7 +337,7 @@ class Visitor
         } while ($stack);
 
         if (count($edits) > 0) {
-            $newRoot = reset($edits);
+            $newRoot = $edits[0][1];
         }
 
         return $newRoot;

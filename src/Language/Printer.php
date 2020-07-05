@@ -152,7 +152,7 @@ class Printer
                     return strpos($arg, "\n") === false;
                 });
 
-                $res = $this->printDescription($node->description, 'directive @'
+                $res = $this->addDescription($node->description, 'directive @'
                     . $node->name->value
                     . ($noIndent
                         ? $this->wrap('(', $this->join($argStrings, ', '), ')')
@@ -170,7 +170,7 @@ class Printer
                 break;
 
             case $node instanceof EnumTypeDefinitionNode:
-                $res = $this->printDescription($node->description, $this->join(
+                $res = $this->addDescription($node->description, $this->join(
                     [
                         'enum',
                         $node->name->value,
@@ -254,7 +254,7 @@ class Printer
                 break;
 
             case $node instanceof InputObjectTypeDefinitionNode:
-                $res = $this->printDescription($node->description, $this->join(
+                $res = $this->addDescription($node->description, $this->join(
                     [
                         'input',
                         $node->name->value,
@@ -287,7 +287,7 @@ class Printer
                 break;
 
             case $node instanceof InterfaceTypeDefinitionNode:
-                $res = $this->printDescription($node->description, $this->join(
+                $res = $this->addDescription($node->description, $this->join(
                     [
                         'interface',
                         $node->name->value,
@@ -423,7 +423,7 @@ class Printer
 
                 return json_encode($node->value);
             case $node instanceof UnionTypeDefinitionNode:
-                $res = $this->printDescription($node->description, $this->join(
+                $res = $this->addDescription($node->description, $this->join(
                     [
                         'union',
                         $node->name->value,
@@ -465,14 +465,7 @@ class Printer
         return $res;
     }
 
-    public function addDescription(callable $cb)
-    {
-        return function ($node) use ($cb) {
-            return $this->join([$node->description, $cb($node)], "\n");
-        };
-    }
-
-    public function printDescription(?StringValueNode $description, string $body) : string
+    public function addDescription(?StringValueNode $description, string $body) : string
     {
         return $this->join([$description, $body], "\n");
     }

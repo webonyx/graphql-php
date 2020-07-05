@@ -71,6 +71,11 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
+			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\|null\\.$#"
+			count: 1
+			path: src/Language/Visitor.php
+
+		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
 			path: src/Language/Visitor.php
