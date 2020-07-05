@@ -12,7 +12,7 @@ class DirectiveNode extends Node
     /** @var NameNode */
     public $name;
 
-    /** @var ArgumentNode[] */
+    /** @var NodeList<ArgumentNode> */
     public $arguments;
 
     /**

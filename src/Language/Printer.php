@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Language;
 
+use _HumbugBox09702017065e\Nette\Neon\Exception;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
@@ -456,23 +457,114 @@ class Printer
         return $res;
     }
 
-    public function printAST($node)
+    public function printAST(Node $node) {
+        return $this->p($node);
+    }
+
+    public function p(?Node $node) : string
     {
+        $res = '';
+        if(is_null($node)) {
+            return '';
+        }
         switch(true) {
+            case $node instanceof ArgumentNode:
+                return $node->name->value . ': ' . $this->p($node->value);
+
+            case $node instanceof BooleanValueNode:
+                return $node->value ? 'true' : 'false';
+
+            case $node instanceof DirectiveNode:
+                $res = '@' . $node->name->value . $this->wrap('(', $this->join( array_map(fn ($item) => $this->p($item), iterator_to_array($node->arguments)), ', '), ')');
+                break;
+
+            case $node instanceof DocumentNode:
+                return $this->join( array_map(fn ($item) => $this->p($item), iterator_to_array($node->definitions)), "\n\n") . "\n";
+
+
+//                NodeKind::FIELD => function (FieldNode $node) {
+//                return $this->join(
+//                    [
+//                        $this->wrap('', $node->alias->value ?? null, ': ') . $node->name->value . $this->wrap(
+//                            '(',
+//                            $this->join($node->arguments, ', '),
+//                            ')'
+//                        ),
+//                        $this->join($node->directives, ' '),
+//                        $node->selectionSet,
+//                    ],
+//                    ' '
+//                );
+//            },
+
+
             case $node instanceof FieldNode:
-                return $this->join(
+                $res = $this->join(
                     [
                         $this->wrap('', $node->alias->value ?? null, ': ') . $node->name->value . $this->wrap(
                             '(',
-                            $this->join($node->arguments, ', '),
+                            $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->arguments)), ', '),
                             ')'
                         ),
-                        $this->join($node->directives, ' '),
+                        $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->directives)), ' '),
                         $node->selectionSet,
                     ],
                     ' '
                 );
+                break;
+
+            case $node instanceof ObjectFieldNode:
+                return $node->name->value . ': ' . $node->value->value;
+
+            case $node instanceof ObjectValueNode:
+                $res = '{' . $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->fields)), ', ') . '}';
+                break;
+
+            /**
+             *
+            $op           = $node->operation;
+            $name         = $node->name->value ?? null;
+            $varDefs      = $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')');
+            $directives   = $this->join($node->directives, ' ');
+            $selectionSet = $node->selectionSet;
+
+            // Anonymous queries with no directives or variable definitions can use
+            // the query short form.
+            return $name === null && ! $directives && ! $varDefs && $op === 'query'
+            ? $selectionSet
+            : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
+             */
+
+
+            case $node instanceof OperationDefinitionNode:
+                $op           = $node->operation;
+                $name         = $node->name->value ?? null;
+                $varDefs      = $this->wrap('(', $this->join( array_map(fn ($item) => $this->p($item), iterator_to_array($node->variableDefinitions)), ', '), ')');
+                $directives   = $this->join( array_map(fn ($item) => $this->p($item), iterator_to_array($node->directives)), ' ');
+                $selectionSet = $this->p($node->selectionSet);
+
+                // Anonymous queries with no directives or variable definitions can use
+                // the query short form.
+                $res = $name === null && ! $directives && ! $varDefs && $op === 'query'
+                    ? $selectionSet
+                    : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
+                break;
+
+            case $node instanceof SelectionSetNode:
+                return $this->block(array_map(fn ($item) => $this->p($item), iterator_to_array($node->selections)));
+
+            case $node instanceof VariableDefinitionNode:
+                $res = '$' . $node->variable->name->value
+                    . ': '
+                    . $node->type->name->value
+                    . $this->wrap(' = ', $this->p($node->defaultValue))
+                    . $this->wrap(' ', $this->join( array_map(fn ($item) => $this->p($item), iterator_to_array($node->directives)), ' '));
+                break;
+            default:
+                throw new Exception("Here there be dragons");
         };
+
+        return $res;
 
 
         $res = Visitor::visit(
@@ -485,41 +577,6 @@ class Printer
 
                     NodeKind::VARIABLE => static function (VariableNode $node) : string {
                         return '$' . $node->name->value;
-                    },
-
-                    NodeKind::DOCUMENT => function (DocumentNode $node) : string {
-                        return $this->join($node->definitions, "\n\n") . "\n";
-                    },
-
-                    NodeKind::OPERATION_DEFINITION => function (OperationDefinitionNode $node) {
-                        $op           = $node->operation;
-                        $name         = $node->name->value ?? null;
-                        $varDefs      = $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')');
-                        $directives   = $this->join($node->directives, ' ');
-                        $selectionSet = $node->selectionSet;
-
-                        // Anonymous queries with no directives or variable definitions can use
-                        // the query short form.
-                        return $name === null && ! $directives && ! $varDefs && $op === 'query'
-                            ? $selectionSet
-                            : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
-                    },
-
-                    NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) : string {
-                        return '$' . $node->variable->name->value
-                            . ': '
-                            . $node->type->name->value
-                            . $this->wrap(' = ', $node->defaultValue)
-                            . $this->wrap(' ', $this->join($node->directives, ' '));
-                    },
-
-                    NodeKind::SELECTION_SET => function (SelectionSetNode $node) {
-                        return $this->block($node->selections);
-                    },
-
-
-                    NodeKind::ARGUMENT => static function (ArgumentNode $node) : string {
-                        return $node->name->value . ': ' . $node->value;
                     },
 
                     NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) : string {
@@ -563,10 +620,6 @@ class Printer
                         return json_encode($node->value);
                     },
 
-                    NodeKind::BOOLEAN => static function (BooleanValueNode $node) {
-                        return $node->value ? 'true' : 'false';
-                    },
-
                     NodeKind::NULL => static function (NullValueNode $node) : string {
                         return 'null';
                     },
@@ -581,14 +634,6 @@ class Printer
 
                     NodeKind::OBJECT => function (ObjectValueNode $node) : string {
                         return '{' . $this->join($node->fields, ', ') . '}';
-                    },
-
-                    NodeKind::OBJECT_FIELD => static function (ObjectFieldNode $node) : string {
-                        return $node->name->value . ': ' . $node->value->value;
-                    },
-
-                    NodeKind::DIRECTIVE => function (DirectiveNode $node) : string {
-                        return '@' . $node->name->value . $this->wrap('(', $this->join($node->arguments, ', '), ')');
                     },
 
                     NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
