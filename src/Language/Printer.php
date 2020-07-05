@@ -95,6 +95,18 @@ class Printer
         return $instance->printAST($ast);
     }
 
+    public static function doPrint_bak($ast)
+    {
+        static $instance;
+        $instance = $instance ?? new static();
+
+        if(! $ast instanceof Node) {
+            throw new Exception('Invalid AST Node: ' . json_encode($ast));
+        }
+
+        return $instance->printAST_bak($ast);
+    }
+
     protected function __construct()
     {
     }
@@ -471,6 +483,10 @@ class Printer
         return $this->printArray($this->listToArray($list), $separator);
     }
 
+    protected function printListBlock(?NodeList $list) : string {
+        return $this->block( array_map(fn ($item) => $this->p($item), $this->listToArray($list)));
+    }
+
     protected function printArray(array $list, $separator = '') : string {
         return $this->join(array_map(fn ($item) => $this->p($item), $list), $separator);
     }
@@ -489,12 +505,44 @@ class Printer
             case $node instanceof BooleanValueNode:
                 return $node->value ? 'true' : 'false';
 
+            case $node instanceof DirectiveDefinitionNode:
+                $argStrings = array_map(fn ($item) => $this->p($item), $this->listToArray($node->arguments));
+                $noIndent = Utils::every($argStrings, static function (string $arg) : bool {
+                    return strpos($arg, "\n") === false;
+                });
+
+                $res = $this->printDescription($node->description, 'directive @'
+                    . $node->name->value
+                    . ($noIndent
+                        ? $this->wrap('(', $this->join($argStrings, ', '), ')')
+                        : $this->wrap("(\n", $this->indent($this->join($argStrings, "\n")), "\n"))
+                    . ($node->repeatable ? ' repeatable' : '')
+                    . ' on ' . $this->printArray($node->locations, ' | '));
+                break;
+
             case $node instanceof DirectiveNode:
                 $res = '@' . $node->name->value . $this->wrap('(', $this->printList( $node->arguments, ', '), ')');
                 break;
 
             case $node instanceof DocumentNode:
                 $res = $this->printList( $node->definitions, "\n\n") . "\n";
+                break;
+
+            case $node instanceof EnumTypeDefinitionNode:
+
+                $res = $this->printDescription($node->description, $this->join(
+                    [
+                        'enum',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '),
+                        $this->printListBlock($node->values),
+                    ],
+                    ' '
+                ));
+                break;
+
+            case $node instanceof EnumValueDefinitionNode:
+                $res = $this->join([$node->name->value, $this->printList($node->directives, ' ')], ' ');
                 break;
 
             case $node instanceof EnumValueNode:
@@ -557,6 +605,18 @@ class Printer
                 );
             break;
 
+            case $node instanceof InputObjectTypeDefinitionNode:
+                $res = $this->printDescription($node->description, $this->join(
+                    [
+                        'input',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '),
+                        $this->printListBlock($node->fields),
+                    ],
+                    ' '
+                ));
+                break;
+
             case $node instanceof InputValueDefinitionNode:
                 $res = $this->join(
                     [
@@ -568,11 +628,26 @@ class Printer
                 );
                 break;
 
+            case $node instanceof InterfaceTypeDefinitionNode:
+                $res = $this->printDescription($node->description, $this->join(
+                        [
+                            'interface',
+                            $node->name->value,
+                            $this->printList($node->directives, ' '),
+                            $this->printListBlock($node->fields),
+                        ],
+                        ' '
+                    ));
+                break;
+
             case $node instanceof IntValueNode:
                 return $node->value;
 
             case $node instanceof ListValueNode:
                 return '[' . $this->join(array_map(fn ($item) => $this->p($item), $this->listToArray($node->values)), ', ') . ']';
+
+            case $node instanceof NameNode:
+                return $node->value;
 
             case $node instanceof NamedTypeNode:
                 return $node->name->value;
@@ -641,6 +716,10 @@ class Printer
                 break;
 
             case $node instanceof SelectionSetNode:
+                if(is_array($node->selections)){
+                    $i = 5;
+                }
+
                 $res = $this->block(array_map(fn ($item) => $this->p($item), $this->listToArray($node->selections)));
                 break;
 
@@ -650,6 +729,20 @@ class Printer
                 }
 
                 return json_encode($node->value);
+
+            case $node instanceof UnionTypeDefinitionNode:
+                $res = $this->printDescription($node->description, $this->join(
+                    [
+                        'union',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '),
+                        isset($node->types)
+                            ? '= ' . $this->printArray($node->types, ' | ')
+                            : '',
+                    ],
+                    ' '
+                ));
+                break;
 
             case $node instanceof VariableDefinitionNode:
                 $res = '$' . $node->variable->name->value
@@ -673,10 +766,6 @@ class Printer
             $ast,
             [
                 'leave' => [
-                    NodeKind::NAME => static function (NameNode $node) : string {
-                        return '' . $node->value;
-                    },
-
                     NodeKind::ENUM => static function (EnumValueNode $node) : string {
                         return $node->value;
                     },
@@ -688,64 +777,6 @@ class Printer
                     NodeKind::LIST_TYPE => static function (ListTypeNode $node) : string {
                         return '[' . $node->type . ']';
                     },
-
-                    NodeKind::INTERFACE_TYPE_DEFINITION => $this->addDescription(
-                        function (InterfaceTypeDefinitionNode $def) {
-                            return $this->join(
-                                [
-                                    'interface',
-                                    $def->name->value,
-                                    $this->join($def->directives, ' '),
-                                    $this->block($def->fields),
-                                ],
-                                ' '
-                            );
-                        }
-                    ),
-
-                    NodeKind::UNION_TYPE_DEFINITION => $this->addDescription(function (UnionTypeDefinitionNode $def) {
-                        return $this->join(
-                            [
-                                'union',
-                                $def->name->value,
-                                $this->join($def->directives, ' '),
-                                $def->types
-                                    ? '= ' . $this->join($def->types, ' | ')
-                                    : '',
-                            ],
-                            ' '
-                        );
-                    }),
-
-                    NodeKind::ENUM_TYPE_DEFINITION => $this->addDescription(function (EnumTypeDefinitionNode $def) {
-                        return $this->join(
-                            [
-                                'enum',
-                                $def->name->value,
-                                $this->join($def->directives, ' '),
-                                $this->block($def->values),
-                            ],
-                            ' '
-                        );
-                    }),
-
-                    NodeKind::ENUM_VALUE_DEFINITION => $this->addDescription(function (EnumValueDefinitionNode $def) {
-                        return $this->join([$def->name->value, $this->join($def->directives, ' ')], ' ');
-                    }),
-
-                    NodeKind::INPUT_OBJECT_TYPE_DEFINITION => $this->addDescription(function (
-                        InputObjectTypeDefinitionNode $def
-                    ) {
-                        return $this->join(
-                            [
-                                'input',
-                                $def->name->value,
-                                $this->join($def->directives, ' '),
-                                $this->block($def->fields),
-                            ],
-                            ' '
-                        );
-                    }),
 
                     NodeKind::SCHEMA_EXTENSION => function (SchemaTypeExtensionNode $def) {
                         return $this->join(
@@ -831,20 +862,6 @@ class Printer
                             ' '
                         );
                     },
-
-                    NodeKind::DIRECTIVE_DEFINITION => $this->addDescription(function (DirectiveDefinitionNode $def) {
-                        $noIndent = Utils::every($def->arguments, static function (string $arg) : bool {
-                            return strpos($arg, "\n") === false;
-                        });
-
-                        return 'directive @'
-                            . $def->name->value
-                            . ($noIndent
-                                ? $this->wrap('(', $this->join($def->arguments, ', '), ')')
-                                : $this->wrap("(\n", $this->indent($this->join($def->arguments, "\n")), "\n"))
-                            . ($def->repeatable ? ' repeatable' : '')
-                            . ' on ' . $this->join($def->locations, ' | ');
-                    }),
                 ],
             ]
         );
@@ -857,6 +874,10 @@ class Printer
         return function ($node) use ($cb) {
             return $this->join([$node->description, $cb($node)], "\n");
         };
+    }
+
+    public function printDescription(?StringValueNode $description, string $body) : string {
+        return $this->join([$description, $body], "\n");
     }
 
     /**

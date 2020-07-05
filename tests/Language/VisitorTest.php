@@ -1623,7 +1623,7 @@ class VisitorTest extends ValidatorTestCase
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets { __typename } }, alien { __typename } }'
             )),
-            Printer::doPrint($editedAst)
+            Printer::doPrint_bak($editedAst)
         );
 
         self::assertEquals(
