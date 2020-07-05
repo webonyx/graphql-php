@@ -276,12 +276,13 @@ class Printer
                             return strpos($arg, "\n") === false;
                         });
 
-                        return $def->name->value
+                        return ($def->name->value ?? null)
                             . ($noIndent
                                 ? $this->wrap('(', $this->join($def->arguments, ', '), ')')
                                 : $this->wrap("(\n", $this->indent($this->join($def->arguments, "\n")), "\n)"))
-                            . ': ' . $def->type->name->value
+                            . ': ' . $def->type
                             . $this->wrap(' ', $this->join($def->directives, ' '));
+
                     }),
 
                     NodeKind::INPUT_VALUE_DEFINITION => $this->addDescription(function (InputValueDefinitionNode $def) {

@@ -280,7 +280,8 @@ class Visitor
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
 
                     if($result !== null && (!is_string($result) || strpos($result, "loc\"") !== false)) {
-                        $dfd    = $visitFn($node, $key, $parent, $path, $ancestors);
+                        // $dfd    = $visitFn($node, $key, $parent, $path, $ancestors);
+                        $dfdi = 5;
                     }
 
                     $editValue = null;

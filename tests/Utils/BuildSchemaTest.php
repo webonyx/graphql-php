@@ -838,8 +838,7 @@ type Query {
         $testScalar    = $schema->getType('TestScalar');
         $testDirective = $schema->getDirective('test');
 
-        $restoredIDL = SchemaPrinter::doPrint(BuildSchema::build(
-            Printer::doPrint($schema->getAstNode()) . "\n" .
+        $inner = Printer::doPrint($schema->getAstNode()) . "\n" .
             Printer::doPrint($query->astNode) . "\n" .
             Printer::doPrint($testInput->astNode) . "\n" .
             Printer::doPrint($testEnum->astNode) . "\n" .
@@ -847,8 +846,9 @@ type Query {
             Printer::doPrint($testInterface->astNode) . "\n" .
             Printer::doPrint($testType->astNode) . "\n" .
             Printer::doPrint($testScalar->astNode) . "\n" .
-            Printer::doPrint($testDirective->astNode)
-        ));
+            Printer::doPrint($testDirective->astNode);
+
+        $restoredIDL = SchemaPrinter::doPrint(BuildSchema::build($inner));
 
         self::assertEquals($restoredIDL, SchemaPrinter::doPrint($schema));
 
