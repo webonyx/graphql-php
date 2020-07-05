@@ -118,13 +118,11 @@ class Printer
                         $directives   = $this->join($node->directives, ' ');
                         $selectionSet = $node->selectionSet;
 
-                        $innerJoin = $this->join([$name, $varDefs]);
-
                         // Anonymous queries with no directives or variable definitions can use
                         // the query short form.
                         return $name === null && ! $directives && ! $varDefs && $op === 'query'
                             ? $selectionSet
-                            : $this->join([$op, $innerJoin, $directives, $selectionSet], ' ');
+                            : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
                     },
 
                     NodeKind::VARIABLE_DEFINITION => function (VariableDefinitionNode $node) : string {
