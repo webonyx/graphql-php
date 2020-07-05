@@ -285,11 +285,6 @@ class Visitor
                 if ($visitFn !== null) {
 
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
-                    if(strpos($result, "123,")) {
-                        $sdfsdf = 5;
-                    }
-
-
                     $editValue = null;
 
                     if ($result !== null) {
