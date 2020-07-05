@@ -1511,7 +1511,7 @@ class Parser
                 [$this, 'parseOperationTypeDefinition'],
                 Token::BRACE_R
             )
-            : [];
+            : null;
         if (count($directives) === 0 && count($operationTypes) === 0) {
             $this->unexpected();
         }

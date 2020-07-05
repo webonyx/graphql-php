@@ -541,6 +541,17 @@ class Printer
                 ));
                 break;
 
+            case $node instanceof EnumTypeExtensionNode:
+                return $this->join(
+                    [
+                        'extend enum',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '),
+                        $this->printListBlock($node->values), // TODO: add tests and confirm if values is NodeList or array
+                    ],
+                    ' '
+                );
+
             case $node instanceof EnumValueDefinitionNode:
                 $res = $this->join([$node->name->value, $this->printList($node->directives, ' ')], ' ');
                 break;
@@ -617,6 +628,17 @@ class Printer
                 ));
                 break;
 
+            case $node instanceof InputObjectTypeExtensionNode:
+                return $this->join(
+                    [
+                        'extend input',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '),
+                        $this->printListBlock($node->fields),
+                    ],
+                    ' '
+                );
+
             case $node instanceof InputValueDefinitionNode:
                 $res = $this->join(
                     [
@@ -640,8 +662,22 @@ class Printer
                     ));
                 break;
 
+            case $node instanceof InterfaceTypeExtensionNode:
+                return $this->join(
+                    [
+                        'extend interface',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '), // TODO: add tests. Assuming directives is NodeList...
+                        $this->printListBlock($node->fields), // TODO: add tests. Not sure if fields is array or NodeList
+                    ],
+                    ' '
+                );
+
             case $node instanceof IntValueNode:
                 return $node->value;
+
+            case $node instanceof ListTypeNode:
+                return '[' . $this->p($node->type) . ']';
 
             case $node instanceof ListValueNode:
                 return '[' . $this->join(array_map(fn ($item) => $this->p($item), $this->listToArray($node->values)), ', ') . ']';
@@ -676,9 +712,20 @@ class Printer
                 );
                 break;
 
+            case $node instanceof ObjectTypeExtensionNode:
+                return $this->join(
+                    [
+                        'extend type',
+                        $node->name->value,
+                        $this->wrap('implements ', $this->printList($node->interfaces, ' & ')),
+                        $this->printList($node->directives, ' '),
+                        $this->printListBlock($node->fields), // TODO: add tests. Not sure if fields is an array or a NodeList
+                    ],
+                    ' '
+                );
+
             case $node instanceof ObjectValueNode:
-                $res = '{' . $this->join(array_map(fn ($item) => $this->p($item), $this->listToArray($node->fields)), ', ') . '}';
-                break;
+                return '{' . $this->printList($node->fields, ', ') . '}';
 
             case $node instanceof OperationDefinitionNode:
                 $op           = $node->operation;
@@ -704,6 +751,16 @@ class Printer
                 )], ' ');
                 break;
 
+            case $node instanceof ScalarTypeExtensionNode:
+                return $this->join(
+                    [
+                        'extend scalar',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '),
+                    ],
+                    ' '
+                );
+
             case $node instanceof SchemaDefinitionNode:
                 $res = $this->join(
                     [
@@ -715,11 +772,17 @@ class Printer
                 );
                 break;
 
-            case $node instanceof SelectionSetNode:
-                if(is_array($node->selections)){
-                    $i = 5;
-                }
+            case $node instanceof SchemaTypeExtensionNode:
+                return $this->join(
+                    [
+                        'extend schema',
+                        $this->printList($node->directives, ' '),
+                        $this->printListBlock($node->operationTypes),
+                    ],
+                    ' '
+                );
 
+            case $node instanceof SelectionSetNode:
                 $res = $this->block(array_map(fn ($item) => $this->p($item), $this->listToArray($node->selections)));
                 break;
 
@@ -744,6 +807,19 @@ class Printer
                 ));
                 break;
 
+            case $node instanceof UnionTypeExtensionNode:
+                return $this->join(
+                    [
+                        'extend union',
+                        $node->name->value,
+                        $this->printList($node->directives, ' '), // TODO: add tests. Not sure if directives is NodeList or array
+                        isset($node->types)
+                            ? '= ' . $this->printList($node->types, ' | ') // TODO: add tests. Not sure if types is NodeList or array
+                            : '',
+                    ],
+                    ' '
+                );
+
             case $node instanceof VariableDefinitionNode:
                 $res = '$' . $node->variable->name->value
                     . ': '
@@ -758,113 +834,6 @@ class Printer
             default:
                 throw new Exception("Here there be dragons");
         };
-
-        return $res;
-
-
-        $res = Visitor::visit(
-            $ast,
-            [
-                'leave' => [
-                    NodeKind::ENUM => static function (EnumValueNode $node) : string {
-                        return $node->value;
-                    },
-
-                    NodeKind::OBJECT => function (ObjectValueNode $node) : string {
-                        return '{' . $this->join($node->fields, ', ') . '}';
-                    },
-
-                    NodeKind::LIST_TYPE => static function (ListTypeNode $node) : string {
-                        return '[' . $node->type . ']';
-                    },
-
-                    NodeKind::SCHEMA_EXTENSION => function (SchemaTypeExtensionNode $def) {
-                        return $this->join(
-                            [
-                                'extend schema',
-                                $this->join($def->directives, ' '),
-                                $this->block($def->operationTypes),
-                            ],
-                            ' '
-                        );
-                    },
-
-                    NodeKind::SCALAR_TYPE_EXTENSION => function (ScalarTypeExtensionNode $def) {
-                        return $this->join(
-                            [
-                                'extend scalar',
-                                $def->name->value,
-                                $this->join($def->directives, ' '),
-                            ],
-                            ' '
-                        );
-                    },
-
-                    NodeKind::OBJECT_TYPE_EXTENSION => function (ObjectTypeExtensionNode $def) {
-                        return $this->join(
-                            [
-                                'extend type',
-                                $def->name->value,
-                                $this->wrap('implements ', $this->join($def->interfaces, ' & ')),
-                                $this->join($def->directives, ' '),
-                                $this->block($def->fields),
-                            ],
-                            ' '
-                        );
-                    },
-
-                    NodeKind::INTERFACE_TYPE_EXTENSION => function (InterfaceTypeExtensionNode $def) {
-                        return $this->join(
-                            [
-                                'extend interface',
-                                $def->name->value,
-                                $this->join($def->directives, ' '),
-                                $this->block($def->fields),
-                            ],
-                            ' '
-                        );
-                    },
-
-                    NodeKind::UNION_TYPE_EXTENSION => function (UnionTypeExtensionNode $def) {
-                        return $this->join(
-                            [
-                                'extend union',
-                                $def->name->value,
-                                $this->join($def->directives, ' '),
-                                $def->types
-                                    ? '= ' . $this->join($def->types, ' | ')
-                                    : '',
-                            ],
-                            ' '
-                        );
-                    },
-
-                    NodeKind::ENUM_TYPE_EXTENSION => function (EnumTypeExtensionNode $def) {
-                        return $this->join(
-                            [
-                                'extend enum',
-                                $def->name->value,
-                                $this->join($def->directives, ' '),
-                                $this->block($def->values),
-                            ],
-                            ' '
-                        );
-                    },
-
-                    NodeKind::INPUT_OBJECT_TYPE_EXTENSION => function (InputObjectTypeExtensionNode $def) {
-                        return $this->join(
-                            [
-                                'extend input',
-                                $def->name->value,
-                                $this->join($def->directives, ' '),
-                                $this->block($def->fields),
-                            ],
-                            ' '
-                        );
-                    },
-                ],
-            ]
-        );
 
         return $res;
     }
