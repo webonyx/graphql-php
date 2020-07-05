@@ -188,7 +188,7 @@ class VisitorTest extends ValidatorTestCase
 
                         $newNode               = clone $node;
                         $newNode->selectionSet = new SelectionSetNode([
-                            'selections' => [],
+                            'selections' => null,
                         ]);
                         $newNode->didEnter     = true;
 
@@ -1583,10 +1583,9 @@ class VisitorTest extends ValidatorTestCase
                                 'directives'   => $node->directives,
                                 'selectionSet' => new SelectionSetNode([
                                     'kind'       => 'SelectionSet',
-                                    'selections' => [new FieldNode([
+                                    'selections' => NodeList::create([new FieldNode([
                                         'name' => new NameNode(['value' => '__typename']),
-                                    ]),
-                                    ],
+                                    ])]),
                                 ]),
                             ]);
                         }
@@ -1623,7 +1622,7 @@ class VisitorTest extends ValidatorTestCase
             Printer::doPrint(Parser::parse(
                 '{ human(id: 4) { name, pets { __typename } }, alien { __typename } }'
             )),
-            Printer::doPrint_bak($editedAst)
+            Printer::doPrint($editedAst)
         );
 
         self::assertEquals(
