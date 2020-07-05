@@ -6,7 +6,9 @@ namespace GraphQL\Language;
 
 use ArrayObject;
 use Exception;
+use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\FieldDefinitionNode;
+use GraphQL\Language\AST\ListValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\NodeList;
@@ -274,14 +276,20 @@ class Visitor
                     throw new Exception('Invalid AST Node: ' . json_encode($node));
                 }
 
+                if($node instanceof ListValueNode){
+                    $erw = 5;
+                }
+
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn !== null) {
-                    if ($node instanceof FieldDefinitionNode) {
-                        $sdf = 5;
-                    }
 
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
+                    if(strpos($result, "123,")) {
+                        $sdfsdf = 5;
+                    }
+
+
                     $editValue = null;
 
                     if ($result !== null) {
@@ -297,6 +305,7 @@ class Visitor
                                 $editValue = null;
                             }
                         } else {
+
                             $editValue = $result;
                         }
 
