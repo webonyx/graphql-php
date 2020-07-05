@@ -72,7 +72,6 @@ class PrinterTest extends TestCase
   name
 }
 ';
-
         self::assertEquals($expected, Printer::doPrint($mutationAst));
 
         $queryAstWithArtifacts = Parser::parse(
