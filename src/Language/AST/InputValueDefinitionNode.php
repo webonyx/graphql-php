@@ -33,9 +33,6 @@ class InputValueDefinitionNode extends Node
         $this->type       = $edits['type'] ?? $this->type;
         $this->directives = $edits['directives'] ?? $this->directives;
 
-        // TODO: figure out description
-        $this->description = $edits['description'] ?? $this->description;
-
         // TODO: figure out defaultValue
         $this->defaultValue = $edits['defaultValue'] ?? $this->defaultValue;
     }

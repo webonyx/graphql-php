@@ -11,11 +11,4 @@ class VariableNode extends Node implements ValueNode
 
     /** @var NameNode */
     public $name;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-    }
 }

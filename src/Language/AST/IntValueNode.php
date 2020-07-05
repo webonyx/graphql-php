@@ -11,11 +11,4 @@ class IntValueNode extends Node implements ValueNode
 
     /** @var mixed */
     public $value;
-
-    /**
-     * @param mixed[] $edits
-     */
-    public function setEdits(array $edits)
-    {
-    }
 }

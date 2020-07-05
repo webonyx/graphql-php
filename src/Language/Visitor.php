@@ -187,6 +187,7 @@ class Visitor
      */
     public static function visit($root, $visitor, $keyMap = null)
     {
+        static $nodesToCheck = [];
         $visitorKeys = $keyMap ?? self::$visitorKeys;
 
         $stack     = null;
@@ -235,6 +236,9 @@ class Visitor
                             continue;
                         }
                     } else {
+                        if(isset($edits['description'])) {
+                            xdebug_break();
+                        }
                         $node->setEdits($edits);
                     }
                 }

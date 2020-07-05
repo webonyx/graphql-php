@@ -33,9 +33,6 @@ class FieldDefinitionNode extends Node
 
         $this->type = $edits['type'] ?? $this->type;
 
-        // TODO: don't overwrite description with string
-        $this->description = $edits['description'] ?? $this->description;
-
         // TODO: don't overwrite directives with strings
         $this->directives = $edits['directives'] ?? $this->directives;
     }
