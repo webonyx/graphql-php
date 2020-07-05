@@ -20,6 +20,5 @@ class FragmentSpreadNode extends Node implements SelectionNode
      */
     public function setEdits(array $edits)
     {
-
     }
 }

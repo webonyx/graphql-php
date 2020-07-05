@@ -27,6 +27,6 @@ class ObjectTypeExtensionNode extends Node implements TypeExtensionNode
     public function setEdits(array $edits)
     {
         $this->directives = $edits['directives'] ?? $this->directives;
-        $this->fields = $edits['fields'] ?? $this->fields;
+        $this->fields     = $edits['fields'] ?? $this->fields;
     }
 }

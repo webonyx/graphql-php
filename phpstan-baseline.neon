@@ -51,11 +51,6 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Variable property access on \\$this\\(GraphQL\\\\Language\\\\AST\\\\Node\\)\\.$#"
-			count: 1
-			path: src/Language/AST/Node.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
 			count: 2
 			path: src/Language/Printer.php

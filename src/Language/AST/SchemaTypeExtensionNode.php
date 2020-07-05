@@ -20,7 +20,7 @@ class SchemaTypeExtensionNode extends Node implements TypeExtensionNode
      */
     public function setEdits(array $edits)
     {
-        $this->directives = $edits['directives'] ?? $this->directives;
+        $this->directives     = $edits['directives'] ?? $this->directives;
         $this->operationTypes = $edits['operationTypes'] ?? $this->operationTypes;
     }
 }

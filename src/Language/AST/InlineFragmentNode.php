@@ -24,7 +24,6 @@ class InlineFragmentNode extends Node implements SelectionNode
     public function setEdits(array $edits)
     {
         $this->selectionSet = $edits['selectionSet'] ?? $this->selectionSet;
-        $this->directives = $edits['directives'] ?? $this->directives;
-
+        $this->directives   = $edits['directives'] ?? $this->directives;
     }
 }

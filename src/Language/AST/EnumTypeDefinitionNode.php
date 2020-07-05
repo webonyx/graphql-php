@@ -27,6 +27,6 @@ class EnumTypeDefinitionNode extends Node implements TypeDefinitionNode
     public function setEdits(array $edits)
     {
         $this->directives = $edits['directives'] ?? $this->directives;
-        $this->values = $edits['values'] ?? $this->values;
+        $this->values     = $edits['values'] ?? $this->values;
     }
 }

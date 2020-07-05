@@ -120,10 +120,6 @@ abstract class Node
      */
     public function setEdits(array $edits)
     {
-        foreach ($edits as $k => $v) {
-//            $this->{$k} = $v;
-            $i = 5;
-        }
     }
 
     /**

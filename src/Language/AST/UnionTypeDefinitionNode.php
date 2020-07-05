@@ -27,6 +27,6 @@ class UnionTypeDefinitionNode extends Node implements TypeDefinitionNode
     public function setEdits(array $edits)
     {
         $this->directives = $edits['directives'] ?? $this->directives;
-        $this->types = $edits['types'] ?? $this->types;
+        $this->types      = $edits['types'] ?? $this->types;
     }
 }

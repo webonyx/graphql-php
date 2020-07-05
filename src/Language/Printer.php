@@ -282,11 +282,10 @@ class Printer
                                 : $this->wrap("(\n", $this->indent($this->join($def->arguments, "\n")), "\n)"))
                             . ': ' . $def->type
                             . $this->wrap(' ', $this->join($def->directives, ' '));
-
                     }),
 
                     NodeKind::INPUT_VALUE_DEFINITION => $this->addDescription(function (InputValueDefinitionNode $def) {
-                        $res = $this->join(
+                        return $this->join(
                             [
                                 $def->name->value . ': ' . $def->type,
                                 $this->wrap('= ', $def->defaultValue),
@@ -294,8 +293,6 @@ class Printer
                             ],
                             ' '
                         );
-
-                        return $res;
                     }),
 
                     NodeKind::INTERFACE_TYPE_DEFINITION => $this->addDescription(

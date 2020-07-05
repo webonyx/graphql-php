@@ -12,6 +12,9 @@ class ListTypeNode extends Node implements TypeNode
     /** @var NamedTypeNode|ListTypeNode|NonNullTypeNode */
     public $type;
 
+    /**
+     * @param mixed[] $edits
+     */
     public function setEdits(array $edits)
     {
         // TODO: figure this out. We shouldn't let Visitor stomp over $type with a string, but if we don't, the printer breaks.

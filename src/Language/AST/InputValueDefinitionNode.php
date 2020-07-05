@@ -24,10 +24,13 @@ class InputValueDefinitionNode extends Node
     /** @var StringValueNode|null */
     public $description;
 
+    /**
+     * @param mixed[] $edits
+     */
     public function setEdits(array $edits)
     {
         // TODO: figure out type
-        $this->type = $edits['type'] ?? $this->type;
+        $this->type       = $edits['type'] ?? $this->type;
         $this->directives = $edits['directives'] ?? $this->directives;
 
         // TODO: figure out description

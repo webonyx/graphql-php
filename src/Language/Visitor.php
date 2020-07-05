@@ -273,17 +273,11 @@ class Visitor
                 $visitFn = self::getVisitFn($visitor, $node->kind, $isLeaving);
 
                 if ($visitFn !== null) {
-                    if($node instanceof FieldDefinitionNode) {
+                    if ($node instanceof FieldDefinitionNode) {
                         $sdf = 5;
                     }
 
                     $result    = $visitFn($node, $key, $parent, $path, $ancestors);
-
-                    if($result !== null && (!is_string($result) || strpos($result, "loc\"") !== false)) {
-                        // $dfd    = $visitFn($node, $key, $parent, $path, $ancestors);
-                        $dfdi = 5;
-                    }
-
                     $editValue = null;
 
                     if ($result !== null) {
