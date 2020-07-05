@@ -87,6 +87,10 @@ class Printer
         static $instance;
         $instance = $instance ?? new static();
 
+        if(! $ast instanceof Node) {
+            throw new Exception('Invalid AST Node: ' . json_encode($ast));
+        }
+
         return $instance->printAST($ast);
     }
 
@@ -204,10 +208,6 @@ class Printer
 
                     NodeKind::NULL => static function (NullValueNode $node) : string {
                         return 'null';
-                    },
-
-                    NodeKind::ENUM => static function (EnumValueNode $node) : string {
-                        return $node->value;
                     },
 
                     NodeKind::LST => function (ListValueNode $node) : string {
@@ -461,7 +461,7 @@ class Printer
         return $this->p($node);
     }
 
-    public function p(?Node $node) : string
+    public function p(?Node $node, bool $isDescription = false) : string
     {
         $res = '';
         if(is_null($node)) {
@@ -469,7 +469,8 @@ class Printer
         }
         switch(true) {
             case $node instanceof ArgumentNode:
-                return $node->name->value . ': ' . $this->p($node->value);
+                $res = $node->name->value . ': ' . $this->p($node->value);
+                break;
 
             case $node instanceof BooleanValueNode:
                 return $node->value ? 'true' : 'false';
@@ -481,40 +482,64 @@ class Printer
             case $node instanceof DocumentNode:
                 return $this->join( array_map(fn ($item) => $this->p($item), iterator_to_array($node->definitions)), "\n\n") . "\n";
 
-
-//                NodeKind::FIELD => function (FieldNode $node) {
-//                return $this->join(
-//                    [
-//                        $this->wrap('', $node->alias->value ?? null, ': ') . $node->name->value . $this->wrap(
-//                            '(',
-//                            $this->join($node->arguments, ', '),
-//                            ')'
-//                        ),
-//                        $this->join($node->directives, ' '),
-//                        $node->selectionSet,
-//                    ],
-//                    ' '
-//                );
-//            },
-
+            case $node instanceof EnumValueNode:
+                return $node->value;
 
             case $node instanceof FieldNode:
                 $res = $this->join(
                     [
                         $this->wrap('', $node->alias->value ?? null, ': ') . $node->name->value . $this->wrap(
                             '(',
-                            $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->arguments)), ', '),
+                            $this->join(array_map(fn ($item) => $this->p($item), isset($node->arguments) ? iterator_to_array($node->arguments) : []), ', '),
                             ')'
                         ),
-                        $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->directives)), ' '),
-                        $node->selectionSet,
+                        $this->join(array_map(fn ($item) => $this->p($item), isset($node->directives) ? iterator_to_array($node->directives) : []), ' '),
+                        $this->p($node->selectionSet),
                     ],
                     ' '
                 );
                 break;
 
+            case $node instanceof FloatValueNode:
+                return $node->value;
+
+            case $node instanceof FragmentDefinitionNode:
+                // Note: fragment variable definitions are experimental and may be changed or removed in the future.
+                $res = sprintf('fragment %s', $node->name->value)
+                    . $this->wrap('(', $this->join(array_map(fn ($item) => $this->p($item), isset($node->variableDefinitions) ? iterator_to_array($node->variableDefinitions) : []), ', '), ')')
+                    . sprintf(' on %s ', $node->typeCondition->name->value)
+                    . $this->wrap('', $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->directives)), ' '), ' ')
+                    . $this->p($node->selectionSet);
+                break;
+
+            case $node instanceof FragmentSpreadNode:
+                $res = '...' . $node->name->value . $this->wrap(' ', $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->directives)), ' '));
+                break;
+
+            case $node instanceof InlineFragmentNode:
+                $res = $this->join(
+                    [
+                        '...',
+                        $this->wrap('on ', $node->typeCondition->name->value ?? null),
+                        $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->directives)), ' '),
+                        $this->p($node->selectionSet),
+                    ],
+                    ' '
+                );
+            break;
+
+            case $node instanceof IntValueNode:
+                return $node->value;
+
+            case $node instanceof ListValueNode:
+                return '[' . $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->values)), ', ') . ']';
+
+            case $node instanceof NullValueNode:
+                return 'null';
+
             case $node instanceof ObjectFieldNode:
-                return $node->name->value . ': ' . $node->value->value;
+                $res = $node->name->value . ': ' . $this->p($node->value);
+                break;
 
             case $node instanceof ObjectValueNode:
                 $res = '{' . $this->join(array_map(fn ($item) => $this->p($item), iterator_to_array($node->fields)), ', ') . '}';
@@ -551,7 +576,15 @@ class Printer
                 break;
 
             case $node instanceof SelectionSetNode:
-                return $this->block(array_map(fn ($item) => $this->p($item), iterator_to_array($node->selections)));
+                $res = $this->block(array_map(fn ($item) => $this->p($item), iterator_to_array($node->selections)));
+                break;
+
+            case $node instanceof StringValueNode:
+                if ($node->block) {
+                    return $this->printBlockString($node->value, $isDescription);
+                }
+
+                return json_encode($node->value);
 
             case $node instanceof VariableDefinitionNode:
                 $res = '$' . $node->variable->name->value
@@ -560,6 +593,10 @@ class Printer
                     . $this->wrap(' = ', $this->p($node->defaultValue))
                     . $this->wrap(' ', $this->join( array_map(fn ($item) => $this->p($item), iterator_to_array($node->directives)), ' '));
                 break;
+
+            case $node instanceof VariableNode:
+                return '$' . $node->name->value;
+
             default:
                 throw new Exception("Here there be dragons");
         };
@@ -575,61 +612,8 @@ class Printer
                         return '' . $node->value;
                     },
 
-                    NodeKind::VARIABLE => static function (VariableNode $node) : string {
-                        return '$' . $node->name->value;
-                    },
-
-                    NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) : string {
-                        return '...' . $node->name->value . $this->wrap(' ', $this->join($node->directives, ' '));
-                    },
-
-                    NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) {
-                        return $this->join(
-                            [
-                                '...',
-                                $this->wrap('on ', $node->typeCondition->name->value ?? null),
-                                $this->join($node->directives, ' '),
-                                $node->selectionSet,
-                            ],
-                            ' '
-                        );
-                    },
-
-                    NodeKind::FRAGMENT_DEFINITION => function (FragmentDefinitionNode $node) : string {
-                        // Note: fragment variable definitions are experimental and may be changed or removed in the future.
-                        return sprintf('fragment %s', $node->name->value)
-                            . $this->wrap('(', $this->join($node->variableDefinitions, ', '), ')')
-                            . sprintf(' on %s ', $node->typeCondition->name->value)
-                            . $this->wrap('', $this->join($node->directives, ' '), ' ')
-                            . $node->selectionSet;
-                    },
-
-                    NodeKind::INT => static function (IntValueNode $node) {
-                        return $node->value;
-                    },
-
-                    NodeKind::FLOAT => static function (FloatValueNode $node) : string {
-                        return $node->value;
-                    },
-
-                    NodeKind::STRING => function (StringValueNode $node, $key) {
-                        if ($node->block) {
-                            return $this->printBlockString($node->value, $key === 'description');
-                        }
-
-                        return json_encode($node->value);
-                    },
-
-                    NodeKind::NULL => static function (NullValueNode $node) : string {
-                        return 'null';
-                    },
-
                     NodeKind::ENUM => static function (EnumValueNode $node) : string {
                         return $node->value;
-                    },
-
-                    NodeKind::LST => function (ListValueNode $node) : string {
-                        return '[' . $this->join($node->values, ', ') . ']';
                     },
 
                     NodeKind::OBJECT => function (ObjectValueNode $node) : string {
