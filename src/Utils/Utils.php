@@ -91,10 +91,10 @@ class Utils
         foreach ($vars as $key => $value) {
             if (! property_exists($obj, $key)) {
                 $cls = get_class($obj);
-//                Warning::warn(
-//                    sprintf("Trying to set non-existing property '%s' on class '%s'", $key, $cls),
-//                    Warning::WARNING_ASSIGN
-//                );
+                Warning::warn(
+                    sprintf("Trying to set non-existing property '%s' on class '%s'", $key, $cls),
+                    Warning::WARNING_ASSIGN
+                );
             }
             $obj->{$key} = $value;
         }
