@@ -146,7 +146,7 @@ class Printer
         }
         switch (true) {
             case $node instanceof ArgumentNode:
-                return $node->name->value . ': ' . $this->p($node->value);
+                return $this->p($node->name) . ': ' . $this->p($node->value);
             case $node instanceof BooleanValueNode:
                 return $node->value ? 'true' : 'false';
             case $node instanceof DirectiveDefinitionNode:
@@ -158,21 +158,21 @@ class Printer
                 });
 
                 return $this->addDescription($node->description, 'directive @'
-                    . $node->name->value
+                    . $this->p($node->name)
                     . ($noIndent
                         ? $this->wrap('(', $this->join($argStrings, ', '), ')')
                         : $this->wrap("(\n", $this->indent($this->join($argStrings, "\n")), "\n"))
                     . ($node->repeatable ? ' repeatable' : '')
                     . ' on ' . $this->printArray($node->locations, ' | '));
             case $node instanceof DirectiveNode:
-                return '@' . $node->name->value . $this->wrap('(', $this->printList($node->arguments, ', '), ')');
+                return '@' . $this->p($node->name) . $this->wrap('(', $this->printList($node->arguments, ', '), ')');
             case $node instanceof DocumentNode:
                 return $this->printList($node->definitions, "\n\n") . "\n";
             case $node instanceof EnumTypeDefinitionNode:
                 return $this->addDescription($node->description, $this->join(
                     [
                         'enum',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '),
                         $this->printListBlock($node->values),
                     ],
@@ -182,7 +182,7 @@ class Printer
                 return $this->join(
                     [
                         'extend enum',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '),
                         $this->printListBlock($node->values),
                     ],
@@ -191,7 +191,7 @@ class Printer
             case $node instanceof EnumValueDefinitionNode:
                 return $this->addDescription(
                     $node->description,
-                    $this->join([$node->name->value, $this->printList($node->directives, ' ')], ' ')
+                    $this->join([$this->p($node->name), $this->printList($node->directives, ' ')], ' ')
                 );
             case $node instanceof EnumValueNode:
                 return $node->value;
@@ -205,7 +205,7 @@ class Printer
 
                 return $this->addDescription(
                     $node->description,
-                    ($node->name->value ?? null)
+                    $this->p($node->name)
                     . ($noIndent
                         ? $this->wrap('(', $this->join($argStrings, ', '), ')')
                         : $this->wrap("(\n", $this->indent($this->join($argStrings, "\n")), "\n)"))
@@ -215,7 +215,7 @@ class Printer
             case $node instanceof FieldNode:
                 return $this->join(
                     [
-                        $this->wrap('', $node->alias->value ?? null, ': ') . $node->name->value . $this->wrap(
+                        $this->wrap('', $node->alias->value ?? null, ': ') . $this->p($node->name) . $this->wrap(
                             '(',
                             $this->printList($node->arguments, ', '),
                             ')'
@@ -229,13 +229,13 @@ class Printer
                 return $node->value;
             case $node instanceof FragmentDefinitionNode:
                 // Note: fragment variable definitions are experimental and may be changed or removed in the future.
-                return sprintf('fragment %s', $node->name->value)
+                return sprintf('fragment %s', $this->p($node->name))
                     . $this->wrap(
                         '(',
                         $this->printList($node->variableDefinitions, ', '),
                         ')'
                     )
-                    . sprintf(' on %s ', $node->typeCondition->name->value)
+                    . sprintf(' on %s ', $this->p($node->typeCondition->name))
                     . $this->wrap(
                         '',
                         $this->printList($node->directives, ' '),
@@ -243,12 +243,12 @@ class Printer
                     )
                     . $this->p($node->selectionSet);
             case $node instanceof FragmentSpreadNode:
-                return '...' . $node->name->value . $this->wrap(' ', $this->printList($node->directives, ' '));
+                return '...' . $this->p($node->name) . $this->wrap(' ', $this->printList($node->directives, ' '));
             case $node instanceof InlineFragmentNode:
                 return $this->join(
                     [
                         '...',
-                        $this->wrap('on ', $node->typeCondition->name->value ?? null),
+                        $this->wrap('on ', $this->p($node->typeCondition->name ?? null)),
                         $this->printList($node->directives, ' '),
                         $this->p($node->selectionSet),
                     ],
@@ -258,7 +258,7 @@ class Printer
                 return $this->addDescription($node->description, $this->join(
                     [
                         'input',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '),
                         $this->printListBlock($node->fields),
                     ],
@@ -268,7 +268,7 @@ class Printer
                 return $this->join(
                     [
                         'extend input',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '),
                         $this->printListBlock($node->fields),
                     ],
@@ -277,7 +277,7 @@ class Printer
             case $node instanceof InputValueDefinitionNode:
                 return $this->addDescription($node->description, $this->join(
                     [
-                        $node->name->value . ': ' . $this->p($node->type),
+                        $this->p($node->name) . ': ' . $this->p($node->type),
                         $this->wrap('= ', $this->p($node->defaultValue)),
                         $this->printList($node->directives, ' '),
                     ],
@@ -287,7 +287,7 @@ class Printer
                 return $this->addDescription($node->description, $this->join(
                     [
                         'interface',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '),
                         $this->printListBlock($node->fields),
                     ],
@@ -297,7 +297,7 @@ class Printer
                 return $this->join(
                     [
                         'extend interface',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '), // TODO: add tests. Assuming directives is NodeList...
                         $this->printListBlock($node->fields), // TODO: add tests. Not sure if fields is array or NodeList
                     ],
@@ -312,18 +312,18 @@ class Printer
             case $node instanceof NameNode:
                 return $node->value;
             case $node instanceof NamedTypeNode:
-                return $node->name->value;
+                return $this->p($node->name);
             case $node instanceof NonNullTypeNode:
                 return $this->p($node->type) . '!';
             case $node instanceof NullValueNode:
                 return 'null';
             case $node instanceof ObjectFieldNode:
-                return $node->name->value . ': ' . $this->p($node->value);
+                return $this->p($node->name) . ': ' . $this->p($node->value);
             case $node instanceof ObjectTypeDefinitionNode:
                 return $this->addDescription($node->description, $this->join(
                     [
                         'type',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->wrap('implements ', $this->printArray($node->interfaces, ' & ')),
                         $this->printList($node->directives, ' '),
                         $this->printListBlock($node->fields),
@@ -334,7 +334,7 @@ class Printer
                 return $this->join(
                     [
                         'extend type',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->wrap('implements ', $this->printArray($node->interfaces, ' & ')),
                         $this->printList($node->directives, ' '),
                         $this->printListBlock($node->fields),
@@ -345,14 +345,14 @@ class Printer
                 return '{' . $this->printList($node->fields, ', ') . '}';
             case $node instanceof OperationDefinitionNode:
                 $op           = $node->operation;
-                $name         = $node->name->value ?? null;
+                $name         = $this->p($node->name);
                 $varDefs      = $this->wrap('(', $this->printList($node->variableDefinitions, ', '), ')');
                 $directives   = $this->printList($node->directives, ' ');
                 $selectionSet = $this->p($node->selectionSet);
 
                 // Anonymous queries with no directives or variable definitions can use
                 // the query short form.
-                return $name === null && (strlen($directives) === 0) && ! $varDefs && $op === 'query'
+                return (strlen($name) === 0) && (strlen($directives) === 0) && ! $varDefs && $op === 'query'
                     ? $selectionSet
                     : $this->join([$op, $this->join([$name, $varDefs]), $directives, $selectionSet], ' ');
             case $node instanceof OperationTypeDefinitionNode:
@@ -360,14 +360,14 @@ class Printer
             case $node instanceof ScalarTypeDefinitionNode:
                 return $this->addDescription($node->description, $this->join([
                     'scalar',
-                    $node->name->value,
+                    $this->p($node->name),
                     $this->printList($node->directives, ' '),
                 ], ' '));
             case $node instanceof ScalarTypeExtensionNode:
                 return $this->join(
                     [
                         'extend scalar',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '),
                     ],
                     ' '
@@ -404,7 +404,7 @@ class Printer
                 return $this->addDescription($node->description, $this->join(
                     [
                         'union',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '),
                         strlen($typesStr) > 0
                             ? '= ' . $typesStr
@@ -418,7 +418,7 @@ class Printer
                 return $this->join(
                     [
                         'extend union',
-                        $node->name->value,
+                        $this->p($node->name),
                         $this->printList($node->directives, ' '),
                         strlen($typesStr) > 0
                             ? '= ' . $typesStr
@@ -427,13 +427,13 @@ class Printer
                     ' '
                 );
             case $node instanceof VariableDefinitionNode:
-                return '$' . $node->variable->name->value
+                return '$' . $this->p($node->variable->name)
                     . ': '
-                    . $node->type->name->value
+                    . $this->p($node->type->name)
                     . $this->wrap(' = ', $this->p($node->defaultValue))
                     . $this->wrap(' ', $this->printList($node->directives, ' '));
             case $node instanceof VariableNode:
-                return '$' . $node->name->value;
+                return '$' . $this->p($node->name);
             default:
                 throw new Exception('Here there be dragons');
         }
