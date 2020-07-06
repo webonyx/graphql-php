@@ -1581,7 +1581,7 @@ class VisitorTest extends ValidatorTestCase
                                 'directives'   => $node->directives,
                                 'selectionSet' => new SelectionSetNode([
                                     'kind'       => 'SelectionSet',
-                                    'selections' => NodeList::create([new FieldNode([
+                                    'selections' => new NodeList([new FieldNode([
                                         'name' => new NameNode(['value' => '__typename']),
                                     ]),
                                     ]),
