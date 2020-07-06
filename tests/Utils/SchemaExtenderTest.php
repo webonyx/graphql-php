@@ -343,6 +343,7 @@ class SchemaExtenderTest extends TestCase
         );
 
         self::assertEquals(
+            $this->printTestSchemaChanges($extendedSchema),
             $this->dedent('
               type Foo implements SomeInterface {
                 name: String
@@ -350,8 +351,7 @@ class SchemaExtenderTest extends TestCase
                 tree: [Foo]!
                 newField: String
               }
-            '),
-            $this->printTestSchemaChanges($extendedSchema),
+            ')
         );
 
         $fooType  = $extendedSchema->getType('Foo');
