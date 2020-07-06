@@ -234,7 +234,7 @@ class Printer
                         $this->printList($node->variableDefinitions, ', '),
                         ')'
                     )
-                    . ' on ' . $this->p($node->typeCondition->name)
+                    . ' on ' . $this->p($node->typeCondition->name) . ' '
                     . $this->wrap(
                         '',
                         $this->printList($node->directives, ' '),
