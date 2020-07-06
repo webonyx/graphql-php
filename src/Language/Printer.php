@@ -187,7 +187,7 @@ class Printer
                         'extend enum',
                         $node->name->value,
                         $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->values), // TODO: add tests and confirm if values is NodeList or array
+                        $this->printListBlock($node->values),
                     ],
                     ' '
                 );
@@ -346,9 +346,9 @@ class Printer
                     [
                         'extend type',
                         $node->name->value,
-                        $this->wrap('implements ', $this->printList($node->interfaces, ' & ')),
+                        $this->wrap('implements ', $this->printArray($node->interfaces, ' & ')),
                         $this->printList($node->directives, ' '),
-                        $this->printListBlock($node->fields), // TODO: add tests. Not sure if fields is an array or a NodeList
+                        $this->printListBlock($node->fields),
                     ],
                     ' '
                 );
@@ -441,9 +441,9 @@ class Printer
                     [
                         'extend union',
                         $node->name->value,
-                        $this->printList($node->directives, ' '), // TODO: add tests. Not sure if directives is NodeList or array
+                        $this->printList($node->directives, ' '),
                         isset($node->types)
-                            ? '= ' . $this->printList($node->types, ' | ') // TODO: add tests. Not sure if types is NodeList or array
+                            ? '= ' . $this->printArray($node->types, ' | ')
                             : '',
                     ],
                     ' '
@@ -467,6 +467,9 @@ class Printer
 
     public function addDescription(?StringValueNode $description, string $body) : string
     {
+        if(isset($description)) {
+            xdebug_break();
+        }
         return $this->join([$description, $body], "\n");
     }
 
