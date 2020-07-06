@@ -17,6 +17,7 @@ class UnionTypeExtensionNode extends Node implements TypeExtensionNode
 
     /**
      * TODO: is this actually a NodeList<NamedTypeNode>?
+     *
      * @var NamedTypeNode[]|null
      */
     public $types;

@@ -61,6 +61,7 @@ use function json_encode;
 use function preg_replace;
 use function sprintf;
 use function str_replace;
+use function strlen;
 use function strpos;
 
 /**
@@ -152,15 +153,13 @@ class Printer
                     return strpos($arg, "\n") === false;
                 });
 
-                $res = $this->addDescription($node->description, 'directive @'
+                return $this->addDescription($node->description, 'directive @'
                     . $node->name->value
                     . ($noIndent
                         ? $this->wrap('(', $this->join($argStrings, ', '), ')')
                         : $this->wrap("(\n", $this->indent($this->join($argStrings, "\n")), "\n"))
                     . ($node->repeatable ? ' repeatable' : '')
                     . ' on ' . $this->printArray($node->locations, ' | '));
-                break;
-
             case $node instanceof DirectiveNode:
                 $res = '@' . $node->name->value . $this->wrap('(', $this->printList($node->arguments, ', '), ')');
                 break;
@@ -170,7 +169,7 @@ class Printer
                 break;
 
             case $node instanceof EnumTypeDefinitionNode:
-                $res = $this->addDescription($node->description, $this->join(
+                return $this->addDescription($node->description, $this->join(
                     [
                         'enum',
                         $node->name->value,
@@ -179,8 +178,6 @@ class Printer
                     ],
                     ' '
                 ));
-                break;
-
             case $node instanceof EnumTypeExtensionNode:
                 return $this->join(
                     [
@@ -192,9 +189,10 @@ class Printer
                     ' '
                 );
             case $node instanceof EnumValueDefinitionNode:
-                $res = $this->join([$node->name->value, $this->printList($node->directives, ' ')], ' ');
-                break;
-
+                return $this->addDescription(
+                    $node->description,
+                    $this->join([$node->name->value, $this->printList($node->directives, ' ')], ' ')
+                );
             case $node instanceof EnumValueNode:
                 return $node->value;
             case $node instanceof FieldDefinitionNode:
@@ -203,12 +201,15 @@ class Printer
                     return strpos($arg, "\n") === false;
                 });
 
-                $res = ($node->name->value ?? null)
+                $res = $this->addDescription(
+                    $node->description,
+                    ($node->name->value ?? null)
                     . ($noIndent
                         ? $this->wrap('(', $this->join($argStrings, ', '), ')')
                         : $this->wrap("(\n", $this->indent($this->join($argStrings, "\n")), "\n)"))
                     . ': ' . $this->p($node->type)
-                    . $this->wrap(' ', $this->printList($node->directives, ' '));
+                    . $this->wrap(' ', $this->printList($node->directives, ' '))
+                );
                 break;
 
             case $node instanceof FieldNode:
@@ -254,7 +255,7 @@ class Printer
                 break;
 
             case $node instanceof InputObjectTypeDefinitionNode:
-                $res = $this->addDescription($node->description, $this->join(
+                return $this->addDescription($node->description, $this->join(
                     [
                         'input',
                         $node->name->value,
@@ -263,6 +264,7 @@ class Printer
                     ],
                     ' '
                 ));
+
                 break;
 
             case $node instanceof InputObjectTypeExtensionNode:
@@ -276,18 +278,18 @@ class Printer
                     ' '
                 );
             case $node instanceof InputValueDefinitionNode:
-                $res = $this->join(
+                $res = $this->addDescription($node->description, $this->join(
                     [
                         $node->name->value . ': ' . $this->p($node->type),
                         $this->wrap('= ', $this->p($node->defaultValue)),
                         $this->printList($node->directives, ' '),
                     ],
                     ' '
-                );
+                ));
                 break;
 
             case $node instanceof InterfaceTypeDefinitionNode:
-                $res = $this->addDescription($node->description, $this->join(
+                return $this->addDescription($node->description, $this->join(
                     [
                         'interface',
                         $node->name->value,
@@ -296,6 +298,7 @@ class Printer
                     ],
                     ' '
                 ));
+
                 break;
 
             case $node instanceof InterfaceTypeExtensionNode:
@@ -329,7 +332,7 @@ class Printer
                 break;
 
             case $node instanceof ObjectTypeDefinitionNode:
-                $res = $this->join(
+                return $this->addDescription($node->description, $this->join(
                     [
                         'type',
                         $node->name->value,
@@ -338,7 +341,8 @@ class Printer
                         $this->block(array_map(fn ($item) => $this->p($item), $this->listToArray($node->fields))),
                     ],
                     ' '
-                );
+                ));
+
                 break;
 
             case $node instanceof ObjectTypeExtensionNode:
@@ -373,16 +377,14 @@ class Printer
                 break;
 
             case $node instanceof ScalarTypeDefinitionNode:
-                $res = $this->join([
+                return $this->addDescription($node->description, $this->join([
                     'scalar',
                     $node->name->value,
                     $this->join(
                         array_map(fn ($item) => $this->p($item), $this->listToArray($node->directives)),
                         ' '
                     ),
-                ], ' ');
-                break;
-
+                ], ' '));
             case $node instanceof ScalarTypeExtensionNode:
                 return $this->join(
                     [
@@ -423,13 +425,14 @@ class Printer
 
                 return json_encode($node->value);
             case $node instanceof UnionTypeDefinitionNode:
-                $res = $this->addDescription($node->description, $this->join(
+                $typesStr = $this->printArray($node->types, ' | ');
+                $res      = $this->addDescription($node->description, $this->join(
                     [
                         'union',
                         $node->name->value,
                         $this->printList($node->directives, ' '),
-                        isset($node->types)
-                            ? '= ' . $this->printArray($node->types, ' | ')
+                        strlen($typesStr) > 0
+                            ? '= ' . $typesStr
                             : '',
                     ],
                     ' '
@@ -437,13 +440,15 @@ class Printer
                 break;
 
             case $node instanceof UnionTypeExtensionNode:
+                $typesStr = $this->printArray($node->types, ' | ');
+
                 return $this->join(
                     [
                         'extend union',
                         $node->name->value,
                         $this->printList($node->directives, ' '),
-                        isset($node->types)
-                            ? '= ' . $this->printArray($node->types, ' | ')
+                        strlen($typesStr) > 0
+                            ? '= ' . $typesStr
                             : '',
                     ],
                     ' '
@@ -467,10 +472,7 @@ class Printer
 
     public function addDescription(?StringValueNode $description, string $body) : string
     {
-        if(isset($description)) {
-            xdebug_break();
-        }
-        return $this->join([$description, $body], "\n");
+        return $this->join([$this->p($description, true), $body], "\n");
     }
 
     /**

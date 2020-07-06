@@ -20,6 +20,7 @@ class ObjectTypeExtensionNode extends Node implements TypeExtensionNode
 
     /**
      * TODO: should this be annoted as a NodeList<FieldDefinitionNode>?
+     *
      * @var FieldDefinitionNode[]
      */
     public $fields;
