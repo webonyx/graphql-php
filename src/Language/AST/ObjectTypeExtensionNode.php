@@ -18,10 +18,6 @@ class ObjectTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var NodeList<DirectiveNode> */
     public $directives;
 
-    /**
-     * TODO: should this be annoted as a NodeList<FieldDefinitionNode>?
-     *
-     * @var FieldDefinitionNode[]
-     */
+    /** @var NodeList<FieldDefinitionNode> */
     public $fields;
 }
