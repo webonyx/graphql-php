@@ -59,7 +59,6 @@ use function is_null;
 use function iterator_to_array;
 use function json_encode;
 use function preg_replace;
-use function sprintf;
 use function str_replace;
 use function strlen;
 use function strpos;
@@ -229,13 +228,13 @@ class Printer
                 return $node->value;
             case $node instanceof FragmentDefinitionNode:
                 // Note: fragment variable definitions are experimental and may be changed or removed in the future.
-                return sprintf('fragment %s', $this->p($node->name))
+                return 'fragment ' . $this->p($node->name)
                     . $this->wrap(
                         '(',
                         $this->printList($node->variableDefinitions, ', '),
                         ')'
                     )
-                    . sprintf(' on %s ', $this->p($node->typeCondition->name))
+                    . ' on ' . $this->p($node->typeCondition->name)
                     . $this->wrap(
                         '',
                         $this->printList($node->directives, ' '),
