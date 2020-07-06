@@ -123,7 +123,7 @@ class Printer
 
     protected function printListBlock(?NodeList $list) : string
     {
-        return $this->block(array_map(function ($item) : string {
+        return $this->block(array_map(function (Node $item) : string {
             return $this->p($item);
         }, $this->listToArray($list)));
     }
@@ -133,7 +133,7 @@ class Printer
      */
     protected function printArray(array $list, string $separator = '') : string
     {
-        return $this->join(array_map(function ($item) : string {
+        return $this->join(array_map(function (Node $item) : string {
             return $this->p($item);
         }, $list), $separator);
     }
@@ -150,7 +150,7 @@ class Printer
             case $node instanceof BooleanValueNode:
                 return $node->value ? 'true' : 'false';
             case $node instanceof DirectiveDefinitionNode:
-                $argStrings = array_map(function ($item) : string {
+                $argStrings = array_map(function (Node $item) : string {
                     return $this->p($item);
                 }, $this->listToArray($node->arguments));
                 $noIndent   = Utils::every($argStrings, static function (string $arg) : bool {
@@ -196,7 +196,7 @@ class Printer
             case $node instanceof EnumValueNode:
                 return $node->value;
             case $node instanceof FieldDefinitionNode:
-                $argStrings = array_map(function ($item) : string {
+                $argStrings = array_map(function (Node $item) : string {
                     return $this->p($item);
                 }, $this->listToArray($node->arguments));
                 $noIndent   = Utils::every($argStrings, static function (string $arg) : bool {
