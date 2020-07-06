@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Language;
 
-use _HumbugBox09702017065e\Nette\Neon\Exception;
+use Exception;
 use GraphQL\Language\AST\ArgumentNode;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\DirectiveDefinitionNode;
