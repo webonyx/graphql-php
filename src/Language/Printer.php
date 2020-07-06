@@ -434,8 +434,6 @@ class Printer
                     . $this->wrap(' ', $this->printList($node->directives, ' '));
             case $node instanceof VariableNode:
                 return '$' . $this->p($node->name);
-            default:
-                throw new Exception('Here there be dragons');
         }
 
         return $res;
@@ -469,11 +467,6 @@ class Printer
     public function indent($maybeString)
     {
         return $maybeString ? '  ' . str_replace("\n", "\n  ", $maybeString) : '';
-    }
-
-    public function manyList($start, $list, $separator, $end)
-    {
-        return $this->length($list) === 0 ? null : ($start . $this->join($list, $separator) . $end);
     }
 
     public function length($maybeArray)
