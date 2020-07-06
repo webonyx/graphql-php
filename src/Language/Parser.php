@@ -110,18 +110,18 @@ use function sprintf;
  * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static NamedTypeNode[] implementsInterfaces(Source|string $source, bool[] $options = [])
- * @method static FieldDefinitionNode[] fieldsDefinition(Source|string $source, bool[] $options = [])
+ * @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
  * @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
- * @method static InputValueDefinitionNode[] argumentsDefinition(Source|string $source, bool[] $options = [])
+ * @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
  * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
  * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static NamedTypeNode[] unionMemberTypes(Source|string $source, bool[] $options = [])
  * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static EnumValueDefinitionNode[] enumValuesDefinition(Source|string $source, bool[] $options = [])
+ * @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
  * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
  * @method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static InputValueDefinitionNode[] inputFieldsDefinition(Source|string $source, bool[] $options = [])
+ * @method static NodeList<InputValueDefinitionNode> inputFieldsDefinition(Source|string $source, bool[] $options = [])
  * @method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
  * @method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
  * @method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
@@ -254,7 +254,7 @@ class Parser
      *
      * @throws SyntaxError
      */
-    public static function __callStatic(string $name, array $arguments) : Node
+    public static function __callStatic(string $name, array $arguments)
     {
         $parser = new Parser(...$arguments);
         $parser->expect(Token::SOF);

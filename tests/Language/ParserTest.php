@@ -748,6 +748,11 @@ GRAPHQL
             Parser::valueLiteral('$foo')
         );
 
+        self::assertInstanceOf(
+            NodeList::class,
+            Parser::argumentsDefinition('(foo: Int!)')
+        );
+
         $this->expectException(SyntaxError::class);
         Parser::constValueLiteral('$foo');
     }
