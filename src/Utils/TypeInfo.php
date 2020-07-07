@@ -238,6 +238,9 @@ class TypeInfo
         return $typeMap;
     }
 
+    /**
+     * @return (Type&InputType)|null
+     */
     public function getParentInputType() : ?InputType
     {
         return $this->inputTypeStack[count($this->inputTypeStack) - 2] ?? null;

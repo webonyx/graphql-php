@@ -373,11 +373,11 @@ class Schema
      */
     public static function resolveType($type) : Type
     {
-        if (is_callable($type)) {
-            return $type();
+        if ($type instanceof Type) {
+            return $type;
         }
 
-        return $type;
+        return $type();
     }
 
     /**
