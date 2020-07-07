@@ -1,5 +1,8 @@
 # Changelog
 
+## v14.0.2
+- Optimize lazy types (#684)
+
 ## v14.0.1
 
 Bug fixes:
