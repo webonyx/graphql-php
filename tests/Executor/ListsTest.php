@@ -58,7 +58,7 @@ class ListsTest extends TestCase
 
         $dataType = new ObjectType([
             'name'   => 'DataType',
-            'fields' => static function () use (&$testType, &$dataType, $data) {
+            'fields' => static function () use (&$testType, &$dataType, $data) : array {
                 return [
                     'test' => ['type' => $testType],
                     'nest' => [
