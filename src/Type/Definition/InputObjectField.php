@@ -44,9 +44,6 @@ class InputObjectField
                     break;
                 case 'defaultValueExists':
                     break;
-                case 'type':
-                    // do nothing; type is lazy loaded in getType
-                    break;
                 default:
                     $this->{$k} = $v;
             }
@@ -59,17 +56,12 @@ class InputObjectField
      */
     public function getType() : Type
     {
-        if (! isset($this->type)) {
-            /**
-             * TODO: replace this phpstan cast with native assert
-             *
-             * @var Type&InputType
-             */
-            $type       = Schema::resolveType($this->config['type']);
-            $this->type = $type;
-        }
-
-        return $this->type;
+        /**
+         * TODO: Replace this cast with native assert
+         *
+         * @var Type&InputType
+         */
+        return Schema::resolveType($this->type);
     }
 
     public function defaultValueExists() : bool
@@ -92,7 +84,7 @@ class InputObjectField
         } catch (Error $e) {
             throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
         }
-        $type = $this->getType();
+        $type = $this->type;
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }

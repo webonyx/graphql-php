@@ -30,14 +30,19 @@ class FieldArgument
     /** @var mixed[] */
     public $config;
 
-    /** @var Type&InputType */
+    /** @var InputType&Type */
     private $type;
 
-    /** @param mixed[] $def */
+    /**
+     * @param mixed[] $def
+     */
     public function __construct(array $def)
     {
         foreach ($def as $key => $value) {
             switch ($key) {
+                case 'type':
+                    $this->type = $value;
+                    break;
                 case 'name':
                     $this->name = $value;
                     break;
@@ -75,17 +80,7 @@ class FieldArgument
 
     public function getType() : Type
     {
-        if (! isset($this->type)) {
-            /**
-             * TODO: replace this phpstan cast with native assert
-             *
-             * @var Type&InputType
-             */
-            $type       = Schema::resolveType($this->config['type']);
-            $this->type = $type;
-        }
-
-        return $this->type;
+        return Schema::resolveType($this->type);
     }
 
     public function defaultValueExists() : bool
@@ -107,7 +102,7 @@ class FieldArgument
                 sprintf('%s.%s(%s:) %s', $parentType->name, $parentField->name, $this->name, $e->getMessage())
             );
         }
-        $type = $this->getType();
+        $type = $this->type;
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
