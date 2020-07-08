@@ -229,8 +229,10 @@ class Printer
                         return '@' . $node->name . $this->wrap('(', $this->join($node->arguments, ', '), ')');
                     },
 
-                    NodeKind::NAMED_TYPE => static function ($modifiedNamedTypeNode) : string {
-                        return $modifiedNamedTypeNode->name;
+                    NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
+                        assert(is_string($node->name));
+
+                        return $node->name;
                     },
 
                     NodeKind::LIST_TYPE => static function (ListTypeNode $node) : string {
