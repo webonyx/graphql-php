@@ -51,11 +51,6 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
-			count: 2
-			path: src/Language/Printer.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<int, array\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\> given\\.$#"
 			count: 1
 			path: src/Language/Visitor.php
@@ -71,13 +66,13 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
-			count: 3
+			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
+			count: 1
 			path: src/Language/Visitor.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
-			count: 1
+			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
+			count: 3
 			path: src/Language/Visitor.php
 
 		-
