@@ -95,6 +95,12 @@ class Printer
     {
     }
 
+    /**
+     * Traverse an AST bottom-up, converting all nodes to strings.
+     *
+     * That means the AST is manipulated in such a way that it no longer
+     * resembles the well-formed result of parsing.
+     */
     public function printAST($ast)
     {
         return Visitor::visit(
@@ -230,8 +236,7 @@ class Printer
                     },
 
                     NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
-                        assert(is_string($node->name));
-
+                        // @phpstan-ignore-next-line the printer works bottom up, so this is already a string here
                         return $node->name;
                     },
 
