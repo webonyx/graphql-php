@@ -24,7 +24,7 @@ class InputObjectField
     public $description;
 
     /** @var Type&InputType */
-    public $type;
+    private $type;
 
     /** @var InputValueDefinitionNode|null */
     public $astNode;
