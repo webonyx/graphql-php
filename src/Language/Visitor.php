@@ -439,7 +439,7 @@ class Visitor
                             true
                         );
 
-                        if ($fn) {
+                        if (isset($fn)) {
                             $result = $fn(...func_get_args());
                             if ($result instanceof VisitorOperation) {
                                 if ($result->doBreak) {
@@ -470,7 +470,7 @@ class Visitor
                 $typeInfo->enter($node);
                 $fn = self::getVisitFn($visitor, $node->kind, false);
 
-                if ($fn) {
+                if (isset($fn)) {
                     $result = $fn(...func_get_args());
                     if ($result !== null) {
                         $typeInfo->leave($node);

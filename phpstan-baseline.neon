@@ -71,11 +71,6 @@ parameters:
 			path: src/Language/Visitor.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
-			count: 3
-			path: src/Language/Visitor.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
 			count: 1
 			path: src/Language/Visitor.php
