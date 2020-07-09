@@ -79,7 +79,7 @@ class ASTDefinitionBuilder
         return new Directive([
             'name'        => $directiveNode->name->value,
             'description' => $this->getDescription($directiveNode),
-            'args'        => $directiveNode->arguments ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
+            'args'        => isset($directiveNode->arguments) ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
             'isRepeatable'        => $directiveNode->repeatable,
             'locations'   => Utils::map(
                 $directiveNode->locations,
@@ -308,7 +308,7 @@ class ASTDefinitionBuilder
             // with validateSchema() will produce more actionable results.
             'type'              => $this->buildWrappedType($field->type),
             'description'       => $this->getDescription($field),
-            'args'              => $field->arguments ? $this->makeInputValues($field->arguments) : null,
+            'args'              => isset($field->arguments) ? $this->makeInputValues($field->arguments) : null,
             'deprecationReason' => $this->getDeprecationReason($field),
             'astNode'           => $field,
         ];
@@ -392,7 +392,7 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
-            'types'       => $def->types
+            'types'       => isset($def->types)
                 ? function () use ($def) {
                     return Utils::map(
                         $def->types,
