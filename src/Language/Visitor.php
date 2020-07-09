@@ -228,11 +228,7 @@ class Visitor
                             $editKey -= $editOffset;
                         }
                         if ($inArray && $editValue === null) {
-                            if ($node instanceof NodeList) {
-                                $node->splice($editKey, 1);
-                            } else {
-                                array_splice($node, $editKey, 1);
-                            }
+                            $node->splice($editKey, 1);
                             $editOffset++;
                         } else {
                             if ($node instanceof NodeList || is_array($node)) {
