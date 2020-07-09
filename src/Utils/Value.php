@@ -181,7 +181,7 @@ class Value
                             sprintf(
                                 'Field %s of required type %s was not provided',
                                 $fieldPath,
-                                $field->type->toString()
+                                $field->getType()->toString()
                             ),
                             $blameNode
                         )
