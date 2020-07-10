@@ -244,7 +244,7 @@ class ValidationContext extends ASTValidationContext
     }
 
     /**
-     * @return ScalarType|EnumType|InputObjectType|ListOfType|NonNull
+     * @return (Type&InputType)|null
      */
     public function getParentInputType() : ?InputType
     {

@@ -102,6 +102,9 @@ class Printer
     {
     }
 
+    /**
+     * Recursively traverse an AST depth-first and produce a pretty string.
+     */
     public function printAST(Node $node)
     {
         return $this->p($node);
@@ -242,7 +245,9 @@ class Printer
                     )
                     . $this->p($node->selectionSet);
             case $node instanceof FragmentSpreadNode:
-                return '...' . $this->p($node->name) . $this->wrap(' ', $this->printList($node->directives, ' '));
+                return '...'
+                    . $this->p($node->name)
+                    . $this->wrap(' ', $this->printList($node->directives, ' '));
             case $node instanceof InlineFragmentNode:
                 return $this->join(
                     [

@@ -318,7 +318,7 @@ class SchemaExtender
             static function (FieldArgument $arg) : string {
                 return $arg->name;
             },
-            static function (FieldArgument $arg) {
+            static function (FieldArgument $arg) : array {
                 $def = [
                     'type'        => static::extendType($arg->getType()),
                     'description' => $arg->description,

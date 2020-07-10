@@ -134,3 +134,41 @@ concrete Object Type.
 If a **resolveType** option is omitted, graphql-php will loop through all interface implementors and 
 use their **isTypeOf** callback to pick the first suitable one. This is obviously less efficient 
 than single **resolveType** call. So it is recommended to define **resolveType** whenever possible.
+
+# Prevent invisible types
+When object types that implement an interface are not directly referenced by a field, they cannot
+be discovered during schema introspection. For example:
+
+```graphql
+type Query {
+    animal: Animal
+}
+
+interface Animal {...}
+
+type Cat implements Animal {...}
+type Dog implements Animal {...}
+```
+
+In this example, `Cat` and `Dog` would be considered *invisible* types. Querying the `animal` field
+would fail, since no possible implementing types for `Animal` can be found.
+
+There are two possible solutions:
+
+1. Add fields that reference the invisible types directly, e.g.:
+
+    ```graphql
+    type Query {
+       dog: Dog
+       cat: Cat
+    }
+    ```
+
+2. Pass the invisible types during schema construction, e.g.:
+
+```php
+new GraphQLSchema([
+    'query' => ...,
+    'types' => [$cat, $dog]
+]);
+```
