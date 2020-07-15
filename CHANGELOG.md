@@ -1,6 +1,7 @@
 # Changelog
 
 - Fix partial parsing where the underlying functions require `bool $isConst` (#693)
+- Fix partial parsing for functions that return a `NodeList` instead of a `Node` (#698)
 
 ## v14.0.2
 
