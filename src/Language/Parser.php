@@ -59,7 +59,6 @@ use GraphQL\Language\AST\ValueNode;
 use GraphQL\Language\AST\VariableDefinitionNode;
 use GraphQL\Language\AST\VariableNode;
 use function count;
-use function in_array;
 use function sprintf;
 
 /**
