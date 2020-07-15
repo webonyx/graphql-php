@@ -93,6 +93,12 @@ class Printer
     {
     }
 
+    /**
+     * Traverse an AST bottom-up, converting all nodes to strings.
+     *
+     * That means the AST is manipulated in such a way that it no longer
+     * resembles the well-formed result of parsing.
+     */
     public function printAST($ast)
     {
         return Visitor::visit(
@@ -100,7 +106,7 @@ class Printer
             [
                 'leave' => [
                     NodeKind::NAME => static function (NameNode $node) : string {
-                        return '' . $node->value;
+                        return $node->value;
                     },
 
                     NodeKind::VARIABLE => static function (VariableNode $node) : string {
@@ -157,7 +163,9 @@ class Printer
                     },
 
                     NodeKind::FRAGMENT_SPREAD => function (FragmentSpreadNode $node) : string {
-                        return '...' . $node->name . $this->wrap(' ', $this->join($node->directives, ' '));
+                        return '...'
+                            . $node->name
+                            . $this->wrap(' ', $this->join($node->directives, ' '));
                     },
 
                     NodeKind::INLINE_FRAGMENT => function (InlineFragmentNode $node) {
@@ -226,6 +234,7 @@ class Printer
                     },
 
                     NodeKind::NAMED_TYPE => static function (NamedTypeNode $node) : string {
+                        // @phpstan-ignore-next-line the printer works bottom up, so this is already a string here
                         return $node->name;
                     },
 
