@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use Exception;
 use GraphQL\Error\Error;
+use GraphQL\Error\TypeError;
 use GraphQL\Language\AST\FloatValueNode;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
@@ -80,6 +81,6 @@ values as specified by
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new TypeError();
     }
 }

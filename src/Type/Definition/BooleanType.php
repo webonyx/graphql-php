@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use Exception;
 use GraphQL\Error\Error;
+use GraphQL\Error\TypeError;
 use GraphQL\Language\AST\BooleanValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
@@ -57,7 +58,7 @@ class BooleanType extends ScalarType
     {
         if (! $valueNode instanceof BooleanValueNode) {
             // Intentionally without message, as all information already in wrapped Exception
-            throw new Exception();
+            throw new TypeError();
         }
 
         return $valueNode->value;

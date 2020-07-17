@@ -227,7 +227,11 @@ class ValuesOfCorrectType extends ValidationRule
                         $context,
                         $fieldName
                     ),
-                    $node
+                    $node,
+                    null,
+                    [],
+                    null,
+                    $error
                 )
             );
         }

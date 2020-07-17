@@ -230,7 +230,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testIntIntoString() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -243,6 +243,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "stringArgField" argument "stringArg" requires type String, found 1.', 4, 39),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     private function badValue($typeName, $value, $line, $column, $message = null)
@@ -267,7 +269,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testFloatIntoString() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -280,6 +282,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "stringArgField" argument "stringArg" requires type String, found 1.0.', 4, 39),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     // Invalid String values
@@ -289,7 +293,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testBooleanIntoString() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -302,6 +306,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "stringArgField" argument "stringArg" requires type String, found true.', 4, 39),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -309,7 +315,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testUnquotedStringIntoString() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -322,6 +328,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "stringArgField" argument "stringArg" requires type String, found BAR.', 4, 39),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -329,7 +337,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testStringIntoInt() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -342,6 +350,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found "3".', 4, 33),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -349,7 +359,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testBigIntIntoInt() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -362,6 +372,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found 829384293849283498239482938.', 4, 33),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     // Invalid Int values
@@ -371,7 +383,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testUnquotedStringIntoInt() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -384,6 +396,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found FOO.', 4, 33),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -391,7 +405,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testSimpleFloatIntoInt() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -404,6 +418,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found 3.0.', 4, 33),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -411,7 +427,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testFloatIntoInt() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -424,6 +440,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "intArgField" argument "intArg" requires type Int, found 3.333.', 4, 33),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -431,7 +449,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testStringIntoFloat() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -444,6 +462,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "floatArgField" argument "floatArg" requires type Float, found "3.333".', 4, 37),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -451,7 +471,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testBooleanIntoFloat() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -464,6 +484,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "floatArgField" argument "floatArg" requires type Float, found true.', 4, 37),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     // Invalid Float values
@@ -473,7 +495,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testUnquotedIntoFloat() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -486,6 +508,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "floatArgField" argument "floatArg" requires type Float, found FOO.', 4, 37),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -493,7 +517,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testIntIntoBoolean() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -506,6 +530,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "booleanArgField" argument "booleanArg" requires type Boolean, found 2.', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -513,7 +539,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testFloatIntoBoolean() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -526,6 +552,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "booleanArgField" argument "booleanArg" requires type Boolean, found 1.0.', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     // Invalid Boolean value
@@ -535,7 +563,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testStringIntoBoolean() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -548,6 +576,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "booleanArgField" argument "booleanArg" requires type Boolean, found "true".', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -555,7 +585,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testUnquotedIntoBoolean() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -568,6 +598,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "booleanArgField" argument "booleanArg" requires type Boolean, found TRUE.', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -575,7 +607,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testFloatIntoID() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -588,6 +620,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "idArgField" argument "idArg" requires type ID, found 1.0.', 4, 31),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -595,7 +629,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testBooleanIntoID() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -608,6 +642,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "idArgField" argument "idArg" requires type ID, found true.', 4, 31),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     // Invalid ID value
@@ -617,7 +653,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testUnquotedIntoID() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -630,6 +666,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "idArgField" argument "idArg" requires type ID, found SOMETHING.', 4, 31),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -637,7 +675,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testIntIntoEnum() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -650,6 +688,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found 2.', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -657,7 +697,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testFloatIntoEnum() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -670,6 +710,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found 1.0.', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     // Invalid Enum value
@@ -679,7 +721,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testStringIntoEnum() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -692,6 +734,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found "SIT"; Did you mean the enum value SIT?', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -699,7 +743,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testBooleanIntoEnum() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -712,6 +756,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found true.', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -719,7 +765,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testUnknownEnumValueIntoEnum() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -732,6 +778,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found JUGGLE.', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -739,7 +787,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testDifferentCaseEnumValueIntoEnum() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -752,6 +800,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "doesKnowCommand" argument "dogCommand" requires type DogCommand, found sit; Did you mean the enum value SIT?', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -829,7 +879,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testIncorrectItemtype() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -842,6 +892,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "stringListArgField" argument "stringListArg" requires type String, found 2.', 4, 55),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -849,7 +901,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testSingleValueOfIncorrectType() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -862,6 +914,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "stringListArgField" argument "stringListArg" requires type [String], found 1.', 4, 47),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     // Invalid List value
@@ -1043,7 +1097,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testIncorrectValueType() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1057,6 +1111,9 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "multipleReqs" argument "req1" requires type Int!, found "one".', 4, 45),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
+        self::assertTrue($errors[1]->isClientSafe());
     }
 
     /**
@@ -1064,7 +1121,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testIncorrectValueAndMissingArgumentProvidedRequiredArguments() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1077,6 +1134,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "multipleReqs" argument "req1" requires type Int!, found "one".', 4, 32),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     // Invalid non-nullable value
@@ -1086,7 +1145,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testNullValue2() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1099,6 +1158,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "multipleReqs" argument "req1" requires type Int!, found null.', 4, 32),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -1222,7 +1283,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testPartialObjectMissingRequired() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1235,6 +1296,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->requiredField('ComplexInput', 'requiredField', 'Boolean!', 4, 41),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     private function requiredField($typeName, $fieldName, $fieldTypeName, $line, $column)
@@ -1256,7 +1319,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testPartialObjectInvalidFieldType() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1272,6 +1335,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "complexArgField" argument "complexArg" requires type String, found 2.', 5, 40),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -1279,7 +1344,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testPartialObjectNullToNonNullField()
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1293,6 +1358,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
       ',
             [$this->badValueWithMessage('Field "complexArgField" argument "complexArg" requires type Boolean!, found null.', 6, 29)]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -1304,7 +1371,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testPartialObjectUnknownFieldArg() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1325,6 +1392,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 ),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     private function unknownField($typeName, $fieldName, $line, $column, $message = null)
@@ -1356,11 +1425,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
             ]
         );
 
-        self::assertEquals(
-            'Field "invalidArg" argument "arg" requires type Invalid, found 123; Invalid scalar is always invalid: 123',
-            $errors[0]->getMessage()
-        );
-        self::assertTrue($errors[0]->isClientSafe());
+        self::assertFalse($errors[0]->isClientSafe());
     }
 
     /**
@@ -1408,7 +1473,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testWithDirectiveWithIncorrectTypes() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         {
@@ -1422,6 +1487,9 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValueWithMessage('Field "name" argument "if" requires type Boolean!, found ENUM.', 4, 28),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
+        self::assertTrue($errors[1]->isClientSafe());
     }
 
     // DESCRIBE: Variable default values
@@ -1470,7 +1538,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testVariablesWithInvalidDefaultNullValues() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         query WithDefaultValues(
@@ -1487,6 +1555,10 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValue('Boolean!', 'null', 5, 47),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
+        self::assertTrue($errors[1]->isClientSafe());
+        self::assertTrue($errors[2]->isClientSafe());
     }
 
     /**
@@ -1494,7 +1566,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testVariablesWithInvalidDefaultValues() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         query InvalidDefaultValues(
@@ -1511,6 +1583,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValue('ComplexInput', '"notverycomplex"', 5, 30),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -1518,7 +1592,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testVariablesWithComplexInvalidDefaultValues() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         query WithDefaultValues(
@@ -1532,6 +1606,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValue('Int', '"abc"', 3, 62),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -1539,7 +1615,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testComplexVariablesMissingRequiredField() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         query MissingRequiredField($a: ComplexInput = {intField: 3}) {
@@ -1550,6 +1626,8 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->requiredField('ComplexInput', 'requiredField', 'Boolean!', 2, 55),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 
     /**
@@ -1557,7 +1635,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
      */
     public function testListVariablesWithInvalidItem() : void
     {
-        $this->expectFailsRule(
+        $errors = $this->expectFailsRule(
             new ValuesOfCorrectType(),
             '
         query InvalidItem($a: [String] = ["one", 2]) {
@@ -1568,5 +1646,7 @@ class ValuesOfCorrectTypeTest extends ValidatorTestCase
                 $this->badValue('String', '2', 2, 50),
             ]
         );
+
+        self::assertTrue($errors[0]->isClientSafe());
     }
 }
