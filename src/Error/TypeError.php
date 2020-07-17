@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace GraphQL\Error;
 
 use Exception;
@@ -9,12 +11,12 @@ use Exception;
  */
 class TypeError extends Exception implements ClientAware
 {
-    public function isClientSafe(): bool
+    public function isClientSafe() : bool
     {
         return true;
     }
 
-    public function getCategory(): bool
+    public function getCategory() : string
     {
         return 'type';
     }
