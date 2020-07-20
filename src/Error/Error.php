@@ -87,7 +87,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * @param mixed[]                      $extensions
      */
     public function __construct(
-        $message,
+        $message = '',
         $nodes = null,
         ?Source $source = null,
         array $positions = [],

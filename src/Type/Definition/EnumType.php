@@ -8,7 +8,6 @@ use ArrayObject;
 use Exception;
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\TypeError;
 use GraphQL\Language\AST\EnumTypeDefinitionNode;
 use GraphQL\Language\AST\EnumTypeExtensionNode;
 use GraphQL\Language\AST\EnumValueNode;
@@ -194,7 +193,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new TypeError();
+        throw new Error();
     }
 
     /**

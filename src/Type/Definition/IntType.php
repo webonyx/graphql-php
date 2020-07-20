@@ -6,7 +6,6 @@ namespace GraphQL\Type\Definition;
 
 use Exception;
 use GraphQL\Error\Error;
-use GraphQL\Error\TypeError;
 use GraphQL\Language\AST\IntValueNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Utils\Utils;
@@ -112,6 +111,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new TypeError();
+        throw new Error();
     }
 }
