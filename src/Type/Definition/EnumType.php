@@ -193,7 +193,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 
     /**

@@ -79,6 +79,6 @@ represent free-form human-readable text.';
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 }

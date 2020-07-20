@@ -80,6 +80,6 @@ values as specified by
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 }

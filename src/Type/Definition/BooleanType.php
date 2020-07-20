@@ -57,7 +57,7 @@ class BooleanType extends ScalarType
     {
         if (! $valueNode instanceof BooleanValueNode) {
             // Intentionally without message, as all information already in wrapped Exception
-            throw new Exception();
+            throw new Error();
         }
 
         return $valueNode->value;
