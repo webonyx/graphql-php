@@ -51,11 +51,6 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
-			count: 2
-			path: src/Language/Printer.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<int, array\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\> given\\.$#"
 			count: 1
 			path: src/Language/Visitor.php
@@ -68,11 +63,6 @@ parameters:
 		-
 			message: "#^Variable property access on GraphQL\\\\Language\\\\AST\\\\Node\\.$#"
 			count: 1
-			path: src/Language/Visitor.php
-
-		-
-			message: "#^Only booleans are allowed in an if condition, \\(callable\\)\\|null given\\.$#"
-			count: 3
 			path: src/Language/Visitor.php
 
 		-
@@ -341,17 +331,7 @@ parameters:
 			path: src/Utils/AST.php
 
 		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\> given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, callable given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\> given\\.$#"
 			count: 1
 			path: src/Utils/ASTDefinitionBuilder.php
 
@@ -362,11 +342,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\>\\|null given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\>\\|null given\\.$#"
 			count: 1
 			path: src/Utils/ASTDefinitionBuilder.php
 

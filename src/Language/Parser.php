@@ -1388,10 +1388,8 @@ class Parser
      * UnionMemberTypes :
      *   - = `|`? NamedType
      *   - UnionMemberTypes | NamedType
-     *
-     * @return NamedTypeNode[]
      */
-    private function parseUnionMemberTypes() : array
+    private function parseUnionMemberTypes() : NodeList
     {
         $types = [];
         if ($this->skip(Token::EQUALS)) {
@@ -1402,7 +1400,7 @@ class Parser
             } while ($this->skip(Token::PIPE));
         }
 
-        return $types;
+        return new NodeList($types);
     }
 
     /**
