@@ -21,11 +21,6 @@ parameters:
 			path: src/Language/AST/Node.php
 
 		-
-			message: "#^Anonymous function should return string but returns GraphQL\\\\Language\\\\AST\\\\NameNode\\.$#"
-			count: 1
-			path: src/Language/Printer.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<int, array\\|GraphQL\\\\Language\\\\AST\\\\Node\\|GraphQL\\\\Language\\\\AST\\\\NodeList\\> given\\.$#"
 			count: 1
 			path: src/Language/Visitor.php
