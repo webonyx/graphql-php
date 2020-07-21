@@ -168,9 +168,13 @@ class SchemaValidationContext
         foreach ($directives as $directive) {
             // Ensure all directives are in fact GraphQL directives.
             if (! $directive instanceof Directive) {
+                $nodes = is_object($directive)
+                    ? $directive->astNode
+                    : null;
+
                 $this->reportError(
                     'Expected directive but got: ' . Utils::printSafe($directive) . '.',
-                    is_object($directive) ? $directive->astNode : null
+                    $nodes
                 );
                 continue;
             }
@@ -223,7 +227,7 @@ class SchemaValidationContext
 
             $nodes = Utils::map(
                 $directiveList,
-                static function (Directive $directive) : DirectiveDefinitionNode {
+                static function (Directive $directive) : ?DirectiveDefinitionNode {
                     return $directive->astNode;
                 }
             );

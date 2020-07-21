@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use Exception;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
@@ -21,7 +20,11 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     /** @var InputObjectTypeDefinitionNode|null */
     public $astNode;
 
-    /** @var InputObjectField[] */
+    /**
+     * Lazily initialized.
+     *
+     * @var InputObjectField[]
+     */
     private $fields;
 
     /** @var InputObjectTypeExtensionNode[] */
@@ -46,16 +49,12 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     }
 
     /**
-     * @param string $name
-     *
-     * @return InputObjectField
-     *
-     * @throws Exception
+     * @throws InvariantViolation
      */
-    public function getField($name)
+    public function getField(string $name) : InputObjectField
     {
-        if ($this->fields === null) {
-            $this->getFields();
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
         Utils::invariant(isset($this->fields[$name]), "Field '%s' is not defined for type '%s'", $name, $this->name);
 
@@ -65,32 +64,36 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
     /**
      * @return InputObjectField[]
      */
-    public function getFields()
+    public function getFields() : array
     {
-        if ($this->fields === null) {
-            $this->fields = [];
-
-            $fields = $this->config['fields'] ?? [];
-            if (is_callable($fields)) {
-                $fields = $fields();
-            }
-
-            if (! is_array($fields)) {
-                throw new InvariantViolation(
-                    sprintf('%s fields must be an array or a callable which returns such an array.', $this->name)
-                );
-            }
-
-            foreach ($fields as $name => $field) {
-                if ($field instanceof Type) {
-                    $field = ['type' => $field];
-                }
-                $field                      = new InputObjectField($field + ['name' => $name]);
-                $this->fields[$field->name] = $field;
-            }
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
 
         return $this->fields;
+    }
+
+    protected function initializeFields() : void
+    {
+        $this->fields = [];
+        $fields       = $this->config['fields'] ?? [];
+        if (is_callable($fields)) {
+            $fields = $fields();
+        }
+
+        if (! is_array($fields)) {
+            throw new InvariantViolation(
+                sprintf('%s fields must be an array or a callable which returns such an array.', $this->name)
+            );
+        }
+
+        foreach ($fields as $name => $field) {
+            if ($field instanceof Type) {
+                $field = ['type' => $field];
+            }
+            $field                      = new InputObjectField($field + ['name' => $name]);
+            $this->fields[$field->name] = $field;
+        }
     }
 
     /**
@@ -99,7 +102,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
      *
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid() : void
     {
         parent::assertValid();
 

@@ -9,6 +9,11 @@ You can find and compare releases at the [GitHub release page](https://github.co
 
 ## Unreleased
 
+## v14.1.1
+
+### Fixed
+- Handle nullable `DirectiveNode#astNode` in `SchemaValidationContext` (#708)
+
 ## v14.1.0
 
 ### Added
@@ -79,13 +84,13 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 
 Special thanks to @simPod, @spawnia and @shmax for their major contributions!
 
-### v0.13.9
+#### v0.13.9
 - Fix double Error wrapping when parsing variables (#689)
 
-### v0.13.8
+#### v0.13.8
 - Don't call global field resolver on introspection fields (#481)
 
-### v0.13.7
+#### v0.13.7
 - Added retrieving query complexity once query has been completed (#316)
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535) 
 

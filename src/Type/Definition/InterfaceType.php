@@ -20,7 +20,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /** @var InterfaceTypeExtensionNode[] */
     public $extensionASTNodes;
 
-    /** @var FieldDefinition[] */
+    /**
+     * Lazily initialized.
+     *
+     * @var FieldDefinition[]
+     */
     private $fields;
 
     /**
@@ -44,9 +48,11 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @param mixed $type
      *
-     * @return self
+     * @return $this
+     *
+     * @throws InvariantViolation
      */
-    public static function assertInterfaceType($type)
+    public static function assertInterfaceType($type) : self
     {
         Utils::invariant(
             $type instanceof self,
@@ -56,30 +62,20 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
         return $type;
     }
 
-    /**
-     * @param string $name
-     *
-     * @return FieldDefinition
-     */
-    public function getField($name)
+    public function getField(string $name) : FieldDefinition
     {
-        if ($this->fields === null) {
-            $this->getFields();
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
         Utils::invariant(isset($this->fields[$name]), 'Field "%s" is not defined for type "%s"', $name, $this->name);
 
         return $this->fields[$name];
     }
 
-    /**
-     * @param string $name
-     *
-     * @return bool
-     */
-    public function hasField($name)
+    public function hasField(string $name) : bool
     {
-        if ($this->fields === null) {
-            $this->getFields();
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
 
         return isset($this->fields[$name]);
@@ -88,21 +84,26 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @return FieldDefinition[]
      */
-    public function getFields()
+    public function getFields() : array
     {
-        if ($this->fields === null) {
-            $fields       = $this->config['fields'] ?? [];
-            $this->fields = FieldDefinition::defineFieldMap($this, $fields);
+        if (! isset($this->fields)) {
+            $this->initializeFields();
         }
 
         return $this->fields;
     }
 
+    protected function initializeFields() : void
+    {
+        $fields       = $this->config['fields'] ?? [];
+        $this->fields = FieldDefinition::defineFieldMap($this, $fields);
+    }
+
     /**
      * Resolves concrete ObjectType for given object value
      *
-     * @param object  $objectValue
-     * @param mixed[] $context
+     * @param object $objectValue
+     * @param mixed  $context
      *
      * @return Type|null
      */
@@ -120,7 +121,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * @throws InvariantViolation
      */
-    public function assertValid()
+    public function assertValid() : void
     {
         parent::assertValid();
 
