@@ -53,24 +53,29 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 - **BREAKING:** Debug flags in `GraphQL\Executor\ExecutionResult`, `GraphQL\Error\FormattedError` and `GraphQL\Server\ServerConfig` do not accept `boolean` value anymore but `int` only.
 - **BREAKING:** `$positions` in `GraphQL\Error\Error` constructor are not nullable anymore. Same can be expressed by passing an empty array.
 
-Notable features and improvements:
-
-- Compliant with the GraphQL specification [June 2018 Edition](https://spec.graphql.org/June2018/)
+### Added
 - Support repeatable directives (#643)
-- Perf: support lazy type definitions (#557)
-- Simplified Deferred implementation (now allows chaining like promises, #573)
 - Support SDL Validation and other schema validation improvements (e.g. #492)
 - Added promise adapter for [Amp](https://amphp.org/) (#551)
 - Query plan utility improvements (#513, #632)
-
-Other noteworthy changes:
 - Allow retrieving query complexity once query has been completed (#316) 
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
 - Support UTF-16 surrogate pairs within string literals (#554, #556)
+
+### Changed
+- Compliant with the GraphQL specification [June 2018 Edition](https://spec.graphql.org/June2018/)
 - Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
+
+### Optimized
+- Perf: support lazy type definitions (#557)
+- Simplified Deferred implementation (now allows chaining like promises, #573)
+
+### Deprecated
 - Deprecated Experimental executor (#397)
 
-Also some bugs fixed, heavily invested in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
+### Fixed
+- Some bugs
+- Improve accuracy of type hints with [PHPStan](https://github.com/phpstan/phpstan)
 
 Special thanks to @simPod, @spawnia and @shmax for their major contributions!
 
