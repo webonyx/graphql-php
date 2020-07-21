@@ -513,9 +513,9 @@ class AST
             case $valueNode instanceof NullValueNode:
                 return null;
             case $valueNode instanceof IntValueNode:
-                return intval($valueNode->value, 10);
+                return (int) $valueNode->value;
             case $valueNode instanceof FloatValueNode:
-                return floatval($valueNode->value);
+                return (float) $valueNode->value;
             case $valueNode instanceof StringValueNode:
             case $valueNode instanceof EnumValueNode:
             case $valueNode instanceof BooleanValueNode:
