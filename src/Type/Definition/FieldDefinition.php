@@ -84,7 +84,12 @@ class FieldDefinition
         $this->complexityFn = $config['complexity'] ?? self::DEFAULT_COMPLEXITY_FN;
     }
 
-    public static function defineFieldMap(Type $type, $fields)
+    /**
+     * @param (callable():mixed[])|mixed[] $fields
+     *
+     * @return array<string, self>
+     */
+    public static function defineFieldMap(Type $type, $fields) : array
     {
         if (is_callable($fields)) {
             $fields = $fields();
