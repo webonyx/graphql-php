@@ -1,9 +1,11 @@
 # Changelog
 
+#### v14.1.1
+
 Fixes:
 - Handle nullable `DirectiveNode#astNode` in `SchemaValidationContext` (#708)
 
-## v14.1.0
+#### v14.1.0
 
 New:
 - Add partial parse functions for const variants (#693)
@@ -19,11 +21,11 @@ Refactoring:
 - Fix "only booleans are allowed" errors (#659)
 
 
-## v14.0.2
+#### v14.0.2
 
 - Optimize lazy types (#684)
 
-## v14.0.1
+#### v14.0.1
 
 Bug fixes:
 - Fix for: Argument defaults with integer/float values crashes introspection query (#679)
@@ -68,13 +70,13 @@ Also some bugs fixed, heavily invested in [PHPStan](https://github.com/phpstan/p
 
 Special thanks to @simPod, @spawnia and @shmax for their major contributions!
 
-### v0.13.9
+#### v0.13.9
 - Fix double Error wrapping when parsing variables (#689)
 
-### v0.13.8
+#### v0.13.8
 - Don't call global field resolver on introspection fields (#481)
 
-### v0.13.7
+#### v0.13.7
 - Added retrieving query complexity once query has been completed (#316)
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535) 
 
