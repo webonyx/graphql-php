@@ -1,7 +1,20 @@
 # Changelog
 
-- Fix partial parsing where the underlying functions require `bool $isConst` (#693)
-- Fix partial parsing for functions that return a `NodeList` instead of a `Node` (#698)
+## v14.1.0
+
+New:
+- Add partial parse functions for const variants (#693)
+
+Fixes:
+- Differentiate between client-safe and non-client-safe errors in scalar validation (#706)
+- Proper type hints for `IntValueNode` (#691)
+
+Refactoring:
+- Ensure NamedTypeNode::$name is always a NameNode (#695)
+- Visitor: simplify getVisitFn (#694)
+- Replace function calls with type casts (#692)
+- Fix "only booleans are allowed" errors (#659)
+
 
 ## v14.0.2
 
