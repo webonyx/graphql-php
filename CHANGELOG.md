@@ -1,33 +1,42 @@
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
+
+## Unreleased
+
 ## v14.1.0
 
-New:
+### Added
 - Add partial parse functions for const variants (#693)
 
-Fixes:
+### Fixed
 - Differentiate between client-safe and non-client-safe errors in scalar validation (#706)
 - Proper type hints for `IntValueNode` (#691)
-
-Refactoring:
+- Fix "only booleans are allowed" errors (#659)
 - Ensure NamedTypeNode::$name is always a NameNode (#695)
+
+### Optimized
 - Visitor: simplify getVisitFn (#694)
 - Replace function calls with type casts (#692)
-- Fix "only booleans are allowed" errors (#659)
-
 
 ## v14.0.2
 
+### Optimized
 - Optimize lazy types (#684)
 
 ## v14.0.1
 
-Bug fixes:
+### Fixed
 - Fix for: Argument defaults with integer/float values crashes introspection query (#679)
 - Fix for "Invalid AST Node: false" error (#685)
 - Fix double Error wrapping when parsing variables (#688)
 
-Refactoring:
+### Optimized
 - Do not use call_user_func or call_user_func_array (#676)
 - Codestyle and static analysis improvements (#648, #690)
 
