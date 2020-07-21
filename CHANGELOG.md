@@ -1,5 +1,8 @@
 # Changelog
 
+Fixes:
+- Handle nullable `DirectiveNode#astNode` in `SchemaValidationContext` (#708)
+
 ## v14.1.0
 
 New:
