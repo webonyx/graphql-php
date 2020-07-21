@@ -64,7 +64,7 @@ class RequestValidationTest extends TestCase
     {
         $helper = new Helper();
         $errors = $helper->validateOperationParams($parsedRequest);
-        if (! empty($errors[0])) {
+        if (isset($errors[0])) {
             self::assertEquals($expectedMessage, $errors[0]->getMessage());
         } else {
             self::fail('Expected error not returned');

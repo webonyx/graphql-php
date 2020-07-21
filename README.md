@@ -20,8 +20,8 @@ as in the [docs](docs/) folder of the distribution.
 If you don't know what GraphQL is, visit the [official website](http://graphql.org) first.
 
 ## Examples
-There are several ready examples in the [examples](examples/) folder of the distribution with specific 
-README file per example.
+There are several ready examples in the [examples](examples) folder of the distribution,
+with a specific README file per example.
 
 ## Contributors
 

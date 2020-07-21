@@ -59,7 +59,7 @@ class FieldDefinition
      */
     public $config;
 
-    /** @var callable|(OutputType&Type) */
+    /** @var OutputType&Type */
     public $type;
 
     /** @var callable|string */
@@ -71,7 +71,6 @@ class FieldDefinition
     protected function __construct(array $config)
     {
         $this->name      = $config['name'];
-        $this->type      = $config['type'];
         $this->resolveFn = $config['resolve'] ?? null;
         $this->mapFn     = $config['map'] ?? null;
         $this->args      = isset($config['args']) ? FieldArgument::createMap($config['args']) : [];
@@ -182,7 +181,17 @@ class FieldDefinition
 
     public function getType() : Type
     {
-        return Schema::resolveType($this->type);
+        if (! isset($this->type)) {
+            /**
+             * TODO: replace this phpstan cast with native assert
+             *
+             * @var Type&OutputType
+             */
+            $type       = Schema::resolveType($this->config['type']);
+            $this->type = $type;
+        }
+
+        return $this->type;
     }
 
     /**

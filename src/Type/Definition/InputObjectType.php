@@ -8,6 +8,8 @@ use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InputObjectTypeDefinitionNode;
 use GraphQL\Language\AST\InputObjectTypeExtensionNode;
 use GraphQL\Utils\Utils;
+use function call_user_func;
+use function count;
 use function is_array;
 use function is_callable;
 use function is_string;
@@ -105,7 +107,7 @@ class InputObjectType extends Type implements InputType, NullableType, NamedType
         parent::assertValid();
 
         Utils::invariant(
-            ! empty($this->getFields()),
+            count($this->getFields()) > 0,
             sprintf(
                 '%s fields must be an associative array with field names as keys or a callable which returns such an array.',
                 $this->name

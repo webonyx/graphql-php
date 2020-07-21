@@ -44,6 +44,7 @@ use stdClass;
 use Throwable;
 use function array_key_exists;
 use function array_map;
+use function count;
 use function sprintf;
 
 class Values
@@ -82,7 +83,7 @@ class Values
                 $hasValue = array_key_exists($varName, $inputs);
                 $value    = $hasValue ? $inputs[$varName] : Utils::undefined();
 
-                if (! $hasValue && $varDefNode->defaultValue) {
+                if (! $hasValue && ($varDefNode->defaultValue !== null)) {
                     // If no value was provided to a variable with a default value,
                     // use the default value.
                     $coercedValues[$varName] = AST::valueFromAST($varDefNode->defaultValue, $varType);
@@ -110,7 +111,7 @@ class Values
                         $coerced = Value::coerceValue($value, $varType, $varDefNode);
                         /** @var Error[] $coercionErrors */
                         $coercionErrors = $coerced['errors'];
-                        if ($coercionErrors) {
+                        if (count($coercionErrors ?? []) > 0) {
                             $messagePrelude = sprintf(
                                 'Variable "$%s" got invalid value %s; ',
                                 $varName,
@@ -124,7 +125,7 @@ class Values
                                     $error->getSource(),
                                     $error->getPositions(),
                                     $error->getPath(),
-                                    $error,
+                                    $error->getPrevious(),
                                     $error->getExtensions()
                                 );
                             }
@@ -136,7 +137,7 @@ class Values
             }
         }
 
-        if (! empty($errors)) {
+        if (count($errors) > 0) {
             return [$errors, null];
         }
 
@@ -187,15 +188,11 @@ class Values
      */
     public static function getArgumentValues($def, $node, $variableValues = null)
     {
-        if (empty($def->args)) {
+        if (count($def->args) === 0) {
             return [];
         }
 
-        $argumentNodes = $node->arguments;
-        if (empty($argumentNodes)) {
-            return [];
-        }
-
+        $argumentNodes    = $node->arguments;
         $argumentValueMap = [];
         foreach ($argumentNodes as $argumentNode) {
             $argumentValueMap[$argumentNode->name->value] = $argumentNode->value;
@@ -226,7 +223,7 @@ class Values
 
             if ($argumentValueNode instanceof VariableNode) {
                 $variableName = $argumentValueNode->name->value;
-                $hasValue     = $variableValues ? array_key_exists($variableName, $variableValues) : false;
+                $hasValue     = array_key_exists($variableName, $variableValues ?? []);
                 $isNull       = $hasValue ? $variableValues[$variableName] === null : false;
             } else {
                 $hasValue = $argumentValueNode !== null;
@@ -314,12 +311,12 @@ class Values
     /**
      * @deprecated as of 0.12 (Use coerceValue() directly for richer information)
      *
-     * @param mixed[] $value
+     * @param mixed[]                                                $value
+     * @param ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
      *
      * @return string[]
      *
      * @codeCoverageIgnore
-     * @paarm ScalarType|EnumType|InputObjectType|ListOfType|NonNull $type
      */
     public static function isValidPHPValue($value, InputType $type)
     {

@@ -736,35 +736,41 @@ function validate()
 # GraphQL\Language\Parser
 Parses string containing GraphQL query or [type definition](type-system/type-language.md) to Abstract Syntax Tree.
 
+Those magic functions allow partial parsing:
+
 @method static DocumentNode document(Source|string $source, bool[] $options = [])
 @method static ExecutableDefinitionNode executableDefinition(Source|string $source, bool[] $options = [])
 @method static string operationType(Source|string $source, bool[] $options = [])
 @method static VariableDefinitionNode variableDefinition(Source|string $source, bool[] $options = [])
 @method static SelectionSetNode selectionSet(Source|string $source, bool[] $options = [])
 @method static FieldNode field(Source|string $source, bool[] $options = [])
-@method static ArgumentNode argument(Source|string $source, bool[] $options = [])
-@method static FragmentSpreadNode|InlineFragmentNode fragment(Source|string $source, bool[] $options = [])
-@method static NameNode fragmentName(Source|string $source, bool[] $options = [])
+@method static NodeList<ArgumentNode> constArguments(Source|string $source, bool[] $options = [])
+@method static ArgumentNode constArgument(Source|string $source, bool[] $options = [])
+@method static FragmentDefinitionNode fragmentDefinition(Source|string $source, bool[] $options = [])
+@method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|NullValueNode|ObjectValueNode|StringValueNode|VariableNode valueLiteral(Source|string $source, bool[] $options = [])
 @method static StringValueNode stringLiteral(Source|string $source, bool[] $options = [])
 @method static BooleanValueNode|EnumValueNode|FloatValueNode|IntValueNode|ListValueNode|ObjectValueNode|StringValueNode|VariableNode variableValue(Source|string $source, bool[] $options = [])
-@method static ObjectValueNode object(Source|string $source, bool[] $options = [])
-@method static NodeList<DirectiveNode> directives(Source|string $source, bool[] $options = [])
-@method static ListTypeNode|NameNode|NonNullTypeNode typeReference(Source|string $source, bool[] $options = [])
-@method static TypeSystemDefinitionNode typeSystemDefinition(Source|string $source, bool[] $options = [])
-@method static SchemaDefinitionNode schemaDefinition(Source|string $source, bool[] $options = [])
-@method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
-@method static NamedTypeNode[] implementsInterfaces(Source|string $source, bool[] $options = [])
-@method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
-@method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
-@method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
-@method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
-@method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
-@method static InputValueDefinitionNode[] inputFieldsDefinition(Source|string $source, bool[] $options = [])
-@method static SchemaTypeExtensionNode schemaTypeExtension(Source|string $source, bool[] $options = [])
-@method static ObjectTypeExtensionNode objectTypeExtension(Source|string $source, bool[] $options = [])
-@method static UnionTypeExtensionNode unionTypeExtension(Source|string $source, bool[] $options = [])
-@method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
-@method static DirectiveLocation[] directiveLocations(Source|string $source, bool[] $options = [])
+@method static ListValueNode constArray(Source|string $source, bool[] $options = [])
+@method static ObjectValueNode constObject(Source|string $source, bool[] $options = [])
+@method static ObjectFieldNode constObjectField(Source|string $source, bool[] $options = [])
+@method static NodeList<DirectiveNode> constDirectives(Source|string $source, bool[] $options = [])
+@method static DirectiveNode constDirective(Source|string $source, bool[] $options = [])
+@method static NamedTypeNode namedType(Source|string $source, bool[] $options = [])
+@method static StringValueNode|null description(Source|string $source, bool[] $options = [])
+@method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
+@method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
+@method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
+@method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
+@method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
+@method static NamedTypeNode[] unionMemberTypes(Source|string $source, bool[] $options = [])
+@method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
+@method static InputObjectTypeDefinitionNode inputObjectTypeDefinition(Source|string $source, bool[] $options = [])
+@method static TypeExtensionNode typeExtension(Source|string $source, bool[] $options = [])
+@method static ScalarTypeExtensionNode scalarTypeExtension(Source|string $source, bool[] $options = [])
+@method static InterfaceTypeExtensionNode interfaceTypeExtension(Source|string $source, bool[] $options = [])
+@method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
+@method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
+@method static DirectiveLocation directiveLocation(Source|string $source, bool[] $options = [])
 
 **Class Methods:** 
 ```php
@@ -856,7 +862,7 @@ static function parseValue($source, array $options = [])
  * @param Source|string $source
  * @param bool[]        $options
  *
- * @return ListTypeNode|NameNode|NonNullTypeNode
+ * @return ListTypeNode|NamedTypeNode|NonNullTypeNode
  *
  * @api
  */

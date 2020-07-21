@@ -106,7 +106,7 @@ class AST
                 continue;
             }
             if (is_array($value)) {
-                if (isset($value[0]) || empty($value)) {
+                if (isset($value[0]) || count($value) === 0) {
                     $value = new NodeList($value);
                 } else {
                     $value = self::fromArray($value);
@@ -255,16 +255,16 @@ class AST
                 return new BooleanValueNode(['value' => $serialized]);
             }
             if (is_int($serialized)) {
-                return new IntValueNode(['value' => $serialized]);
+                return new IntValueNode(['value' => (string) $serialized]);
             }
             if (is_float($serialized)) {
                 // int cast with == used for performance reasons
                 // phpcs:ignore
                 if ((int) $serialized == $serialized) {
-                    return new IntValueNode(['value' => $serialized]);
+                    return new IntValueNode(['value' => (string) $serialized]);
                 }
 
-                return new FloatValueNode(['value' => $serialized]);
+                return new FloatValueNode(['value' => (string) $serialized]);
             }
             if (is_string($serialized)) {
                 // Enum types use Enum literals.
@@ -513,9 +513,9 @@ class AST
             case $valueNode instanceof NullValueNode:
                 return null;
             case $valueNode instanceof IntValueNode:
-                return intval($valueNode->value, 10);
+                return (int) $valueNode->value;
             case $valueNode instanceof FloatValueNode:
-                return floatval($valueNode->value);
+                return (float) $valueNode->value;
             case $valueNode instanceof StringValueNode:
             case $valueNode instanceof EnumValueNode:
             case $valueNode instanceof BooleanValueNode:

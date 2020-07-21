@@ -146,12 +146,12 @@ class EnumTypeTest extends TestCase
                         ],
                     ],
                     'resolve' => static function ($rootValue, $args) use ($Complex2) {
-                        if (! empty($args['provideGoodValue'])) {
+                        if ($args['provideGoodValue'] ?? false) {
                             // Note: this is one of the references of the internal values which
                             // ComplexEnum allows.
                             return $Complex2;
                         }
-                        if (! empty($args['provideBadValue'])) {
+                        if ($args['provideBadValue'] ?? false) {
                             // Note: similar shape, but not the same *reference*
                             // as Complex2 above. Enum internal values require === equality.
                             return new ArrayObject(['someRandomValue' => 123]);
@@ -177,10 +177,10 @@ class EnumTypeTest extends TestCase
                         ],
                     ],
                     'resolve' => static function ($rootValue, $args) use (&$Array1) {
-                        if (! empty($args['provideOneByReference'])) {
+                        if ($args['provideOneByReference'] ?? false) {
                             return $Array1;
                         }
-                        if (! empty($args['provideTwo'])) {
+                        if ($args['provideTwo'] ?? false) {
                             return ['two', 'TWO'];
                         }
 
@@ -280,7 +280,7 @@ class EnumTypeTest extends TestCase
     private function expectFailure($query, $vars, $err)
     {
         $result = GraphQL::executeQuery($this->schema, $query, null, null, $vars);
-        self::assertEquals(1, count($result->errors));
+        self::assertCount(1, $result->errors);
 
         if (is_array($err)) {
             self::assertEquals(

@@ -91,7 +91,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      * @param mixed[]                      $extensions
      */
     public function __construct(
-        $message,
+        $message = '',
         $nodes = null,
         ?Source $source = null,
         array $positions = [],
@@ -210,7 +210,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     public function getSource() : ?Source
     {
         if ($this->source === null) {
-            if (! empty($this->nodes[0]) && ! empty($this->nodes[0]->loc)) {
+            if (isset($this->nodes[0]) && $this->nodes[0]->loc !== null) {
                 $this->source = $this->nodes[0]->loc->source;
             }
         }
@@ -223,7 +223,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
      */
     public function getPositions() : array
     {
-        if (count($this->positions) === 0 && ! empty($this->nodes)) {
+        if (count($this->positions) === 0 && count($this->nodes ?? []) > 0) {
             $positions = array_map(
                 static function ($node) : ?int {
                     return isset($node->loc) ? $node->loc->start : null;
@@ -277,7 +277,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
                 $locations       = array_filter(
                     array_map(
                         static function ($node) : ?SourceLocation {
-                            if ($node->loc !== null && $node->loc->source !== null) {
+                            if (isset($node->loc->source)) {
                                 return $node->loc->source->getLocation($node->loc->start);
                             }
 
@@ -346,13 +346,13 @@ class Error extends Exception implements JsonSerializable, ClientAware
             }
         );
 
-        if (! empty($locations)) {
+        if (count($locations) > 0) {
             $arr['locations'] = $locations;
         }
-        if (! empty($this->path)) {
+        if (count($this->path ?? []) > 0) {
             $arr['path'] = $this->path;
         }
-        if (! empty($this->extensions)) {
+        if (count($this->extensions ?? []) > 0) {
             $arr['extensions'] = $this->extensions;
         }
 

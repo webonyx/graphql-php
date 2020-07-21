@@ -52,7 +52,7 @@ class UniqueInputFieldNames extends ValidationRule
             NodeKind::OBJECT_FIELD => function (ObjectFieldNode $node) use ($context) : VisitorOperation {
                 $fieldName = $node->name->value;
 
-                if (! empty($this->knownNames[$fieldName])) {
+                if (isset($this->knownNames[$fieldName])) {
                     $context->reportError(new Error(
                         self::duplicateInputFieldMessage($fieldName),
                         [$this->knownNames[$fieldName], $node->name]

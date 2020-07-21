@@ -6,6 +6,16 @@ parameters:
 			path: src/Error/Error.php
 
 		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\Source\\|null given on the right side\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
+			message: "#^Only booleans are allowed in &&, GraphQL\\\\Language\\\\AST\\\\Location\\|null given on the left side\\.$#"
+			count: 1
+			path: src/Error/Error.php
+
+		-
 			message: "#^Construct empty\\(\\) is not allowed\\. Use more strict comparison\\.$#"
 			count: 5
 			path: src/Error/FormattedError.php

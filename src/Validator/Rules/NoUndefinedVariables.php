@@ -33,7 +33,7 @@ class NoUndefinedVariables extends ValidationRule
                         $node    = $usage['node'];
                         $varName = $node->name->value;
 
-                        if (! empty($variableNameDefined[$varName])) {
+                        if ($variableNameDefined[$varName] ?? false) {
                             continue;
                         }
 

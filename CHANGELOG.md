@@ -1,5 +1,36 @@
 # Changelog
 
+## v14.1.0
+
+New:
+- Add partial parse functions for const variants (#693)
+
+Fixes:
+- Differentiate between client-safe and non-client-safe errors in scalar validation (#706)
+- Proper type hints for `IntValueNode` (#691)
+
+Refactoring:
+- Ensure NamedTypeNode::$name is always a NameNode (#695)
+- Visitor: simplify getVisitFn (#694)
+- Replace function calls with type casts (#692)
+- Fix "only booleans are allowed" errors (#659)
+
+
+## v14.0.2
+
+- Optimize lazy types (#684)
+
+## v14.0.1
+
+Bug fixes:
+- Fix for: Argument defaults with integer/float values crashes introspection query (#679)
+- Fix for "Invalid AST Node: false" error (#685)
+- Fix double Error wrapping when parsing variables (#688)
+
+Refactoring:
+- Do not use call_user_func or call_user_func_array (#676)
+- Codestyle and static analysis improvements (#648, #690)
+
 ## v14.0.0
 
 This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.md) document for details.
@@ -30,9 +61,12 @@ Other noteworthy changes:
 - Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
 - Deprecated Experimental executor (#397)
 
-Also some bugs fixed, heavily investe in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
+Also some bugs fixed, heavily invested in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
 
 Special thanks to @simPod, @spawnia and @shmax for their major contributions!
+
+### v0.13.9
+- Fix double Error wrapping when parsing variables (#689)
 
 ### v0.13.8
 - Don't call global field resolver on introspection fields (#481)

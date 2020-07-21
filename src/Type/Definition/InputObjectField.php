@@ -44,6 +44,9 @@ class InputObjectField
                     break;
                 case 'defaultValueExists':
                     break;
+                case 'type':
+                    // do nothing; type is lazy loaded in getType
+                    break;
                 default:
                     $this->{$k} = $v;
             }
@@ -56,12 +59,17 @@ class InputObjectField
      */
     public function getType() : Type
     {
-        /**
-         * TODO: Replace this cast with native assert
-         *
-         * @var Type&InputType
-         */
-        return Schema::resolveType($this->type);
+        if (! isset($this->type)) {
+            /**
+             * TODO: replace this phpstan cast with native assert
+             *
+             * @var Type&InputType
+             */
+            $type       = Schema::resolveType($this->config['type']);
+            $this->type = $type;
+        }
+
+        return $this->type;
     }
 
     public function defaultValueExists() : bool
@@ -84,7 +92,7 @@ class InputObjectField
         } catch (Error $e) {
             throw new InvariantViolation(sprintf('%s.%s: %s', $parentType->name, $this->name, $e->getMessage()));
         }
-        $type = $this->type;
+        $type = $this->getType();
         if ($type instanceof WrappingType) {
             $type = $type->getWrappedType(true);
         }
@@ -98,7 +106,7 @@ class InputObjectField
             )
         );
         Utils::invariant(
-            empty($this->config['resolve']),
+            ! array_key_exists('resolve', $this->config),
             sprintf(
                 '%s.%s field has a resolve property, but Input Types cannot define resolvers.',
                 $parentType->name,

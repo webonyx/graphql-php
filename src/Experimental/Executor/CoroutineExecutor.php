@@ -37,6 +37,7 @@ use GraphQL\Utils\Utils;
 use SplQueue;
 use stdClass;
 use Throwable;
+use function count;
 use function is_array;
 use function is_string;
 use function sprintf;
@@ -151,7 +152,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
                 $array[$propertyName] = self::resultToArray($propertyValue);
             }
 
-            if ($emptyObjectAsStdClass && empty($array)) {
+            if ($emptyObjectAsStdClass && count($array) === 0) {
                 return new stdClass();
             }
 
@@ -181,7 +182,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
         $this->collector = new Collector($this->schema, $this);
         $this->collector->initialize($this->documentNode, $this->operationName);
 
-        if (! empty($this->errors)) {
+        if (count($this->errors) > 0) {
             return $this->promiseAdapter->createFulfilled($this->finishExecute(null, $this->errors));
         }
 
@@ -191,7 +192,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
             $this->rawVariableValues ?? []
         );
 
-        if (! empty($errors)) {
+        if (count($errors ?? []) > 0) {
             return $this->promiseAdapter->createFulfilled($this->finishExecute(null, $errors));
         }
 

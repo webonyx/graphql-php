@@ -66,7 +66,7 @@ class FormattedError
     public static function printError(Error $error)
     {
         $printedLocations = [];
-        if ($error->nodes !== null && count($error->nodes) !== 0) {
+        if (count($error->nodes ?? []) !== 0) {
             /** @var Node $node */
             foreach ($error->nodes as $node) {
                 if ($node->loc === null) {
@@ -84,7 +84,7 @@ class FormattedError
             }
         } elseif ($error->getSource() !== null && count($error->getLocations()) !== 0) {
             $source = $error->getSource();
-            foreach ($error->getLocations() as $location) {
+            foreach (($error->getLocations() ?? []) as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
@@ -198,13 +198,14 @@ class FormattedError
                     return $loc->toSerializableArray();
                 }
             );
-            if (! empty($locations)) {
+            if (count($locations) > 0) {
                 $formattedError['locations'] = $locations;
             }
-            if (! empty($exception->path)) {
+
+            if (count($exception->path ?? []) > 0) {
                 $formattedError['path'] = $exception->path;
             }
-            if (! empty($exception->getExtensions())) {
+            if (count($exception->getExtensions() ?? []) > 0) {
                 $formattedError['extensions'] = $exception->getExtensions() + $formattedError['extensions'];
             }
         }
@@ -281,7 +282,7 @@ class FormattedError
         $formatter = $formatter ?? static function ($e) : array {
             return FormattedError::createFromException($e);
         };
-        if ($debug) {
+        if ($debug !== DebugFlag::NONE) {
             $formatter = static function ($e) use ($formatter, $debug) : array {
                 return FormattedError::addDebugEntries($formatter($e), $e, $debug);
             };
@@ -318,7 +319,7 @@ class FormattedError
 
                 if (isset($err['function'])) {
                     $func    = $err['function'];
-                    $args    = ! empty($err['args']) ? array_map([self::class, 'printVar'], $err['args']) : [];
+                    $args    = array_map([self::class, 'printVar'], $err['args'] ?? []);
                     $funcStr = $func . '(' . implode(', ', $args) . ')';
 
                     if (isset($err['class'])) {
@@ -387,7 +388,7 @@ class FormattedError
     {
         $formatted = ['message' => $error];
 
-        if (! empty($locations)) {
+        if (count($locations) > 0) {
             $formatted['locations'] = array_map(
                 static function ($loc) : array {
                     return $loc->toArray();
