@@ -341,7 +341,7 @@ class Schema
 
         $type = $typeLoader($typeName);
 
-        if (is_callable($type)) {
+        if (! $type instanceof Type && is_callable($type)) {
             $type = $type();
         }
 
