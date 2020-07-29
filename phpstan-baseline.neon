@@ -252,7 +252,7 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, \\(callable\\)\\|null given\\.$#"
-			count: 2
+			count: 1
 			path: src/Type/Schema.php
 
 		-

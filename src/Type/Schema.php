@@ -335,24 +335,22 @@ class Schema
     {
         $typeLoader = $this->config->typeLoader;
 
-        if (! $typeLoader) {
+        if (! isset($typeLoader)) {
             return $this->defaultTypeLoader($typeName);
         }
 
         $type = $typeLoader($typeName);
 
-        if (! $type instanceof Type && is_callable($type)) {
-            $type = $type();
-        }
-
         if (! $type instanceof Type) {
-            throw new InvariantViolation(
-                sprintf(
-                    'Type loader is expected to return a callable or valid type "%s", but it returned %s',
-                    $typeName,
-                    Utils::printSafe($type)
-                )
-            );
+            if (is_callable($type)) {
+                $type = $type();
+
+                if (! $type instanceof Type) {
+                    $this->throwNotAType($type, $typeName);
+                }
+            } else {
+                $this->throwNotAType($type, $typeName);
+            }
         }
 
         if ($type->name !== $typeName) {
@@ -362,6 +360,17 @@ class Schema
         }
 
         return $type;
+    }
+
+    protected function throwNotAType($type, string $typeName)
+    {
+        throw new InvariantViolation(
+            sprintf(
+                'Type loader is expected to return a callable or valid type "%s", but it returned %s',
+                $typeName,
+                Utils::printSafe($type)
+            )
+        );
     }
 
     private function defaultTypeLoader(string $typeName) : ?Type
