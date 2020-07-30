@@ -215,7 +215,7 @@ class DefinitionTest extends TestCase
             'name' => 'GenericField',
         ]);
 
-        Warning::setWarningHandler(function ($message) : void {
+        Warning::setWarningHandler(static function ($message) : void {
             self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
         });
 
@@ -230,7 +230,7 @@ class DefinitionTest extends TestCase
             'name' => 'GenericField',
         ]);
 
-        Warning::setWarningHandler(function ($message) : void {
+        Warning::setWarningHandler(static function ($message) : void {
             self::assertEquals($message, 'The public setter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version.');
         });
 
@@ -245,7 +245,7 @@ class DefinitionTest extends TestCase
             'name' => 'GenericField',
         ]);
 
-        Warning::setWarningHandler(function ($message) : void {
+        Warning::setWarningHandler(static function ($message) : void {
             self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
         });
 
