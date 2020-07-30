@@ -12,6 +12,7 @@ use GraphQL\Tests\Type\TestClasses\OtherCustom;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldDefinition;
+use GraphQL\Type\Definition\InputObjectField;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
@@ -208,7 +209,7 @@ class DefinitionTest extends TestCase
         self::assertSame($this->blogArticle, $feedFieldType->getWrappedType());
     }
 
-    public function testPublicTypeDeprecation() : void
+    public function testFieldDefinitionPublicTypeGetDeprecation() : void
     {
         $fieldDef = FieldDefinition::create([
             'type' => Type::string(),
@@ -223,7 +224,7 @@ class DefinitionTest extends TestCase
         $type = $fieldDef->type;
     }
 
-    public function testPublicTypeSetDeprecation() : void
+    public function testFieldDefinitionPublicTypeSetDeprecation() : void
     {
         $fieldDef = FieldDefinition::create([
             'type' => Type::string(),
@@ -238,7 +239,7 @@ class DefinitionTest extends TestCase
         $fieldDef->type = Type::int();
     }
 
-    public function testPublicTypeIssetDeprecation() : void
+    public function testFieldDefinitionPublicTypeIssetDeprecation() : void
     {
         $fieldDef = FieldDefinition::create([
             'type' => Type::string(),
@@ -247,6 +248,50 @@ class DefinitionTest extends TestCase
 
         Warning::setWarningHandler(static function ($message) : void {
             self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+        });
+
+        isset($fieldDef->type);
+    }
+
+    public function testInputObjectFieldPublicTypeGetDeprecation() : void
+    {
+        $fieldDef = new InputObjectField([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message) : void {
+            self::assertEquals($message, 'The public getter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+        });
+
+        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
+        $type = $fieldDef->type;
+    }
+
+    public function testInputObjectFieldPublicTypeSetDeprecation() : void
+    {
+        $fieldDef = new InputObjectField([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message) : void {
+            self::assertEquals($message, 'The public setter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version.');
+        });
+
+        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
+        $fieldDef->type = Type::int();
+    }
+
+    public function testInputObjectFieldPublicTypeIssetDeprecation() : void
+    {
+        $fieldDef = new InputObjectField([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(static function ($message) : void {
+            self::assertEquals($message, 'The public getter for \'type\' on InputObjectField has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
         });
 
         isset($fieldDef->type);
