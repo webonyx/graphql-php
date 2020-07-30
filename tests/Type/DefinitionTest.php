@@ -216,9 +216,10 @@ class DefinitionTest extends TestCase
         ]);
 
         Warning::setWarningHandler(function ($message) : void {
-            $this->assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+            self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
         });
 
+        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
         $type = $fieldDef->type;
     }
 
@@ -230,10 +231,11 @@ class DefinitionTest extends TestCase
         ]);
 
         Warning::setWarningHandler(function ($message) : void {
-            $this->assertEquals($message, 'The public setter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version.');
+            self::assertEquals($message, 'The public setter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version.');
         });
 
-        $fieldDef->type = null;
+        // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
+        $fieldDef->type = Type::int();
     }
 
     public function testPublicTypeIssetDeprecation() : void
@@ -244,7 +246,7 @@ class DefinitionTest extends TestCase
         ]);
 
         Warning::setWarningHandler(function ($message) : void {
-            $this->assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+            self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
         });
 
         isset($fieldDef->type);
