@@ -60,8 +60,8 @@ class InputObjectField
         switch ($name) {
             case 'type':
                 Warning::warnOnce(
-                    "The public getter for 'type' on InputObjectField has been deprecated and will be removed' . 
-                    ' in the next major version. Please update your code to use the 'getType' method.",
+                    "The public getter for 'type' on InputObjectField has been deprecated and will be removed" .
+                    " in the next major version. Please update your code to use the 'getType' method.",
                     Warning::WARNING_CONFIG_DEPRECATION
                 );
 
@@ -76,8 +76,8 @@ class InputObjectField
         switch ($name) {
             case 'type':
                 Warning::warnOnce(
-                    "The public getter for 'type' on InputObjectField has been deprecated and will be removed' . 
-                    ' in the next major version. Please update your code to use the 'getType' method.",
+                    "The public getter for 'type' on InputObjectField has been deprecated and will be removed" .
+                    " in the next major version. Please update your code to use the 'getType' method.",
                     Warning::WARNING_CONFIG_DEPRECATION
                 );
 
@@ -92,8 +92,8 @@ class InputObjectField
         switch ($name) {
             case 'type':
                 Warning::warnOnce(
-                    "The public setter for 'type' on InputObjectField has been deprecated and will be removed' . 
-                    ' in the next major version.",
+                    "The public setter for 'type' on InputObjectField has been deprecated and will be removed" .
+                    ' in the next major version.',
                     Warning::WARNING_CONFIG_DEPRECATION
                 );
                 $this->type = $value;

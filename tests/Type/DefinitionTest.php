@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace GraphQL\Tests\Type;
 
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Tests\Type\TestClasses\MyCustomType;
 use GraphQL\Tests\Type\TestClasses\OtherCustom;
 use GraphQL\Type\Definition\CustomScalarType;
 use GraphQL\Type\Definition\EnumType;
+use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
@@ -18,6 +20,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use GraphQL\Type\Schema;
+use PHPUnit\Framework\Error\Warning as PhpUnitWarning;
 use PHPUnit\Framework\TestCase;
 use stdClass;
 use function count;
@@ -203,6 +206,48 @@ class DefinitionTest extends TestCase
         $feedFieldType = $feedField->getType();
         self::assertInstanceOf('GraphQL\Type\Definition\ListOfType', $feedFieldType);
         self::assertSame($this->blogArticle, $feedFieldType->getWrappedType());
+    }
+
+    public function testPublicTypeDeprecation() : void
+    {
+        $fieldDef = FieldDefinition::create([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(function ($message) : void {
+            $this->assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+        });
+
+        $type = $fieldDef->type;
+    }
+
+    public function testPublicTypeSetDeprecation() : void
+    {
+        $fieldDef = FieldDefinition::create([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(function ($message) : void {
+            $this->assertEquals($message, 'The public setter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version.');
+        });
+
+        $fieldDef->type = null;
+    }
+
+    public function testPublicTypeIssetDeprecation() : void
+    {
+        $fieldDef = FieldDefinition::create([
+            'type' => Type::string(),
+            'name' => 'GenericField',
+        ]);
+
+        Warning::setWarningHandler(function ($message) : void {
+            $this->assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
+        });
+
+        isset($fieldDef->type);
     }
 
     /**
