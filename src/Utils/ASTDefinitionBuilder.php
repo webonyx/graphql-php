@@ -15,6 +15,7 @@ use GraphQL\Language\AST\InputValueDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\ListTypeNode;
 use GraphQL\Language\AST\NamedTypeNode;
+use GraphQL\Language\AST\NameNode;
 use GraphQL\Language\AST\Node;
 use GraphQL\Language\AST\NonNullTypeNode;
 use GraphQL\Language\AST\ObjectTypeDefinitionNode;
@@ -81,11 +82,11 @@ class ASTDefinitionBuilder
             'description' => $this->getDescription($directiveNode),
             'args'        => isset($directiveNode->arguments) ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
             'isRepeatable'        => $directiveNode->repeatable,
-            'locations'   => Utils::map(
-                $directiveNode->locations,
-                static function ($node) {
+            'locations'   => array_map(
+                static function (NameNode $node): string {
                     return $node->value;
-                }
+                },
+                $directiveNode->locations
             ),
             'astNode'     => $directiveNode,
         ]);
@@ -335,11 +336,11 @@ class ASTDefinitionBuilder
             // Note: While this could make early assertions to get the correctly
             // typed values, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
-            return Utils::map(
-                $def->interfaces,
-                function ($iface) : Type {
+            return array_map(
+                function (NamedTypeNode $iface) : Type {
                     return $this->buildType($iface);
-                }
+                },
+                $def->interfaces
             );
         }
 

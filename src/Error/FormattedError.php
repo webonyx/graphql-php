@@ -192,11 +192,11 @@ class FormattedError
         }
 
         if ($exception instanceof Error) {
-            $locations = Utils::map(
-                $exception->getLocations(),
+            $locations = array_map(
                 static function (SourceLocation $loc) : array {
                     return $loc->toSerializableArray();
-                }
+                },
+                $exception->getLocations()
             );
             if (count($locations) > 0) {
                 $formattedError['locations'] = $locations;

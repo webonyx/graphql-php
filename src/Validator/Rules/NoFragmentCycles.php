@@ -83,9 +83,12 @@ class NoFragmentCycles extends ValidationRule
                 }
             } else {
                 $cyclePath     = array_slice($this->spreadPath, $cycleIndex);
-                $fragmentNames = Utils::map(array_slice($cyclePath, 0, -1), static function ($s) {
-                    return $s->name->value;
-                });
+                $fragmentNames = array_map(
+                    static function (FragmentSpreadNode $s): string {
+                        return $s->name->value;
+                    },
+                    array_slice($cyclePath, 0, -1)
+                );
 
                 $context->reportError(new Error(
                     self::cycleErrorMessage($spreadName, $fragmentNames),

@@ -339,11 +339,11 @@ class Error extends Exception implements JsonSerializable, ClientAware
             'message' => $this->getMessage(),
         ];
 
-        $locations = Utils::map(
-            $this->getLocations(),
+        $locations = array_map(
             static function (SourceLocation $loc) : array {
                 return $loc->toSerializableArray();
-            }
+            },
+            $this->getLocations()
         );
 
         if (count($locations) > 0) {

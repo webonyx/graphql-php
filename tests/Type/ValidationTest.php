@@ -140,27 +140,27 @@ class ValidationTest extends TestCase
         Warning::suppress(Warning::WARNING_NOT_A_TYPE);
     }
 
-    private function withModifiers($types)
+    private function withModifiers(array $types): array
     {
         return array_merge(
             $types,
-            Utils::map(
-                $types,
+            array_map(
                 static function ($type) : ListOfType {
                     return Type::listOf($type);
-                }
+                },
+                $types
             ),
-            Utils::map(
-                $types,
+            array_map(
                 static function ($type) : NonNull {
                     return Type::nonNull($type);
-                }
+                },
+                $types
             ),
-            Utils::map(
-                $types,
+            array_map(
                 static function ($type) : NonNull {
                     return Type::nonNull(Type::listOf($type));
-                }
+                },
+                $types
             )
         );
     }
@@ -335,31 +335,36 @@ class ValidationTest extends TestCase
         );
     }
 
-    private function formatLocations(Error $error)
+    private function formatLocations(Error $error): array
     {
-        return Utils::map($error->getLocations(), static function (SourceLocation $loc) : array {
-            return ['line' => $loc->line, 'column' => $loc->column];
-        });
+        return array_map(
+            static function (SourceLocation $loc) : array {
+                return ['line' => $loc->line, 'column' => $loc->column];
+            },
+            $error->getLocations()
+        );
     }
 
     /**
      * @param Error[] $errors
-     * @param bool    $withLocation
      *
      * @return mixed[]
      */
-    private function formatErrors(array $errors, $withLocation = true)
+    private function formatErrors(array $errors, bool $withLocation = true): array
     {
-        return Utils::map($errors, function (Error $error) use ($withLocation) : array {
-            if (! $withLocation) {
-                return [ 'message' => $error->getMessage() ];
-            }
+        return array_map(
+            function (Error $error) use ($withLocation) : array {
+                if (! $withLocation) {
+                    return [ 'message' => $error->getMessage() ];
+                }
 
-            return [
-                'message' => $error->getMessage(),
-                'locations' => $this->formatLocations($error),
-            ];
-        });
+                return [
+                    'message' => $error->getMessage(),
+                    'locations' => $this->formatLocations($error),
+                ];
+            },
+            $errors
+        );
     }
 
     private function assertMatchesValidationMessage($errors, $expected)

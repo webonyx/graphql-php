@@ -738,11 +738,11 @@ class LexerTest extends TestCase
                 '}',
                 '<EOF>',
             ],
-            Utils::map(
-                $tokens,
-                static function ($tok) {
+            array_map(
+                static function (Token $tok): string {
                     return $tok->kind;
-                }
+                },
+                $tokens
             )
         );
     }

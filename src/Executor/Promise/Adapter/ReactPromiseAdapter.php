@@ -78,11 +78,13 @@ class ReactPromiseAdapter implements PromiseAdapter
     public function all(array $promisesOrValues)
     {
         // TODO: rework with generators when PHP minimum required version is changed to 5.5+
-        $promisesOrValues = Utils::map(
-            $promisesOrValues,
+        $promisesOrValues = array_map(
             static function ($item) {
-                return $item instanceof Promise ? $item->adoptedPromise : $item;
-            }
+                return $item instanceof Promise
+                    ? $item->adoptedPromise
+                    : $item;
+            },
+            $promisesOrValues
         );
 
         $promise = all($promisesOrValues)->then(static function ($values) use ($promisesOrValues) : array {

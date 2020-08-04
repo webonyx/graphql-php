@@ -20,6 +20,7 @@ use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 class SyncTest extends TestCase
 {
@@ -200,11 +201,11 @@ class SyncTest extends TestCase
             $doc
         );
         $expected         = [
-            'errors' => Utils::map(
-                $validationErrors,
-                static function ($e) : array {
+            'errors' => array_map(
+                static function (Throwable $e) : array {
                     return FormattedError::createFromException($e);
-                }
+                },
+                $validationErrors
             ),
         ];
         self::assertSync($expected, $result);

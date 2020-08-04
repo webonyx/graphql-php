@@ -75,11 +75,11 @@ class KnownArgumentNamesOnDirectives extends ValidationRule
 
             $name = $def->name->value;
             if ($def->arguments !== null) {
-                $directiveArgs[$name] = Utils::map(
-                    $def->arguments ?? [],
+                $directiveArgs[$name] = array_map(
                     static function (InputValueDefinitionNode $arg) : string {
                         return $arg->name->value;
-                    }
+                    },
+                    $def->arguments ?? []
                 );
             } else {
                 $directiveArgs[$name] = [];
