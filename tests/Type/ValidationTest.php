@@ -24,6 +24,7 @@ use GraphQL\Utils\BuildSchema;
 use GraphQL\Utils\SchemaExtender;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use function array_map;
 use function array_merge;
 
 class ValidationTest extends TestCase
@@ -140,7 +141,7 @@ class ValidationTest extends TestCase
         Warning::suppress(Warning::WARNING_NOT_A_TYPE);
     }
 
-    private function withModifiers(array $types): array
+    private function withModifiers(array $types) : array
     {
         return array_merge(
             $types,
@@ -335,7 +336,7 @@ class ValidationTest extends TestCase
         );
     }
 
-    private function formatLocations(Error $error): array
+    private function formatLocations(Error $error) : array
     {
         return array_map(
             static function (SourceLocation $loc) : array {
@@ -350,7 +351,7 @@ class ValidationTest extends TestCase
      *
      * @return mixed[]
      */
-    private function formatErrors(array $errors, bool $withLocation = true): array
+    private function formatErrors(array $errors, bool $withLocation = true) : array
     {
         return array_map(
             function (Error $error) use ($withLocation) : array {

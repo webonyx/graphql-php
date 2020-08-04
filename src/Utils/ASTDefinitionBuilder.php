@@ -397,7 +397,7 @@ class ASTDefinitionBuilder
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
             'types'       => isset($def->types)
-                ? function () use ($def) {
+                ? function () use ($def) : array {
                     $types = [];
                     foreach ($def->types as $type) {
                         $types[] = $this->buildType($type);
