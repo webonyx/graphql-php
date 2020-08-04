@@ -34,6 +34,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
 use Throwable;
+use function array_map;
 use function array_reverse;
 use function implode;
 use function is_array;
@@ -80,10 +81,12 @@ class ASTDefinitionBuilder
         return new Directive([
             'name'        => $directiveNode->name->value,
             'description' => $this->getDescription($directiveNode),
-            'args'        => isset($directiveNode->arguments) ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments)) : null,
+            'args'        => isset($directiveNode->arguments)
+                ? FieldArgument::createMap($this->makeInputValues($directiveNode->arguments))
+                : null,
             'isRepeatable'        => $directiveNode->repeatable,
             'locations'   => array_map(
-                static function (NameNode $node): string {
+                static function (NameNode $node) : string {
                     return $node->value;
                 },
                 $directiveNode->locations
@@ -395,12 +398,12 @@ class ASTDefinitionBuilder
             // validation with validateSchema() will produce more actionable results.
             'types'       => isset($def->types)
                 ? function () use ($def) {
-                    return Utils::map(
-                        $def->types,
-                        function ($typeNode) : Type {
-                            return $this->buildType($typeNode);
-                        }
-                    );
+                    $types = [];
+                    foreach ($def->types as $type) {
+                        $types[] = $this->buildType($type);
+                    }
+
+                    return $types;
                 }
                 : [],
             'astNode'     => $def,

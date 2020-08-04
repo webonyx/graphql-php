@@ -21,6 +21,7 @@ use GraphQL\Utils\Utils;
 use GraphQL\Validator\DocumentValidator;
 use PHPUnit\Framework\TestCase;
 use Throwable;
+use function array_map;
 
 class SyncTest extends TestCase
 {

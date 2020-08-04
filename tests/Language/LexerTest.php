@@ -12,6 +12,7 @@ use GraphQL\Language\Token;
 use GraphQL\Tests\PHPUnit\ArraySubsetAsserts;
 use GraphQL\Utils\Utils;
 use PHPUnit\Framework\TestCase;
+use function array_map;
 use function count;
 use function json_decode;
 
@@ -739,7 +740,7 @@ class LexerTest extends TestCase
                 '<EOF>',
             ],
             array_map(
-                static function (Token $tok): string {
+                static function (Token $tok) : string {
                     return $tok->kind;
                 },
                 $tokens

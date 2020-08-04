@@ -9,6 +9,7 @@ use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
 use React\Promise\Promise as ReactPromise;
 use React\Promise\PromiseInterface as ReactPromiseInterface;
+use function array_map;
 use function React\Promise\all;
 use function React\Promise\reject;
 use function React\Promise\resolve;

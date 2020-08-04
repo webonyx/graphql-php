@@ -41,6 +41,7 @@ use GraphQL\Utils\TypeComparators;
 use GraphQL\Utils\Utils;
 use function array_filter;
 use function array_key_exists;
+use function array_map;
 use function array_merge;
 use function count;
 use function is_array;
