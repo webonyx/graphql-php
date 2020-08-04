@@ -160,28 +160,6 @@ class Utils
      *
      * @throws Exception
      */
-    public static function map($iterable, callable $fn) : array
-    {
-        self::invariant(
-            is_array($iterable) || $iterable instanceof Traversable,
-            __METHOD__ . ' expects array or Traversable'
-        );
-
-        $map = [];
-        foreach ($iterable as $key => $value) {
-            $map[$key] = $fn($value, $key);
-        }
-
-        return $map;
-    }
-
-    /**
-     * @param iterable<mixed> $iterable
-     *
-     * @return array<mixed>
-     *
-     * @throws Exception
-     */
     public static function mapKeyValue($iterable, callable $fn) : array
     {
         self::invariant(
