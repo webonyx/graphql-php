@@ -141,24 +141,29 @@ class ValidationTest extends TestCase
         Warning::suppress(Warning::WARNING_NOT_A_TYPE);
     }
 
+    /**
+     * @param array<Type> $types
+     *
+     * @return array<Type>
+     */
     private function withModifiers(array $types) : array
     {
         return array_merge(
             $types,
             array_map(
-                static function ($type) : ListOfType {
+                static function (Type $type) : ListOfType {
                     return Type::listOf($type);
                 },
                 $types
             ),
             array_map(
-                static function ($type) : NonNull {
+                static function (Type $type) : NonNull {
                     return Type::nonNull($type);
                 },
                 $types
             ),
             array_map(
-                static function ($type) : NonNull {
+                static function (Type $type) : NonNull {
                     return Type::nonNull(Type::listOf($type));
                 },
                 $types
@@ -336,6 +341,9 @@ class ValidationTest extends TestCase
         );
     }
 
+    /**
+     * @return array<array<string, int>>>
+     */
     private function formatLocations(Error $error) : array
     {
         return array_map(
