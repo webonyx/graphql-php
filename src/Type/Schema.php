@@ -342,6 +342,11 @@ class Schema
         $type = $typeLoader($typeName);
 
         if (! $type instanceof Type) {
+            // Unless you know what you're doing, kindly resist the temptation to refactor or simplify this block. The
+            // twisty logic here is tuned for performance, and meant to prioritize the "happy path" (the result returned
+            // from the type loader is already a Type), and only checks for callable if that fails. If the result is
+            // neither a Type nor a callable, then we throw an exception.
+
             if (is_callable($type)) {
                 $type = $type();
 
