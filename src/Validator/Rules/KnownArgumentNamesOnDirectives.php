@@ -29,14 +29,20 @@ use function sprintf;
  */
 class KnownArgumentNamesOnDirectives extends ValidationRule
 {
+    /** @var string */
+    public static $unknownDirectiveArgMessage = 'Unknown argument "%s" on directive "@%s".';
+
+    /** @var string */
+    public static $didYouMeanMessage = ' Did you mean %s?';
+
     /**
      * @param string[] $suggestedArgs
      */
     public static function unknownDirectiveArgMessage($argName, $directiveName, array $suggestedArgs)
     {
-        $message = sprintf('Unknown argument "%s" on directive "@%s".', $argName, $directiveName);
+        $message = sprintf(static::$unknownDirectiveArgMessage, $argName, $directiveName);
         if (isset($suggestedArgs[0])) {
-            $message .= sprintf(' Did you mean %s?', Utils::quotedOrList($suggestedArgs));
+            $message .= sprintf(static::$didYouMeanMessage, Utils::quotedOrList($suggestedArgs));
         }
 
         return $message;

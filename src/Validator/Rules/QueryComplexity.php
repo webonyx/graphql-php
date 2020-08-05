@@ -28,6 +28,9 @@ use function sprintf;
 
 class QueryComplexity extends QuerySecurityRule
 {
+    /** @var string */
+    public static $maxQueryComplexityErrorMessage = 'Max query complexity should be %d but got %d.';
+
     /** @var int */
     private $maxQueryComplexity;
 
@@ -291,7 +294,7 @@ class QueryComplexity extends QuerySecurityRule
 
     public static function maxQueryComplexityErrorMessage($max, $count)
     {
-        return sprintf('Max query complexity should be %d but got %d.', $max, $count);
+        return sprintf(static::$maxQueryComplexityErrorMessage, $max, $count);
     }
 
     protected function isEnabled()

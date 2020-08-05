@@ -23,6 +23,12 @@ use function sprintf;
  */
 class KnownTypeNames extends ValidationRule
 {
+    /** @var string */
+    public static $unknownTypeMessage = 'Unknown type "%s".';
+
+    /** @var string */
+    public static $didYouMeanMessage = ' Did you mean %s?';
+
     public function getVisitor(ValidationContext $context)
     {
         $skip = static function () : VisitorOperation {
@@ -62,11 +68,11 @@ class KnownTypeNames extends ValidationRule
      */
     public static function unknownTypeMessage($type, array $suggestedTypes)
     {
-        $message = sprintf('Unknown type "%s".', $type);
+        $message = sprintf(static::$unknownTypeMessage, $type);
         if (count($suggestedTypes) > 0) {
             $suggestions = Utils::quotedOrList($suggestedTypes);
 
-            $message .= sprintf(' Did you mean %s?', $suggestions);
+            $message .= sprintf(static::$didYouMeanMessage, $suggestions);
         }
 
         return $message;

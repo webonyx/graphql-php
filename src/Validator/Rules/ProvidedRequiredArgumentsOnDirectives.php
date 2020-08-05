@@ -19,6 +19,7 @@ use GraphQL\Validator\ASTValidationContext;
 use GraphQL\Validator\SDLValidationContext;
 use GraphQL\Validator\ValidationContext;
 use function array_filter;
+use function sprintf;
 
 /**
  * Provided required arguments on directives
@@ -28,10 +29,12 @@ use function array_filter;
  */
 class ProvidedRequiredArgumentsOnDirectives extends ValidationRule
 {
+    /** @var string */
+    public static $missingDirectiveArgMessage = 'Directive "@%s" argument "%s" of type "%s" is required but not provided.';
+
     public static function missingDirectiveArgMessage(string $directiveName, string $argName, string $type)
     {
-        return 'Directive "@' . $directiveName . '" argument "' . $argName
-            . '" of type "' . $type . '" is required but not provided.';
+        return sprintf(static::$missingDirectiveArgMessage, $directiveName, $argName, $type);
     }
 
     public function getSDLVisitor(SDLValidationContext $context)

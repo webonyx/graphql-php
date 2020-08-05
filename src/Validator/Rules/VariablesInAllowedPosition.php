@@ -21,6 +21,9 @@ use function sprintf;
 
 class VariablesInAllowedPosition extends ValidationRule
 {
+    /** @var string */
+    public static $badVarPosMessage = 'Variable "$%s" of type "%s" used in position expecting type "%s".';
+
     /**
      * A map from variable names to their definition nodes.
      *
@@ -83,7 +86,7 @@ class VariablesInAllowedPosition extends ValidationRule
     public static function badVarPosMessage($varName, $varType, $expectedType)
     {
         return sprintf(
-            'Variable "$%s" of type "%s" used in position expecting type "%s".',
+            static::$badVarPosMessage,
             $varName,
             $varType,
             $expectedType

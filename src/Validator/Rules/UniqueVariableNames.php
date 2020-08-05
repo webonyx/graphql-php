@@ -13,6 +13,9 @@ use function sprintf;
 
 class UniqueVariableNames extends ValidationRule
 {
+    /** @var string */
+    public static $duplicateVariableMessage = 'There can be only one variable named "%s".';
+
     /** @var NameNode[] */
     public $knownVariableNames;
 
@@ -40,6 +43,6 @@ class UniqueVariableNames extends ValidationRule
 
     public static function duplicateVariableMessage($variableName)
     {
-        return sprintf('There can be only one variable named "%s".', $variableName);
+        return sprintf(static::$duplicateVariableMessage, $variableName);
     }
 }

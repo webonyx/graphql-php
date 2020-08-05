@@ -16,6 +16,12 @@ use function sprintf;
 
 class FragmentsOnCompositeTypes extends ValidationRule
 {
+    /** @var string */
+    public static $inlineFragmentOnNonCompositeErrorMessage = 'Fragment cannot condition on non composite type "%s".';
+
+    /** @var string */
+    public static $fragmentOnNonCompositeErrorMessage = 'Fragment "%s" cannot condition on non composite type "%s".';
+
     public function getVisitor(ValidationContext $context)
     {
         return [
@@ -54,11 +60,11 @@ class FragmentsOnCompositeTypes extends ValidationRule
 
     public static function inlineFragmentOnNonCompositeErrorMessage($type)
     {
-        return sprintf('Fragment cannot condition on non composite type "%s".', $type);
+        return sprintf(static::$inlineFragmentOnNonCompositeErrorMessage, $type);
     }
 
     public static function fragmentOnNonCompositeErrorMessage($fragName, $type)
     {
-        return sprintf('Fragment "%s" cannot condition on non composite type "%s".', $fragName, $type);
+        return sprintf(static::$fragmentOnNonCompositeErrorMessage, $fragName, $type);
     }
 }

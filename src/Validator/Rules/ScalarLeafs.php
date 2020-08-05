@@ -13,6 +13,12 @@ use function sprintf;
 
 class ScalarLeafs extends ValidationRule
 {
+    /** @var string */
+    public static $noSubselectionAllowedMessage = 'Field "%s" of type "%s" must not have a sub selection.';
+
+    /** @var string */
+    public static $requiredSubselectionMessage = 'Field "%s" of type "%s" must have a sub selection.';
+
     public function getVisitor(ValidationContext $context)
     {
         return [
@@ -41,11 +47,11 @@ class ScalarLeafs extends ValidationRule
 
     public static function noSubselectionAllowedMessage($field, $type)
     {
-        return sprintf('Field "%s" of type "%s" must not have a sub selection.', $field, $type);
+        return sprintf(static::$noSubselectionAllowedMessage, $field, $type);
     }
 
     public static function requiredSubselectionMessage($field, $type)
     {
-        return sprintf('Field "%s" of type "%s" must have a sub selection.', $field, $type);
+        return sprintf(static::$requiredSubselectionMessage, $field, $type);
     }
 }

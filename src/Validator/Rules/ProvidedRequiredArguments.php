@@ -14,6 +14,9 @@ use function sprintf;
 
 class ProvidedRequiredArguments extends ValidationRule
 {
+    /** @var string */
+    public static $missingFieldArgMessage = 'Field "%s" argument "%s" of type "%s" is required but not provided.';
+
     public function getVisitor(ValidationContext $context)
     {
         $providedRequiredArgumentsOnDirectives = new ProvidedRequiredArgumentsOnDirectives();
@@ -53,7 +56,7 @@ class ProvidedRequiredArguments extends ValidationRule
     public static function missingFieldArgMessage($fieldName, $argName, $type)
     {
         return sprintf(
-            'Field "%s" argument "%s" of type "%s" is required but not provided.',
+            static::$missingFieldArgMessage,
             $fieldName,
             $argName,
             $type

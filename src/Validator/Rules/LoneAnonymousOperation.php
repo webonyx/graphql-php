@@ -21,6 +21,9 @@ use function count;
  */
 class LoneAnonymousOperation extends ValidationRule
 {
+    /** @var string */
+    public static $anonOperationNotAloneMessage = 'This anonymous operation must be the only defined operation.';
+
     public function getVisitor(ValidationContext $context)
     {
         $operationCount = 0;
@@ -53,6 +56,6 @@ class LoneAnonymousOperation extends ValidationRule
 
     public static function anonOperationNotAloneMessage()
     {
-        return 'This anonymous operation must be the only defined operation.';
+        return static::$anonOperationNotAloneMessage;
     }
 }

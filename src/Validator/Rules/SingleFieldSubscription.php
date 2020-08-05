@@ -17,6 +17,12 @@ use function sprintf;
 
 class SingleFieldSubscription extends ValidationRule
 {
+    /** @var string */
+    public static $multipleFieldsInOperationAnonymousMessage = 'Anonymous Subscription must select only one top level field.';
+
+    /** @var string */
+    public static $multipleFieldsInOperationMessage = 'Subscription "%s" must select only one top level field.';
+
     /**
      * @return array<string, callable>
      */
@@ -49,9 +55,9 @@ class SingleFieldSubscription extends ValidationRule
     public static function multipleFieldsInOperation(?string $operationName) : string
     {
         if ($operationName === null) {
-            return sprintf('Anonymous Subscription must select only one top level field.');
+            return sprintf(static::$multipleFieldsInOperationAnonymousMessage);
         }
 
-        return sprintf('Subscription "%s" must select only one top level field.', $operationName);
+        return sprintf(static::$multipleFieldsInOperationMessage, $operationName);
     }
 }

@@ -16,14 +16,20 @@ use GraphQL\Validator\SDLValidationContext;
  */
 class LoneSchemaDefinition extends ValidationRule
 {
+    /** @var string */
+    public static $schemaDefinitionNotAloneMessage = 'Must provide only one schema definition.';
+
+    /** @var string */
+    public static $canNotDefineSchemaWithinExtensionMessage = 'Cannot define a new schema within a schema extension.';
+
     public static function schemaDefinitionNotAloneMessage()
     {
-        return 'Must provide only one schema definition.';
+        return static::$schemaDefinitionNotAloneMessage;
     }
 
     public static function canNotDefineSchemaWithinExtensionMessage()
     {
-        return 'Cannot define a new schema within a schema extension.';
+        return static::$canNotDefineSchemaWithinExtensionMessage;
     }
 
     public function getSDLVisitor(SDLValidationContext $context)

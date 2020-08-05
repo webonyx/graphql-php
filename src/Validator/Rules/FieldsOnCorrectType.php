@@ -21,6 +21,15 @@ use function sprintf;
 
 class FieldsOnCorrectType extends ValidationRule
 {
+    /** @var string */
+    public static $undefinedFieldMessage = 'Cannot query field "%s" on type "%s".';
+
+    /** @var string */
+    public static $undefinedFieldInlineFragmentMessage = ' Did you mean to use an inline fragment on %s?';
+
+    /** @var string */
+    public static $didYouMeanMessage = ' Did you mean %s?';
+
     public function getVisitor(ValidationContext $context)
     {
         return [
@@ -151,16 +160,16 @@ class FieldsOnCorrectType extends ValidationRule
         array $suggestedTypeNames,
         array $suggestedFieldNames
     ) {
-        $message = sprintf('Cannot query field "%s" on type "%s".', $fieldName, $type);
+        $message = sprintf(static::$undefinedFieldMessage, $fieldName, $type);
 
         if ($suggestedTypeNames) {
             $suggestions = Utils::quotedOrList($suggestedTypeNames);
 
-            $message .= sprintf(' Did you mean to use an inline fragment on %s?', $suggestions);
+            $message .= sprintf(static::$undefinedFieldInlineFragmentMessage, $suggestions);
         } elseif (count($suggestedFieldNames) > 0) {
             $suggestions = Utils::quotedOrList($suggestedFieldNames);
 
-            $message .= sprintf(' Did you mean %s?', $suggestions);
+            $message .= sprintf(static::$didYouMeanMessage, $suggestions);
         }
 
         return $message;

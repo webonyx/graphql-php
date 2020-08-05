@@ -13,6 +13,12 @@ use function sprintf;
 
 class NoUnusedVariables extends ValidationRule
 {
+    /** @var string */
+    public static $unusedVariableInOperationMessage = 'Variable "$%s" is never used in operation "%s".';
+
+    /** @var string */
+    public static $unusedVariableMessage = 'Variable "$%s" is never used.';
+
     /** @var VariableDefinitionNode[] */
     public $variableDefs;
 
@@ -60,7 +66,7 @@ class NoUnusedVariables extends ValidationRule
     public static function unusedVariableMessage($varName, $opName = null)
     {
         return $opName
-            ? sprintf('Variable "$%s" is never used in operation "%s".', $varName, $opName)
-            : sprintf('Variable "$%s" is never used.', $varName);
+            ? sprintf(static::$unusedVariableInOperationMessage, $varName, $opName)
+            : sprintf(static::$unusedVariableMessage, $varName);
     }
 }

@@ -22,6 +22,9 @@ use function sprintf;
  */
 class ExecutableDefinitions extends ValidationRule
 {
+    /** @var string */
+    public static $nonExecutableDefinitionMessage = 'The "%s" definition is not executable.';
+
     public function getVisitor(ValidationContext $context)
     {
         return [
@@ -45,6 +48,6 @@ class ExecutableDefinitions extends ValidationRule
 
     public static function nonExecutableDefinitionMessage($defName)
     {
-        return sprintf('The "%s" definition is not executable.', $defName);
+        return sprintf(static::$nonExecutableDefinitionMessage, $defName);
     }
 }

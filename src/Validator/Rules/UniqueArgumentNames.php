@@ -17,6 +17,9 @@ use function sprintf;
 
 class UniqueArgumentNames extends ValidationRule
 {
+    /** @var string */
+    public static $duplicateArgMessage = 'There can be only one argument named "%s".';
+
     /** @var NameNode[] */
     public $knownArgNames;
 
@@ -59,6 +62,6 @@ class UniqueArgumentNames extends ValidationRule
 
     public static function duplicateArgMessage($argName)
     {
-        return sprintf('There can be only one argument named "%s".', $argName);
+        return sprintf(static::$duplicateArgMessage, $argName);
     }
 }

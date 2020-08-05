@@ -15,6 +15,9 @@ use function sprintf;
 
 class UniqueFragmentNames extends ValidationRule
 {
+    /** @var string */
+    public static $duplicateFragmentNameMessage = 'There can be only one fragment named "%s".';
+
     /** @var NameNode[] */
     public $knownFragmentNames;
 
@@ -44,6 +47,6 @@ class UniqueFragmentNames extends ValidationRule
 
     public static function duplicateFragmentNameMessage($fragName)
     {
-        return sprintf('There can be only one fragment named "%s".', $fragName);
+        return sprintf(static::$duplicateFragmentNameMessage, $fragName);
     }
 }

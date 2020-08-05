@@ -15,6 +15,9 @@ use function sprintf;
 
 class NoUnusedFragments extends ValidationRule
 {
+    /** @var string */
+    public static $unusedFragMessage = 'Fragment "%s" is never used.';
+
     /** @var OperationDefinitionNode[] */
     public $operationDefs;
 
@@ -65,6 +68,6 @@ class NoUnusedFragments extends ValidationRule
 
     public static function unusedFragMessage($fragName)
     {
-        return sprintf('Fragment "%s" is never used.', $fragName);
+        return sprintf(static::$unusedFragMessage, $fragName);
     }
 }

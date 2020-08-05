@@ -15,6 +15,9 @@ use function sprintf;
 
 class VariablesAreInputTypes extends ValidationRule
 {
+    /** @var string */
+    public static $nonInputTypeOnVarMessage = 'Variable "$%s" cannot be non-input type "%s".';
+
     public function getVisitor(ValidationContext $context)
     {
         return [
@@ -37,6 +40,6 @@ class VariablesAreInputTypes extends ValidationRule
 
     public static function nonInputTypeOnVarMessage($variableName, $typeName)
     {
-        return sprintf('Variable "$%s" cannot be non-input type "%s".', $variableName, $typeName);
+        return sprintf(static::$nonInputTypeOnVarMessage, $variableName, $typeName);
     }
 }
