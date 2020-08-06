@@ -53,7 +53,7 @@ class ValuesOfCorrectType extends ValidationRule
     public static $badValueMessage = 'Expected type %s, found %s';
 
     /** @var string */
-    public static $enumTypeSuggestionMessage = 'Did you mean the enum value ';
+    public static $enumTypeSuggestionMessage = 'Did you mean the enum value %s?';
 
     /** @var string */
     public static $badArgumentValueMessage = 'Field "%s" argument "%s" requires type %s, found %s';
@@ -271,7 +271,7 @@ class ValuesOfCorrectType extends ValidationRule
                 )
             );
 
-            return $suggestions ? static::$enumTypeSuggestionMessage . Utils::orList($suggestions) . '?' : null;
+            return $suggestions ? sprintf(static::$enumTypeSuggestionMessage, Utils::orList($suggestions)) : null;
         }
     }
 
