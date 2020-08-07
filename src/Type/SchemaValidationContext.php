@@ -1018,7 +1018,7 @@ class SchemaValidationContext
 
             $this->validateDirectivesAtLocation(
                 $field->astNode->directives,
-                DirectiveLocation::FIELD_DEFINITION
+                DirectiveLocation::INPUT_FIELD_DEFINITION
             );
         }
     }

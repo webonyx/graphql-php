@@ -2501,10 +2501,10 @@ class ValidationTest extends TestCase
                     'message' => 'Directive @interface used twice at the same location.',
                     'locations' => [[ 'line' => 22, 'column' => 35 ], [ 'line' => 22, 'column' => 46 ]],
                 ],[
-                    'message' => 'Directive @input_field_definition not allowed at FIELD_DEFINITION location.',
+                    'message' => 'Directive @input_field_definition used twice at the same location.',
                     'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 11, 'column' => 11 ]],
                 ],[
-                    'message' => 'Directive @input_field_definition not allowed at FIELD_DEFINITION location.',
+                    'message' => 'Directive @input_field_definition used twice at the same location.',
                     'locations' => [[ 'line' => 35, 'column' => 62 ], [ 'line' => 11, 'column' => 11 ]],
                 ],[
                     'message' => 'Directive @input_field_definition used twice at the same location.',
