@@ -173,7 +173,7 @@ class QueryPlan
 
                 $subfields       = [];
                 $subImplementors = [];
-                if ($selectionNode->selectionSet) {
+                if (isset($selectionNode->selectionSet)) {
                     $subfields = $this->analyzeSubFields($selectionType, $selectionNode->selectionSet, $subImplementors);
                 }
 

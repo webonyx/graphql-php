@@ -466,17 +466,7 @@ parameters:
 			path: src/Validator/Rules/NoFragmentCycles.php
 
 		-
-			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FieldNode \\(false\\)\\.$#"
-			count: 1
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
-			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FragmentSpreadNode \\(false\\)\\.$#"
-			count: 1
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
-
-		-
-			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\InlineFragmentNode \\(false\\)\\.$#"
+			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NamedTypeNode given\\.$#"
 			count: 1
 			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
@@ -529,21 +519,6 @@ parameters:
 			message: "#^Only booleans are allowed in a negated boolean, array\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/ProvidedRequiredArgumentsOnDirectives.php
-
-		-
-			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FieldNode \\(false\\)\\.$#"
-			count: 1
-			path: src/Validator/Rules/QuerySecurityRule.php
-
-		-
-			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\FragmentSpreadNode \\(false\\)\\.$#"
-			count: 1
-			path: src/Validator/Rules/QuerySecurityRule.php
-
-		-
-			message: "#^Switch condition type \\(true\\) does not match case condition \\$selection instanceof \\\\GraphQL\\\\Language\\\\AST\\\\InlineFragmentNode \\(false\\)\\.$#"
-			count: 1
-			path: src/Validator/Rules/QuerySecurityRule.php
 
 		-
 			message: "#^Only booleans are allowed in &&, GraphQL\\\\Type\\\\Definition\\\\Type\\|null given on the left side\\.$#"
@@ -612,6 +587,11 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in a negated boolean, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
+			count: 1
+			path: src/Validator/ValidationContext.php
+
+		-
+			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/ValidationContext.php
 
