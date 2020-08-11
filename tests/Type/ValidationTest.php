@@ -2591,7 +2591,7 @@ class ValidationTest extends TestCase
           }
     
           input SomeInput @object {
-            some_input_field: String @union
+            some_input_field: String @union @input_field_definition
           }
         ', null, ['assumeValid' => true]);
 
