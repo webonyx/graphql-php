@@ -2502,12 +2502,6 @@ class ValidationTest extends TestCase
                     'locations' => [[ 'line' => 22, 'column' => 35 ], [ 'line' => 22, 'column' => 46 ]],
                 ],[
                     'message' => 'Directive @input_field_definition used twice at the same location.',
-                    'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 11, 'column' => 11 ]],
-                ],[
-                    'message' => 'Directive @input_field_definition used twice at the same location.',
-                    'locations' => [[ 'line' => 35, 'column' => 62 ], [ 'line' => 11, 'column' => 11 ]],
-                ],[
-                    'message' => 'Directive @input_field_definition used twice at the same location.',
                     'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 35, 'column' => 62 ]],
                 ],[
                     'message' => 'Directive @input_object used twice at the same location.',
