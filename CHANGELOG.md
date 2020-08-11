@@ -1,38 +1,47 @@
 # Changelog
 
-#### v14.1.1
+All notable changes to this project will be documented in this file.
 
-Fixes:
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+You can find and compare releases at the [GitHub release page](https://github.com/webonyx/graphql-php/releases).
+
+## Unreleased
+
+## v14.1.1
+
+### Fixed
 - Handle nullable `DirectiveNode#astNode` in `SchemaValidationContext` (#708)
 
-#### v14.1.0
+## v14.1.0
 
-New:
+### Added
 - Add partial parse functions for const variants (#693)
 
-Fixes:
+### Fixed
 - Differentiate between client-safe and non-client-safe errors in scalar validation (#706)
 - Proper type hints for `IntValueNode` (#691)
-
-Refactoring:
+- Fix "only booleans are allowed" errors (#659)
 - Ensure NamedTypeNode::$name is always a NameNode (#695)
+
+### Optimized
 - Visitor: simplify getVisitFn (#694)
 - Replace function calls with type casts (#692)
-- Fix "only booleans are allowed" errors (#659)
 
+## v14.0.2
 
-#### v14.0.2
-
+### Optimized
 - Optimize lazy types (#684)
 
-#### v14.0.1
+## v14.0.1
 
-Bug fixes:
+### Fixed
 - Fix for: Argument defaults with integer/float values crashes introspection query (#679)
 - Fix for "Invalid AST Node: false" error (#685)
 - Fix double Error wrapping when parsing variables (#688)
 
-Refactoring:
+### Optimized
 - Do not use call_user_func or call_user_func_array (#676)
 - Codestyle and static analysis improvements (#648, #690)
 
@@ -49,24 +58,29 @@ This release brings several breaking changes. Please refer to [UPGRADE](UPGRADE.
 - **BREAKING:** Debug flags in `GraphQL\Executor\ExecutionResult`, `GraphQL\Error\FormattedError` and `GraphQL\Server\ServerConfig` do not accept `boolean` value anymore but `int` only.
 - **BREAKING:** `$positions` in `GraphQL\Error\Error` constructor are not nullable anymore. Same can be expressed by passing an empty array.
 
-Notable features and improvements:
-
-- Compliant with the GraphQL specification [June 2018 Edition](https://spec.graphql.org/June2018/)
+### Added
 - Support repeatable directives (#643)
-- Perf: support lazy type definitions (#557)
-- Simplified Deferred implementation (now allows chaining like promises, #573)
 - Support SDL Validation and other schema validation improvements (e.g. #492)
 - Added promise adapter for [Amp](https://amphp.org/) (#551)
 - Query plan utility improvements (#513, #632)
-
-Other noteworthy changes:
 - Allow retrieving query complexity once query has been completed (#316) 
 - Allow input types to be passed in from variables using \stdClass instead of associative arrays (#535)
 - Support UTF-16 surrogate pairs within string literals (#554, #556)
+
+### Changed
+- Compliant with the GraphQL specification [June 2018 Edition](https://spec.graphql.org/June2018/)
 - Having an empty string in `deprecationReason` will now print the `@deprecated` directive (only a `null` `deprecationReason` won't print the `@deprecated` directive).
+
+### Optimized
+- Perf: support lazy type definitions (#557)
+- Simplified Deferred implementation (now allows chaining like promises, #573)
+
+### Deprecated
 - Deprecated Experimental executor (#397)
 
-Also some bugs fixed, heavily invested in [PHPStan](https://github.com/phpstan/phpstan) for static analysis.
+### Fixed
+- Some bugs
+- Improve accuracy of type hints with [PHPStan](https://github.com/phpstan/phpstan)
 
 Special thanks to @simPod, @spawnia and @shmax for their major contributions!
 
