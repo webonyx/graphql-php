@@ -403,7 +403,7 @@ class Printer
 
                 return json_encode($node->value);
             case $node instanceof UnionTypeDefinitionNode:
-                $typesStr = $this->printArray($node->types, ' | ');
+                $typesStr = $this->printArray($this->listToArray($node->types), ' | ');
 
                 return $this->addDescription($node->description, $this->join(
                     [
@@ -417,7 +417,7 @@ class Printer
                     ' '
                 ));
             case $node instanceof UnionTypeExtensionNode:
-                $typesStr = $this->printArray($node->types, ' | ');
+                $typesStr = $this->printArray($this->listToArray($node->types), ' | ');
 
                 return $this->join(
                     [
