@@ -184,7 +184,7 @@ class SchemaExtender
         foreach ($oldFieldMap as $fieldName => $field) {
             $newFieldMap[$fieldName] = [
                 'description' => $field->description,
-                'type' => static::extendType($field->type),
+                'type' => static::extendType($field->getType()),
                 'astNode' => $field->astNode,
             ];
 
