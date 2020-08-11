@@ -2630,7 +2630,7 @@ class ValidationTest extends TestCase
                     'message' => 'Directive @argument_definition not allowed at FIELD_DEFINITION location.',
                     'locations' => [[ 'line' => 23, 'column' => 26 ], [ 'line' => 12, 'column' => 11 ]],
                 ], [
-                    'message' => 'Directive @union not allowed at FIELD_DEFINITION location.',
+                    'message' => 'Directive @union not allowed at INPUT_FIELD_DEFINITION location.',
                     'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 5, 'column' => 11 ]],
                 ], [
                     'message' => 'Directive @object not allowed at INPUT_OBJECT location.',
