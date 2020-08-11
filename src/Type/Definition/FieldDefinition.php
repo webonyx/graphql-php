@@ -6,6 +6,7 @@ namespace GraphQL\Type\Definition;
 
 use GraphQL\Error\Error;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\Warning;
 use GraphQL\Language\AST\FieldDefinitionNode;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
@@ -60,7 +61,7 @@ class FieldDefinition
     public $config;
 
     /** @var OutputType&Type */
-    public $type;
+    private $type;
 
     /** @var callable|string */
     private $complexityFn;
@@ -84,7 +85,12 @@ class FieldDefinition
         $this->complexityFn = $config['complexity'] ?? self::DEFAULT_COMPLEXITY_FN;
     }
 
-    public static function defineFieldMap(Type $type, $fields)
+    /**
+     * @param (callable():mixed[])|mixed[] $fields
+     *
+     * @return array<string, self>
+     */
+    public static function defineFieldMap(Type $type, $fields) : array
     {
         if (is_callable($fields)) {
             $fields = $fields();
@@ -187,6 +193,51 @@ class FieldDefinition
         }
 
         return $this->type;
+    }
+
+    public function __isset(string $name) : bool
+    {
+        switch ($name) {
+            case 'type':
+                Warning::warnOnce(
+                    "The public getter for 'type' on FieldDefinition has been deprecated and will be removed" .
+                    " in the next major version. Please update your code to use the 'getType' method.",
+                    Warning::WARNING_CONFIG_DEPRECATION
+                );
+
+                return isset($this->type);
+        }
+
+        return false;
+    }
+
+    public function __get(string $name)
+    {
+        switch ($name) {
+            case 'type':
+                Warning::warnOnce(
+                    "The public getter for 'type' on FieldDefinition has been deprecated and will be removed" .
+                    " in the next major version. Please update your code to use the 'getType' method.",
+                    Warning::WARNING_CONFIG_DEPRECATION
+                );
+
+                return $this->getType();
+        }
+
+        return null;
+    }
+
+    public function __set(string $name, $value)
+    {
+        switch ($name) {
+            case 'type':
+                Warning::warnOnce(
+                    "The public setter for 'type' on FieldDefinition has been deprecated and will be removed" .
+                    ' in the next major version.',
+                    Warning::WARNING_CONFIG_DEPRECATION
+                );
+                $this->type = $value;
+        }
     }
 
     /**

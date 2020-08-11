@@ -49,7 +49,9 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             return $value;
         }
 
-        $float = is_numeric($value) || is_bool($value) ? floatval($value) : null;
+        $float = is_numeric($value) || is_bool($value)
+            ? (float) $value
+            : null;
 
         if ($float === null || floor($float) !== $float) {
             throw new Error(
@@ -65,7 +67,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             );
         }
 
-        return intval($float);
+        return (int) $float;
     }
 
     /**
@@ -91,7 +93,7 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
             );
         }
 
-        return intval($value);
+        return (int) $value;
     }
 
     /**
@@ -111,6 +113,6 @@ values. Int can represent values between -(2^31) and 2^31 - 1. ';
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 }

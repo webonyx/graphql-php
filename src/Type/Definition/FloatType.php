@@ -35,7 +35,9 @@ values as specified by
      */
     public function serialize($value) : float
     {
-        $float = is_numeric($value) || is_bool($value) ? floatval($value) : null;
+        $float = is_numeric($value) || is_bool($value)
+            ? (float) $value
+            : null;
 
         if ($float === null || ! is_finite($float)) {
             throw new Error(
@@ -54,7 +56,9 @@ values as specified by
      */
     public function parseValue($value) : float
     {
-        $float = is_float($value) || is_int($value) ? floatval($value) : null;
+        $float = is_float($value) || is_int($value)
+            ? (float) $value
+            : null;
 
         if ($float === null || ! is_finite($float)) {
             throw new Error(
@@ -80,6 +84,6 @@ values as specified by
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 }

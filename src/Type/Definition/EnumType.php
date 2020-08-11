@@ -24,11 +24,17 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /** @var EnumTypeDefinitionNode|null */
     public $astNode;
 
-    /** @var EnumValueDefinition[] */
+    /**
+     * Lazily initialized.
+     *
+     * @var EnumValueDefinition[]
+     */
     private $values;
 
     /**
-     * Actually a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way
+     * Lazily initialized.
+     *
+     * Actually a MixedStore<mixed, EnumValueDefinition>, PHPStan won't let us type it that way.
      *
      * @var MixedStore
      */
@@ -88,9 +94,9 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
     /**
      * @return EnumValueDefinition[]
      */
-    public function getValues()
+    public function getValues() : array
     {
-        if ($this->values === null) {
+        if (! isset($this->values)) {
             $this->values = [];
             $config       = $this->config;
 
@@ -145,7 +151,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
      */
     private function getValueLookup() : MixedStore
     {
-        if ($this->valueLookup === null) {
+        if (! isset($this->valueLookup)) {
             $this->valueLookup = new MixedStore();
 
             foreach ($this->getValues() as $valueName => $value) {
@@ -193,7 +199,7 @@ class EnumType extends Type implements InputType, OutputType, LeafType, Nullable
         }
 
         // Intentionally without message, as all information already in wrapped Exception
-        throw new Exception();
+        throw new Error();
     }
 
     /**

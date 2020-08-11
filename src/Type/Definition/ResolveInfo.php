@@ -108,7 +108,11 @@ class ResolveInfo
      */
     public $variableValues = [];
 
-    /** @var QueryPlan */
+    /**
+     * Lazily initialized.
+     *
+     * @var QueryPlan
+     */
     private $queryPlan;
 
     /**
@@ -203,7 +207,7 @@ class ResolveInfo
      */
     public function lookAhead(array $options = []) : QueryPlan
     {
-        if ($this->queryPlan === null) {
+        if (! isset($this->queryPlan)) {
             $this->queryPlan = new QueryPlan(
                 $this->parentType,
                 $this->schema,

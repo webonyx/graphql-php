@@ -57,7 +57,11 @@ class Schema
      */
     private $resolvedTypes = [];
 
-    /** @var array<string, array<string, ObjectType|UnionType>> */
+    /**
+     * Lazily initialized.
+     *
+     * @var array<string, array<string, ObjectType|UnionType>>
+     */
     private $possibleTypeMap;
 
     /**
@@ -402,7 +406,7 @@ class Schema
     /**
      * @return array<string, array<string, ObjectType|UnionType>>
      */
-    private function getPossibleTypeMap()
+    private function getPossibleTypeMap() : array
     {
         if (! isset($this->possibleTypeMap)) {
             $this->possibleTypeMap = [];

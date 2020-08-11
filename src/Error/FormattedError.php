@@ -66,7 +66,7 @@ class FormattedError
     public static function printError(Error $error)
     {
         $printedLocations = [];
-        if ($error->nodes !== null && count($error->nodes) !== 0) {
+        if (count($error->nodes ?? []) !== 0) {
             /** @var Node $node */
             foreach ($error->nodes as $node) {
                 if ($node->loc === null) {
@@ -84,7 +84,7 @@ class FormattedError
             }
         } elseif ($error->getSource() !== null && count($error->getLocations()) !== 0) {
             $source = $error->getSource();
-            foreach ($error->getLocations() as $location) {
+            foreach (($error->getLocations() ?? []) as $location) {
                 $printedLocations[] = self::highlightSourceAtLocation($source, $location);
             }
         }
@@ -282,7 +282,7 @@ class FormattedError
         $formatter = $formatter ?? static function ($e) : array {
             return FormattedError::createFromException($e);
         };
-        if ($debug) {
+        if ($debug !== DebugFlag::NONE) {
             $formatter = static function ($e) use ($formatter, $debug) : array {
                 return FormattedError::addDebugEntries($formatter($e), $e, $debug);
             };
