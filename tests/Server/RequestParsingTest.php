@@ -409,7 +409,7 @@ class RequestParsingTest extends TestCase
         $body = 'not really{} a json';
 
         $this->expectException(InvariantViolation::class);
-        $this->expectExceptionMessage('Did not receive valid JSON array in PSR-7 request body with Content-Type "application/json"');
+        $this->expectExceptionMessage('Expected to receive a JSON array in body for "application/json" PSR-7 request');
         $this->parsePsrRequest('application/json', $body);
     }
 
@@ -420,8 +420,8 @@ class RequestParsingTest extends TestCase
             self::fail('Expected exception not thrown');
         } catch (InvariantViolation $e) {
             // Expecting parsing exception to be thrown somewhere else:
-            self::assertEquals(
-                'Did not receive valid JSON array in PSR-7 request body with Content-Type "application/json"',
+            self::assertSame(
+                'Expected to receive a JSON array in body for "application/json" PSR-7 request',
                 $e->getMessage()
             );
         }
