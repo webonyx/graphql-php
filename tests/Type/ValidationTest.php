@@ -2501,12 +2501,6 @@ class ValidationTest extends TestCase
                     'message' => 'Directive @interface used twice at the same location.',
                     'locations' => [[ 'line' => 22, 'column' => 35 ], [ 'line' => 22, 'column' => 46 ]],
                 ],[
-                    'message' => 'Directive @input_field_definition not allowed at FIELD_DEFINITION location.',
-                    'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 11, 'column' => 11 ]],
-                ],[
-                    'message' => 'Directive @input_field_definition not allowed at FIELD_DEFINITION location.',
-                    'locations' => [[ 'line' => 35, 'column' => 62 ], [ 'line' => 11, 'column' => 11 ]],
-                ],[
                     'message' => 'Directive @input_field_definition used twice at the same location.',
                     'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 35, 'column' => 62 ]],
                 ],[
@@ -2597,7 +2591,7 @@ class ValidationTest extends TestCase
           }
     
           input SomeInput @object {
-            some_input_field: String @union
+            some_input_field: String @union @input_field_definition
           }
         ', null, ['assumeValid' => true]);
 
@@ -2630,7 +2624,7 @@ class ValidationTest extends TestCase
                     'message' => 'Directive @argument_definition not allowed at FIELD_DEFINITION location.',
                     'locations' => [[ 'line' => 23, 'column' => 26 ], [ 'line' => 12, 'column' => 11 ]],
                 ], [
-                    'message' => 'Directive @union not allowed at FIELD_DEFINITION location.',
+                    'message' => 'Directive @union not allowed at INPUT_FIELD_DEFINITION location.',
                     'locations' => [[ 'line' => 35, 'column' => 38 ], [ 'line' => 5, 'column' => 11 ]],
                 ], [
                     'message' => 'Directive @object not allowed at INPUT_OBJECT location.',
