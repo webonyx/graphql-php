@@ -1,5 +1,13 @@
 # Changelog
 
+#### v14.2.0
+
+Deprecates:
+- Public access to `FieldDefinition::$type` property (#702)
+
+Fixes:
+- Fix validation for input field definition directives (#714) 
+
 #### v14.1.1
 
 Fixes:
