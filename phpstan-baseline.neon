@@ -86,8 +86,13 @@ parameters:
 			path: src/Type/Definition/EnumType.php
 
 		-
+			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\)\\.$#"
+			count: 2
+			path: src/Type/Definition/FieldDefinition.php
+
+		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
-			count: 1
+			count: 3
 			path: src/Type/Definition/InputObjectField.php
 
 		-
@@ -649,6 +654,16 @@ parameters:
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Type\\\\Definition\\\\EnumType\\|GraphQL\\\\Type\\\\Definition\\\\InputObjectType\\|GraphQL\\\\Type\\\\Definition\\\\ListOfType\\|GraphQL\\\\Type\\\\Definition\\\\NonNull\\|GraphQL\\\\Type\\\\Definition\\\\ScalarType\\|null given\\.$#"
 			count: 4
 			path: tests/Language/VisitorTest.php
+
+		-
+			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$nonExistentProp\\.$#"
+			count: 1
+			path: tests/Type/DefinitionTest.php
+
+		-
+			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\:\\:\\$nonExistentProp\\.$#"
+			count: 1
+			path: tests/Type/DefinitionTest.php
 
 		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Tests\\\\Type\\\\TypeLoaderTest\\)\\.$#"

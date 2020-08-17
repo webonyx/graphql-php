@@ -237,6 +237,9 @@ class DefinitionTest extends TestCase
 
         // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
         $fieldDef->type = Type::int();
+
+        $fieldDef->nonExistentProp = 'someValue';
+        self::assertEquals($fieldDef->nonExistentProp, 'someValue');
     }
 
     public function testFieldDefinitionPublicTypeIssetDeprecation() : void
@@ -295,6 +298,9 @@ class DefinitionTest extends TestCase
         });
 
         isset($fieldDef->type);
+
+        $fieldDef->nonExistentProp = 'someValue';
+        self::assertEquals($fieldDef->nonExistentProp, 'someValue');
     }
 
     /**

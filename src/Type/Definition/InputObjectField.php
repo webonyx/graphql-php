@@ -82,6 +82,8 @@ class InputObjectField
                 );
 
                 return $this->getType();
+            default:
+                return $this->$name;
         }
 
         return null;
@@ -97,6 +99,11 @@ class InputObjectField
                     Warning::WARNING_CONFIG_DEPRECATION
                 );
                 $this->type = $value;
+                break;
+
+            default:
+                $this->$name = $value;
+                break;
         }
     }
 
