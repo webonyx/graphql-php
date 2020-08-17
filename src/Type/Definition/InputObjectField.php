@@ -68,7 +68,7 @@ class InputObjectField
                 return isset($this->type);
         }
 
-        return false;
+        return isset($this->$name);
     }
 
     public function __get(string $name)

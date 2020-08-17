@@ -87,12 +87,12 @@ parameters:
 
 		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\)\\.$#"
-			count: 2
+			count: 3
 			path: src/Type/Definition/FieldDefinition.php
 
 		-
 			message: "#^Variable property access on \\$this\\(GraphQL\\\\Type\\\\Definition\\\\InputObjectField\\)\\.$#"
-			count: 3
+			count: 4
 			path: src/Type/Definition/InputObjectField.php
 
 		-
@@ -657,7 +657,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property GraphQL\\\\Type\\\\Definition\\\\FieldDefinition\\:\\:\\$nonExistentProp\\.$#"
-			count: 1
+			count: 2
 			path: tests/Type/DefinitionTest.php
 
 		-

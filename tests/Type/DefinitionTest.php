@@ -220,6 +220,10 @@ class DefinitionTest extends TestCase
             self::assertEquals($message, 'The public getter for \'type\' on FieldDefinition has been deprecated and will be removed in the next major version. Please update your code to use the \'getType\' method.');
         });
 
+        self::assertFalse(isset($fieldDef->nonExistentProp));
+        $fieldDef->nonExistentProp = 'someValue';
+        self::assertTrue(isset($fieldDef->nonExistentProp));
+
         // @phpstan-ignore-next-line type is private, but we're allowing its access temporarily via a magic method
         $type = $fieldDef->type;
     }
@@ -299,7 +303,9 @@ class DefinitionTest extends TestCase
 
         isset($fieldDef->type);
 
+        self::assertFalse(isset($fieldDef->nonExistentProp));
         $fieldDef->nonExistentProp = 'someValue';
+        self::assertTrue(isset($fieldDef->nonExistentProp));
         self::assertEquals($fieldDef->nonExistentProp, 'someValue');
     }
 
