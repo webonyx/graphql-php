@@ -208,7 +208,7 @@ class FieldDefinition
                 return isset($this->type);
         }
 
-        return false;
+        return isset($this->$name);
     }
 
     public function __get(string $name)
@@ -222,6 +222,8 @@ class FieldDefinition
                 );
 
                 return $this->getType();
+            default:
+                return $this->$name;
         }
 
         return null;
@@ -237,6 +239,11 @@ class FieldDefinition
                     Warning::WARNING_CONFIG_DEPRECATION
                 );
                 $this->type = $value;
+                break;
+
+            default:
+                $this->$name = $value;
+                break;
         }
     }
 
