@@ -1,5 +1,14 @@
 # Changelog
 
+#### v14.3.0
+
+Feat:
+- Allow `typeLoader` to return a type thunk (#687)
+
+Fix:
+- Read getParsedBody() instead of getBody() when Request is ServerRequest (#715)
+- Fix default get/set behavior on InputObjectField and FieldDefinition (#716)
+
 #### v14.2.0
 
 Deprecates:
