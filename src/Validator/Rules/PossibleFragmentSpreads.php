@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace GraphQL\Validator\Rules;
 
 use GraphQL\Error\Error;
+use GraphQL\Error\ErrorCode;
 use GraphQL\Language\AST\FragmentSpreadNode;
 use GraphQL\Language\AST\InlineFragmentNode;
 use GraphQL\Language\AST\NodeKind;
@@ -148,13 +149,12 @@ class PossibleFragmentSpreads extends ValidationRule
         return null;
     }
 
-    public static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType)
+    public static function typeIncompatibleSpreadMessage($fragName, $parentType, $fragType) : ErrorCode
     {
-        return sprintf(
-            'Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".',
+        return new ErrorCode(ErrorCode::ERR_CANT_SPREAD_FRAGMENT, [
             $fragName,
             $parentType,
             $fragType
-        );
+        ]);
     }
 }

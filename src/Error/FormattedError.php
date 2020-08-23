@@ -379,14 +379,26 @@ class FormattedError
     /**
      * @deprecated as of v0.8.0
      *
-     * @param string           $error
+     * @param string|ErrorCode           $error
      * @param SourceLocation[] $locations
      *
      * @return mixed[]
      */
     public static function create($error, array $locations = [])
     {
-        $formatted = ['message' => $error];
+        if($error instanceof ErrorCode) {
+            $formatted = [
+                'message' => $error->getFormattedMessage(),
+                'extensions' => [
+                    'code' => $error->getCode(),
+                    'message' => $error->getMessage(),
+                    'args' => $error->getArgs()
+                ]
+            ];
+        }
+        else {
+            $formatted = ['message' => $error];
+        }
 
         if (count($locations) > 0) {
             $formatted['locations'] = array_map(
