@@ -4,40 +4,58 @@ declare(strict_types=1);
 
 namespace GraphQL\Error;
 
+use Exception;
+use function sprintf;
+
 class ErrorCode
 {
-    const ERR_UNKNOWN_DIRECTIVE = 'unknownDirective';
+    const ERR_UNKNOWN_DIRECTIVE    = 'unknownDirective';
     const ERR_CANT_SPREAD_FRAGMENT = 'cantSpreadFragment';
 
-    static $messages = [
+    /** @var array<string,string> */
+    protected static $messages = [
         self::ERR_UNKNOWN_DIRECTIVE => 'Unknown directive "%s".',
-        self::ERR_CANT_SPREAD_FRAGMENT => 'Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".'
+        self::ERR_CANT_SPREAD_FRAGMENT => 'Fragment "%s" cannot be spread here as objects of type "%s" can never be of type "%s".',
     ];
 
+    /** @var string */
     private $code;
+
+    /** @var mixed[] */
     private $args;
 
-    function __construct(string $code, array $args = []) {
-        if(!isset(static::$messages[$code])) {
-            throw Exception("Unknown code: " . $code);
+    /**
+     * @param mixed[] $args
+     */
+    public function __construct(string $code, array $args = [])
+    {
+        if (! isset(static::$messages[$code])) {
+            throw new Exception('Unknown code: ' . $code);
         }
         $this->code = $code;
         $this->args = $args;
     }
 
-    function getFormattedMessage() : string {
+    public function getFormattedMessage() : string
+    {
         return sprintf(static::$messages[$this->code], ...$this->args);
     }
 
-    function getMessage() : string {
+    public function getMessage() : string
+    {
         return static::$messages[$this->code];
     }
 
-    function getArgs() : array {
+    /**
+     * @return mixed[] array
+     */
+    public function getArgs() : array
+    {
         return $this->args;
     }
 
-    function getCode() : string {
+    public function getCode() : string
+    {
         return $this->code;
     }
 }

@@ -154,7 +154,7 @@ class PossibleFragmentSpreads extends ValidationRule
         return new ErrorCode(ErrorCode::ERR_CANT_SPREAD_FRAGMENT, [
             $fragName,
             $parentType,
-            $fragType
+            $fragType,
         ]);
     }
 }

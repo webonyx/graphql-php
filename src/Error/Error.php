@@ -83,7 +83,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
     protected $extensions = [];
 
     /**
-     * @param string|ErrorCode             $message
+     * @param string|ErrorCode             $messageOrCode
      * @param Node|Node[]|Traversable|null $nodes
      * @param mixed[]                      $positions
      * @param mixed[]|null                 $path
@@ -100,12 +100,11 @@ class Error extends Exception implements JsonSerializable, ClientAware
         array $extensions = []
     ) {
         if ($messageOrCode instanceof ErrorCode) {
-            $message = $messageOrCode->getFormattedMessage();
-            $this->extensions['code'] = $messageOrCode->getCode();
+            $message                     = $messageOrCode->getFormattedMessage();
+            $this->extensions['code']    = $messageOrCode->getCode();
             $this->extensions['message'] = $messageOrCode->getMessage();
-            $this->extensions['args'] = $messageOrCode->getArgs();
-        }
-        else {
+            $this->extensions['args']    = $messageOrCode->getArgs();
+        } else {
             $message = $messageOrCode;
         }
 
@@ -118,11 +117,10 @@ class Error extends Exception implements JsonSerializable, ClientAware
             $nodes = [$nodes];
         }
 
-        $this->nodes      = $nodes;
-        $this->source     = $source;
-        $this->positions  = $positions;
-        $this->path       = $path;
-
+        $this->nodes     = $nodes;
+        $this->source    = $source;
+        $this->positions = $positions;
+        $this->path      = $path;
 
         $extensions = count($extensions) > 0 ? $extensions : (
         $previous instanceof self
@@ -130,7 +128,7 @@ class Error extends Exception implements JsonSerializable, ClientAware
             : []
         );
 
-        foreach($extensions as $key => $val) {
+        foreach ($extensions as $key => $val) {
             $this->extensions[$key] = $val;
         }
 
