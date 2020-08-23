@@ -21,6 +21,7 @@ use GraphQL\Utils\Utils;
 use JsonSerializable;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use function count;
 use function file_get_contents;
@@ -539,11 +540,15 @@ class Helper
             if (stripos($contentType[0], 'application/graphql') !== false) {
                 $bodyParams = ['query' => (string) $request->getBody()];
             } elseif (stripos($contentType[0], 'application/json') !== false) {
-                $bodyParams = json_decode((string) $request->getBody(), true);
+                $bodyParams = $request instanceof ServerRequestInterface
+                    ? $request->getParsedBody()
+                    : json_decode((string) $request->getBody(), true);
 
                 if ($bodyParams === null) {
                     throw new InvariantViolation(
-                        'Did not receive valid JSON array in PSR-7 request body with Content-Type "application/json"'
+                        $request instanceof ServerRequestInterface
+                         ? 'Expected to receive a parsed body for "application/json" PSR-7 request but got null'
+                         : 'Expected to receive a JSON array in body for "application/json" PSR-7 request'
                     );
                 }
 
