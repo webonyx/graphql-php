@@ -256,7 +256,7 @@ class OverlappingFieldsCanBeMerged extends ValidationRule
                             $fieldDef = $tmp[$fieldName];
                         }
                     }
-                    $responseName = $selection->alias ? $selection->alias->value : $fieldName;
+                    $responseName = isset($selection->alias) ? $selection->alias->value : $fieldName;
 
                     if (! isset($astAndDefs[$responseName])) {
                         $astAndDefs[$responseName] = [];

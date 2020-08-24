@@ -101,11 +101,6 @@ parameters:
 			path: src/Type/Definition/QueryPlan.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SelectionSetNode\\|null given\\.$#"
-			count: 1
-			path: src/Type/Definition/QueryPlan.php
-
-		-
 			message: "#^Only booleans are allowed in an if condition, string given\\.$#"
 			count: 1
 			path: src/Type/Definition/Type.php
@@ -341,11 +336,6 @@ parameters:
 			path: src/Utils/SchemaExtender.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\>\\|null given\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
 			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Type\\\\Definition\\\\Type\\>\\|null given\\.$#"
 			count: 1
 			path: src/Utils/TypeInfo.php
@@ -479,11 +469,6 @@ parameters:
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\FragmentDefinitionNode\\|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/NoFragmentCycles.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NameNode\\|null given\\.$#"
-			count: 1
-			path: src/Validator/Rules/OverlappingFieldsCanBeMerged.php
 
 		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NamedTypeNode given\\.$#"

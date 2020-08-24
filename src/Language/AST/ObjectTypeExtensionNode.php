@@ -15,9 +15,9 @@ class ObjectTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var NamedTypeNode[] */
     public $interfaces = [];
 
-    /** @var DirectiveNode[] */
+    /** @var NodeList<DirectiveNode> */
     public $directives;
 
-    /** @var FieldDefinitionNode[] */
+    /** @var NodeList<FieldDefinitionNode> */
     public $fields;
 }

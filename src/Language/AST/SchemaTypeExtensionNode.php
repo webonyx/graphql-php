@@ -12,6 +12,6 @@ class SchemaTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var DirectiveNode[]|null */
     public $directives;
 
-    /** @var OperationTypeDefinitionNode[]|null */
+    /** @var NodeList<OperationTypeDefinitionNode>|null */
     public $operationTypes;
 }

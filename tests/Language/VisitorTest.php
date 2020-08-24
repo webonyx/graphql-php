@@ -187,9 +187,7 @@ class VisitorTest extends ValidatorTestCase
                         $selectionSet = $node->selectionSet;
 
                         $newNode               = clone $node;
-                        $newNode->selectionSet = new SelectionSetNode([
-                            'selections' => [],
-                        ]);
+                        $newNode->selectionSet = new SelectionSetNode(['selections' => null]);
                         $newNode->didEnter     = true;
 
                         return $newNode;
@@ -1583,10 +1581,10 @@ class VisitorTest extends ValidatorTestCase
                                 'directives'   => $node->directives,
                                 'selectionSet' => new SelectionSetNode([
                                     'kind'       => 'SelectionSet',
-                                    'selections' => [new FieldNode([
+                                    'selections' => new NodeList([new FieldNode([
                                         'name' => new NameNode(['value' => '__typename']),
                                     ]),
-                                    ],
+                                    ]),
                                 ]),
                             ]);
                         }
