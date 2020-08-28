@@ -6,6 +6,7 @@ namespace GraphQL\Server;
 
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
+use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Utils\Utils;
@@ -50,12 +51,12 @@ class StandardServer
      * (e.g. during schema instantiation).
      *
      * @param Throwable $error
-     * @param bool      $debug
+     * @param int       $debug
      * @param bool      $exitWhenDone
      *
      * @api
      */
-    public static function send500Error($error, $debug = false, $exitWhenDone = false)
+    public static function send500Error($error, $debug = DebugFlag::NONE, $exitWhenDone = false)
     {
         $response = [
             'errors' => [FormattedError::createFromException($error, $debug)],
