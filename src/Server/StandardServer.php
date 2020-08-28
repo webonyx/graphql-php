@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace GraphQL\Server;
 
+use GraphQL\Error\DebugFlag;
 use GraphQL\Error\FormattedError;
 use GraphQL\Error\InvariantViolation;
-use GraphQL\Error\DebugFlag;
 use GraphQL\Executor\ExecutionResult;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Utils\Utils;
