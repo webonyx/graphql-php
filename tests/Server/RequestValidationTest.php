@@ -92,7 +92,7 @@ class RequestValidationTest extends TestCase
 
         $this->assertInputError(
             $parsedBody,
-            'GraphQL Request parameter "query" must be string, but got {"t":"{my query}"}'
+            'GraphQL Request parameter "query" must be string, a DocumentNode, or an array representation of an AST, but got {"t":"{my query}"}'
         );
     }
 

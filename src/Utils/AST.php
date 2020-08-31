@@ -89,7 +89,7 @@ class AST
      */
     public static function fromArray(array $node) : Node
     {
-        if (! isset($node['kind']) || ! isset(NodeKind::$classMap[$node['kind']])) {
+        if (! static::isAst($node)) {
             throw new InvariantViolation('Unexpected node structure: ' . Utils::printSafeJson($node));
         }
 
@@ -116,6 +116,14 @@ class AST
         }
 
         return $instance;
+    }
+
+    /**
+     * @param mixed[] $node
+     */
+    public static function isAst($node) : bool
+    {
+        return isset($node['kind']) && isset(NodeKind::$classMap[$node['kind']]);
     }
 
     /**

@@ -15,6 +15,7 @@ use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\GraphQL;
 use GraphQL\Language\AST\DocumentNode;
+use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Parser;
 use GraphQL\Utils\AST;
 use GraphQL\Utils\Utils;
@@ -166,9 +167,9 @@ class Helper
             $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
         }
 
-        if ($params->query !== null && ! is_string($params->query)) {
+        if ($params->query !== null && ! (is_string($params->query) || $params->query instanceof DocumentNode || AST::isAst($params->query))) {
             $errors[] = new RequestError(
-                'GraphQL Request parameter "query" must be string, but got ' .
+                'GraphQL Request parameter "query" must be string, a DocumentNode, or an array representation of an AST, but got ' .
                 Utils::printSafeJson($params->query)
             );
         }
@@ -283,7 +284,7 @@ class Helper
 
             $doc = $op->queryId
                 ? $this->loadPersistedQuery($config, $op)
-                : $op->query;
+                : (AST::isAst($op->query) ? AST::fromArray($op->query) : $op->query);
 
             if (! $doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);
