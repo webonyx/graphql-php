@@ -753,6 +753,21 @@ GRAPHQL
             Parser::argumentsDefinition('(foo: Int!)')
         );
 
+        self::assertInstanceOf(
+            NodeList::class,
+            Parser::directiveLocations('| INPUT_OBJECT | OBJECT')
+        );
+
+        self::assertInstanceOf(
+            NodeList::class,
+            Parser::implementsInterfaces('implements Foo & Bar')
+        );
+
+        self::assertInstanceOf(
+            NodeList::class,
+            Parser::unionMemberTypes('= | Foo | Bar')
+        );
+
         $this->expectException(SyntaxError::class);
         Parser::constValueLiteral('$foo');
     }

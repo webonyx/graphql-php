@@ -108,14 +108,14 @@ use function sprintf;
  * @method static OperationTypeDefinitionNode operationTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static ScalarTypeDefinitionNode scalarTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static ObjectTypeDefinitionNode objectTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static NamedTypeNode[] implementsInterfaces(Source|string $source, bool[] $options = [])
+ * @method static NodeList<NamedTypeNode> implementsInterfaces(Source|string $source, bool[] $options = [])
  * @method static NodeList<FieldDefinitionNode> fieldsDefinition(Source|string $source, bool[] $options = [])
  * @method static FieldDefinitionNode fieldDefinition(Source|string $source, bool[] $options = [])
  * @method static NodeList<InputValueDefinitionNode> argumentsDefinition(Source|string $source, bool[] $options = [])
  * @method static InputValueDefinitionNode inputValueDefinition(Source|string $source, bool[] $options = [])
  * @method static InterfaceTypeDefinitionNode interfaceTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static UnionTypeDefinitionNode unionTypeDefinition(Source|string $source, bool[] $options = [])
- * @method static NamedTypeNode[] unionMemberTypes(Source|string $source, bool[] $options = [])
+ * @method static NodeList<NamedTypeNode> unionMemberTypes(Source|string $source, bool[] $options = [])
  * @method static EnumTypeDefinitionNode enumTypeDefinition(Source|string $source, bool[] $options = [])
  * @method static NodeList<EnumValueDefinitionNode> enumValuesDefinition(Source|string $source, bool[] $options = [])
  * @method static EnumValueDefinitionNode enumValueDefinition(Source|string $source, bool[] $options = [])
@@ -130,7 +130,7 @@ use function sprintf;
  * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
  * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
  * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
- * @method static DirectiveLocation[] directiveLocations(Source|string $source, bool[] $options = [])
+ * @method static NodeList<NamedNode> directiveLocations(Source|string $source, bool[] $options = [])
  * @method static DirectiveLocation directiveLocation(Source|string $source, bool[] $options = [])
  */
 class Parser
@@ -1220,10 +1220,8 @@ class Parser
      * ImplementsInterfaces :
      *   - implements `&`? NamedType
      *   - ImplementsInterfaces & NamedType
-     *
-     * @return NamedTypeNode[]
      */
-    private function parseImplementsInterfaces() : array
+    private function parseImplementsInterfaces() : NodeList
     {
         $types = [];
         if ($this->expectOptionalKeyword('implements')) {
@@ -1237,7 +1235,7 @@ class Parser
             );
         }
 
-        return $types;
+        return new NodeList($types);
     }
 
     /**
@@ -1746,11 +1744,9 @@ class Parser
     }
 
     /**
-     * @return NameNode[]
-     *
      * @throws SyntaxError
      */
-    private function parseDirectiveLocations() : array
+    private function parseDirectiveLocations() : NodeList
     {
         // Optional leading pipe
         $this->skip(Token::PIPE);
@@ -1759,7 +1755,7 @@ class Parser
             $locations[] = $this->parseDirectiveLocation();
         } while ($this->skip(Token::PIPE));
 
-        return $locations;
+        return new NodeList($locations);
     }
 
     /**
