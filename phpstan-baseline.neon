@@ -311,17 +311,7 @@ parameters:
 			path: src/Utils/ASTDefinitionBuilder.php
 
 		-
-			message: "#^Only booleans are allowed in an if condition, array\\<GraphQL\\\\Language\\\\AST\\\\NamedTypeNode\\> given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
 			message: "#^Only booleans are allowed in a ternary operator condition, GraphQL\\\\Language\\\\AST\\\\NodeList\\<GraphQL\\\\Language\\\\AST\\\\EnumValueDefinitionNode\\>\\|null given\\.$#"
-			count: 1
-			path: src/Utils/ASTDefinitionBuilder.php
-
-		-
-			message: "#^Only booleans are allowed in a ternary operator condition, array\\<GraphQL\\\\Language\\\\AST\\\\InputValueDefinitionNode\\>\\|null given\\.$#"
 			count: 1
 			path: src/Utils/ASTDefinitionBuilder.php
 
@@ -337,11 +327,6 @@ parameters:
 
 		-
 			message: "#^Only booleans are allowed in an if condition, GraphQL\\\\Language\\\\AST\\\\SchemaDefinitionNode\\|null given\\.$#"
-			count: 1
-			path: src/Utils/SchemaExtender.php
-
-		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<GraphQL\\\\Language\\\\AST\\\\OperationTypeDefinitionNode\\>\\|null given\\.$#"
 			count: 1
 			path: src/Utils/SchemaExtender.php
 

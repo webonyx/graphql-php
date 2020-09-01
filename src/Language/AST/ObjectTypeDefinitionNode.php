@@ -12,13 +12,13 @@ class ObjectTypeDefinitionNode extends Node implements TypeDefinitionNode
     /** @var NameNode */
     public $name;
 
-    /** @var NamedTypeNode[] */
-    public $interfaces = [];
+    /** @var NodeList<NamedTypeNode> */
+    public $interfaces;
 
-    /** @var DirectiveNode[]|null */
+    /** @var NodeList<DirectiveNode> */
     public $directives;
 
-    /** @var FieldDefinitionNode[]|null */
+    /** @var NodeList<FieldDefinitionNode>|null */
     public $fields;
 
     /** @var StringValueNode|null */
