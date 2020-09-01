@@ -130,8 +130,8 @@ use function sprintf;
  * @method static EnumTypeExtensionNode enumTypeExtension(Source|string $source, bool[] $options = [])
  * @method static InputObjectTypeExtensionNode inputObjectTypeExtension(Source|string $source, bool[] $options = [])
  * @method static DirectiveDefinitionNode directiveDefinition(Source|string $source, bool[] $options = [])
- * @method static NodeList<NamedNode> directiveLocations(Source|string $source, bool[] $options = [])
- * @method static DirectiveLocation directiveLocation(Source|string $source, bool[] $options = [])
+ * @method static NodeList<NameNode> directiveLocations(Source|string $source, bool[] $options = [])
+ * @method static NameNode directiveLocation(Source|string $source, bool[] $options = [])
  */
 class Parser
 {
