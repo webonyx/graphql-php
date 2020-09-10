@@ -121,9 +121,9 @@ class AST
     /**
      * @param mixed $maybeNode
      */
-    public static function isAst($node) : bool
+    public static function isAst($maybeNode) : bool
     {
-        return isset($node['kind']) && isset(NodeKind::$classMap[$node['kind']]);
+        return isset($maybeNode['kind']) && isset(NodeKind::$classMap[$maybeNode['kind']]);
     }
 
     /**
