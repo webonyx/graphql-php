@@ -72,11 +72,11 @@ class GraphQL
      *    Empty array would allow to skip query validation (may be convenient for persisted
      *    queries which are validated before persisting and assumed valid during execution)
      *
-     * @param string|DocumentNode|array $source
-     * @param mixed               $rootValue
-     * @param mixed               $contextValue
-     * @param mixed[]|null        $variableValues
-     * @param ValidationRule[]    $validationRules
+     * @param string|DocumentNode|mixed[] $source
+     * @param mixed                       $rootValue
+     * @param mixed                       $contextValue
+     * @param mixed[]|null                $variableValues
+     * @param ValidationRule[]            $validationRules
      *
      * @api
      */
@@ -133,7 +133,7 @@ class GraphQL
         try {
             if ($source instanceof DocumentNode) {
                 $documentNode = $source;
-            } else if (AST::isAst($source)) {
+            } elseif (AST::isAst($source)) {
                 $documentNode = AST::fromArray($source);
             } else {
                 $documentNode = Parser::parse(new Source($source ?? '', 'GraphQL'));
