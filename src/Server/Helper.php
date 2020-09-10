@@ -289,7 +289,9 @@ class Helper
 
             $doc = $op->queryId
                 ? $this->loadPersistedQuery($config, $op)
-                : (AST::isAst($op->query) ? AST::fromArray($op->query) : $op->query);
+                : (AST::isAst($op->query)
+                    ? AST::fromArray($op->query)
+                    : $op->query);
 
             if (! $doc instanceof DocumentNode) {
                 $doc = Parser::parse($doc);
