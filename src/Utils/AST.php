@@ -119,7 +119,7 @@ class AST
     }
 
     /**
-     * @param mixed[] $node
+     * @param mixed $maybeNode
      */
     public static function isAst($node) : bool
     {
