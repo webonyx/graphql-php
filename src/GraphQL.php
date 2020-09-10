@@ -19,6 +19,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\ScalarType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema as SchemaType;
+use GraphQL\Utils\AST;
 use GraphQL\Validator\DocumentValidator;
 use GraphQL\Validator\Rules\QueryComplexity;
 use GraphQL\Validator\Rules\ValidationRule;
@@ -45,7 +46,8 @@ class GraphQL
      * schema:
      *    The GraphQL type system to use when validating and executing a query.
      * source:
-     *    A GraphQL language formatted string representing the requested operation.
+     *    A GraphQL language formatted string representing the requested operation. You can also pass a DocumentNode,
+     *    or an array representation of an AST.
      * rootValue:
      *    The value provided as the first argument to resolver functions on the top
      *    level type (e.g. the query object type).
@@ -70,7 +72,7 @@ class GraphQL
      *    Empty array would allow to skip query validation (may be convenient for persisted
      *    queries which are validated before persisting and assumed valid during execution)
      *
-     * @param string|DocumentNode $source
+     * @param string|DocumentNode|array $source
      * @param mixed               $rootValue
      * @param mixed               $contextValue
      * @param mixed[]|null        $variableValues
@@ -131,6 +133,8 @@ class GraphQL
         try {
             if ($source instanceof DocumentNode) {
                 $documentNode = $source;
+            } else if (AST::isAst($source)) {
+                $documentNode = AST::fromArray($source);
             } else {
                 $documentNode = Parser::parse(new Source($source ?? '', 'GraphQL'));
             }
