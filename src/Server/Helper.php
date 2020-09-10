@@ -166,7 +166,13 @@ class Helper
             $errors[] = new RequestError('GraphQL Request parameters "query" and "queryId" are mutually exclusive');
         }
 
-        if ($params->query !== null && ! (is_string($params->query) || $params->query instanceof DocumentNode || AST::isAst($params->query))) {
+        if ($params->query !== null
+            && ! (
+                is_string($params->query)
+                || $params->query instanceof DocumentNode
+                || AST::isAst($params->query)
+            )
+        ) {
             $errors[] = new RequestError(
                 'GraphQL Request parameter "query" must be string, a DocumentNode, or an array representation of an AST, but got ' .
                 Utils::printSafeJson($params->query)
