@@ -10,6 +10,7 @@ use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
 use GraphQL\Utils\Utils;
 use Throwable;
+
 use function count;
 
 /**
@@ -110,7 +111,7 @@ class SyncPromiseAdapter implements PromiseAdapter
             if ($promiseOrValue instanceof Promise) {
                 $result[$index] = null;
                 $promiseOrValue->then(
-                    static function ($value) use ($index, &$count, $total, &$result, $all) : void {
+                    static function ($value) use ($index, &$count, $total, &$result, $all): void {
                         $result[$index] = $value;
                         $count++;
                         if ($count < $total) {
@@ -126,6 +127,7 @@ class SyncPromiseAdapter implements PromiseAdapter
                 $count++;
             }
         }
+
         if ($count === $total) {
             $all->resolve($result);
         }
@@ -143,7 +145,8 @@ class SyncPromiseAdapter implements PromiseAdapter
         $this->beforeWait($promise);
         $taskQueue = SyncPromise::getQueue();
 
-        while ($promise->adoptedPromise->state === SyncPromise::PENDING &&
+        while (
+            $promise->adoptedPromise->state === SyncPromise::PENDING &&
             ! $taskQueue->isEmpty()
         ) {
             SyncPromise::runQueue();

@@ -19,6 +19,7 @@ use GraphQL\Language\VisitorOperation;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\FieldDefinition;
 use GraphQL\Validator\ValidationContext;
+
 use function array_map;
 use function count;
 use function implode;
@@ -61,7 +62,7 @@ class QueryComplexity extends QuerySecurityRule
         return $this->invokeIfNeeded(
             $context,
             [
-                NodeKind::SELECTION_SET        => function (SelectionSetNode $selectionSet) use ($context) : void {
+                NodeKind::SELECTION_SET        => function (SelectionSetNode $selectionSet) use ($context): void {
                     $this->fieldNodeAndDefs = $this->collectFieldASTsAndDefs(
                         $context,
                         $context->getParentType(),
@@ -70,13 +71,13 @@ class QueryComplexity extends QuerySecurityRule
                         $this->fieldNodeAndDefs
                     );
                 },
-                NodeKind::VARIABLE_DEFINITION  => function ($def) : VisitorOperation {
+                NodeKind::VARIABLE_DEFINITION  => function ($def): VisitorOperation {
                     $this->variableDefs[] = $def;
 
                     return Visitor::skipNode();
                 },
                 NodeKind::OPERATION_DEFINITION => [
-                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity) : void {
+                    'leave' => function (OperationDefinitionNode $operationDefinition) use ($context, &$complexity): void {
                         $errors = $context->getErrors();
 
                         if (count($errors) > 0) {
@@ -151,6 +152,7 @@ class QueryComplexity extends QuerySecurityRule
                 if (isset($node->selectionSet)) {
                     $complexity = $this->fieldComplexity($node, $complexity);
                 }
+
                 break;
 
             case $node instanceof FragmentSpreadNode:
@@ -159,6 +161,7 @@ class QueryComplexity extends QuerySecurityRule
                 if ($fragment !== null) {
                     $complexity = $this->fieldComplexity($fragment, $complexity);
                 }
+
                 break;
         }
 
@@ -187,6 +190,7 @@ class QueryComplexity extends QuerySecurityRule
             if ($directiveNode->name->value === 'deprecated') {
                 return false;
             }
+
             [$errors, $variableValues] = Values::getVariableValues(
                 $this->context->getSchema(),
                 $this->variableDefs,
@@ -203,6 +207,7 @@ class QueryComplexity extends QuerySecurityRule
                     )
                 ));
             }
+
             if ($directiveNode->name->value === 'include') {
                 $directive = Directive::includeDirective();
                 /** @var bool $directiveArgsIf */
@@ -210,6 +215,7 @@ class QueryComplexity extends QuerySecurityRule
 
                 return ! $directiveArgsIf;
             }
+
             if ($directiveNode->name->value === Directive::SKIP_NAME) {
                 $directive = Directive::skipDirective();
                 /** @var bool $directiveArgsIf */

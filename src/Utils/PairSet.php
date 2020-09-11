@@ -32,6 +32,7 @@ class PairSet
         if ($result === null) {
             return false;
         }
+
         // areMutuallyExclusive being false is a superset of being true,
         // hence if we want to know if this PairSet "has" these two with no
         // exclusivity, we have to ensure it was added as such.

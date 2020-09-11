@@ -15,7 +15,7 @@ class VariablesAreInputTypesTest extends ValidatorTestCase
     /**
      * @see it('input types are valid')
      */
-    public function testInputTypesAreValid() : void
+    public function testInputTypesAreValid(): void
     {
         $this->expectPassesRule(
             new VariablesAreInputTypes(),
@@ -30,7 +30,7 @@ class VariablesAreInputTypesTest extends ValidatorTestCase
     /**
      * @see it('output types are invalid')
      */
-    public function testOutputTypesAreInvalid() : void
+    public function testOutputTypesAreInvalid(): void
     {
         $this->expectFailsRule(
             new VariablesAreInputTypes(),

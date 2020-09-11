@@ -11,6 +11,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\AST\OperationDefinitionNode;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+
 use function count;
 
 /**
@@ -26,10 +27,10 @@ class LoneAnonymousOperation extends ValidationRule
         $operationCount = 0;
 
         return [
-            NodeKind::DOCUMENT             => static function (DocumentNode $node) use (&$operationCount) : void {
+            NodeKind::DOCUMENT             => static function (DocumentNode $node) use (&$operationCount): void {
                 $tmp = Utils::filter(
                     $node->definitions,
-                    static function (Node $definition) : bool {
+                    static function (Node $definition): bool {
                         return $definition instanceof OperationDefinitionNode;
                     }
                 );
@@ -39,7 +40,7 @@ class LoneAnonymousOperation extends ValidationRule
             NodeKind::OPERATION_DEFINITION => static function (OperationDefinitionNode $node) use (
                 &$operationCount,
                 $context
-            ) : void {
+            ): void {
                 if ($node->name !== null || $operationCount <= 1) {
                     return;
                 }

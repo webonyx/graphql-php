@@ -13,7 +13,7 @@ use PHPUnit\Framework\TestCase;
 
 class ResolveInfoTest extends TestCase
 {
-    public function testFieldSelection() : void
+    public function testFieldSelection(): void
     {
         $image = new ObjectType([
             'name'   => 'Image',
@@ -28,7 +28,7 @@ class ResolveInfoTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) : array {
+            'fields' => static function () use ($image, &$article): array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],
@@ -181,7 +181,7 @@ class ResolveInfoTest extends TestCase
         self::assertEquals($expectedDeepSelection, $actualDeepSelection);
     }
 
-    public function testFieldSelectionOnScalarTypes() : void
+    public function testFieldSelectionOnScalarTypes(): void
     {
         $query = '
             query Ping {
@@ -194,7 +194,7 @@ class ResolveInfoTest extends TestCase
             'fields' => [
                 'ping' => [
                     'type'    => Type::string(),
-                    'resolve' => static function ($value, $args, $context, ResolveInfo $info) : string {
+                    'resolve' => static function ($value, $args, $context, ResolveInfo $info): string {
                         self::assertEquals([], $info->getFieldSelection());
 
                         return 'pong';
@@ -209,7 +209,7 @@ class ResolveInfoTest extends TestCase
         self::assertEquals(['data' => ['ping' => 'pong']], $result);
     }
 
-    public function testMergedFragmentsFieldSelection() : void
+    public function testMergedFragmentsFieldSelection(): void
     {
         $image = new ObjectType([
             'name'   => 'Image',
@@ -224,7 +224,7 @@ class ResolveInfoTest extends TestCase
 
         $author = new ObjectType([
             'name'   => 'Author',
-            'fields' => static function () use ($image, &$article) : array {
+            'fields' => static function () use ($image, &$article): array {
                 return [
                     'id'            => ['type' => Type::string()],
                     'name'          => ['type' => Type::string()],

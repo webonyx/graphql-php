@@ -30,6 +30,7 @@ use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Introspection;
 use GraphQL\Type\Schema;
+
 use function count;
 use function sprintf;
 
@@ -76,7 +77,9 @@ class Collector
                 if ($operationName === null && $this->operation !== null) {
                     $hasMultipleAssumedOperations = true;
                 }
-                if ($operationName === null ||
+
+                if (
+                    $operationName === null ||
                     (isset($definitionNode->name) && $definitionNode->name->value === $operationName)
                 ) {
                     $this->operation = $definitionNode;
@@ -135,7 +138,8 @@ class Collector
                 }
             }
 
-            if ($fieldName !== Introspection::TYPE_NAME_FIELD_NAME &&
+            if (
+                $fieldName !== Introspection::TYPE_NAME_FIELD_NAME &&
                 ! ($runtimeType === $this->schema->getQueryType() && ($fieldName === Introspection::SCHEMA_FIELD_NAME || $fieldName === Introspection::TYPE_FIELD_NAME)) &&
                 ! $runtimeType->hasField($fieldName)
             ) {

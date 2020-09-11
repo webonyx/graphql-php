@@ -13,6 +13,7 @@ use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
 use GraphQL\Validator\ValidationContext;
+
 use function array_keys;
 use function array_merge;
 use function arsort;
@@ -24,7 +25,7 @@ class FieldsOnCorrectType extends ValidationRule
     public function getVisitor(ValidationContext $context)
     {
         return [
-            NodeKind::FIELD => function (FieldNode $node) use ($context) : void {
+            NodeKind::FIELD => function (FieldNode $node) use ($context): void {
                 $type = $context->getParentType();
                 if (! $type) {
                     return;
@@ -89,6 +90,7 @@ class FieldsOnCorrectType extends ValidationRule
                 if (! isset($fields[$fieldName])) {
                     continue;
                 }
+
                 // This object type defines this field.
                 $suggestedObjectTypes[] = $possibleType->name;
                 foreach ($possibleType->getInterfaces() as $possibleInterface) {
@@ -96,6 +98,7 @@ class FieldsOnCorrectType extends ValidationRule
                     if (! isset($fields[$fieldName])) {
                         continue;
                     }
+
                     // This interface type defines this field.
                     $interfaceUsageCount[$possibleInterface->name] =
                         ! isset($interfaceUsageCount[$possibleInterface->name])

@@ -10,6 +10,7 @@ use GraphQL\Language\AST\NodeKind;
 use GraphQL\Language\Visitor;
 use GraphQL\Language\VisitorOperation;
 use GraphQL\Validator\ValidationContext;
+
 use function sprintf;
 
 class ProvidedRequiredArguments extends ValidationRule
@@ -20,18 +21,20 @@ class ProvidedRequiredArguments extends ValidationRule
 
         return $providedRequiredArgumentsOnDirectives->getVisitor($context) + [
             NodeKind::FIELD => [
-                'leave' => static function (FieldNode $fieldNode) use ($context) : ?VisitorOperation {
+                'leave' => static function (FieldNode $fieldNode) use ($context): ?VisitorOperation {
                     $fieldDef = $context->getFieldDef();
 
                     if (! $fieldDef) {
                         return Visitor::skipNode();
                     }
+
                     $argNodes = $fieldNode->arguments ?? [];
 
                     $argNodeMap = [];
                     foreach ($argNodes as $argNode) {
                         $argNodeMap[$argNode->name->value] = $argNode;
                     }
+
                     foreach ($fieldDef->args as $argDef) {
                         $argNode = $argNodeMap[$argDef->name] ?? null;
                         if ($argNode || ! $argDef->isRequired()) {

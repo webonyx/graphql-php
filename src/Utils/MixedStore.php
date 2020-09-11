@@ -8,6 +8,7 @@ use ArrayAccess;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use InvalidArgumentException;
 use SplObjectStorage;
+
 use function array_key_exists;
 use function array_search;
 use function array_splice;
@@ -95,18 +96,23 @@ class MixedStore implements ArrayAccess
         if ($offset === false) {
             return $this->falseValueIsSet;
         }
+
         if ($offset === true) {
             return $this->trueValueIsSet;
         }
+
         if (is_int($offset) || is_string($offset)) {
             return array_key_exists($offset, $this->standardStore);
         }
+
         if (is_float($offset)) {
             return array_key_exists((string) $offset, $this->floatStore);
         }
+
         if (is_object($offset)) {
             return $this->objectStore->offsetExists($offset);
         }
+
         if (is_array($offset)) {
             foreach ($this->arrayKeys as $index => $entry) {
                 if ($entry === $offset) {
@@ -117,6 +123,7 @@ class MixedStore implements ArrayAccess
                 }
             }
         }
+
         if ($offset === null) {
             return $this->nullValueIsSet;
         }
@@ -140,29 +147,36 @@ class MixedStore implements ArrayAccess
         if ($offset === true) {
             return $this->trueValue;
         }
+
         if ($offset === false) {
             return $this->falseValue;
         }
+
         if (is_int($offset) || is_string($offset)) {
             return $this->standardStore[$offset];
         }
+
         if (is_float($offset)) {
             return $this->floatStore[(string) $offset];
         }
+
         if (is_object($offset)) {
             return $this->objectStore->offsetGet($offset);
         }
+
         if (is_array($offset)) {
             // offsetGet is often called directly after offsetExists, so optimize to avoid second loop:
             if ($this->lastArrayKey === $offset) {
                 return $this->lastArrayValue;
             }
+
             foreach ($this->arrayKeys as $index => $entry) {
                 if ($entry === $offset) {
                     return $this->arrayValues[$index];
                 }
             }
         }
+
         if ($offset === null) {
             return $this->nullValue;
         }

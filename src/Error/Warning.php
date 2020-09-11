@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace GraphQL\Error;
 
 use GraphQL\Exception\InvalidArgument;
+
 use function is_int;
 use function trigger_error;
+
 use const E_USER_WARNING;
 
 /**
@@ -39,7 +41,7 @@ final class Warning
      *
      * @api
      */
-    public static function setWarningHandler(?callable $warningHandler = null) : void
+    public static function setWarningHandler(?callable $warningHandler = null): void
     {
         self::$warningHandler = $warningHandler;
     }
@@ -56,7 +58,7 @@ final class Warning
      *
      * @api
      */
-    public static function suppress($suppress = true) : void
+    public static function suppress($suppress = true): void
     {
         if ($suppress === true) {
             self::$enableWarnings = 0;
@@ -81,7 +83,7 @@ final class Warning
      *
      * @api
      */
-    public static function enable($enable = true) : void
+    public static function enable($enable = true): void
     {
         if ($enable === true) {
             self::$enableWarnings = self::ALL;
@@ -94,7 +96,7 @@ final class Warning
         }
     }
 
-    public static function warnOnce(string $errorMessage, int $warningId, ?int $messageLevel = null) : void
+    public static function warnOnce(string $errorMessage, int $warningId, ?int $messageLevel = null): void
     {
         $messageLevel = $messageLevel ?? E_USER_WARNING;
 
@@ -107,7 +109,7 @@ final class Warning
         }
     }
 
-    public static function warn(string $errorMessage, int $warningId, ?int $messageLevel = null) : void
+    public static function warn(string $errorMessage, int $warningId, ?int $messageLevel = null): void
     {
         $messageLevel = $messageLevel ?? E_USER_WARNING;
 

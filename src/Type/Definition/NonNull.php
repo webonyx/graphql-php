@@ -21,7 +21,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
         $this->ofType = $type;
     }
 
-    public function toString() : string
+    public function toString(): string
     {
         return $this->getWrappedType()->toString() . '!';
     }
@@ -34,7 +34,7 @@ class NonNull extends Type implements WrappingType, OutputType, InputType
     /**
      * @return (NullableType&Type)
      */
-    public function getWrappedType(bool $recurse = false) : Type
+    public function getWrappedType(bool $recurse = false): Type
     {
         $type = $this->getOfType();
 
