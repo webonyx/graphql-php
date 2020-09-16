@@ -461,7 +461,7 @@ parameters:
 			path: src/Validator/Rules/KnownDirectives.php
 
 		-
-			message: "#^Only booleans are allowed in a negated boolean, array\\<string\\>\\|null given\\.$#"
+			message: "#^Only booleans are allowed in a negated boolean, array|null given\\.$#"
 			count: 1
 			path: src/Validator/Rules/KnownDirectives.php
 

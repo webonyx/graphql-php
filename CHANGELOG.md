@@ -1,5 +1,10 @@
 # Changelog
 
+Fix:
+- Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
+- Parse `Parser::implementsInterfaces` as `NodeList<NamedTypeNode>` (fixes AST::fromArray conversion)
+- Fix signature of `Parser::unionMemberTypes` to match actual `NodeList<NamedTypeNode>`
+
 #### v14.3.0
 
 Feat:
