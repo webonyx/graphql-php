@@ -331,7 +331,7 @@ class ASTDefinitionBuilder
 
     private function makeImplementedInterfaces(ObjectTypeDefinitionNode $def)
     {
-        if ($def->interfaces) {
+        if ($def->interfaces !== null) {
             // Note: While this could make early assertions to get the correctly
             // typed values, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
@@ -424,7 +424,7 @@ class ASTDefinitionBuilder
             'name'        => $def->name->value,
             'description' => $this->getDescription($def),
             'fields'      => function () use ($def) {
-                return $def->fields
+                return $def->fields !== null
                     ? $this->makeInputValues($def->fields)
                     : [];
             },

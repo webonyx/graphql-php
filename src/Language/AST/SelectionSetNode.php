@@ -9,6 +9,6 @@ class SelectionSetNode extends Node
     /** @var string */
     public $kind = NodeKind::SELECTION_SET;
 
-    /** @var SelectionNode[] */
+    /** @var NodeList<SelectionNode&Node> */
     public $selections;
 }

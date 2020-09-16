@@ -15,10 +15,10 @@ class OperationDefinitionNode extends Node implements ExecutableDefinitionNode, 
     /** @var string (oneOf 'query', 'mutation')) */
     public $operation;
 
-    /** @var VariableDefinitionNode[] */
+    /** @var NodeList<VariableDefinitionNode> */
     public $variableDefinitions;
 
-    /** @var DirectiveNode[] */
+    /** @var NodeList<DirectiveNode> */
     public $directives;
 
     /** @var SelectionSetNode */

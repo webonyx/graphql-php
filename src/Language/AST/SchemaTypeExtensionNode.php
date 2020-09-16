@@ -9,9 +9,9 @@ class SchemaTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var string */
     public $kind = NodeKind::SCHEMA_EXTENSION;
 
-    /** @var DirectiveNode[]|null */
+    /** @var NodeList<DirectiveNode>|null */
     public $directives;
 
-    /** @var OperationTypeDefinitionNode[]|null */
+    /** @var NodeList<OperationTypeDefinitionNode>|null */
     public $operationTypes;
 }

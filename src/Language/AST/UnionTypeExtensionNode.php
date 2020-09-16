@@ -12,7 +12,7 @@ class UnionTypeExtensionNode extends Node implements TypeExtensionNode
     /** @var NameNode */
     public $name;
 
-    /** @var DirectiveNode[]|null */
+    /** @var NodeList<DirectiveNode>|null */
     public $directives;
 
     /** @var NodeList<NamedTypeNode>|null */
