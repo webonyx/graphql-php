@@ -41,6 +41,7 @@ use SplObjectStorage;
 use stdClass;
 use Throwable;
 use Traversable;
+use TypeError;
 use function array_keys;
 use function array_merge;
 use function array_reduce;
@@ -910,6 +911,8 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         try {
             return $returnType->serialize($result);
+        } catch (TypeError $error) {
+            throw $error;
         } catch (Throwable $error) {
             throw new InvariantViolation(
                 'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
