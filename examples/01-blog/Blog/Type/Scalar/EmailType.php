@@ -1,4 +1,7 @@
 <?php
+
+declare(strict_types=1);
+
 namespace GraphQL\Examples\Blog\Type\Scalar;
 
 use GraphQL\Error\Error;
@@ -26,7 +29,7 @@ class EmailType extends CustomScalarType
     public static function s_serialize($value)
     {
         // Assuming internal representation of email is always correct:
-        return $value;
+        return number_format($value);
 
         // If it might be incorrect and you want to make sure that only correct values are included in response -
         // use following line instead:
