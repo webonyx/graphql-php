@@ -911,8 +911,8 @@ class ReferenceExecutor implements ExecutorImplementation
     {
         try {
             return $returnType->serialize($result);
-        } catch (TypeError $error) {
-            throw $error;
+        //} catch (TypeError $error) {
+        //    throw $error;
         } catch (Throwable $error) {
             throw new InvariantViolation(
                 'Expected a value of type "' . Utils::printSafe($returnType) . '" but received: ' . Utils::printSafe($result),
