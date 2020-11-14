@@ -58,7 +58,7 @@ abstract class Type implements JsonSerializable
      */
     public static function id() : ScalarType
     {
-        if (!isset(static::$standardTypes[self::ID])) {
+        if (! isset(static::$standardTypes[self::ID])) {
             static::$standardTypes[self::ID] = new IDType();
         }
 
@@ -70,7 +70,7 @@ abstract class Type implements JsonSerializable
      */
     public static function string() : ScalarType
     {
-        if (!isset(static::$standardTypes[self::STRING])) {
+        if (! isset(static::$standardTypes[self::STRING])) {
             static::$standardTypes[self::STRING] = new StringType();
         }
 
@@ -82,7 +82,7 @@ abstract class Type implements JsonSerializable
      */
     public static function boolean() : ScalarType
     {
-        if (!isset(static::$standardTypes[self::BOOLEAN])) {
+        if (! isset(static::$standardTypes[self::BOOLEAN])) {
             static::$standardTypes[self::BOOLEAN] = new BooleanType();
         }
 
@@ -94,7 +94,7 @@ abstract class Type implements JsonSerializable
      */
     public static function int() : ScalarType
     {
-        if (!isset(static::$standardTypes[self::INT])) {
+        if (! isset(static::$standardTypes[self::INT])) {
             static::$standardTypes[self::INT] = new IntType();
         }
 
@@ -106,7 +106,7 @@ abstract class Type implements JsonSerializable
      */
     public static function float() : ScalarType
     {
-        if (!isset(static::$standardTypes[self::FLOAT])) {
+        if (! isset(static::$standardTypes[self::FLOAT])) {
             static::$standardTypes[self::FLOAT] = new FloatType();
         }
 
