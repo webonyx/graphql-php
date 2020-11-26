@@ -6,6 +6,7 @@ namespace GraphQL\Utils;
 
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\CompositeType;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\ListOfType;
 use GraphQL\Type\Definition\NonNull;
 use GraphQL\Type\Definition\ObjectType;
@@ -82,9 +83,9 @@ class TypeComparators
         }
 
         // If superType type is an abstract type, maybeSubType type may be a currently
-        // possible object type.
+        // possible object or interface type.
         return Type::isAbstractType($superType) &&
-            $maybeSubType instanceof ObjectType &&
+            $maybeSubType instanceof ImplementingType &&
             $schema->isPossibleType(
                 $superType,
                 $maybeSubType

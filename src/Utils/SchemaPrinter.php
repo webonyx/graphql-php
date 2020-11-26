@@ -414,8 +414,21 @@ class SchemaPrinter
      */
     protected static function printInterface(InterfaceType $type, array $options) : string
     {
+        $interfaces            = $type->getInterfaces();
+        $implementedInterfaces = count($interfaces) > 0
+            ? ' implements ' . implode(
+                ' & ',
+                array_map(
+                    static function (InterfaceType $interface) : string {
+                        return $interface->name;
+                    },
+                    $interfaces
+                )
+            )
+            : '';
+
         return self::printDescription($options, $type) .
-            sprintf("interface %s {\n%s\n}", $type->name, self::printFields($options, $type));
+            sprintf("interface %s%s {\n%s\n}", $type->name, $implementedInterfaces, self::printFields($options, $type));
     }
 
     /**

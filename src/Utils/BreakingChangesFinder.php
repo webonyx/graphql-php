@@ -11,6 +11,7 @@ namespace GraphQL\Utils;
 use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
@@ -590,7 +591,7 @@ class BreakingChangesFinder
 
         foreach ($oldTypeMap as $typeName => $oldType) {
             $newType = $newTypeMap[$typeName] ?? null;
-            if (! ($oldType instanceof ObjectType) || ! ($newType instanceof ObjectType)) {
+            if (! ($oldType instanceof ImplementingType) || ! ($newType instanceof ImplementingType)) {
                 continue;
             }
 
@@ -857,7 +858,8 @@ class BreakingChangesFinder
 
         foreach ($newTypeMap as $typeName => $newType) {
             $oldType = $oldTypeMap[$typeName] ?? null;
-            if (! ($oldType instanceof ObjectType) || ! ($newType instanceof ObjectType)) {
+            if (! ($oldType instanceof ObjectType || $oldType instanceof InterfaceType) ||
+                ! ($newType instanceof ObjectType || $newType instanceof InterfaceType)) {
                 continue;
             }
 

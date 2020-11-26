@@ -15,6 +15,9 @@ class InterfaceTypeDefinitionNode extends Node implements TypeDefinitionNode
     /** @var NodeList<DirectiveNode>|null */
     public $directives;
 
+    /** @var NodeList<InterfaceTypeDefinitionNode>|null */
+    public $interfaces;
+
     /** @var NodeList<FieldDefinitionNode>|null */
     public $fields;
 

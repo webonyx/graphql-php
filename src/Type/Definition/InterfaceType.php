@@ -7,12 +7,15 @@ namespace GraphQL\Type\Definition;
 use GraphQL\Error\InvariantViolation;
 use GraphQL\Language\AST\InterfaceTypeDefinitionNode;
 use GraphQL\Language\AST\InterfaceTypeExtensionNode;
+use GraphQL\Type\Schema;
 use GraphQL\Utils\Utils;
+use function array_map;
+use function is_array;
 use function is_callable;
 use function is_string;
 use function sprintf;
 
-class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType
+class InterfaceType extends Type implements AbstractType, OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
     /** @var InterfaceTypeDefinitionNode|null */
     public $astNode;
@@ -26,6 +29,20 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
      * @var FieldDefinition[]
      */
     private $fields;
+
+    /**
+     * Lazily initialized.
+     *
+     * @var InterfaceType[]
+     */
+    private $interfaces;
+
+    /**
+     * Lazily initialized.
+     *
+     * @var InterfaceType[]
+     */
+    private $interfaceMap;
 
     /**
      * @param mixed[] $config
@@ -97,6 +114,46 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     {
         $fields       = $this->config['fields'] ?? [];
         $this->fields = FieldDefinition::defineFieldMap($this, $fields);
+    }
+
+    public function implementsInterface(InterfaceType $interfaceType) : bool
+    {
+        if (! isset($this->interfaceMap)) {
+            $this->interfaceMap = [];
+            foreach ($this->getInterfaces() as $interface) {
+                /** @var Type&InterfaceType $interface */
+                $interface                            = Schema::resolveType($interface);
+                $this->interfaceMap[$interface->name] = $interface;
+            }
+        }
+
+        return isset($this->interfaceMap[$interfaceType->name]);
+    }
+
+    /**
+     * @return InterfaceType[]
+     */
+    public function getInterfaces() : array
+    {
+        if (! isset($this->interfaces)) {
+            $interfaces = $this->config['interfaces'] ?? [];
+            if (is_callable($interfaces)) {
+                $interfaces = $interfaces();
+            }
+
+            if ($interfaces !== null && ! is_array($interfaces)) {
+                throw new InvariantViolation(
+                    sprintf('%s interfaces must be an Array or a callable which returns an Array.', $this->name)
+                );
+            }
+
+            /** @var InterfaceType[] $interfaces */
+            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?? []);
+
+            $this->interfaces = $interfaces;
+        }
+
+        return $this->interfaces;
     }
 
     /**

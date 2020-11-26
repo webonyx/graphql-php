@@ -610,6 +610,7 @@ interface Hello {
                             $loc(21, 34)
                         ),
                     ],
+                    'interfaces'  => [],
                     'loc'         => $loc(1, 36),
                     'description' => null,
                 ],

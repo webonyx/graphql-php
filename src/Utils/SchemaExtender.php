@@ -22,6 +22,7 @@ use GraphQL\Type\Definition\Directive;
 use GraphQL\Type\Definition\EnumType;
 use GraphQL\Type\Definition\EnumValueDefinition;
 use GraphQL\Type\Definition\FieldArgument;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InputObjectType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ListOfType;
@@ -272,9 +273,11 @@ class SchemaExtender
     }
 
     /**
+     * @param ObjectType|InterfaceType $type
+     *
      * @return InterfaceType[]
      */
-    protected static function extendImplementedInterfaces(ObjectType $type) : array
+    protected static function extendImplementedInterfaces(ImplementingType $type) : array
     {
         $interfaces = array_map(static function (InterfaceType $interfaceType) {
             return static::extendNamedType($interfaceType);
@@ -282,7 +285,7 @@ class SchemaExtender
 
         $extensions = static::$typeExtensionsMap[$type->name] ?? null;
         if ($extensions !== null) {
-            /** @var ObjectTypeExtensionNode $extension */
+            /** @var ObjectTypeExtensionNode | InterfaceTypeExtensionNode $extension */
             foreach ($extensions as $extension) {
                 foreach ($extension->interfaces as $namedType) {
                     $interfaces[] = static::$astBuilder->buildType($namedType);
@@ -400,6 +403,9 @@ class SchemaExtender
         return new InterfaceType([
             'name' => $type->name,
             'description' => $type->description,
+            'interfaces' => static function () use ($type) : array {
+                return static::extendImplementedInterfaces($type);
+            },
             'fields' => static function () use ($type) : array {
                 return static::extendFieldMap($type);
             },

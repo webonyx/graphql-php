@@ -2195,7 +2195,7 @@ class ValidationTest extends TestCase
             $schema->validate(),
             [[
                 'message'   =>
-                    'Object field AnotherObject.field includes required argument ' .
+                    'Field AnotherObject.field includes required argument ' .
                     'requiredArg that is missing from the Interface field ' .
                     'AnotherInterface.field.',
                 'locations' => [['line' => 13, 'column' => 11], ['line' => 7, 'column' => 9]],

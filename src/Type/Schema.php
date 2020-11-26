@@ -12,6 +12,7 @@ use GraphQL\Language\AST\SchemaDefinitionNode;
 use GraphQL\Language\AST\SchemaTypeExtensionNode;
 use GraphQL\Type\Definition\AbstractType;
 use GraphQL\Type\Definition\Directive;
+use GraphQL\Type\Definition\ImplementingType;
 use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
@@ -454,7 +455,7 @@ class Schema
      *
      * @api
      */
-    public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType) : bool
+    public function isPossibleType(AbstractType $abstractType, ImplementingType $possibleType) : bool
     {
         if ($abstractType instanceof InterfaceType) {
             return $possibleType->implementsInterface($abstractType);

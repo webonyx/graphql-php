@@ -147,7 +147,7 @@ class UnionInterfaceTest extends TestCase
                     'fields'        => [
                         ['name' => 'name'],
                     ],
-                    'interfaces'    => null,
+                    'interfaces'    => [],
                     'possibleTypes' => [
                         ['name' => 'Person'],
                         ['name' => 'Dog'],

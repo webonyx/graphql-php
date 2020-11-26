@@ -55,7 +55,7 @@ use function sprintf;
  *        }
  *     ]);
  */
-class ObjectType extends Type implements OutputType, CompositeType, NullableType, NamedType
+class ObjectType extends Type implements OutputType, CompositeType, NullableType, NamedType, ImplementingType
 {
     /** @var ObjectTypeDefinitionNode|null */
     public $astNode;

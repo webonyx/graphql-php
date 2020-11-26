@@ -319,6 +319,13 @@ class BuildClientSchema
             'fields' => function () use ($interface) {
                 return $this->buildFieldDefMap($interface);
             },
+            'interfaces' => function () use ($interface) : array {
+                return array_map(
+                    [$this, 'getInterfaceType'],
+                    // Legacy support for interfaces with null as interfaces field
+                    $interface['interfaces'] ?? []
+                );
+            },
         ]);
     }
 

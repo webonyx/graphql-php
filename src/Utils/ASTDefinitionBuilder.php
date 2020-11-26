@@ -329,7 +329,10 @@ class ASTDefinitionBuilder
         return $deprecated['reason'] ?? null;
     }
 
-    private function makeImplementedInterfaces(ObjectTypeDefinitionNode $def)
+    /**
+     * @param ObjectTypeDefinitionNode | InterfaceTypeDefinitionNode $def
+     */
+    private function makeImplementedInterfaces($def)
     {
         if ($def->interfaces !== null) {
             // Note: While this could make early assertions to get the correctly
@@ -355,6 +358,9 @@ class ASTDefinitionBuilder
             'description' => $this->getDescription($def),
             'fields'      => function () use ($def) {
                 return $this->makeFieldDefMap($def);
+            },
+            'interfaces'  => function () use ($def) {
+                return $this->makeImplementedInterfaces($def);
             },
             'astNode'     => $def,
         ]);

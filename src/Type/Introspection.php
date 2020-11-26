@@ -359,7 +359,7 @@ EOD;
                         'interfaces'    => [
                             'type'    => Type::listOf(Type::nonNull(self::_type())),
                             'resolve' => static function ($type) : ?array {
-                                if ($type instanceof ObjectType) {
+                                if ($type instanceof ObjectType || $type instanceof InterfaceType) {
                                     return $type->getInterfaces();
                                 }
 
@@ -446,7 +446,7 @@ EOD;
                     ],
                     'INTERFACE'    => [
                         'value'       => TypeKind::INTERFACE,
-                        'description' => 'Indicates this type is an interface. `fields` and `possibleTypes` are valid fields.',
+                        'description' => 'Indicates this type is an interface. `fields`, `interfaces`, and `possibleTypes` are valid fields.',
                     ],
                     'UNION'        => [
                         'value'       => TypeKind::UNION,
