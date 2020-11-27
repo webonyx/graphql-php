@@ -12,9 +12,21 @@ class Dog
     /** @var bool */
     public $woofs;
 
+    /** @var Dog|null */
+    public $mother;
+
+    /** @var Dog|null */
+    public $father;
+
+    /** @var Dog[] */
+    public $progeny;
+
     public function __construct(string $name, bool $woofs)
     {
-        $this->name  = $name;
-        $this->woofs = $woofs;
+        $this->name    = $name;
+        $this->woofs   = $woofs;
+        $this->mother  = NULL;
+        $this->father  = NULL;
+        $this->progeny = [];
     }
 }

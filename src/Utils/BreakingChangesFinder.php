@@ -42,14 +42,14 @@ class BreakingChangesFinder
     public const BREAKING_CHANGE_ARG_CHANGED_KIND              = 'ARG_CHANGED_KIND';
     public const BREAKING_CHANGE_REQUIRED_ARG_ADDED            = 'REQUIRED_ARG_ADDED';
     public const BREAKING_CHANGE_REQUIRED_INPUT_FIELD_ADDED    = 'REQUIRED_INPUT_FIELD_ADDED';
-    public const BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT = 'INTERFACE_REMOVED_FROM_OBJECT';
+    public const BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED = 'IMPLEMENTED_INTERFACE_REMOVED';
     public const BREAKING_CHANGE_DIRECTIVE_REMOVED             = 'DIRECTIVE_REMOVED';
     public const BREAKING_CHANGE_DIRECTIVE_ARG_REMOVED         = 'DIRECTIVE_ARG_REMOVED';
     public const BREAKING_CHANGE_DIRECTIVE_LOCATION_REMOVED    = 'DIRECTIVE_LOCATION_REMOVED';
     public const BREAKING_CHANGE_REQUIRED_DIRECTIVE_ARG_ADDED  = 'REQUIRED_DIRECTIVE_ARG_ADDED';
     public const DANGEROUS_CHANGE_ARG_DEFAULT_VALUE_CHANGED    = 'ARG_DEFAULT_VALUE_CHANGE';
     public const DANGEROUS_CHANGE_VALUE_ADDED_TO_ENUM          = 'VALUE_ADDED_TO_ENUM';
-    public const DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT    = 'INTERFACE_ADDED_TO_OBJECT';
+    public const DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED  = 'IMPLEMENTED_INTERFACE_ADDED';
     public const DANGEROUS_CHANGE_TYPE_ADDED_TO_UNION          = 'TYPE_ADDED_TO_UNION';
     public const DANGEROUS_CHANGE_OPTIONAL_INPUT_FIELD_ADDED   = 'OPTIONAL_INPUT_FIELD_ADDED';
     public const DANGEROUS_CHANGE_OPTIONAL_ARG_ADDED           = 'OPTIONAL_ARG_ADDED';
@@ -609,7 +609,7 @@ class BreakingChangesFinder
                 }
 
                 $breakingChanges[] = [
-                    'type'        => self::BREAKING_CHANGE_INTERFACE_REMOVED_FROM_OBJECT,
+                    'type'        => self::BREAKING_CHANGE_IMPLEMENTED_INTERFACE_REMOVED,
                     'description' => sprintf('%s no longer implements interface %s.', $typeName, $oldInterface->name),
                 ];
             }
@@ -878,7 +878,7 @@ class BreakingChangesFinder
                 }
 
                 $interfacesAddedToObjectTypes[] = [
-                    'type'        => self::DANGEROUS_CHANGE_INTERFACE_ADDED_TO_OBJECT,
+                    'type'        => self::DANGEROUS_CHANGE_IMPLEMENTED_INTERFACE_ADDED,
                     'description' => sprintf(
                         '%s added to interfaces implemented by %s.',
                         $newInterface->name,

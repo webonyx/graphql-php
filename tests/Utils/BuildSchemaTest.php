@@ -345,6 +345,32 @@ interface WorldInterface {
     }
 
     /**
+     * @see it('Simple interface heirarchy')
+     */
+    public function testSimpleInterfaceHeirarchy() : void
+    {
+        $body   = '
+schema {
+  query: Child
+}
+
+interface Child implements Parent {
+  str: String
+}
+
+type Hello implements Parent & Child {
+  str: String
+}
+
+interface Parent {
+  str: String
+}
+';
+        $output = $this->cycleOutput($body);
+        self::assertEquals($output, $body);
+    }
+
+    /**
      * @see it('Simple output enum')
      */
     public function testSimpleOutputEnum() : void
@@ -710,6 +736,28 @@ interface Iface {
 
 type Query {
   iface: Iface
+}
+';
+        $output = $this->cycleOutput($body);
+        self::assertEquals($output, $body);
+    }
+
+    /**
+     * @see it('Unreferenced interface implementing referenced interface')
+     */
+    public function testUnreferencedInterfaceImplementingReferencedInterface() : void
+    {
+        $body   = '
+interface Child implements Parent {
+  key: String
+}
+
+interface Parent {
+  key: String
+}
+
+type Query {
+  iface: Parent
 }
 ';
         $output = $this->cycleOutput($body);

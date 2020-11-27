@@ -223,9 +223,9 @@ extend type Hello {
     }
 
     /**
-     * @see it('Extension without fields')
+     * @see it('Object extension without fields')
      */
-    public function testExtensionWithoutFields() : void
+    public function testObjectExtensionWithoutFields() : void
     {
         $body = 'extend type Hello implements Greeting';
         $doc  = Parser::parse($body);
@@ -253,9 +253,39 @@ extend type Hello {
     }
 
     /**
-     * @see it('Extension without fields followed by extension')
+     * @see it('Interface extension without fields')
      */
-    public function testExtensionWithoutFieldsFollowedByExtension() : void
+    public function testInterfaceExtensionWithoutFields() : void
+    {
+        $body = 'extend interface Hello implements Greeting';
+        $doc  = Parser::parse($body);
+        $loc  = static function ($start, $end) : array {
+            return TestUtils::locArray($start, $end);
+        };
+
+        $expected = [
+            'kind'        => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind'       => NodeKind::INTERFACE_TYPE_EXTENSION,
+                    'name'       => $this->nameNode('Hello', $loc(17, 22)),
+                    'interfaces' => [
+                        $this->typeNode('Greeting', $loc(34, 42)),
+                    ],
+                    'directives' => [],
+                    'fields'     => [],
+                    'loc'        => $loc(0, 42),
+                ],
+            ],
+            'loc'         => $loc(0, 42),
+        ];
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @see it('Object extension without fields followed by extension')
+     */
+    public function testObjectExtensionWithoutFieldsFollowedByExtension() : void
     {
         $body     = '
           extend type Hello implements Greeting
@@ -267,7 +297,7 @@ extend type Hello {
             'kind'        => 'Document',
             'definitions' => [
                 [
-                    'kind'       => 'ObjectTypeExtension',
+                    'kind'       => NodeKind::OBJECT_TYPE_EXTENSION,
                     'name'       => $this->nameNode('Hello', ['start' => 23, 'end' => 28]),
                     'interfaces' => [$this->typeNode('Greeting', ['start' => 40, 'end' => 48])],
                     'directives' => [],
@@ -275,7 +305,7 @@ extend type Hello {
                     'loc'        => ['start' => 11, 'end' => 48],
                 ],
                 [
-                    'kind'       => 'ObjectTypeExtension',
+                    'kind'       => NodeKind::OBJECT_TYPE_EXTENSION,
                     'name'       => $this->nameNode('Hello', ['start' => 76, 'end' => 81]),
                     'interfaces' => [$this->typeNode('SecondGreeting', ['start' => 93, 'end' => 107])],
                     'directives' => [],
@@ -289,14 +319,62 @@ extend type Hello {
     }
 
     /**
-     * @see it('Extension without anything throws')
+     * @see it('Interface extension without fields followed by extension')
      */
-    public function testExtensionWithoutAnythingThrows() : void
+    public function testInterfaceExtensionWithoutFieldsFollowedByExtension() : void
+    {
+        $body     = '
+          extend interface Hello implements Greeting
+
+          extend interface Hello implements SecondGreeting
+        ';
+        $doc      = Parser::parse($body);
+        $expected = [
+            'kind'        => 'Document',
+            'definitions' => [
+                [
+                    'kind'       => NodeKind::INTERFACE_TYPE_EXTENSION,
+                    'name'       => $this->nameNode('Hello', ['start' => 28, 'end' => 33]),
+                    'interfaces' => [$this->typeNode('Greeting', ['start' => 45, 'end' => 53])],
+                    'directives' => [],
+                    'fields'     => [],
+                    'loc'        => ['start' => 11, 'end' => 53],
+                ],
+                [
+                    'kind'       => NodeKind::INTERFACE_TYPE_EXTENSION,
+                    'name'       => $this->nameNode('Hello', ['start' => 82, 'end' => 87]),
+                    'interfaces' => [$this->typeNode('SecondGreeting', ['start' => 99, 'end' => 113])],
+                    'directives' => [],
+                    'fields'     => [],
+                    'loc'        => ['start' => 65, 'end' => 113],
+                ],
+            ],
+            'loc'         => ['start' => 0, 'end' => 122],
+        ];
+        self::assertEquals($expected, $doc->toArray(true));
+    }
+
+    /**
+     * @see it('Object extension without anything throws')
+     */
+    public function testObjectExtensionWithoutAnythingThrows() : void
     {
         $this->expectSyntaxError(
             'extend type Hello',
             'Unexpected <EOF>',
             $this->loc(1, 18)
+        );
+    }
+
+    /**
+     * @see it('Interface extension without anything throws')
+     */
+    public function testInterfaceExtensionWithoutAnythingThrows() : void
+    {
+        $this->expectSyntaxError(
+            'extend interface Hello',
+            'Unexpected <EOF>',
+            $this->loc(1, 23)
         );
     }
 
@@ -318,9 +396,9 @@ extend type Hello {
     }
 
     /**
-     * @see it('Extension do not include descriptions')
+     * @see it('Object extension do not include descriptions')
      */
-    public function testExtensionDoNotIncludeDescriptions() : void
+    public function testObjectExtensionDoNotIncludeDescriptions() : void
     {
         $body = '
       "Description"
@@ -335,12 +413,47 @@ extend type Hello {
     }
 
     /**
-     * @see it('Extension do not include descriptions')
+     * @see it('Interface extension do not include descriptions')
      */
-    public function testExtensionDoNotIncludeDescriptions2() : void
+    public function testInterfaceExtensionDoNotIncludeDescriptions() : void
+    {
+        $body = '
+      "Description"
+      extend interface Hello {
+        world: String
+      }';
+        $this->expectSyntaxError(
+            $body,
+            'Unexpected Name "extend"',
+            $this->loc(3, 7)
+        );
+    }
+
+    /**
+     * @see it('Object Extension do not include descriptions')
+     */
+    public function testObjectExtensionDoNotIncludeDescriptions2() : void
     {
         $body = '
       extend "Description" type Hello {
+        world: String
+      }
+}';
+        $this->expectSyntaxError(
+            $body,
+            'Unexpected String "Description"',
+            $this->loc(2, 14)
+        );
+    }
+
+
+    /**
+     * @see it('Interface Extension do not include descriptions')
+     */
+    public function testInterfaceExtensionDoNotIncludeDescriptions2() : void
+    {
+        $body = '
+      extend "Description" interface Hello {
         world: String
       }
 }';
@@ -390,6 +503,44 @@ type Hello {
                 ],
             ],
             'loc'         => $loc(0, 32),
+        ];
+
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @see it('Simple interface inheriting interface')
+     */
+    public function testSimpleInterfaceInheritingInterface() : void
+    {
+        $body = 'interface Hello implements World { field: String }';
+        $doc  = Parser::parse($body);
+        $loc  = static function ($start, $end) : array {
+            return TestUtils::locArray($start, $end);
+        };
+
+        $expected = [
+            'kind'        => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind'        => NodeKind::INTERFACE_TYPE_DEFINITION,
+                    'name'        => $this->nameNode('Hello', $loc(10, 15)),
+                    'interfaces'  => [
+                        $this->typeNode('World', $loc(27, 32)),
+                    ],
+                    'directives'  => [],
+                    'fields'      => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(35, 40)),
+                            $this->typeNode('String', $loc(42, 48)),
+                            $loc(35, 48)
+                        ),
+                    ],
+                    'loc'         => $loc(0, 50),
+                    'description' => null,
+                ],
+            ],
+            'loc'         => $loc(0, 50),
         ];
 
         self::assertEquals($expected, TestUtils::nodeToArray($doc));
@@ -473,6 +624,45 @@ type Hello {
     }
 
     /**
+     * @see it('Simple interface inheriting multiple interfaces')
+     */
+    public function testSimpleInterfaceInheritingMultipleInterfaces() : void
+    {
+        $body = 'interface Hello implements Wo & rld { field: String }';
+        $doc  = Parser::parse($body);
+        $loc  = static function ($start, $end) : array {
+            return TestUtils::locArray($start, $end);
+        };
+
+        $expected = [
+            'kind'        => NodeKind::DOCUMENT,
+            'definitions' => [
+                [
+                    'kind'        => NodeKind::INTERFACE_TYPE_DEFINITION,
+                    'name'        => $this->nameNode('Hello', $loc(10, 15)),
+                    'interfaces'  => [
+                        $this->typeNode('Wo', $loc(27, 29)),
+                        $this->typeNode('rld', $loc(32, 35)),
+                    ],
+                    'directives'  => [],
+                    'fields'      => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(38, 43)),
+                            $this->typeNode('String', $loc(45, 51)),
+                            $loc(38, 51)
+                        ),
+                    ],
+                    'loc'         => $loc(0, 53),
+                    'description' => null,
+                ],
+            ],
+            'loc'         => $loc(0, 53),
+        ];
+
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
      * @see it('Simple type inheriting multiple interfaces with leading ampersand')
      */
     public function testSimpleTypeInheritingMultipleInterfacesWithLeadingAmpersand() : void
@@ -487,7 +677,7 @@ type Hello {
             'kind'        => 'Document',
             'definitions' => [
                 [
-                    'kind'        => 'ObjectTypeDefinition',
+                    'kind'        => NodeKind::OBJECT_TYPE_DEFINITION,
                     'name'        => $this->nameNode('Hello', $loc(5, 10)),
                     'interfaces'  => [
                         $this->typeNode('Wo', $loc(24, 26)),
@@ -506,6 +696,44 @@ type Hello {
                 ],
             ],
             'loc'         => $loc(0, 50),
+        ];
+        self::assertEquals($expected, TestUtils::nodeToArray($doc));
+    }
+
+    /**
+     * @see it('Simple interface inheriting multiple interfaces with leading ampersand')
+     */
+    public function testSimpleInterfaceInheritingMultipleInterfacesWithLeadingAmpersand() : void
+    {
+        $body = 'interface Hello implements & Wo & rld { field: String }';
+        $doc  = Parser::parse($body);
+        $loc  = static function ($start, $end) : array {
+            return TestUtils::locArray($start, $end);
+        };
+
+        $expected = [
+            'kind'        => 'Document',
+            'definitions' => [
+                [
+                    'kind'        => NodeKind::INTERFACE_TYPE_DEFINITION,
+                    'name'        => $this->nameNode('Hello', $loc(10, 15)),
+                    'interfaces'  => [
+                        $this->typeNode('Wo', $loc(29, 31)),
+                        $this->typeNode('rld', $loc(34, 37)),
+                    ],
+                    'directives'  => [],
+                    'fields'      => [
+                        $this->fieldNode(
+                            $this->nameNode('field', $loc(40, 45)),
+                            $this->typeNode('String', $loc(47, 53)),
+                            $loc(40, 53)
+                        ),
+                    ],
+                    'loc'         => $loc(0, 55),
+                    'description' => null,
+                ],
+            ],
+            'loc'         => $loc(0, 55),
         ];
         self::assertEquals($expected, TestUtils::nodeToArray($doc));
     }

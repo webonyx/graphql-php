@@ -70,19 +70,29 @@ class SchemaExtenderTest extends TestCase
             'name' => 'SomeInterface',
             'fields' => static function () use (&$SomeInterfaceType) : array {
                 return [
-                    'name' => [ 'type' => Type::string()],
                     'some' => [ 'type' => $SomeInterfaceType],
                 ];
             },
         ]);
 
+        $AnotherInterfaceType = new InterfaceType([
+            'name' => 'AnotherInterface',
+            'interfaces' => [$SomeInterfaceType],
+            'fields' => static function () use (&$AnotherInterfaceType) : array {
+                return [
+                    'name' => [ 'type' => Type::string()],
+                    'some' => [ 'type' => $AnotherInterfaceType],
+                ];
+            }
+        ]);
+
         $FooType = new ObjectType([
             'name' => 'Foo',
-            'interfaces' => [$SomeInterfaceType],
-            'fields' => static function () use ($SomeInterfaceType, &$FooType) : array {
+            'interfaces' => [$AnotherInterfaceType, $SomeInterfaceType],
+            'fields' => static function () use ($AnotherInterfaceType, &$FooType) : array {
                 return [
                     'name' => [ 'type' => Type::string() ],
-                    'some' => [ 'type' => $SomeInterfaceType ],
+                    'some' => [ 'type' => $AnotherInterfaceType ],
                     'tree' => [ 'type' => Type::nonNull(Type::listOf($FooType))],
                 ];
             },
@@ -93,7 +103,6 @@ class SchemaExtenderTest extends TestCase
             'interfaces' => [$SomeInterfaceType],
             'fields' => static function () use ($SomeInterfaceType, $FooType) : array {
                 return [
-                    'name' => [ 'type' => Type::string() ],
                     'some' => [ 'type' => $SomeInterfaceType ],
                     'foo' => [ 'type' => $FooType ],
                 ];
@@ -345,9 +354,9 @@ class SchemaExtenderTest extends TestCase
         self::assertEquals(
             $this->printTestSchemaChanges($extendedSchema),
             $this->dedent('
-              type Foo implements SomeInterface {
+              type Foo implements AnotherInterface & SomeInterface {
                 name: String
-                some: SomeInterface
+                some: AnotherInterface
                 tree: [Foo]!
                 newField: String
               }
@@ -781,9 +790,9 @@ class SchemaExtenderTest extends TestCase
 
         self::assertEquals(
             $this->dedent('
-                type Foo implements SomeInterface {
+                type Foo implements AnotherInterface & SomeInterface {
                   name: String
-                  some: SomeInterface
+                  some: AnotherInterface
                   tree: [Foo]!
                   newField(arg1: String, arg2: NewInputObj!): String
                 }
@@ -811,9 +820,9 @@ class SchemaExtenderTest extends TestCase
 
         self::assertEquals(
             $this->dedent('
-                type Foo implements SomeInterface {
+                type Foo implements AnotherInterface & SomeInterface {
                   name: String
-                  some: SomeInterface
+                  some: AnotherInterface
                   tree: [Foo]!
                   newField(arg1: SomeEnum!): SomeEnum
                 }
@@ -885,9 +894,9 @@ class SchemaExtenderTest extends TestCase
 
         self::assertEquals(
             $this->dedent('
-                type Foo implements SomeInterface {
+                type Foo implements AnotherInterface & SomeInterface {
                   name: String
-                  some: SomeInterface
+                  some: AnotherInterface
                   tree: [Foo]!
                   newObject: NewObject
                   newInterface: NewInterface
@@ -939,9 +948,9 @@ class SchemaExtenderTest extends TestCase
 
         self::assertEquals(
             $this->dedent('
-                type Foo implements SomeInterface & NewInterface {
+                type Foo implements AnotherInterface & SomeInterface & NewInterface {
                   name: String
-                  some: SomeInterface
+                  some: AnotherInterface
                   tree: [Foo]!
                   baz: String
                 }
@@ -1059,6 +1068,10 @@ class SchemaExtenderTest extends TestCase
           extend interface SomeInterface {
             newField: String
           }
+          
+          extend interface AnotherInterface {
+            newField: String
+          }
 
           extend type Bar {
             newField: String
@@ -1071,23 +1084,69 @@ class SchemaExtenderTest extends TestCase
 
         self::assertEquals(
             $this->dedent('
-                type Bar implements SomeInterface {
+                interface AnotherInterface implements SomeInterface {
                   name: String
+                  some: AnotherInterface
+                  newField: String
+                }
+
+                type Bar implements SomeInterface {
                   some: SomeInterface
                   foo: Foo
                   newField: String
                 }
 
-                type Foo implements SomeInterface {
+                type Foo implements AnotherInterface & SomeInterface {
                   name: String
-                  some: SomeInterface
+                  some: AnotherInterface
                   tree: [Foo]!
                   newField: String
                 }
 
                 interface SomeInterface {
-                  name: String
                   some: SomeInterface
+                  newField: String
+                }
+            '),
+            $this->printTestSchemaChanges($extendedSchema)
+        );
+    }
+
+    /**
+     * @see it('extends interfaces by adding new implemted interfaces')
+     */
+    public function testExtendsInterfacesByAddingNewImplementedInterfaces()
+    {
+        $extendedSchema = $this->extendTestSchema('
+          interface NewInterface {
+            newField: String
+          }
+          
+          extend interface AnotherInterface implements NewInterface {
+            newField: String
+          }
+          
+          extend type Foo implements NewInterface {
+            newField: String
+          }
+        ');
+
+        self::assertEquals(
+            $this->dedent('
+                interface AnotherInterface implements SomeInterface & NewInterface {
+                  name: String
+                  some: AnotherInterface
+                  newField: String
+                }
+                
+                type Foo implements AnotherInterface & SomeInterface & NewInterface {
+                  name: String
+                  some: AnotherInterface
+                  tree: [Foo]!
+                  newField: String
+                }
+                
+                interface NewInterface {
                   newField: String
                 }
             '),
@@ -1112,7 +1171,6 @@ class SchemaExtenderTest extends TestCase
         self::assertEquals(
             $this->dedent('
                 interface SomeInterface {
-                  name: String
                   some: SomeInterface
                   newField: String
                 }
@@ -1130,6 +1188,7 @@ class SchemaExtenderTest extends TestCase
           extend interface SomeInterface {
             newFieldA: Int
           }
+          
           extend interface SomeInterface {
             newFieldB(test: Boolean): String
           }
@@ -1138,7 +1197,6 @@ class SchemaExtenderTest extends TestCase
         self::assertEquals(
             $this->dedent('
                 interface SomeInterface {
-                  name: String
                   some: SomeInterface
                   newFieldA: Int
                   newFieldB(test: Boolean): String

@@ -244,7 +244,6 @@ SDL;
      */
     public function testBuildsASchemaWithAnInterfaceHierarchy() : void
     {
-        self::markTestSkipped('Will work only once intermediate interfaces are possible');
         self::assertCycleIntrospection('
           type Dog implements Friendly & Named {
             bestFriend: Friendly
