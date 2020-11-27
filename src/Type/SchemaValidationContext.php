@@ -307,7 +307,7 @@ class SchemaValidationContext
                 $this->validateFields($type);
 
                 // Ensure objects implement the interfaces they claim to.
-                $this->validateTypeInterfaces($type);
+                $this->validateInterfaces($type);
 
                 // Ensure directives are valid
                 $this->validateDirectivesAtLocation(
@@ -319,7 +319,7 @@ class SchemaValidationContext
                 $this->validateFields($type);
 
                 // Ensure interfaces implement the interfaces they claim to.
-                $this->validateTypeInterfaces($type);
+                $this->validateInterfaces($type);
 
                 // Ensure directives are valid
                 $this->validateDirectivesAtLocation(
@@ -661,9 +661,9 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      */
-    private function validateTypeInterfaces(ImplementingType $type)
+    private function validateInterfaces(ImplementingType $type)
     {
-        $implementedTypeNames = [];
+        $ifaceTypeNames = [];
         foreach ($type->getInterfaces() as $iface) {
             if (! $iface instanceof InterfaceType) {
                 $this->reportError(
@@ -676,14 +676,16 @@ class SchemaValidationContext
                 );
                 continue;
             }
-            if (isset($implementedTypeNames[$iface->name])) {
+            if (isset($ifaceTypeNames[$iface->name])) {
                 $this->reportError(
                     sprintf('Type %s can only implement %s once.', $type->name, $iface->name),
                     $this->getAllImplementsInterfaceNodes($type, $iface)
                 );
                 continue;
             }
-            $implementedTypeNames[$iface->name] = true;
+            $ifaceTypeNames[$iface->name] = true;
+
+            $this->validateTypeImplementsAncestors($type, $iface);
             $this->validateTypeImplementsInterface($type, $iface);
         }
     }
@@ -872,6 +874,36 @@ class SchemaValidationContext
                         $this->getFieldArgNode($type, $fieldName, $argName),
                         $this->getFieldNode($iface, $fieldName),
                     ]
+                );
+            }
+        }
+    }
+
+    /**
+     * @param ObjectType|InterfaceType $type
+     * @param InterfaceType            $iface
+     */
+    private function validateTypeImplementsAncestors(ImplementingType $type, $iface) {
+        $typeInterfaces = $type->getInterfaces();
+        foreach ($iface->getInterfaces() as $transitive) {
+            if (!in_array($transitive, $typeInterfaces)) {
+                $this->reportError(
+                    $transitive === $type ?
+                        sprintf(
+                            "Type %s cannot implement %s because it would create a circular reference.",
+                            $type->name,
+                            $iface->name
+                        ) :
+                        sprintf(
+                            "Type %s must implement %s because it is implemented by %s.",
+                            $type->name,
+                            $transitive->name,
+                            $iface->name
+                        ),
+                    array_merge(
+                        $this->getAllImplementsInterfaceNodes($iface, $transitive),
+                        $this->getAllImplementsInterfaceNodes($type, $iface)
+                    )
                 );
             }
         }
