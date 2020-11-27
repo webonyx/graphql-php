@@ -58,7 +58,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install PHP
-      uses: shivammathur/setup-php@2.2.2
+      uses: shivammathur/setup-php@2.9.0
       with:
         php-version: 7.1
         coverage: none
@@ -89,7 +89,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Install PHP
-      uses: shivammathur/setup-php@2.2.2
+      uses: shivammathur/setup-php@2.9.0
       with:
         php-version: 7.1
         coverage: none
@@ -122,7 +122,7 @@ jobs:
         ref: ${{ github.ref }}
 
     - name: Install PHP
-      uses: shivammathur/setup-php@2.2.2
+      uses: shivammathur/setup-php@2.9.0
       with:
         php-version: 7.2
         coverage: pcov
