@@ -662,7 +662,7 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      */
-    private function validateInterfaces(ImplementingType $type)
+    private function validateInterfaces(ImplementingType $type) : void
     {
         $ifaceTypeNames = [];
         foreach ($type->getInterfaces() as $iface) {
@@ -717,11 +717,8 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
-     * @param InterfaceType            $iface
-     *
-     * @return NamedTypeNode|null
      */
-    private function getImplementsInterfaceNode($type, $iface)
+    private function getImplementsInterfaceNode($type, Type $iface) : ?NamedTypeNode
     {
         $nodes = $this->getAllImplementsInterfaceNodes($type, $iface);
 
@@ -894,9 +891,8 @@ class SchemaValidationContext
 
     /**
      * @param ObjectType|InterfaceType $type
-     * @param InterfaceType            $iface
      */
-    private function validateTypeImplementsAncestors(ImplementingType $type, $iface)
+    private function validateTypeImplementsAncestors(ImplementingType $type, InterfaceType $iface) : void
     {
         $typeInterfaces = $type->getInterfaces();
         foreach ($iface->getInterfaces() as $transitive) {

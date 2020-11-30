@@ -76,14 +76,14 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     /**
      * Lazily initialized.
      *
-     * @var InterfaceType[]
+     * @var array<int, InterfaceType>
      */
     private $interfaces;
 
     /**
      * Lazily initialized.
      *
-     * @var InterfaceType[]
+     * @var array<string, InterfaceType>
      */
     private $interfaceMap;
 
@@ -180,7 +180,7 @@ class ObjectType extends Type implements OutputType, CompositeType, NullableType
     }
 
     /**
-     * @return InterfaceType[]
+     * @return array<int, InterfaceType>
      */
     public function getInterfaces() : array
     {

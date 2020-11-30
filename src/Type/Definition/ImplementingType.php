@@ -15,7 +15,7 @@ interface ImplementingType
     public function implementsInterface(InterfaceType $interfaceType) : bool;
 
     /**
-     * @return InterfaceType[]
+     * @return array<int, InterfaceType>
      */
     public function getInterfaces() : array;
 }

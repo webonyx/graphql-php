@@ -497,7 +497,7 @@ class Schema
     }
 
     /**
-     * Returns true if maybe sub type is a sub type of given abstract type.
+     * Returns true if the given type is a sub type of the given abstract type.
      *
      * @param UnionType|InterfaceType  $abstractType
      * @param ObjectType|InterfaceType $maybeSubType

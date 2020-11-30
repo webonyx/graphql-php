@@ -33,14 +33,14 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /**
      * Lazily initialized.
      *
-     * @var InterfaceType[]
+     * @var array<int, InterfaceType>
      */
     private $interfaces;
 
     /**
      * Lazily initialized.
      *
-     * @var InterfaceType[]
+     * @var array<string, InterfaceType>
      */
     private $interfaceMap;
 
@@ -131,7 +131,7 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     }
 
     /**
-     * @return InterfaceType[]
+     * @return array<int, InterfaceType>
      */
     public function getInterfaces() : array
     {

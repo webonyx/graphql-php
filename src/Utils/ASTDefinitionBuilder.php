@@ -278,7 +278,7 @@ class ASTDefinitionBuilder
             'fields'      => function () use ($def) {
                 return $this->makeFieldDefMap($def);
             },
-            'interfaces'  => function () use ($def) {
+            'interfaces'  => function () use ($def) : ?array {
                 return $this->makeImplementedInterfaces($def);
             },
             'astNode'     => $def,
@@ -331,8 +331,10 @@ class ASTDefinitionBuilder
 
     /**
      * @param ObjectTypeDefinitionNode | InterfaceTypeDefinitionNode $def
+     *
+     * @return array<int, InterfaceType> | null
      */
-    private function makeImplementedInterfaces($def)
+    private function makeImplementedInterfaces($def) : ?array
     {
         if ($def->interfaces !== null) {
             // Note: While this could make early assertions to get the correctly
@@ -359,7 +361,7 @@ class ASTDefinitionBuilder
             'fields'      => function () use ($def) {
                 return $this->makeFieldDefMap($def);
             },
-            'interfaces'  => function () use ($def) {
+            'interfaces'  => function () use ($def) : ?array {
                 return $this->makeImplementedInterfaces($def);
             },
             'astNode'     => $def,
