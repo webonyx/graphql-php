@@ -25,8 +25,8 @@ class Cat
     {
         $this->name    = $name;
         $this->meows   = $meows;
-        $this->mother  = NULL;
-        $this->father  = NULL;
+        $this->mother  = null;
+        $this->father  = null;
         $this->progeny = [];
     }
 }

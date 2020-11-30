@@ -766,7 +766,7 @@ SDL;
         $introspection          = Introspection::fromSchema($dummySchema);
         $queryTypeIntrospection = null;
         foreach ($introspection['__schema']['types'] as &$type) {
-            if ($type['name'] !== 'Query') {
+            if ($type['name'] !== 'SomeInterface') {
                 continue;
             }
 

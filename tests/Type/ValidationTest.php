@@ -2672,7 +2672,7 @@ class ValidationTest extends TestCase
                     'message'   => 'Interface field argument ParentInterface.field(input:) expects type String ' .
                         'but ChildInterface.field(input:) is type Int.',
                     'locations' => [['line' => 7, 'column' => 22], ['line' => 11, 'column' => 22]],
-                ]
+                ],
             ]
         );
     }
@@ -2707,7 +2707,8 @@ class ValidationTest extends TestCase
                 'message'   => 'Object field ChildInterface.field includes required argument requiredArg ' .
                     'that is missing from the Interface field ParentInterface.field.',
                 'locations' => [['line' => 13, 'column' => 11], ['line' => 7, 'column' => 9]],
-            ]]
+            ],
+            ]
         );
     }
 
@@ -2758,7 +2759,8 @@ class ValidationTest extends TestCase
                 'message'   => 'Interface field ParentInterface.field expects type [String] ' .
                     'but ChildInterface.field is type String.',
                 'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
-            ]]
+            ],
+            ]
         );
     }
 
@@ -2787,7 +2789,8 @@ class ValidationTest extends TestCase
                 'message'   => 'Interface field ParentInterface.field expects type String ' .
                     'but ChildInterface.field is type [String].',
                 'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
-            ]]
+            ],
+            ]
         );
     }
 
@@ -2838,7 +2841,8 @@ class ValidationTest extends TestCase
                 'message'   => 'Interface field ParentInterface.field expects type String! ' .
                     'but ChildInterface.field is type String.',
                 'locations' => [['line' => 7, 'column' => 16], ['line' => 11, 'column' => 16]],
-            ]]
+            ],
+            ]
         );
     }
 
@@ -2871,7 +2875,8 @@ class ValidationTest extends TestCase
                 'message'   => 'Type ChildInterface must implement SuperInterface ' .
                     'because it is implemented by ParentInterface.',
                 'locations' => [['line' => 10, 'column' => 44], ['line' => 14, 'column' => 43]],
-            ]]
+            ],
+            ]
         );
     }
 
@@ -2895,8 +2900,9 @@ class ValidationTest extends TestCase
             [[
                 'message'   => 'Type FooInterface cannot implement itself ' .
                     'because it would create a circular reference.',
-                'locations' => [['line' => 10, 'column' => 44], ['line' => 14, 'column' => 43]],
-            ]]
+                'locations' => [['line' => 6, 'column' => 41]],
+            ],
+            ]
         );
     }
 

@@ -446,7 +446,6 @@ extend type Hello {
         );
     }
 
-
     /**
      * @see it('Interface Extension do not include descriptions')
      */

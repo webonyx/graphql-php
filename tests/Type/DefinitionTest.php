@@ -1159,7 +1159,9 @@ class DefinitionTest extends TestCase
         $interfaceType = new InterfaceType([
             'name'   => 'AnotherInterface',
             'fields' => [],
-            'interfaces' => function () { return [$this->interfaceType]; },
+            'interfaces' => function () : array {
+                return [$this->interfaceType];
+            },
         ]);
         self::assertSame($this->interfaceType, $interfaceType->getInterfaces()[0]);
     }

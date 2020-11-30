@@ -25,8 +25,8 @@ class Dog
     {
         $this->name    = $name;
         $this->woofs   = $woofs;
-        $this->mother  = NULL;
-        $this->father  = NULL;
+        $this->mother  = null;
+        $this->father  = null;
         $this->progeny = [];
     }
 }

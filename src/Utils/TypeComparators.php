@@ -86,7 +86,7 @@ class TypeComparators
         // possible object or interface type.
         return Type::isAbstractType($superType) &&
             $maybeSubType instanceof ImplementingType &&
-            $schema->isPossibleType(
+            $schema->isSubType(
                 $superType,
                 $maybeSubType
             );
@@ -115,7 +115,7 @@ class TypeComparators
                 // If both types are abstract, then determine if there is any intersection
                 // between possible concrete types of each.
                 foreach ($schema->getPossibleTypes($typeA) as $type) {
-                    if ($schema->isPossibleType($typeB, $type)) {
+                    if ($schema->isSubType($typeB, $type)) {
                         return true;
                     }
                 }
@@ -124,12 +124,12 @@ class TypeComparators
             }
 
             // Determine if the latter type is a possible concrete type of the former.
-            return $schema->isPossibleType($typeA, $typeB);
+            return $schema->isSubType($typeA, $typeB);
         }
 
         if ($typeB instanceof AbstractType) {
             // Determine if the former type is a possible concrete type of the latter.
-            return $schema->isPossibleType($typeB, $typeA);
+            return $schema->isSubType($typeB, $typeA);
         }
 
         // Otherwise the types do not overlap.

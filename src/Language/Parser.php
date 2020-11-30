@@ -1627,8 +1627,7 @@ class Parser
         $interfaces = $this->parseImplementsInterfaces();
         $directives = $this->parseDirectives(true);
         $fields     = $this->parseFieldsDefinition();
-        if (
-            count($interfaces) === 0 &&
+        if (count($interfaces) === 0 &&
             count($directives) === 0 &&
             count($fields) === 0
         ) {

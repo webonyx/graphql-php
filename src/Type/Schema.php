@@ -17,9 +17,11 @@ use GraphQL\Type\Definition\InterfaceType;
 use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 use GraphQL\Type\Definition\UnionType;
+use GraphQL\Utils\InterfaceImplementations;
 use GraphQL\Utils\TypeInfo;
 use GraphQL\Utils\Utils;
 use Traversable;
+use function array_map;
 use function array_values;
 use function implode;
 use function is_array;
@@ -63,7 +65,14 @@ class Schema
      *
      * @var array<string, array<string, ObjectType|UnionType>>
      */
-    private $possibleTypeMap;
+    private $subTypeMap;
+
+    /**
+     * Lazily initialised
+     *
+     * @var array<string, InterfaceImplementations>
+     */
+    private $implementationsMap;
 
     /**
      * True when $resolvedTypes contain all possible schema types
@@ -417,55 +426,105 @@ class Schema
      */
     public function getPossibleTypes(Type $abstractType) : array
     {
-        $possibleTypeMap = $this->getPossibleTypeMap();
-
-        return array_values($possibleTypeMap[$abstractType->name] ?? []);
+        return $abstractType instanceof UnionType
+            ? $abstractType->getTypes()
+            : $this->getImplementations($abstractType)->objects();
     }
 
     /**
-     * @return array<string, array<string, ObjectType|UnionType>>
+     * Returns all types that implement a given interface type.
+     *
+     * This operations requires full schema scan. Do not use in production environment.
+     *
+     * @api
      */
-    private function getPossibleTypeMap() : array
+    public function getImplementations(InterfaceType $abstractType) : InterfaceImplementations
     {
-        if (! isset($this->possibleTypeMap)) {
-            $this->possibleTypeMap = [];
-            foreach ($this->getTypeMap() as $type) {
-                if ($type instanceof ObjectType) {
-                    foreach ($type->getInterfaces() as $interface) {
-                        if (! ($interface instanceof InterfaceType)) {
-                            continue;
-                        }
+        return $this->collectImplementations()[$abstractType->name];
+    }
 
-                        $this->possibleTypeMap[$interface->name][$type->name] = $type;
+    /**
+     * @return array<string, InterfaceImplementations>
+     */
+    private function collectImplementations() : array
+    {
+        if (! isset($this->implementationsMap)) {
+            $foundImplementations = [];
+            foreach ($this->getTypeMap() as $type) {
+                if ($type instanceof InterfaceType) {
+                    if (! isset($foundImplementations[$type->name])) {
+                        $foundImplementations[$type->name] = ['objects' => [], 'interfaces' => []];
                     }
-                } elseif ($type instanceof UnionType) {
-                    foreach ($type->getTypes() as $innerType) {
-                        $this->possibleTypeMap[$type->name][$innerType->name] = $innerType;
+
+                    foreach ($type->getInterfaces() as $iface) {
+                        if (! isset($foundImplementations[$iface->name])) {
+                            $foundImplementations[$iface->name] = ['objects' => [], 'interfaces' => []];
+                        }
+                        $foundImplementations[$iface->name]['interfaces'][] = $type;
+                    }
+                } elseif ($type instanceof ObjectType) {
+                    foreach ($type->getInterfaces() as $iface) {
+                        if (! isset($foundImplementations[$iface->name])) {
+                            $foundImplementations[$iface->name] = ['objects' => [], 'interfaces' => []];
+                        }
+                        $foundImplementations[$iface->name]['objects'][] = $type;
                     }
                 }
             }
+            $this->implementationsMap = array_map(
+                static function (array $implementations) : InterfaceImplementations {
+                    return new InterfaceImplementations($implementations['objects'], $implementations['interfaces']);
+                },
+                $foundImplementations
+            );
         }
 
-        return $this->possibleTypeMap;
+        return $this->implementationsMap;
     }
 
     /**
+     * @deprecated as of 14.4.0 use isSubType instead, will be removed in 15.0.0.
+     *
      * Returns true if object type is concrete type of given abstract type
      * (implementation for interfaces and members of union type for unions)
      *
      * @api
+     * @codeCoverageIgnore
      */
-    public function isPossibleType(AbstractType $abstractType, ImplementingType $possibleType) : bool
+    public function isPossibleType(AbstractType $abstractType, ObjectType $possibleType) : bool
     {
-        if ($abstractType instanceof InterfaceType) {
-            return $possibleType->implementsInterface($abstractType);
+        return $this->isSubType($abstractType, $possibleType);
+    }
+
+    /**
+     * Returns true if maybe sub type is a sub type of given abstract type.
+     *
+     * @param UnionType|InterfaceType  $abstractType
+     * @param ObjectType|InterfaceType $maybeSubType
+     *
+     * @api
+     */
+    public function isSubType(AbstractType $abstractType, ImplementingType $maybeSubType) : bool
+    {
+        if (! isset($this->subTypeMap[$abstractType->name])) {
+            $this->subTypeMap[$abstractType->name] = [];
+
+            if ($abstractType instanceof UnionType) {
+                foreach ($abstractType->getTypes() as $type) {
+                    $this->subTypeMap[$abstractType->name][$type->name] = true;
+                }
+            } else {
+                $implementations = $this->getImplementations($abstractType);
+                foreach ($implementations->objects() as $type) {
+                    $this->subTypeMap[$abstractType->name][$type->name] = true;
+                }
+                foreach ($implementations->interfaces() as $type) {
+                    $this->subTypeMap[$abstractType->name][$type->name] = true;
+                }
+            }
         }
 
-        if ($abstractType instanceof UnionType) {
-            return $abstractType->isPossibleType($possibleType);
-        }
-
-        throw InvariantViolation::shouldNotHappen();
+        return isset($this->subTypeMap[$abstractType->name][$maybeSubType->name]);
     }
 
     /**

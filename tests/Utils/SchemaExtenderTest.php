@@ -83,7 +83,7 @@ class SchemaExtenderTest extends TestCase
                     'name' => [ 'type' => Type::string()],
                     'some' => [ 'type' => $AnotherInterfaceType],
                 ];
-            }
+            },
         ]);
 
         $FooType = new ObjectType([

@@ -44,6 +44,7 @@ use function array_filter;
 use function array_key_exists;
 use function array_merge;
 use function count;
+use function in_array;
 use function is_array;
 use function is_object;
 use function sprintf;
@@ -676,6 +677,18 @@ class SchemaValidationContext
                 );
                 continue;
             }
+
+            if ($type === $iface) {
+                $this->reportError(
+                    sprintf(
+                        'Type %s cannot implement itself because it would create a circular reference.',
+                        $type->name
+                    ),
+                    $this->getImplementsInterfaceNode($type, $iface)
+                );
+                continue;
+            }
+
             if (isset($ifaceTypeNames[$iface->name])) {
                 $this->reportError(
                     sprintf('Type %s can only implement %s once.', $type->name, $iface->name),
@@ -883,29 +896,33 @@ class SchemaValidationContext
      * @param ObjectType|InterfaceType $type
      * @param InterfaceType            $iface
      */
-    private function validateTypeImplementsAncestors(ImplementingType $type, $iface) {
+    private function validateTypeImplementsAncestors(ImplementingType $type, $iface)
+    {
         $typeInterfaces = $type->getInterfaces();
         foreach ($iface->getInterfaces() as $transitive) {
-            if (!in_array($transitive, $typeInterfaces)) {
-                $this->reportError(
-                    $transitive === $type ?
-                        sprintf(
-                            "Type %s cannot implement %s because it would create a circular reference.",
-                            $type->name,
-                            $iface->name
-                        ) :
-                        sprintf(
-                            "Type %s must implement %s because it is implemented by %s.",
-                            $type->name,
-                            $transitive->name,
-                            $iface->name
-                        ),
-                    array_merge(
-                        $this->getAllImplementsInterfaceNodes($iface, $transitive),
-                        $this->getAllImplementsInterfaceNodes($type, $iface)
-                    )
-                );
+            if (in_array($transitive, $typeInterfaces, true)) {
+                continue;
             }
+
+            $error = $transitive === $type ?
+                sprintf(
+                    'Type %s cannot implement %s because it would create a circular reference.',
+                    $type->name,
+                    $iface->name
+                ) :
+                sprintf(
+                    'Type %s must implement %s because it is implemented by %s.',
+                    $type->name,
+                    $transitive->name,
+                    $iface->name
+                );
+            $this->reportError(
+                $error,
+                array_merge(
+                    $this->getAllImplementsInterfaceNodes($iface, $transitive),
+                    $this->getAllImplementsInterfaceNodes($type, $iface)
+                )
+            );
         }
     }
 

@@ -745,7 +745,7 @@ class CoroutineExecutor implements Runtime, ExecutorImplementation
 
                         $returnValue = null;
                         goto CHECKED_RETURN;
-                    } elseif (! $this->schema->isPossibleType($type, $objectType)) {
+                    } elseif (! $this->schema->isSubType($type, $objectType)) {
                         $this->addError(Error::createLocatedError(
                             new InvariantViolation(sprintf(
                                 'Runtime Object type "%s" is not a possible type for "%s".',
