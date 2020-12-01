@@ -49,7 +49,7 @@ jobs:
         composer remove --dev --no-update doctrine/coding-standard
 
     - name: Install Dependencies
-      run: composer install ${DEPENDENCIES}
+      run: composer update ${DEPENDENCIES}
 
     - name: Run unit tests
       run: |
