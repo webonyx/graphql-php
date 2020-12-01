@@ -277,7 +277,7 @@ class FormattedError
      * Prepares final error formatter taking in account $debug flags.
      * If initial formatter is not set, FormattedError::createFromException is used
      */
-    public static function prepareFormatter(?callable $formatter = null, int $debug) : callable
+    public static function prepareFormatter(?callable $formatter, int $debug) : callable
     {
         $formatter = $formatter ?? static function ($e) : array {
             return FormattedError::createFromException($e);
