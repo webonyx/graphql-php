@@ -1,5 +1,7 @@
 # Changelog
 
+- PHP version required: 7.3+
+
 Fix:
 - Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
 - Parse `Parser::implementsInterfaces` as `NodeList<NamedTypeNode>` (fixes AST::fromArray conversion)

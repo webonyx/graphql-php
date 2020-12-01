@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        php: [7.1, 7.2, 7.3, 7.4]
+        php: [7.3, 7.4]
         env: [
           'EXECUTOR= DEPENDENCIES=--prefer-lowest',
           'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest',
@@ -60,7 +60,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@2.9.0
       with:
-        php-version: 7.1
+        php-version: 7.3
         coverage: none
         extensions: json, mbstring
 
@@ -91,7 +91,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@2.9.0
       with:
-        php-version: 7.1
+        php-version: 7.3
         coverage: none
         extensions: json, mbstring
 
@@ -124,7 +124,7 @@ jobs:
     - name: Install PHP
       uses: shivammathur/setup-php@2.9.0
       with:
-        php-version: 7.2
+        php-version: 7.3
         coverage: pcov
         extensions: json, mbstring
 
