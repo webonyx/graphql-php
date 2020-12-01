@@ -40,6 +40,14 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
         restore-keys: ${{ runner.os }}-composer-
 
+    - name: Remove dependencies not used in this job for PHP 8 compatibility
+      run: |
+        composer remove --dev --no-update phpbench/phpbench
+        composer remove --dev --no-update phpstan/phpstan
+        composer remove --dev --no-update phpstan/phpstan-phpunit
+        composer remove --dev --no-update phpstan/phpstan-strict-rules
+        composer remove --dev --no-update doctrine/coding-standard
+
     - name: Install Dependencies
       run: composer update ${DEPENDENCIES}
 
