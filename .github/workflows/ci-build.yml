@@ -41,7 +41,7 @@ jobs:
         restore-keys: ${{ runner.os }}-composer-
 
     - name: Install Dependencies
-      run: composer update ${DEPENDENCIES} --ignore-platform-req=php
+      run: composer update ${DEPENDENCIES}
 
     - name: Run unit tests
       run: |
