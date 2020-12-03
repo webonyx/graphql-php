@@ -1,6 +1,9 @@
 # Changelog
 
+#### Unreleased
+
 Fix:
+- Fixed `SchemaPrinter` so that it uses late static bindings when extended
 - Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
 - Parse `Parser::implementsInterfaces` as `NodeList<NamedTypeNode>` (fixes AST::fromArray conversion)
 - Fix signature of `Parser::unionMemberTypes` to match actual `NodeList<NamedTypeNode>`
