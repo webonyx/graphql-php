@@ -2,6 +2,8 @@
 
 #### Unreleased
 
+#### 14.4.0
+
 Fix:
 - Fixed `SchemaPrinter` so that it uses late static bindings when extended
 - Parse `DirectiveDefinitionNode->locations` as `NodeList<NamedNode>` (fixes AST::fromArray conversion) (#723)
