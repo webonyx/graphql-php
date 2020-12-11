@@ -181,7 +181,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param string|(Node&NamedTypeNode)|(Node&TypeDefinitionNode) $ref
+     * @param string|(Node &NamedTypeNode)|(Node&TypeDefinitionNode) $ref
      */
     public function buildType($ref) : Type
     {
@@ -193,7 +193,7 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param (Node&NamedTypeNode)|(Node&TypeDefinitionNode)|null $typeNode
+     * @param (Node &NamedTypeNode)|(Node&TypeDefinitionNode)|null $typeNode
      *
      * @throws Error
      */
