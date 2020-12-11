@@ -33,17 +33,17 @@ class BuildSchema
     /** @var DocumentNode */
     private $ast;
 
-    /** @var TypeDefinitionNode[] */
+    /** @var array<string, TypeDefinitionNode> */
     private $nodeMap;
 
     /** @var callable|null */
     private $typeConfigDecorator;
 
-    /** @var bool[] */
+    /** @var array<string, bool> */
     private $options;
 
     /**
-     * @param bool[] $options
+     * @param array<string, bool> $options
      */
     public function __construct(DocumentNode $ast, ?callable $typeConfigDecorator = null, array $options = [])
     {
@@ -57,7 +57,7 @@ class BuildSchema
      * document.
      *
      * @param DocumentNode|Source|string $source
-     * @param bool[]                     $options
+     * @param array<string, bool>        $options
      *
      * @return Schema
      *
@@ -65,7 +65,9 @@ class BuildSchema
      */
     public static function build($source, ?callable $typeConfigDecorator = null, array $options = [])
     {
-        $doc = $source instanceof DocumentNode ? $source : Parser::parse($source);
+        $doc = $source instanceof DocumentNode
+            ? $source
+            : Parser::parse($source);
 
         return self::buildAST($doc, $typeConfigDecorator, $options);
     }
@@ -86,7 +88,7 @@ class BuildSchema
      *        Provide true to use preceding comments as the description.
      *        This option is provided to ease adoption and will be removed in v16.
      *
-     * @param bool[] $options
+     * @param array<string, bool> $options
      *
      * @return Schema
      *
@@ -111,6 +113,7 @@ class BuildSchema
         $schemaDef     = null;
         $typeDefs      = [];
         $this->nodeMap = [];
+        /** @var array<int, DirectiveDefinitionNode> $directiveDefs */
         $directiveDefs = [];
         foreach ($this->ast->definitions as $definition) {
             switch (true) {
@@ -149,7 +152,7 @@ class BuildSchema
         );
 
         $directives = array_map(
-            static function ($def) use ($DefinitionBuilder) {
+            static function (DirectiveDefinitionNode $def) use ($DefinitionBuilder) : Directive {
                 return $DefinitionBuilder->buildDirective($def);
             },
             $directiveDefs

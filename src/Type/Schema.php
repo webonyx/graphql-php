@@ -194,11 +194,11 @@ class Schema
      *
      * This operation requires full schema scan. Do not use in production environment.
      *
-     * @return Type[]
+     * @return array<string, Type>
      *
      * @api
      */
-    public function getTypeMap()
+    public function getTypeMap() : array
     {
         if (! $this->fullyLoaded) {
             $this->resolvedTypes = $this->collectAllTypes();

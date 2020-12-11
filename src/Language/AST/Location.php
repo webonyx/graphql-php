@@ -30,14 +30,14 @@ class Location
     /**
      * The Token at which this Node begins.
      *
-     * @var Token
+     * @var Token|null
      */
     public $startToken;
 
     /**
      * The Token at which this Node ends.
      *
-     * @var Token
+     * @var Token|null
      */
     public $endToken;
 
