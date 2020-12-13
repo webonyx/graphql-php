@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-18.04
     strategy:
       matrix:
-        php: [7.1, 7.2, 7.3, 7.4]
+        php: [7.1, 7.2, 7.3, 7.4, 8.0]
         env: [
           'EXECUTOR= DEPENDENCIES=--prefer-lowest',
           'EXECUTOR=coroutine DEPENDENCIES=--prefer-lowest',
@@ -40,8 +40,16 @@ jobs:
         key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
         restore-keys: ${{ runner.os }}-composer-
 
+    - name: Remove dependencies not used in this job for PHP 8 compatibility
+      run: |
+        composer remove --dev --no-update phpbench/phpbench
+        composer remove --dev --no-update phpstan/phpstan
+        composer remove --dev --no-update phpstan/phpstan-phpunit
+        composer remove --dev --no-update phpstan/phpstan-strict-rules
+        composer remove --dev --no-update doctrine/coding-standard
+
     - name: Install Dependencies
-      run: composer install ${DEPENDENCIES}
+      run: composer update ${DEPENDENCIES}
 
     - name: Run unit tests
       run: |
