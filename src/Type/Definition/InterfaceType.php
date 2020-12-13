@@ -20,13 +20,13 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
     /** @var InterfaceTypeDefinitionNode|null */
     public $astNode;
 
-    /** @var InterfaceTypeExtensionNode[] */
+    /** @var array<int, InterfaceTypeExtensionNode> */
     public $extensionASTNodes;
 
     /**
      * Lazily initialized.
      *
-     * @var FieldDefinition[]
+     * @var array<string, FieldDefinition>
      */
     private $fields;
 
@@ -147,8 +147,10 @@ class InterfaceType extends Type implements AbstractType, OutputType, CompositeT
                 );
             }
 
-            /** @var InterfaceType[] $interfaces */
-            $interfaces = array_map([Schema::class, 'resolveType'], $interfaces ?? []);
+            /** @var array<int, InterfaceType> $interfaces */
+            $interfaces = $interfaces === null
+                ? []
+                : array_map([Schema::class, 'resolveType'], $interfaces);
 
             $this->interfaces = $interfaces;
         }

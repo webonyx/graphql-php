@@ -18,7 +18,7 @@ class Dog
     /** @var Dog|null */
     public $father;
 
-    /** @var Dog[] */
+    /** @var array<int, Dog> */
     public $progeny;
 
     public function __construct(string $name, bool $woofs)

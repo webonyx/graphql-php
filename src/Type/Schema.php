@@ -68,7 +68,7 @@ class Schema
     private $subTypeMap;
 
     /**
-     * Lazily initialised
+     * Lazily initialised.
      *
      * @var array<string, InterfaceImplementations>
      */
@@ -449,6 +449,7 @@ class Schema
     private function collectImplementations() : array
     {
         if (! isset($this->implementationsMap)) {
+            /** @var array<string, array{objects: array<int, ObjectType>, interfaces: array<int, InterfaceType>}> $foundImplementations */
             $foundImplementations = [];
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof InterfaceType) {

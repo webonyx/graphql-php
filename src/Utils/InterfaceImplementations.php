@@ -14,17 +14,15 @@ use GraphQL\Type\Definition\ObjectType;
  */
 class InterfaceImplementations
 {
-    /** @var ObjectType[] */
+    /** @var array<int, ObjectType> */
     private $objects;
 
-    /** @var InterfaceType[] */
+    /** @var array<int, InterfaceType> */
     private $interfaces;
 
     /**
-     * Create a new InterfaceImplementations instance.
-     *
-     * @param ObjectType[]    $objects
-     * @param InterfaceType[] $interfaces
+     * @param array<int, ObjectType>    $objects
+     * @param array<int, InterfaceType> $interfaces
      */
     public function __construct(array $objects, array $interfaces)
     {
@@ -33,7 +31,7 @@ class InterfaceImplementations
     }
 
     /**
-     * @return ObjectType[]
+     * @return array<int, ObjectType>
      */
     public function objects() : array
     {
@@ -41,7 +39,7 @@ class InterfaceImplementations
     }
 
     /**
-     * @return InterfaceType[]
+     * @return array<int, InterfaceType>
      */
     public function interfaces() : array
     {

@@ -18,7 +18,7 @@ class Cat
     /** @var Cat|null */
     public $father;
 
-    /** @var Cat[] */
+    /** @var array<int, Cat> */
     public $progeny;
 
     public function __construct(string $name, bool $meows)

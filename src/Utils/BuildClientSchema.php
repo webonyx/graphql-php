@@ -285,11 +285,12 @@ class BuildClientSchema
 
     /**
      * @param array<string, mixed> $implementingIntrospection
+     *
+     * @return array<int, InterfaceType>
      */
-    private function buildImplementationsList(array $implementingIntrospection)
+    private function buildImplementationsList(array $implementingIntrospection) : array
     {
-        // TODO: Temprorary workaround until GraphQL ecosystem will fully support
-        // 'interfaces' on interface types.
+        // TODO: Temporary workaround until GraphQL ecosystem will fully support 'interfaces' on interface types.
         if (array_key_exists('interfaces', $implementingIntrospection) &&
             $implementingIntrospection['interfaces'] === null &&
             $implementingIntrospection['kind'] === TypeKind::INTERFACE) {

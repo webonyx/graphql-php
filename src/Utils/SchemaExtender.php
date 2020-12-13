@@ -275,7 +275,7 @@ class SchemaExtender
     /**
      * @param ObjectType|InterfaceType $type
      *
-     * @return InterfaceType[]
+     * @return array<int, InterfaceType>
      */
     protected static function extendImplementedInterfaces(ImplementingType $type) : array
     {
@@ -285,7 +285,7 @@ class SchemaExtender
 
         $extensions = static::$typeExtensionsMap[$type->name] ?? null;
         if ($extensions !== null) {
-            /** @var ObjectTypeExtensionNode | InterfaceTypeExtensionNode $extension */
+            /** @var ObjectTypeExtensionNode|InterfaceTypeExtensionNode $extension */
             foreach ($extensions as $extension) {
                 foreach ($extension->interfaces as $namedType) {
                     $interfaces[] = static::$astBuilder->buildType($namedType);

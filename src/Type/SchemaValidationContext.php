@@ -542,10 +542,8 @@ class SchemaValidationContext
 
     /**
      * @param Schema|ObjectType|InterfaceType|UnionType|EnumType|Directive $obj
-     *
-     * @return NodeList
      */
-    private function getAllSubNodes($obj, callable $getter)
+    private function getAllSubNodes($obj, callable $getter) : NodeList
     {
         $result = new NodeList([]);
         foreach ($this->getAllNodes($obj) as $astNode) {
@@ -718,35 +716,34 @@ class SchemaValidationContext
     /**
      * @param ObjectType|InterfaceType $type
      */
-    private function getImplementsInterfaceNode($type, Type $iface) : ?NamedTypeNode
+    private function getImplementsInterfaceNode(ImplementingType $type, Type $shouldBeInterface) : ?NamedTypeNode
     {
-        $nodes = $this->getAllImplementsInterfaceNodes($type, $iface);
+        $nodes = $this->getAllImplementsInterfaceNodes($type, $shouldBeInterface);
 
         return $nodes[0] ?? null;
     }
 
     /**
      * @param ObjectType|InterfaceType $type
-     * @param InterfaceType            $iface
      *
-     * @return NamedTypeNode[]
+     * @return array<int, NamedTypeNode>
      */
-    private function getAllImplementsInterfaceNodes($type, $iface)
+    private function getAllImplementsInterfaceNodes(ImplementingType $type, Type $shouldBeInterface) : array
     {
-        $subNodes = $this->getAllSubNodes($type, static function ($typeNode) {
+        $subNodes = $this->getAllSubNodes($type, static function (Node $typeNode) : NodeList {
+            /** @var ObjectTypeDefinitionNode|ObjectTypeExtensionNode|InterfaceTypeDefinitionNode|InterfaceTypeExtensionNode $typeNode */
             return $typeNode->interfaces;
         });
 
-        return Utils::filter($subNodes, static function ($ifaceNode) use ($iface) : bool {
-            return $ifaceNode->name->value === $iface->name;
+        return Utils::filter($subNodes, static function (NamedTypeNode $ifaceNode) use ($shouldBeInterface) : bool {
+            return $ifaceNode->name->value === $shouldBeInterface->name;
         });
     }
 
     /**
      * @param ObjectType|InterfaceType $type
-     * @param InterfaceType            $iface
      */
-    private function validateTypeImplementsInterface($type, $iface)
+    private function validateTypeImplementsInterface(ImplementingType $type, InterfaceType $iface)
     {
         $typeFieldMap  = $type->getFields();
         $ifaceFieldMap = $iface->getFields();

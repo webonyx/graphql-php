@@ -318,7 +318,7 @@ class ASTDefinitionBuilder
      * Given a collection of directives, returns the string value for the
      * deprecation reason.
      *
-     * @param EnumValueDefinitionNode | FieldDefinitionNode $node
+     * @param EnumValueDefinitionNode|FieldDefinitionNode $node
      *
      * @return string
      */
@@ -330,11 +330,11 @@ class ASTDefinitionBuilder
     }
 
     /**
-     * @param ObjectTypeDefinitionNode | InterfaceTypeDefinitionNode $def
+     * @param ObjectTypeDefinitionNode|InterfaceTypeDefinitionNode $def
      *
-     * @return array<int, InterfaceType> | null
+     * @return array<int, InterfaceType>|null
      */
-    private function makeImplementedInterfaces($def) : ?array
+    private function makeImplementedInterfaces(Node $def) : ?array
     {
         if ($def->interfaces !== null) {
             // Note: While this could make early assertions to get the correctly
