@@ -449,7 +449,7 @@ class Schema
     private function collectImplementations() : array
     {
         if (! isset($this->implementationsMap)) {
-            /** @var array<string, array{objects: array<int, ObjectType>, interfaces: array<int, InterfaceType>}> $foundImplementations */
+            /** @var array<string, array<string, Type>> $foundImplementations */
             $foundImplementations = [];
             foreach ($this->getTypeMap() as $type) {
                 if ($type instanceof InterfaceType) {
