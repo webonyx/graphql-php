@@ -612,10 +612,9 @@ class AST
     }
 
     /**
-     * Returns the operation given a document and operation name.
+     * Returns the operation within a document by name.
      *
-     * If a name is not provided, an operation is only returned if only one is
-     * provided in the document.
+     * If a name is not provided, an operation is only returned if the document has exactly one.
      *
      * @api
      */
@@ -628,9 +627,7 @@ class AST
             }
 
             if ($operationName === null) {
-                // If no operation name was provided, only return an Operation if there
-                // is one defined in the document. Upon encountering the second, return
-                // null.
+                // We found a second operation, so we bail instead of returning an ambiguous result.
                 if ($operation !== null) {
                     return null;
                 }

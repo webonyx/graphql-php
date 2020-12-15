@@ -18,7 +18,10 @@ class AstGetOperationAstTest extends TestCase
     public function testGetsAnOperationFromASimpleDocument() : void
     {
         $doc = Parser::parse('{ field }');
-        self::assertEquals(AST::getOperationAST($doc), $doc->definitions->offsetGet(0));
+        self::assertEquals(
+            AST::getOperationAST($doc),
+            $doc->definitions->offsetGet(0)
+        );
     }
 
     /**
