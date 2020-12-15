@@ -584,6 +584,8 @@ class AST
     }
 
     /**
+     * @deprecated use getOperationAST instead.
+     *
      * Returns operation type ("query", "mutation" or "subscription") given a document and operation name
      *
      * @param string $operationName
@@ -607,5 +609,37 @@ class AST
         }
 
         return false;
+    }
+
+    /**
+     * Returns the operation given a document and operation name.
+     *
+     * If a name is not provided, an operation is only returned if only one is
+     * provided in the document.
+     *
+     * @api
+     */
+    public static function getOperationAST(DocumentNode $document, ?string $operationName = null) : ?OperationDefinitionNode
+    {
+        $operation = null;
+        foreach ($document->definitions->getIterator() as $node) {
+            if (! $node instanceof OperationDefinitionNode) {
+                continue;
+            }
+
+            if ($operationName === null) {
+                // If no operation name was provided, only return an Operation if there
+                // is one defined in the document. Upon encountering the second, return
+                // null.
+                if ($operation !== null) {
+                    return null;
+                }
+                $operation = $node;
+            } elseif ($node->name instanceof NameNode && $node->name->value === $operationName) {
+                return $node;
+            }
+        }
+
+        return $operation;
     }
 }
