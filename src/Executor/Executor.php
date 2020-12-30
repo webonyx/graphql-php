@@ -178,7 +178,11 @@ class Executor
                 $property = $objectValue[$fieldName];
             }
         } elseif ($objectValue instanceof ArrayAccess) {
-            $property = $objectValue[$fieldName];
+            try {
+                $property = $objectValue[$fieldName];
+            } catch (\Exception $e) {
+                // pass
+            }
         } elseif (is_object($objectValue)) {
             if (isset($objectValue->{$fieldName})) {
                 $property = $objectValue->{$fieldName};
