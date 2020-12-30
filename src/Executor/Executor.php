@@ -6,6 +6,7 @@ namespace GraphQL\Executor;
 
 use ArrayAccess;
 use Closure;
+use Throwable;
 use GraphQL\Executor\Promise\Adapter\SyncPromiseAdapter;
 use GraphQL\Executor\Promise\Promise;
 use GraphQL\Executor\Promise\PromiseAdapter;
@@ -180,7 +181,7 @@ class Executor
         } elseif ($objectValue instanceof ArrayAccess) {
             try {
                 $property = $objectValue[$fieldName];
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 // pass
             }
         } elseif (is_object($objectValue)) {
