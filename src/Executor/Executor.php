@@ -180,7 +180,7 @@ class Executor
         } elseif ($objectValue instanceof ArrayAccess) {
             try {
                 $property = $objectValue[$fieldName];
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // pass
             }
         } elseif (is_object($objectValue)) {
