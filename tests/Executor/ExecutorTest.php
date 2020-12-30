@@ -1228,7 +1228,7 @@ class ExecutorTest extends TestCase
         );
     }
 
-    public function testDefaultExecutorGrabsValuesOffOfCommonPhpDataStructures() : void
+    public function testDefaultResolverGrabsValuesOffOfCommonPhpDataStructures() : void
     {
         $Array = new ObjectType([
             'name'       => 'Array',
