@@ -1315,8 +1315,10 @@ class ExecutorTest extends TestCase
                         'type' => $ObjectField,
                         'resolve' => static function () : stdClass {
                             return new class extends stdClass {
+                                /** @var int|null */
                                 public $set = 1;
 
+                                /** @var int|null */
                                 public $unset;
                             };
                         },
