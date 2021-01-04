@@ -4,25 +4,19 @@ declare(strict_types=1);
 
 namespace GraphQL\Type\Definition;
 
-use GraphQL\Error\InvariantViolation;
 use GraphQL\Type\Schema;
-use function is_callable;
 
 class NonNull extends Type implements WrappingType, OutputType, InputType
 {
-    /** @var callable|(NullableType&Type) */
+    /** @var callable():(NullableType&Type)|(NullableType&Type) */
     private $ofType;
 
     /**
-     * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
-     * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
-     * @param  (NullableType&Type)|callable $type
+     * @param callable():(NullableType &Type)|(NullableType&Type) $type
      */
     public function __construct($type)
     {
-        /** @var Type&NullableType $nullableType*/
-        $nullableType = $type;
-        $this->ofType = $nullableType;
+        $this->ofType = $type;
     }
 
     public function toString() : string
