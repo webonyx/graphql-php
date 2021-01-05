@@ -59,7 +59,7 @@ class ASTDefinitionBuilder
     private $cache;
 
     /**
-     * @param array<string, Node  &TypeDefinitionNode> $typeDefinitionsMap
+     * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @param array<string, bool> $options
      */
     public function __construct(
