@@ -389,7 +389,7 @@ class ASTDefinitionBuilder
             // Note: While this could make assertions to get the correctly typed
             // values below, that would throw immediately while type system
             // validation with validateSchema() will produce more actionable results.
-            'types'       => function () use ($def) {
+            'types'       => function () use ($def) : array {
                 return Utils::map(
                     $def->types,
                     function ($typeNode) : Type {
