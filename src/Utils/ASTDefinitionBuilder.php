@@ -59,7 +59,9 @@ class ASTDefinitionBuilder
     private $cache;
 
     /**
-     * @param array<string, (Node&TypeDefinitionNode)> $typeDefinitionsMap
+     * code sniffer doesn't understand this syntax. Pr with a fix here: waiting on https://github.com/squizlabs/PHP_CodeSniffer/pull/2919
+     * phpcs:disable Squiz.Commenting.FunctionComment.SpacingAfterParamType
+     * @param array<string, Node&TypeDefinitionNode> $typeDefinitionsMap
      * @param array<string, bool> $options
      */
     public function __construct(
