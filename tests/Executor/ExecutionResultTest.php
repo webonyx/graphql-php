@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace GraphQL\Tests\Executor;
 
+use GraphQL\Error\Error;
 use GraphQL\Executor\ExecutionResult;
 use PHPUnit\Framework\TestCase;
 
@@ -25,5 +26,17 @@ class ExecutionResultTest extends TestCase
         $executionResult->extensions = ['bar' => 'foo'];
 
         self::assertEquals(['extensions' => ['bar' => 'foo']], $executionResult->toArray());
+    }
+
+    public function testNoEmptyErrors() : void
+    {
+        $executionResult = new ExecutionResult(null, [new Error()]);
+        $executionResult->setErrorsHandler(
+            static function () : array {
+                return [];
+            }
+        );
+
+        self::assertEquals([], $executionResult->toArray());
     }
 }
