@@ -14,18 +14,18 @@ class ExecutionResultTest extends TestCase
     {
         $executionResult = new ExecutionResult();
 
-        self::assertEquals([], $executionResult->toArray());
+        self::assertSame([], $executionResult->toArray());
     }
 
     public function testToArrayExtensions() : void
     {
         $executionResult = new ExecutionResult(null, [], ['foo' => 'bar']);
 
-        self::assertEquals(['extensions' => ['foo' => 'bar']], $executionResult->toArray());
+        self::assertSame(['extensions' => ['foo' => 'bar']], $executionResult->toArray());
 
         $executionResult->extensions = ['bar' => 'foo'];
 
-        self::assertEquals(['extensions' => ['bar' => 'foo']], $executionResult->toArray());
+        self::assertSame(['extensions' => ['bar' => 'foo']], $executionResult->toArray());
     }
 
     public function testNoEmptyErrors() : void
@@ -37,6 +37,6 @@ class ExecutionResultTest extends TestCase
             }
         );
 
-        self::assertEquals([], $executionResult->toArray());
+        self::assertSame([], $executionResult->toArray());
     }
 }
